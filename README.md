@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# paopao-ce
-PaoPao Community Edition
-=======
 # PaoPao CE
 
 官网 https://www.paopao.info 
@@ -60,4 +56,3 @@ build完成后，可以在dist目录获取编译产出，配置nginx指向至该
 代码结构比较简单，喜欢的朋友欢迎贡献PR。
 
 
->>>>>>> 76a0b2b (update yarn build command.)

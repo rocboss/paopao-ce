@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "baseUrl": "src",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "jsx": "preserve"
+    },
+    "include": [
+        "src"
+    ],
+}
