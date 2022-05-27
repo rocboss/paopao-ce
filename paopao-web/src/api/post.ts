@@ -112,12 +112,12 @@ export const getPostComments = (params: NetParams.PostGetPostComments) => {
  *  - @param {array} tags 话题
  * @returns Promise
  */
-export const createPost = (data: any) => {
+export const createPost = (data: NetParams.PostCreatePost) => {
     return request({
         method: 'post',
         url: '/post',
         data
-    });
+    }) as unknown as Promise<NetReq.PostCreatePost>;
 };
 
 /**

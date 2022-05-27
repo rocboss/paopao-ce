@@ -79,7 +79,7 @@
                                         message: '请输入密码',
                                     },
                                     {
-                                        validator(rule: FormItemRule, value: any) {
+                                        validator: (rule: FormItemRule, value: any) => {
                                             return (
                                                 !!registerForm.password &&
                                                 registerForm.password.startsWith(

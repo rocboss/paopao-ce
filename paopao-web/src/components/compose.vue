@@ -248,7 +248,7 @@ import { parsePostTag } from '@/utils/content';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
 
 const emit = defineEmits<{
-    (e: 'post-success', post: AnyObject): void
+    (e: 'post-success', post: Item.PostProps): void
 }>();
 
 const store = useStore();

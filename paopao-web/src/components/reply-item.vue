@@ -75,7 +75,10 @@ const props = withDefaults(defineProps<{
     reply: Item.ReplyProps,
 }>(), {});
 const store = useStore();
-const emit = defineEmits(['focusReply', 'reload']);
+const emit = defineEmits<{
+    (e: "focusReply", reply: Item.ReplyProps): void,
+    (e: "reload"): void
+}>();
 
 const focusReply = () => {
     emit('focusReply', props.reply);

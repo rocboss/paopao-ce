@@ -95,4 +95,6 @@ declare module NetReq {
         list: Item.PostProps[]
     }
 
+    type PostCreatePost = Item.PostProps
+
 }
