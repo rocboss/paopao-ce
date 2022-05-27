@@ -2,7 +2,13 @@
     <div class="reply-item">
         <div class="header-wrap">
             <div class="username">
-                <router-link class="user-link" to="/">
+                <router-link
+                    class="user-link"
+                    :to="{
+                        name: 'user',
+                        query: { username: props.reply.user.username },
+                    }"
+                >
                     {{ props.reply.user.username }}
                 </router-link>
                 <span class="reply-name">
@@ -11,7 +17,10 @@
 
                 <router-link
                     class="user-link"
-                    to="/"
+                    :to="{
+                        name: 'user',
+                        query: { username: props.reply.at_user.username },
+                    }"
                     v-if="props.reply.at_user_id > 0"
                 >
                     {{ props.reply.at_user.username }}

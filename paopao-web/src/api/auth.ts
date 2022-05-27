@@ -8,12 +8,12 @@ import request from '@/utils/request';
  *  - @param {string} password
  * @returns Promise
  */
-export const userLogin = (params = {}) => {
+export const userLogin = (params: NetParams.AuthUserLogin = {}) => {
     return request({
         method: 'post',
         url: '/auth/login',
         data: params,
-    });
+    }) as unknown as Promise<NetReq.AuthUserLogin>;
 };
 
 /**
@@ -53,7 +53,7 @@ export const userInfo = (token = '') => {
  *  - @param {string} old_password 旧密码
  * @returns Promise
  */
-export const updateUserPassword = data => {
+export const updateUserPassword = (data: any) => {
     return request({
         method: 'post',
         url: '/api/user/password',

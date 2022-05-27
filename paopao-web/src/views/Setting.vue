@@ -97,7 +97,8 @@
                 <n-form ref="phoneFormRef" :model="model" :rules="bindRules">
                     <n-form-item path="phone" label="手机号">
                         <n-input
-                            v-model:value="model.phone"
+                            :value="modelData.phone"
+                            @update:value="(v) => (modelData.phone = v.trim())"
                             placeholder="请输入中国大陆手机号"
                             @keydown.enter.prevent
                         />
@@ -105,13 +106,13 @@
                     <n-form-item path="img_captcha" label="图形验证码">
                         <div class="captcha-img-wrap">
                             <n-input
-                                v-model:value="model.imgCaptcha"
+                                v-model:value="modelData.imgCaptcha"
                                 placeholder="请输入图形验证码后获取验证码"
                             />
                             <div class="captcha-img">
                                 <img
-                                    v-if="model.b64s"
-                                    :src="model.b64s"
+                                    v-if="modelData.b64s"
+                                    :src="modelData.b64s"
                                     @click="loadCaptcha"
                                 />
                             </div>
@@ -120,7 +121,7 @@
                     <n-form-item path="phone_captcha" label="短信验证码">
                         <n-input-group>
                             <n-input
-                                v-model:value="model.phone_captcha"
+                                v-model:value="modelData.phone_captcha"
                                 placeholder="请输入收到的短信验证码"
                             />
                             <n-button
@@ -179,7 +180,7 @@
                 <n-form ref="formRef" :model="model" :rules="passwordRules">
                     <n-form-item path="old_password" label="旧密码">
                         <n-input
-                            v-model:value="model.old_password"
+                            v-model:value="modelData.old_password"
                             type="password"
                             placeholder="请输入当前密码"
                             @keydown.enter.prevent
@@ -187,7 +188,7 @@
                     </n-form-item>
                     <n-form-item path="password" label="新密码">
                         <n-input
-                            v-model:value="model.password"
+                            v-model:value="modelData.password"
                             type="password"
                             placeholder="请输入新密码"
                             @input="handlePasswordInput"
@@ -201,8 +202,8 @@
                         label="重复密码"
                     >
                         <n-input
-                            v-model:value="model.reenteredPassword"
-                            :disabled="!model.password"
+                            v-model:value="modelData.reenteredPassword"
+                            :disabled="!modelData.password"
                             type="password"
                             placeholder="请再次输入密码"
                             @keydown.enter.prevent
@@ -267,7 +268,7 @@ const showPhoneBind = ref(false);
 const phoneFormRef = ref(null);
 const formRef = ref(null);
 const rPasswordFormItemRef = ref(null);
-const model = reactive({
+const modelData = reactive({
     id: '',
     b64s: '',
     imgCaptcha: '',
@@ -326,18 +327,18 @@ const finishUpload = ({ file, event }) => {
 
 const validatePasswordStartWith = (rule, value) => {
     return (
-        !!model.password &&
-        model.password.startsWith(value) &&
-        model.password.length >= value.length
+        !!modelData.password &&
+        modelData.password.startsWith(value) &&
+        modelData.password.length >= value.length
     );
 };
 
 const validatePasswordSame = (rule, value) => {
-    return value === model.password;
+    return value === modelData.password;
 };
 
 const handlePasswordInput = () => {
-    if (model.reenteredPassword) {
+    if (modelData.reenteredPassword) {
         rPasswordFormItemRef.value?.validate({ trigger: 'password-input' });
     }
 };
@@ -348,8 +349,8 @@ const handleValidateButtonClick = (e) => {
         if (!errors) {
             passwordSetting.value = true;
             changePassword({
-                password: model.password,
-                old_password: model.old_password,
+                password: modelData.password,
+                old_password: modelData.old_password,
             })
                 .then((res) => {
                     passwordSetting.value = false;
@@ -374,8 +375,8 @@ const handlePhoneBind = (e) => {
         if (!errors) {
             binding.value = true;
             bindUserPhone({
-                phone: model.phone,
-                captcha: model.phone_captcha,
+                phone: modelData.phone,
+                captcha: modelData.phone_captcha,
             })
                 .then((res) => {
                     binding.value = false;
@@ -384,7 +385,7 @@ const handlePhoneBind = (e) => {
 
                     store.commit('updateUserinfo', {
                         ...store.state.userInfo,
-                        phone: model.phone,
+                        phone: modelData.phone,
                     });
 
                     model = {
@@ -405,8 +406,8 @@ const handlePhoneBind = (e) => {
 const loadCaptcha = () => {
     getCaptcha()
         .then((res) => {
-            model.id = res.id;
-            model.b64s = res.b64s;
+            modelData.id = res.id;
+            modelData.b64s = res.b64s;
         })
         .catch((err) => {
             console.log(err);
@@ -430,15 +431,15 @@ const sendPhoneCaptcha = () => {
     if (smsCounter.value > 0 && smsDisabled.value) {
         return;
     }
-    if (model.imgCaptcha === '') {
+    if (modelData.imgCaptcha === '') {
         window.$message.warning('请输入图片验证码');
         return;
     }
     sending.value = true;
     sendCaptcha({
-        phone: model.phone,
-        img_captcha: model.imgCaptcha,
-        img_captcha_id: model.id,
+        phone: modelData.phone,
+        img_captcha: modelData.imgCaptcha,
+        img_captcha_id: modelData.id,
     })
         .then((res) => {
             smsDisabled.value = true;

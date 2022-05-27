@@ -145,6 +145,7 @@ func (d *Dao) QuerySearch(indexName, query string, offset, limit int) (*zinc.Que
 				"content": query,
 			},
 		},
+		"sort": []string{"-is_top", "-latest_replied_on"},
 		"from": offset,
 		"size": limit,
 	})
@@ -161,7 +162,7 @@ func (d *Dao) QueryTagSearch(indexName, query string, offset, limit int) (*zinc.
 		"query": map[string]interface{}{
 			"term": "tags." + query + ":1",
 		},
-		"sort":        []string{"-is_top", "-latest_replied_on"},
+		"sort_fields": []string{"-is_top", "-latest_replied_on"},
 		"from":        offset,
 		"max_results": limit,
 	})

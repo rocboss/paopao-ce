@@ -79,7 +79,7 @@
                                         message: '请输入密码',
                                     },
                                     {
-                                        validator(rule, value) {
+                                        validator(rule: FormItemRule, value: any) {
                                             return (
                                                 !!registerForm.password &&
                                                 registerForm.password.startsWith(
@@ -137,30 +137,31 @@
     </n-modal>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { userLogin, userRegister, userInfo } from '@/api/auth';
+import type { FormInst, FormItemRule } from 'naive-ui';
 
 const store = useStore();
 
 const loading = ref(false);
-const loginRef = ref(null);
+const loginRef = ref<FormInst>();
 const loginForm = reactive({
     username: '',
     password: '',
 });
-const registerRef = ref(null);
+const registerRef = ref<FormInst>();
 const registerForm = reactive({
     username: '',
     password: '',
     repassword: '',
 });
-const handleLogin = (e) => {
+const handleLogin = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
 
-    loginRef.value?.validate((errors) => {
+    loginRef.value?.validate(errors => {
         if (!errors) {
             loading.value = true;
 
@@ -191,7 +192,7 @@ const handleLogin = (e) => {
     });
 };
 
-const handleRegister = (e) => {
+const handleRegister = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
 

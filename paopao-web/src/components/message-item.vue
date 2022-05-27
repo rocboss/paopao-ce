@@ -65,7 +65,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { ShareOutline } from '@vicons/ionicons5';
 import { readMessage } from '@/api/user';
@@ -75,13 +75,10 @@ const defaultavatar =
     'https://assets.paopao.info/public/avatar/default/admin.png';
 
 const router = useRouter();
-const props = defineProps({
-    message: {
-        type: Object,
-        default: () => {},
-    },
-});
-const viewDetail = (message) => {
+const props = withDefaults(defineProps<{
+    message: Item.MessageProps
+}>(), {});
+const viewDetail = (message: Item.MessageProps) => {
     handleReadMessage(message);
     if (message.type === 1 || message.type === 2 || message.type === 3) {
         if (message.post && message.post.id > 0) {
@@ -96,7 +93,7 @@ const viewDetail = (message) => {
         }
     }
 };
-const handleReadMessage = (message) => {
+const handleReadMessage = (message: Item.MessageProps) => {
     if (message.is_read === 0) {
         readMessage({
             id: message.id,
@@ -105,7 +102,7 @@ const handleReadMessage = (message) => {
                 message.is_read = 1;
             })
             .catch((err) => {
-                console.log(res);
+                console.log(err);
             });
     }
 };

@@ -5,7 +5,7 @@ import request from '@/utils/request';
  * @param {Object} params
  * @returns Promise
  */
-export const getCaptcha = params => {
+export const getCaptcha = (params: any) => {
     return request({
         method: 'get',
         url: '/captcha',
@@ -18,7 +18,7 @@ export const getCaptcha = params => {
  * @param {Object} data
  * @returns Promise
  */
-export const sendCaptcha = data => {
+export const sendCaptcha = (data: any) => {
     return request({
         method: 'post',
         url: '/captcha',
@@ -31,7 +31,7 @@ export const sendCaptcha = data => {
  * @param {Object} data
  * @returns Promise
  */
-export const bindUserPhone = data => {
+export const bindUserPhone = (data: any) => {
     return request({
         method: 'post',
         url: '/user/phone',
@@ -44,7 +44,7 @@ export const bindUserPhone = data => {
  * @param {Object} data
  * @returns Promise
  */
-export const changePassword = data => {
+export const changePassword = (data: any) => {
     return request({
         method: 'post',
         url: '/user/password',
@@ -57,7 +57,7 @@ export const changePassword = data => {
  * @param {Object} data
  * @returns Promise
  */
-export const changeNickname = data => {
+export const changeNickname = (data: any) => {
     return request({
         method: 'post',
         url: '/user/nickname',
@@ -70,7 +70,7 @@ export const changeNickname = data => {
  * @param {Object} data
  * @returns Promise
  */
-export const changeAvatar = data => {
+export const changeAvatar = (data: any) => {
     return request({
         method: 'post',
         url: '/user/avatar',
@@ -83,7 +83,7 @@ export const changeAvatar = data => {
  * @param {Object} params
  * @returns Promise
  */
-export const getUnreadMsgCount = params => {
+export const getUnreadMsgCount = (params: any) => {
     return request({
         method: 'get',
         url: '/user/msgcount/unread',
@@ -96,7 +96,7 @@ export const getUnreadMsgCount = params => {
  * @param {Object} params
  * @returns Promise
  */
-export const getMessages = params => {
+export const getMessages = (params: any) => {
     return request({
         method: 'get',
         url: '/user/messages',
@@ -109,7 +109,7 @@ export const getMessages = params => {
  * @param {Object} data
  * @returns Promise
  */
-export const readMessage = data => {
+export const readMessage = (data: any) => {
     return request({
         method: 'post',
         url: '/user/message/read',
@@ -122,12 +122,12 @@ export const readMessage = data => {
  * @param {Object} params
  * @returns Promise
  */
-export const getCollections = params => {
+export const getCollections = (params: any) => {
     return request({
         method: 'get',
         url: '/user/collections',
         params
-    });
+    }) as unknown as Promise<NetReq.UserGetCollections>;
 };
 
 /**
@@ -135,7 +135,7 @@ export const getCollections = params => {
  * @param {Object} params
  * @returns Promise
  */
-export const getStars = params => {
+export const getStars = (params: any) => {
     return request({
         method: 'get',
         url: '/user/stars',
@@ -148,7 +148,7 @@ export const getStars = params => {
  * @param {Object} params
  * @returns Promise
  */
-export const getUserProfile = params => {
+export const getUserProfile = (params: any) => {
     return request({
         method: 'get',
         url: '/user/profile',
@@ -161,7 +161,7 @@ export const getUserProfile = params => {
  * @param {Object} params
  * @returns Promise
  */
-export const getUserPosts = params => {
+export const getUserPosts = (params: any) => {
     return request({
         method: 'get',
         url: '/user/posts',
@@ -174,7 +174,7 @@ export const getUserPosts = params => {
  * @param {Object} params
  * @returns Promise
  */
-export const getBills = params => {
+export const getBills = (params: any) => {
     return request({
         method: 'get',
         url: '/user/wallet/bills',
@@ -187,7 +187,7 @@ export const getBills = params => {
  * @param {Object} data
  * @returns Promise
  */
-export const reqRecharge = data => {
+export const reqRecharge = (data: any) => {
     return request({
         method: 'post',
         url: '/user/recharge',
@@ -200,7 +200,7 @@ export const reqRecharge = data => {
  * @param {Object} params
  * @returns Promise
  */
-export const getRecharge = params => {
+export const getRecharge = (params: any) => {
     return request({
         method: 'get',
         url: '/user/recharge',
@@ -213,12 +213,12 @@ export const getRecharge = params => {
  * @param {Object} params
  * @returns Promise
  */
-export const getSuggestUsers = params => {
+export const getSuggestUsers = (params: {k: string}) => {
     return request({
         method: 'get',
         url: '/suggest/users',
         params
-    });
+    }) as unknown as Promise<NetReq.UserGetSuggestUsers>;
 };
 
 /**
@@ -226,12 +226,12 @@ export const getSuggestUsers = params => {
  * @param {Object} params
  * @returns Promise
  */
-export const getSuggestTags = params => {
+export const getSuggestTags = (params: {k: string}) => {
     return request({
         method: 'get',
         url: '/suggest/tags',
         params
-    });
+    }) as unknown as Promise<NetReq.UserGetSuggestTags>;
 };
 
 /**
@@ -239,7 +239,7 @@ export const getSuggestTags = params => {
  * @param {Object} params
  * @returns Promise
  */
-export const precheckAttachment = params => {
+export const precheckAttachment = (params: any) => {
     return request({
         method: 'get',
         url: '/attachment/precheck',
@@ -252,7 +252,7 @@ export const precheckAttachment = params => {
  * @param {Object} params
  * @returns Promise
  */
-export const getAttachment = params => {
+export const getAttachment = (params: any) => {
     return request({
         method: 'get',
         url: '/attachment',

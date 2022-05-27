@@ -9,7 +9,7 @@ service.interceptors.request.use(
     config => {
         // 鉴权Header
         if (localStorage.getItem('PAOPAO_TOKEN')) {
-            config.headers['Authorization'] = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
+            (config.headers as any)['Authorization'] = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
         }
 
         return config;
