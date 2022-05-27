@@ -97,7 +97,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -113,12 +113,9 @@ const replyAtUsername = ref('');
 const replyComposeRef = ref();
 
 const emit = defineEmits(['reload']);
-const props = defineProps({
-    comment: {
-        type: Object,
-        default: () => {},
-    },
-});
+const props = withDefaults(defineProps<{
+    comment: Item.CommentProps
+}>(), {})
 
 const comment = computed(() => {
     let comment = Object.assign(
@@ -127,8 +124,8 @@ const comment = computed(() => {
             imgs: [],
         },
         props.comment
-    );
-    comment.contents.map((content) => {
+    ) as {texts: Item.CommentProps[], imgs: Item.CommentProps[]} & Item.CommentProps;
+    comment.contents.map((content :any) => {
         if (+content.type === 1 || +content.type === 2) {
             comment.texts.push(content);
         }
@@ -139,9 +136,10 @@ const comment = computed(() => {
     return comment;
 });
 
-const doClickText = (e, id) => {
-    if (e.target.dataset.detail) {
-        const d = e.target.dataset.detail.split(':');
+const doClickText = (e: MouseEvent, id: number | string) => {
+    let _target = e.target as any;
+    if (_target.dataset.detail) {
+        const d = _target.dataset.detail.split(':');
         if (d.length === 2) {
             store.commit('refresh');
             if (d[0] === 'tag') {
@@ -158,7 +156,7 @@ const doClickText = (e, id) => {
     }
 };
 
-const focusReply = (reply) => {
+const focusReply = (reply: Item.ReplyProps) => {
     replyAtUserID.value = reply.user_id;
     replyAtUsername.value = reply.user?.username || '';
     replyComposeRef.value?.switchReply(true);

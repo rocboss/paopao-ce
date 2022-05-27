@@ -9,7 +9,9 @@ export default createStore({
         authModelShow: false,
         authModelTab: 'signin',
         userInfo: {
+            id: 0,
             username: '',
+            nickname: ''
         },
     },
     mutations: {

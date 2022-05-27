@@ -32,7 +32,7 @@
     </n-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -52,7 +52,7 @@ const props = defineProps({
         default: false,
     },
 });
-const switchTheme = (theme) => {
+const switchTheme = (theme: boolean) => {
     if (theme) {
         localStorage.setItem('PAOPAO_THEME', 'dark');
         store.commit('triggerTheme', 'dark');
@@ -73,7 +73,7 @@ const goBack = () => {
 
 onMounted(() => {
     if (!localStorage.getItem('PAOPAO_THEME')) {
-        switchTheme(useOsTheme() === 'dark');
+        switchTheme((useOsTheme() as unknown as string) === 'dark');
     }
 });
 </script>

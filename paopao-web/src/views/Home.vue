@@ -34,7 +34,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
@@ -45,8 +45,8 @@ const route = useRoute();
 const router = useRouter();
 
 const loading = ref(false);
-const list = ref([]);
-const page = ref(+route.query.p || 1);
+const list = ref<any[]>([]);
+const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 const title = computed(() => {
@@ -54,9 +54,9 @@ const title = computed(() => {
 
     if (route.query && route.query.q) {
         if (route.query.t && route.query.t === 'tag') {
-            t = '#' + decodeURIComponent(route.query.q);
+            t = '#' + decodeURIComponent(route.query.q as string);
         } else {
-            t = '搜索: ' + decodeURIComponent(route.query.q);
+            t = '搜索: ' + decodeURIComponent(route.query.q as string);
         }
     }
 
@@ -66,7 +66,7 @@ const title = computed(() => {
 const loadPosts = () => {
     loading.value = true;
     getPosts({
-        query: route.query.q ? decodeURIComponent(route.query.q) : null,
+        query: route.query.q ? decodeURIComponent(route.query.q as string) : null,
         type: route.query.t,
         page: page.value,
         page_size: pageSize.value,
@@ -83,7 +83,7 @@ const loadPosts = () => {
         });
 };
 
-const onPostSuccess = (post) => {
+const onPostSuccess = (post: Item.PostProps) => {
     router.push({
         name: 'post',
         query: {
@@ -92,7 +92,7 @@ const onPostSuccess = (post) => {
     });
 };
 
-const updatePage = (p) => {
+const updatePage = (p: number) => {
     router.push({
         name: 'home',
         query: {
@@ -113,14 +113,14 @@ watch(
     }),
     (to, from) => {
         if (to.refresh !== from.refresh) {
-            page.value = +route.query.p || 1;
+            page.value = +(route.query.p as string) || 1;
             setTimeout(() => {
                 loadPosts();
             }, 0);
             return;
         }
         if (from.path !== '/post' && to.path === '/') {
-            page.value = +route.query.p || 1;
+            page.value = +(route.query.p as string) || 1;
 
             setTimeout(() => {
                 loadPosts();
