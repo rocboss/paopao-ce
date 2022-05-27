@@ -97,7 +97,8 @@
                 <n-form ref="phoneFormRef" :model="model" :rules="bindRules">
                     <n-form-item path="phone" label="手机号">
                         <n-input
-                            v-model:value="model.phone"
+                            :value="model.phone"
+                            @update:value="(v) => (model.phone = v.trim())"
                             placeholder="请输入中国大陆手机号"
                             @keydown.enter.prevent
                         />
