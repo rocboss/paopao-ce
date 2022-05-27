@@ -38,9 +38,10 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import { createCommentReply } from '@/api/post';
+import { InputInst } from 'naive-ui';
 
 const props = defineProps({
     commentId: {
@@ -57,11 +58,11 @@ const props = defineProps({
     },
 });
 const emit = defineEmits(['reload', 'reset']);
-const inputInstRef = ref(null);
+const inputInstRef = ref<InputInst>();
 const showReply = ref(false);
 const replyContent = ref('');
 const submitting = ref(false);
-const switchReply = (status) => {
+const switchReply = (status: boolean) => {
     showReply.value = status;
 
     if (status) {

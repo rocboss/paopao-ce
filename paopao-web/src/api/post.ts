@@ -5,12 +5,12 @@ import request from '@/utils/request';
  * @param {Object} params
  * @returns Promise
  */
-export const getPosts = params => {
+export const getPosts = (params: any) => {
     return request({
         method: 'get',
         url: '/posts',
         params
-    });
+    }) as unknown as Promise<NetReq.PostGetPosts>;
 };
 
 /**
@@ -18,7 +18,7 @@ export const getPosts = params => {
  * @param {Object} params
  * @returns Promise
  */
-export const getTags = params => {
+export const getTags = (params: any) => {
     return request({
         method: 'get',
         url: '/tags',
@@ -31,7 +31,7 @@ export const getTags = params => {
  * @param {Object} params
  * @returns Promise
  */
-export const getPost = params => {
+export const getPost = (params: any) => {
     return request({
         method: 'get',
         url: '/post',
@@ -44,7 +44,7 @@ export const getPost = params => {
  * @param {Object} params
  * @returns Promise
  */
-export const getPostStar = params => {
+export const getPostStar = (params: any) => {
     return request({
         method: 'get',
         url: '/post/star',
@@ -57,7 +57,7 @@ export const getPostStar = params => {
  * @param {Object} data
  * @returns Promise
  */
-export const postStar = data => {
+export const postStar = (data: any) => {
     return request({
         method: 'post',
         url: '/post/star',
@@ -70,7 +70,7 @@ export const postStar = data => {
  * @param {Object} params
  * @returns Promise
  */
-export const getPostCollection = params => {
+export const getPostCollection = (params: any) => {
     return request({
         method: 'get',
         url: '/post/collection',
@@ -83,7 +83,7 @@ export const getPostCollection = params => {
  * @param {Object} data
  * @returns Promise
  */
-export const postCollection = data => {
+export const postCollection = (data: any) => {
     return request({
         method: 'post',
         url: '/post/collection',
@@ -96,7 +96,7 @@ export const postCollection = data => {
  * @param {Object} params
  * @returns Promise
  */
-export const getPostComments = params => {
+export const getPostComments = (params: any) => {
     return request({
         method: 'get',
         url: '/post/comments',
@@ -112,7 +112,7 @@ export const getPostComments = params => {
  *  - @param {array} tags 话题
  * @returns Promise
  */
-export const createPost = data => {
+export const createPost = (data: any) => {
     return request({
         method: 'post',
         url: '/post',
@@ -126,7 +126,7 @@ export const createPost = data => {
  *  - @param {number} id 
  * @returns Promise
  */
-export const deletePost = data => {
+export const deletePost = (data: any) => {
     return request({
         method: 'delete',
         url: '/post',
@@ -140,7 +140,7 @@ export const deletePost = data => {
  *  - @param {number} id 
  * @returns Promise
  */
-export const lockPost = data => {
+export const lockPost = (data: any) => {
     return request({
         method: 'post',
         url: '/post/lock',
@@ -155,7 +155,7 @@ export const lockPost = data => {
  *  - @param {array} users at用户
  * @returns Promise
  */
-export const createComment = data => {
+export const createComment = (data: any) => {
     return request({
         method: 'post',
         url: '/post/comment',
@@ -169,7 +169,7 @@ export const createComment = data => {
  *  - @param {number} id 
  * @returns Promise
  */
-export const deleteComment = data => {
+export const deleteComment = (data: any) => {
     return request({
         method: 'delete',
         url: '/post/comment',
@@ -185,7 +185,7 @@ export const deleteComment = data => {
  *  - @param {number} at_user_id at用户ID
  * @returns Promise
  */
-export const createCommentReply = data => {
+export const createCommentReply = (data: any) => {
     return request({
         method: 'post',
         url: '/post/comment/reply',
@@ -199,7 +199,7 @@ export const createCommentReply = data => {
  *  - @param {number} id 评论ID
  * @returns Promise
  */
-export const deleteCommentReply = data => {
+export const deleteCommentReply = (data: any) => {
     return request({
         method: 'delete',
         url: '/post/comment/reply',

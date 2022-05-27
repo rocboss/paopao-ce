@@ -154,7 +154,7 @@
 </template>
 
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import { debounce } from 'lodash';
@@ -167,6 +167,8 @@ import {
 import { createComment } from '@/api/post';
 import { getSuggestUsers } from '@/api/user';
 import { parsePostTag } from '@/utils/content';
+import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
+import { FileInfo } from 'naive-ui/lib/upload/src/interface';
 
 const emit = defineEmits(['post-success']);
 const props = defineProps({
@@ -182,15 +184,15 @@ const props = defineProps({
 
 const store = useStore();
 
-const optionsRef = ref([]);
+const optionsRef = ref<MentionOption[]>([]);
 const showBtn = ref(false);
 const loading = ref(false);
 const submitting = ref(false);
 const content = ref('');
-const uploadRef = ref(null);
+const uploadRef = ref<UploadInst>();
 const uploadType = ref('public/image');
-const fileQueue = ref([]);
-const imageContents = ref([]);
+const fileQueue = ref<UploadFileInfo[]>([]);
+const imageContents = ref<Item.CommentItemProps[]>([]);
 
 const uploadGateway = import.meta.env.VITE_HOST + '/attachment';
 const uploadToken = ref();
@@ -201,7 +203,7 @@ const loadSuggestionUsers = debounce((k) => {
         k,
     })
         .then((res) => {
-            let options = [];
+            let options: MentionOption[] = [];
             res.map((i) => {
                 options.push({
                     label: i,
@@ -216,7 +218,7 @@ const loadSuggestionUsers = debounce((k) => {
         });
 }, 200);
 
-const handleSearch = (k, prefix) => {
+const handleSearch = (k: string, prefix: string) => {
     if (loading.value) {
         return;
     }
@@ -225,38 +227,38 @@ const handleSearch = (k, prefix) => {
         loadSuggestionUsers(k);
     }
 };
-const changeContent = (v) => {
+const changeContent = (v: string) => {
     if (v.length > 200) {
         return;
     }
     content.value = v;
 };
-const setUploadType = (type) => {
+const setUploadType = (type: string) => {
     uploadType.value = type;
 };
-const updateUpload = (list) => {
+const updateUpload = (list: UploadFileInfo[]) => {
     fileQueue.value = list;
 };
-const beforeUpload = async (data) => {
+const beforeUpload = async (data: any) => {
     // 图片类型校验
     if (
         uploadType.value === 'public/image' &&
         !['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(
-            data.file.file?.type
+            (data.file as any).file?.type
         )
     ) {
         window.$message.warning('图片仅允许 png/jpg/gif 格式');
         return false;
     }
 
-    if (uploadType.value === 'image' && data.file.file?.size > 10485760) {
+    if (uploadType.value === 'image' && (data.file as any).file?.size > 10485760) {
         window.$message.warning('图片大小不能超过10MB');
         return false;
     }
 
     return true;
 };
-const finishUpload = ({ file, event }) => {
+const finishUpload = ({ file, event }: any): any => {
     try {
         let data = JSON.parse(event.target?.response);
 
@@ -272,14 +274,14 @@ const finishUpload = ({ file, event }) => {
         window.$message.error('上传失败');
     }
 };
-const failUpload = ({ file, event }) => {
+const failUpload = ({ file, event }: any): any => {
     try {
         let data = JSON.parse(event.target?.response);
 
         if (data.code !== 0) {
             let errMsg = data.msg || '上传失败';
             if (data.details && data.details.length > 0) {
-                data.details.map((detail) => {
+                data.details.map((detail: string) => {
                     errMsg += ':' + detail;
                 });
             }
@@ -289,7 +291,7 @@ const failUpload = ({ file, event }) => {
         window.$message.error('上传失败');
     }
 };
-const removeUpload = ({ file }) => {
+const removeUpload = ({ file }: any) => {
     let idx = imageContents.value.findIndex((item) => item.id === file.id);
     if (idx > -1) {
         imageContents.value.splice(idx, 1);
@@ -353,7 +355,7 @@ const submitPost = () => {
             submitting.value = false;
         });
 };
-const triggerAuth = (key) => {
+const triggerAuth = (key: string) => {
     store.commit('triggerAuth', true);
     store.commit('triggerAuthKey', key);
 };
