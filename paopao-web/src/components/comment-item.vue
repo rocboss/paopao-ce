@@ -112,7 +112,9 @@ const replyAtUserID = ref(0);
 const replyAtUsername = ref('');
 const replyComposeRef = ref();
 
-const emit = defineEmits(['reload']);
+const emit = defineEmits<{
+    (e: "reload"): void
+}>();
 const props = withDefaults(defineProps<{
     comment: Item.CommentProps
 }>(), {})

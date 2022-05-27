@@ -169,7 +169,9 @@ import { getSuggestUsers } from '@/api/user';
 import { parsePostTag } from '@/utils/content';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
 
-const emit = defineEmits(['post-success']);
+const emit = defineEmits<{
+    (e: "post-success"): void
+}>();
 const props = withDefaults(defineProps<{
     lock: number,
     postId: number,

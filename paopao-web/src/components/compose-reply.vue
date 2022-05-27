@@ -43,21 +43,19 @@ import { ref } from 'vue';
 import { createCommentReply } from '@/api/post';
 import { InputInst } from 'naive-ui';
 
-const props = defineProps({
-    commentId: {
-        type: Number,
-        default: 0,
-    },
-    atUserid: {
-        type: Number,
-        default: 0,
-    },
-    atUsername: {
-        type: String,
-        default: '',
-    },
+const props = withDefaults(defineProps<{
+    commentId: number,
+    atUserid: number,
+    atUsername: string,
+}>(), {
+    commentId: 0,
+    atUserid: 0,
+    atUsername: ""
 });
-const emit = defineEmits(['reload', 'reset']);
+const emit = defineEmits<{
+    (e: "reload"): void,
+    (e: "reset"): void
+}>();
 const inputInstRef = ref<InputInst>();
 const showReply = ref(false);
 const replyContent = ref('');

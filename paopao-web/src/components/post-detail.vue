@@ -167,7 +167,9 @@ const showDelModal = ref(false);
 const showLockModal = ref(false);
 const loading = ref(false);
 
-const emit = defineEmits(['reload']);
+const emit = defineEmits<{
+    (e: "reload"): void
+}>();
 
 const post = computed({
     get: () => {

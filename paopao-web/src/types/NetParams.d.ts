@@ -103,5 +103,16 @@ declare module NetParams {
     interface PostGetPostComments {
         id: number
     }
+    
+    interface PostCreatePost {
+        contents: {
+            content: string,
+            type: number,
+            sort: number
+        }[],
+        tags: string[],
+        users: string[],
+        attachment_price: number
+    }
 
 }
