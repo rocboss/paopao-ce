@@ -30,7 +30,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
@@ -41,8 +41,8 @@ const route = useRoute();
 const router = useRouter();
 
 const loading = ref(false);
-const list = ref([]);
-const page = ref(+route.query.p || 1);
+const list = ref<Item.PostProps[]>([]);
+const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 
@@ -63,7 +63,7 @@ const loadPosts = () => {
             loading.value = false;
         });
 };
-const updatePage = (p) => {
+const updatePage = (p: number) => {
     page.value = p;
     loadPosts();
 };

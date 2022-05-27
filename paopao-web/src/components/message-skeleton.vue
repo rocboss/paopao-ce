@@ -7,12 +7,11 @@
     </div>
 </template>
 
-<script setup>
-const props = defineProps({
-    num: {
-        type: Number,
-        default: 1,
-    },
+<script setup lang="ts">
+const props = withDefaults(defineProps<{
+    num: number
+}>(), {
+    num: 1
 });
 </script>
 

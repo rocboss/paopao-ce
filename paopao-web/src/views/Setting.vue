@@ -237,7 +237,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { Edit } from '@vicons/tabler';
@@ -249,6 +249,7 @@ import {
     changeNickname,
     changeAvatar,
 } from '@/api/user';
+import type { UploadInst, FormItemRule, FormItemInst, FormInst, InputInst } from "naive-ui" 
 
 const uploadGateway = import.meta.env.VITE_HOST + '/attachment';
 const uploadToken = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
@@ -257,29 +258,31 @@ const uploadType = ref('public/avatar');
 const store = useStore();
 const sending = ref(false);
 const binding = ref(false);
-const avatarRef = ref(null);
-const inputInstRef = ref(null);
+const avatarRef = ref<UploadInst>();
+const inputInstRef = ref<InputInst>();
 const showNicknameEdit = ref(false);
 const passwordSetting = ref(false);
 const showPasswordSetting = ref(false);
 const smsDisabled = ref(false);
 const smsCounter = ref(60);
 const showPhoneBind = ref(false);
-const phoneFormRef = ref(null);
-const formRef = ref(null);
-const rPasswordFormItemRef = ref(null);
+const phoneFormRef = ref<FormInst>();
+const formRef = ref<FormInst>();
+const rPasswordFormItemRef = ref<FormItemInst>();
 const modelData = reactive({
     id: '',
     b64s: '',
     imgCaptcha: '',
-    phone: null,
-    phone_captcha: null,
+    phone: '',
+    phone_captcha: '',
     password: null,
     old_password: null,
     reenteredPassword: null,
 });
 
-const beforeUpload = async (data) => {
+const model = ref<AnyObject>({})
+
+const beforeUpload = async (data: any) => {
     // 图片类型校验
     if (
         uploadType.value === 'public/avatar' &&
@@ -297,7 +300,7 @@ const beforeUpload = async (data) => {
     return true;
 };
 
-const finishUpload = ({ file, event }) => {
+const finishUpload = ({ file, event }: any): any => {
     try {
         let data = JSON.parse(event.target?.response);
 
@@ -325,15 +328,15 @@ const finishUpload = ({ file, event }) => {
     }
 };
 
-const validatePasswordStartWith = (rule, value) => {
+const validatePasswordStartWith = (rule: FormItemRule, value: any) => {
     return (
         !!modelData.password &&
-        modelData.password.startsWith(value) &&
-        modelData.password.length >= value.length
+        (modelData.password as any).startsWith(value) &&
+        (modelData.password as any).length >= value.length
     );
 };
 
-const validatePasswordSame = (rule, value) => {
+const validatePasswordSame = (rule: FormItemRule, value: any) => {
     return value === modelData.password;
 };
 
@@ -343,7 +346,7 @@ const handlePasswordInput = () => {
     }
 };
 
-const handleValidateButtonClick = (e) => {
+const handleValidateButtonClick = (e: MouseEvent) => {
     e.preventDefault();
     formRef.value?.validate((errors) => {
         if (!errors) {
@@ -369,7 +372,7 @@ const handleValidateButtonClick = (e) => {
     });
 };
 
-const handlePhoneBind = (e) => {
+const handlePhoneBind = (e: MouseEvent) => {
     e.preventDefault();
     phoneFormRef.value?.validate((errors) => {
         if (!errors) {
@@ -388,7 +391,7 @@ const handlePhoneBind = (e) => {
                         phone: modelData.phone,
                     });
 
-                    model = {
+                    model.value = {
                         id: '',
                         b64s: '',
                         imgCaptcha: '',
@@ -470,7 +473,7 @@ const bindRules = {
             required: true,
             message: '请输入手机号',
             trigger: ['input'],
-            validator: (rule, value) => {
+            validator: (rule: FormItemRule, value: any) => {
                 return /^[1]+[3-9]{1}\d{9}$/.test(value);
             },
         },

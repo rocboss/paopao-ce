@@ -67,7 +67,7 @@ const loadPosts = () => {
     loading.value = true;
     getPosts({
         query: route.query.q ? decodeURIComponent(route.query.q as string) : null,
-        type: route.query.t,
+        type: +(route.query.t as string),
         page: page.value,
         page_size: pageSize.value,
     })

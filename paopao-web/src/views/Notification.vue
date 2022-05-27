@@ -31,7 +31,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
@@ -39,10 +39,10 @@ import { getMessages } from '@/api/user';
 const route = useRoute();
 const store = useStore();
 const loading = ref(false);
-const page = ref(+route.query.p || 1);
+const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(10);
 const totalPage = ref(0);
-const list = ref([]);
+const list = ref<Item.MessageProps[]>([]);
 
 const loadMessages = () => {
     loading.value = true;
@@ -59,7 +59,7 @@ const loadMessages = () => {
             loading.value = false;
         });
 };
-const updatePage = (p) => {
+const updatePage = (p: number) => {
     page.value = p;
     loadMessages();
 };

@@ -61,7 +61,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
@@ -78,16 +78,16 @@ const user = reactive({
     nickname: '',
 });
 const userLoading = ref(false);
-const list = ref([]);
+const list = ref<Item.PostProps[]>([]);
 const username = ref(route.query.username || '');
-const page = ref(+route.query.p || 1);
+const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 
 const loadPosts = () => {
     loading.value = true;
     getUserPosts({
-        username: username.value,
+        username: username.value as string,
         page: page.value,
         page_size: pageSize.value,
     })
@@ -105,7 +105,7 @@ const loadPosts = () => {
 const loadUser = () => {
     userLoading.value = true;
     getUserProfile({
-        username: username.value,
+        username: username.value as string,
     })
         .then((res) => {
             userLoading.value = false;
@@ -121,7 +121,7 @@ const loadUser = () => {
         });
 };
 
-const updatePage = (p) => {
+const updatePage = (p: number) => {
     page.value = p;
     loadPosts();
 };

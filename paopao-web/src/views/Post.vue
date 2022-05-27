@@ -45,24 +45,22 @@
     </div>
 </template>
 
-<script setup>
-import { ref, watch, onMounted, computed } from 'vue';
+<script setup lang="ts">
+import { ref, watch, onMounted, computed, Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPost, getPostComments } from '@/api/post';
 
 const route = useRoute();
-const post = ref({
-    id: 0,
-});
+const post = ref<Item.PostProps>({} as Item.PostProps);
 const loading = ref(false);
 const commentLoading = ref(false);
-const comments = ref([]);
-const postId = computed(() => +route.query.id);
+const comments = ref<Item.PostProps[]>([]);
+const postId = computed(() => +(route.query.id as string));
 
 const loadPost = () => {
     post.value = {
         id: 0,
-    };
+    } as Item.PostProps;
     loading.value = true;
     getPost({
         id: postId.value,
@@ -78,12 +76,12 @@ const loadPost = () => {
             loading.value = false;
         });
 };
-const loadComments = (scrollToBottom) => {
+const loadComments = (scrollToBottom: boolean = false) => {
     if (comments.value.length === 0) {
         commentLoading.value = true;
     }
     getPostComments({
-        id: post.value.id,
+        id: post.value.id as number,
     })
         .then((res) => {
             comments.value = res.list;

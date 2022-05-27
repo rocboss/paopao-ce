@@ -168,18 +168,14 @@ import { createComment } from '@/api/post';
 import { getSuggestUsers } from '@/api/user';
 import { parsePostTag } from '@/utils/content';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
-import { FileInfo } from 'naive-ui/lib/upload/src/interface';
 
 const emit = defineEmits(['post-success']);
-const props = defineProps({
-    lock: {
-        type: Number,
-        default: 0,
-    },
-    postId: {
-        type: Number,
-        default: 0,
-    },
+const props = withDefaults(defineProps<{
+    lock: number,
+    postId: number,
+}>(), {
+    lock: 0,
+    postId: 0
 });
 
 const store = useStore();

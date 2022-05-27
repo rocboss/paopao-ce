@@ -68,14 +68,14 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { getTags } from '@/api/post';
 import { Search } from '@vicons/ionicons5';
 
-const tags = ref([]);
+const tags = ref<Item.TagProps[]>([]);
 const loading = ref(false);
 const keyword = ref('');
 const store = useStore();
@@ -95,7 +95,7 @@ const loadTags = () => {
             loading.value = false;
         });
 };
-const formatQuoteNum = (num) => {
+const formatQuoteNum = (num: number) => {
     if (num >= 1000) {
         return (num / 1000).toFixed(1) + 'k';
     }

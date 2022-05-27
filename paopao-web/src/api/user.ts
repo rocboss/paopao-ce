@@ -5,12 +5,12 @@ import request from '@/utils/request';
  * @param {Object} params
  * @returns Promise
  */
-export const getCaptcha = (params: any) => {
+export const getCaptcha = (params: NetParams.UserGetCaptcha = {}) => {
     return request({
         method: 'get',
         url: '/captcha',
         params
-    });
+    }) as unknown as Promise<NetReq.UserGetCaptcha>;
 };
 
 /**
@@ -31,12 +31,12 @@ export const sendCaptcha = (data: any) => {
  * @param {Object} data
  * @returns Promise
  */
-export const bindUserPhone = (data: any) => {
+export const bindUserPhone = (data: NetParams.UserBindUserPhone) => {
     return request({
         method: 'post',
         url: '/user/phone',
         data
-    });
+    }) as unknown as Promise<NetParams.UserBindUserPhone>;
 };
 
 /**
@@ -83,12 +83,12 @@ export const changeAvatar = (data: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getUnreadMsgCount = (params: any) => {
+export const getUnreadMsgCount = (params: NetParams.UserGetUnreadMsgCount = {}) => {
     return request({
         method: 'get',
         url: '/user/msgcount/unread',
         params
-    });
+    }) as unknown as Promise<NetReq.UserGetUnreadMsgCount>;
 };
 
 /**
@@ -96,12 +96,12 @@ export const getUnreadMsgCount = (params: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getMessages = (params: any) => {
+export const getMessages = (params: NetParams.UserGetMessages) => {
     return request({
         method: 'get',
         url: '/user/messages',
         params
-    });
+    }) as unknown as Promise<NetReq.UserGetMessages>;
 };
 
 /**
@@ -122,7 +122,7 @@ export const readMessage = (data: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getCollections = (params: any) => {
+export const getCollections = (params: NetParams.UserGetCollections) => {
     return request({
         method: 'get',
         url: '/user/collections',
@@ -135,12 +135,12 @@ export const getCollections = (params: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getStars = (params: any) => {
+export const getStars = (params: NetParams.UserGetStars) => {
     return request({
         method: 'get',
         url: '/user/stars',
         params
-    });
+    }) as unknown as Promise<NetReq.UserGetStars>;
 };
 
 /**
@@ -148,12 +148,12 @@ export const getStars = (params: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getUserProfile = (params: any) => {
+export const getUserProfile = (params: NetParams.UserGetUserProfile) => {
     return request({
         method: 'get',
         url: '/user/profile',
         params
-    });
+    }) as unknown as Promise<NetReq.UserGetUserProfile>;
 };
 
 /**
@@ -161,12 +161,12 @@ export const getUserProfile = (params: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getUserPosts = (params: any) => {
+export const getUserPosts = (params: NetParams.UserGetUserPosts) => {
     return request({
         method: 'get',
         url: '/user/posts',
         params
-    });
+    }) as unknown as Promise<NetReq.UserGetUserPosts>;
 };
 
 /**
@@ -174,12 +174,12 @@ export const getUserPosts = (params: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getBills = (params: any) => {
+export const getBills = (params: NetParams.UserGetBills) => {
     return request({
         method: 'get',
         url: '/user/wallet/bills',
         params
-    });
+    }) as unknown as Promise<NetReq.UserGetBills>;
 };
 
 /**
@@ -187,12 +187,12 @@ export const getBills = (params: any) => {
  * @param {Object} data
  * @returns Promise
  */
-export const reqRecharge = (data: any) => {
+export const reqRecharge = (data: NetParams.UserReqRecharge) => {
     return request({
         method: 'post',
         url: '/user/recharge',
         data
-    });
+    }) as unknown as Promise<NetReq.UserReqRecharge>;
 };
 
 /**
@@ -200,12 +200,12 @@ export const reqRecharge = (data: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getRecharge = (params: any) => {
+export const getRecharge = (params: NetParams.UserGetRecharge) => {
     return request({
         method: 'get',
         url: '/user/recharge',
         params
-    });
+    }) as unknown as Promise<NetReq.UserGetRecharge>;
 };
 
 /**
@@ -239,12 +239,12 @@ export const getSuggestTags = (params: {k: string}) => {
  * @param {Object} params
  * @returns Promise
  */
-export const precheckAttachment = (params: any) => {
+export const precheckAttachment = (params: NetParams.UserPrecheckAttachment) => {
     return request({
         method: 'get',
         url: '/attachment/precheck',
         params
-    });
+    }) as unknown as Promise<NetReq.UserPrecheckAttachment>;
 };
 
 /**
@@ -252,10 +252,10 @@ export const precheckAttachment = (params: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getAttachment = (params: any) => {
+export const getAttachment = (params: NetParams.UserGetAttachment) => {
     return request({
         method: 'get',
         url: '/attachment',
         params
-    });
+    }) as unknown as Promise<NetReq.UserGetAttachment>;
 };

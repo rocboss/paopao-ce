@@ -5,7 +5,7 @@ import request from '@/utils/request';
  * @param {Object} params
  * @returns Promise
  */
-export const getPosts = (params: any) => {
+export const getPosts = (params: NetParams.PostGetPosts) => {
     return request({
         method: 'get',
         url: '/posts',
@@ -18,12 +18,12 @@ export const getPosts = (params: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getTags = (params: any) => {
+export const getTags = (params: NetParams.PostGetTags) => {
     return request({
         method: 'get',
         url: '/tags',
         params
-    });
+    }) as unknown as Promise<NetReq.PostGetTags>;
 };
 
 /**
@@ -31,12 +31,12 @@ export const getTags = (params: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getPost = (params: any) => {
+export const getPost = (params: NetParams.PostGetPost) => {
     return request({
         method: 'get',
         url: '/post',
         params
-    });
+    }) as unknown as Promise<NetReq.PostGetPost>;
 };
 
 /**
@@ -44,12 +44,12 @@ export const getPost = (params: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getPostStar = (params: any) => {
+export const getPostStar = (params: NetParams.PostPostStar) => {
     return request({
         method: 'get',
         url: '/post/star',
         params
-    });
+    }) as unknown as Promise<NetReq.PostGetPostStar>;
 };
 
 /**
@@ -57,12 +57,12 @@ export const getPostStar = (params: any) => {
  * @param {Object} data
  * @returns Promise
  */
-export const postStar = (data: any) => {
+export const postStar = (data: NetParams.PostPostStar) => {
     return request({
         method: 'post',
         url: '/post/star',
         data
-    });
+    }) as unknown as Promise<NetReq.PostPostStar>;
 };
 
 /**
@@ -70,12 +70,12 @@ export const postStar = (data: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getPostCollection = (params: any) => {
+export const getPostCollection = (params: NetParams.PostGetPostCollection) => {
     return request({
         method: 'get',
         url: '/post/collection',
         params
-    });
+    }) as unknown as Promise<NetReq.PostGetPostCollection>;
 };
 
 /**
@@ -83,12 +83,12 @@ export const getPostCollection = (params: any) => {
  * @param {Object} data
  * @returns Promise
  */
-export const postCollection = (data: any) => {
+export const postCollection = (data: NetParams.PostPostCollection) => {
     return request({
         method: 'post',
         url: '/post/collection',
         data
-    });
+    }) as unknown as Promise<NetReq.PostPostCollection>;
 };
 
 /**
@@ -96,12 +96,12 @@ export const postCollection = (data: any) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getPostComments = (params: any) => {
+export const getPostComments = (params: NetParams.PostGetPostComments) => {
     return request({
         method: 'get',
         url: '/post/comments',
         params
-    });
+    }) as unknown as Promise<NetReq.PostGetPostComments>;
 };
 
 /**
@@ -140,12 +140,12 @@ export const deletePost = (data: any) => {
  *  - @param {number} id 
  * @returns Promise
  */
-export const lockPost = (data: any) => {
+export const lockPost = (data: NetParams.PostLockPost) => {
     return request({
         method: 'post',
         url: '/post/lock',
         data
-    });
+    }) as unknown as Promise<NetReq.PostLockPost>;
 };
 
 /**
