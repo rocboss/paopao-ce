@@ -2,6 +2,7 @@
 
 
 <!-- PROJECT SHIELDS -->
+[![Go Report Card][goreport-shield]][goreport-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![MIT License][license-shield]][license-url]
@@ -11,7 +12,7 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <a href="https://github.com/rocboss/paopao-ce">
-    <img src="https://assets.paopao.info/public/image/21/b6/e5/b8/5ca3-48cd-96cd-27e76cb70823.png" alt="Logo" width="80" height="80">
+    <img src="https://cdn.rocs.me/static/paopao-logo.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">PaoPao</h3>
@@ -115,6 +116,8 @@ PaoPao主要由以下优秀的开源项目/工具构建
 <!-- MARKDOWN LINKS & IMAGES -->
 [contributors-shield]: https://img.shields.io/github/contributors/rocboss/paopao-ce?style=flat
 [contributors-url]: https://github.com/rocboss/paopao-ce/graphs/contributors
+[goreport-shield]: https://goreportcard.com/badge/github.com/rocboss/paopao-ce
+[goreport-url]: https://goreportcard.com/report/github.com/rocboss/paopao-ce
 [forks-shield]: https://img.shields.io/github/forks/rocboss/paopao-ce?style=flat
 [forks-url]: https://github.com/rocboss/paopao-ce/network/members
 [stars-shield]: https://img.shields.io/github/stars/rocboss/paopao-ce.svg?style=flat
@@ -124,5 +127,5 @@ PaoPao主要由以下优秀的开源项目/工具构建
 [license-shield]: https://img.shields.io/github/license/rocboss/paopao-ce.svg?style=flat
 [license-url]: https://github.com/rocboss/paopao-ce/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat&logo=linkedin&colorB=555
-[product-light-screenshot]: https://assets.rocboss.com/imgs/2c/ab/06/82/mpySb2pha5dxmpOXcw==-0682.jpg
-[product-dark-screenshot]: https://assets.rocboss.com/imgs/33/11/17/48/mpySb2phapVqmpWVcw==-1748.jpg
+[product-light-screenshot]: https://cdn.rocs.me/static/paopao-light.jpeg
+[product-dark-screenshot]: https://cdn.rocs.me/static/paopao-dark.jpeg
