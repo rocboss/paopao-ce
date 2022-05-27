@@ -65,18 +65,15 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useStore } from 'vuex';
 import { Trash } from '@vicons/tabler';
 import { formatRelativeTime } from '@/utils/formatTime';
 import { deleteCommentReply } from '@/api/post';
 
-const props = defineProps({
-    reply: {
-        type: Object,
-        default: () => {},
-    },
-});
+const props = withDefaults(defineProps<{
+    reply: Item.ReplyProps,
+}>(), {});
 const store = useStore();
 const emit = defineEmits(['focusReply', 'reload']);
 

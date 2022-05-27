@@ -222,18 +222,17 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 
 const defaultImg =
     'https://paopao-assets.oss-cn-shanghai.aliyuncs.com/public/404.png';
 const thumbnail =
     '?x-oss-process=image/resize,m_fill,w_300,h_300,limit_0/auto-orient,1/format,png';
-const props = defineProps({
-    imgs: {
-        type: Array,
-        default: () => [],
-    },
+const props = withDefaults(defineProps<{
+    imgs: Item.PostProps[],
+}>(), {
+    imgs: () => []
 });
 </script>
 

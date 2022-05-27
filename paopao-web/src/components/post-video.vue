@@ -16,18 +16,15 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { reactive } from 'vue';
 import NVideo from 'nonesir-video';
 
-const props = defineProps({
-    videos: {
-        type: Array,
-        default: () => [],
-    },
-    full: {
-        type: Boolean,
-        default: false,
-    },
+const props = withDefaults(defineProps<{
+    videos: Item.PostProps[],
+    full: boolean,
+}>(), {
+    videos: () => [],
+    full: false
 });
 </script>

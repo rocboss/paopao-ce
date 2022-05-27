@@ -143,7 +143,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
@@ -162,8 +162,8 @@ const recharging = ref(false);
 const rechargeQrcode = ref('');
 
 const loading = ref(false);
-const list = ref([]);
-const page = ref(+route.query.p || 1);
+const list = ref<Item.BillProps[]>([]);
+const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 
@@ -186,7 +186,7 @@ const loadPosts = () => {
             loading.value = false;
         });
 };
-const updatePage = (p) => {
+const updatePage = (p: number) => {
     page.value = p;
     loadPosts();
 };
@@ -212,7 +212,7 @@ const loadWallet = () => {
 const doRecharge = () => {
     showRecharge.value = true;
 };
-const handleRecharge = (amount) => {
+const handleRecharge = (amount: any) => {
     recharging.value = true;
     reqRecharge({
         amount: selectedRechargeAmount.value,

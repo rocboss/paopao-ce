@@ -87,11 +87,12 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { h, ref, watch, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { NIcon, NBadge, useMessage } from 'naive-ui';
+import type { RouteRecordName } from "vue-router";
 import {
     HomeOutline,
     BookmarkOutline,
@@ -110,7 +111,7 @@ const store = useStore();
 const route = useRoute();
 const router = useRouter();
 const hasUnreadMsg = ref(false);
-const selectedPath = ref(route.name || '');
+const selectedPath = ref<any>(route.name || '');
 const msgLoop = ref();
 
 watch(route, () => {
@@ -217,13 +218,13 @@ const menuOptions = computed(() => {
           ];
 });
 
-const renderMenuLabel = (option) => {
+const renderMenuLabel = (option: AnyObject) => {
     if ('href' in option) {
         return h('div', {}, option.label);
     }
     return option.label;
 };
-const renderMenuIcon = (option) => {
+const renderMenuIcon = (option: AnyObject) => {
     if (option.key === 'notification') {
         return h(
             NBadge,
@@ -250,7 +251,7 @@ const renderMenuIcon = (option) => {
     return h(NIcon, null, { default: option.icon });
 };
 
-const goRouter = (name, item) => {
+const goRouter = (name: string, item: any = {}) => {
     selectedPath.value = name;
     router.push({ name });
 };
@@ -261,7 +262,7 @@ const goHome = () => {
 
     goRouter('home');
 };
-const triggerAuth = (key) => {
+const triggerAuth = (key: string) => {
     store.commit('triggerAuth', true);
     store.commit('triggerAuthKey', key);
 };

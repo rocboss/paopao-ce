@@ -133,7 +133,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -160,20 +160,18 @@ const store = useStore();
 const router = useRouter();
 const hasStarred = ref(false);
 const hasCollected = ref(false);
-const props = defineProps({
-    post: {
-        type: Object,
-        default: () => {},
-    },
-});
+const props = withDefaults(defineProps<{
+    post: Item.PostProps,
+}>(), {});
 const showDelModal = ref(false);
 const showLockModal = ref(false);
+const loading = ref(false);
 
 const emit = defineEmits(['reload']);
 
 const post = computed({
     get: () => {
-        let post = Object.assign(
+        let post: Required<Item.PostProps> = Object.assign(
             {
                 texts: [],
                 imgs: [],
@@ -246,7 +244,7 @@ const adminOptions = computed(() => {
     return options;
 });
 
-const goPostDetail = (id) => {
+const goPostDetail = (id: number) => {
     router.push({
         name: 'post',
         query: {
@@ -254,9 +252,9 @@ const goPostDetail = (id) => {
         },
     });
 };
-const doClickText = (e, id) => {
-    if (e.target.dataset.detail) {
-        const d = e.target.dataset.detail.split(':');
+const doClickText = (e: MouseEvent, id: number) => {
+    if ((e.target as any).dataset.detail) {
+        const d = (e.target as any).dataset.detail.split(':');
         if (d.length === 2) {
             store.commit('refresh');
             if (d[0] === 'tag') {
@@ -280,7 +278,7 @@ const doClickText = (e, id) => {
     }
     goPostDetail(id);
 };
-const handlePostAction = (item) => {
+const handlePostAction = (item: "delete" | "lock" | "unlock") => {
     if (item === 'delete') {
         showDelModal.value = true;
     }

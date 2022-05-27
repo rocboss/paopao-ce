@@ -81,7 +81,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
@@ -96,15 +96,12 @@ import {
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
-const props = defineProps({
-    post: {
-        type: Object,
-        default: () => {},
-    },
-});
+const props = withDefaults(defineProps<{
+    post: Item.PostProps,
+}>(), {});
 
 const post = computed(() => {
-    let post = Object.assign(
+    let post: Required<Item.PostProps> = Object.assign(
         {
             texts: [],
             imgs: [],
@@ -137,7 +134,7 @@ const post = computed(() => {
     });
     return post;
 });
-const goPostDetail = (id) => {
+const goPostDetail = (id: number) => {
     router.push({
         name: 'post',
         query: {
@@ -145,9 +142,9 @@ const goPostDetail = (id) => {
         },
     });
 };
-const doClickText = (e, id) => {
-    if (e.target.dataset.detail) {
-        const d = e.target.dataset.detail.split(':');
+const doClickText = (e: MouseEvent, id: number) => {
+    if ((e.target as any).dataset.detail) {
+        const d = (e.target as any).dataset.detail.split(':');
         if (d.length === 2) {
             store.commit('refresh');
             if (d[0] === 'tag') {
