@@ -42,13 +42,16 @@ import { DarkModeOutlined, ChevronLeftRound } from '@vicons/material';
 const store = useStore();
 const router = useRouter();
 
-const props = withDefaults(defineProps<{
-    title: string,
-    back: boolean,
-}>(), {
-    title: "",
-    back: false
-});
+const props = withDefaults(
+    defineProps<{
+        title: string;
+        back?: boolean;
+    }>(),
+    {
+        title: '',
+        back: false,
+    }
+);
 const switchTheme = (theme: boolean) => {
     if (theme) {
         localStorage.setItem('PAOPAO_THEME', 'dark');

@@ -155,14 +155,6 @@ onMounted(() => {
             opacity: 0.75;
         }
 
-        .beian-link {
-            color: #333;
-            text-decoration: none;
-            &:hover {
-                opacity: 0.75;
-            }
-        }
-
         .hash-link {
             font-size: 12px;
         }

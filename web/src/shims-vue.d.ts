@@ -1,5 +1,5 @@
 declare module '*.vue' {
-	import { DefineComponent } from 'vue'
+	import type { DefineComponent } from 'vue'
 	const component: DefineComponent<{}, {}, any>
 	export default component
 }
@@ -12,6 +12,7 @@ declare module '*.gif'
 declare module '*.bmp'
 declare module '*.tiff'
 declare module '*.json'
+declare module 'nonesir-video'
 
 interface AnyObject {
 	[key: string]: any

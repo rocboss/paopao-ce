@@ -64,36 +64,7 @@
                         <n-form
                             ref="registerRef"
                             :model="registerForm"
-                            :rules="{
-                                username: {
-                                    required: true,
-                                    message: '请输入账户名',
-                                },
-                                password: {
-                                    required: true,
-                                    message: '请输入密码',
-                                },
-                                repassword: [
-                                    {
-                                        required: true,
-                                        message: '请输入密码',
-                                    },
-                                    {
-                                        validator: (rule: FormItemRule, value: any) => {
-                                            return (
-                                                !!registerForm.password &&
-                                                registerForm.password.startsWith(
-                                                    value
-                                                ) &&
-                                                registerForm.password.length >=
-                                                    value.length
-                                            );
-                                        },
-                                        message: '两次密码输入不一致',
-                                        trigger: 'input',
-                                    },
-                                ],
-                            }"
+                            :rules="registerRule"
                         >
                             <n-form-item-row label="用户名" path="username">
                                 <n-input
@@ -157,11 +128,38 @@ const registerForm = reactive({
     password: '',
     repassword: '',
 });
+const registerRule = {
+    username: {
+        required: true,
+        message: '请输入账户名',
+    },
+    password: {
+        required: true,
+        message: '请输入密码',
+    },
+    repassword: [
+        {
+            required: true,
+            message: '请输入密码',
+        },
+        {
+            validator: (rule: FormItemRule, value: any) => {
+                return (
+                    !!registerForm.password &&
+                    registerForm.password.startsWith(value) &&
+                    registerForm.password.length >= value.length
+                );
+            },
+            message: '两次密码输入不一致',
+            trigger: 'input',
+        },
+    ],
+};
 const handleLogin = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
 
-    loginRef.value?.validate(errors => {
+    loginRef.value?.validate((errors) => {
         if (!errors) {
             loading.value = true;
 
