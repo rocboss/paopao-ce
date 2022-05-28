@@ -27,6 +27,19 @@ export const sendCaptcha = (data: any) => {
 };
 
 /**
+ * 发送用户私信
+ * @param {Object} data
+ * @returns Promise
+ */
+export const sendUserWhisper = (data: NetParams.UserWhisper) => {
+    return request({
+        method: 'post',
+        url: '/user/whisper',
+        data
+    }) as unknown as Promise<NetParams.UserWhisper>;
+};
+
+/**
  * 绑定用户手机
  * @param {Object} data
  * @returns Promise
@@ -213,7 +226,7 @@ export const getRecharge = (params: NetParams.UserGetRecharge) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getSuggestUsers = (params: {k: string}) => {
+export const getSuggestUsers = (params: { k: string }) => {
     return request({
         method: 'get',
         url: '/suggest/users',
@@ -226,7 +239,7 @@ export const getSuggestUsers = (params: {k: string}) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getSuggestTags = (params: {k: string}) => {
+export const getSuggestTags = (params: { k: string }) => {
     return request({
         method: 'get',
         url: '/suggest/tags',

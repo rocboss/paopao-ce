@@ -61,7 +61,12 @@ declare module NetParams {
     }
 
     interface UserGetCaptcha {
-        
+
+    }
+
+    interface UserWhisper {
+        user_id: number,
+        content: string
     }
 
     interface PostGetPost {
@@ -97,13 +102,13 @@ declare module NetParams {
 
     interface PostGetTags {
         type: "hot" | string,
-        num: number 
+        num: number
     }
 
     interface PostGetPostComments {
         id: number
     }
-    
+
     interface PostCreatePost {
         contents: {
             content: string,
