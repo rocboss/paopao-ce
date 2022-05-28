@@ -80,6 +80,9 @@ func NewRouter() *gin.Engine {
 		// 标记消息已读
 		authApi.POST("/user/message/read", api.ReadMessage)
 
+		// 发送用户私信
+		authApi.POST("/user/whisper", api.SendUserWhisper)
+
 		// 获取用户收藏列表
 		authApi.GET("/user/collections", api.GetUserCollections)
 

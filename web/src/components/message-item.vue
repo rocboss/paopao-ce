@@ -51,13 +51,17 @@
                 >
                     <div class="breif-content">
                         {{ message.breif }}
-
                         <span
+                            v-if="message.type !== 4"
                             @click.stop="viewDetail(message)"
                             class="hash-link view-link"
                         >
                             <n-icon><share-outline /></n-icon> 查看详情
                         </span>
+                    </div>
+
+                    <div v-if="message.type === 4" class="whisper-content-wrap">
+                        {{ message.content }}
                     </div>
                 </n-alert>
             </template>
@@ -75,9 +79,12 @@ const defaultavatar =
     'https://assets.paopao.info/public/avatar/default/admin.png';
 
 const router = useRouter();
-const props = withDefaults(defineProps<{
-    message: Item.MessageProps
-}>(), {});
+const props = withDefaults(
+    defineProps<{
+        message: Item.MessageProps;
+    }>(),
+    {}
+);
 const viewDetail = (message: Item.MessageProps) => {
     handleReadMessage(message);
     if (message.type === 1 || message.type === 2 || message.type === 3) {
@@ -144,6 +151,10 @@ const handleReadMessage = (message: Item.MessageProps) => {
         .breif-content {
             display: flex;
             width: 100%;
+        }
+        .whisper-content-wrap {
+            margin-top: 12px;
+            text-decoration: underline;
         }
     }
 

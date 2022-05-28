@@ -1,6 +1,6 @@
 <template>
     <n-modal
-        v-model:show="store.state.authModelShow"
+        v-model:show="store.state.authModalShow"
         class="auth-card"
         preset="card"
         size="small"

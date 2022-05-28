@@ -64,6 +64,7 @@ declare module Item {
         post_id: number,
         created_on: number,
         breif: string
+        content?: string
     }
 
     interface AttachmentProps {

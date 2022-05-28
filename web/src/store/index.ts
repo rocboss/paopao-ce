@@ -6,7 +6,7 @@ export default createStore({
         theme: localStorage.getItem('PAOPAO_THEME'),
         collapsedLeft: document.body.clientWidth <= 821,
         collapsedRight: document.body.clientWidth <= 821,
-        authModelShow: false,
+        authModalShow: false,
         authModelTab: 'signin',
         userInfo: {
             id: 0,
@@ -22,7 +22,7 @@ export default createStore({
             state.theme = theme;
         },
         triggerAuth(state, status) {
-            state.authModelShow = status;
+            state.authModalShow = status;
         },
         triggerAuthKey(state, key) {
             state.authModelTab = key;
