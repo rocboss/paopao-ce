@@ -94,7 +94,11 @@
             </div>
 
             <div class="phone-bind-wrap" v-if="showPhoneBind">
-                <n-form ref="phoneFormRef" :model="model" :rules="bindRules">
+                <n-form
+                    ref="phoneFormRef"
+                    :model="modelData"
+                    :rules="bindRules"
+                >
                     <n-form-item path="phone" label="手机号">
                         <n-input
                             :value="modelData.phone"
@@ -177,7 +181,7 @@
                 重置密码
             </n-button>
             <div class="phone-bind-wrap" v-if="showPasswordSetting">
-                <n-form ref="formRef" :model="model" :rules="passwordRules">
+                <n-form ref="formRef" :model="modelData" :rules="passwordRules">
                     <n-form-item path="old_password" label="旧密码">
                         <n-input
                             v-model:value="modelData.old_password"
@@ -249,7 +253,13 @@ import {
     changeNickname,
     changeAvatar,
 } from '@/api/user';
-import type { UploadInst, FormItemRule, FormItemInst, FormInst, InputInst } from "naive-ui" 
+import type {
+    UploadInst,
+    FormItemRule,
+    FormItemInst,
+    FormInst,
+    InputInst,
+} from 'naive-ui';
 
 const uploadGateway = import.meta.env.VITE_HOST + '/attachment';
 const uploadToken = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
@@ -279,8 +289,6 @@ const modelData = reactive({
     old_password: null,
     reenteredPassword: null,
 });
-
-const model = ref<AnyObject>({})
 
 const beforeUpload = async (data: any) => {
     // 图片类型校验
@@ -391,13 +399,11 @@ const handlePhoneBind = (e: MouseEvent) => {
                         phone: modelData.phone,
                     });
 
-                    model.value = {
-                        id: '',
-                        b64s: '',
-                        imgCaptcha: '',
-                        phone: null,
-                        phone_captcha: null,
-                    };
+                    modelData.id = '';
+                    modelData.b64s = '';
+                    modelData.imgCaptcha = '';
+                    modelData.phone = '';
+                    modelData.phone_captcha = '';
                 })
                 .catch((err) => {
                     binding.value = false;
