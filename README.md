@@ -82,7 +82,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
 3. 编译后端
     ```sh
     go mod download
-    go build .
+    go build -o paopao-api .
     ```
 4. 启动后端
     ```sh
