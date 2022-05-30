@@ -119,7 +119,7 @@ onMounted(() => {
 .rightbar-wrap {
     width: 240px;
     position: fixed;
-    left: calc(50% + 260px);
+    left: calc(50% + var(--content-main) / 2 + 10px);
     .search-wrap {
         margin: 12px 0;
     }
