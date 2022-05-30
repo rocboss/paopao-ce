@@ -1,3 +1,8 @@
+:root {
+    // 如果要变更中间栏的大小，修改此处即可
+    --content-main: 500px;
+}
+
 .app-container {
     margin: 0;
 
@@ -16,7 +21,7 @@
 
     .content-wrap {
         width: 100%;
-        max-width: 500px;
+        max-width: var(--content-main);
         position: relative;
     }
 
