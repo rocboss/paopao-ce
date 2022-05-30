@@ -42,6 +42,9 @@ type PostDelReq struct {
 type PostLockReq struct {
 	ID int64 `json:"id" binding:"required"`
 }
+type PostStickReq struct {
+	ID int64 `json:"id" binding:"required"`
+}
 type PostStarReq struct {
 	ID int64 `json:"id" binding:"required"`
 }
@@ -159,6 +162,18 @@ func (svc *Service) LockPost(id int64) error {
 	post, _ := svc.dao.GetPostByID(id)
 
 	err := svc.dao.LockPost(post)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (svc *Service) StickPost(id int64) error {
+	post, _ := svc.dao.GetPostByID(id)
+
+	err := svc.dao.StickPost(post)
 
 	if err != nil {
 		return err

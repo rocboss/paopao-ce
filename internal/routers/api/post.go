@@ -266,6 +266,43 @@ func LockPost(c *gin.Context) {
 	})
 }
 
+func StickPost(c *gin.Context) {
+	param := service.PostStickReq{}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &param)
+	if !valid {
+		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+
+	user, _ := c.Get("USER")
+	svc := service.New(c)
+
+	// 获取Post
+	postFormated, err := svc.GetPost(param.ID)
+	if err != nil {
+		global.Logger.Errorf("svc.GetPost err: %v\n", err)
+		response.ToErrorResponse(errcode.GetPostFailed)
+		return
+	}
+
+	if !user.(*model.User).IsAdmin {
+		response.ToErrorResponse(errcode.NoPermission)
+		return
+	}
+	err = svc.StickPost(param.ID)
+	if err != nil {
+		global.Logger.Errorf("svc.StickPost err: %v\n", err)
+		response.ToErrorResponse(errcode.LockPostFailed)
+		return
+	}
+
+	response.ToResponse(gin.H{
+		"top_status": 1 - postFormated.IsTop,
+	})
+}
+
 func GetPostTags(c *gin.Context) {
 	param := service.PostTagsReq{}
 	response := app.NewResponse(c)

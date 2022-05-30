@@ -146,6 +146,9 @@ func NewRouter() *gin.Engine {
 		// 锁定动态
 		privApi.POST("/post/lock", api.LockPost)
 
+		// 置顶动态
+		privApi.POST("/post/stick", api.StickPost)
+
 		// 发布动态评论
 		privApi.POST("/post/comment", api.CreatePostComment)
 

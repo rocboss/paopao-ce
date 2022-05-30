@@ -149,6 +149,20 @@ export const lockPost = (data: NetParams.PostLockPost) => {
 };
 
 /**
+ * 置顶/取消置顶动态
+ * @param {Object} data
+ *  - @param {number} id 
+ * @returns Promise
+ */
+export const stickPost = (data: NetParams.PostStickPost) => {
+    return request({
+        method: 'post',
+        url: '/post/stick',
+        data
+    }) as unknown as Promise<NetReq.PostStickPost>;
+};
+
+/**
  * 发布动态评论
  * @param {Object} data
  *  - @param {array} contents 内容

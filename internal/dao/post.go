@@ -20,6 +20,11 @@ func (d *Dao) LockPost(post *model.Post) error {
 	return post.Update(d.engine)
 }
 
+func (d *Dao) StickPost(post *model.Post) error {
+	post.IsTop = 1 - post.IsTop
+	return post.Update(d.engine)
+}
+
 func (d *Dao) GetPostByID(id int64) (*model.Post, error) {
 	post := &model.Post{
 		Model: &model.Model{

@@ -17,7 +17,7 @@ declare module NetReq {
     }
 
     type UserGetAttachment = string
-    
+
     interface UserGetUnreadMsgCount {
         count: number
     }
@@ -26,7 +26,7 @@ declare module NetReq {
         list: Item.MessageProps[],
         pager: Item.PagerProps
     }
-    
+
     interface UserGetUserPosts {
         list: Item.PostProps[],
         pager: Item.PagerProps
@@ -71,6 +71,10 @@ declare module NetReq {
 
     interface PostLockPost {
         lock_status: number
+    }
+
+    interface PostStickPost {
+        top_status: number
     }
 
     interface PostGetPostStar {
