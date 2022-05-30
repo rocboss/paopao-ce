@@ -23,8 +23,7 @@ require (
 	github.com/smartwalle/alipay/v3 v3.1.7
 	github.com/spf13/viper v1.10.1
 	github.com/ugorji/go v1.2.7 // indirect
-	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc // indirect
-	github.com/yinheli/qqwry v0.0.0-20160229183603-f50680010f4a
+	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
 	golang.org/x/crypto v0.0.0-20220307211146-efcb8507fb70 // indirect
 	golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
