@@ -190,7 +190,7 @@ declare module Item {
     interface MessageProps {
         id: number,
         /** 类型：1为动态，2为评论，3为回复，4为私信，99为系统通知 */
-        type: number,
+        type: 1 | 2 | 3 | 4 | 99,
         /** 摘要说明 */
         breif: string,
         /** 详细内容 */
