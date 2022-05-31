@@ -6,6 +6,9 @@ node_modules
 .cache
 .eslintcache
 
+# local env files
+*.local
+
 # Logs
 logs
 *.log
