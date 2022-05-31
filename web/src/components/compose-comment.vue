@@ -265,7 +265,7 @@ const finishUpload = ({ file, event }: any): any => {
                 imageContents.value.push({
                     id: file.id,
                     content: data.data.content,
-                });
+                } as Item.CommentItemProps);
             }
         }
     } catch (error) {

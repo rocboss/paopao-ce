@@ -120,13 +120,13 @@ const props = withDefaults(defineProps<{
 }>(), {})
 
 const comment = computed(() => {
-    let comment = Object.assign(
+    let comment: Item.CommentComponentProps = Object.assign(
         {
             texts: [],
             imgs: [],
         },
         props.comment
-    ) as {texts: Item.CommentProps[], imgs: Item.CommentProps[]} & Item.CommentProps;
+    );
     comment.contents.map((content :any) => {
         if (+content.type === 1 || +content.type === 2) {
             comment.texts.push(content);

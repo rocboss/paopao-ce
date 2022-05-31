@@ -265,7 +265,7 @@ const uploadType = ref('public/image');
 const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
 const videoContents = ref<Item.CommentItemProps[]>([]);
-const attachmentContents = ref<Item.CommentItemProps[]>([]);
+const attachmentContents = ref<Item.AttachmentProps[]>([]);
 
 const uploadGateway = import.meta.env.VITE_HOST + '/attachment';
 const uploadToken = ref();
@@ -402,19 +402,19 @@ const finishUpload = ({ file, event }: any): any => {
                 imageContents.value.push({
                     id: file.id,
                     content: data.data.content,
-                });
+                } as Item.CommentItemProps);
             }
             if (uploadType.value === 'public/video') {
                 videoContents.value.push({
                     id: file.id,
                     content: data.data.content,
-                });
+                } as Item.CommentItemProps);
             }
             if (uploadType.value === 'attachment') {
                 attachmentContents.value.push({
                     id: file.id,
                     content: data.data.content,
-                });
+                } as Item.AttachmentProps);
             }
         }
     } catch (error) {
