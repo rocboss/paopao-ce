@@ -44,7 +44,7 @@ func SyncSearchIndex(c *gin.Context) {
 func GetCaptcha(c *gin.Context) {
 	cap := captcha.New()
 
-	if err := cap.SetFont("comic.ttf"); err != nil {
+	if err := cap.SetFont("assets/comic.ttf"); err != nil {
 		panic(err.Error())
 	}
 

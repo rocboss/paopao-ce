@@ -76,8 +76,8 @@ const props = withDefaults(defineProps<{
 }>(), {});
 const store = useStore();
 const emit = defineEmits<{
-    (e: "focusReply", reply: Item.ReplyProps): void,
-    (e: "reload"): void
+    (e: 'focusReply', reply: Item.ReplyProps): void,
+    (e: 'reload'): void
 }>();
 
 const focusReply = () => {

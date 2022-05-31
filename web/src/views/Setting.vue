@@ -285,9 +285,9 @@ const modelData = reactive({
     imgCaptcha: '',
     phone: '',
     phone_captcha: '',
-    password: "",
-    old_password: "",
-    reenteredPassword: "",
+    password: '',
+    old_password: '',
+    reenteredPassword: '',
 });
 
 const beforeUpload = async (data: any) => {

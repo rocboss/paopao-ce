@@ -113,7 +113,7 @@ const replyAtUsername = ref('');
 const replyComposeRef = ref();
 
 const emit = defineEmits<{
-    (e: "reload"): void
+    (e: 'reload'): void
 }>();
 const props = withDefaults(defineProps<{
     comment: Item.CommentProps
