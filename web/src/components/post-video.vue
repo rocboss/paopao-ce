@@ -22,7 +22,7 @@ import NVideo from 'nonesir-video';
 
 const props = withDefaults(
     defineProps<{
-        videos: Item.PostProps[];
+        videos: Item.PostItemProps[];
         full?: boolean;
     }>(),
     {

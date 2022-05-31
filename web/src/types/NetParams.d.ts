@@ -1,8 +1,26 @@
 declare module NetParams {
 
     interface AuthUserLogin {
-        username?: string,
-        password?: string
+        /** 用户名 */
+        username: string,
+        /** 密码 */
+        password: string
+    }
+
+    interface AuthUserRegister {
+        /** 用户名 */
+        username: string,
+        /** 密码 */
+        password: string
+    }
+
+    type AuthUserInfo = string
+
+    interface AuthUpdateUserPassword {
+        /** 新密码 */
+        password: string,
+        /** 旧密码 */
+        old_password: string
     }
 
     interface UserGetCollections {
@@ -28,6 +46,7 @@ declare module NetParams {
     }
 
     interface UserGetUserPosts {
+        /** 用户名 */
         username: string,
         page: number,
         page_size: number
@@ -69,6 +88,18 @@ declare module NetParams {
         content: string
     }
 
+    interface UserChangePassword {
+        /** 新密码 */
+        password: string,
+        /** 旧密码 */
+        old_password: string
+    }
+
+    interface UserChangeNickname {
+        /** 昵称 */
+        nickname: string
+    }
+
     interface PostGetPost {
         id: number
     }
@@ -92,11 +123,11 @@ declare module NetParams {
         id: number
     }
 
-    interface PostGetPostCollection {
+    interface PostPostStar {
         id: number
     }
 
-    interface PostPostStar {
+    interface PostGetPostCollection {
         id: number
     }
 
@@ -114,14 +145,44 @@ declare module NetParams {
     }
 
     interface PostCreatePost {
-        contents: {
-            content: string,
-            type: number,
-            sort: number
-        }[],
+        /** 帖子内容列表 */
+        contents: Partial<Item.PostItemProps>[],
+        /** 标签列表 */
         tags: string[],
+        /** 艾特用户列表 */
         users: string[],
+        /** 附件价格 */
         attachment_price: number
+    }
+
+    interface PostDeletePost {
+        id: number
+    }
+
+    interface PostCreateComment {
+        /** 内容ID */
+        post_id: number,
+        /** 帖子内容列表 */
+        contents: Partial<Item.CommentItemProps>[],
+        /** 艾特用户列表 */
+        users: string[]
+    }
+
+    interface PostDeleteComment {
+        id: number
+    }
+
+    interface PostCreateCommentReply {
+        /** 艾特的用户UID */
+        at_user_id: number,
+        /** 回复的评论ID */
+        comment_id: number,
+        /** 回复内容 */
+        content: string
+    }
+
+    interface PostDeleteCommentReply{
+        id: number
     }
 
 }

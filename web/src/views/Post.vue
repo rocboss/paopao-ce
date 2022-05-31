@@ -54,7 +54,7 @@ const route = useRoute();
 const post = ref<Item.PostProps>({} as Item.PostProps);
 const loading = ref(false);
 const commentLoading = ref(false);
-const comments = ref<Item.PostProps[]>([]);
+const comments = ref<Item.CommentProps[]>([]);
 const postId = computed(() => +(route.query.id as string));
 
 const loadPost = () => {

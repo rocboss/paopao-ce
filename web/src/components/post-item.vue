@@ -101,7 +101,7 @@ const props = withDefaults(defineProps<{
 }>(), {});
 
 const post = computed(() => {
-    let post: Required<Item.PostProps> = Object.assign(
+    let post: Item.PostComponentProps = Object.assign(
         {
             texts: [],
             imgs: [],

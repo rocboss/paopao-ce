@@ -42,7 +42,7 @@ import { precheckAttachment, getAttachment } from '@/api/user';
 
 const props = withDefaults(
     defineProps<{
-        attachments: Item.AttachmentProps[];
+        attachments: Item.PostItemProps[];
         price?: number;
     }>(),
     {
@@ -54,7 +54,7 @@ const showDownloadModal = ref(false);
 const downloadTip = ref<any>('');
 const attachmentID = ref(0);
 
-const download = (attachment: Item.AttachmentProps) => {
+const download = (attachment: Item.PostItemProps) => {
     showDownloadModal.value = true;
     attachmentID.value = attachment.id;
 
