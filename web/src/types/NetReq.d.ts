@@ -1,158 +1,142 @@
-declare module NetReq {
+declare namespace NetReq {
+  interface AuthUserLogin {
+    token: string;
+  }
 
-    interface AuthUserLogin {
-        token: string
-    }
+  interface AuthUserRegister {
+    /** 用户UID */
+    id: number;
+    /** 用户名 */
+    username: string;
+  }
 
-    interface AuthUserRegister {
-        /** 用户UID */
-        id: number,
-        /** 用户名 */
-        username: string
-    }
+  type AuthUserInfo = Item.UserInfo;
 
-    type AuthUserInfo = Item.UserInfo
+  interface AuthUpdateUserPassword {}
 
-    interface AuthUpdateUserPassword {
+  interface UserGetCollections {
+    /** 帖子列表 */
+    list: Item.PostProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    }
+  type UserGetSuggestUsers = string[];
+  type UserGetSuggestTags = string[];
 
-    interface UserGetCollections {
-        /** 帖子列表 */
-        list: Item.PostProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
+  interface UserPrecheckAttachment {
+    paid: number;
+  }
 
-    type UserGetSuggestUsers = string[]
-    type UserGetSuggestTags = string[]
+  type UserGetAttachment = string;
 
-    interface UserPrecheckAttachment {
-        paid: number
-    }
+  interface UserGetUnreadMsgCount {
+    count: number;
+  }
 
-    type UserGetAttachment = string
+  interface UserGetMessages {
+    /** 消息列表 */
+    list: Item.MessageProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    interface UserGetUnreadMsgCount {
-        count: number
-    }
+  interface UserGetUserPosts {
+    /** 帖子列表 */
+    list: Item.PostProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    interface UserGetMessages {
-        /** 消息列表 */
-        list: Item.MessageProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
+  interface UserGetStars {
+    /** 帖子列表 */
+    list: Item.PostProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    interface UserGetUserPosts {
-        /** 帖子列表 */
-        list: Item.PostProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
+  type UserGetUserProfile = Item.UserInfo;
 
-    interface UserGetStars {
-        /** 帖子列表 */
-        list: Item.PostProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
+  interface UserGetBills {
+    list: Item.BillProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    type UserGetUserProfile = Item.UserInfo
+  interface UserReqRecharge {
+    id: number;
+    pay: string;
+  }
 
-    interface UserGetBills {
-        list: Item.BillProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
+  interface UserGetRecharge {
+    status: string;
+  }
 
-    interface UserReqRecharge {
-        id: number,
-        pay: string
-    }
+  interface UserBindUserPhone {}
 
-    interface UserGetRecharge {
-        status: string
-    }
+  interface UserGetCaptcha {
+    id: string;
+    /** 头像图片 base64 */
+    b64s: string;
+  }
 
-    interface UserBindUserPhone {
+  interface UserChangeNickname {}
 
-    }
+  interface UserChangePassword {}
 
-    interface UserGetCaptcha {
-        id: string,
-        /** 头像图片 base64 */
-        b64s: string
-    }
+  type PostGetPost = Item.PostProps;
 
-    interface UserChangeNickname {
-        
-    }
+  interface PostGetPosts {
+    /** 帖子列表 */
+    list: Item.PostProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    interface UserChangePassword {
+  interface PostLockPost {
+    /** 锁定状态：0为未锁定，1为锁定 */
+    lock_status: 0 | 1;
+  }
 
-    }
+  interface PostStickPost {
+    /** 置顶状态：0为未置顶，1为置顶 */
+    top_status: 0 | 1;
+  }
 
-    type PostGetPost = Item.PostProps
+  interface PostGetPostStar {
+    status: boolean;
+  }
 
-    interface PostGetPosts {
-        /** 帖子列表 */
-        list: Item.PostProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
+  interface PostPostStar {
+    status: boolean;
+  }
 
-    interface PostLockPost {
-        /** 锁定状态：0为未锁定，1为锁定 */
-        lock_status: 0 | 1
-    }
+  interface PostGetPostCollection {
+    status: boolean;
+  }
 
-    interface PostStickPost {
-        /** 置顶状态：0为未置顶，1为置顶 */
-        top_status: 0 | 1
-    }
+  interface PostPostCollection {
+    status: boolean;
+  }
 
-    interface PostGetPostStar {
-        status: boolean
-    }
+  type PostGetTags = Item.TagProps[];
 
-    interface PostPostStar {
-        status: boolean
-    }
+  interface PostGetPostComments {
+    /** 评论列表 */
+    list: Item.CommentProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    interface PostGetPostCollection {
-        status: boolean
-    }
+  type PostCreatePost = Item.PostProps;
 
-    interface PostPostCollection {
-        status: boolean
-    }
+  interface PostDeletePost {}
 
-    type PostGetTags = Item.TagProps[]
+  type PostCreateComment = Item.CommentProps;
 
-    interface PostGetPostComments {
-        /** 评论列表 */
-        list: Item.CommentProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
+  interface PostDeleteComment {}
 
-    type PostCreatePost = Item.PostProps
+  type PostCreateCommentReply = Item.ReplyProps;
 
-    interface PostDeletePost {
-        
-    }
-
-    type PostCreateComment = Item.CommentProps
-
-    interface PostDeleteComment {
-        
-    }
-
-    type PostCreateCommentReply = Item.ReplyProps
-
-    interface PostDeleteCommentReply{
-        
-    }
-
+  interface PostDeleteCommentReply {}
 }

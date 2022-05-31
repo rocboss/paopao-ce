@@ -1,34 +1,34 @@
 <template>
-    <div>
-        <main-nav title="提醒" />
+  <div>
+    <main-nav title="提醒" />
 
-        <n-list class="main-content-wrap messages-wrap" bordered>
-            <div v-if="loading" class="skeleton-wrap">
-                <message-skeleton :num="pageSize" />
-            </div>
+    <n-list class="main-content-wrap messages-wrap" bordered>
+      <div v-if="loading" class="skeleton-wrap">
+        <message-skeleton :num="pageSize" />
+      </div>
 
-            <div v-else>
-                <div class="empty-wrap" v-if="list.length === 0">
-                    <n-empty size="large" description="暂无数据" />
-                </div>
+      <div v-else>
+        <div v-if="list.length === 0" class="empty-wrap">
+          <n-empty size="large" description="暂无数据" />
+        </div>
 
-                <n-list-item v-for="m in list" :key="m.id">
-                    <message-item :message="m" />
-                </n-list-item>
-            </div>
+        <n-list-item v-for="m in list" :key="m.id">
+          <message-item :message="m" />
+        </n-list-item>
+      </div>
 
-            <template #footer>
-                <div class="pagination-wrap" v-if="totalPage > 0">
-                    <n-pagination
-                        :page="page"
-                        @update:page="updatePage"
-                        :page-slot="!store.state.collapsedRight ? 8 : 5"
-                        :page-count="totalPage"
-                    />
-                </div>
-            </template>
-        </n-list>
-    </div>
+      <template #footer>
+        <div v-if="totalPage > 0" class="pagination-wrap">
+          <n-pagination
+            :page="page"
+            :page-slot="!store.state.collapsedRight ? 8 : 5"
+            :page-count="totalPage"
+            @update:page="updatePage"
+          />
+        </div>
+      </template>
+    </n-list>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -45,34 +45,34 @@ const totalPage = ref(0);
 const list = ref<Item.MessageProps[]>([]);
 
 const loadMessages = () => {
-    loading.value = true;
-    getMessages({
-        page: page.value,
-        page_size: pageSize.value,
+  loading.value = true;
+  getMessages({
+    page: page.value,
+    page_size: pageSize.value,
+  })
+    .then((res) => {
+      loading.value = false;
+      list.value = res.list;
+      totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
     })
-        .then((res) => {
-            loading.value = false;
-            list.value = res.list;
-            totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
-        })
-        .catch((err) => {
-            loading.value = false;
-        });
+    .catch((err) => {
+      loading.value = false;
+    });
 };
 const updatePage = (p: number) => {
-    page.value = p;
-    loadMessages();
+  page.value = p;
+  loadMessages();
 };
 onMounted(() => {
-    loadMessages();
+  loadMessages();
 });
 </script>
 
 <style lang="less" scoped>
 .pagination-wrap {
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
 }
 </style>

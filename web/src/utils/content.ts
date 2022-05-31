@@ -2,8 +2,8 @@
 export const parsePostTag = (content: string) => {
     const tags: string[] = []
     const users: string[] = []
-    var tagExp = /(#|＃)([^#@])+?\s+?/g // 这⾥中⽂#和英⽂#都会识别
-    var atExp = /@([a-zA-Z0-9])+?\s+?/g // 这⾥中⽂#和英⽂#都会识别
+    const tagExp = /(#|＃)([^#@])+?\s+?/g // 这⾥中⽂#和英⽂#都会识别
+    const atExp = /@([a-zA-Z0-9])+?\s+?/g // 这⾥中⽂#和英⽂#都会识别
     content = content
         .replace(/<[^>]*?>/gi, '')
         .replace(/(.*?)<\/[^>]*?>/gi, '')

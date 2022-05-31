@@ -1,100 +1,99 @@
 :root {
-    // 如果要变更中间栏的大小，修改此处即可
-    --content-main: 500px;
+  // 如果要变更中间栏的大小，修改此处即可
+  --content-main: 500px;
 }
 
 .app-container {
-    margin: 0;
+  margin: 0;
 
-    .app-wrap {
-        width: 100%;
-        // max-width: 1000px;
-        margin: 0 auto;
-    }
+  .app-wrap {
+    width: 100%;
+    // max-width: 1000px;
+    margin: 0 auto;
+  }
 }
 
 .main-wrap {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 
-    .content-wrap {
-        width: 100%;
-        max-width: var(--content-main);
-        position: relative;
+  .content-wrap {
+    width: 100%;
+    max-width: var(--content-main);
+    position: relative;
+  }
+
+  .main-content-wrap {
+    margin: 0;
+    border-top: none;
+    border-radius: 0;
+
+    .n-list-item {
+      padding: 0;
     }
-
-    .main-content-wrap {
-        margin: 0;
-        border-top: none;
-        border-radius: 0;
-
-        .n-list-item {
-            padding: 0;
-        }
-    }
+  }
 }
 
 .empty-wrap {
-    min-height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hash-link,
 .user-link {
-    color: #18a058;
-    text-decoration: none;
-    cursor: pointer;
+  color: #18a058;
+  text-decoration: none;
+  cursor: pointer;
 
-    &:hover {
-        opacity: 0.8;
-    }
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .beian-link {
-    color: #333;
-    text-decoration: none;
+  color: #333;
+  text-decoration: none;
 
-    &:hover {
-        opacity: 0.75;
-    }
+  &:hover {
+    opacity: 0.75;
+  }
 }
 
 .username-link {
-    color: #000;
-    color: none;
-    text-decoration: none;
-    cursor: pointer;
+  color: #000;
+  color: none;
+  text-decoration: none;
+  cursor: pointer;
 
-    &:hover {
-        text-decoration: underline;
-    }
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .dark {
+  .hash-link,
+  .user-link {
+    color: #63e2b7;
+  }
 
-    .hash-link,
-    .user-link {
-        color: #63e2b7;
-    }
+  .username-link {
+    color: #eee;
+  }
 
-    .username-link {
-        color: #eee;
-    }
-
-    .beian-link {
-        color: #ddd;
-    }
+  .beian-link {
+    color: #ddd;
+  }
 }
 
 @media screen and (max-width: 821px) {
-    .content-wrap {
-        top: 0;
-        left: 60px;
-        position: absolute !important;
-        width: calc(100% - 60px) !important;
-    }
+  .content-wrap {
+    top: 0;
+    left: 60px;
+    position: absolute !important;
+    width: calc(100% - 60px) !important;
+  }
 }

@@ -1,8 +1,8 @@
 // 滚动到顶部
 export const scrollToTop = (scrollDuration: number) => {
-    var cosParameter = window.scrollY / 2;
-    var scrollCount = 0;
-    var oldTimestamp = performance.now();
+    const cosParameter = window.scrollY / 2;
+    let scrollCount = 0;
+    let oldTimestamp = performance.now();
     function step(newTimestamp: number) {
         scrollCount +=
             Math.PI / (scrollDuration / (newTimestamp - oldTimestamp));
