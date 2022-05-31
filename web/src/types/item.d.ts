@@ -28,7 +28,7 @@ declare module Item {
         /** 评论者UID */
         user_id: number,
         /** 类别：1为标题，2为文字段落，3为图片地址，4为视频地址，5为语音地址，6为链接地址 */
-        type: 1 | 2 | 3 | 4 | 5 | 6,
+        type: number,
         /** 内容 */
         content: string,
         /** 排序，越小越靠前 */
@@ -111,7 +111,7 @@ declare module Item {
         /** 内容ID */
         id: number,
         /** 类型：1为标题，2为文字段落，3为图片地址，4为视频地址，5为语音地址，6为链接地址，7为附件资源，8为收费资源 */
-        type: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
+        type: number,
         /** POST ID */
         post_id: number,
         /** 内容 */
