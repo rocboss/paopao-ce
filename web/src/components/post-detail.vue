@@ -59,10 +59,29 @@
                     :mask-closable="false"
                     preset="dialog"
                     title="提示"
-                    content="确定锁定该泡泡动态吗？"
+                    :content="
+                        '确定' +
+                        (post.is_lock ? '解锁' : '锁定') +
+                        '该泡泡动态吗？'
+                    "
                     positive-text="确认"
                     negative-text="取消"
                     @positive-click="execLockAction"
+                />
+                <!-- 置顶确认 -->
+                <n-modal
+                    v-model:show="showStickModal"
+                    :mask-closable="false"
+                    preset="dialog"
+                    title="提示"
+                    :content="
+                        '确定' +
+                        (post.is_top ? '取消置顶' : '置顶') +
+                        '该泡泡动态吗？'
+                    "
+                    positive-text="确认"
+                    negative-text="取消"
+                    @positive-click="execStickAction"
                 />
             </template>
             <div v-if="post.texts.length > 0">
@@ -154,21 +173,26 @@ import {
     postCollection,
     deletePost,
     lockPost,
+    stickPost,
 } from '@/api/post';
 
 const store = useStore();
 const router = useRouter();
 const hasStarred = ref(false);
 const hasCollected = ref(false);
-const props = withDefaults(defineProps<{
-    post: Item.PostProps,
-}>(), {});
+const props = withDefaults(
+    defineProps<{
+        post: Item.PostProps;
+    }>(),
+    {}
+);
 const showDelModal = ref(false);
 const showLockModal = ref(false);
+const showStickModal = ref(false);
 const loading = ref(false);
 
 const emit = defineEmits<{
-    (e: "reload"): void
+    (e: 'reload'): void;
 }>();
 
 const post = computed({
@@ -232,16 +256,17 @@ const adminOptions = computed(() => {
         });
     }
     if (store.state.userInfo.is_admin) {
-        options.push(
-            {
+        if (post.value.is_top === 0) {
+            options.push({
                 label: '置顶',
-                key: 'top',
-            },
-            {
-                label: '精华',
-                key: 'essence',
-            }
-        );
+                key: 'stick',
+            });
+        } else {
+            options.push({
+                label: '取消置顶',
+                key: 'unstick',
+            });
+        }
     }
     return options;
 });
@@ -280,12 +305,17 @@ const doClickText = (e: MouseEvent, id: number) => {
     }
     goPostDetail(id);
 };
-const handlePostAction = (item: "delete" | "lock" | "unlock") => {
+const handlePostAction = (
+    item: 'delete' | 'lock' | 'unlock' | 'stick' | 'unstick'
+) => {
     if (item === 'delete') {
         showDelModal.value = true;
     }
     if (item === 'lock' || item === 'unlock') {
         showLockModal.value = true;
+    }
+    if (item === 'stick' || item === 'unstick') {
+        showStickModal.value = true;
     }
 };
 const execDelAction = () => {
@@ -314,6 +344,22 @@ const execLockAction = () => {
                 window.$message.success('锁定成功');
             } else {
                 window.$message.success('解锁成功');
+            }
+        })
+        .catch((err) => {
+            loading.value = false;
+        });
+};
+const execStickAction = () => {
+    stickPost({
+        id: post.value.id,
+    })
+        .then((res) => {
+            emit('reload');
+            if (res.top_status === 1) {
+                window.$message.success('置顶成功');
+            } else {
+                window.$message.success('取消置顶成功');
             }
         })
         .catch((err) => {

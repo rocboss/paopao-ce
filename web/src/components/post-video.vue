@@ -20,11 +20,14 @@
 import { reactive } from 'vue';
 import NVideo from 'nonesir-video';
 
-const props = withDefaults(defineProps<{
-    videos: Item.PostProps[],
-    full: boolean,
-}>(), {
-    videos: () => [],
-    full: false
-});
+const props = withDefaults(
+    defineProps<{
+        videos: Item.PostProps[];
+        full?: boolean;
+    }>(),
+    {
+        videos: () => [],
+        full: false,
+    }
+);
 </script>

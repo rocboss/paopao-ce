@@ -46,7 +46,7 @@ declare module Item {
         content: string,
         contents: PostProps[],
         is_lock: number,
-        is_top: boolean,
+        is_top: number,
         texts?: PostProps[],
         imgs?: PostProps[],
         videos?: PostProps[],
@@ -64,6 +64,7 @@ declare module Item {
         post_id: number,
         created_on: number,
         breif: string
+        content?: string
     }
 
     interface AttachmentProps {

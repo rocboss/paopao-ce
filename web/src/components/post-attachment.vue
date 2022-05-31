@@ -40,13 +40,16 @@ import { h, ref } from 'vue';
 import { CloudDownloadOutline } from '@vicons/ionicons5';
 import { precheckAttachment, getAttachment } from '@/api/user';
 
-const props = withDefaults(defineProps<{
-    attachments: Item.AttachmentProps[],
-    price: number,
-}>(), {
-    attachments: () => [],
-    price: 0
-});
+const props = withDefaults(
+    defineProps<{
+        attachments: Item.AttachmentProps[];
+        price?: number;
+    }>(),
+    {
+        attachments: () => [],
+        price: 0,
+    }
+);
 const showDownloadModal = ref(false);
 const downloadTip = ref<any>('');
 const attachmentID = ref(0);

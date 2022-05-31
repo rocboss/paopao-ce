@@ -23,13 +23,20 @@
                                 size="small"
                                 secondary
                                 type="primary"
-                                @click="doWhisper"
+                                @click="openWhisper"
                             >
                                 私信
                             </n-button>
                         </n-space>
                     </div>
                 </div>
+
+                <!-- 私信组件 -->
+                <whisper
+                    :show="showWhisper"
+                    :user="user"
+                    @success="whisperSuccess"
+                />
             </n-spin>
             <template #footer>
                 <div class="pagination-wrap" v-if="totalPage > 0">
@@ -78,6 +85,7 @@ const user = reactive({
     nickname: '',
 });
 const userLoading = ref(false);
+const showWhisper = ref(false);
 const list = ref<Item.PostProps[]>([]);
 const username = ref(route.query.username || '');
 const page = ref(+(route.query.p as string) || 1);
@@ -126,8 +134,12 @@ const updatePage = (p: number) => {
     loadPosts();
 };
 
-const doWhisper = () => {
-    window.$message.warning('您尚未获得私信权限');
+const openWhisper = () => {
+    // window.$message.warning('您尚未获得私信权限');
+    showWhisper.value = true;
+};
+const whisperSuccess = () => {
+    showWhisper.value = false;
 };
 watch(
     () => ({

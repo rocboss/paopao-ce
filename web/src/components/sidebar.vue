@@ -279,7 +279,7 @@ window.$message = useMessage();
     width: 200px;
     height: 100vh;
     position: fixed;
-    right: calc(50% + 260px);
+    right: calc(50% + var(--content-main) / 2 + 10px);
     padding: 12px 0;
     box-sizing: border-box;
     .n-menu .n-menu-item-content::before {

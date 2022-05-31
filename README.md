@@ -71,6 +71,12 @@ PaoPao主要由以下优秀的开源项目/工具构建
 
 ### 3. 安装说明
 
+***宝塔安装***
+
+我们为宝塔用户提供了超详细安装教程 [点此查看](https://www.rocs.me/archives/paopao_bt_install.html)
+
+***普通安装***
+
 克隆代码库
    ```sh
    git clone https://github.com/rocboss/paopao-ce.git
@@ -82,7 +88,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
 3. 编译后端
     ```sh
     go mod download
-    go build .
+    go build -o paopao-api .
     ```
 4. 启动后端
     ```sh
@@ -107,8 +113,10 @@ PaoPao主要由以下优秀的开源项目/工具构建
 
 #### 3.3 其他
 建议后端服务使用 `supervisor` 守护进程，并通过nginx反向代理后，提供API给前端服务调用。
-短信通道使用的juhe数据，如果申请不下来，可以考虑替换其他服务商。
-代码结构比较简单，喜欢的朋友欢迎给个Star、贡献PR。
+
+短信通道使用的聚合数据(juhe.cn)，如果申请不下来，可以考虑替换其他服务商。
+
+代码结构比较简单，很方便扩展，喜欢的朋友欢迎给个Star、贡献PR。
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [contributors-shield]: https://img.shields.io/github/contributors/rocboss/paopao-ce?style=flat

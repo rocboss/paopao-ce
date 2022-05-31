@@ -33,6 +33,7 @@ var (
 	DownloadReqError        = NewError(30008, "附件下载请求失败")
 	InsuffientDownloadMoney = NewError(30009, "附件下载失败:账户资金不足")
 	DownloadExecFail        = NewError(30010, "附件下载失败:扣费失败")
+	StickPostFailed         = NewError(30011, "动态置顶失败")
 
 	GetCommentsFailed   = NewError(40001, "获取评论列表失败")
 	CreateCommentFailed = NewError(40002, "评论发布失败")
@@ -44,6 +45,9 @@ var (
 
 	GetMessagesFailed = NewError(50001, "获取消息列表失败")
 	ReadMessageFailed = NewError(50002, "标记消息已读失败")
+	SendWhisperFailed = NewError(50003, "私信发送失败")
+	NoWhisperToSelf   = NewError(50004, "不允许给自己发送私信")
+	TooManyWhisperNum = NewError(50005, "今日私信次数已达上限")
 
 	GetCollectionsFailed = NewError(60001, "获取收藏列表失败")
 	GetStarsFailed       = NewError(60002, "获取点赞列表失败")

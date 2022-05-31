@@ -119,7 +119,7 @@ onMounted(() => {
 .rightbar-wrap {
     width: 240px;
     position: fixed;
-    left: calc(50% + 260px);
+    left: calc(50% + var(--content-main) / 2 + 10px);
     .search-wrap {
         margin: 12px 0;
     }
@@ -153,14 +153,6 @@ onMounted(() => {
         .copyright {
             font-size: 12px;
             opacity: 0.75;
-        }
-
-        .beian-link {
-            color: #333;
-            text-decoration: none;
-            &:hover {
-                opacity: 0.75;
-            }
         }
 
         .hash-link {
