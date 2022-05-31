@@ -4,7 +4,7 @@ set -e
 DIST_PREFIX=${1}
 DEBUG_MODE=${2}
 TARGET_DIR="dist"
-PLATFORMS="darwin/arm64 linux/amd64 windows/amd64"
+PLATFORMS="darwin/amd64 darwin/arm64 linux/amd64 windows/amd64"
 
 rm -rf ${TARGET_DIR}
 mkdir ${TARGET_DIR}
