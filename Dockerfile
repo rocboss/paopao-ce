@@ -15,7 +15,7 @@ ENV TZ=Asia/Shanghai
 RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
 
 COPY --from=build-env /paopao-ce/paopao-ce /usr/bin/paopao-ce
-COPY --from=build-env /paopao-ce/comic.ttf /comic.ttf
+COPY --from=build-env /paopao-ce/assets/comic.ttf /assets/comic.ttf
 COPY --from=build-env /paopao-ce/configs /configs
 
 EXPOSE 8000

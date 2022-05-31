@@ -1,5 +1,7 @@
+.idea
 .vscode
-__debug_bin
+!*.example
+dist/
 config.yaml
 *.log
-paopao-api
+paopao-ce*
