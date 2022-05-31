@@ -53,6 +53,21 @@ func GetImageSize(img image.Rectangle) (int, int) {
 	return width, height
 }
 
+func fileCheck(uploadType string, size int64) error {
+	if uploadType != "public/video" &&
+		uploadType != "public/image" &&
+		uploadType != "public/avatar" &&
+		uploadType != "attachment" {
+		return errcode.InvalidParams
+	}
+
+	if size > 1024*1024*100 {
+		return errcode.FileInvalidSize.WithDetails("最大允许100MB")
+	}
+
+	return nil
+}
+
 func UploadAttachment(c *gin.Context) {
 	response := app.NewResponse(c)
 	svc := service.New(c)
@@ -66,16 +81,9 @@ func UploadAttachment(c *gin.Context) {
 	}
 	defer file.Close()
 
-	if uploadType != "public/video" &&
-		uploadType != "public/image" &&
-		uploadType != "public/avatar" &&
-		uploadType != "attachment" {
-		response.ToErrorResponse(errcode.InvalidParams)
-		return
-	}
-
-	if fileHeader.Size > 1024*1024*100 {
-		response.ToErrorResponse(errcode.FileInvalidSize.WithDetails("最大允许100MB"))
+	if err = fileCheck(uploadType, fileHeader.Size); err != nil {
+		cErr, _ := err.(*errcode.Error)
+		response.ToErrorResponse(cErr)
 		return
 	}
 
@@ -129,19 +137,20 @@ func UploadAttachment(c *gin.Context) {
 		attachment.UserID = userID.(int64)
 	}
 
-	if uploadType == "public/image" || uploadType == "public/avatar" {
-		attachment.Type = model.ATTACHMENT_TYPE_IMAGE
+	var uploadAttachmentTypeMap = map[string]model.AttachmentType{
+		"public/image":  model.ATTACHMENT_TYPE_IMAGE,
+		"public/avatar": model.ATTACHMENT_TYPE_IMAGE,
+		"public/video":  model.ATTACHMENT_TYPE_VIDEO,
+		"attachment":    model.ATTACHMENT_TYPE_OTHER,
+	}
 
-		src, err := imaging.Decode(file)
+	attachment.Type = uploadAttachmentTypeMap[uploadType]
+	if attachment.Type == model.ATTACHMENT_TYPE_IMAGE {
+		var src image.Image
+		src, err = imaging.Decode(file)
 		if err == nil {
 			attachment.ImgWidth, attachment.ImgHeight = GetImageSize(src.Bounds())
 		}
-	}
-	if uploadType == "public/video" {
-		attachment.Type = model.ATTACHMENT_TYPE_VIDEO
-	}
-	if uploadType == "attachment" {
-		attachment.Type = model.ATTACHMENT_TYPE_OTHER
 	}
 
 	attachment, err = svc.CreateAttachment(attachment)

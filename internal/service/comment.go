@@ -186,21 +186,22 @@ func (svc *Service) DeletePostComment(comment *model.Comment) error {
 	return svc.dao.DeleteComment(comment)
 }
 
-func (svc *Service) CreatePostCommentReply(commentID int64, content string, userID, atUserID int64) (*model.CommentReply, error) {
+func (svc *Service) createPostPreHandler(commentID int64, userID, atUserID int64) (*model.Post, *model.Comment, int64,
+	error) {
 	// 加载Comment
 	comment, err := svc.dao.GetCommentByID(commentID)
 	if err != nil {
-		return nil, err
+		return nil, nil, atUserID, err
 	}
 
 	// 加载comment的post
 	post, err := svc.dao.GetPostByID(comment.PostID)
 	if err != nil {
-		return nil, err
+		return nil, nil, atUserID, err
 	}
 
 	if post.CommentCount >= global.AppSetting.MaxCommentCount {
-		return nil, errcode.MaxCommentCount
+		return nil, nil, atUserID, errcode.MaxCommentCount
 	}
 
 	if userID == atUserID {
@@ -213,6 +214,19 @@ func (svc *Service) CreatePostCommentReply(commentID int64, content string, user
 		if len(users) == 0 {
 			atUserID = 0
 		}
+	}
+
+	return post, comment, atUserID, nil
+}
+
+func (svc *Service) CreatePostCommentReply(commentID int64, content string, userID, atUserID int64) (*model.CommentReply, error) {
+	var (
+		post    *model.Post
+		comment *model.Comment
+		err     error
+	)
+	if post, comment, atUserID, err = svc.createPostPreHandler(commentID, userID, atUserID); err != nil {
+		return nil, err
 	}
 
 	// 创建评论

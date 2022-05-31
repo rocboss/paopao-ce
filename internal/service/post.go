@@ -57,6 +57,25 @@ type PostContentItem struct {
 	Sort    int64              `json:"sort"  binding:"required"`
 }
 
+// Check 检查PostContentItem属性
+func (p *PostContentItem) Check() error {
+	// 检查附件是否是本站资源
+	if p.Type == model.CONTENT_TYPE_IMAGE || p.Type == model.CONTENT_TYPE_VIDEO || p.Type == model.
+		CONTENT_TYPE_ATTACHMENT {
+		if strings.Index(p.Content, "https://"+global.AliossSetting.AliossDomain) != 0 {
+			return fmt.Errorf("附件非本站资源")
+		}
+	}
+	// 检查链接是否合法
+	if p.Type == model.CONTENT_TYPE_LINK {
+		if strings.Index(p.Content, "http://") != 0 && strings.Index(p.Content, "https://") != 0 {
+			return fmt.Errorf("链接不合法")
+		}
+	}
+
+	return nil
+}
+
 func (svc *Service) CreatePost(userID int64, param PostCreationReq) (*model.Post, error) {
 	ip := svc.ctx.ClientIP()
 
@@ -82,18 +101,9 @@ func (svc *Service) CreatePost(userID int64, param PostCreationReq) (*model.Post
 	}
 
 	for _, item := range param.Contents {
-
-		// 检查附件是否是本站资源
-		if item.Type == model.CONTENT_TYPE_IMAGE || item.Type == model.CONTENT_TYPE_VIDEO || item.Type == model.CONTENT_TYPE_ATTACHMENT {
-			if strings.Index(item.Content, "https://"+global.AliossSetting.AliossDomain) != 0 {
-				continue
-			}
-		}
-		// 检查链接是否合法
-		if item.Type == model.CONTENT_TYPE_LINK {
-			if strings.Index(item.Content, "http://") != 0 && strings.Index(item.Content, "https://") != 0 {
-				continue
-			}
+		if err = item.Check(); err != nil {
+			// 属性非法
+			continue
 		}
 
 		if item.Type == model.CONTENT_TYPE_ATTACHMENT && param.AttachmentPrice > 0 {
