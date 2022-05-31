@@ -20,7 +20,7 @@ type Message struct {
 	SenderUserID   int64    `json:"sender_user_id"`
 	ReceiverUserID int64    `json:"receiver_user_id"`
 	Type           MessageT `json:"type"`
-	Breif          string   `json:"breif"`
+	Brief          string   `json:"brief"`
 	Content        string   `json:"content"`
 	PostID         int64    `json:"post_id"`
 	CommentID      int64    `json:"comment_id"`
@@ -34,7 +34,7 @@ type MessageFormated struct {
 	SenderUser     *UserFormated `json:"sender_user"`
 	ReceiverUserID int64         `json:"receiver_user_id"`
 	Type           MessageT      `json:"type"`
-	Breif          string        `json:"breif"`
+	Brief          string        `json:"brief"`
 	Content        string        `json:"content"`
 	PostID         int64         `json:"post_id"`
 	Post           *PostFormated `json:"post"`
@@ -57,7 +57,7 @@ func (m *Message) Format() *MessageFormated {
 		SenderUser:     &UserFormated{},
 		ReceiverUserID: m.ReceiverUserID,
 		Type:           m.Type,
-		Breif:          m.Breif,
+		Brief:          m.Brief,
 		Content:        m.Content,
 		PostID:         m.PostID,
 		Post:           &PostFormated{},

@@ -192,7 +192,7 @@ declare module Item {
         /** 类型：1为动态，2为评论，3为回复，4为私信，99为系统通知 */
         type: 1 | 2 | 3 | 4 | 99,
         /** 摘要说明 */
-        breif: string,
+        brief: string,
         /** 详细内容 */
         content: string,
         /** 是否已读：0为未读，1为已读 */

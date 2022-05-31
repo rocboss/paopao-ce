@@ -125,7 +125,7 @@ func (svc *Service) CreatePost(userID int64, param PostCreationReq) (*model.Post
 			SenderUserID:   userID,
 			ReceiverUserID: user.ID,
 			Type:           model.MESSAGE_POST,
-			Breif:          "在新发布的泡泡动态中@了你",
+			Brief:          "在新发布的泡泡动态中@了你",
 			PostID:         post.ID,
 		})
 	}

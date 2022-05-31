@@ -86,7 +86,7 @@ func SendUserWhisper(c *gin.Context) {
 		SenderUserID:   userID.(int64),
 		ReceiverUserID: param.UserID,
 		Type:           model.MESSAGE_WHISPER,
-		Breif:          "给你发送新私信了",
+		Brief:          "给你发送新私信了",
 		Content:        param.Content,
 	})
 
