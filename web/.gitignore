@@ -1,3 +1,11 @@
+.DS_Store
+package-lock.json
+node_modules
+/dist
+.npmrc
+.cache
+.eslintcache
+
 # Logs
 logs
 *.log
@@ -25,3 +33,12 @@ dist-ssr
 
 package-lock.json
 components.d.ts
+
+# yarn2
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

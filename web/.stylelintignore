@@ -1,0 +1,4 @@
+/dist/*
+/public/*
+public/*
+node_modules/*
