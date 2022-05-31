@@ -1,4 +1,4 @@
-.PHONY: all build clean fmt help
+.PHONY: all build run clean fmt help
 BUILD_VERSION   := $(shell cat version)
 BUILD_DATE := $(shell date +'%Y-%m-%d %H:%M:%S')
 SHA_SHORT := $(shell git rev-parse --short HEAD)
@@ -7,6 +7,8 @@ build:
 	@go mod download
 	@echo Build paopao-ce
 	bash build.sh paopao-ce
+run:
+	@go run -ldflags "-X 'main.version=${BUILD_VERSION}' -X 'main.buildDate=${BUILD_DATE}' -X 'main.commitID=${SHA_SHORT}'" .
 clean:
 	@go clean
 	@find ./dist -type f -exec rm -r {} +
