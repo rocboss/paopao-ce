@@ -75,7 +75,7 @@ declare module NetParams {
 
     interface PostGetPosts {
         query: string | null,
-        type: number,
+        type: string,
         page: number,
         page_size: number
     }
