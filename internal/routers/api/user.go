@@ -248,11 +248,12 @@ func BindUserPhone(c *gin.Context) {
 	}
 
 	// 验证短信验证码
-	err := svc.CheckPhoneCaptcha(param.Phone, param.Captcha)
-	if err != nil {
-		global.Logger.Errorf("svc.CheckPhoneCaptcha err: %v\n", err)
-		response.ToErrorResponse(err)
-		return
+	if !global.RuntimeSetting.DisablePhoneVerify {
+		if err := svc.CheckPhoneCaptcha(param.Phone, param.Captcha); err != nil {
+			global.Logger.Errorf("svc.CheckPhoneCaptcha err: %v\n", err)
+			response.ToErrorResponse(err)
+			return
+		}
 	}
 
 	// 执行绑定
