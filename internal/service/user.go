@@ -7,6 +7,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 	"github.com/rocboss/paopao-ce/global"
 	"github.com/rocboss/paopao-ce/internal/model"
@@ -32,6 +33,7 @@ type AuthRequest struct {
 	Username string `json:"username" form:"username" binding:"required"`
 	Password string `json:"password" form:"password" binding:"required"`
 }
+
 type RegisterRequest struct {
 	Username string `json:"username" form:"username" binding:"required"`
 	Password string `json:"password" form:"password" binding:"required"`
@@ -41,9 +43,11 @@ type ChangePasswordReq struct {
 	Password    string `json:"password" form:"password" binding:"required"`
 	OldPassword string `json:"old_password" form:"old_password" binding:"required"`
 }
+
 type ChangeNicknameReq struct {
 	Nickname string `json:"nickname" form:"nickname" binding:"required"`
 }
+
 type ChangeAvatarReq struct {
 	Avatar string `json:"avatar" form:"avatar" binding:"required"`
 }
@@ -51,36 +55,36 @@ type ChangeAvatarReq struct {
 const LOGIN_ERR_KEY = "PaoPaoUserLoginErr"
 const MAX_LOGIN_ERR_TIMES = 10
 
-// 用户认证
-func (svc *Service) DoLogin(param *AuthRequest) (*model.User, error) {
-	user, err := svc.dao.GetUserByUsername(param.Username)
+// DoLogin 用户认证
+func DoLogin(ctx *gin.Context, param *AuthRequest) (*model.User, error) {
+	user, err := myDao.GetUserByUsername(param.Username)
 	if err != nil {
 		return nil, errcode.UnauthorizedAuthNotExist
 	}
 
 	if user.Model != nil && user.ID > 0 {
-		if errTimes, err := global.Redis.Get(svc.ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID)).Result(); err == nil {
+		if errTimes, err := global.Redis.Get(ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID)).Result(); err == nil {
 			if convert.StrTo(errTimes).MustInt() >= MAX_LOGIN_ERR_TIMES {
 				return nil, errcode.TooManyLoginError
 			}
 		}
 
 		// 对比密码是否正确
-		if svc.ValidPassword(user.Password, param.Password, user.Salt) {
+		if ValidPassword(user.Password, param.Password, user.Salt) {
 
 			if user.Status == model.UserStatusClosed {
 				return nil, errcode.UserHasBeenBanned
 			}
 
 			// 清空登录计数
-			global.Redis.Del(svc.ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID))
+			global.Redis.Del(ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID))
 			return user, nil
 		}
 
 		// 登录错误计数
-		_, err = global.Redis.Incr(svc.ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID)).Result()
+		_, err = global.Redis.Incr(ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID)).Result()
 		if err == nil {
-			global.Redis.Expire(svc.ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID), time.Hour).Result()
+			global.Redis.Expire(ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID), time.Hour).Result()
 		}
 
 		return nil, errcode.UnauthorizedAuthFailed
@@ -89,18 +93,18 @@ func (svc *Service) DoLogin(param *AuthRequest) (*model.User, error) {
 	return nil, errcode.UnauthorizedAuthNotExist
 }
 
-// 检查密码是否一致
-func (svc *Service) ValidPassword(dbPassword, password, salt string) bool {
+// ValidPassword 检查密码是否一致
+func ValidPassword(dbPassword, password, salt string) bool {
 	return strings.Compare(dbPassword, util.EncodeMD5(util.EncodeMD5(password)+salt)) == 0
 }
 
-// 检测用户权限
-func (svc *Service) CheckStatus(user *model.User) bool {
+// CheckStatus 检测用户权限
+func CheckStatus(user *model.User) bool {
 	return user.Status == model.UserStatusNormal
 }
 
-// 验证用户
-func (svc *Service) ValidUsername(username string) error {
+// ValidUsername 验证用户
+func ValidUsername(username string) error {
 	// 检测用户是否合规
 	if utf8.RuneCountInString(username) < 3 || utf8.RuneCountInString(username) > 12 {
 		return errcode.UsernameLengthLimit
@@ -111,7 +115,7 @@ func (svc *Service) ValidUsername(username string) error {
 	}
 
 	// 重复检查
-	user, _ := svc.dao.GetUserByUsername(username)
+	user, _ := myDao.GetUserByUsername(username)
 
 	if user.Model != nil && user.ID > 0 {
 		return errcode.UsernameHasExisted
@@ -120,8 +124,8 @@ func (svc *Service) ValidUsername(username string) error {
 	return nil
 }
 
-// 密码检查
-func (svc *Service) CheckPassword(password string) error {
+// CheckPassword 密码检查
+func CheckPassword(password string) error {
 	// 检测用户是否合规
 	if utf8.RuneCountInString(password) < 6 || utf8.RuneCountInString(password) > 16 {
 		return errcode.PasswordLengthLimit
@@ -130,9 +134,9 @@ func (svc *Service) CheckPassword(password string) error {
 	return nil
 }
 
-// 验证手机验证码
-func (svc *Service) CheckPhoneCaptcha(phone, captcha string) *errcode.Error {
-	c, err := svc.dao.GetLatestPhoneCaptcha(phone)
+// CheckPhoneCaptcha 验证手机验证码
+func CheckPhoneCaptcha(phone, captcha string) *errcode.Error {
+	c, err := myDao.GetLatestPhoneCaptcha(phone)
 	if err != nil {
 		return errcode.ErrorPhoneCaptcha
 	}
@@ -150,14 +154,14 @@ func (svc *Service) CheckPhoneCaptcha(phone, captcha string) *errcode.Error {
 	}
 
 	// 更新检测次数
-	svc.dao.UsePhoneCaptcha(c)
+	myDao.UsePhoneCaptcha(c)
 
 	return nil
 }
 
-// 检测手机号是否存在
-func (svc *Service) CheckPhoneExist(uid int64, phone string) bool {
-	u, err := svc.dao.GetUserByPhone(phone)
+// CheckPhoneExist 检测手机号是否存在
+func CheckPhoneExist(uid int64, phone string) bool {
+	u, err := myDao.GetUserByPhone(phone)
 	if err != nil {
 		return false
 	}
@@ -173,28 +177,28 @@ func (svc *Service) CheckPhoneExist(uid int64, phone string) bool {
 	return true
 }
 
-// 密码加密&生成salt
-func (svc *Service) EncryptPasswordAndSalt(password string) (string, string) {
+// EncryptPasswordAndSalt 密码加密&生成salt
+func EncryptPasswordAndSalt(password string) (string, string) {
 	salt := uuid.Must(uuid.NewV4()).String()[:8]
 	password = util.EncodeMD5(util.EncodeMD5(password) + salt)
 
 	return password, salt
 }
 
-// 用户注册
-func (svc *Service) Register(username, password string) (*model.User, error) {
-	password, salt := svc.EncryptPasswordAndSalt(password)
+// Register 用户注册
+func Register(username, password string) (*model.User, error) {
+	password, salt := EncryptPasswordAndSalt(password)
 
 	user := &model.User{
 		Nickname: username,
 		Username: username,
 		Password: password,
-		Avatar:   svc.GetRandomAvatar(),
+		Avatar:   GetRandomAvatar(),
 		Salt:     salt,
 		Status:   model.UserStatusNormal,
 	}
 
-	user, err := svc.dao.CreateUser(user)
+	user, err := myDao.CreateUser(user)
 	if err != nil {
 		return nil, err
 	}
@@ -202,9 +206,9 @@ func (svc *Service) Register(username, password string) (*model.User, error) {
 	return user, nil
 }
 
-// 获取用户信息
-func (svc *Service) GetUserInfo(param *AuthRequest) (*model.User, error) {
-	user, err := svc.dao.GetUserByUsername(param.Username)
+// GetUserInfo 获取用户信息
+func GetUserInfo(param *AuthRequest) (*model.User, error) {
+	user, err := myDao.GetUserByUsername(param.Username)
 
 	if err != nil {
 		return nil, err
@@ -217,8 +221,8 @@ func (svc *Service) GetUserInfo(param *AuthRequest) (*model.User, error) {
 	return nil, errcode.UnauthorizedAuthNotExist
 }
 
-func (svc *Service) GetUserByUsername(username string) (*model.User, error) {
-	user, err := svc.dao.GetUserByUsername(username)
+func GetUserByUsername(username string) (*model.User, error) {
+	user, err := myDao.GetUserByUsername(username)
 
 	if err != nil {
 		return nil, err
@@ -231,18 +235,18 @@ func (svc *Service) GetUserByUsername(username string) (*model.User, error) {
 	return nil, errcode.NoExistUsername
 }
 
-// 更新用户信息
-func (svc *Service) UpdateUserInfo(user *model.User) error {
-	return svc.dao.UpdateUser(user)
+// UpdateUserInfo 更新用户信息
+func UpdateUserInfo(user *model.User) error {
+	return myDao.UpdateUser(user)
 }
 
-// 获取用户收藏列表
-func (svc *Service) GetUserCollections(userID int64, offset, limit int) ([]*model.PostFormated, int64, error) {
-	collections, err := svc.dao.GetUserPostCollections(userID, offset, limit)
+// GetUserCollections 获取用户收藏列表
+func GetUserCollections(userID int64, offset, limit int) ([]*model.PostFormated, int64, error) {
+	collections, err := myDao.GetUserPostCollections(userID, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
-	totalRows, err := svc.dao.GetUserPostCollectionCount(userID)
+	totalRows, err := myDao.GetUserPostCollectionCount(userID)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -252,7 +256,7 @@ func (svc *Service) GetUserCollections(userID int64, offset, limit int) ([]*mode
 	}
 
 	// 获取Posts
-	posts, err := svc.dao.GetPosts(&model.ConditionsT{
+	posts, err := myDao.GetPosts(&model.ConditionsT{
 		"id IN ?": postIDs,
 		"ORDER":   "id DESC",
 	}, 0, 0)
@@ -260,7 +264,7 @@ func (svc *Service) GetUserCollections(userID int64, offset, limit int) ([]*mode
 		return nil, 0, err
 	}
 
-	postsFormated, err := svc.FormatPosts(posts)
+	postsFormated, err := FormatPosts(posts)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -268,13 +272,13 @@ func (svc *Service) GetUserCollections(userID int64, offset, limit int) ([]*mode
 	return postsFormated, totalRows, nil
 }
 
-// 获取用户点赞列表
-func (svc *Service) GetUserStars(userID int64, offset, limit int) ([]*model.PostFormated, int64, error) {
-	stars, err := svc.dao.GetUserPostStars(userID, offset, limit)
+// GetUserStars 获取用户点赞列表
+func GetUserStars(userID int64, offset, limit int) ([]*model.PostFormated, int64, error) {
+	stars, err := myDao.GetUserPostStars(userID, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
-	totalRows, err := svc.dao.GetUserPostStarCount(userID)
+	totalRows, err := myDao.GetUserPostStarCount(userID)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -284,7 +288,7 @@ func (svc *Service) GetUserStars(userID int64, offset, limit int) ([]*model.Post
 	}
 
 	// 获取Posts
-	posts, err := svc.dao.GetPosts(&model.ConditionsT{
+	posts, err := myDao.GetPosts(&model.ConditionsT{
 		"id IN ?": postIDs,
 		"ORDER":   "id DESC",
 	}, 0, 0)
@@ -292,7 +296,7 @@ func (svc *Service) GetUserStars(userID int64, offset, limit int) ([]*model.Post
 		return nil, 0, err
 	}
 
-	postsFormated, err := svc.FormatPosts(posts)
+	postsFormated, err := FormatPosts(posts)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -300,13 +304,13 @@ func (svc *Service) GetUserStars(userID int64, offset, limit int) ([]*model.Post
 	return postsFormated, totalRows, nil
 }
 
-// 获取用户账单列表
-func (svc *Service) GetUserWalletBills(userID int64, offset, limit int) ([]*model.WalletStatement, int64, error) {
-	bills, err := svc.dao.GetUserWalletBills(userID, offset, limit)
+// GetUserWalletBills 获取用户账单列表
+func GetUserWalletBills(userID int64, offset, limit int) ([]*model.WalletStatement, int64, error) {
+	bills, err := myDao.GetUserWalletBills(userID, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
-	totalRows, err := svc.dao.GetUserWalletBillCount(userID)
+	totalRows, err := myDao.GetUserWalletBillCount(userID)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -314,28 +318,28 @@ func (svc *Service) GetUserWalletBills(userID int64, offset, limit int) ([]*mode
 	return bills, totalRows, nil
 }
 
-// 发送短信验证码
-func (svc *Service) SendPhoneCaptcha(phone string) error {
+// SendPhoneCaptcha 发送短信验证码
+func SendPhoneCaptcha(ctx *gin.Context, phone string) error {
 
-	err := svc.dao.SendPhoneCaptcha(phone)
+	err := myDao.SendPhoneCaptcha(phone)
 	if err != nil {
 		return err
 	}
 
 	// 写入计数缓存
-	global.Redis.Incr(svc.ctx, "PaoPaoSmsCaptcha:"+phone).Result()
+	global.Redis.Incr(ctx, "PaoPaoSmsCaptcha:"+phone).Result()
 
 	currentTime := time.Now()
 	endTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
 
-	global.Redis.Expire(svc.ctx, "PaoPaoSmsCaptcha:"+phone, endTime.Sub(currentTime))
+	global.Redis.Expire(ctx, "PaoPaoSmsCaptcha:"+phone, endTime.Sub(currentTime))
 
 	return nil
 }
 
-// 根据关键词获取用户推荐
-func (svc *Service) GetSuggestUsers(keyword string) ([]string, error) {
-	users, err := svc.dao.GetUsersByKeyword(keyword)
+// GetSuggestUsers 根据关键词获取用户推荐
+func GetSuggestUsers(keyword string) ([]string, error) {
+	users, err := myDao.GetUsersByKeyword(keyword)
 	if err != nil {
 		return nil, err
 	}
@@ -348,9 +352,9 @@ func (svc *Service) GetSuggestUsers(keyword string) ([]string, error) {
 	return usernames, nil
 }
 
-// 根据关键词获取标签推荐
-func (svc *Service) GetSuggestTags(keyword string) ([]string, error) {
-	tags, err := svc.dao.GetTagsByKeyword(keyword)
+// GetSuggestTags 根据关键词获取标签推荐
+func GetSuggestTags(keyword string) ([]string, error) {
+	tags, err := myDao.GetTagsByKeyword(keyword)
 	if err != nil {
 		return nil, err
 	}

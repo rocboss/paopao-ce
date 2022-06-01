@@ -16,9 +16,8 @@ func GetUnreadMsgCount(c *gin.Context) {
 	if u, exists := c.Get("USER"); exists {
 		user = u.(*model.User)
 	}
-	svc := service.New(c)
 
-	count, _ := svc.GetUnreadCount(user.ID)
+	count, _ := service.GetUnreadCount(user.ID)
 
 	response.ToResponse(gin.H{
 		"count": count,
@@ -29,11 +28,10 @@ func GetMessages(c *gin.Context) {
 	response := app.NewResponse(c)
 
 	userID, _ := c.Get("UID")
-	svc := service.New(c)
-	messages, totalRows, err := svc.GetMessages(userID.(int64), (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
+	messages, totalRows, err := service.GetMessages(userID.(int64), (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
 
 	if err != nil {
-		global.Logger.Errorf("svc.GetMessages err: %v\n", err)
+		global.Logger.Errorf("service.GetMessages err: %v\n", err)
 		response.ToErrorResponse(errcode.GetMessagesFailed)
 		return
 	}
@@ -52,10 +50,9 @@ func ReadMessage(c *gin.Context) {
 	}
 
 	userID, _ := c.Get("UID")
-	svc := service.New(c)
-	err := svc.ReadMessage(param.ID, userID.(int64))
+	err := service.ReadMessage(param.ID, userID.(int64))
 	if err != nil {
-		global.Logger.Errorf("svc.ReadMessage err: %v\n", err)
+		global.Logger.Errorf("service.ReadMessage err: %v\n", err)
 		response.ToErrorResponse(errcode.ReadMessageFailed)
 		return
 	}
@@ -81,8 +78,7 @@ func SendUserWhisper(c *gin.Context) {
 		return
 	}
 
-	svc := service.New(c)
-	_, err := svc.CreateWhisper(&model.Message{
+	_, err := service.CreateWhisper(c, &model.Message{
 		SenderUserID:   userID.(int64),
 		ReceiverUserID: param.UserID,
 		Type:           model.MESSAGE_WHISPER,
@@ -91,7 +87,7 @@ func SendUserWhisper(c *gin.Context) {
 	})
 
 	if err != nil {
-		global.Logger.Errorf("svc.CreateWhisper err: %v\n", err)
+		global.Logger.Errorf("service.CreateWhisper err: %v\n", err)
 
 		if err == errcode.TooManyWhisperNum {
 			response.ToErrorResponse(errcode.TooManyWhisperNum)

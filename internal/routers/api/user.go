@@ -16,7 +16,7 @@ import (
 	"github.com/smartwalle/alipay/v3"
 )
 
-// 用户登录
+// Login 用户登录
 func Login(c *gin.Context) {
 	param := service.AuthRequest{}
 	response := app.NewResponse(c)
@@ -27,10 +27,9 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	svc := service.New(c)
-	user, err := svc.DoLogin(&param)
+	user, err := service.DoLogin(c, &param)
 	if err != nil {
-		global.Logger.Errorf("svc.DoLogin err: %v", err)
+		global.Logger.Errorf("service.DoLogin err: %v", err)
 		response.ToErrorResponse(err.(*errcode.Error))
 		return
 	}
@@ -47,7 +46,7 @@ func Login(c *gin.Context) {
 	})
 }
 
-// 用户注册
+// Register 用户注册
 func Register(c *gin.Context) {
 
 	param := service.RegisterRequest{}
@@ -59,31 +58,29 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	svc := service.New(c)
-
 	// 用户名检查
-	err := svc.ValidUsername(param.Username)
+	err := service.ValidUsername(param.Username)
 	if err != nil {
-		global.Logger.Errorf("svc.Register err: %v", err)
+		global.Logger.Errorf("service.Register err: %v", err)
 		response.ToErrorResponse(err.(*errcode.Error))
 		return
 	}
 
 	// 密码检查
-	err = svc.CheckPassword(param.Password)
+	err = service.CheckPassword(param.Password)
 	if err != nil {
-		global.Logger.Errorf("svc.Register err: %v", err)
+		global.Logger.Errorf("service.Register err: %v", err)
 		response.ToErrorResponse(err.(*errcode.Error))
 		return
 	}
 
-	user, err := svc.Register(
+	user, err := service.Register(
 		param.Username,
 		param.Password,
 	)
 
 	if err != nil {
-		global.Logger.Errorf("svc.Register err: %v", err)
+		global.Logger.Errorf("service.Register err: %v", err)
 		response.ToErrorResponse(errcode.UserRegisterFailed)
 		return
 	}
@@ -98,13 +95,12 @@ func Register(c *gin.Context) {
 func GetUserInfo(c *gin.Context) {
 	param := service.AuthRequest{}
 	response := app.NewResponse(c)
-	svc := service.New(c)
 
 	if username, exists := c.Get("USERNAME"); exists {
 		param.Username = username.(string)
 	}
 
-	user, err := svc.GetUserInfo(&param)
+	user, err := service.GetUserInfo(&param)
 
 	if err != nil {
 		response.ToErrorResponse(errcode.UnauthorizedAuthNotExist)
@@ -143,25 +139,23 @@ func ChangeUserPassword(c *gin.Context) {
 		user = u.(*model.User)
 	}
 
-	svc := service.New(c)
-
 	// 密码检查
-	err := svc.CheckPassword(param.Password)
+	err := service.CheckPassword(param.Password)
 	if err != nil {
-		global.Logger.Errorf("svc.Register err: %v", err)
+		global.Logger.Errorf("service.Register err: %v", err)
 		response.ToErrorResponse(err.(*errcode.Error))
 		return
 	}
 
 	// 旧密码校验
-	if !svc.ValidPassword(user.Password, param.OldPassword, user.Salt) {
+	if !service.ValidPassword(user.Password, param.OldPassword, user.Salt) {
 		response.ToErrorResponse(errcode.ErrorOldPassword)
 		return
 	}
 
 	// 更新入库
-	user.Password, user.Salt = svc.EncryptPasswordAndSalt(param.Password)
-	svc.UpdateUserInfo(user)
+	user.Password, user.Salt = service.EncryptPasswordAndSalt(param.Password)
+	service.UpdateUserInfo(user)
 
 	response.ToResponse(nil)
 }
@@ -181,7 +175,6 @@ func ChangeNickname(c *gin.Context) {
 	if u, exists := c.Get("USER"); exists {
 		user = u.(*model.User)
 	}
-	svc := service.New(c)
 
 	if utf8.RuneCountInString(param.Nickname) < 2 || utf8.RuneCountInString(param.Nickname) > 12 {
 		response.ToErrorResponse(errcode.NicknameLengthLimit)
@@ -190,7 +183,7 @@ func ChangeNickname(c *gin.Context) {
 
 	// 执行绑定
 	user.Nickname = param.Nickname
-	svc.UpdateUserInfo(user)
+	service.UpdateUserInfo(user)
 
 	response.ToResponse(nil)
 }
@@ -210,7 +203,6 @@ func ChangeAvatar(c *gin.Context) {
 	if u, exists := c.Get("USER"); exists {
 		user = u.(*model.User)
 	}
-	svc := service.New(c)
 
 	if strings.Index(param.Avatar, "https://"+global.AliossSetting.AliossDomain) != 0 {
 		response.ToErrorResponse(errcode.InvalidParams)
@@ -219,7 +211,7 @@ func ChangeAvatar(c *gin.Context) {
 
 	// 执行绑定
 	user.Avatar = param.Avatar
-	svc.UpdateUserInfo(user)
+	service.UpdateUserInfo(user)
 
 	response.ToResponse(nil)
 }
@@ -239,18 +231,17 @@ func BindUserPhone(c *gin.Context) {
 	if u, exists := c.Get("USER"); exists {
 		user = u.(*model.User)
 	}
-	svc := service.New(c)
 
 	// 手机重复性检查
-	if svc.CheckPhoneExist(user.ID, param.Phone) {
+	if service.CheckPhoneExist(user.ID, param.Phone) {
 		response.ToErrorResponse(errcode.ExistedUserPhone)
 		return
 	}
 
 	// 验证短信验证码
 	if !global.RuntimeSetting.DisablePhoneVerify {
-		if err := svc.CheckPhoneCaptcha(param.Phone, param.Captcha); err != nil {
-			global.Logger.Errorf("svc.CheckPhoneCaptcha err: %v\n", err)
+		if err := service.CheckPhoneCaptcha(param.Phone, param.Captcha); err != nil {
+			global.Logger.Errorf("service.CheckPhoneCaptcha err: %v\n", err)
 			response.ToErrorResponse(err)
 			return
 		}
@@ -258,7 +249,7 @@ func BindUserPhone(c *gin.Context) {
 
 	// 执行绑定
 	user.Phone = param.Phone
-	svc.UpdateUserInfo(user)
+	service.UpdateUserInfo(user)
 
 	response.ToResponse(nil)
 }
@@ -267,10 +258,9 @@ func GetUserProfile(c *gin.Context) {
 	response := app.NewResponse(c)
 	username := c.Query("username")
 
-	svc := service.New(c)
-	user, err := svc.GetUserByUsername(username)
+	user, err := service.GetUserByUsername(username)
 	if err != nil {
-		global.Logger.Errorf("svc.GetUserByUsername err: %v\n", err)
+		global.Logger.Errorf("service.GetUserByUsername err: %v\n", err)
 		response.ToErrorResponse(errcode.NoExistUsername)
 		return
 	}
@@ -289,10 +279,9 @@ func GetUserPosts(c *gin.Context) {
 	response := app.NewResponse(c)
 	username := c.Query("username")
 
-	svc := service.New(c)
-	user, err := svc.GetUserByUsername(username)
+	user, err := service.GetUserByUsername(username)
 	if err != nil {
-		global.Logger.Errorf("svc.GetUserByUsername err: %v\n", err)
+		global.Logger.Errorf("service.GetUserByUsername err: %v\n", err)
 		response.ToErrorResponse(errcode.NoExistUsername)
 		return
 	}
@@ -302,17 +291,17 @@ func GetUserPosts(c *gin.Context) {
 		"ORDER":   "latest_replied_on DESC",
 	}
 
-	posts, err := svc.GetPostList(&service.PostListReq{
+	posts, err := service.GetPostList(&service.PostListReq{
 		Conditions: conditions,
 		Offset:     (app.GetPage(c) - 1) * app.GetPageSize(c),
 		Limit:      app.GetPageSize(c),
 	})
 	if err != nil {
-		global.Logger.Errorf("svc.GetPostList err: %v\n", err)
+		global.Logger.Errorf("service.GetPostList err: %v\n", err)
 		response.ToErrorResponse(errcode.GetPostsFailed)
 		return
 	}
-	totalRows, _ := svc.GetPostCount(conditions)
+	totalRows, _ := service.GetPostCount(conditions)
 
 	response.ToResponseList(posts, totalRows)
 }
@@ -321,11 +310,10 @@ func GetUserCollections(c *gin.Context) {
 	response := app.NewResponse(c)
 
 	userID, _ := c.Get("UID")
-	svc := service.New(c)
-	posts, totalRows, err := svc.GetUserCollections(userID.(int64), (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
+	posts, totalRows, err := service.GetUserCollections(userID.(int64), (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
 
 	if err != nil {
-		global.Logger.Errorf("svc.GetUserCollections err: %v\n", err)
+		global.Logger.Errorf("service.GetUserCollections err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCollectionsFailed)
 		return
 	}
@@ -337,10 +325,9 @@ func GetUserStars(c *gin.Context) {
 	response := app.NewResponse(c)
 
 	userID, _ := c.Get("UID")
-	svc := service.New(c)
-	posts, totalRows, err := svc.GetUserStars(userID.(int64), (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
+	posts, totalRows, err := service.GetUserStars(userID.(int64), (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
 	if err != nil {
-		global.Logger.Errorf("svc.GetUserStars err: %v\n", err)
+		global.Logger.Errorf("service.GetUserStars err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCollectionsFailed)
 		return
 	}
@@ -352,10 +339,9 @@ func GetSuggestUsers(c *gin.Context) {
 	keyword := c.Query("k")
 	response := app.NewResponse(c)
 
-	svc := service.New(c)
-	usernames, err := svc.GetSuggestUsers(keyword)
+	usernames, err := service.GetSuggestUsers(keyword)
 	if err != nil {
-		global.Logger.Errorf("svc.GetSuggestUsers err: %v\n", err)
+		global.Logger.Errorf("service.GetSuggestUsers err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCollectionsFailed)
 		return
 	}
@@ -367,10 +353,9 @@ func GetSuggestTags(c *gin.Context) {
 	keyword := c.Query("k")
 	response := app.NewResponse(c)
 
-	svc := service.New(c)
-	tags, err := svc.GetSuggestTags(keyword)
+	tags, err := service.GetSuggestTags(keyword)
 	if err != nil {
-		global.Logger.Errorf("svc.GetSuggestTags err: %v\n", err)
+		global.Logger.Errorf("service.GetSuggestTags err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCollectionsFailed)
 		return
 	}
@@ -390,10 +375,9 @@ func GetUserRechargeLink(c *gin.Context) {
 
 	// 下单
 	userID, _ := c.Get("UID")
-	svc := service.New(c)
-	recharge, err := svc.CreateRecharge(userID.(int64), param.Amount)
+	recharge, err := service.CreateRecharge(userID.(int64), param.Amount)
 	if err != nil {
-		global.Logger.Errorf("svc.CreateRecharge err: %v\n", err)
+		global.Logger.Errorf("service.CreateRecharge err: %v\n", err)
 		response.ToErrorResponse(errcode.RechargeReqFail)
 		return
 
@@ -457,8 +441,7 @@ func GetUserRechargeResult(c *gin.Context) {
 	id := c.Query("id")
 	userID, _ := c.Get("UID")
 
-	svc := service.New(c)
-	recharge, err := svc.GetRechargeByID(convert.StrTo(id).MustInt64())
+	recharge, err := service.GetRechargeByID(convert.StrTo(id).MustInt64())
 	if err != nil {
 		response.ToErrorResponse(errcode.GetRechargeFailed)
 		return
@@ -515,15 +498,14 @@ func AlipayNotify(c *gin.Context) {
 		return
 	}
 
-	svc := service.New(c)
 	id := c.Request.Form.Get("out_trade_no")
 	tradeNo := c.Request.Form.Get("trade_no")
 	tradeStatus := c.Request.Form.Get("trade_status")
 	if tradeStatus == "TRADE_SUCCESS" {
 		// 交易支付成功
-		err = svc.FinishRecharge(convert.StrTo(id).MustInt64(), tradeNo)
+		err = service.FinishRecharge(c, convert.StrTo(id).MustInt64(), tradeNo)
 		if err != nil {
-			global.Logger.Errorf("svc.FinishRecharge err: %v\n", err)
+			global.Logger.Errorf("service.FinishRecharge err: %v\n", err)
 			response.ToErrorResponse(errcode.RechargeNotifyError)
 			return
 		}
@@ -535,11 +517,10 @@ func GetUserWalletBills(c *gin.Context) {
 	response := app.NewResponse(c)
 
 	userID, _ := c.Get("UID")
-	svc := service.New(c)
-	bills, totalRows, err := svc.GetUserWalletBills(userID.(int64), (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
+	bills, totalRows, err := service.GetUserWalletBills(userID.(int64), (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
 
 	if err != nil {
-		global.Logger.Errorf("svc.GetUserWalletBills err: %v\n", err)
+		global.Logger.Errorf("service.GetUserWalletBills err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCollectionsFailed)
 		return
 	}

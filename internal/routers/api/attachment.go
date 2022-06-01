@@ -70,7 +70,6 @@ func fileCheck(uploadType string, size int64) error {
 
 func UploadAttachment(c *gin.Context) {
 	response := app.NewResponse(c)
-	svc := service.New(c)
 
 	uploadType := c.Request.FormValue("type")
 	file, fileHeader, err := c.Request.FormFile("file")
@@ -153,9 +152,9 @@ func UploadAttachment(c *gin.Context) {
 		}
 	}
 
-	attachment, err = svc.CreateAttachment(attachment)
+	attachment, err = service.CreateAttachment(attachment)
 	if err != nil {
-		global.Logger.Errorf("svc.CreateAttachment err: %v", err)
+		global.Logger.Errorf("service.CreateAttachment err: %v", err)
 		response.ToErrorResponse(errcode.FileUploadFailed)
 	}
 
@@ -164,21 +163,20 @@ func UploadAttachment(c *gin.Context) {
 
 func DownloadAttachmentPrecheck(c *gin.Context) {
 	response := app.NewResponse(c)
-	svc := service.New(c)
 
 	contentID := convert.StrTo(c.Query("id")).MustInt64()
 	// 加载content
-	content, err := svc.GetPostContentByID(contentID)
+	content, err := service.GetPostContentByID(contentID)
 	if err != nil {
-		global.Logger.Errorf("svc.GetPostContentByID err: %v", err)
+		global.Logger.Errorf("service.GetPostContentByID err: %v", err)
 		response.ToErrorResponse(errcode.InvalidDownloadReq)
 	}
 	user, _ := c.Get("USER")
 	if content.Type == model.CONTENT_TYPE_CHARGE_ATTACHMENT {
 		// 加载post
-		post, err := svc.GetPost(content.PostID)
+		post, err := service.GetPost(content.PostID)
 		if err != nil {
-			global.Logger.Errorf("svc.GetPost err: %v", err)
+			global.Logger.Errorf("service.GetPost err: %v", err)
 			response.ToResponse(gin.H{
 				"paid": false,
 			})
@@ -195,7 +193,7 @@ func DownloadAttachmentPrecheck(c *gin.Context) {
 
 		// 检测是否有购买记录
 		response.ToResponse(gin.H{
-			"paid": svc.CheckPostAttachmentIsPaid(post.ID, user.(*model.User).ID),
+			"paid": service.CheckPostAttachmentIsPaid(post.ID, user.(*model.User).ID),
 		})
 		return
 	}
@@ -206,14 +204,13 @@ func DownloadAttachmentPrecheck(c *gin.Context) {
 
 func DownloadAttachment(c *gin.Context) {
 	response := app.NewResponse(c)
-	svc := service.New(c)
 
 	contentID := convert.StrTo(c.Query("id")).MustInt64()
 
 	// 加载content
-	content, err := svc.GetPostContentByID(contentID)
+	content, err := service.GetPostContentByID(contentID)
 	if err != nil {
-		global.Logger.Errorf("svc.GetPostContentByID err: %v", err)
+		global.Logger.Errorf("service.GetPostContentByID err: %v", err)
 		response.ToErrorResponse(errcode.InvalidDownloadReq)
 	}
 
@@ -222,9 +219,9 @@ func DownloadAttachment(c *gin.Context) {
 		user, _ := c.Get("USER")
 
 		// 加载post
-		post, err := svc.GetPost(content.PostID)
+		post, err := service.GetPost(content.PostID)
 		if err != nil {
-			global.Logger.Errorf("svc.GetPost err: %v", err)
+			global.Logger.Errorf("service.GetPost err: %v", err)
 			response.ToResponse(gin.H{
 				"paid": false,
 			})
@@ -239,13 +236,13 @@ func DownloadAttachment(c *gin.Context) {
 		}
 
 		// 检测是否有购买记录
-		if svc.CheckPostAttachmentIsPaid(post.ID, user.(*model.User).ID) {
+		if service.CheckPostAttachmentIsPaid(post.ID, user.(*model.User).ID) {
 			paidFlag = true
 		}
 
 		if !paidFlag {
 			// 未购买，则尝试购买
-			err := svc.BuyPostAttachment(&model.Post{
+			err := service.BuyPostAttachment(&model.Post{
 				Model: &model.Model{
 					ID: post.ID,
 				},
@@ -253,7 +250,7 @@ func DownloadAttachment(c *gin.Context) {
 				AttachmentPrice: post.AttachmentPrice,
 			}, user.(*model.User))
 			if err != nil {
-				global.Logger.Errorf("svc.BuyPostAttachment err: %v", err)
+				global.Logger.Errorf("service.BuyPostAttachment err: %v", err)
 				if err == errcode.InsuffientDownloadMoney {
 
 					response.ToErrorResponse(errcode.InsuffientDownloadMoney)
