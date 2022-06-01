@@ -8,8 +8,10 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/rocboss/paopao-ce/global"
 	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/logger"
 	"github.com/rocboss/paopao-ce/pkg/setting"
+	"github.com/rocboss/paopao-ce/pkg/zinc"
 )
 
 func init() {
@@ -25,6 +27,8 @@ func init() {
 	if err != nil {
 		log.Fatalf("init.setupDBEngine err: %v", err)
 	}
+	client := zinc.NewClient(global.SearchSetting)
+	service.Initialize(global.DBEngine, client)
 }
 
 func setupSetting() error {

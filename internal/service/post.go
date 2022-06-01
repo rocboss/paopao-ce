@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/global"
 	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/internal/model"
@@ -39,18 +40,23 @@ type PostCreationReq struct {
 type PostDelReq struct {
 	ID int64 `json:"id" binding:"required"`
 }
+
 type PostLockReq struct {
 	ID int64 `json:"id" binding:"required"`
 }
+
 type PostStickReq struct {
 	ID int64 `json:"id" binding:"required"`
 }
+
 type PostStarReq struct {
 	ID int64 `json:"id" binding:"required"`
 }
+
 type PostCollectionReq struct {
 	ID int64 `json:"id" binding:"required"`
 }
+
 type PostContentItem struct {
 	Content string             `json:"content"  binding:"required"`
 	Type    model.PostContentT `json:"type"  binding:"required"`
@@ -76,8 +82,8 @@ func (p *PostContentItem) Check() error {
 	return nil
 }
 
-func (svc *Service) CreatePost(userID int64, param PostCreationReq) (*model.Post, error) {
-	ip := svc.ctx.ClientIP()
+func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Post, error) {
+	ip := c.ClientIP()
 
 	post := &model.Post{
 		UserID:          userID,
@@ -86,7 +92,7 @@ func (svc *Service) CreatePost(userID int64, param PostCreationReq) (*model.Post
 		IPLoc:           util.GetIPLoc(ip),
 		AttachmentPrice: param.AttachmentPrice,
 	}
-	post, err := svc.dao.CreatePost(post)
+	post, err := myDao.CreatePost(post)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +103,7 @@ func (svc *Service) CreatePost(userID int64, param PostCreationReq) (*model.Post
 			UserID: userID,
 			Tag:    t,
 		}
-		svc.dao.CreateTag(tag)
+		myDao.CreateTag(tag)
 	}
 
 	for _, item := range param.Contents {
@@ -117,21 +123,21 @@ func (svc *Service) CreatePost(userID int64, param PostCreationReq) (*model.Post
 			Type:    item.Type,
 			Sort:    item.Sort,
 		}
-		svc.dao.CreatePostContent(postContent)
+		myDao.CreatePostContent(postContent)
 	}
 
 	// 推送Search
-	go svc.PushPostToSearch(post)
+	go PushPostToSearch(post)
 
 	// 创建用户消息提醒
 	for _, u := range param.Users {
-		user, err := svc.dao.GetUserByUsername(u)
+		user, err := myDao.GetUserByUsername(u)
 		if err != nil || user.ID == userID {
 			continue
 		}
 
 		// 创建消息提醒
-		go svc.dao.CreateMessage(&model.Message{
+		go myDao.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: user.ID,
 			Type:           model.MESSAGE_POST,
@@ -143,8 +149,8 @@ func (svc *Service) CreatePost(userID int64, param PostCreationReq) (*model.Post
 	return post, nil
 }
 
-func (svc *Service) DeletePost(id int64) error {
-	post, _ := svc.dao.GetPostByID(id)
+func DeletePost(id int64) error {
+	post, _ := myDao.GetPostByID(id)
 
 	// tag删除
 	tags := strings.Split(post.Tags, ",")
@@ -153,25 +159,25 @@ func (svc *Service) DeletePost(id int64) error {
 		tag := &model.Tag{
 			Tag: t,
 		}
-		svc.dao.DeleteTag(tag)
+		myDao.DeleteTag(tag)
 	}
 
-	err := svc.dao.DeletePost(post)
+	err := myDao.DeletePost(post)
 
 	if err != nil {
 		return err
 	}
 
 	// 删除索引
-	go svc.DeleteSearchPost(post)
+	go DeleteSearchPost(post)
 
 	return nil
 }
 
-func (svc *Service) LockPost(id int64) error {
-	post, _ := svc.dao.GetPostByID(id)
+func LockPost(id int64) error {
+	post, _ := myDao.GetPostByID(id)
 
-	err := svc.dao.LockPost(post)
+	err := myDao.LockPost(post)
 
 	if err != nil {
 		return err
@@ -180,10 +186,10 @@ func (svc *Service) LockPost(id int64) error {
 	return nil
 }
 
-func (svc *Service) StickPost(id int64) error {
-	post, _ := svc.dao.GetPostByID(id)
+func StickPost(id int64) error {
+	post, _ := myDao.GetPostByID(id)
 
-	err := svc.dao.StickPost(post)
+	err := myDao.StickPost(post)
 
 	if err != nil {
 		return err
@@ -192,109 +198,109 @@ func (svc *Service) StickPost(id int64) error {
 	return nil
 }
 
-func (svc *Service) GetPostStar(postID, userID int64) (*model.PostStar, error) {
-	return svc.dao.GetUserPostStar(postID, userID)
+func GetPostStar(postID, userID int64) (*model.PostStar, error) {
+	return myDao.GetUserPostStar(postID, userID)
 }
 
-func (svc *Service) CreatePostStar(postID, userID int64) (*model.PostStar, error) {
+func CreatePostStar(postID, userID int64) (*model.PostStar, error) {
 	// 加载Post
-	post, err := svc.dao.GetPostByID(postID)
+	post, err := myDao.GetPostByID(postID)
 	if err != nil {
 		return nil, err
 	}
-	star, err := svc.dao.CreatePostStar(postID, userID)
+	star, err := myDao.CreatePostStar(postID, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	// 更新Post点赞数
 	post.UpvoteCount++
-	svc.dao.UpdatePost(post)
+	myDao.UpdatePost(post)
 
 	// 更新索引
-	go svc.PushPostToSearch(post)
+	go PushPostToSearch(post)
 
 	return star, nil
 }
 
-func (svc *Service) DeletePostStar(star *model.PostStar) error {
-	err := svc.dao.DeletePostStar(star)
+func DeletePostStar(star *model.PostStar) error {
+	err := myDao.DeletePostStar(star)
 	if err != nil {
 		return err
 	}
 	// 加载Post
-	post, err := svc.dao.GetPostByID(star.PostID)
+	post, err := myDao.GetPostByID(star.PostID)
 	if err != nil {
 		return err
 	}
 	// 更新Post点赞数
 	post.UpvoteCount--
-	svc.dao.UpdatePost(post)
+	myDao.UpdatePost(post)
 
 	// 更新索引
-	go svc.PushPostToSearch(post)
+	go PushPostToSearch(post)
 
 	return nil
 }
 
-func (svc *Service) GetPostCollection(postID, userID int64) (*model.PostCollection, error) {
-	return svc.dao.GetUserPostCollection(postID, userID)
+func GetPostCollection(postID, userID int64) (*model.PostCollection, error) {
+	return myDao.GetUserPostCollection(postID, userID)
 }
 
-func (svc *Service) CreatePostCollection(postID, userID int64) (*model.PostCollection, error) {
+func CreatePostCollection(postID, userID int64) (*model.PostCollection, error) {
 	// 加载Post
-	post, err := svc.dao.GetPostByID(postID)
+	post, err := myDao.GetPostByID(postID)
 	if err != nil {
 		return nil, err
 	}
-	collection, err := svc.dao.CreatePostCollection(postID, userID)
+	collection, err := myDao.CreatePostCollection(postID, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	// 更新Post点赞数
 	post.CollectionCount++
-	svc.dao.UpdatePost(post)
+	myDao.UpdatePost(post)
 
 	// 更新索引
-	go svc.PushPostToSearch(post)
+	go PushPostToSearch(post)
 
 	return collection, nil
 }
 
-func (svc *Service) DeletePostCollection(collection *model.PostCollection) error {
-	err := svc.dao.DeletePostCollection(collection)
+func DeletePostCollection(collection *model.PostCollection) error {
+	err := myDao.DeletePostCollection(collection)
 	if err != nil {
 		return err
 	}
 	// 加载Post
-	post, err := svc.dao.GetPostByID(collection.PostID)
+	post, err := myDao.GetPostByID(collection.PostID)
 	if err != nil {
 		return err
 	}
 	// 更新Post点赞数
 	post.CollectionCount--
-	svc.dao.UpdatePost(post)
+	myDao.UpdatePost(post)
 
 	// 更新索引
-	go svc.PushPostToSearch(post)
+	go PushPostToSearch(post)
 
 	return nil
 }
 
-func (svc *Service) GetPost(id int64) (*model.PostFormated, error) {
-	post, err := svc.dao.GetPostByID(id)
+func GetPost(id int64) (*model.PostFormated, error) {
+	post, err := myDao.GetPostByID(id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	postContents, err := svc.dao.GetPostContentsByIDs([]int64{post.ID})
+	postContents, err := myDao.GetPostContentsByIDs([]int64{post.ID})
 	if err != nil {
 		return nil, err
 	}
 
-	users, err := svc.dao.GetUsersByIDs([]int64{post.UserID})
+	users, err := myDao.GetUsersByIDs([]int64{post.UserID})
 	if err != nil {
 		return nil, err
 	}
@@ -312,21 +318,21 @@ func (svc *Service) GetPost(id int64) (*model.PostFormated, error) {
 	return postFormated, nil
 }
 
-func (svc *Service) GetPostContentByID(id int64) (*model.PostContent, error) {
-	return svc.dao.GetPostContentByID(id)
+func GetPostContentByID(id int64) (*model.PostContent, error) {
+	return myDao.GetPostContentByID(id)
 }
 
-func (svc *Service) GetPostList(req *PostListReq) ([]*model.PostFormated, error) {
-	posts, err := svc.dao.GetPosts(req.Conditions, req.Offset, req.Limit)
+func GetPostList(req *PostListReq) ([]*model.PostFormated, error) {
+	posts, err := myDao.GetPosts(req.Conditions, req.Offset, req.Limit)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return svc.FormatPosts(posts)
+	return FormatPosts(posts)
 }
 
-func (svc *Service) FormatPosts(posts []*model.Post) ([]*model.PostFormated, error) {
+func FormatPosts(posts []*model.Post) ([]*model.PostFormated, error) {
 	postIds := []int64{}
 	userIds := []int64{}
 	for _, post := range posts {
@@ -334,12 +340,12 @@ func (svc *Service) FormatPosts(posts []*model.Post) ([]*model.PostFormated, err
 		userIds = append(userIds, post.UserID)
 	}
 
-	postContents, err := svc.dao.GetPostContentsByIDs(postIds)
+	postContents, err := myDao.GetPostContentsByIDs(postIds)
 	if err != nil {
 		return nil, err
 	}
 
-	users, err := svc.dao.GetUsersByIDs(userIds)
+	users, err := myDao.GetUsersByIDs(userIds)
 	if err != nil {
 		return nil, err
 	}
@@ -366,17 +372,17 @@ func (svc *Service) FormatPosts(posts []*model.Post) ([]*model.PostFormated, err
 	return postsFormated, nil
 }
 
-func (svc *Service) GetPostCount(conditions *model.ConditionsT) (int64, error) {
-	return svc.dao.GetPostCount(conditions)
+func GetPostCount(conditions *model.ConditionsT) (int64, error) {
+	return myDao.GetPostCount(conditions)
 }
 
-func (svc *Service) GetPostListFromSearch(q *dao.QueryT, offset, limit int) ([]*model.PostFormated, int64, error) {
-	queryResult, err := svc.dao.QueryAll(q, global.SearchSetting.ZincIndex, offset, limit)
+func GetPostListFromSearch(q *dao.QueryT, offset, limit int) ([]*model.PostFormated, int64, error) {
+	queryResult, err := myDao.QueryAll(q, global.SearchSetting.ZincIndex, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	posts, err := svc.FormatZincPost(queryResult)
+	posts, err := FormatZincPost(queryResult)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -384,13 +390,13 @@ func (svc *Service) GetPostListFromSearch(q *dao.QueryT, offset, limit int) ([]*
 	return posts, queryResult.Hits.Total.Value, nil
 }
 
-func (svc *Service) GetPostListFromSearchByQuery(query string, offset, limit int) ([]*model.PostFormated, int64, error) {
-	queryResult, err := svc.dao.QuerySearch(global.SearchSetting.ZincIndex, query, offset, limit)
+func GetPostListFromSearchByQuery(query string, offset, limit int) ([]*model.PostFormated, int64, error) {
+	queryResult, err := myDao.QuerySearch(global.SearchSetting.ZincIndex, query, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	posts, err := svc.FormatZincPost(queryResult)
+	posts, err := FormatZincPost(queryResult)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -398,14 +404,14 @@ func (svc *Service) GetPostListFromSearchByQuery(query string, offset, limit int
 	return posts, queryResult.Hits.Total.Value, nil
 }
 
-func (svc *Service) PushPostToSearch(post *model.Post) {
+func PushPostToSearch(post *model.Post) {
 	indexName := global.SearchSetting.ZincIndex
 
 	postFormated := post.Format()
 	postFormated.User = &model.UserFormated{
 		ID: post.UserID,
 	}
-	contents, _ := svc.dao.GetPostContentsByIDs([]int64{post.ID})
+	contents, _ := myDao.GetPostContentsByIDs([]int64{post.ID})
 	for _, content := range contents {
 		postFormated.Contents = append(postFormated.Contents, content.Format())
 	}
@@ -446,31 +452,31 @@ func (svc *Service) PushPostToSearch(post *model.Post) {
 		"modified_on":       post.ModifiedOn,
 	})
 
-	svc.dao.BulkPushDoc(data)
+	myDao.BulkPushDoc(data)
 }
 
-func (svc *Service) DeleteSearchPost(post *model.Post) error {
+func DeleteSearchPost(post *model.Post) error {
 	indexName := global.SearchSetting.ZincIndex
 
-	return svc.dao.DelDoc(indexName, fmt.Sprintf("%d", post.ID))
+	return myDao.DelDoc(indexName, fmt.Sprintf("%d", post.ID))
 }
 
-func (svc *Service) PushPostsToSearch() {
-	if ok, _ := global.Redis.SetNX(svc.ctx, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
+func PushPostsToSearch(c *gin.Context) {
+	if ok, _ := global.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
 		splitNum := 1000
-		totalRows, _ := svc.GetPostCount(&model.ConditionsT{})
+		totalRows, _ := GetPostCount(&model.ConditionsT{})
 
 		pages := math.Ceil(float64(totalRows) / float64(splitNum))
 		nums := int(pages)
 
 		indexName := global.SearchSetting.ZincIndex
 		// 创建索引
-		svc.dao.CreateSearchIndex(indexName)
+		myDao.CreateSearchIndex(indexName)
 
 		for i := 0; i < nums; i++ {
 			data := []map[string]interface{}{}
 
-			posts, _ := svc.GetPostList(&PostListReq{
+			posts, _ := GetPostList(&PostListReq{
 				Conditions: &model.ConditionsT{},
 				Offset:     i * splitNum,
 				Limit:      splitNum,
@@ -509,15 +515,15 @@ func (svc *Service) PushPostsToSearch() {
 			}
 
 			if len(data) > 0 {
-				svc.dao.BulkPushDoc(data)
+				myDao.BulkPushDoc(data)
 			}
 		}
 
-		global.Redis.Del(svc.ctx, "JOB_PUSH_TO_SEARCH")
+		global.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
 	}
 }
 
-func (svc *Service) FormatZincPost(queryResult *zinc.QueryResultT) ([]*model.PostFormated, error) {
+func FormatZincPost(queryResult *zinc.QueryResultT) ([]*model.PostFormated, error) {
 	posts := []*model.PostFormated{}
 	for _, hit := range queryResult.Hits.Hits {
 		item := &model.PostFormated{}
@@ -535,12 +541,12 @@ func (svc *Service) FormatZincPost(queryResult *zinc.QueryResultT) ([]*model.Pos
 		postIds = append(postIds, post.ID)
 		userIds = append(userIds, post.UserID)
 	}
-	postContents, err := svc.dao.GetPostContentsByIDs(postIds)
+	postContents, err := myDao.GetPostContentsByIDs(postIds)
 	if err != nil {
 		return nil, err
 	}
 
-	users, err := svc.dao.GetUsersByIDs(userIds)
+	users, err := myDao.GetUsersByIDs(userIds)
 	if err != nil {
 		return nil, err
 	}
@@ -565,7 +571,7 @@ func (svc *Service) FormatZincPost(queryResult *zinc.QueryResultT) ([]*model.Pos
 	return posts, nil
 }
 
-func (svc *Service) GetPostTags(param *PostTagsReq) ([]*model.TagFormated, error) {
+func GetPostTags(param *PostTagsReq) ([]*model.TagFormated, error) {
 	num := param.Num
 	if num > global.AppSetting.MaxPageSize {
 		num = global.AppSetting.MaxPageSize
@@ -585,7 +591,7 @@ func (svc *Service) GetPostTags(param *PostTagsReq) ([]*model.TagFormated, error
 		}
 	}
 
-	tags, err := svc.dao.GetTags(conditions, 0, num)
+	tags, err := myDao.GetTags(conditions, 0, num)
 	if err != nil {
 		return nil, err
 	}
@@ -596,7 +602,7 @@ func (svc *Service) GetPostTags(param *PostTagsReq) ([]*model.TagFormated, error
 		userIds = append(userIds, tag.UserID)
 	}
 
-	users, _ := svc.dao.GetUsersByIDs(userIds)
+	users, _ := myDao.GetUsersByIDs(userIds)
 
 	tagsFormated := []*model.TagFormated{}
 	for _, tag := range tags {
@@ -612,8 +618,8 @@ func (svc *Service) GetPostTags(param *PostTagsReq) ([]*model.TagFormated, error
 	return tagsFormated, nil
 }
 
-func (svc *Service) CheckPostAttachmentIsPaid(postID, userID int64) bool {
-	bill, err := svc.dao.GetPostAttatchmentBill(postID, userID)
+func CheckPostAttachmentIsPaid(postID, userID int64) bool {
+	bill, err := myDao.GetPostAttatchmentBill(postID, userID)
 
 	return err == nil && bill.Model != nil && bill.ID > 0
 }

@@ -30,12 +30,11 @@ func Version(c *gin.Context) {
 
 func SyncSearchIndex(c *gin.Context) {
 	response := app.NewResponse(c)
-	svc := service.New(c)
 
 	user, _ := c.Get("USER")
 
 	if user.(*model.User).IsAdmin {
-		go svc.PushPostsToSearch()
+		go service.PushPostsToSearch(c)
 	}
 
 	response.ToResponse(nil)
@@ -77,7 +76,6 @@ func PostCaptcha(c *gin.Context) {
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
-	svc := service.New(c)
 
 	// 验证图片验证码
 	if res, err := global.Redis.Get(c.Request.Context(), "PaoPaoCaptcha:"+param.ImgCaptchaID).Result(); err != nil || res != param.ImgCaptcha {
@@ -92,7 +90,7 @@ func PostCaptcha(c *gin.Context) {
 		return
 	}
 
-	err := svc.SendPhoneCaptcha(param.Phone)
+	err := service.SendPhoneCaptcha(c, param.Phone)
 	if err != nil {
 		global.Logger.Errorf("app.SendPhoneCaptcha errs: %v", errs)
 		response.ToErrorResponse(errcode.GetPhoneCaptchaError)
