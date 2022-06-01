@@ -41,6 +41,10 @@ func setupSetting() error {
 	if err != nil {
 		return err
 	}
+	err = setting.ReadSection("Runtime", &global.RuntimeSetting)
+	if err != nil {
+		return err
+	}
 	err = setting.ReadSection("Log", &global.LoggerSetting)
 	if err != nil {
 		return err
