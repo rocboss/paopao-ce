@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/core"
-	"github.com/golang/protobuf/proto"
 	"github.com/rocboss/paopao-ce/pkg/crypto"
+	"google.golang.org/protobuf/proto"
 )
 
 // SignTransaction 签名交易

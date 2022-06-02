@@ -10,6 +10,8 @@ App: # APP基础设置项
   SmsJuheTplVal: "#code#=%d&#m#=%d"
   AlipayAppID:
   AlipayPrivateKey:
+Runtime: # App运行时功能调节
+  DisablePhoneVerify: False # 禁止绑定手机号码时验证短信验证码，为true时任意验证码都可以通过验证
 Server: # 服务设置
   RunMode: debug
   HttpIp: 0.0.0.0

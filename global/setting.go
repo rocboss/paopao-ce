@@ -10,6 +10,7 @@ import (
 var (
 	ServerSetting   *setting.ServerSettingS
 	AppSetting      *setting.AppSettingS
+	RuntimeSetting  *setting.RuntimeSettingS
 	DatabaseSetting *setting.DatabaseSettingS
 	RedisSetting    *setting.RedisSettingS
 	SearchSetting   *setting.SearchSettingS

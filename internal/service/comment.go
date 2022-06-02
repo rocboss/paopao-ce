@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/global"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
@@ -28,12 +29,12 @@ type ReplyDelReq struct {
 	ID int64 `json:"id" binding:"required"`
 }
 
-func (svc *Service) GetPostComments(postID int64, sort string, offset, limit int) ([]*model.CommentFormated, int64, error) {
+func GetPostComments(postID int64, sort string, offset, limit int) ([]*model.CommentFormated, int64, error) {
 	conditions := &model.ConditionsT{
 		"post_id": postID,
 		"ORDER":   sort,
 	}
-	comments, err := svc.dao.GetComments(conditions, offset, limit)
+	comments, err := myDao.GetComments(conditions, offset, limit)
 
 	if err != nil {
 		return nil, 0, err
@@ -46,17 +47,17 @@ func (svc *Service) GetPostComments(postID int64, sort string, offset, limit int
 		commentIDs = append(commentIDs, comment.ID)
 	}
 
-	users, err := svc.dao.GetUsersByIDs(userIDs)
+	users, err := myDao.GetUsersByIDs(userIDs)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	contents, err := svc.dao.GetCommentContentsByIDs(commentIDs)
+	contents, err := myDao.GetCommentContentsByIDs(commentIDs)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	replies, err := svc.dao.GetCommentRepliesByID(commentIDs)
+	replies, err := myDao.GetCommentRepliesByID(commentIDs)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -84,14 +85,14 @@ func (svc *Service) GetPostComments(postID int64, sort string, offset, limit int
 	}
 
 	// 获取总量
-	totalRows, _ := svc.dao.GetCommentCount(conditions)
+	totalRows, _ := myDao.GetCommentCount(conditions)
 
 	return commentsFormated, totalRows, nil
 }
 
-func (svc *Service) CreatePostComment(userID int64, param CommentCreationReq) (*model.Comment, error) {
+func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq) (*model.Comment, error) {
 	// 加载Post
-	post, err := svc.dao.GetPostByID(param.PostID)
+	post, err := myDao.GetPostByID(param.PostID)
 
 	if err != nil {
 		return nil, err
@@ -100,14 +101,14 @@ func (svc *Service) CreatePostComment(userID int64, param CommentCreationReq) (*
 	if post.CommentCount >= global.AppSetting.MaxCommentCount {
 		return nil, errcode.MaxCommentCount
 	}
-	ip := svc.ctx.ClientIP()
+	ip := ctx.ClientIP()
 	comment := &model.Comment{
 		PostID: post.ID,
 		UserID: userID,
 		IP:     ip,
 		IPLoc:  util.GetIPLoc(ip),
 	}
-	comment, err = svc.dao.CreateComment(comment)
+	comment, err = myDao.CreateComment(comment)
 	if err != nil {
 		return nil, err
 	}
@@ -127,41 +128,41 @@ func (svc *Service) CreatePostComment(userID int64, param CommentCreationReq) (*
 			Type:      item.Type,
 			Sort:      item.Sort,
 		}
-		svc.dao.CreateCommentContent(postContent)
+		myDao.CreateCommentContent(postContent)
 	}
 
 	// 更新Post回复数
 	post.CommentCount++
 	post.LatestRepliedOn = time.Now().Unix()
-	svc.dao.UpdatePost(post)
+	myDao.UpdatePost(post)
 
 	// 更新索引
-	go svc.PushPostToSearch(post)
+	go PushPostToSearch(post)
 
 	// 创建用户消息提醒
-	postMaster, err := svc.dao.GetUserByID(post.UserID)
+	postMaster, err := myDao.GetUserByID(post.UserID)
 	if err == nil && postMaster.ID != userID {
-		go svc.dao.CreateMessage(&model.Message{
+		go myDao.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: postMaster.ID,
 			Type:           model.MESSAGE_COMMENT,
-			Breif:          "在泡泡中评论了你",
+			Brief:          "在泡泡中评论了你",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
 		})
 	}
 	for _, u := range param.Users {
-		user, err := svc.dao.GetUserByUsername(u)
+		user, err := myDao.GetUserByUsername(u)
 		if err != nil || user.ID == userID || user.ID == postMaster.ID {
 			continue
 		}
 
 		// 创建消息提醒
-		go svc.dao.CreateMessage(&model.Message{
+		go myDao.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: user.ID,
 			Type:           model.MESSAGE_COMMENT,
-			Breif:          "在泡泡评论中@了你",
+			Brief:          "在泡泡评论中@了你",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
 		})
@@ -170,37 +171,38 @@ func (svc *Service) CreatePostComment(userID int64, param CommentCreationReq) (*
 	return comment, nil
 }
 
-func (svc *Service) GetPostComment(id int64) (*model.Comment, error) {
-	return svc.dao.GetCommentByID(id)
+func GetPostComment(id int64) (*model.Comment, error) {
+	return myDao.GetCommentByID(id)
 }
 
-func (svc *Service) DeletePostComment(comment *model.Comment) error {
+func DeletePostComment(comment *model.Comment) error {
 	// 加载post
-	post, err := svc.dao.GetPostByID(comment.PostID)
+	post, err := myDao.GetPostByID(comment.PostID)
 	if err == nil {
 		// 更新post回复数
 		post.CommentCount--
-		svc.dao.UpdatePost(post)
+		myDao.UpdatePost(post)
 	}
 
-	return svc.dao.DeleteComment(comment)
+	return myDao.DeleteComment(comment)
 }
 
-func (svc *Service) CreatePostCommentReply(commentID int64, content string, userID, atUserID int64) (*model.CommentReply, error) {
+func createPostPreHandler(commentID int64, userID, atUserID int64) (*model.Post, *model.Comment, int64,
+	error) {
 	// 加载Comment
-	comment, err := svc.dao.GetCommentByID(commentID)
+	comment, err := myDao.GetCommentByID(commentID)
 	if err != nil {
-		return nil, err
+		return nil, nil, atUserID, err
 	}
 
 	// 加载comment的post
-	post, err := svc.dao.GetPostByID(comment.PostID)
+	post, err := myDao.GetPostByID(comment.PostID)
 	if err != nil {
-		return nil, err
+		return nil, nil, atUserID, err
 	}
 
 	if post.CommentCount >= global.AppSetting.MaxCommentCount {
-		return nil, errcode.MaxCommentCount
+		return nil, nil, atUserID, errcode.MaxCommentCount
 	}
 
 	if userID == atUserID {
@@ -209,14 +211,27 @@ func (svc *Service) CreatePostCommentReply(commentID int64, content string, user
 
 	if atUserID > 0 {
 		// 检测目前用户是否存在
-		users, _ := svc.dao.GetUsersByIDs([]int64{atUserID})
+		users, _ := myDao.GetUsersByIDs([]int64{atUserID})
 		if len(users) == 0 {
 			atUserID = 0
 		}
 	}
 
+	return post, comment, atUserID, nil
+}
+
+func CreatePostCommentReply(ctx *gin.Context, commentID int64, content string, userID, atUserID int64) (*model.CommentReply, error) {
+	var (
+		post    *model.Post
+		comment *model.Comment
+		err     error
+	)
+	if post, comment, atUserID, err = createPostPreHandler(commentID, userID, atUserID); err != nil {
+		return nil, err
+	}
+
 	// 创建评论
-	ip := svc.ctx.ClientIP()
+	ip := ctx.ClientIP()
 	reply := &model.CommentReply{
 		CommentID: commentID,
 		UserID:    userID,
@@ -226,7 +241,7 @@ func (svc *Service) CreatePostCommentReply(commentID int64, content string, user
 		IPLoc:     util.GetIPLoc(ip),
 	}
 
-	reply, err = svc.dao.CreateCommentReply(reply)
+	reply, err = myDao.CreateCommentReply(reply)
 	if err != nil {
 		return nil, err
 	}
@@ -234,45 +249,45 @@ func (svc *Service) CreatePostCommentReply(commentID int64, content string, user
 	// 更新Post回复数
 	post.CommentCount++
 	post.LatestRepliedOn = time.Now().Unix()
-	svc.dao.UpdatePost(post)
+	myDao.UpdatePost(post)
 
 	// 更新索引
-	go svc.PushPostToSearch(post)
+	go PushPostToSearch(post)
 
 	// 创建用户消息提醒
-	commentMaster, err := svc.dao.GetUserByID(comment.UserID)
+	commentMaster, err := myDao.GetUserByID(comment.UserID)
 	if err == nil && commentMaster.ID != userID {
-		go svc.dao.CreateMessage(&model.Message{
+		go myDao.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: commentMaster.ID,
 			Type:           model.MESSAGE_REPLY,
-			Breif:          "在泡泡评论下回复了你",
+			Brief:          "在泡泡评论下回复了你",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
 			ReplyID:        reply.ID,
 		})
 	}
-	postMaster, err := svc.dao.GetUserByID(post.UserID)
+	postMaster, err := myDao.GetUserByID(post.UserID)
 	if err == nil && postMaster.ID != userID && commentMaster.ID != postMaster.ID {
-		go svc.dao.CreateMessage(&model.Message{
+		go myDao.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: postMaster.ID,
 			Type:           model.MESSAGE_REPLY,
-			Breif:          "在泡泡评论下发布了新回复",
+			Brief:          "在泡泡评论下发布了新回复",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
 			ReplyID:        reply.ID,
 		})
 	}
 	if atUserID > 0 {
-		user, err := svc.dao.GetUserByID(atUserID)
+		user, err := myDao.GetUserByID(atUserID)
 		if err == nil && user.ID != userID && commentMaster.ID != user.ID && postMaster.ID != user.ID {
 			// 创建消息提醒
-			go svc.dao.CreateMessage(&model.Message{
+			go myDao.CreateMessage(&model.Message{
 				SenderUserID:   userID,
 				ReceiverUserID: user.ID,
 				Type:           model.MESSAGE_REPLY,
-				Breif:          "在泡泡评论的回复中@了你",
+				Brief:          "在泡泡评论的回复中@了你",
 				PostID:         post.ID,
 				CommentID:      comment.ID,
 				ReplyID:        reply.ID,
@@ -283,24 +298,24 @@ func (svc *Service) CreatePostCommentReply(commentID int64, content string, user
 	return reply, nil
 }
 
-func (svc *Service) GetPostCommentReply(id int64) (*model.CommentReply, error) {
-	return svc.dao.GetCommentReplyByID(id)
+func GetPostCommentReply(id int64) (*model.CommentReply, error) {
+	return myDao.GetCommentReplyByID(id)
 }
 
-func (svc *Service) DeletePostCommentReply(reply *model.CommentReply) error {
-	err := svc.dao.DeleteCommentReply(reply)
+func DeletePostCommentReply(reply *model.CommentReply) error {
+	err := myDao.DeleteCommentReply(reply)
 	if err != nil {
 		return err
 	}
 
 	// 加载Comment
-	comment, err := svc.dao.GetCommentByID(reply.CommentID)
+	comment, err := myDao.GetCommentByID(reply.CommentID)
 	if err != nil {
 		return err
 	}
 
 	// 加载comment的post
-	post, err := svc.dao.GetPostByID(comment.PostID)
+	post, err := myDao.GetPostByID(comment.PostID)
 	if err != nil {
 		return err
 	}
@@ -308,10 +323,10 @@ func (svc *Service) DeletePostCommentReply(reply *model.CommentReply) error {
 	// 更新Post回复数
 	post.CommentCount--
 	post.LatestRepliedOn = time.Now().Unix()
-	svc.dao.UpdatePost(post)
+	myDao.UpdatePost(post)
 
 	// 更新索引
-	go svc.PushPostToSearch(post)
+	go PushPostToSearch(post)
 
 	return nil
 }

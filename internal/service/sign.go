@@ -8,7 +8,7 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/util"
 )
 
-func (svc *Service) GetParamSign(param map[string]interface{}, secretKey string) string {
+func GetParamSign(param map[string]interface{}, secretKey string) string {
 	signRaw := ""
 
 	rawStrs := []string{}

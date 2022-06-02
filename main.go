@@ -4,9 +4,15 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/global"
 	"github.com/rocboss/paopao-ce/internal/routers"
+	"github.com/rocboss/paopao-ce/pkg/util"
+)
+
+var (
+	version, buildDate, commitID string
 )
 
 func main() {
@@ -21,6 +27,9 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	fmt.Printf("\x1b[36m%s\x1b[0m\n", "PaoPao service listen on http://"+global.ServerSetting.HttpIp+":"+global.ServerSetting.HttpPort)
+	util.PrintHelloBanner(fmt.Sprintf("paopao %s (build:%s %s)", version, commitID, buildDate))
+	fmt.Fprintf(color.Output, "PaoPao service listen on %s\n",
+		color.GreenString(fmt.Sprintf("http://%s:%s", global.ServerSetting.HttpIp, global.ServerSetting.HttpPort)),
+	)
 	s.ListenAndServe()
 }

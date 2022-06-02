@@ -111,7 +111,7 @@ CREATE TABLE `p_message` (
   `sender_user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '发送方用户ID',
   `receiver_user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '接收方用户ID',
   `type` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '通知类型，1动态，2评论，3回复，4私信，99系统通知',
-  `breif` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '摘要说明',
+  `brief` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '摘要说明',
   `content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '详细内容',
   `post_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '动态ID',
   `comment_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '评论ID',

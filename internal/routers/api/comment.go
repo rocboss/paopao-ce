@@ -11,15 +11,13 @@ import (
 )
 
 func GetPostComments(c *gin.Context) {
-
 	postID := convert.StrTo(c.Query("id")).MustInt64()
 	response := app.NewResponse(c)
 
-	svc := service.New(c)
-	contents, totalRows, err := svc.GetPostComments(postID, "id ASC", 0, 0)
+	contents, totalRows, err := service.GetPostComments(postID, "id ASC", 0, 0)
 
 	if err != nil {
-		global.Logger.Errorf("svc.GetPostComments err: %v\n", err)
+		global.Logger.Errorf("service.GetPostComments err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCommentsFailed)
 		return
 	}
@@ -38,14 +36,13 @@ func CreatePostComment(c *gin.Context) {
 	}
 
 	userID, _ := c.Get("UID")
-	svc := service.New(c)
-	comment, err := svc.CreatePostComment(userID.(int64), param)
+	comment, err := service.CreatePostComment(c, userID.(int64), param)
 
 	if err != nil {
 		if err == errcode.MaxCommentCount {
 			response.ToErrorResponse(errcode.MaxCommentCount)
 		} else {
-			global.Logger.Errorf("svc.CreatePostComment err: %v\n", err)
+			global.Logger.Errorf("service.CreatePostComment err: %v\n", err)
 			response.ToErrorResponse(errcode.CreateCommentFailed)
 		}
 		return
@@ -64,11 +61,10 @@ func DeletePostComment(c *gin.Context) {
 		return
 	}
 	user, _ := c.Get("USER")
-	svc := service.New(c)
 
-	comment, err := svc.GetPostComment(param.ID)
+	comment, err := service.GetPostComment(param.ID)
 	if err != nil {
-		global.Logger.Errorf("svc.GetPostComment err: %v\n", err)
+		global.Logger.Errorf("service.GetPostComment err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCommentFailed)
 		return
 	}
@@ -79,9 +75,9 @@ func DeletePostComment(c *gin.Context) {
 	}
 
 	// 执行删除
-	err = svc.DeletePostComment(comment)
+	err = service.DeletePostComment(comment)
 	if err != nil {
-		global.Logger.Errorf("svc.DeletePostComment err: %v\n", err)
+		global.Logger.Errorf("service.DeletePostComment err: %v\n", err)
 		response.ToErrorResponse(errcode.DeleteCommentFailed)
 		return
 	}
@@ -99,11 +95,10 @@ func CreatePostCommentReply(c *gin.Context) {
 		return
 	}
 	user, _ := c.Get("USER")
-	svc := service.New(c)
 
-	comment, err := svc.CreatePostCommentReply(param.CommentID, param.Content, user.(*model.User).ID, param.AtUserID)
+	comment, err := service.CreatePostCommentReply(c, param.CommentID, param.Content, user.(*model.User).ID, param.AtUserID)
 	if err != nil {
-		global.Logger.Errorf("svc.CreatePostCommentReply err: %v\n", err)
+		global.Logger.Errorf("service.CreatePostCommentReply err: %v\n", err)
 		response.ToErrorResponse(errcode.CreateReplyFailed)
 		return
 	}
@@ -122,11 +117,10 @@ func DeletePostCommentReply(c *gin.Context) {
 	}
 
 	user, _ := c.Get("USER")
-	svc := service.New(c)
 
-	reply, err := svc.GetPostCommentReply(param.ID)
+	reply, err := service.GetPostCommentReply(param.ID)
 	if err != nil {
-		global.Logger.Errorf("svc.GetPostCommentReply err: %v\n", err)
+		global.Logger.Errorf("service.GetPostCommentReply err: %v\n", err)
 		response.ToErrorResponse(errcode.GetReplyFailed)
 		return
 	}
@@ -137,9 +131,9 @@ func DeletePostCommentReply(c *gin.Context) {
 	}
 
 	// 执行删除
-	err = svc.DeletePostCommentReply(reply)
+	err = service.DeletePostCommentReply(reply)
 	if err != nil {
-		global.Logger.Errorf("svc.DeletePostCommentReply err: %v\n", err)
+		global.Logger.Errorf("service.DeletePostCommentReply err: %v\n", err)
 		response.ToErrorResponse(errcode.DeleteCommentFailed)
 		return
 	}

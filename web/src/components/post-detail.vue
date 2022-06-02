@@ -197,7 +197,7 @@ const emit = defineEmits<{
 
 const post = computed({
     get: () => {
-        let post: Required<Item.PostProps> = Object.assign(
+        let post: Item.PostComponentProps = Object.assign(
             {
                 texts: [],
                 imgs: [],

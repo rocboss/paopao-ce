@@ -1,16 +1,12 @@
-import request from '@/utils/request';
+import { request } from '@/utils/request';
 
-/**
- * 获取验证码
- * @param {Object} params
- * @returns Promise
- */
-export const getCaptcha = (params: NetParams.UserGetCaptcha = {}) => {
+/** 获取验证码 */
+export const getCaptcha = (params: NetParams.UserGetCaptcha = {}): Promise<NetReq.UserGetCaptcha> => {
     return request({
         method: 'get',
         url: '/captcha',
         params
-    }) as unknown as Promise<NetReq.UserGetCaptcha>;
+    });
 };
 
 /**
@@ -31,12 +27,12 @@ export const sendCaptcha = (data: any) => {
  * @param {Object} data
  * @returns Promise
  */
-export const sendUserWhisper = (data: NetParams.UserWhisper) => {
+export const sendUserWhisper = (data: NetParams.UserWhisper): Promise<NetParams.UserWhisper> => {
     return request({
         method: 'post',
         url: '/user/whisper',
         data
-    }) as unknown as Promise<NetParams.UserWhisper>;
+    });
 };
 
 /**
@@ -44,20 +40,16 @@ export const sendUserWhisper = (data: NetParams.UserWhisper) => {
  * @param {Object} data
  * @returns Promise
  */
-export const bindUserPhone = (data: NetParams.UserBindUserPhone) => {
+export const bindUserPhone = (data: NetParams.UserBindUserPhone): Promise<NetParams.UserBindUserPhone> => {
     return request({
         method: 'post',
         url: '/user/phone',
         data
-    }) as unknown as Promise<NetParams.UserBindUserPhone>;
+    });
 };
 
-/**
- * 更改密码
- * @param {Object} data
- * @returns Promise
- */
-export const changePassword = (data: any) => {
+/** 更改密码 */
+export const changePassword = (data: NetParams.UserChangePassword): Promise<NetReq.UserChangePassword> => {
     return request({
         method: 'post',
         url: '/user/password',
@@ -65,12 +57,8 @@ export const changePassword = (data: any) => {
     });
 };
 
-/**
- * 更改昵称
- * @param {Object} data
- * @returns Promise
- */
-export const changeNickname = (data: any) => {
+/** 更改昵称 */
+export const changeNickname = (data: NetParams.UserChangeNickname): Promise<NetReq.UserChangeNickname> => {
     return request({
         method: 'post',
         url: '/user/nickname',
@@ -91,30 +79,22 @@ export const changeAvatar = (data: any) => {
     });
 };
 
-/**
- * 获取未读消息数
- * @param {Object} params
- * @returns Promise
- */
-export const getUnreadMsgCount = (params: NetParams.UserGetUnreadMsgCount = {}) => {
+/** 获取未读消息数 */
+export const getUnreadMsgCount = (params: NetParams.UserGetUnreadMsgCount = {}): Promise<NetReq.UserGetUnreadMsgCount> => {
     return request({
         method: 'get',
         url: '/user/msgcount/unread',
         params
-    }) as unknown as Promise<NetReq.UserGetUnreadMsgCount>;
+    });
 };
 
-/**
- * 获取消息列表
- * @param {Object} params
- * @returns Promise
- */
-export const getMessages = (params: NetParams.UserGetMessages) => {
+/** 获取消息列表 */
+export const getMessages = (params: NetParams.UserGetMessages): Promise<NetReq.UserGetMessages> => {
     return request({
         method: 'get',
         url: '/user/messages',
         params
-    }) as unknown as Promise<NetReq.UserGetMessages>;
+    });
 };
 
 /**
@@ -130,69 +110,49 @@ export const readMessage = (data: any) => {
     });
 };
 
-/**
- * 获取收藏列表
- * @param {Object} params
- * @returns Promise
- */
-export const getCollections = (params: NetParams.UserGetCollections) => {
+/** 获取收藏列表 */
+export const getCollections = (params: NetParams.UserGetCollections): Promise<NetReq.UserGetCollections> => {
     return request({
         method: 'get',
         url: '/user/collections',
         params
-    }) as unknown as Promise<NetReq.UserGetCollections>;
+    });
 };
 
-/**
- * 获取点赞列表
- * @param {Object} params
- * @returns Promise
- */
-export const getStars = (params: NetParams.UserGetStars) => {
+/** 获取点赞列表 */
+export const getStars = (params: NetParams.UserGetStars): Promise<NetReq.UserGetStars> => {
     return request({
         method: 'get',
         url: '/user/stars',
         params
-    }) as unknown as Promise<NetReq.UserGetStars>;
+    });
 };
 
-/**
- * 获取用户基础信息
- * @param {Object} params
- * @returns Promise
- */
-export const getUserProfile = (params: NetParams.UserGetUserProfile) => {
+/** 获取用户基础信息 */
+export const getUserProfile = (params: NetParams.UserGetUserProfile): Promise<NetReq.UserGetUserProfile> => {
     return request({
         method: 'get',
         url: '/user/profile',
         params
-    }) as unknown as Promise<NetReq.UserGetUserProfile>;
+    });
 };
 
-/**
- * 获取点赞列表
- * @param {Object} params
- * @returns Promise
- */
-export const getUserPosts = (params: NetParams.UserGetUserPosts) => {
+/** 获取用户帖子列表 */
+export const getUserPosts = (params: NetParams.UserGetUserPosts): Promise<NetReq.UserGetUserPosts> => {
     return request({
         method: 'get',
         url: '/user/posts',
         params
-    }) as unknown as Promise<NetReq.UserGetUserPosts>;
+    });
 };
 
-/**
- * 获取账单列表
- * @param {Object} params
- * @returns Promise
- */
-export const getBills = (params: NetParams.UserGetBills) => {
+/** 获取账单列表 */
+export const getBills = (params: NetParams.UserGetBills): Promise<NetReq.UserGetBills> => {
     return request({
         method: 'get',
         url: '/user/wallet/bills',
         params
-    }) as unknown as Promise<NetReq.UserGetBills>;
+    });
 };
 
 /**
@@ -200,12 +160,12 @@ export const getBills = (params: NetParams.UserGetBills) => {
  * @param {Object} data
  * @returns Promise
  */
-export const reqRecharge = (data: NetParams.UserReqRecharge) => {
+export const reqRecharge = (data: NetParams.UserReqRecharge): Promise<NetReq.UserReqRecharge> => {
     return request({
         method: 'post',
         url: '/user/recharge',
         data
-    }) as unknown as Promise<NetReq.UserReqRecharge>;
+    });
 };
 
 /**
@@ -213,12 +173,12 @@ export const reqRecharge = (data: NetParams.UserReqRecharge) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getRecharge = (params: NetParams.UserGetRecharge) => {
+export const getRecharge = (params: NetParams.UserGetRecharge): Promise<NetReq.UserGetRecharge> => {
     return request({
         method: 'get',
         url: '/user/recharge',
         params
-    }) as unknown as Promise<NetReq.UserGetRecharge>;
+    });
 };
 
 /**
@@ -226,12 +186,12 @@ export const getRecharge = (params: NetParams.UserGetRecharge) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getSuggestUsers = (params: { k: string }) => {
+export const getSuggestUsers = (params: { k: string }): Promise<NetReq.UserGetSuggestUsers> => {
     return request({
         method: 'get',
         url: '/suggest/users',
         params
-    }) as unknown as Promise<NetReq.UserGetSuggestUsers>;
+    });
 };
 
 /**
@@ -239,12 +199,12 @@ export const getSuggestUsers = (params: { k: string }) => {
  * @param {Object} params
  * @returns Promise
  */
-export const getSuggestTags = (params: { k: string }) => {
+export const getSuggestTags = (params: { k: string }): Promise<NetReq.UserGetSuggestTags> => {
     return request({
         method: 'get',
         url: '/suggest/tags',
         params
-    }) as unknown as Promise<NetReq.UserGetSuggestTags>;
+    });
 };
 
 /**
@@ -252,12 +212,12 @@ export const getSuggestTags = (params: { k: string }) => {
  * @param {Object} params
  * @returns Promise
  */
-export const precheckAttachment = (params: NetParams.UserPrecheckAttachment) => {
+export const precheckAttachment = (params: NetParams.UserPrecheckAttachment): Promise<NetReq.UserPrecheckAttachment> => {
     return request({
         method: 'get',
         url: '/attachment/precheck',
         params
-    }) as unknown as Promise<NetReq.UserPrecheckAttachment>;
+    });
 };
 
 /**
@@ -265,10 +225,10 @@ export const precheckAttachment = (params: NetParams.UserPrecheckAttachment) => 
  * @param {Object} params
  * @returns Promise
  */
-export const getAttachment = (params: NetParams.UserGetAttachment) => {
+export const getAttachment = (params: NetParams.UserGetAttachment): Promise<NetReq.UserGetAttachment> => {
     return request({
         method: 'get',
         url: '/attachment',
         params
-    }) as unknown as Promise<NetReq.UserGetAttachment>;
+    });
 };
