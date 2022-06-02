@@ -4,7 +4,7 @@ import { request } from '@/utils/request';
 export const getPosts = (params: NetParams.PostGetPosts): Promise<NetReq.PostGetPosts> => {
     return request({
         method: 'get',
-        url: '/posts',
+        url: '/v1/posts',
         params
     });
 };
@@ -13,7 +13,7 @@ export const getPosts = (params: NetParams.PostGetPosts): Promise<NetReq.PostGet
 export const getTags = (params: NetParams.PostGetTags): Promise<NetReq.PostGetTags> => {
     return request({
         method: 'get',
-        url: '/tags',
+        url: '/v1/tags',
         params
     });
 };
@@ -22,7 +22,7 @@ export const getTags = (params: NetParams.PostGetTags): Promise<NetReq.PostGetTa
 export const getPost = (params: NetParams.PostGetPost): Promise<NetReq.PostGetPost> => {
     return request({
         method: 'get',
-        url: '/post',
+        url: '/v1/post',
         params
     });
 };
@@ -31,7 +31,7 @@ export const getPost = (params: NetParams.PostGetPost): Promise<NetReq.PostGetPo
 export const getPostStar = (params: NetParams.PostPostStar): Promise<NetReq.PostGetPostStar> => {
     return request({
         method: 'get',
-        url: '/post/star',
+        url: '/v1/post/star',
         params
     });
 };
@@ -40,7 +40,7 @@ export const getPostStar = (params: NetParams.PostPostStar): Promise<NetReq.Post
 export const postStar = (data: NetParams.PostPostStar): Promise<NetReq.PostPostStar> => {
     return request({
         method: 'post',
-        url: '/post/star',
+        url: '/v1/post/star',
         data
     });
 };
@@ -49,7 +49,7 @@ export const postStar = (data: NetParams.PostPostStar): Promise<NetReq.PostPostS
 export const getPostCollection = (params: NetParams.PostGetPostCollection): Promise<NetReq.PostGetPostCollection> => {
     return request({
         method: 'get',
-        url: '/post/collection',
+        url: '/v1/post/collection',
         params
     });
 };
@@ -58,7 +58,7 @@ export const getPostCollection = (params: NetParams.PostGetPostCollection): Prom
 export const postCollection = (data: NetParams.PostPostCollection): Promise<NetReq.PostPostCollection> => {
     return request({
         method: 'post',
-        url: '/post/collection',
+        url: '/v1/post/collection',
         data
     });
 };
@@ -67,7 +67,7 @@ export const postCollection = (data: NetParams.PostPostCollection): Promise<NetR
 export const getPostComments = (params: NetParams.PostGetPostComments): Promise<NetReq.PostGetPostComments> => {
     return request({
         method: 'get',
-        url: '/post/comments',
+        url: '/v1/post/comments',
         params
     });
 };
@@ -76,7 +76,7 @@ export const getPostComments = (params: NetParams.PostGetPostComments): Promise<
 export const createPost = (data: NetParams.PostCreatePost): Promise<NetReq.PostCreatePost> => {
     return request({
         method: 'post',
-        url: '/post',
+        url: '/v1/post',
         data
     });
 };
@@ -85,7 +85,7 @@ export const createPost = (data: NetParams.PostCreatePost): Promise<NetReq.PostC
 export const deletePost = (data: NetParams.PostDeletePost): Promise<NetReq.PostDeletePost> => {
     return request({
         method: 'delete',
-        url: '/post',
+        url: '/v1/post',
         data
     });
 };
@@ -94,7 +94,7 @@ export const deletePost = (data: NetParams.PostDeletePost): Promise<NetReq.PostD
 export const lockPost = (data: NetParams.PostLockPost): Promise<NetReq.PostLockPost> => {
     return request({
         method: 'post',
-        url: '/post/lock',
+        url: '/v1/post/lock',
         data
     });
 };
@@ -103,7 +103,7 @@ export const lockPost = (data: NetParams.PostLockPost): Promise<NetReq.PostLockP
 export const stickPost = (data: NetParams.PostStickPost): Promise<NetReq.PostStickPost> => {
     return request({
         method: 'post',
-        url: '/post/stick',
+        url: '/v1/post/stick',
         data
     });
 };
@@ -112,7 +112,7 @@ export const stickPost = (data: NetParams.PostStickPost): Promise<NetReq.PostSti
 export const createComment = (data: NetParams.PostCreateComment): Promise<NetReq.PostCreateComment> => {
     return request({
         method: 'post',
-        url: '/post/comment',
+        url: '/v1/post/comment',
         data
     });
 };
@@ -121,7 +121,7 @@ export const createComment = (data: NetParams.PostCreateComment): Promise<NetReq
 export const deleteComment = (data: NetParams.PostDeleteComment): Promise<NetReq.PostDeleteComment> => {
     return request({
         method: 'delete',
-        url: '/post/comment',
+        url: '/v1/post/comment',
         data
     });
 };
@@ -130,7 +130,7 @@ export const deleteComment = (data: NetParams.PostDeleteComment): Promise<NetReq
 export const createCommentReply = (data: NetParams.PostCreateCommentReply): Promise<NetReq.PostCreateCommentReply> => {
     return request({
         method: 'post',
-        url: '/post/comment/reply',
+        url: '/v1/post/comment/reply',
         data
     });
 };
@@ -139,7 +139,7 @@ export const createCommentReply = (data: NetParams.PostCreateCommentReply): Prom
 export const deleteCommentReply = (data: NetParams.PostDeleteCommentReply): Promise<NetReq.PostDeleteCommentReply> => {
     return request({
         method: 'delete',
-        url: '/post/comment/reply',
+        url: '/v1/post/comment/reply',
         data
     });
 };

@@ -20,13 +20,13 @@ for pl in ${PLATFORMS}; do
 
     echo "build => ${TARGET}"
     if [ "${DEBUG_MODE}" == "debug" ]; then
-        go build -trimpath -gcflags "all=-N -l" -o "${TARGET}" \
+        go build -trimpath -gcflags "all=-N -l" -o "${TARGET}" -tags "${TAGS}" \
             -ldflags "-X 'main.version=${BUILD_VERSION}' \
                         -X 'main.buildDate=${BUILD_DATE}' \
                         -X 'main.commitID=${SHA_SHORT}'\
                         -w -s"
     else
-        go build -trimpath -o "${TARGET}" \
+        go build -trimpath -o "${TARGET}" -tags "${TAGS}" \
             -ldflags "-X 'main.version=${BUILD_VERSION}' \
                         -X 'main.buildDate=${BUILD_DATE}' \
                         -X 'main.commitID=${SHA_SHORT}'\
