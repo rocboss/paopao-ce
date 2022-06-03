@@ -1,4 +1,4 @@
-.PHONY: all build run clean fmt help
+.PHONY: all build run test clean fmt help
 BUILD_VERSION   := $(shell cat version)
 BUILD_DATE := $(shell date +'%Y-%m-%d %H:%M:%S')
 SHA_SHORT := $(shell git rev-parse --short HEAD)
@@ -22,6 +22,8 @@ fmt:
 	@go vet -composites=false ./global/...
 	@go vet -composites=false ./internal/...
 	@go vet -composites=false ./pkg/...
+test:
+	@go test ./...
 help:
 	@echo "make: make"
 	@echo "make run: start api server"
