@@ -113,20 +113,20 @@ const replyAtUsername = ref('');
 const replyComposeRef = ref();
 
 const emit = defineEmits<{
-    (e: "reload"): void
+    (e: 'reload'): void
 }>();
 const props = withDefaults(defineProps<{
     comment: Item.CommentProps
 }>(), {})
 
 const comment = computed(() => {
-    let comment = Object.assign(
+    let comment: Item.CommentComponentProps = Object.assign(
         {
             texts: [],
             imgs: [],
         },
         props.comment
-    ) as {texts: Item.CommentProps[], imgs: Item.CommentProps[]} & Item.CommentProps;
+    );
     comment.contents.map((content :any) => {
         if (+content.type === 1 || +content.type === 2) {
             comment.texts.push(content);

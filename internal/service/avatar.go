@@ -58,7 +58,7 @@ var defaultAvatars = []string{
 	"https://assets.paopao.info/public/avatar/default/abigail.png",
 }
 
-func (s *Service) GetRandomAvatar() string {
+func GetRandomAvatar() string {
 	rand.Seed(time.Now().UnixMicro())
 	return defaultAvatars[rand.Intn(len(defaultAvatars))]
 }

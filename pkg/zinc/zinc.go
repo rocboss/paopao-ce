@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/rocboss/paopao-ce/pkg/setting"
 )
 
 type ZincClient struct {
@@ -49,14 +50,17 @@ type QueryResultT struct {
 	TimedOut bool         `json:"timed_out"`
 	Hits     *HitsResultT `json:"hits"`
 }
+
 type HitsResultT struct {
 	Total    *HitsResultTotalT `json:"total"`
 	MaxScore float64           `json:"max_score"`
 	Hits     []*HitItem        `json:"hits"`
 }
+
 type HitsResultTotalT struct {
 	Value int64 `json:"value"`
 }
+
 type HitItem struct {
 	Index     string      `json:"_index"`
 	Type      string      `json:"_type"`
@@ -64,6 +68,17 @@ type HitItem struct {
 	Score     float64     `json:"_score"`
 	Timestamp time.Time   `json:"@timestamp"`
 	Source    interface{} `json:"_source"`
+}
+
+// NewClient 获取ZincClient新实例
+func NewClient(conf *setting.SearchSettingS) *ZincClient {
+	return &ZincClient{
+		ZincClientConfig: &ZincClientConfig{
+			ZincHost:     conf.ZincHost,
+			ZincUser:     conf.ZincUser,
+			ZincPassword: conf.ZincPassword,
+		},
+	}
 }
 
 // 创建索引

@@ -46,11 +46,11 @@
             <template #description>
                 <n-alert
                     :show-icon="false"
-                    class="breif-wrap"
+                    class="brief-wrap"
                     :type="message.is_read > 0 ? 'default' : 'success'"
                 >
-                    <div class="breif-content">
-                        {{ message.breif }}
+                    <div class="brief-content">
+                        {{ message.brief }}
                         <span
                             v-if="message.type !== 4"
                             @click.stop="viewDetail(message)"
@@ -146,9 +146,9 @@ const handleReadMessage = (message: Item.MessageProps) => {
         }
     }
 
-    .breif-wrap {
+    .brief-wrap {
         margin-top: 10px;
-        .breif-content {
+        .brief-content {
             display: flex;
             width: 100%;
         }

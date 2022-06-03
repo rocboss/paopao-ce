@@ -1,12 +1,8 @@
 package util
 
-import (
-	"github.com/yinheli/qqwry"
-)
+import "github.com/rocboss/paopao-ce/pkg/util/iploc"
 
 func GetIPLoc(ip string) string {
-	q := qqwry.NewQQwry("qqwry.dat")
-	q.Find(ip)
-
-	return q.Country
+	country, _ := iploc.Find(ip)
+	return country
 }

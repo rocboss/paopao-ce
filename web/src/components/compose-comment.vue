@@ -170,7 +170,7 @@ import { parsePostTag } from '@/utils/content';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
 
 const emit = defineEmits<{
-    (e: "post-success"): void
+    (e: 'post-success'): void
 }>();
 const props = withDefaults(defineProps<{
     lock: number,
@@ -265,7 +265,7 @@ const finishUpload = ({ file, event }: any): any => {
                 imageContents.value.push({
                     id: file.id,
                     content: data.data.content,
-                });
+                } as Item.CommentItemProps);
             }
         }
     } catch (error) {

@@ -51,6 +51,10 @@ type AppSettingS struct {
 	AlipayPrivateKey      string
 }
 
+type RuntimeSettingS struct {
+	DisablePhoneVerify bool
+}
+
 type SearchSettingS struct {
 	ZincHost     string
 	ZincIndex    string

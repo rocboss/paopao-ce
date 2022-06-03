@@ -230,7 +230,7 @@ const defaultImg =
 const thumbnail =
     '?x-oss-process=image/resize,m_fill,w_300,h_300,limit_0/auto-orient,1/format,png';
 const props = withDefaults(defineProps<{
-    imgs: Item.PostProps[],
+    imgs: Item.PostItemProps[],
 }>(), {
     imgs: () => []
 });

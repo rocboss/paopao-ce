@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from 'axios';
 
 const service = axios.create({
     baseURL: import.meta.env.VITE_HOST,
@@ -48,3 +48,7 @@ service.interceptors.response.use(
 );
 
 export default service;
+
+export function request<T, R>(config: AxiosRequestConfig<T>): Promise<R> {
+    return service(config) as unknown as Promise<R>;
+}

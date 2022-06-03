@@ -1,62 +1,39 @@
-import request from '@/utils/request';
+import { request } from '@/utils/request';
 
-
-/**
- * 用户登录
- * @param {Object} params
- *  - @param {string} username
- *  - @param {string} password
- * @returns Promise
- */
-export const userLogin = (params: NetParams.AuthUserLogin = {}) => {
+/** 用户登录 */
+export const userLogin = (params: NetParams.AuthUserLogin): Promise<NetReq.AuthUserLogin> => {
     return request({
         method: 'post',
-        url: '/auth/login',
-        data: params,
-    }) as unknown as Promise<NetReq.AuthUserLogin>;
-};
-
-/**
- * 注册用户
- * @param {Object} params
- *  - @param {string} username
- *  - @param {string} password
- * @returns Promise
- */
-export const userRegister = (params = {}) => {
-    return request({
-        method: 'post',
-        url: '/auth/register',
+        url: '/v1/auth/login',
         data: params,
     });
 };
 
-/**
- * 用户信息
- * @param {Object} params
- * @returns Promise
- */
-export const userInfo = (token = '') => {
+/** 注册用户 */
+export const userRegister = (params: NetParams.AuthUserRegister): Promise<NetReq.AuthUserRegister> => {
+    return request({
+        method: 'post',
+        url: '/v1/auth/register',
+        data: params,
+    });
+};
+
+/** 用户信息 */
+export const userInfo = (token: NetParams.AuthUserInfo = ""): Promise<NetReq.AuthUserInfo> => {
     return request({
         method: 'get',
-        url: '/user/info',
+        url: '/v1/user/info',
         headers: {
             Authorization: `Bearer ${token}`,
         },
     });
 };
 
-/**
- * 修改用户密码
- * @param {Object} params
- *  - @param {string} password 新密码
- *  - @param {string} old_password 旧密码
- * @returns Promise
- */
-export const updateUserPassword = (data: any) => {
+/** 修改用户密码，该接口暂时未使用 */
+export const updateUserPassword = (data: NetParams.AuthUpdateUserPassword): Promise<NetReq.AuthUpdateUserPassword> => {
     return request({
         method: 'post',
-        url: '/api/user/password',
+        url: '/v1/api/user/password',
         data,
     });
 };

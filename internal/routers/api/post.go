@@ -22,10 +22,9 @@ func GetPostList(c *gin.Context) {
 		q.Type = "tag"
 	}
 
-	svc := service.New(c)
 	if q.Query == "" && q.Type == "search" {
 		// 直接读库
-		posts, err := svc.GetPostList(&service.PostListReq{
+		posts, err := service.GetPostList(&service.PostListReq{
 			Conditions: &model.ConditionsT{
 				"ORDER": "is_top DESC, latest_replied_on DESC",
 			},
@@ -33,20 +32,20 @@ func GetPostList(c *gin.Context) {
 			Limit:  app.GetPageSize(c),
 		})
 		if err != nil {
-			global.Logger.Errorf("svc.GetPostList err: %v\n", err)
+			global.Logger.Errorf("service.GetPostList err: %v\n", err)
 			response.ToErrorResponse(errcode.GetPostsFailed)
 			return
 		}
-		totalRows, _ := svc.GetPostCount(&model.ConditionsT{
+		totalRows, _ := service.GetPostCount(&model.ConditionsT{
 			"ORDER": "latest_replied_on DESC",
 		})
 
 		response.ToResponseList(posts, totalRows)
 	} else {
-		posts, totalRows, err := svc.GetPostListFromSearch(q, (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
+		posts, totalRows, err := service.GetPostListFromSearch(q, (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
 
 		if err != nil {
-			global.Logger.Errorf("svc.GetPostListFromSearch err: %v\n", err)
+			global.Logger.Errorf("service.GetPostListFromSearch err: %v\n", err)
 			response.ToErrorResponse(errcode.GetPostsFailed)
 			return
 		}
@@ -58,11 +57,10 @@ func GetPost(c *gin.Context) {
 	postID := convert.StrTo(c.Query("id")).MustInt64()
 	response := app.NewResponse(c)
 
-	svc := service.New(c)
-	postFormated, err := svc.GetPost(postID)
+	postFormated, err := service.GetPost(postID)
 
 	if err != nil {
-		global.Logger.Errorf("svc.GetPost err: %v\n", err)
+		global.Logger.Errorf("service.GetPost err: %v\n", err)
 		response.ToErrorResponse(errcode.GetPostFailed)
 		return
 	}
@@ -81,11 +79,10 @@ func CreatePost(c *gin.Context) {
 	}
 
 	userID, _ := c.Get("UID")
-	svc := service.New(c)
-	post, err := svc.CreatePost(userID.(int64), param)
+	post, err := service.CreatePost(c, userID.(int64), param)
 
 	if err != nil {
-		global.Logger.Errorf("svc.CreatePost err: %v\n", err)
+		global.Logger.Errorf("service.CreatePost err: %v\n", err)
 		response.ToErrorResponse(errcode.CreatePostFailed)
 		return
 	}
@@ -104,12 +101,11 @@ func DeletePost(c *gin.Context) {
 	}
 
 	user, _ := c.Get("USER")
-	svc := service.New(c)
 
 	// 获取Post
-	postFormated, err := svc.GetPost(param.ID)
+	postFormated, err := service.GetPost(param.ID)
 	if err != nil {
-		global.Logger.Errorf("svc.GetPost err: %v\n", err)
+		global.Logger.Errorf("service.GetPost err: %v\n", err)
 		response.ToErrorResponse(errcode.GetPostFailed)
 		return
 	}
@@ -119,9 +115,9 @@ func DeletePost(c *gin.Context) {
 		return
 	}
 
-	err = svc.DeletePost(param.ID)
+	err = service.DeletePost(param.ID)
 	if err != nil {
-		global.Logger.Errorf("svc.DeletePost err: %v\n", err)
+		global.Logger.Errorf("service.DeletePost err: %v\n", err)
 		response.ToErrorResponse(errcode.DeletePostFailed)
 		return
 	}
@@ -133,10 +129,9 @@ func GetPostStar(c *gin.Context) {
 	postID := convert.StrTo(c.Query("id")).MustInt64()
 	response := app.NewResponse(c)
 
-	svc := service.New(c)
 	userID, _ := c.Get("UID")
 
-	_, err := svc.GetPostStar(postID, userID.(int64))
+	_, err := service.GetPostStar(postID, userID.(int64))
 	if err != nil {
 		response.ToResponse(gin.H{
 			"status": false,
@@ -160,18 +155,17 @@ func PostStar(c *gin.Context) {
 		return
 	}
 
-	svc := service.New(c)
 	userID, _ := c.Get("UID")
 
 	status := false
-	star, err := svc.GetPostStar(param.ID, userID.(int64))
+	star, err := service.GetPostStar(param.ID, userID.(int64))
 	if err != nil {
 		// 创建Star
-		svc.CreatePostStar(param.ID, userID.(int64))
+		service.CreatePostStar(param.ID, userID.(int64))
 		status = true
 	} else {
 		// 取消Star
-		svc.DeletePostStar(star)
+		service.DeletePostStar(star)
 	}
 
 	response.ToResponse(gin.H{
@@ -183,10 +177,9 @@ func GetPostCollection(c *gin.Context) {
 	postID := convert.StrTo(c.Query("id")).MustInt64()
 	response := app.NewResponse(c)
 
-	svc := service.New(c)
 	userID, _ := c.Get("UID")
 
-	_, err := svc.GetPostCollection(postID, userID.(int64))
+	_, err := service.GetPostCollection(postID, userID.(int64))
 	if err != nil {
 		response.ToResponse(gin.H{
 			"status": false,
@@ -210,18 +203,17 @@ func PostCollection(c *gin.Context) {
 		return
 	}
 
-	svc := service.New(c)
 	userID, _ := c.Get("UID")
 
 	status := false
-	collection, err := svc.GetPostCollection(param.ID, userID.(int64))
+	collection, err := service.GetPostCollection(param.ID, userID.(int64))
 	if err != nil {
 		// 创建collection
-		svc.CreatePostCollection(param.ID, userID.(int64))
+		service.CreatePostCollection(param.ID, userID.(int64))
 		status = true
 	} else {
 		// 取消Star
-		svc.DeletePostCollection(collection)
+		service.DeletePostCollection(collection)
 	}
 
 	response.ToResponse(gin.H{
@@ -240,12 +232,11 @@ func LockPost(c *gin.Context) {
 	}
 
 	user, _ := c.Get("USER")
-	svc := service.New(c)
 
 	// 获取Post
-	postFormated, err := svc.GetPost(param.ID)
+	postFormated, err := service.GetPost(param.ID)
 	if err != nil {
-		global.Logger.Errorf("svc.GetPost err: %v\n", err)
+		global.Logger.Errorf("service.GetPost err: %v\n", err)
 		response.ToErrorResponse(errcode.GetPostFailed)
 		return
 	}
@@ -254,9 +245,9 @@ func LockPost(c *gin.Context) {
 		response.ToErrorResponse(errcode.NoPermission)
 		return
 	}
-	err = svc.LockPost(param.ID)
+	err = service.LockPost(param.ID)
 	if err != nil {
-		global.Logger.Errorf("svc.LockPost err: %v\n", err)
+		global.Logger.Errorf("service.LockPost err: %v\n", err)
 		response.ToErrorResponse(errcode.LockPostFailed)
 		return
 	}
@@ -277,12 +268,11 @@ func StickPost(c *gin.Context) {
 	}
 
 	user, _ := c.Get("USER")
-	svc := service.New(c)
 
 	// 获取Post
-	postFormated, err := svc.GetPost(param.ID)
+	postFormated, err := service.GetPost(param.ID)
 	if err != nil {
-		global.Logger.Errorf("svc.GetPost err: %v\n", err)
+		global.Logger.Errorf("service.GetPost err: %v\n", err)
 		response.ToErrorResponse(errcode.GetPostFailed)
 		return
 	}
@@ -291,9 +281,9 @@ func StickPost(c *gin.Context) {
 		response.ToErrorResponse(errcode.NoPermission)
 		return
 	}
-	err = svc.StickPost(param.ID)
+	err = service.StickPost(param.ID)
 	if err != nil {
-		global.Logger.Errorf("svc.StickPost err: %v\n", err)
+		global.Logger.Errorf("service.StickPost err: %v\n", err)
 		response.ToErrorResponse(errcode.LockPostFailed)
 		return
 	}
@@ -313,11 +303,9 @@ func GetPostTags(c *gin.Context) {
 		return
 	}
 
-	svc := service.New(c)
-
-	tags, err := svc.GetPostTags(&param)
+	tags, err := service.GetPostTags(&param)
 	if err != nil {
-		global.Logger.Errorf("svc.GetPostTags err: %v\n", err)
+		global.Logger.Errorf("service.GetPostTags err: %v\n", err)
 		response.ToErrorResponse(errcode.GetPostTagsFailed)
 		return
 

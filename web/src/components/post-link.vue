@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { LinkOutline } from '@vicons/ionicons5';
 const props = withDefaults(defineProps<{
-    links: Item.PostProps[]
+    links: Item.PostItemProps[]
 }>(), {
     links: () => []
 });

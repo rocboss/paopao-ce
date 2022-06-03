@@ -1,222 +1,145 @@
-import request from '@/utils/request';
+import { request } from '@/utils/request';
 
-/**
- * 获取动态列表
- * @param {Object} params
- * @returns Promise
- */
-export const getPosts = (params: NetParams.PostGetPosts) => {
+/** 获取动态列表 */
+export const getPosts = (params: NetParams.PostGetPosts): Promise<NetReq.PostGetPosts> => {
     return request({
         method: 'get',
-        url: '/posts',
+        url: '/v1/posts',
         params
-    }) as unknown as Promise<NetReq.PostGetPosts>;
+    });
 };
 
-/**
- * 获取标签列表
- * @param {Object} params
- * @returns Promise
- */
-export const getTags = (params: NetParams.PostGetTags) => {
+/** 获取标签列表 */
+export const getTags = (params: NetParams.PostGetTags): Promise<NetReq.PostGetTags> => {
     return request({
         method: 'get',
-        url: '/tags',
+        url: '/v1/tags',
         params
-    }) as unknown as Promise<NetReq.PostGetTags>;
+    });
 };
 
-/**
- * 获取动态详情
- * @param {Object} params
- * @returns Promise
- */
-export const getPost = (params: NetParams.PostGetPost) => {
+/** 获取动态详情 */
+export const getPost = (params: NetParams.PostGetPost): Promise<NetReq.PostGetPost> => {
     return request({
         method: 'get',
-        url: '/post',
+        url: '/v1/post',
         params
-    }) as unknown as Promise<NetReq.PostGetPost>;
+    });
 };
 
-/**
- * 获取动态点赞状态
- * @param {Object} params
- * @returns Promise
- */
-export const getPostStar = (params: NetParams.PostPostStar) => {
+/** 获取动态点赞状态 */
+export const getPostStar = (params: NetParams.PostPostStar): Promise<NetReq.PostGetPostStar> => {
     return request({
         method: 'get',
-        url: '/post/star',
+        url: '/v1/post/star',
         params
-    }) as unknown as Promise<NetReq.PostGetPostStar>;
+    });
 };
 
-/**
- * 动态点赞
- * @param {Object} data
- * @returns Promise
- */
-export const postStar = (data: NetParams.PostPostStar) => {
+/** 动态点赞 */
+export const postStar = (data: NetParams.PostPostStar): Promise<NetReq.PostPostStar> => {
     return request({
         method: 'post',
-        url: '/post/star',
+        url: '/v1/post/star',
         data
-    }) as unknown as Promise<NetReq.PostPostStar>;
+    });
 };
 
-/**
- * 获取动态收藏状态
- * @param {Object} params
- * @returns Promise
- */
-export const getPostCollection = (params: NetParams.PostGetPostCollection) => {
+/** 获取动态收藏状态 */
+export const getPostCollection = (params: NetParams.PostGetPostCollection): Promise<NetReq.PostGetPostCollection> => {
     return request({
         method: 'get',
-        url: '/post/collection',
+        url: '/v1/post/collection',
         params
-    }) as unknown as Promise<NetReq.PostGetPostCollection>;
+    });
 };
 
-/**
- * 动态收藏
- * @param {Object} data
- * @returns Promise
- */
-export const postCollection = (data: NetParams.PostPostCollection) => {
+/** 动态收藏 */
+export const postCollection = (data: NetParams.PostPostCollection): Promise<NetReq.PostPostCollection> => {
     return request({
         method: 'post',
-        url: '/post/collection',
+        url: '/v1/post/collection',
         data
-    }) as unknown as Promise<NetReq.PostPostCollection>;
+    });
 };
 
-/**
- * 获取动态评论列表
- * @param {Object} params
- * @returns Promise
- */
-export const getPostComments = (params: NetParams.PostGetPostComments) => {
+/** 获取动态评论列表 */
+export const getPostComments = (params: NetParams.PostGetPostComments): Promise<NetReq.PostGetPostComments> => {
     return request({
         method: 'get',
-        url: '/post/comments',
+        url: '/v1/post/comments',
         params
-    }) as unknown as Promise<NetReq.PostGetPostComments>;
+    });
 };
 
-/**
- * 发布动态
- * @param {Object} data
- *  - @param {array} contents 内容
- *  - @param {array} users at用户
- *  - @param {array} tags 话题
- * @returns Promise
- */
-export const createPost = (data: NetParams.PostCreatePost) => {
+/** 发布动态 */
+export const createPost = (data: NetParams.PostCreatePost): Promise<NetReq.PostCreatePost> => {
     return request({
         method: 'post',
-        url: '/post',
+        url: '/v1/post',
         data
-    }) as unknown as Promise<NetReq.PostCreatePost>;
+    });
 };
 
-/**
- * 删除动态
- * @param {Object} data
- *  - @param {number} id 
- * @returns Promise
- */
-export const deletePost = (data: any) => {
+/** 删除动态 */
+export const deletePost = (data: NetParams.PostDeletePost): Promise<NetReq.PostDeletePost> => {
     return request({
         method: 'delete',
-        url: '/post',
+        url: '/v1/post',
         data
     });
 };
 
-/**
- * 锁定/解锁动态
- * @param {Object} data
- *  - @param {number} id 
- * @returns Promise
- */
-export const lockPost = (data: NetParams.PostLockPost) => {
+/** 锁定/解锁动态 */
+export const lockPost = (data: NetParams.PostLockPost): Promise<NetReq.PostLockPost> => {
     return request({
         method: 'post',
-        url: '/post/lock',
-        data
-    }) as unknown as Promise<NetReq.PostLockPost>;
-};
-
-/**
- * 置顶/取消置顶动态
- * @param {Object} data
- *  - @param {number} id 
- * @returns Promise
- */
-export const stickPost = (data: NetParams.PostStickPost) => {
-    return request({
-        method: 'post',
-        url: '/post/stick',
-        data
-    }) as unknown as Promise<NetReq.PostStickPost>;
-};
-
-/**
- * 发布动态评论
- * @param {Object} data
- *  - @param {array} contents 内容
- *  - @param {array} users at用户
- * @returns Promise
- */
-export const createComment = (data: any) => {
-    return request({
-        method: 'post',
-        url: '/post/comment',
+        url: '/v1/post/lock',
         data
     });
 };
 
-/**
- * 删除评论
- * @param {Object} data
- *  - @param {number} id 
- * @returns Promise
- */
-export const deleteComment = (data: any) => {
+/** 置顶/取消置顶动态 */
+export const stickPost = (data: NetParams.PostStickPost): Promise<NetReq.PostStickPost> => {
+    return request({
+        method: 'post',
+        url: '/v1/post/stick',
+        data
+    });
+};
+
+/** 发布动态评论 */
+export const createComment = (data: NetParams.PostCreateComment): Promise<NetReq.PostCreateComment> => {
+    return request({
+        method: 'post',
+        url: '/v1/post/comment',
+        data
+    });
+};
+
+/** 删除评论 */
+export const deleteComment = (data: NetParams.PostDeleteComment): Promise<NetReq.PostDeleteComment> => {
     return request({
         method: 'delete',
-        url: '/post/comment',
+        url: '/v1/post/comment',
         data
     });
 };
 
-/**
- * 发布评论回复
- * @param {Object} data
- *  - @param {string} content 内容
- *  - @param {number} comment_id 评论ID
- *  - @param {number} at_user_id at用户ID
- * @returns Promise
- */
-export const createCommentReply = (data: any) => {
+/** 发布评论回复 */
+export const createCommentReply = (data: NetParams.PostCreateCommentReply): Promise<NetReq.PostCreateCommentReply> => {
     return request({
         method: 'post',
-        url: '/post/comment/reply',
+        url: '/v1/post/comment/reply',
         data
     });
 };
 
-/**
- * 删除评论回复
- * @param {Object} data
- *  - @param {number} id 评论ID
- * @returns Promise
- */
-export const deleteCommentReply = (data: any) => {
+/** 删除评论回复 */
+export const deleteCommentReply = (data: NetParams.PostDeleteCommentReply): Promise<NetReq.PostDeleteCommentReply> => {
     return request({
         method: 'delete',
-        url: '/post/comment/reply',
+        url: '/v1/post/comment/reply',
         data
     });
 };
