@@ -2,13 +2,13 @@ package dao
 
 import "github.com/rocboss/paopao-ce/internal/model"
 
-func (d *Dao) GetCommentContentsByIDs(ids []int64) ([]*model.CommentContent, error) {
+func (d *dataServant) GetCommentContentsByIDs(ids []int64) ([]*model.CommentContent, error) {
 	commentContent := &model.CommentContent{}
 	return commentContent.List(d.engine, &model.ConditionsT{
 		"comment_id IN ?": ids,
 	}, 0, 0)
 }
-func (d *Dao) GetCommentRepliesByID(ids []int64) ([]*model.CommentReplyFormated, error) {
+func (d *dataServant) GetCommentRepliesByID(ids []int64) ([]*model.CommentReplyFormated, error) {
 	CommentReply := &model.CommentReply{}
 	replies, err := CommentReply.List(d.engine, &model.ConditionsT{
 		"comment_id IN ?": ids,
@@ -45,6 +45,6 @@ func (d *Dao) GetCommentRepliesByID(ids []int64) ([]*model.CommentReplyFormated,
 	return repliesFormated, nil
 }
 
-func (d *Dao) CreateCommentContent(content *model.CommentContent) (*model.CommentContent, error) {
+func (d *dataServant) CreateCommentContent(content *model.CommentContent) (*model.CommentContent, error) {
 	return content.Create(d.engine)
 }

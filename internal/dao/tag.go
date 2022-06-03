@@ -2,7 +2,7 @@ package dao
 
 import "github.com/rocboss/paopao-ce/internal/model"
 
-func (d *Dao) CreateTag(tag *model.Tag) (*model.Tag, error) {
+func (d *dataServant) CreateTag(tag *model.Tag) (*model.Tag, error) {
 	t, err := tag.Get(d.engine)
 	if err != nil {
 		tag.QuoteNum = 1
@@ -20,7 +20,7 @@ func (d *Dao) CreateTag(tag *model.Tag) (*model.Tag, error) {
 	return t, nil
 }
 
-func (d *Dao) DeleteTag(tag *model.Tag) error {
+func (d *dataServant) DeleteTag(tag *model.Tag) error {
 	tag, err := tag.Get(d.engine)
 	if err != nil {
 		return err
@@ -30,6 +30,6 @@ func (d *Dao) DeleteTag(tag *model.Tag) error {
 	return tag.Update(d.engine)
 }
 
-func (d *Dao) GetTags(conditions *model.ConditionsT, offset, limit int) ([]*model.Tag, error) {
+func (d *dataServant) GetTags(conditions *model.ConditionsT, offset, limit int) ([]*model.Tag, error) {
 	return (&model.Tag{}).List(d.engine, conditions, offset, limit)
 }

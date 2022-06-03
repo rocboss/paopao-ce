@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (d *Dao) GetRechargeByID(id int64) (*model.WalletRecharge, error) {
+func (d *dataServant) GetRechargeByID(id int64) (*model.WalletRecharge, error) {
 	recharge := &model.WalletRecharge{
 		Model: &model.Model{
 			ID: id,
@@ -15,7 +15,7 @@ func (d *Dao) GetRechargeByID(id int64) (*model.WalletRecharge, error) {
 
 	return recharge.Get(d.engine)
 }
-func (d *Dao) CreateRecharge(userId, amount int64) (*model.WalletRecharge, error) {
+func (d *dataServant) CreateRecharge(userId, amount int64) (*model.WalletRecharge, error) {
 	recharge := &model.WalletRecharge{
 		UserID: userId,
 		Amount: amount,
@@ -24,7 +24,7 @@ func (d *Dao) CreateRecharge(userId, amount int64) (*model.WalletRecharge, error
 	return recharge.Create(d.engine)
 }
 
-func (d *Dao) HandleRechargeSuccess(recharge *model.WalletRecharge, tradeNo string) error {
+func (d *dataServant) HandleRechargeSuccess(recharge *model.WalletRecharge, tradeNo string) error {
 	user, _ := (&model.User{
 		Model: &model.Model{
 			ID: recharge.UserID,
@@ -61,7 +61,7 @@ func (d *Dao) HandleRechargeSuccess(recharge *model.WalletRecharge, tradeNo stri
 	})
 }
 
-func (d *Dao) HandlePostAttachmentBought(post *model.Post, user *model.User) error {
+func (d *dataServant) HandlePostAttachmentBought(post *model.Post, user *model.User) error {
 	return d.engine.Transaction(func(tx *gorm.DB) error {
 		// 扣除金额
 		if err := tx.Model(user).Update("balance", gorm.Expr("balance - ?", post.AttachmentPrice)).Error; err != nil {

@@ -14,16 +14,16 @@ type RechargeReq struct {
 }
 
 func GetRechargeByID(id int64) (*model.WalletRecharge, error) {
-	return myDao.GetRechargeByID(id)
+	return ds.GetRechargeByID(id)
 }
 
 func CreateRecharge(userID, amount int64) (*model.WalletRecharge, error) {
-	return myDao.CreateRecharge(userID, amount)
+	return ds.CreateRecharge(userID, amount)
 }
 
 func FinishRecharge(ctx *gin.Context, id int64, tradeNo string) error {
 	if ok, _ := global.Redis.SetNX(ctx, "PaoPaoRecharge:"+tradeNo, 1, time.Second*5).Result(); ok {
-		recharge, err := myDao.GetRechargeByID(id)
+		recharge, err := ds.GetRechargeByID(id)
 		if err != nil {
 			return err
 		}
@@ -31,7 +31,7 @@ func FinishRecharge(ctx *gin.Context, id int64, tradeNo string) error {
 		if recharge.TradeStatus != "TRADE_SUCCESS" {
 
 			// 标记为已付款
-			err := myDao.HandleRechargeSuccess(recharge, tradeNo)
+			err := ds.HandleRechargeSuccess(recharge, tradeNo)
 			defer global.Redis.Del(ctx, "PaoPaoRecharge:"+tradeNo)
 
 			if err != nil {
@@ -50,5 +50,5 @@ func BuyPostAttachment(post *model.Post, user *model.User) error {
 	}
 
 	// 执行购买
-	return myDao.HandlePostAttachmentBought(post, user)
+	return ds.HandlePostAttachmentBought(post, user)
 }

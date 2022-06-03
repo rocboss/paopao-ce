@@ -32,7 +32,7 @@ func CreateWhisper(c *gin.Context, msg *model.Message) (*model.Message, error) {
 	}
 
 	// 创建私信
-	msg, err := myDao.CreateMessage(msg)
+	msg, err := ds.CreateMessage(msg)
 	if err != nil {
 		return nil, err
 	}
@@ -48,11 +48,11 @@ func CreateWhisper(c *gin.Context, msg *model.Message) (*model.Message, error) {
 }
 
 func GetUnreadCount(userID int64) (int64, error) {
-	return myDao.GetUnreadCount(userID)
+	return ds.GetUnreadCount(userID)
 }
 func ReadMessage(id, userID int64) error {
 	// 获取message
-	message, err := myDao.GetMessageByID(id)
+	message, err := ds.GetMessageByID(id)
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func ReadMessage(id, userID int64) error {
 	}
 
 	// 已读消息
-	return myDao.ReadMessage(message)
+	return ds.ReadMessage(message)
 }
 
 func GetMessages(userID int64, offset, limit int) ([]*model.MessageFormated, int64, error) {
@@ -70,12 +70,12 @@ func GetMessages(userID int64, offset, limit int) ([]*model.MessageFormated, int
 		"receiver_user_id": userID,
 		"ORDER":            "id DESC",
 	}
-	messages, err := myDao.GetMessages(conditions, offset, limit)
+	messages, err := ds.GetMessages(conditions, offset, limit)
 
 	for _, mf := range messages {
 
 		if mf.SenderUserID > 0 {
-			user, err := myDao.GetUserByID(mf.SenderUserID)
+			user, err := ds.GetUserByID(mf.SenderUserID)
 			if err == nil {
 				mf.SenderUser = user.Format()
 			}
@@ -109,7 +109,7 @@ func GetMessages(userID int64, offset, limit int) ([]*model.MessageFormated, int
 	}
 
 	// 获取总量
-	totalRows, _ := myDao.GetMessageCount(conditions)
+	totalRows, _ := ds.GetMessageCount(conditions)
 
 	return messages, totalRows, nil
 }
