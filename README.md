@@ -30,12 +30,15 @@
 ---
 
 ## 预览
-
+Web端：  
 [![明色主题][product-light-screenshot]](https://www.paopao.info)
 
 [![暗色主题][product-dark-screenshot]](https://www.paopao.info)
 
-更多演示请前往[官网](https://www.paopao.info)体验（谢绝灌水）
+更多演示请前往[官网](https://www.paopao.info)体验（谢绝灌水）  
+
+桌面端：  
+![](.github/desktop-tauri.jpeg)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -83,18 +86,25 @@ PaoPao主要由以下优秀的开源项目/工具构建
 
 1. 导入项目根目录下的 `paopao.sql` 文件至MySQL数据库
 2. 拷贝项目根目录下 `config.yaml.sample` 文件至 `config.yaml`，按照注释完成配置编辑
-3. 编译后端
-
+3. 编译后端    
+    编译api服务:
     ```sh
-    go mod download
-    go build -o paopao-api .
+    make build
     ```
-
-4. 启动后端
-
+    编译api服务、内嵌web前端ui; 注意此步骤需要先编译web前端。
     ```sh
-    chmod +x paopao-api
-    ./paopao-api
+    make build TAGS='embed'
+    ```
+    编译后在`dist`目录可以找到对应可执行文件。
+
+4. 启动后端    
+    运行api服务:
+    ```sh
+    make run
+    ```
+    运行api服务、web前端ui服务:
+    ```sh
+    make run TAGS='embed'
     ```
 
 #### 前端
@@ -114,6 +124,29 @@ PaoPao主要由以下优秀的开源项目/工具构建
     ```
 
     build完成后，可以在dist目录获取编译产出，配置nginx指向至该目录即可
+
+#### 桌面端
+
+1. 进入前端目录 `web`，编辑 `.env` 文件中后端服务地址，下载依赖包
+
+    ```sh
+    cd ./web
+    vim .env
+    yarn
+    ```
+
+2. 编译前端
+
+    ```sh
+    yarn build
+    ```
+   
+3. 构建桌面端
+   ```sh
+   yarn tauri build
+   ```
+   桌面端是使用[Rust](https://www.rust-lang.org/) + [tauri](https://github.com/tauri-apps/tauri)编写
+   的，需要Rust编译环境，具体安装指南请参考[https://www.rust-lang.org/tools/install](https://www.rust-lang.org/tools/install).
 
 ### 其他说明
 

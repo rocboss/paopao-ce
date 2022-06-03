@@ -4,7 +4,7 @@ import { request } from '@/utils/request';
 export const userLogin = (params: NetParams.AuthUserLogin): Promise<NetReq.AuthUserLogin> => {
     return request({
         method: 'post',
-        url: '/auth/login',
+        url: '/v1/auth/login',
         data: params,
     });
 };
@@ -13,7 +13,7 @@ export const userLogin = (params: NetParams.AuthUserLogin): Promise<NetReq.AuthU
 export const userRegister = (params: NetParams.AuthUserRegister): Promise<NetReq.AuthUserRegister> => {
     return request({
         method: 'post',
-        url: '/auth/register',
+        url: '/v1/auth/register',
         data: params,
     });
 };
@@ -22,7 +22,7 @@ export const userRegister = (params: NetParams.AuthUserRegister): Promise<NetReq
 export const userInfo = (token: NetParams.AuthUserInfo = ""): Promise<NetReq.AuthUserInfo> => {
     return request({
         method: 'get',
-        url: '/user/info',
+        url: '/v1/user/info',
         headers: {
             Authorization: `Bearer ${token}`,
         },
@@ -33,7 +33,7 @@ export const userInfo = (token: NetParams.AuthUserInfo = ""): Promise<NetReq.Aut
 export const updateUserPassword = (data: NetParams.AuthUpdateUserPassword): Promise<NetReq.AuthUpdateUserPassword> => {
     return request({
         method: 'post',
-        url: '/api/user/password',
+        url: '/v1/api/user/password',
         data,
     });
 };
