@@ -86,18 +86,25 @@ PaoPao主要由以下优秀的开源项目/工具构建
 
 1. 导入项目根目录下的 `paopao.sql` 文件至MySQL数据库
 2. 拷贝项目根目录下 `config.yaml.sample` 文件至 `config.yaml`，按照注释完成配置编辑
-3. 编译后端
-
+3. 编译后端    
+    编译api服务:
     ```sh
-    go mod download
-    go build -o paopao-api .
+    make build
     ```
-
-4. 启动后端
-
+    编译api服务、内嵌web前端ui; 注意此步骤需要先编译web前端。
     ```sh
-    chmod +x paopao-api
-    ./paopao-api
+    make build TAGS='embed'
+    ```
+    编译后在`dist`目录可以找到对应可执行文件。
+
+4. 启动后端    
+    运行api服务:
+    ```sh
+    make run
+    ```
+    运行api服务、web前端ui服务:
+    ```sh
+    make run TAGS='embed'
     ```
 
 #### 前端
