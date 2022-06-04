@@ -57,7 +57,7 @@ const MAX_LOGIN_ERR_TIMES = 10
 
 // DoLogin 用户认证
 func DoLogin(ctx *gin.Context, param *AuthRequest) (*model.User, error) {
-	user, err := myDao.GetUserByUsername(param.Username)
+	user, err := ds.GetUserByUsername(param.Username)
 	if err != nil {
 		return nil, errcode.UnauthorizedAuthNotExist
 	}
@@ -115,7 +115,7 @@ func ValidUsername(username string) error {
 	}
 
 	// 重复检查
-	user, _ := myDao.GetUserByUsername(username)
+	user, _ := ds.GetUserByUsername(username)
 
 	if user.Model != nil && user.ID > 0 {
 		return errcode.UsernameHasExisted
@@ -136,7 +136,7 @@ func CheckPassword(password string) error {
 
 // CheckPhoneCaptcha 验证手机验证码
 func CheckPhoneCaptcha(phone, captcha string) *errcode.Error {
-	c, err := myDao.GetLatestPhoneCaptcha(phone)
+	c, err := ds.GetLatestPhoneCaptcha(phone)
 	if err != nil {
 		return errcode.ErrorPhoneCaptcha
 	}
@@ -154,14 +154,14 @@ func CheckPhoneCaptcha(phone, captcha string) *errcode.Error {
 	}
 
 	// 更新检测次数
-	myDao.UsePhoneCaptcha(c)
+	ds.UsePhoneCaptcha(c)
 
 	return nil
 }
 
 // CheckPhoneExist 检测手机号是否存在
 func CheckPhoneExist(uid int64, phone string) bool {
-	u, err := myDao.GetUserByPhone(phone)
+	u, err := ds.GetUserByPhone(phone)
 	if err != nil {
 		return false
 	}
@@ -198,7 +198,7 @@ func Register(username, password string) (*model.User, error) {
 		Status:   model.UserStatusNormal,
 	}
 
-	user, err := myDao.CreateUser(user)
+	user, err := ds.CreateUser(user)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +208,7 @@ func Register(username, password string) (*model.User, error) {
 
 // GetUserInfo 获取用户信息
 func GetUserInfo(param *AuthRequest) (*model.User, error) {
-	user, err := myDao.GetUserByUsername(param.Username)
+	user, err := ds.GetUserByUsername(param.Username)
 
 	if err != nil {
 		return nil, err
@@ -222,7 +222,7 @@ func GetUserInfo(param *AuthRequest) (*model.User, error) {
 }
 
 func GetUserByUsername(username string) (*model.User, error) {
-	user, err := myDao.GetUserByUsername(username)
+	user, err := ds.GetUserByUsername(username)
 
 	if err != nil {
 		return nil, err
@@ -237,16 +237,16 @@ func GetUserByUsername(username string) (*model.User, error) {
 
 // UpdateUserInfo 更新用户信息
 func UpdateUserInfo(user *model.User) error {
-	return myDao.UpdateUser(user)
+	return ds.UpdateUser(user)
 }
 
 // GetUserCollections 获取用户收藏列表
 func GetUserCollections(userID int64, offset, limit int) ([]*model.PostFormated, int64, error) {
-	collections, err := myDao.GetUserPostCollections(userID, offset, limit)
+	collections, err := ds.GetUserPostCollections(userID, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
-	totalRows, err := myDao.GetUserPostCollectionCount(userID)
+	totalRows, err := ds.GetUserPostCollectionCount(userID)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -256,7 +256,7 @@ func GetUserCollections(userID int64, offset, limit int) ([]*model.PostFormated,
 	}
 
 	// 获取Posts
-	posts, err := myDao.GetPosts(&model.ConditionsT{
+	posts, err := ds.GetPosts(&model.ConditionsT{
 		"id IN ?": postIDs,
 		"ORDER":   "id DESC",
 	}, 0, 0)
@@ -274,11 +274,11 @@ func GetUserCollections(userID int64, offset, limit int) ([]*model.PostFormated,
 
 // GetUserStars 获取用户点赞列表
 func GetUserStars(userID int64, offset, limit int) ([]*model.PostFormated, int64, error) {
-	stars, err := myDao.GetUserPostStars(userID, offset, limit)
+	stars, err := ds.GetUserPostStars(userID, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
-	totalRows, err := myDao.GetUserPostStarCount(userID)
+	totalRows, err := ds.GetUserPostStarCount(userID)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -288,7 +288,7 @@ func GetUserStars(userID int64, offset, limit int) ([]*model.PostFormated, int64
 	}
 
 	// 获取Posts
-	posts, err := myDao.GetPosts(&model.ConditionsT{
+	posts, err := ds.GetPosts(&model.ConditionsT{
 		"id IN ?": postIDs,
 		"ORDER":   "id DESC",
 	}, 0, 0)
@@ -306,11 +306,11 @@ func GetUserStars(userID int64, offset, limit int) ([]*model.PostFormated, int64
 
 // GetUserWalletBills 获取用户账单列表
 func GetUserWalletBills(userID int64, offset, limit int) ([]*model.WalletStatement, int64, error) {
-	bills, err := myDao.GetUserWalletBills(userID, offset, limit)
+	bills, err := ds.GetUserWalletBills(userID, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
-	totalRows, err := myDao.GetUserWalletBillCount(userID)
+	totalRows, err := ds.GetUserWalletBillCount(userID)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -321,7 +321,7 @@ func GetUserWalletBills(userID int64, offset, limit int) ([]*model.WalletStateme
 // SendPhoneCaptcha 发送短信验证码
 func SendPhoneCaptcha(ctx *gin.Context, phone string) error {
 
-	err := myDao.SendPhoneCaptcha(phone)
+	err := ds.SendPhoneCaptcha(phone)
 	if err != nil {
 		return err
 	}
@@ -339,7 +339,7 @@ func SendPhoneCaptcha(ctx *gin.Context, phone string) error {
 
 // GetSuggestUsers 根据关键词获取用户推荐
 func GetSuggestUsers(keyword string) ([]string, error) {
-	users, err := myDao.GetUsersByKeyword(keyword)
+	users, err := ds.GetUsersByKeyword(keyword)
 	if err != nil {
 		return nil, err
 	}
@@ -354,7 +354,7 @@ func GetSuggestUsers(keyword string) ([]string, error) {
 
 // GetSuggestTags 根据关键词获取标签推荐
 func GetSuggestTags(keyword string) ([]string, error) {
-	tags, err := myDao.GetTagsByKeyword(keyword)
+	tags, err := ds.GetTagsByKeyword(keyword)
 	if err != nil {
 		return nil, err
 	}

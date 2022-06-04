@@ -34,7 +34,7 @@ func GetPostComments(postID int64, sort string, offset, limit int) ([]*model.Com
 		"post_id": postID,
 		"ORDER":   sort,
 	}
-	comments, err := myDao.GetComments(conditions, offset, limit)
+	comments, err := ds.GetComments(conditions, offset, limit)
 
 	if err != nil {
 		return nil, 0, err
@@ -47,17 +47,17 @@ func GetPostComments(postID int64, sort string, offset, limit int) ([]*model.Com
 		commentIDs = append(commentIDs, comment.ID)
 	}
 
-	users, err := myDao.GetUsersByIDs(userIDs)
+	users, err := ds.GetUsersByIDs(userIDs)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	contents, err := myDao.GetCommentContentsByIDs(commentIDs)
+	contents, err := ds.GetCommentContentsByIDs(commentIDs)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	replies, err := myDao.GetCommentRepliesByID(commentIDs)
+	replies, err := ds.GetCommentRepliesByID(commentIDs)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -85,14 +85,14 @@ func GetPostComments(postID int64, sort string, offset, limit int) ([]*model.Com
 	}
 
 	// 获取总量
-	totalRows, _ := myDao.GetCommentCount(conditions)
+	totalRows, _ := ds.GetCommentCount(conditions)
 
 	return commentsFormated, totalRows, nil
 }
 
 func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq) (*model.Comment, error) {
 	// 加载Post
-	post, err := myDao.GetPostByID(param.PostID)
+	post, err := ds.GetPostByID(param.PostID)
 
 	if err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq)
 		IP:     ip,
 		IPLoc:  util.GetIPLoc(ip),
 	}
-	comment, err = myDao.CreateComment(comment)
+	comment, err = ds.CreateComment(comment)
 	if err != nil {
 		return nil, err
 	}
@@ -128,21 +128,21 @@ func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq)
 			Type:      item.Type,
 			Sort:      item.Sort,
 		}
-		myDao.CreateCommentContent(postContent)
+		ds.CreateCommentContent(postContent)
 	}
 
 	// 更新Post回复数
 	post.CommentCount++
 	post.LatestRepliedOn = time.Now().Unix()
-	myDao.UpdatePost(post)
+	ds.UpdatePost(post)
 
 	// 更新索引
 	go PushPostToSearch(post)
 
 	// 创建用户消息提醒
-	postMaster, err := myDao.GetUserByID(post.UserID)
+	postMaster, err := ds.GetUserByID(post.UserID)
 	if err == nil && postMaster.ID != userID {
-		go myDao.CreateMessage(&model.Message{
+		go ds.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: postMaster.ID,
 			Type:           model.MESSAGE_COMMENT,
@@ -152,13 +152,13 @@ func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq)
 		})
 	}
 	for _, u := range param.Users {
-		user, err := myDao.GetUserByUsername(u)
+		user, err := ds.GetUserByUsername(u)
 		if err != nil || user.ID == userID || user.ID == postMaster.ID {
 			continue
 		}
 
 		// 创建消息提醒
-		go myDao.CreateMessage(&model.Message{
+		go ds.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: user.ID,
 			Type:           model.MESSAGE_COMMENT,
@@ -172,31 +172,31 @@ func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq)
 }
 
 func GetPostComment(id int64) (*model.Comment, error) {
-	return myDao.GetCommentByID(id)
+	return ds.GetCommentByID(id)
 }
 
 func DeletePostComment(comment *model.Comment) error {
 	// 加载post
-	post, err := myDao.GetPostByID(comment.PostID)
+	post, err := ds.GetPostByID(comment.PostID)
 	if err == nil {
 		// 更新post回复数
 		post.CommentCount--
-		myDao.UpdatePost(post)
+		ds.UpdatePost(post)
 	}
 
-	return myDao.DeleteComment(comment)
+	return ds.DeleteComment(comment)
 }
 
 func createPostPreHandler(commentID int64, userID, atUserID int64) (*model.Post, *model.Comment, int64,
 	error) {
 	// 加载Comment
-	comment, err := myDao.GetCommentByID(commentID)
+	comment, err := ds.GetCommentByID(commentID)
 	if err != nil {
 		return nil, nil, atUserID, err
 	}
 
 	// 加载comment的post
-	post, err := myDao.GetPostByID(comment.PostID)
+	post, err := ds.GetPostByID(comment.PostID)
 	if err != nil {
 		return nil, nil, atUserID, err
 	}
@@ -211,7 +211,7 @@ func createPostPreHandler(commentID int64, userID, atUserID int64) (*model.Post,
 
 	if atUserID > 0 {
 		// 检测目前用户是否存在
-		users, _ := myDao.GetUsersByIDs([]int64{atUserID})
+		users, _ := ds.GetUsersByIDs([]int64{atUserID})
 		if len(users) == 0 {
 			atUserID = 0
 		}
@@ -241,7 +241,7 @@ func CreatePostCommentReply(ctx *gin.Context, commentID int64, content string, u
 		IPLoc:     util.GetIPLoc(ip),
 	}
 
-	reply, err = myDao.CreateCommentReply(reply)
+	reply, err = ds.CreateCommentReply(reply)
 	if err != nil {
 		return nil, err
 	}
@@ -249,15 +249,15 @@ func CreatePostCommentReply(ctx *gin.Context, commentID int64, content string, u
 	// 更新Post回复数
 	post.CommentCount++
 	post.LatestRepliedOn = time.Now().Unix()
-	myDao.UpdatePost(post)
+	ds.UpdatePost(post)
 
 	// 更新索引
 	go PushPostToSearch(post)
 
 	// 创建用户消息提醒
-	commentMaster, err := myDao.GetUserByID(comment.UserID)
+	commentMaster, err := ds.GetUserByID(comment.UserID)
 	if err == nil && commentMaster.ID != userID {
-		go myDao.CreateMessage(&model.Message{
+		go ds.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: commentMaster.ID,
 			Type:           model.MESSAGE_REPLY,
@@ -267,9 +267,9 @@ func CreatePostCommentReply(ctx *gin.Context, commentID int64, content string, u
 			ReplyID:        reply.ID,
 		})
 	}
-	postMaster, err := myDao.GetUserByID(post.UserID)
+	postMaster, err := ds.GetUserByID(post.UserID)
 	if err == nil && postMaster.ID != userID && commentMaster.ID != postMaster.ID {
-		go myDao.CreateMessage(&model.Message{
+		go ds.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: postMaster.ID,
 			Type:           model.MESSAGE_REPLY,
@@ -280,10 +280,10 @@ func CreatePostCommentReply(ctx *gin.Context, commentID int64, content string, u
 		})
 	}
 	if atUserID > 0 {
-		user, err := myDao.GetUserByID(atUserID)
+		user, err := ds.GetUserByID(atUserID)
 		if err == nil && user.ID != userID && commentMaster.ID != user.ID && postMaster.ID != user.ID {
 			// 创建消息提醒
-			go myDao.CreateMessage(&model.Message{
+			go ds.CreateMessage(&model.Message{
 				SenderUserID:   userID,
 				ReceiverUserID: user.ID,
 				Type:           model.MESSAGE_REPLY,
@@ -299,23 +299,23 @@ func CreatePostCommentReply(ctx *gin.Context, commentID int64, content string, u
 }
 
 func GetPostCommentReply(id int64) (*model.CommentReply, error) {
-	return myDao.GetCommentReplyByID(id)
+	return ds.GetCommentReplyByID(id)
 }
 
 func DeletePostCommentReply(reply *model.CommentReply) error {
-	err := myDao.DeleteCommentReply(reply)
+	err := ds.DeleteCommentReply(reply)
 	if err != nil {
 		return err
 	}
 
 	// 加载Comment
-	comment, err := myDao.GetCommentByID(reply.CommentID)
+	comment, err := ds.GetCommentByID(reply.CommentID)
 	if err != nil {
 		return err
 	}
 
 	// 加载comment的post
-	post, err := myDao.GetPostByID(comment.PostID)
+	post, err := ds.GetPostByID(comment.PostID)
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func DeletePostCommentReply(reply *model.CommentReply) error {
 	// 更新Post回复数
 	post.CommentCount--
 	post.LatestRepliedOn = time.Now().Unix()
-	myDao.UpdatePost(post)
+	ds.UpdatePost(post)
 
 	// 更新索引
 	go PushPostToSearch(post)

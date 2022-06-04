@@ -1,17 +1,22 @@
 package dao
 
 import (
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
 	"gorm.io/gorm"
 )
 
-type Dao struct {
+var (
+	_ core.DataService = (*dataServant)(nil)
+)
+
+type dataServant struct {
 	engine *gorm.DB
 	zinc   *zinc.ZincClient
 }
 
-func New(engine *gorm.DB, zinc *zinc.ZincClient) *Dao {
-	return &Dao{
+func NewDataService(engine *gorm.DB, zinc *zinc.ZincClient) core.DataService {
+	return &dataServant{
 		engine: engine,
 		zinc:   zinc,
 	}

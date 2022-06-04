@@ -2,18 +2,18 @@ package dao
 
 import "github.com/rocboss/paopao-ce/internal/model"
 
-func (d *Dao) CreateMessage(msg *model.Message) (*model.Message, error) {
+func (d *dataServant) CreateMessage(msg *model.Message) (*model.Message, error) {
 	return msg.Create(d.engine)
 }
 
-func (d *Dao) GetUnreadCount(userID int64) (int64, error) {
+func (d *dataServant) GetUnreadCount(userID int64) (int64, error) {
 	return (&model.Message{}).Count(d.engine, &model.ConditionsT{
 		"receiver_user_id": userID,
 		"is_read":          model.MSG_UNREAD,
 	})
 }
 
-func (d *Dao) GetMessageByID(id int64) (*model.Message, error) {
+func (d *dataServant) GetMessageByID(id int64) (*model.Message, error) {
 	return (&model.Message{
 		Model: &model.Model{
 			ID: id,
@@ -21,12 +21,12 @@ func (d *Dao) GetMessageByID(id int64) (*model.Message, error) {
 	}).Get(d.engine)
 }
 
-func (d *Dao) ReadMessage(message *model.Message) error {
+func (d *dataServant) ReadMessage(message *model.Message) error {
 	message.IsRead = 1
 	return message.Update(d.engine)
 }
 
-func (d *Dao) GetMessages(conditions *model.ConditionsT, offset, limit int) ([]*model.MessageFormated, error) {
+func (d *dataServant) GetMessages(conditions *model.ConditionsT, offset, limit int) ([]*model.MessageFormated, error) {
 	messages, err := (&model.Message{}).List(d.engine, conditions, offset, limit)
 	if err != nil {
 		return nil, err
@@ -41,6 +41,6 @@ func (d *Dao) GetMessages(conditions *model.ConditionsT, offset, limit int) ([]*
 	return mfs, nil
 }
 
-func (d *Dao) GetMessageCount(conditions *model.ConditionsT) (int64, error) {
+func (d *dataServant) GetMessageCount(conditions *model.ConditionsT) (int64, error) {
 	return (&model.Message{}).Count(d.engine, conditions)
 }

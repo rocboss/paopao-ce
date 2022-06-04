@@ -9,7 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/global"
-	"github.com/rocboss/paopao-ce/internal/dao"
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/util"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
@@ -92,7 +92,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 		IPLoc:           util.GetIPLoc(ip),
 		AttachmentPrice: param.AttachmentPrice,
 	}
-	post, err := myDao.CreatePost(post)
+	post, err := ds.CreatePost(post)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 			UserID: userID,
 			Tag:    t,
 		}
-		myDao.CreateTag(tag)
+		ds.CreateTag(tag)
 	}
 
 	for _, item := range param.Contents {
@@ -123,7 +123,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 			Type:    item.Type,
 			Sort:    item.Sort,
 		}
-		myDao.CreatePostContent(postContent)
+		ds.CreatePostContent(postContent)
 	}
 
 	// 推送Search
@@ -131,13 +131,13 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 
 	// 创建用户消息提醒
 	for _, u := range param.Users {
-		user, err := myDao.GetUserByUsername(u)
+		user, err := ds.GetUserByUsername(u)
 		if err != nil || user.ID == userID {
 			continue
 		}
 
 		// 创建消息提醒
-		go myDao.CreateMessage(&model.Message{
+		go ds.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: user.ID,
 			Type:           model.MESSAGE_POST,
@@ -150,7 +150,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 }
 
 func DeletePost(id int64) error {
-	post, _ := myDao.GetPostByID(id)
+	post, _ := ds.GetPostByID(id)
 
 	// tag删除
 	tags := strings.Split(post.Tags, ",")
@@ -159,10 +159,10 @@ func DeletePost(id int64) error {
 		tag := &model.Tag{
 			Tag: t,
 		}
-		myDao.DeleteTag(tag)
+		ds.DeleteTag(tag)
 	}
 
-	err := myDao.DeletePost(post)
+	err := ds.DeletePost(post)
 
 	if err != nil {
 		return err
@@ -175,9 +175,9 @@ func DeletePost(id int64) error {
 }
 
 func LockPost(id int64) error {
-	post, _ := myDao.GetPostByID(id)
+	post, _ := ds.GetPostByID(id)
 
-	err := myDao.LockPost(post)
+	err := ds.LockPost(post)
 
 	if err != nil {
 		return err
@@ -187,9 +187,9 @@ func LockPost(id int64) error {
 }
 
 func StickPost(id int64) error {
-	post, _ := myDao.GetPostByID(id)
+	post, _ := ds.GetPostByID(id)
 
-	err := myDao.StickPost(post)
+	err := ds.StickPost(post)
 
 	if err != nil {
 		return err
@@ -199,23 +199,23 @@ func StickPost(id int64) error {
 }
 
 func GetPostStar(postID, userID int64) (*model.PostStar, error) {
-	return myDao.GetUserPostStar(postID, userID)
+	return ds.GetUserPostStar(postID, userID)
 }
 
 func CreatePostStar(postID, userID int64) (*model.PostStar, error) {
 	// 加载Post
-	post, err := myDao.GetPostByID(postID)
+	post, err := ds.GetPostByID(postID)
 	if err != nil {
 		return nil, err
 	}
-	star, err := myDao.CreatePostStar(postID, userID)
+	star, err := ds.CreatePostStar(postID, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	// 更新Post点赞数
 	post.UpvoteCount++
-	myDao.UpdatePost(post)
+	ds.UpdatePost(post)
 
 	// 更新索引
 	go PushPostToSearch(post)
@@ -224,18 +224,18 @@ func CreatePostStar(postID, userID int64) (*model.PostStar, error) {
 }
 
 func DeletePostStar(star *model.PostStar) error {
-	err := myDao.DeletePostStar(star)
+	err := ds.DeletePostStar(star)
 	if err != nil {
 		return err
 	}
 	// 加载Post
-	post, err := myDao.GetPostByID(star.PostID)
+	post, err := ds.GetPostByID(star.PostID)
 	if err != nil {
 		return err
 	}
 	// 更新Post点赞数
 	post.UpvoteCount--
-	myDao.UpdatePost(post)
+	ds.UpdatePost(post)
 
 	// 更新索引
 	go PushPostToSearch(post)
@@ -244,23 +244,23 @@ func DeletePostStar(star *model.PostStar) error {
 }
 
 func GetPostCollection(postID, userID int64) (*model.PostCollection, error) {
-	return myDao.GetUserPostCollection(postID, userID)
+	return ds.GetUserPostCollection(postID, userID)
 }
 
 func CreatePostCollection(postID, userID int64) (*model.PostCollection, error) {
 	// 加载Post
-	post, err := myDao.GetPostByID(postID)
+	post, err := ds.GetPostByID(postID)
 	if err != nil {
 		return nil, err
 	}
-	collection, err := myDao.CreatePostCollection(postID, userID)
+	collection, err := ds.CreatePostCollection(postID, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	// 更新Post点赞数
 	post.CollectionCount++
-	myDao.UpdatePost(post)
+	ds.UpdatePost(post)
 
 	// 更新索引
 	go PushPostToSearch(post)
@@ -269,18 +269,18 @@ func CreatePostCollection(postID, userID int64) (*model.PostCollection, error) {
 }
 
 func DeletePostCollection(collection *model.PostCollection) error {
-	err := myDao.DeletePostCollection(collection)
+	err := ds.DeletePostCollection(collection)
 	if err != nil {
 		return err
 	}
 	// 加载Post
-	post, err := myDao.GetPostByID(collection.PostID)
+	post, err := ds.GetPostByID(collection.PostID)
 	if err != nil {
 		return err
 	}
 	// 更新Post点赞数
 	post.CollectionCount--
-	myDao.UpdatePost(post)
+	ds.UpdatePost(post)
 
 	// 更新索引
 	go PushPostToSearch(post)
@@ -289,18 +289,18 @@ func DeletePostCollection(collection *model.PostCollection) error {
 }
 
 func GetPost(id int64) (*model.PostFormated, error) {
-	post, err := myDao.GetPostByID(id)
+	post, err := ds.GetPostByID(id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	postContents, err := myDao.GetPostContentsByIDs([]int64{post.ID})
+	postContents, err := ds.GetPostContentsByIDs([]int64{post.ID})
 	if err != nil {
 		return nil, err
 	}
 
-	users, err := myDao.GetUsersByIDs([]int64{post.UserID})
+	users, err := ds.GetUsersByIDs([]int64{post.UserID})
 	if err != nil {
 		return nil, err
 	}
@@ -319,11 +319,11 @@ func GetPost(id int64) (*model.PostFormated, error) {
 }
 
 func GetPostContentByID(id int64) (*model.PostContent, error) {
-	return myDao.GetPostContentByID(id)
+	return ds.GetPostContentByID(id)
 }
 
 func GetPostList(req *PostListReq) ([]*model.PostFormated, error) {
-	posts, err := myDao.GetPosts(req.Conditions, req.Offset, req.Limit)
+	posts, err := ds.GetPosts(req.Conditions, req.Offset, req.Limit)
 
 	if err != nil {
 		return nil, err
@@ -340,12 +340,12 @@ func FormatPosts(posts []*model.Post) ([]*model.PostFormated, error) {
 		userIds = append(userIds, post.UserID)
 	}
 
-	postContents, err := myDao.GetPostContentsByIDs(postIds)
+	postContents, err := ds.GetPostContentsByIDs(postIds)
 	if err != nil {
 		return nil, err
 	}
 
-	users, err := myDao.GetUsersByIDs(userIds)
+	users, err := ds.GetUsersByIDs(userIds)
 	if err != nil {
 		return nil, err
 	}
@@ -373,11 +373,11 @@ func FormatPosts(posts []*model.Post) ([]*model.PostFormated, error) {
 }
 
 func GetPostCount(conditions *model.ConditionsT) (int64, error) {
-	return myDao.GetPostCount(conditions)
+	return ds.GetPostCount(conditions)
 }
 
-func GetPostListFromSearch(q *dao.QueryT, offset, limit int) ([]*model.PostFormated, int64, error) {
-	queryResult, err := myDao.QueryAll(q, global.SearchSetting.ZincIndex, offset, limit)
+func GetPostListFromSearch(q *core.QueryT, offset, limit int) ([]*model.PostFormated, int64, error) {
+	queryResult, err := ds.QueryAll(q, global.SearchSetting.ZincIndex, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -391,7 +391,7 @@ func GetPostListFromSearch(q *dao.QueryT, offset, limit int) ([]*model.PostForma
 }
 
 func GetPostListFromSearchByQuery(query string, offset, limit int) ([]*model.PostFormated, int64, error) {
-	queryResult, err := myDao.QuerySearch(global.SearchSetting.ZincIndex, query, offset, limit)
+	queryResult, err := ds.QuerySearch(global.SearchSetting.ZincIndex, query, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -411,7 +411,7 @@ func PushPostToSearch(post *model.Post) {
 	postFormated.User = &model.UserFormated{
 		ID: post.UserID,
 	}
-	contents, _ := myDao.GetPostContentsByIDs([]int64{post.ID})
+	contents, _ := ds.GetPostContentsByIDs([]int64{post.ID})
 	for _, content := range contents {
 		postFormated.Contents = append(postFormated.Contents, content.Format())
 	}
@@ -452,13 +452,13 @@ func PushPostToSearch(post *model.Post) {
 		"modified_on":       post.ModifiedOn,
 	})
 
-	myDao.BulkPushDoc(data)
+	ds.BulkPushDoc(data)
 }
 
 func DeleteSearchPost(post *model.Post) error {
 	indexName := global.SearchSetting.ZincIndex
 
-	return myDao.DelDoc(indexName, fmt.Sprintf("%d", post.ID))
+	return ds.DelDoc(indexName, fmt.Sprintf("%d", post.ID))
 }
 
 func PushPostsToSearch(c *gin.Context) {
@@ -471,7 +471,7 @@ func PushPostsToSearch(c *gin.Context) {
 
 		indexName := global.SearchSetting.ZincIndex
 		// 创建索引
-		myDao.CreateSearchIndex(indexName)
+		ds.CreateSearchIndex(indexName)
 
 		for i := 0; i < nums; i++ {
 			data := []map[string]interface{}{}
@@ -515,7 +515,7 @@ func PushPostsToSearch(c *gin.Context) {
 			}
 
 			if len(data) > 0 {
-				myDao.BulkPushDoc(data)
+				ds.BulkPushDoc(data)
 			}
 		}
 
@@ -541,12 +541,12 @@ func FormatZincPost(queryResult *zinc.QueryResultT) ([]*model.PostFormated, erro
 		postIds = append(postIds, post.ID)
 		userIds = append(userIds, post.UserID)
 	}
-	postContents, err := myDao.GetPostContentsByIDs(postIds)
+	postContents, err := ds.GetPostContentsByIDs(postIds)
 	if err != nil {
 		return nil, err
 	}
 
-	users, err := myDao.GetUsersByIDs(userIds)
+	users, err := ds.GetUsersByIDs(userIds)
 	if err != nil {
 		return nil, err
 	}
@@ -591,7 +591,7 @@ func GetPostTags(param *PostTagsReq) ([]*model.TagFormated, error) {
 		}
 	}
 
-	tags, err := myDao.GetTags(conditions, 0, num)
+	tags, err := ds.GetTags(conditions, 0, num)
 	if err != nil {
 		return nil, err
 	}
@@ -602,7 +602,7 @@ func GetPostTags(param *PostTagsReq) ([]*model.TagFormated, error) {
 		userIds = append(userIds, tag.UserID)
 	}
 
-	users, _ := myDao.GetUsersByIDs(userIds)
+	users, _ := ds.GetUsersByIDs(userIds)
 
 	tagsFormated := []*model.TagFormated{}
 	for _, tag := range tags {
@@ -619,7 +619,7 @@ func GetPostTags(param *PostTagsReq) ([]*model.TagFormated, error) {
 }
 
 func CheckPostAttachmentIsPaid(postID, userID int64) bool {
-	bill, err := myDao.GetPostAttatchmentBill(postID, userID)
+	bill, err := ds.GetPostAttatchmentBill(postID, userID)
 
 	return err == nil && bill.Model != nil && bill.ID > 0
 }

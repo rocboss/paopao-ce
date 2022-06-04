@@ -1,20 +1,11 @@
 package dao
 
 import (
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
 )
 
-type SearchType string
-
-const SearchTypeDefault SearchType = "search"
-const SearchTypeTag SearchType = "tag"
-
-type QueryT struct {
-	Query string
-	Type  SearchType
-}
-
-func (d *Dao) CreateSearchIndex(indexName string) {
+func (d *dataServant) CreateSearchIndex(indexName string) {
 	// 不存在则创建索引
 	d.zinc.CreateIndex(indexName, &zinc.ZincIndexProperty{
 		"id": &zinc.ZincIndexPropertyT{
@@ -104,21 +95,21 @@ func (d *Dao) CreateSearchIndex(indexName string) {
 
 }
 
-func (d *Dao) BulkPushDoc(data []map[string]interface{}) (bool, error) {
+func (d *dataServant) BulkPushDoc(data []map[string]interface{}) (bool, error) {
 	return d.zinc.BulkPushDoc(data)
 }
 
-func (d *Dao) DelDoc(indexName, id string) error {
+func (d *dataServant) DelDoc(indexName, id string) error {
 	return d.zinc.DelDoc(indexName, id)
 }
 
-func (d *Dao) QueryAll(q *QueryT, indexName string, offset, limit int) (*zinc.QueryResultT, error) {
+func (d *dataServant) QueryAll(q *core.QueryT, indexName string, offset, limit int) (*zinc.QueryResultT, error) {
 	// 普通搜索
-	if q.Type == SearchTypeDefault && q.Query != "" {
+	if q.Type == core.SearchTypeDefault && q.Query != "" {
 		return d.QuerySearch(indexName, q.Query, offset, limit)
 	}
 	// Tag分类
-	if q.Type == SearchTypeTag && q.Query != "" {
+	if q.Type == core.SearchTypeTag && q.Query != "" {
 		return d.QueryTagSearch(indexName, q.Query, offset, limit)
 	}
 
@@ -138,7 +129,7 @@ func (d *Dao) QueryAll(q *QueryT, indexName string, offset, limit int) (*zinc.Qu
 	return rsp, err
 }
 
-func (d *Dao) QuerySearch(indexName, query string, offset, limit int) (*zinc.QueryResultT, error) {
+func (d *dataServant) QuerySearch(indexName, query string, offset, limit int) (*zinc.QueryResultT, error) {
 	rsp, err := d.zinc.EsQuery(indexName, map[string]interface{}{
 		"query": map[string]interface{}{
 			"match_phrase": map[string]interface{}{
@@ -156,7 +147,7 @@ func (d *Dao) QuerySearch(indexName, query string, offset, limit int) (*zinc.Que
 	return rsp, err
 }
 
-func (d *Dao) QueryTagSearch(indexName, query string, offset, limit int) (*zinc.QueryResultT, error) {
+func (d *dataServant) QueryTagSearch(indexName, query string, offset, limit int) (*zinc.QueryResultT, error) {
 	rsp, err := d.zinc.ApiQuery(indexName, map[string]interface{}{
 		"search_type": "querystring",
 		"query": map[string]interface{}{

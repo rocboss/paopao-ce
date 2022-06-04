@@ -21,7 +21,7 @@ type JuhePhoneCaptchaRsp struct {
 }
 
 // 根据用户ID获取用户
-func (d *Dao) GetUserByID(id int64) (*model.User, error) {
+func (d *dataServant) GetUserByID(id int64) (*model.User, error) {
 	user := &model.User{
 		Model: &model.Model{
 			ID: id,
@@ -32,7 +32,7 @@ func (d *Dao) GetUserByID(id int64) (*model.User, error) {
 }
 
 // 根据用户名获取用户
-func (d *Dao) GetUserByUsername(username string) (*model.User, error) {
+func (d *dataServant) GetUserByUsername(username string) (*model.User, error) {
 	user := &model.User{
 		Username: username,
 	}
@@ -41,7 +41,7 @@ func (d *Dao) GetUserByUsername(username string) (*model.User, error) {
 }
 
 // 根据手机号获取用户
-func (d *Dao) GetUserByPhone(phone string) (*model.User, error) {
+func (d *dataServant) GetUserByPhone(phone string) (*model.User, error) {
 	user := &model.User{
 		Phone: phone,
 	}
@@ -50,7 +50,7 @@ func (d *Dao) GetUserByPhone(phone string) (*model.User, error) {
 }
 
 // 根据IDs获取用户列表
-func (d *Dao) GetUsersByIDs(ids []int64) ([]*model.User, error) {
+func (d *dataServant) GetUsersByIDs(ids []int64) ([]*model.User, error) {
 	user := &model.User{}
 
 	return user.List(d.engine, &model.ConditionsT{
@@ -59,7 +59,7 @@ func (d *Dao) GetUsersByIDs(ids []int64) ([]*model.User, error) {
 }
 
 // 根据关键词模糊获取用户列表
-func (d *Dao) GetUsersByKeyword(keyword string) ([]*model.User, error) {
+func (d *dataServant) GetUsersByKeyword(keyword string) ([]*model.User, error) {
 	user := &model.User{}
 
 	if strings.Trim(keyword, "") == "" {
@@ -75,7 +75,7 @@ func (d *Dao) GetUsersByKeyword(keyword string) ([]*model.User, error) {
 }
 
 // 根据关键词模糊获取用户列表
-func (d *Dao) GetTagsByKeyword(keyword string) ([]*model.Tag, error) {
+func (d *dataServant) GetTagsByKeyword(keyword string) ([]*model.Tag, error) {
 	tag := &model.Tag{}
 
 	if strings.Trim(keyword, "") == "" {
@@ -92,30 +92,30 @@ func (d *Dao) GetTagsByKeyword(keyword string) ([]*model.Tag, error) {
 }
 
 // 创建用户
-func (d *Dao) CreateUser(user *model.User) (*model.User, error) {
+func (d *dataServant) CreateUser(user *model.User) (*model.User, error) {
 	return user.Create(d.engine)
 }
 
 // 更新用户
-func (d *Dao) UpdateUser(user *model.User) error {
+func (d *dataServant) UpdateUser(user *model.User) error {
 	return user.Update(d.engine)
 }
 
 // 获取最新短信验证码
-func (d *Dao) GetLatestPhoneCaptcha(phone string) (*model.Captcha, error) {
+func (d *dataServant) GetLatestPhoneCaptcha(phone string) (*model.Captcha, error) {
 	return (&model.Captcha{
 		Phone: phone,
 	}).Get(d.engine)
 }
 
 // 更新短信验证码
-func (d *Dao) UsePhoneCaptcha(captcha *model.Captcha) error {
+func (d *dataServant) UsePhoneCaptcha(captcha *model.Captcha) error {
 	captcha.UseTimes++
 	return captcha.Update(d.engine)
 }
 
 // 发送短信验证码
-func (d *Dao) SendPhoneCaptcha(phone string) error {
+func (d *dataServant) SendPhoneCaptcha(phone string) error {
 	rand.Seed(time.Now().UnixNano())
 	captcha := rand.Intn(900000) + 100000
 	m := 5
