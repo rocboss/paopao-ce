@@ -146,7 +146,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
    yarn tauri build
    ```
    桌面端是使用[Rust](https://www.rust-lang.org/) + [tauri](https://github.com/tauri-apps/tauri)编写
-   的，需要Rust编译环境，具体安装指南请参考[https://www.rust-lang.org/tools/install](https://www.rust-lang.org/tools/install).
+   的，需要安装tauri的依赖，具体参考[https://tauri.studio/v1/guides/getting-started/prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites).
 
 ### 其他说明
 

@@ -3,15 +3,15 @@
     windows_subsystem = "windows"
 )]
 
-use tauri::api::shell;
-use tauri::{CustomMenuItem, Manager, Menu, MenuEntry, MenuItem, Submenu};
+#[cfg(target_os = "macos")]
+use tauri::{api::shell, CustomMenuItem, Manager, Menu, MenuEntry, MenuItem, Submenu};
 
 fn main() {
     let _ctx = tauri::generate_context!();
 
-    tauri::Builder::default()
+    #[cfg(target_os = "macos")]
+    let app = tauri::Builder::default()
         .menu(Menu::with_items([
-            #[cfg(target_os = "macos")]
             MenuEntry::Submenu(Submenu::new(
                 &_ctx.package_info().name,
                 Menu::with_items([
@@ -46,7 +46,11 @@ fn main() {
                 }
                 _ => {}
             }
-        })
-        .run(tauri::generate_context!())
+        });
+
+    #[cfg(not(target_os = "macos"))]
+    let app = tauri::Builder::default();
+
+    app.run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
