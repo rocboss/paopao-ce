@@ -261,7 +261,7 @@ import type {
     InputInst,
 } from 'naive-ui';
 
-const uploadGateway = import.meta.env.VITE_HOST + '/attachment';
+const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
 const uploadType = ref('public/avatar');
 

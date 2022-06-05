@@ -248,7 +248,7 @@ import { parsePostTag } from '@/utils/content';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
 
 const emit = defineEmits<{
-    (e: 'post-success', post: Item.PostProps): void
+    (e: 'post-success', post: Item.PostProps): void;
 }>();
 
 const store = useStore();
@@ -267,7 +267,7 @@ const imageContents = ref<Item.CommentItemProps[]>([]);
 const videoContents = ref<Item.CommentItemProps[]>([]);
 const attachmentContents = ref<Item.AttachmentProps[]>([]);
 
-const uploadGateway = import.meta.env.VITE_HOST + '/attachment';
+const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = ref();
 
 const switchLink = () => {

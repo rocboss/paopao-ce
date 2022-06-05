@@ -170,15 +170,18 @@ import { parsePostTag } from '@/utils/content';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
 
 const emit = defineEmits<{
-    (e: 'post-success'): void
+    (e: 'post-success'): void;
 }>();
-const props = withDefaults(defineProps<{
-    lock: number,
-    postId: number,
-}>(), {
-    lock: 0,
-    postId: 0
-});
+const props = withDefaults(
+    defineProps<{
+        lock: number;
+        postId: number;
+    }>(),
+    {
+        lock: 0,
+        postId: 0,
+    }
+);
 
 const store = useStore();
 
@@ -192,7 +195,7 @@ const uploadType = ref('public/image');
 const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
 
-const uploadGateway = import.meta.env.VITE_HOST + '/attachment';
+const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = ref();
 
 // 加载at用户列表
@@ -249,7 +252,10 @@ const beforeUpload = async (data: any) => {
         return false;
     }
 
-    if (uploadType.value === 'image' && (data.file as any).file?.size > 10485760) {
+    if (
+        uploadType.value === 'image' &&
+        (data.file as any).file?.size > 10485760
+    ) {
         window.$message.warning('图片大小不能超过10MB');
         return false;
     }
