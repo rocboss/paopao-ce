@@ -93,14 +93,6 @@ func UploadAttachment(c *gin.Context) {
 		return
 	}
 
-	fileReader, err := fileHeader.Open()
-	if err != nil {
-		global.Logger.Errorf("Attachment file read err: %v", err)
-		response.ToErrorResponse(errcode.FileUploadFailed)
-		return
-	}
-	defer fileReader.Close()
-
 	// 生成随机路径
 	randomPath := uuid.Must(uuid.NewV4()).String()
 	ossSavePath := uploadType + "/" + GeneratePath(randomPath[:8]) + "/" + randomPath[9:] + fileExt
@@ -112,14 +104,14 @@ func UploadAttachment(c *gin.Context) {
 		return
 	}
 
-	bucket, err := client.Bucket("paopao-assets")
+	bucket, err := client.Bucket(global.AliossSetting.AliossBucket)
 	if err != nil {
 		global.Logger.Errorf("client.Bucket err: %v", err)
 		response.ToErrorResponse(errcode.FileUploadFailed)
 		return
 	}
 
-	err = bucket.PutObject(ossSavePath, fileReader)
+	err = bucket.PutObject(ossSavePath, file)
 	if err != nil {
 		global.Logger.Errorf("bucket.PutObject err: %v", err)
 		response.ToErrorResponse(errcode.FileUploadFailed)
