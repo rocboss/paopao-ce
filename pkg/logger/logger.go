@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/rocboss/paopao-ce/global"
-	"github.com/rocboss/paopao-ce/pkg/setting"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"gopkg.in/resty.v1"
@@ -31,7 +30,7 @@ type ZincLogHook struct {
 func (hook *ZincLogHook) Fire(entry *logrus.Entry) error {
 	index := &ZincLogIndex{
 		Index: map[string]string{
-			"_index": global.LoggerSetting.LogZincIndex,
+			"_index": global.LoggerZincSetting.Index,
 		},
 	}
 	indexBytes, _ := json.Marshal(index)
@@ -49,9 +48,9 @@ func (hook *ZincLogHook) Fire(entry *logrus.Entry) error {
 
 	if _, err := client.SetDisableWarn(true).R().
 		SetHeader("Content-Type", "application/json").
-		SetBasicAuth(global.LoggerSetting.LogZincUser, global.LoggerSetting.LogZincPassword).
+		SetBasicAuth(global.LoggerZincSetting.User, global.LoggerZincSetting.Password).
 		SetBody(logStr).
-		Post(global.LoggerSetting.LogZincHost); err != nil {
+		Post(global.LoggerZincSetting.Host); err != nil {
 		fmt.Println(err.Error())
 	}
 
@@ -62,19 +61,19 @@ func (hook *ZincLogHook) Levels() []logrus.Level {
 	return logrus.AllLevels
 }
 
-func New(s *setting.LoggerSettingS) (*logrus.Logger, error) {
+func New() (*logrus.Logger, error) {
 	log := logrus.New()
 	log.Formatter = &logrus.JSONFormatter{}
 
-	switch s.LogType {
-	case setting.LogFileType:
+	if global.CfgIf("LoggerFile") {
+		s := global.LoggerFileSetting
 		log.Out = &lumberjack.Logger{
-			Filename:  s.LogFileSavePath + "/" + s.LogFileName + s.LogFileExt,
+			Filename:  s.SavePath + "/" + s.FileName + s.FileExt,
 			MaxSize:   600,
 			MaxAge:    10,
 			LocalTime: true,
 		}
-	case setting.LogZincType:
+	} else if global.CfgIf("LoggerZinc") {
 		log.Out = io.Discard
 		log.AddHook(&ZincLogHook{})
 	}

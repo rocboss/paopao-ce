@@ -136,6 +136,11 @@ func CheckPassword(password string) error {
 
 // CheckPhoneCaptcha 验证手机验证码
 func CheckPhoneCaptcha(phone, captcha string) *errcode.Error {
+	// 如果禁止phone verify 则允许通过任意验证码
+	if DisablePhoneVerify {
+		return nil
+	}
+
 	c, err := ds.GetLatestPhoneCaptcha(phone)
 	if err != nil {
 		return errcode.ErrorPhoneCaptcha

@@ -27,7 +27,7 @@ func init() {
 	if err != nil {
 		log.Fatalf("init.setupDBEngine err: %v", err)
 	}
-	client := zinc.NewClient(global.SearchSetting)
+	client := zinc.NewClient(global.ZincSetting)
 	service.Initialize(global.DBEngine, client)
 }
 
@@ -37,40 +37,22 @@ func setupSetting() error {
 		return err
 	}
 
-	err = setting.ReadSection("Server", &global.ServerSetting)
-	if err != nil {
-		return err
+	global.Features = setting.FeaturesFrom("Features")
+
+	objects := map[string]interface{}{
+		"App":        &global.AppSetting,
+		"Server":     &global.ServerSetting,
+		"Alipay":     &global.AlipaySetting,
+		"SmsJuhe":    &global.SmsJuheSetting,
+		"LoggerFile": &global.LoggerFileSetting,
+		"LoggerZinc": &global.LoggerZincSetting,
+		"MySQL":      &global.MySQLSetting,
+		"Zinc":       &global.ZincSetting,
+		"Redis":      &global.RedisSetting,
+		"JWT":        &global.JWTSetting,
+		"AliOSS":     &global.AliOSSSetting,
 	}
-	err = setting.ReadSection("App", &global.AppSetting)
-	if err != nil {
-		return err
-	}
-	err = setting.ReadSection("Runtime", &global.RuntimeSetting)
-	if err != nil {
-		return err
-	}
-	err = setting.ReadSection("Log", &global.LoggerSetting)
-	if err != nil {
-		return err
-	}
-	err = setting.ReadSection("Database", &global.DatabaseSetting)
-	if err != nil {
-		return err
-	}
-	err = setting.ReadSection("Search", &global.SearchSetting)
-	if err != nil {
-		return err
-	}
-	err = setting.ReadSection("Redis", &global.RedisSetting)
-	if err != nil {
-		return err
-	}
-	err = setting.ReadSection("JWT", &global.JWTSetting)
-	if err != nil {
-		return err
-	}
-	err = setting.ReadSection("Storage", &global.AliossSetting)
-	if err != nil {
+	if err = setting.Unmarshal(objects); err != nil {
 		return err
 	}
 
@@ -82,7 +64,7 @@ func setupSetting() error {
 }
 
 func setupLogger() error {
-	logger, err := logger.New(global.LoggerSetting)
+	logger, err := logger.New()
 	if err != nil {
 		return err
 	}
@@ -91,9 +73,10 @@ func setupLogger() error {
 	return nil
 }
 
+// setupDBEngine 暂时只支持MySQL
 func setupDBEngine() error {
 	var err error
-	global.DBEngine, err = model.NewDBEngine(global.DatabaseSetting)
+	global.DBEngine, err = model.NewDBEngine(global.MySQLSetting)
 	if err != nil {
 		return err
 	}

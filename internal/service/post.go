@@ -68,7 +68,7 @@ func (p *PostContentItem) Check() error {
 	// 检查附件是否是本站资源
 	if p.Type == model.CONTENT_TYPE_IMAGE || p.Type == model.CONTENT_TYPE_VIDEO || p.Type == model.
 		CONTENT_TYPE_ATTACHMENT {
-		if strings.Index(p.Content, "https://"+global.AliossSetting.AliossDomain) != 0 {
+		if strings.Index(p.Content, "https://"+global.AliOSSSetting.Domain) != 0 {
 			return fmt.Errorf("附件非本站资源")
 		}
 	}
@@ -377,7 +377,7 @@ func GetPostCount(conditions *model.ConditionsT) (int64, error) {
 }
 
 func GetPostListFromSearch(q *core.QueryT, offset, limit int) ([]*model.PostFormated, int64, error) {
-	queryResult, err := ds.QueryAll(q, global.SearchSetting.ZincIndex, offset, limit)
+	queryResult, err := ds.QueryAll(q, global.ZincSetting.Index, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -391,7 +391,7 @@ func GetPostListFromSearch(q *core.QueryT, offset, limit int) ([]*model.PostForm
 }
 
 func GetPostListFromSearchByQuery(query string, offset, limit int) ([]*model.PostFormated, int64, error) {
-	queryResult, err := ds.QuerySearch(global.SearchSetting.ZincIndex, query, offset, limit)
+	queryResult, err := ds.QuerySearch(global.ZincSetting.Index, query, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -405,7 +405,7 @@ func GetPostListFromSearchByQuery(query string, offset, limit int) ([]*model.Pos
 }
 
 func PushPostToSearch(post *model.Post) {
-	indexName := global.SearchSetting.ZincIndex
+	indexName := global.ZincSetting.Index
 
 	postFormated := post.Format()
 	postFormated.User = &model.UserFormated{
@@ -456,7 +456,7 @@ func PushPostToSearch(post *model.Post) {
 }
 
 func DeleteSearchPost(post *model.Post) error {
-	indexName := global.SearchSetting.ZincIndex
+	indexName := global.ZincSetting.Index
 
 	return ds.DelDoc(indexName, fmt.Sprintf("%d", post.ID))
 }
@@ -469,7 +469,7 @@ func PushPostsToSearch(c *gin.Context) {
 		pages := math.Ceil(float64(totalRows) / float64(splitNum))
 		nums := int(pages)
 
-		indexName := global.SearchSetting.ZincIndex
+		indexName := global.ZincSetting.Index
 		// 创建索引
 		ds.CreateSearchIndex(indexName)
 

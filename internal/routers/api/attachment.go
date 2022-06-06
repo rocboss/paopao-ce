@@ -97,14 +97,14 @@ func UploadAttachment(c *gin.Context) {
 	randomPath := uuid.Must(uuid.NewV4()).String()
 	ossSavePath := uploadType + "/" + GeneratePath(randomPath[:8]) + "/" + randomPath[9:] + fileExt
 
-	client, err := oss.New(global.AliossSetting.AliossEndpoint, global.AliossSetting.AliossAccessKeyID, global.AliossSetting.AliossAccessKeySecret)
+	client, err := oss.New(global.AliOSSSetting.Endpoint, global.AliOSSSetting.AccessKeyID, global.AliOSSSetting.AccessKeySecret)
 	if err != nil {
 		global.Logger.Errorf("oss.New err: %v", err)
 		response.ToErrorResponse(errcode.FileUploadFailed)
 		return
 	}
 
-	bucket, err := client.Bucket(global.AliossSetting.AliossBucket)
+	bucket, err := client.Bucket(global.AliOSSSetting.Bucket)
 	if err != nil {
 		global.Logger.Errorf("client.Bucket err: %v", err)
 		response.ToErrorResponse(errcode.FileUploadFailed)
@@ -121,7 +121,7 @@ func UploadAttachment(c *gin.Context) {
 	// 构造附件Model
 	attachment := &model.Attachment{
 		FileSize: fileHeader.Size,
-		Content:  "https://" + global.AliossSetting.AliossDomain + "/" + ossSavePath,
+		Content:  "https://" + global.AliOSSSetting.Domain + "/" + ossSavePath,
 	}
 
 	if userID, exists := c.Get("UID"); exists {
@@ -256,14 +256,14 @@ func DownloadAttachment(c *gin.Context) {
 	}
 
 	// 开始构造下载地址
-	client, err := oss.New(global.AliossSetting.AliossEndpoint, global.AliossSetting.AliossAccessKeyID, global.AliossSetting.AliossAccessKeySecret)
+	client, err := oss.New(global.AliOSSSetting.Endpoint, global.AliOSSSetting.AccessKeyID, global.AliOSSSetting.AccessKeySecret)
 	if err != nil {
 		global.Logger.Errorf("oss.New err: %v", err)
 		response.ToErrorResponse(errcode.DownloadReqError)
 		return
 	}
 
-	bucket, err := client.Bucket(global.AliossSetting.AliossBucket)
+	bucket, err := client.Bucket(global.AliOSSSetting.Bucket)
 	if err != nil {
 		global.Logger.Errorf("client.Bucket err: %v", err)
 		response.ToErrorResponse(errcode.DownloadReqError)
@@ -271,7 +271,7 @@ func DownloadAttachment(c *gin.Context) {
 	}
 
 	// 签名
-	objectKey := strings.Replace(content.Content, "https://"+global.AliossSetting.AliossDomain+"/", "", -1)
+	objectKey := strings.Replace(content.Content, "https://"+global.AliOSSSetting.Domain+"/", "", -1)
 	signedURL, err := bucket.SignURL(objectKey, oss.HTTPGet, 60)
 	if err != nil {
 		global.Logger.Errorf("client.SignURL err: %v", err)

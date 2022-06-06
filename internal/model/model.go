@@ -25,7 +25,7 @@ type Model struct {
 
 type ConditionsT map[string]interface{}
 
-func NewDBEngine(databaseSetting *setting.DatabaseSettingS) (*gorm.DB, error) {
+func NewDBEngine(databaseSetting *setting.MySQLSettingS) (*gorm.DB, error) {
 	newLogger := logger.New(
 		global.Logger, // io writer（日志输出的目标，前缀和日志包含的内容）
 		logger.Config{
