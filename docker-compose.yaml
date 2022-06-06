@@ -1,0 +1,12 @@
+version: "3"
+services:
+  backend:
+    build:
+      context: .
+    expose:
+      - 3306
+      - 4080
+
+  frontend:
+    build:
+      context: web
