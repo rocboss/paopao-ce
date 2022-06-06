@@ -36,11 +36,6 @@ JWT: # 鉴权加密
   Secret: 18a6413dc4fe394c66345ebe501b2f26
   Issuer: paopao-api
   Expire: 86400
-Search: # 搜索配置
-  ZincHost: http://127.0.0.1:4080
-  ZincIndex: paopao-data
-  ZincUser: admin
-  ZincPassword: admin
 Zinc: # Zinc搜索配置
   Host: http://127.0.0.1:4080
   Index: paopao-data
