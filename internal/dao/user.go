@@ -127,9 +127,9 @@ func (d *dataServant) SendPhoneCaptcha(phone string) error {
 	resp, err := client.R().
 		SetFormData(map[string]string{
 			"mobile":    phone,
-			"tpl_id":    global.AppSetting.SmsJuheTplID,
-			"tpl_value": fmt.Sprintf(global.AppSetting.SmsJuheTplVal, captcha, m),
-			"key":       global.AppSetting.SmsJuheKey,
+			"tpl_id":    global.SmsJuheSetting.TplID,
+			"tpl_value": fmt.Sprintf(global.SmsJuheSetting.TplVal, captcha, m),
+			"key":       global.SmsJuheSetting.Key,
 		}).Post(gateway)
 	if err != nil {
 		return err

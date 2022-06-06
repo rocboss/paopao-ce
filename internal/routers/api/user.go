@@ -204,7 +204,7 @@ func ChangeAvatar(c *gin.Context) {
 		user = u.(*model.User)
 	}
 
-	if strings.Index(param.Avatar, "https://"+global.AliossSetting.AliossDomain) != 0 {
+	if strings.Index(param.Avatar, "https://"+global.AliOSSSetting.Domain) != 0 {
 		response.ToErrorResponse(errcode.InvalidParams)
 		return
 	}
@@ -238,13 +238,10 @@ func BindUserPhone(c *gin.Context) {
 		return
 	}
 
-	// 验证短信验证码
-	if !global.RuntimeSetting.DisablePhoneVerify {
-		if err := service.CheckPhoneCaptcha(param.Phone, param.Captcha); err != nil {
-			global.Logger.Errorf("service.CheckPhoneCaptcha err: %v\n", err)
-			response.ToErrorResponse(err)
-			return
-		}
+	if err := service.CheckPhoneCaptcha(param.Phone, param.Captcha); err != nil {
+		global.Logger.Errorf("service.CheckPhoneCaptcha err: %v\n", err)
+		response.ToErrorResponse(err)
+		return
 	}
 
 	// 执行绑定
@@ -383,7 +380,7 @@ func GetUserRechargeLink(c *gin.Context) {
 
 	}
 
-	client, err := alipay.New(global.AppSetting.AlipayAppID, global.AppSetting.AlipayPrivateKey, true)
+	client, err := alipay.New(global.AlipaySetting.AppID, global.AlipaySetting.PrivateKey, true)
 	// 将 key 的验证调整到初始化阶段
 	if err != nil {
 		global.Logger.Errorf("alipay.New err: %v\n", err)
@@ -462,7 +459,7 @@ func AlipayNotify(c *gin.Context) {
 	response := app.NewResponse(c)
 	c.Request.ParseForm()
 
-	aliClient, err := alipay.New(global.AppSetting.AlipayAppID, global.AppSetting.AlipayPrivateKey, true)
+	aliClient, err := alipay.New(global.AlipaySetting.AppID, global.AlipaySetting.PrivateKey, true)
 	// 将 key 的验证调整到初始化阶段
 	if err != nil {
 		global.Logger.Errorf("alipay.New err: %v\n", err)

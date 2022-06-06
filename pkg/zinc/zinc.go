@@ -71,12 +71,12 @@ type HitItem struct {
 }
 
 // NewClient 获取ZincClient新实例
-func NewClient(conf *setting.SearchSettingS) *ZincClient {
+func NewClient(conf *setting.ZincSettingS) *ZincClient {
 	return &ZincClient{
 		ZincClientConfig: &ZincClientConfig{
-			ZincHost:     conf.ZincHost,
-			ZincUser:     conf.ZincUser,
-			ZincPassword: conf.ZincPassword,
+			ZincHost:     conf.Host,
+			ZincUser:     conf.User,
+			ZincPassword: conf.Password,
 		},
 	}
 }

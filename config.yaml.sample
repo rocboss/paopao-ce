@@ -5,28 +5,33 @@ App: # APP基础设置项
   DefaultContextTimeout: 60
   DefaultPageSize: 10
   MaxPageSize: 100
-  SmsJuheKey: 
-  SmsJuheTplID: 
-  SmsJuheTplVal: "#code#=%d&#m#=%d"
-  AlipayAppID:
-  AlipayPrivateKey:
-Runtime: # App运行时功能调节
-  DisablePhoneVerify: False # 禁止绑定手机号码时验证短信验证码，为true时任意验证码都可以通过验证
 Server: # 服务设置
   RunMode: debug
   HttpIp: 0.0.0.0
   HttpPort: 8008
   ReadTimeout: 60
   WriteTimeout: 60
-Log: # 日志
-  LogType: zinc # 可选file或zinc
-  LogFileSavePath: storage/logs
-  LogFileName: app
-  LogFileExt: .log
-  LogZincHost: http://127.0.0.1:4080/es/_bulk
-  LogZincIndex: paopao-log
-  LogZincUser: admin
-  LogZincPassword: admin
+Features:
+  Default: ["Sms", "Alipay", "Zinc", "MySQL", "Redis", "AliOSS", "LoggerZinc"]
+  Develop: ["Zinc", "MySQL", "AliOSS", "LoggerFile"]
+  Slim: ["Zinc", "MySQL", "Redis", "AliOSS", "LoggerFile"]
+  Sms: "SmsJuhe"
+SmsJuhe:
+  Key:
+  TplID:
+  TplVal: "#code#=%d&#m#=%d"
+Alipay: 
+  AppID: 
+  PrivateKey: 
+LoggerFile: # 使用File写日志
+  SavePath: storage/logs
+  FileName: app
+  FileExt: .log
+LoggerZinc: # 使用Zinc写日志
+  Host: http://127.0.0.1:4080/es/_bulk
+  Index: paopao-log
+  User: admin
+  Password: admin
 JWT: # 鉴权加密
   Secret: 18a6413dc4fe394c66345ebe501b2f26
   Issuer: paopao-api
@@ -36,14 +41,18 @@ Search: # 搜索配置
   ZincIndex: paopao-data
   ZincUser: admin
   ZincPassword: admin
-Storage: # 阿里云OSS存储配置
-  AliossAccessKeyID: 
-  AliossAccessKeySecret: 
-  AliossEndpoint: 
-  AliossBucket: 
-  AliossDomain: 
-Database: # 数据库
-  DBType: mysql
+Zinc: # Zinc搜索配置
+  Host: http://127.0.0.1:4080
+  Index: paopao-data
+  User: admin
+  Password: admin
+AliOSS: # 阿里云OSS存储配置
+  AccessKeyID: 
+  AccessKeySecret: 
+  Endpoint: 
+  Bucket: 
+  Domain: 
+MySQL: # MySQL数据库
   Username: root # 填写你的数据库账号
   Password: root # 填写你的数据库密码
   Host: 127.0.0.1:3306
