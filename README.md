@@ -91,7 +91,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
     ```sh
     make build
     ```
-    编译api服务、内嵌web前端ui; 注意此步骤需要先编译web前端。
+    编译api服务、内嵌web前端ui:
     ```sh
     make build TAGS='embed'
     ```
@@ -106,6 +106,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
     ```sh
     make run TAGS='embed'
     ```
+    提示: 如果需要内嵌web前端ui，请先构建web前端(建议设置web/.env为VITE_HOST="")。
 
 #### 前端
 
