@@ -1,0 +1,69 @@
+App: # APP基础设置项
+  BarkToken: 
+  AttachmentIncomeRate: 0.8
+  MaxCommentCount: 10
+  DefaultContextTimeout: 60
+  DefaultPageSize: 10
+  MaxPageSize: 100
+Server: # 服务设置
+  RunMode: debug
+  HttpIp: backend
+  HttpPort: 8008
+  ReadTimeout: 60
+  WriteTimeout: 60
+Features:
+  Default: ["Sms", "Alipay", "Zinc", "MySQL", "Redis", "AliOSS", "LoggerZinc"]
+  Develop: ["Zinc", "MySQL", "AliOSS", "LoggerFile"]
+  Slim: ["Zinc", "MySQL", "Redis", "AliOSS", "LoggerFile"]
+  Sms: "SmsJuhe"
+SmsJuhe:
+  Key:
+  TplID:
+  TplVal: "#code#=%d&#m#=%d"
+Alipay: 
+  AppID: 
+  PrivateKey: 
+LoggerFile: # 使用File写日志
+  SavePath: storage/logs
+  FileName: app
+  FileExt: .log
+LoggerZinc: # 使用Zinc写日志
+  Host: http://zinc:4080/es/_bulk
+  Index: paopao-log
+  User: admin
+  Password: admin
+JWT: # 鉴权加密
+  Secret: 18a6413dc4fe394c66345ebe501b2f26
+  Issuer: paopao-api
+  Expire: 86400
+Search: # 搜索配置
+  ZincHost: http://zinc:4080
+  ZincIndex: paopao-data
+  ZincUser: admin
+  ZincPassword: admin
+Zinc: # Zinc搜索配置
+  Host: http://zinc:4080
+  Index: paopao-data
+  User: admin
+  Password: admin
+AliOSS: # 阿里云OSS存储配置
+  AccessKeyID: 
+  AccessKeySecret: 
+  Endpoint: 
+  Bucket: 
+  Domain: 
+MySQL: # MySQL数据库
+  Username: root # 填写你的数据库账号
+  Password: root # 填写你的数据库密码
+  Host: mysql:3306
+  DBName: paopao
+  TablePrefix: p_
+  Charset: utf8mb4
+  ParseTime: True
+  LogLevel: 2
+  MaxIdleConns: 10
+  MaxOpenConns: 30
+Redis:
+  Host: redis:6379
+  Password: 
+  DB: 

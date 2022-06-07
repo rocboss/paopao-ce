@@ -3,10 +3,34 @@ services:
   backend:
     build:
       context: .
-    expose:
-      - 3306
-      - 4080
+    ports:
+      - 8008
 
   frontend:
     build:
       context: web
+    expose:
+      - 8000
+  
+  redis:
+    image: redis
+    ports:
+      - 6379
+  
+  zinc:
+    image: public.ecr.aws/h9e2j3o7/zinc
+    ports:
+      - 4080
+    volumes:
+      - ./data/:/data/
+    environment:
+      ZINC_FIRST_ADMIN_USER: admin
+      ZINC_FIRST_ADMIN_PASSWORD: admin
+      DATA_PATH: /data/
+
+  mysql:
+    image: mysql
+    ports:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
