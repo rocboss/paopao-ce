@@ -111,6 +111,24 @@ PaoPao主要由以下优秀的开源项目/工具构建
     ```
     提示: 如果需要内嵌web前端ui，请先构建web前端(建议设置web/.env为VITE_HOST="")。
 
+ 5. docker构建
+    ```sh
+     # 默认参数构建, 默认内嵌web ui并设置api host为空
+     %> docker build -t your/paopao-ce:tag .
+
+     # 内嵌web ui并且自定义API host参数
+     %> docker build -t your/paopao-ce:tag --build-arg API_HOST=http://paopao.info .
+
+     # 内嵌web ui并且使用本地web/.env中的API host
+     %> docker build -t your/paopao-ce:tag --build-arg USE_API_HOST=no .
+
+     # 内嵌web ui并且使用本地编译的web/dist构建
+     %> docker build -t your/paopao-ce:tag --build-arg USE_DIST=yes .
+
+     # 只编译api server
+     %> docker build -t your/paopao-ce:tag --build-arg EMBED_UI=no .
+    ```
+
 #### 前端
 
 1. 进入前端目录 `web`，编辑 `.env` 文件中后端服务地址，下载依赖包
@@ -128,6 +146,20 @@ PaoPao主要由以下优秀的开源项目/工具构建
     ```
 
     build完成后，可以在dist目录获取编译产出，配置nginx指向至该目录即可
+
+3. 使用Docker构建
+   ```sh
+   %> cd web
+
+   # 默认参数构建
+   %> docker build -t your/paopao-ce:web .
+
+   # 自定义API host 参数构建
+   %> docker build -t your/paopao-ce:web --build-arg API_HOST=http://paopao.info .
+
+   # 使用本地编译的dist构建
+   %> docker build -t your/paopao-ce:web --build-arg USE_DIST=yes .
+   ```
 
 #### 桌面端
 
@@ -174,7 +206,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
     volumes:
       - ./config.yaml:/app/paopao-ce/config.yaml
     ports:
-      - 127.0.0.1:8008:8008
+      - 8008:8008
     networks:
       - paopao-network
 ....
