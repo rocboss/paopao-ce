@@ -3,23 +3,28 @@ services:
   backend:
     build:
       context: .
-    ports:
+    expose:
       - 8008
+    depends_on:
+      - mysql
+      - redis
+      - zinc
 
   frontend:
     build:
       context: web
-    expose:
+    ports:
       - 8000
-  
+
   redis:
     image: redis
-    ports:
+    expose:
       - 6379
-  
+
   zinc:
     image: public.ecr.aws/h9e2j3o7/zinc
-    ports:
+    user: root
+    expose:
       - 4080
     volumes:
       - ./data/:/data/
@@ -30,7 +35,9 @@ services:
 
   mysql:
     image: mysql
-    ports:
+    expose:
       - 3306
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: paopao
+      MYSQL_USER: paopao
+      MYSQL_PASSWORD: paopao

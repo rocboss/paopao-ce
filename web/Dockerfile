@@ -12,4 +12,4 @@ FROM nginx as nginx
 COPY --from=node /work/dist/ /usr/share/nginx/html/
 
 # HEALTHCHECK
-HEALTHCHECK --interval=5s --timeout=3s  --retries=3  CMD service nginx status | grep running || exit 1
+HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD service nginx status | grep running || exit 1

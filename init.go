@@ -15,20 +15,60 @@ import (
 )
 
 func init() {
-	err := setupSetting()
-	if err != nil {
+	const RESTARTS = 5
+	const SECONDS = 10
+	var err error
+
+	// Settings and logger have to be set up synchronously
+	// because they modify global state
+	// before we can setup db and search engine.
+	if err = setupSetting(); err != nil {
 		log.Fatalf("init.setupSetting err: %v", err)
 	}
-	err = setupLogger()
-	if err != nil {
+	if err = setupLogger(); err != nil {
 		log.Fatalf("init.setupLogger err: %v", err)
 	}
-	err = setupDBEngine()
-	if err != nil {
+
+	// DB and search engine are set up concurrently with restarts,
+	// because they depend on external services.
+	// Although the <- operations are blocking,
+	// these functions are all executing in the background when other <- operations are run
+	// thus they are in fact concurrent. (Assuming <- has negligible cost, which it has).
+	dbOk := setupAsync(setupDBEngine, RESTARTS, SECONDS)
+	searchOk := setupAsync(setupSearchEngine, RESTARTS, SECONDS)
+
+	if err = <-dbOk; err != nil {
 		log.Fatalf("init.setupDBEngine err: %v", err)
 	}
-	client := zinc.NewClient(global.ZincSetting)
-	service.Initialize(global.DBEngine, client)
+	if err = <-searchOk; err != nil {
+		log.Fatalf("init.setupSearchEngine err: %v", err)
+	}
+}
+
+// setupAsync calls a setup function asynchronously, with restarts,
+// returning a channel as an error handle.
+func setupAsync(setupFunc func() error, restarts, seconds int) <-chan error {
+	errChan := make(chan error)
+
+	// This function re-executes the setupFunc until it succeeds (err == nil)
+	// or the function was executed for restarts times.
+	// In case all restarts attemtps fail, the last error is sent back in the channel.
+	go func() {
+		var err error
+		for i := 0; i < restarts; i++ {
+			if err = setupFunc(); err == nil {
+				errChan <- nil
+				return
+			} else {
+				log.Printf("%v encountered. Restarting...", err)
+			}
+
+			time.Sleep(time.Duration(seconds) * time.Second)
+		}
+		errChan <- err
+	}()
+
+	return errChan
 }
 
 func setupSetting() error {
@@ -87,5 +127,13 @@ func setupDBEngine() error {
 		DB:       global.RedisSetting.DB,
 	})
 
+	return nil
+}
+
+// setupSearchEngine only returns nil for now, however,
+// it could be modified to return an error in the future
+func setupSearchEngine() error {
+	client := zinc.NewClient(global.ZincSetting)
+	service.Initialize(global.DBEngine, client)
 	return nil
 }
