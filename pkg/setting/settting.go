@@ -12,11 +12,6 @@ type Setting struct {
 	vp *viper.Viper
 }
 
-type LogType string
-
-const LogFileType LogType = "file"
-const LogZincType LogType = "zinc"
-
 type LoggerFileSettingS struct {
 	SavePath string
 	FileName string
@@ -28,17 +23,6 @@ type LoggerZincSettingS struct {
 	Index    string
 	User     string
 	Password string
-}
-
-type LoggerSettingS struct {
-	LogType         LogType
-	LogFileSavePath string
-	LogFileName     string
-	LogFileExt      string
-	LogZincHost     string
-	LogZincIndex    string
-	LogZincUser     string
-	LogZincPassword string
 }
 
 type ServerSettingS struct {
@@ -82,20 +66,6 @@ type ZincSettingS struct {
 	Index    string
 	User     string
 	Password string
-}
-
-type DatabaseSettingS struct {
-	DBType       string
-	UserName     string
-	Password     string
-	Host         string
-	DBName       string
-	TablePrefix  string
-	Charset      string
-	ParseTime    bool
-	LogLevel     logger.LogLevel
-	MaxIdleConns int
-	MaxOpenConns int
 }
 
 type MySQLSettingS struct {
@@ -192,25 +162,28 @@ func (s *Setting) FeaturesFrom(k string) *FeaturesSettingS {
 
 func newFeatures(suites map[string][]string, kv map[string]string) *FeaturesSettingS {
 	features := &FeaturesSettingS{
-		suites: suites,
-		kv:     kv,
+		suites:   suites,
+		kv:       kv,
+		features: make(map[string]string),
 	}
 	features.UseDefault()
 	return features
 }
 
 func (f *FeaturesSettingS) UseDefault() {
-	defaultSuite := f.suites["default"]
-	f.Use(defaultSuite, true)
+	f.Use([]string{"default"}, true)
 }
 
 func (f *FeaturesSettingS) Use(suite []string, noDefault bool) error {
-	if noDefault {
+	if noDefault && len(f.features) != 0 {
 		f.features = make(map[string]string)
 	}
 	features := f.flatFeatures(suite)
 	for _, feature := range features {
 		feature = strings.ToLower(feature)
+		if len(feature) == 0 {
+			continue
+		}
 		f.features[feature] = f.kv[feature]
 	}
 	return nil
