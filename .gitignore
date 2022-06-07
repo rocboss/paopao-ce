@@ -4,4 +4,4 @@
 config.yaml
 *.log
 paopao-ce*
-release/
+release

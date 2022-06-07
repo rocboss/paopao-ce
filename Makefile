@@ -76,7 +76,7 @@ test:
 help:
 	@echo "make: make"
 	@echo "make run: start api server"
-	@echo "make build: build executable with debug information"
+	@echo "make build: build executable"
 	@echo "make release: build release executables"
 	@echo "make run TAGS='embed': start api server and serve embed web frontend"
 	@echo "make build TAGS='embed': build executable with embed web frontend"
