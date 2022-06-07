@@ -1,26 +1,32 @@
-# build app
-FROM golang AS build-env
+# build frontend
+FROM node:18-alpine as frontend
+WORKDIR /web
+COPY web/ ./
+RUN echo 'VITE_HOST=""'>.env && yarn && yarn build
 
-ADD . /paopao-ce
+# build backend
+FROM golang:1.18-alpine AS backend
+RUN apk --no-cache --no-progress add --virtual \
+  build-deps \
+  build-base \
+  git
 
 WORKDIR /paopao-ce
+COPY . .
+COPY --from=frontend /web/dist ./web/dist
+ENV GOPROXY=https://goproxy.cn
+RUN make build TAGS='embed'
 
-RUN CGO_ENABLED=0 go build .
-
-# safe image
-FROM alpine
-
+FROM alpine:3.16
 ENV TZ=Asia/Shanghai
-
 RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
 
-COPY --from=build-env /paopao-ce/paopao-ce /usr/bin/paopao-ce
-COPY --from=build-env /paopao-ce/assets/comic.ttf /assets/comic.ttf
-COPY --from=build-env /paopao-ce/configs /configs
+WORKDIR /app/paopao-ce
+COPY --from=backend /paopao-ce/release/paopao-ce .
+COPY assets ./assets
+COPY configs ./configs
 
-EXPOSE 8000
-
-CMD ["paopao-ce"]
-
-# HEALTHCHECK
+VOLUME ["/app/paopao-ce/assets", "/app/paopao-ce/configs"]
+EXPOSE 8008
 HEALTHCHECK --interval=5s --timeout=3s  --retries=3  CMD ps -ef | grep paopao-ce || exit 1
+ENTRYPOINT ["/app/paopao-ce/paopao-ce"]

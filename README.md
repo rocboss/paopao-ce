@@ -152,6 +152,35 @@ PaoPao主要由以下优秀的开源项目/工具构建
    桌面端是使用[Rust](https://www.rust-lang.org/) + [tauri](https://github.com/tauri-apps/tauri)编写
    的，需要安装tauri的依赖，具体参考[https://tauri.studio/v1/guides/getting-started/prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites).
 
+### docker-compose 运行
+```sh
+%> git clone https://github.com/rocboss/paopao-ce.git
+%> docker compose up --build
+# visit http://localhost:8008
+```
+默认是使用config.yaml.sample的配置，如果需要自定义配置，请拷贝默认配置文件(比如config.yaml)，修改后再同步配置到docker-compose.yaml如下：
+```
+# file: docker-compose.yaml
+...
+  backend:
+    build:
+      context: .
+    restart: always
+    depends_on:
+      - db
+      - redis
+      - zinc
+    # modify below to reflect your custom configure
+    volumes:
+      - ./config.yaml:/app/paopao-ce/config.yaml
+    ports:
+      - 127.0.0.1:8008:8008
+    networks:
+      - paopao-network
+....
+```
+
+
 ### 其他说明
 
 建议后端服务使用 `supervisor` 守护进程，并通过 `nginx` 反向代理后，提供API给前端服务调用。
