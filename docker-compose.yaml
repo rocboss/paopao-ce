@@ -52,7 +52,7 @@ services:
       - ./config.yaml.sample:/app/paopao-ce/config.yaml
       - ./data/paopao-ce/data:/app/paopao-ce/data
     ports:
-      - 127.0.0.1:8008:8008
+      - 8008:8008
     networks:
       - paopao-network
 
