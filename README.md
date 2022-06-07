@@ -84,7 +84,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
 
 #### 后端
 
-1. 导入项目根目录下的 `paopao.sql` 文件至MySQL数据库
+1. 导入项目根目录下的 `scripts/paopao.sql` 文件至MySQL数据库
 2. 拷贝项目根目录下 `config.yaml.sample` 文件至 `config.yaml`，按照注释完成配置编辑
 3. 编译后端    
     编译api服务:
