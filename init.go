@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -13,6 +15,24 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/setting"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
 )
+
+var (
+	noDefaultFeatures bool
+	features          suites
+)
+
+type suites []string
+
+func (s *suites) String() string {
+	return strings.Join(*s, ",")
+}
+
+func (s *suites) Set(value string) error {
+	for _, item := range strings.Split(value, ",") {
+		*s = append(*s, strings.TrimSpace(item))
+	}
+	return nil
+}
 
 func init() {
 	const RESTARTS = 5
@@ -78,6 +98,11 @@ func setupSetting() error {
 	}
 
 	global.Features = setting.FeaturesFrom("Features")
+	if len(features) > 0 {
+		if err = global.Features.Use(features, noDefaultFeatures); err != nil {
+			return err
+		}
+	}
 
 	objects := map[string]interface{}{
 		"App":        &global.AppSetting,
@@ -101,6 +126,12 @@ func setupSetting() error {
 	global.ServerSetting.WriteTimeout *= time.Second
 	global.Mutex = &sync.Mutex{}
 	return nil
+}
+
+func flagParse() {
+	flag.BoolVar(&noDefaultFeatures, "no-default-features", false, "whether use default features")
+	flag.Var(&features, "features", "use special features")
+	flag.Parse()
 }
 
 func setupLogger() error {

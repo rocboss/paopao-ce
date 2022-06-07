@@ -1,0 +1,17 @@
+[Unit]
+Description=paopao-ce
+After=syslog.target
+After=network.target
+After=mariadb.service mysqld.service redis.service
+
+[Service]
+Type=simple
+User=paopao
+Group=paopao
+WorkingDirectory=/home/paopao/app
+ExecStart=/home/paopao/app/paopao-ce
+Restart=always
+Environment=USER=paopao HOME=/home/paopao
+
+[Install]
+WantedBy=multi-user.target

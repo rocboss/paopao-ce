@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>Label</key>
+		<string>info.paopao.web</string>
+		<!-- assumes running under 'paopao' account -->
+		<!-- modify below to reflect your settings -->
+		<key>UserName</key>
+		<string>paopao</string>
+		<key>GroupName</key>
+		<string>paopao</string>
+		<key>ProgramArguments</key>
+		<array>
+			<!-- assumes installed in /Users/paopao/app -->
+			<!-- modify below to reflect your settings -->
+			<string>/Users/paopao/app/paopao-ce</string>
+		</array>
+		<key>RunAtLoad</key>
+		<true/>
+		<key>KeepAlive</key>
+		<true/>
+		<!-- assumes Gogs is installed in /Users/git/gogs -->
+		<!-- modify below to reflect your settings -->
+		<key>WorkingDirectory</key>
+		<string>/Users/paopao/app/</string>
+		<key>StandardOutPath</key>
+		<string>/Users/paopao/app/log/stdout.log</string>
+		<key>StandardErrorPath</key>
+		<string>/Users/paopao/app/log/stderr.log</string>
+	</dict>
+</plist>

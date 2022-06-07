@@ -1,17 +1,24 @@
-# build app
-FROM golang AS build-env
+# build frontend
+FROM node:18-alpine as frontend
+WORKDIR /web
+COPY web/ ./
+RUN echo 'VITE_HOST=""'>.env && yarn && yarn build
 
-ADD . /paopao-ce
+# build backend
+FROM golang:1.18-alpine AS backend
+RUN apk --no-cache --no-progress add --virtual \
+  build-deps \
+  build-base \
+  git
 
 WORKDIR /paopao-ce
+COPY . .
+COPY --from=frontend /web/dist ./web/dist
+ENV GOPROXY=https://goproxy.cn
+RUN make build TAGS='embed'
 
-RUN CGO_ENABLED=0 go build .
-
-# safe image
-FROM alpine
-
+FROM alpine:3.16
 ENV TZ=Asia/Shanghai
-
 RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
 
 COPY --from=build-env /paopao-ce/paopao-ce /usr/bin/paopao-ce
@@ -22,6 +29,3 @@ COPY config.yaml .
 EXPOSE 8000
 
 CMD ["paopao-ce"]
-
-# HEALTHCHECK
-HEALTHCHECK --interval=5s --timeout=3s  --retries=3  CMD ps -ef | grep paopao-ce || exit 1

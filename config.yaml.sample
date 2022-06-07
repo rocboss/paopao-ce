@@ -12,8 +12,8 @@ Server: # 服务设置
   ReadTimeout: 60
   WriteTimeout: 60
 Features:
-  Default: ["Sms", "Alipay", "Zinc", "MySQL", "Redis", "AliOSS", "LoggerZinc"]
-  Develop: ["Zinc", "MySQL", "AliOSS", "LoggerFile"]
+  Default: ["Alipay", "Zinc", "MySQL", "Redis", "AliOSS", "LoggerZinc"]
+  Develop: ["Sms", "Zinc", "MySQL", "AliOSS", "LoggerFile"]
   Slim: ["Zinc", "MySQL", "Redis", "AliOSS", "LoggerFile"]
   Sms: "SmsJuhe"
 SmsJuhe:
@@ -24,11 +24,11 @@ Alipay:
   AppID: 
   PrivateKey: 
 LoggerFile: # 使用File写日志
-  SavePath: storage/logs
+  SavePath: data/paopao-ce/logs
   FileName: app
   FileExt: .log
 LoggerZinc: # 使用Zinc写日志
-  Host: http://127.0.0.1:4080/es/_bulk
+  Host: http://zinc:4080/es/_bulk
   Index: paopao-log
   User: admin
   Password: admin
@@ -36,13 +36,8 @@ JWT: # 鉴权加密
   Secret: 18a6413dc4fe394c66345ebe501b2f26
   Issuer: paopao-api
   Expire: 86400
-Search: # 搜索配置
-  ZincHost: http://127.0.0.1:4080
-  ZincIndex: paopao-data
-  ZincUser: admin
-  ZincPassword: admin
 Zinc: # Zinc搜索配置
-  Host: http://127.0.0.1:4080
+  Host: http://zinc:4080
   Index: paopao-data
   User: admin
   Password: admin
@@ -53,9 +48,9 @@ AliOSS: # 阿里云OSS存储配置
   Bucket: 
   Domain: 
 MySQL: # MySQL数据库
-  Username: root # 填写你的数据库账号
-  Password: root # 填写你的数据库密码
-  Host: 127.0.0.1:3306
+  Username: paopao
+  Password: paopao
+  Host: db:3306
   DBName: paopao
   TablePrefix: p_
   Charset: utf8mb4
@@ -64,6 +59,7 @@ MySQL: # MySQL数据库
   MaxIdleConns: 10
   MaxOpenConns: 30
 Redis:
-  Host: 127.0.0.1:6379
+  Host: redis:6379
   Password: 
   DB: 
+  

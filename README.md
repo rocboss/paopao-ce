@@ -84,20 +84,23 @@ PaoPao主要由以下优秀的开源项目/工具构建
 
 #### 后端
 
-1. 导入项目根目录下的 `paopao.sql` 文件至MySQL数据库
+1. 导入项目根目录下的 `scripts/paopao.sql` 文件至MySQL数据库
 2. 拷贝项目根目录下 `config.yaml.sample` 文件至 `config.yaml`，按照注释完成配置编辑
 3. 编译后端    
     编译api服务:
     ```sh
     make build
     ```
-    编译api服务、内嵌web前端ui; 注意此步骤需要先编译web前端。
+    编译api服务、内嵌web前端ui:
     ```sh
     make build TAGS='embed'
     ```
-    编译后在`dist`目录可以找到对应可执行文件。
+    编译后在`release`目录可以找到对应可执行文件。
+    ```sh
+    release/paopao-ce
+    ```
 
-4. 启动后端    
+4. 直接运行后端    
     运行api服务:
     ```sh
     make run
@@ -106,6 +109,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
     ```sh
     make run TAGS='embed'
     ```
+    提示: 如果需要内嵌web前端ui，请先构建web前端(建议设置web/.env为VITE_HOST="")。
 
 #### 前端
 
@@ -147,6 +151,35 @@ PaoPao主要由以下优秀的开源项目/工具构建
    ```
    桌面端是使用[Rust](https://www.rust-lang.org/) + [tauri](https://github.com/tauri-apps/tauri)编写
    的，需要安装tauri的依赖，具体参考[https://tauri.studio/v1/guides/getting-started/prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites).
+
+### docker-compose 运行
+```sh
+%> git clone https://github.com/rocboss/paopao-ce.git
+%> docker compose up --build
+# visit http://localhost:8008
+```
+默认是使用config.yaml.sample的配置，如果需要自定义配置，请拷贝默认配置文件(比如config.yaml)，修改后再同步配置到docker-compose.yaml如下：
+```
+# file: docker-compose.yaml
+...
+  backend:
+    build:
+      context: .
+    restart: always
+    depends_on:
+      - db
+      - redis
+      - zinc
+    # modify below to reflect your custom configure
+    volumes:
+      - ./config.yaml:/app/paopao-ce/config.yaml
+    ports:
+      - 127.0.0.1:8008:8008
+    networks:
+      - paopao-network
+....
+```
+
 
 ### 其他说明
 
