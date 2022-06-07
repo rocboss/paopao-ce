@@ -95,9 +95,12 @@ PaoPao主要由以下优秀的开源项目/工具构建
     ```sh
     make build TAGS='embed'
     ```
-    编译后在`dist`目录可以找到对应可执行文件。
+    编译后在`release`目录可以找到对应可执行文件。
+    ```sh
+    release/paopao-ce
+    ```
 
-4. 启动后端    
+4. 直接运行后端    
     运行api服务:
     ```sh
     make run
