@@ -1,0 +1,61 @@
+version: '3.1'
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: paopao
+      MYSQL_USER: paopao
+      MYSQL_PASSWORD: paopao
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - ./scripts/paopao.sql:/docker-entrypoint-initdb.d/paopao.sql
+      - ./data/mysql/data:/var/lib/mysql
+    ports:
+      - 127.0.0.1::3306
+    networks:
+      - paopao-network
+
+  redis:
+    image: redis:7.0-alpine
+    restart: always
+    ports:
+      - 127.0.0.1::6379
+    networks:
+      - paopao-network
+  
+  zinc:
+    image: public.ecr.aws/prabhat/zinc:latest
+    restart: always
+    ports:
+      - 127.0.0.1::4080
+    volumes:
+      - ./data/zinc/data:/data
+    environment:
+      ZINC_FIRST_ADMIN_USER: admin
+      ZINC_FIRST_ADMIN_PASSWORD: admin
+      DATA_PATH: /data
+    networks:
+      - paopao-network
+
+  backend:
+    build:
+      context: .
+    restart: always
+    depends_on:
+      - db
+      - redis
+      - zinc
+    # modify below to reflect your custom configure
+    volumes:
+      - ./config.yaml.sample:/app/paopao-ce/config.yaml
+      - ./data/paopao-ce/data:/app/paopao-ce/data
+    ports:
+      - 127.0.0.1:8008:8008
+    networks:
+      - paopao-network
+
+networks:
+  paopao-network:
+      driver: bridge
