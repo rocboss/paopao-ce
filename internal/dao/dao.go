@@ -14,12 +14,18 @@ var (
 	_ core.ObjectStorageService   = (*aliossServant)(nil)
 	_ core.ObjectStorageService   = (*minioServant)(nil)
 	_ core.ObjectStorageService   = (*s3Servant)(nil)
+	_ core.ObjectStorageService   = (*localossServant)(nil)
 	_ core.AttachmentCheckService = (*attachmentCheckServant)(nil)
 )
 
 type dataServant struct {
 	engine *gorm.DB
 	zinc   *zinc.ZincClient
+}
+
+type localossServant struct {
+	savePath string
+	domain   string
 }
 
 type aliossServant struct {
@@ -56,6 +62,9 @@ func NewObjectStorageService() (oss core.ObjectStorageService) {
 	} else if global.CfgIf("S3") {
 		oss = newS3Servent()
 		global.Logger.Infoln("use S3 as object storage")
+	} else if global.CfgIf("LocalOSS") {
+		oss = newLocalossServent()
+		global.Logger.Infoln("use LocalOSS as object storage")
 	} else {
 		// default use AliOSS
 		oss = newAliossServent()

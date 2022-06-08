@@ -107,6 +107,13 @@ type AliOSSSettingS struct {
 	Domain          string
 }
 
+type LocalOSSSettingS struct {
+	SavePath string
+	Secure   bool
+	Bucket   string
+	Domain   string
+}
+
 type RedisSettingS struct {
 	Host     string
 	Password string

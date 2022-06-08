@@ -84,6 +84,7 @@ func setupSetting() error {
 		"JWT":        &global.JWTSetting,
 		"AliOSS":     &global.AliOSSSetting,
 		"MinIO":      &global.MinIOSetting,
+		"LocalOSS":   &global.LocalOSSSetting,
 		"S3":         &global.S3Setting,
 	}
 	if err = setting.Unmarshal(objects); err != nil {

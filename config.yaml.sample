@@ -61,6 +61,11 @@ S3: # Amazon S3 存储配置
   Endpoint: s3.amazonaws.com
   Bucket: paopao
   Domain: 
+LocalOSS: # 本地文件OSS存储配置
+  SavePath: data/paopao-ce/oss
+  Secure: False
+  Bucket: paopao
+  Domain: 127.0.0.1:8008
 MySQL: # MySQL数据库
   Username: paopao
   Password: paopao

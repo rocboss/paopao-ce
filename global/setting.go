@@ -19,6 +19,7 @@ var (
 	AliOSSSetting     *setting.AliOSSSettingS
 	MinIOSetting      *setting.MinIOSettingS
 	S3Setting         *setting.S3SettingS
+	LocalOSSSetting   *setting.LocalOSSSettingS
 	JWTSetting        *setting.JWTSettingS
 	LoggerFileSetting *setting.LoggerFileSettingS
 	LoggerZincSetting *setting.LoggerZincSettingS
