@@ -17,6 +17,8 @@ var (
 	AlipaySetting     *setting.AlipaySettingS
 	ZincSetting       *setting.ZincSettingS
 	AliOSSSetting     *setting.AliOSSSettingS
+	MinIOSetting      *setting.MinIOSettingS
+	S3Setting         *setting.S3SettingS
 	JWTSetting        *setting.JWTSettingS
 	LoggerFileSetting *setting.LoggerFileSettingS
 	LoggerZincSetting *setting.LoggerZincSettingS

@@ -81,12 +81,22 @@ type MySQLSettingS struct {
 	MaxOpenConns int
 }
 
-type AliossSettingS struct {
-	AliossAccessKeyID     string
-	AliossAccessKeySecret string
-	AliossEndpoint        string
-	AliossBucket          string
-	AliossDomain          string
+type MinIOSettingS struct {
+	AccessKey string
+	SecretKey string
+	Secure    bool
+	Endpoint  string
+	Bucket    string
+	Domain    string
+}
+
+type S3SettingS struct {
+	AccessKey string
+	SecretKey string
+	Secure    bool
+	Endpoint  string
+	Bucket    string
+	Domain    string
 }
 
 type AliOSSSettingS struct {

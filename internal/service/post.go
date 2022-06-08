@@ -68,8 +68,8 @@ func (p *PostContentItem) Check() error {
 	// 检查附件是否是本站资源
 	if p.Type == model.CONTENT_TYPE_IMAGE || p.Type == model.CONTENT_TYPE_VIDEO || p.Type == model.
 		CONTENT_TYPE_ATTACHMENT {
-		if strings.Index(p.Content, "https://"+global.AliOSSSetting.Domain) != 0 {
-			return fmt.Errorf("附件非本站资源")
+		if err := attachmentChecker.Check(p.Content); err != nil {
+			return err
 		}
 	}
 	// 检查链接是否合法
@@ -109,6 +109,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 	for _, item := range param.Contents {
 		if err = item.Check(); err != nil {
 			// 属性非法
+			global.Logger.Infof("contents check err: %v", err)
 			continue
 		}
 

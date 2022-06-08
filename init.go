@@ -10,6 +10,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/rocboss/paopao-ce/global"
 	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/routers/api"
 	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/logger"
 	"github.com/rocboss/paopao-ce/pkg/setting"
@@ -54,6 +55,7 @@ func init() {
 
 	client := zinc.NewClient(global.ZincSetting)
 	service.Initialize(global.DBEngine, client)
+	api.Initialize()
 }
 
 func setupSetting() error {
@@ -81,6 +83,8 @@ func setupSetting() error {
 		"Redis":      &global.RedisSetting,
 		"JWT":        &global.JWTSetting,
 		"AliOSS":     &global.AliOSSSetting,
+		"MinIO":      &global.MinIOSetting,
+		"S3":         &global.S3Setting,
 	}
 	if err = setting.Unmarshal(objects); err != nil {
 		return err
