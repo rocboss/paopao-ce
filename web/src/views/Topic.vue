@@ -44,7 +44,7 @@ import { ref, onMounted } from 'vue';
 import { getTags } from '@/api/post';
 
 const tags = ref<Item.TagProps[]>([]);
-const tagType = ref('hot');
+const tagType = ref<"hot" | "new">('hot');
 const loading = ref(false);
 
 const loadTags = () => {
@@ -61,7 +61,7 @@ const loadTags = () => {
             loading.value = false;
         });
 };
-const changeTab = (tab: string) => {
+const changeTab = (tab: "hot" | "new") => {
     tagType.value = tab;
     loadTags();
 };
