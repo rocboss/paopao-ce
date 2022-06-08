@@ -2,10 +2,7 @@ package api
 
 import (
 	"image"
-	"net/url"
-	"strings"
 
-	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
@@ -16,6 +13,13 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 )
+
+var uploadAttachmentTypeMap = map[string]model.AttachmentType{
+	"public/image":  model.ATTACHMENT_TYPE_IMAGE,
+	"public/avatar": model.ATTACHMENT_TYPE_IMAGE,
+	"public/video":  model.ATTACHMENT_TYPE_VIDEO,
+	"attachment":    model.ATTACHMENT_TYPE_OTHER,
+}
 
 func GeneratePath(s string) string {
 	n := len(s)
@@ -86,6 +90,7 @@ func UploadAttachment(c *gin.Context) {
 		return
 	}
 
+	contentType := fileHeader.Header.Get("Content-Type")
 	fileExt, err := GetFileExt(fileHeader.Header.Get("Content-Type"))
 	if err != nil {
 		global.Logger.Errorf("GetFileExt err: %v", err)
@@ -97,23 +102,9 @@ func UploadAttachment(c *gin.Context) {
 	randomPath := uuid.Must(uuid.NewV4()).String()
 	ossSavePath := uploadType + "/" + GeneratePath(randomPath[:8]) + "/" + randomPath[9:] + fileExt
 
-	client, err := oss.New(global.AliOSSSetting.Endpoint, global.AliOSSSetting.AccessKeyID, global.AliOSSSetting.AccessKeySecret)
+	objectUrl, err := objectStorage.PutObject(ossSavePath, file, fileHeader.Size, contentType)
 	if err != nil {
-		global.Logger.Errorf("oss.New err: %v", err)
-		response.ToErrorResponse(errcode.FileUploadFailed)
-		return
-	}
-
-	bucket, err := client.Bucket(global.AliOSSSetting.Bucket)
-	if err != nil {
-		global.Logger.Errorf("client.Bucket err: %v", err)
-		response.ToErrorResponse(errcode.FileUploadFailed)
-		return
-	}
-
-	err = bucket.PutObject(ossSavePath, file)
-	if err != nil {
-		global.Logger.Errorf("bucket.PutObject err: %v", err)
+		global.Logger.Errorf("putObject err: %v", err)
 		response.ToErrorResponse(errcode.FileUploadFailed)
 		return
 	}
@@ -121,18 +112,11 @@ func UploadAttachment(c *gin.Context) {
 	// 构造附件Model
 	attachment := &model.Attachment{
 		FileSize: fileHeader.Size,
-		Content:  "https://" + global.AliOSSSetting.Domain + "/" + ossSavePath,
+		Content:  objectUrl,
 	}
 
 	if userID, exists := c.Get("UID"); exists {
 		attachment.UserID = userID.(int64)
-	}
-
-	var uploadAttachmentTypeMap = map[string]model.AttachmentType{
-		"public/image":  model.ATTACHMENT_TYPE_IMAGE,
-		"public/avatar": model.ATTACHMENT_TYPE_IMAGE,
-		"public/video":  model.ATTACHMENT_TYPE_VIDEO,
-		"attachment":    model.ATTACHMENT_TYPE_OTHER,
 	}
 
 	attachment.Type = uploadAttachmentTypeMap[uploadType]
@@ -255,43 +239,12 @@ func DownloadAttachment(c *gin.Context) {
 		}
 	}
 
-	// 开始构造下载地址
-	client, err := oss.New(global.AliOSSSetting.Endpoint, global.AliOSSSetting.AccessKeyID, global.AliOSSSetting.AccessKeySecret)
-	if err != nil {
-		global.Logger.Errorf("oss.New err: %v", err)
-		response.ToErrorResponse(errcode.DownloadReqError)
-		return
-	}
-
-	bucket, err := client.Bucket(global.AliOSSSetting.Bucket)
-	if err != nil {
-		global.Logger.Errorf("client.Bucket err: %v", err)
-		response.ToErrorResponse(errcode.DownloadReqError)
-		return
-	}
-
-	// 签名
-	objectKey := strings.Replace(content.Content, "https://"+global.AliOSSSetting.Domain+"/", "", -1)
-	signedURL, err := bucket.SignURL(objectKey, oss.HTTPGet, 60)
+	objectKey := objectStorage.ObjectKey(content.Content)
+	signedURL, err := objectStorage.SignURL(objectKey, 60)
 	if err != nil {
 		global.Logger.Errorf("client.SignURL err: %v", err)
 		response.ToErrorResponse(errcode.DownloadReqError)
 		return
 	}
-	ur, err := url.Parse(signedURL)
-	if err != nil {
-		global.Logger.Errorf("url.Parse err: %v", err)
-		response.ToErrorResponse(errcode.DownloadReqError)
-		return
-	}
-	epath, err := url.PathUnescape(ur.Path)
-	if err != nil {
-		global.Logger.Errorf("url.PathUnescape err: %v", err)
-		response.ToErrorResponse(errcode.DownloadReqError)
-		return
-	}
-
-	ur.Path = epath
-	ur.RawPath = epath
-	response.ToResponse(ur.String())
+	response.ToResponse(signedURL)
 }

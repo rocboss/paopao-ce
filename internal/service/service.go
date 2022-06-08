@@ -10,10 +10,12 @@ import (
 
 var (
 	ds                 core.DataService
+	attachmentChecker  core.AttachmentCheckService
 	DisablePhoneVerify bool
 )
 
 func Initialize(engine *gorm.DB, client *zinc.ZincClient) {
 	ds = dao.NewDataService(engine, client)
+	attachmentChecker = dao.NewAttachmentCheckerService()
 	DisablePhoneVerify = !global.CfgIf("Sms")
 }

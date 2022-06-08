@@ -13,8 +13,8 @@ Server: # 服务设置
   WriteTimeout: 60
 Features:
   Default: ["Alipay", "Zinc", "MySQL", "Redis", "AliOSS", "LoggerZinc"]
-  Develop: ["Sms", "Zinc", "MySQL", "AliOSS", "LoggerFile"]
-  Slim: ["Zinc", "MySQL", "Redis", "AliOSS", "LoggerFile"]
+  Develop: ["Sms", "Zinc", "MySQL", "MinIO", "LoggerFile"]
+  Slim: ["Zinc", "MySQL", "Redis", "MinIO", "LoggerFile"]
   Sms: "SmsJuhe"
 SmsJuhe:
   Key:
@@ -42,11 +42,23 @@ Zinc: # Zinc搜索配置
   User: admin
   Password: admin
 AliOSS: # 阿里云OSS存储配置
+  Endpoint:
   AccessKeyID: 
   AccessKeySecret: 
-  Endpoint: 
   Bucket: 
   Domain: 
+MinIO: # MinIO OSS存储配置
+  AccessKey: Q3AM3UQ867SPQQA43P2F
+  SecretKey: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+  Secure: False
+  Endpoint: play.min.io
+  Bucket: paopao
+S3: # S3 OSS存储配置
+  AccessKey: "YOUR-ACCESSKEYID"
+  SecretKey: "YOUR-SECRETACCESSKEY"
+  Secure: True
+  Endpoint: s3.amazonaws.com
+  Bucket: paopao
 MySQL: # MySQL数据库
   Username: paopao
   Password: paopao

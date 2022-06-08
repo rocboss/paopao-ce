@@ -8,7 +8,6 @@ import (
 type DataService interface {
 	WalletService
 	SearchService
-	StorageService
 
 	GetComments(conditions *model.ConditionsT, offset, limit int) ([]*model.Comment, error)
 	GetCommentByID(id int64) (*model.Comment, error)
@@ -29,6 +28,7 @@ type DataService interface {
 	GetMessages(conditions *model.ConditionsT, offset, limit int) ([]*model.MessageFormated, error)
 	GetMessageCount(conditions *model.ConditionsT) (int64, error)
 
+	CreateAttachment(attachment *model.Attachment) (*model.Attachment, error)
 	CreatePost(post *model.Post) (*model.Post, error)
 	DeletePost(post *model.Post) error
 	LockPost(post *model.Post) error
