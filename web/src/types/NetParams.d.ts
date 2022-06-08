@@ -136,7 +136,7 @@ declare module NetParams {
     }
 
     interface PostGetTags {
-        type: 'hot' | string,
+        type: 'hot' | 'new',
         num: number
     }
 
