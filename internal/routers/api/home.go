@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	_ "embed"
 	"encoding/base64"
 	"image/color"
 	"image/png"
@@ -18,6 +19,9 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 	"github.com/rocboss/paopao-ce/pkg/util"
 )
+
+//go:embed assets/comic.ttf
+var comic []byte
 
 const MAX_PHONE_CAPTCHA = 10
 
@@ -43,7 +47,7 @@ func SyncSearchIndex(c *gin.Context) {
 func GetCaptcha(c *gin.Context) {
 	cap := captcha.New()
 
-	if err := cap.SetFont("assets/comic.ttf"); err != nil {
+	if err := cap.AddFontFromBytes(comic); err != nil {
 		panic(err.Error())
 	}
 
