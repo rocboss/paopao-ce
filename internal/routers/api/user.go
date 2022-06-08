@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"strings"
 	"unicode/utf8"
 
 	"github.com/gin-gonic/gin"
@@ -204,7 +203,7 @@ func ChangeAvatar(c *gin.Context) {
 		user = u.(*model.User)
 	}
 
-	if strings.Index(param.Avatar, "https://"+global.AliOSSSetting.Domain) != 0 {
+	if err := attachmentChecker.Check(param.Avatar); err != nil {
 		response.ToErrorResponse(errcode.InvalidParams)
 		return
 	}

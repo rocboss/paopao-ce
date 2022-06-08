@@ -6,9 +6,11 @@ import (
 )
 
 var (
-	objectStorage core.ObjectStorageService
+	objectStorage     core.ObjectStorageService
+	attachmentChecker core.AttachmentCheckService
 )
 
 func Initialize() {
 	objectStorage = dao.NewObjectStorageService()
+	attachmentChecker = dao.NewAttachmentCheckerService()
 }
