@@ -87,6 +87,7 @@ type MinIOSettingS struct {
 	Secure    bool
 	Endpoint  string
 	Bucket    string
+	Domain    string
 }
 
 type S3SettingS struct {
@@ -95,6 +96,7 @@ type S3SettingS struct {
 	Secure    bool
 	Endpoint  string
 	Bucket    string
+	Domain    string
 }
 
 type AliOSSSettingS struct {

@@ -5,20 +5,20 @@ import (
 )
 
 func getOssDomain() string {
+	uri := "https://"
 	if global.CfgIf("AliOSS") {
-		return "https://" + global.AliOSSSetting.Domain + "/"
+		return uri + global.AliOSSSetting.Domain + "/"
 	} else if global.CfgIf("MinIO") {
-		domain := "http://"
-		if global.MinIOSetting.Secure {
-			domain = "http://"
+		if !global.MinIOSetting.Secure {
+			uri = "http://"
 		}
-		return domain + global.MinIOSetting.Endpoint + "/" + global.MinIOSetting.Bucket + "/"
+		return uri + global.MinIOSetting.Domain + "/" + global.MinIOSetting.Bucket + "/"
 	} else if global.CfgIf("S3") {
-		domain := "http://"
-		if global.S3Setting.Secure {
-			domain = "https://"
+		if !global.S3Setting.Secure {
+			uri = "http://"
 		}
-		return domain + global.S3Setting.Endpoint + "/" + global.S3Setting.Bucket + "/"
+		// TODO: will not work well need test in real world
+		return uri + global.S3Setting.Domain + "/" + global.S3Setting.Bucket + "/"
 	}
 	return ""
 }
