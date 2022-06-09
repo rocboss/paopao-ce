@@ -5,7 +5,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
@@ -54,11 +54,11 @@ func JWT() gin.HandlerFunc {
 						ID: claims.UID,
 					},
 				}
-				user, _ = user.Get(global.DBEngine)
+				user, _ = user.Get(conf.DBEngine)
 				c.Set("USER", user)
 
 				// 强制下线机制
-				if (global.JWTSetting.Issuer + ":" + user.Salt) != claims.Issuer {
+				if (conf.JWTSetting.Issuer + ":" + user.Salt) != claims.Issuer {
 					ecode = errcode.UnauthorizedTokenTimeout
 				}
 			}

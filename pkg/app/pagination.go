@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 )
 
@@ -18,10 +18,10 @@ func GetPage(c *gin.Context) int {
 func GetPageSize(c *gin.Context) int {
 	pageSize := convert.StrTo(c.Query("page_size")).MustInt()
 	if pageSize <= 0 {
-		return global.AppSetting.DefaultPageSize
+		return conf.AppSetting.DefaultPageSize
 	}
-	if pageSize > global.AppSetting.MaxPageSize {
-		return global.AppSetting.MaxPageSize
+	if pageSize > conf.AppSetting.MaxPageSize {
+		return conf.AppSetting.MaxPageSize
 	}
 
 	return pageSize

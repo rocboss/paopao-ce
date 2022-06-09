@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/internal/service"
@@ -32,7 +32,7 @@ func GetPostList(c *gin.Context) {
 			Limit:  app.GetPageSize(c),
 		})
 		if err != nil {
-			global.Logger.Errorf("service.GetPostList err: %v\n", err)
+			conf.Logger.Errorf("service.GetPostList err: %v\n", err)
 			response.ToErrorResponse(errcode.GetPostsFailed)
 			return
 		}
@@ -45,7 +45,7 @@ func GetPostList(c *gin.Context) {
 		posts, totalRows, err := service.GetPostListFromSearch(q, (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
 
 		if err != nil {
-			global.Logger.Errorf("service.GetPostListFromSearch err: %v\n", err)
+			conf.Logger.Errorf("service.GetPostListFromSearch err: %v\n", err)
 			response.ToErrorResponse(errcode.GetPostsFailed)
 			return
 		}
@@ -60,7 +60,7 @@ func GetPost(c *gin.Context) {
 	postFormated, err := service.GetPost(postID)
 
 	if err != nil {
-		global.Logger.Errorf("service.GetPost err: %v\n", err)
+		conf.Logger.Errorf("service.GetPost err: %v\n", err)
 		response.ToErrorResponse(errcode.GetPostFailed)
 		return
 	}
@@ -73,7 +73,7 @@ func CreatePost(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -82,7 +82,7 @@ func CreatePost(c *gin.Context) {
 	post, err := service.CreatePost(c, userID.(int64), param)
 
 	if err != nil {
-		global.Logger.Errorf("service.CreatePost err: %v\n", err)
+		conf.Logger.Errorf("service.CreatePost err: %v\n", err)
 		response.ToErrorResponse(errcode.CreatePostFailed)
 		return
 	}
@@ -95,7 +95,7 @@ func DeletePost(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -105,7 +105,7 @@ func DeletePost(c *gin.Context) {
 	// 获取Post
 	postFormated, err := service.GetPost(param.ID)
 	if err != nil {
-		global.Logger.Errorf("service.GetPost err: %v\n", err)
+		conf.Logger.Errorf("service.GetPost err: %v\n", err)
 		response.ToErrorResponse(errcode.GetPostFailed)
 		return
 	}
@@ -117,7 +117,7 @@ func DeletePost(c *gin.Context) {
 
 	err = service.DeletePost(param.ID)
 	if err != nil {
-		global.Logger.Errorf("service.DeletePost err: %v\n", err)
+		conf.Logger.Errorf("service.DeletePost err: %v\n", err)
 		response.ToErrorResponse(errcode.DeletePostFailed)
 		return
 	}
@@ -150,7 +150,7 @@ func PostStar(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -198,7 +198,7 @@ func PostCollection(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -226,7 +226,7 @@ func LockPost(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -236,7 +236,7 @@ func LockPost(c *gin.Context) {
 	// 获取Post
 	postFormated, err := service.GetPost(param.ID)
 	if err != nil {
-		global.Logger.Errorf("service.GetPost err: %v\n", err)
+		conf.Logger.Errorf("service.GetPost err: %v\n", err)
 		response.ToErrorResponse(errcode.GetPostFailed)
 		return
 	}
@@ -247,7 +247,7 @@ func LockPost(c *gin.Context) {
 	}
 	err = service.LockPost(param.ID)
 	if err != nil {
-		global.Logger.Errorf("service.LockPost err: %v\n", err)
+		conf.Logger.Errorf("service.LockPost err: %v\n", err)
 		response.ToErrorResponse(errcode.LockPostFailed)
 		return
 	}
@@ -262,7 +262,7 @@ func StickPost(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -272,7 +272,7 @@ func StickPost(c *gin.Context) {
 	// 获取Post
 	postFormated, err := service.GetPost(param.ID)
 	if err != nil {
-		global.Logger.Errorf("service.GetPost err: %v\n", err)
+		conf.Logger.Errorf("service.GetPost err: %v\n", err)
 		response.ToErrorResponse(errcode.GetPostFailed)
 		return
 	}
@@ -283,7 +283,7 @@ func StickPost(c *gin.Context) {
 	}
 	err = service.StickPost(param.ID)
 	if err != nil {
-		global.Logger.Errorf("service.StickPost err: %v\n", err)
+		conf.Logger.Errorf("service.StickPost err: %v\n", err)
 		response.ToErrorResponse(errcode.LockPostFailed)
 		return
 	}
@@ -298,14 +298,14 @@ func GetPostTags(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
 
 	tags, err := service.GetPostTags(&param)
 	if err != nil {
-		global.Logger.Errorf("service.GetPostTags err: %v\n", err)
+		conf.Logger.Errorf("service.GetPostTags err: %v\n", err)
 		response.ToErrorResponse(errcode.GetPostTagsFailed)
 		return
 

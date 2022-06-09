@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 )
 
@@ -15,18 +15,18 @@ type Claims struct {
 }
 
 func GetJWTSecret() []byte {
-	return []byte(global.JWTSetting.Secret)
+	return []byte(conf.JWTSetting.Secret)
 }
 
 func GenerateToken(User *model.User) (string, error) {
 	nowTime := time.Now()
-	expireTime := nowTime.Add(global.JWTSetting.Expire)
+	expireTime := nowTime.Add(conf.JWTSetting.Expire)
 	claims := Claims{
 		UID:      User.ID,
 		Username: User.Username,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(),
-			Issuer:    global.JWTSetting.Issuer + ":" + User.Salt,
+			Issuer:    conf.JWTSetting.Issuer + ":" + User.Salt,
 		},
 	}
 

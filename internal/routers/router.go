@@ -2,9 +2,11 @@ package routers
 
 import (
 	"net/http"
+	"path/filepath"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/middleware"
 	"github.com/rocboss/paopao-ce/internal/routers/api"
 )
@@ -21,8 +23,11 @@ func NewRouter() *gin.Engine {
 	corsConfig.AddAllowHeaders("Authorization")
 	e.Use(cors.New(corsConfig))
 
-	// 按需注册静态资源路由
-	registerStatick(e)
+	// 按需注册 静态资源、LocalOSS 路由
+	{
+		registerStatick(e)
+		routeLocalOSS(e)
+	}
 
 	// v1 group api
 	r := e.Group("/v1")
@@ -183,4 +188,19 @@ func NewRouter() *gin.Engine {
 		})
 	})
 	return e
+}
+
+// routeLocalOSS register LocalOSS route if neeed
+func routeLocalOSS(e *gin.Engine) {
+	if !conf.CfgIf("LocalOSS") {
+		return
+	}
+
+	savePath, err := filepath.Abs(conf.LocalOSSSetting.SavePath)
+	if err != nil {
+		conf.Logger.Fatalf("get localOSS save path err: %v", err)
+	}
+	e.Static("/oss", savePath)
+
+	conf.Logger.Infof("register LocalOSS route in /oss on save path: %s", savePath)
 }
