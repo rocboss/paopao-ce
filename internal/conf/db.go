@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -19,7 +20,7 @@ var (
 
 func newDBEngine() (*gorm.DB, error) {
 	newLogger := logger.New(
-		Logger, // io writer（日志输出的目标，前缀和日志包含的内容）
+		logrus.StandardLogger(), // io writer（日志输出的目标，前缀和日志包含的内容）
 		logger.Config{
 			SlowThreshold:             time.Second,           // 慢 SQL 阈值
 			LogLevel:                  mySQLSetting.LogLevel, // 日志级别

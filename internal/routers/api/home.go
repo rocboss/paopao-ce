@@ -18,6 +18,7 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/sirupsen/logrus"
 )
 
 //go:embed assets/comic.ttf
@@ -76,7 +77,7 @@ func PostCaptcha(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -96,7 +97,7 @@ func PostCaptcha(c *gin.Context) {
 
 	err := service.SendPhoneCaptcha(c, param.Phone)
 	if err != nil {
-		conf.Logger.Errorf("app.SendPhoneCaptcha errs: %v", errs)
+		logrus.Errorf("app.SendPhoneCaptcha errs: %v", errs)
 		response.ToErrorResponse(errcode.GetPhoneCaptchaError)
 		return
 	}

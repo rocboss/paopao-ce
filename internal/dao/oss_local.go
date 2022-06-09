@@ -10,12 +10,13 @@ import (
 	"time"
 
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/sirupsen/logrus"
 )
 
 func newLocalossServent() *localossServant {
 	savePath, err := filepath.Abs(conf.LocalOSSSetting.SavePath)
 	if err != nil {
-		conf.Logger.Fatalf("get localOSS save path err: %v", err)
+		logrus.Fatalf("get localOSS save path err: %v", err)
 	}
 
 	return &localossServant{

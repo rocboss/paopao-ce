@@ -64,23 +64,24 @@ func (h *zincLogHook) Levels() []logrus.Level {
 }
 
 func setupLogger() {
-	Logger = logrus.New()
-	Logger.Formatter = &logrus.JSONFormatter{}
+	logrus.SetFormatter(&logrus.JSONFormatter{})
 
 	if CfgIf("LoggerFile") {
-		Logger.Out = &lumberjack.Logger{
+		out := &lumberjack.Logger{
 			Filename:  loggerFileSetting.SavePath + "/" + loggerFileSetting.FileName + loggerFileSetting.FileExt,
 			MaxSize:   600,
 			MaxAge:    10,
 			LocalTime: true,
 		}
+		logrus.SetOutput(out)
 	} else if CfgIf("LoggerZinc") {
-		Logger.Out = io.Discard
-		Logger.AddHook(&zincLogHook{
+		hook := &zincLogHook{
 			host:     loggerZincSetting.Host,
 			index:    loggerZincSetting.Index,
 			user:     loggerZincSetting.User,
 			password: loggerZincSetting.Password,
-		})
+		}
+		logrus.SetOutput(io.Discard)
+		logrus.AddHook(hook)
 	}
 }

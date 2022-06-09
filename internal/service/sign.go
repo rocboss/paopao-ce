@@ -6,6 +6,7 @@ import (
 
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/sirupsen/logrus"
 )
 
 func GetParamSign(param map[string]interface{}, secretKey string) string {
@@ -24,7 +25,7 @@ func GetParamSign(param map[string]interface{}, secretKey string) string {
 	}
 
 	if conf.ServerSetting.RunMode == "debug" {
-		conf.Logger.Info(map[string]string{
+		logrus.Info(map[string]string{
 			"signRaw": signRaw,
 			"sysSign": util.EncodeMD5(signRaw + secretKey),
 		})

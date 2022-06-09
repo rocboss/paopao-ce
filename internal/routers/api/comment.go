@@ -2,12 +2,12 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
+	"github.com/sirupsen/logrus"
 )
 
 func GetPostComments(c *gin.Context) {
@@ -17,7 +17,7 @@ func GetPostComments(c *gin.Context) {
 	contents, totalRows, err := service.GetPostComments(postID, "id ASC", 0, 0)
 
 	if err != nil {
-		conf.Logger.Errorf("service.GetPostComments err: %v\n", err)
+		logrus.Errorf("service.GetPostComments err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCommentsFailed)
 		return
 	}
@@ -30,7 +30,7 @@ func CreatePostComment(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -42,7 +42,7 @@ func CreatePostComment(c *gin.Context) {
 		if err == errcode.MaxCommentCount {
 			response.ToErrorResponse(errcode.MaxCommentCount)
 		} else {
-			conf.Logger.Errorf("service.CreatePostComment err: %v\n", err)
+			logrus.Errorf("service.CreatePostComment err: %v\n", err)
 			response.ToErrorResponse(errcode.CreateCommentFailed)
 		}
 		return
@@ -56,7 +56,7 @@ func DeletePostComment(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -64,7 +64,7 @@ func DeletePostComment(c *gin.Context) {
 
 	comment, err := service.GetPostComment(param.ID)
 	if err != nil {
-		conf.Logger.Errorf("service.GetPostComment err: %v\n", err)
+		logrus.Errorf("service.GetPostComment err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCommentFailed)
 		return
 	}
@@ -77,7 +77,7 @@ func DeletePostComment(c *gin.Context) {
 	// 执行删除
 	err = service.DeletePostComment(comment)
 	if err != nil {
-		conf.Logger.Errorf("service.DeletePostComment err: %v\n", err)
+		logrus.Errorf("service.DeletePostComment err: %v\n", err)
 		response.ToErrorResponse(errcode.DeleteCommentFailed)
 		return
 	}
@@ -90,7 +90,7 @@ func CreatePostCommentReply(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -98,7 +98,7 @@ func CreatePostCommentReply(c *gin.Context) {
 
 	comment, err := service.CreatePostCommentReply(c, param.CommentID, param.Content, user.(*model.User).ID, param.AtUserID)
 	if err != nil {
-		conf.Logger.Errorf("service.CreatePostCommentReply err: %v\n", err)
+		logrus.Errorf("service.CreatePostCommentReply err: %v\n", err)
 		response.ToErrorResponse(errcode.CreateReplyFailed)
 		return
 	}
@@ -111,7 +111,7 @@ func DeletePostCommentReply(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -120,7 +120,7 @@ func DeletePostCommentReply(c *gin.Context) {
 
 	reply, err := service.GetPostCommentReply(param.ID)
 	if err != nil {
-		conf.Logger.Errorf("service.GetPostCommentReply err: %v\n", err)
+		logrus.Errorf("service.GetPostCommentReply err: %v\n", err)
 		response.ToErrorResponse(errcode.GetReplyFailed)
 		return
 	}
@@ -133,7 +133,7 @@ func DeletePostCommentReply(c *gin.Context) {
 	// 执行删除
 	err = service.DeletePostCommentReply(reply)
 	if err != nil {
-		conf.Logger.Errorf("service.DeletePostCommentReply err: %v\n", err)
+		logrus.Errorf("service.DeletePostCommentReply err: %v\n", err)
 		response.ToErrorResponse(errcode.DeleteCommentFailed)
 		return
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/middleware"
 	"github.com/rocboss/paopao-ce/internal/routers/api"
+	"github.com/sirupsen/logrus"
 )
 
 func NewRouter() *gin.Engine {
@@ -198,9 +199,9 @@ func routeLocalOSS(e *gin.Engine) {
 
 	savePath, err := filepath.Abs(conf.LocalOSSSetting.SavePath)
 	if err != nil {
-		conf.Logger.Fatalf("get localOSS save path err: %v", err)
+		logrus.Fatalf("get localOSS save path err: %v", err)
 	}
 	e.Static("/oss", savePath)
 
-	conf.Logger.Infof("register LocalOSS route in /oss on save path: %s", savePath)
+	logrus.Infof("register LocalOSS route in /oss on save path: %s", savePath)
 }

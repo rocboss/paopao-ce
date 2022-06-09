@@ -2,11 +2,11 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
+	"github.com/sirupsen/logrus"
 )
 
 func GetUnreadMsgCount(c *gin.Context) {
@@ -31,7 +31,7 @@ func GetMessages(c *gin.Context) {
 	messages, totalRows, err := service.GetMessages(userID.(int64), (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
 
 	if err != nil {
-		conf.Logger.Errorf("service.GetMessages err: %v\n", err)
+		logrus.Errorf("service.GetMessages err: %v\n", err)
 		response.ToErrorResponse(errcode.GetMessagesFailed)
 		return
 	}
@@ -44,7 +44,7 @@ func ReadMessage(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -52,7 +52,7 @@ func ReadMessage(c *gin.Context) {
 	userID, _ := c.Get("UID")
 	err := service.ReadMessage(param.ID, userID.(int64))
 	if err != nil {
-		conf.Logger.Errorf("service.ReadMessage err: %v\n", err)
+		logrus.Errorf("service.ReadMessage err: %v\n", err)
 		response.ToErrorResponse(errcode.ReadMessageFailed)
 		return
 	}
@@ -65,7 +65,7 @@ func SendUserWhisper(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -87,7 +87,7 @@ func SendUserWhisper(c *gin.Context) {
 	})
 
 	if err != nil {
-		conf.Logger.Errorf("service.CreateWhisper err: %v\n", err)
+		logrus.Errorf("service.CreateWhisper err: %v\n", err)
 
 		if err == errcode.TooManyWhisperNum {
 			response.ToErrorResponse(errcode.TooManyWhisperNum)

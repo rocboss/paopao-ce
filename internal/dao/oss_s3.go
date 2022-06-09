@@ -4,6 +4,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/sirupsen/logrus"
 )
 
 func newS3Servent() *s3Servant {
@@ -13,7 +14,7 @@ func newS3Servent() *s3Servant {
 		Secure: conf.S3Setting.Secure,
 	})
 	if err != nil {
-		conf.Logger.Fatalf("s3.New err: %v", err)
+		logrus.Fatalf("s3.New err: %v", err)
 	}
 	return &s3Servant{
 		client: client,

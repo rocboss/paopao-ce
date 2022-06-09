@@ -10,6 +10,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/sirupsen/logrus"
 )
 
 func newMinioServeant() *minioServant {
@@ -19,7 +20,7 @@ func newMinioServeant() *minioServant {
 		Secure: conf.MinIOSetting.Secure,
 	})
 	if err != nil {
-		conf.Logger.Fatalf("minio.New err: %v", err)
+		logrus.Fatalf("minio.New err: %v", err)
 	}
 	return &minioServant{
 		client: client,
@@ -33,7 +34,7 @@ func (s *minioServant) PutObject(objectKey string, reader io.Reader, objectSize 
 	if err != nil {
 		return "", err
 	}
-	conf.Logger.Infoln("Successfully uploaded bytes: ", uploadInfo)
+	logrus.Infoln("Successfully uploaded bytes: ", uploadInfo)
 	return s.domain + objectKey, nil
 }
 func (s *minioServant) SignURL(objectKey string, expiredInSec int64) (string, error) {
