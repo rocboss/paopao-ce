@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 )
@@ -22,7 +22,7 @@ func CreateRecharge(userID, amount int64) (*model.WalletRecharge, error) {
 }
 
 func FinishRecharge(ctx *gin.Context, id int64, tradeNo string) error {
-	if ok, _ := global.Redis.SetNX(ctx, "PaoPaoRecharge:"+tradeNo, 1, time.Second*5).Result(); ok {
+	if ok, _ := conf.Redis.SetNX(ctx, "PaoPaoRecharge:"+tradeNo, 1, time.Second*5).Result(); ok {
 		recharge, err := ds.GetRechargeByID(id)
 		if err != nil {
 			return err
@@ -32,7 +32,7 @@ func FinishRecharge(ctx *gin.Context, id int64, tradeNo string) error {
 
 			// 标记为已付款
 			err := ds.HandleRechargeSuccess(recharge, tradeNo)
-			defer global.Redis.Del(ctx, "PaoPaoRecharge:"+tradeNo)
+			defer conf.Redis.Del(ctx, "PaoPaoRecharge:"+tradeNo)
 
 			if err != nil {
 				return err

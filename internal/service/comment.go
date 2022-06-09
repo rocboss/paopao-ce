@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 	"github.com/rocboss/paopao-ce/pkg/util"
@@ -97,7 +97,7 @@ func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq)
 		return nil, err
 	}
 
-	if post.CommentCount >= global.AppSetting.MaxCommentCount {
+	if post.CommentCount >= conf.AppSetting.MaxCommentCount {
 		return nil, errcode.MaxCommentCount
 	}
 	ip := ctx.ClientIP()
@@ -200,7 +200,7 @@ func createPostPreHandler(commentID int64, userID, atUserID int64) (*model.Post,
 		return nil, nil, atUserID, err
 	}
 
-	if post.CommentCount >= global.AppSetting.MaxCommentCount {
+	if post.CommentCount >= conf.AppSetting.MaxCommentCount {
 		return nil, nil, atUserID, errcode.MaxCommentCount
 	}
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/pkg/util"
 )
 
@@ -23,8 +23,8 @@ func GetParamSign(param map[string]interface{}, secretKey string) string {
 		signRaw += v
 	}
 
-	if global.ServerSetting.RunMode == "debug" {
-		global.Logger.Info(map[string]string{
+	if conf.ServerSetting.RunMode == "debug" {
+		conf.Logger.Info(map[string]string{
 			"signRaw": signRaw,
 			"sysSign": util.EncodeMD5(signRaw + secretKey),
 		})

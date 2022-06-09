@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"gopkg.in/resty.v1"
 )
@@ -127,9 +127,9 @@ func (d *dataServant) SendPhoneCaptcha(phone string) error {
 	resp, err := client.R().
 		SetFormData(map[string]string{
 			"mobile":    phone,
-			"tpl_id":    global.SmsJuheSetting.TplID,
-			"tpl_value": fmt.Sprintf(global.SmsJuheSetting.TplVal, captcha, m),
-			"key":       global.SmsJuheSetting.Key,
+			"tpl_id":    conf.SmsJuheSetting.TplID,
+			"tpl_value": fmt.Sprintf(conf.SmsJuheSetting.TplVal, captcha, m),
+			"key":       conf.SmsJuheSetting.Key,
 		}).Post(gateway)
 	if err != nil {
 		return err

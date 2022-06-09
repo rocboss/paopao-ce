@@ -6,7 +6,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/app"
@@ -21,21 +21,21 @@ func Login(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
 
 	user, err := service.DoLogin(c, &param)
 	if err != nil {
-		global.Logger.Errorf("service.DoLogin err: %v", err)
+		conf.Logger.Errorf("service.DoLogin err: %v", err)
 		response.ToErrorResponse(err.(*errcode.Error))
 		return
 	}
 
 	token, err := app.GenerateToken(user)
 	if err != nil {
-		global.Logger.Errorf("app.GenerateToken err: %v", err)
+		conf.Logger.Errorf("app.GenerateToken err: %v", err)
 		response.ToErrorResponse(errcode.UnauthorizedTokenGenerate)
 		return
 	}
@@ -52,7 +52,7 @@ func Register(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -60,7 +60,7 @@ func Register(c *gin.Context) {
 	// 用户名检查
 	err := service.ValidUsername(param.Username)
 	if err != nil {
-		global.Logger.Errorf("service.Register err: %v", err)
+		conf.Logger.Errorf("service.Register err: %v", err)
 		response.ToErrorResponse(err.(*errcode.Error))
 		return
 	}
@@ -68,7 +68,7 @@ func Register(c *gin.Context) {
 	// 密码检查
 	err = service.CheckPassword(param.Password)
 	if err != nil {
-		global.Logger.Errorf("service.Register err: %v", err)
+		conf.Logger.Errorf("service.Register err: %v", err)
 		response.ToErrorResponse(err.(*errcode.Error))
 		return
 	}
@@ -79,7 +79,7 @@ func Register(c *gin.Context) {
 	)
 
 	if err != nil {
-		global.Logger.Errorf("service.Register err: %v", err)
+		conf.Logger.Errorf("service.Register err: %v", err)
 		response.ToErrorResponse(errcode.UserRegisterFailed)
 		return
 	}
@@ -128,7 +128,7 @@ func ChangeUserPassword(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -141,7 +141,7 @@ func ChangeUserPassword(c *gin.Context) {
 	// 密码检查
 	err := service.CheckPassword(param.Password)
 	if err != nil {
-		global.Logger.Errorf("service.Register err: %v", err)
+		conf.Logger.Errorf("service.Register err: %v", err)
 		response.ToErrorResponse(err.(*errcode.Error))
 		return
 	}
@@ -165,7 +165,7 @@ func ChangeNickname(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -193,7 +193,7 @@ func ChangeAvatar(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -221,7 +221,7 @@ func BindUserPhone(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -238,7 +238,7 @@ func BindUserPhone(c *gin.Context) {
 	}
 
 	if err := service.CheckPhoneCaptcha(param.Phone, param.Captcha); err != nil {
-		global.Logger.Errorf("service.CheckPhoneCaptcha err: %v\n", err)
+		conf.Logger.Errorf("service.CheckPhoneCaptcha err: %v\n", err)
 		response.ToErrorResponse(err)
 		return
 	}
@@ -256,7 +256,7 @@ func GetUserProfile(c *gin.Context) {
 
 	user, err := service.GetUserByUsername(username)
 	if err != nil {
-		global.Logger.Errorf("service.GetUserByUsername err: %v\n", err)
+		conf.Logger.Errorf("service.GetUserByUsername err: %v\n", err)
 		response.ToErrorResponse(errcode.NoExistUsername)
 		return
 	}
@@ -277,7 +277,7 @@ func GetUserPosts(c *gin.Context) {
 
 	user, err := service.GetUserByUsername(username)
 	if err != nil {
-		global.Logger.Errorf("service.GetUserByUsername err: %v\n", err)
+		conf.Logger.Errorf("service.GetUserByUsername err: %v\n", err)
 		response.ToErrorResponse(errcode.NoExistUsername)
 		return
 	}
@@ -293,7 +293,7 @@ func GetUserPosts(c *gin.Context) {
 		Limit:      app.GetPageSize(c),
 	})
 	if err != nil {
-		global.Logger.Errorf("service.GetPostList err: %v\n", err)
+		conf.Logger.Errorf("service.GetPostList err: %v\n", err)
 		response.ToErrorResponse(errcode.GetPostsFailed)
 		return
 	}
@@ -309,7 +309,7 @@ func GetUserCollections(c *gin.Context) {
 	posts, totalRows, err := service.GetUserCollections(userID.(int64), (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
 
 	if err != nil {
-		global.Logger.Errorf("service.GetUserCollections err: %v\n", err)
+		conf.Logger.Errorf("service.GetUserCollections err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCollectionsFailed)
 		return
 	}
@@ -323,7 +323,7 @@ func GetUserStars(c *gin.Context) {
 	userID, _ := c.Get("UID")
 	posts, totalRows, err := service.GetUserStars(userID.(int64), (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
 	if err != nil {
-		global.Logger.Errorf("service.GetUserStars err: %v\n", err)
+		conf.Logger.Errorf("service.GetUserStars err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCollectionsFailed)
 		return
 	}
@@ -337,7 +337,7 @@ func GetSuggestUsers(c *gin.Context) {
 
 	usernames, err := service.GetSuggestUsers(keyword)
 	if err != nil {
-		global.Logger.Errorf("service.GetSuggestUsers err: %v\n", err)
+		conf.Logger.Errorf("service.GetSuggestUsers err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCollectionsFailed)
 		return
 	}
@@ -351,7 +351,7 @@ func GetSuggestTags(c *gin.Context) {
 
 	tags, err := service.GetSuggestTags(keyword)
 	if err != nil {
-		global.Logger.Errorf("service.GetSuggestTags err: %v\n", err)
+		conf.Logger.Errorf("service.GetSuggestTags err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCollectionsFailed)
 		return
 	}
@@ -364,7 +364,7 @@ func GetUserRechargeLink(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
@@ -373,37 +373,37 @@ func GetUserRechargeLink(c *gin.Context) {
 	userID, _ := c.Get("UID")
 	recharge, err := service.CreateRecharge(userID.(int64), param.Amount)
 	if err != nil {
-		global.Logger.Errorf("service.CreateRecharge err: %v\n", err)
+		conf.Logger.Errorf("service.CreateRecharge err: %v\n", err)
 		response.ToErrorResponse(errcode.RechargeReqFail)
 		return
 
 	}
 
-	client, err := alipay.New(global.AlipaySetting.AppID, global.AlipaySetting.PrivateKey, true)
+	client, err := alipay.New(conf.AlipaySetting.AppID, conf.AlipaySetting.PrivateKey, true)
 	// 将 key 的验证调整到初始化阶段
 	if err != nil {
-		global.Logger.Errorf("alipay.New err: %v\n", err)
+		conf.Logger.Errorf("alipay.New err: %v\n", err)
 		response.ToErrorResponse(errcode.RechargeReqFail)
 		return
 	}
 
 	err = client.LoadAppPublicCertFromFile("configs/alipayAppCertPublicKey.crt") // 加载应用公钥证书
 	if err != nil {
-		global.Logger.Errorf("client.LoadAppPublicCertFromFile err: %v\n", err)
+		conf.Logger.Errorf("client.LoadAppPublicCertFromFile err: %v\n", err)
 		response.ToErrorResponse(errcode.RechargeReqFail)
 		return
 	}
 
 	err = client.LoadAliPayRootCertFromFile("configs/alipayRootCert.crt") // 加载支付宝根证书
 	if err != nil {
-		global.Logger.Errorf("client.LoadAliPayRootCertFromFile err: %v\n", err)
+		conf.Logger.Errorf("client.LoadAliPayRootCertFromFile err: %v\n", err)
 		response.ToErrorResponse(errcode.RechargeReqFail)
 		return
 	}
 
 	err = client.LoadAliPayPublicCertFromFile("configs/alipayCertPublicKey_RSA2.crt") // 加载支付宝公钥证书
 	if err != nil {
-		global.Logger.Errorf("client.LoadAliPayPublicCertFromFile err: %v\n", err)
+		conf.Logger.Errorf("client.LoadAliPayPublicCertFromFile err: %v\n", err)
 		response.ToErrorResponse(errcode.RechargeReqFail)
 		return
 	}
@@ -416,7 +416,7 @@ func GetUserRechargeLink(c *gin.Context) {
 
 	rsp, err := client.TradePreCreate(p)
 	if err != nil {
-		global.Logger.Errorf("client.TradePreCreate err: %v\n", err)
+		conf.Logger.Errorf("client.TradePreCreate err: %v\n", err)
 		response.ToErrorResponse(errcode.RechargeReqFail)
 		return
 	}
@@ -458,38 +458,38 @@ func AlipayNotify(c *gin.Context) {
 	response := app.NewResponse(c)
 	c.Request.ParseForm()
 
-	aliClient, err := alipay.New(global.AlipaySetting.AppID, global.AlipaySetting.PrivateKey, true)
+	aliClient, err := alipay.New(conf.AlipaySetting.AppID, conf.AlipaySetting.PrivateKey, true)
 	// 将 key 的验证调整到初始化阶段
 	if err != nil {
-		global.Logger.Errorf("alipay.New err: %v\n", err)
+		conf.Logger.Errorf("alipay.New err: %v\n", err)
 		response.ToErrorResponse(errcode.RechargeReqFail)
 		return
 	}
 	err = aliClient.LoadAppPublicCertFromFile("configs/alipayAppCertPublicKey.crt") // 加载应用公钥证书
 	if err != nil {
-		global.Logger.Errorf("client.LoadAppPublicCertFromFile err: %v\n", err)
+		conf.Logger.Errorf("client.LoadAppPublicCertFromFile err: %v\n", err)
 		response.ToErrorResponse(errcode.RechargeReqFail)
 		return
 	}
 
 	err = aliClient.LoadAliPayRootCertFromFile("configs/alipayRootCert.crt") // 加载支付宝根证书
 	if err != nil {
-		global.Logger.Errorf("client.LoadAliPayRootCertFromFile err: %v\n", err)
+		conf.Logger.Errorf("client.LoadAliPayRootCertFromFile err: %v\n", err)
 		response.ToErrorResponse(errcode.RechargeReqFail)
 		return
 	}
 
 	err = aliClient.LoadAliPayPublicCertFromFile("configs/alipayCertPublicKey_RSA2.crt") // 加载支付宝公钥证书
 	if err != nil {
-		global.Logger.Errorf("client.LoadAliPayPublicCertFromFile err: %v\n", err)
+		conf.Logger.Errorf("client.LoadAliPayPublicCertFromFile err: %v\n", err)
 		response.ToErrorResponse(errcode.RechargeReqFail)
 		return
 	}
 
 	_, err = aliClient.GetTradeNotification(c.Request)
 	if err != nil {
-		global.Logger.Errorf("aliClient.GetTradeNotification err: %v\n", err)
-		global.Logger.Infoln(c.Request.Form)
+		conf.Logger.Errorf("aliClient.GetTradeNotification err: %v\n", err)
+		conf.Logger.Infoln(c.Request.Form)
 		response.ToErrorResponse(errcode.RechargeNotifyError)
 		return
 	}
@@ -501,7 +501,7 @@ func AlipayNotify(c *gin.Context) {
 		// 交易支付成功
 		err = service.FinishRecharge(c, convert.StrTo(id).MustInt64(), tradeNo)
 		if err != nil {
-			global.Logger.Errorf("service.FinishRecharge err: %v\n", err)
+			conf.Logger.Errorf("service.FinishRecharge err: %v\n", err)
 			response.ToErrorResponse(errcode.RechargeNotifyError)
 			return
 		}
@@ -516,7 +516,7 @@ func GetUserWalletBills(c *gin.Context) {
 	bills, totalRows, err := service.GetUserWalletBills(userID.(int64), (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
 
 	if err != nil {
-		global.Logger.Errorf("service.GetUserWalletBills err: %v\n", err)
+		conf.Logger.Errorf("service.GetUserWalletBills err: %v\n", err)
 		response.ToErrorResponse(errcode.GetCollectionsFailed)
 		return
 	}

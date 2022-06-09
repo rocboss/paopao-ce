@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/middleware"
 	"github.com/rocboss/paopao-ce/internal/routers/api"
 )
@@ -192,15 +192,15 @@ func NewRouter() *gin.Engine {
 
 // routeLocalOSS register LocalOSS route if neeed
 func routeLocalOSS(e *gin.Engine) {
-	if !global.CfgIf("LocalOSS") {
+	if !conf.CfgIf("LocalOSS") {
 		return
 	}
 
-	savePath, err := filepath.Abs(global.LocalOSSSetting.SavePath)
+	savePath, err := filepath.Abs(conf.LocalOSSSetting.SavePath)
 	if err != nil {
-		global.Logger.Fatalf("get localOSS save path err: %v", err)
+		conf.Logger.Fatalf("get localOSS save path err: %v", err)
 	}
 	e.Static("/oss", savePath)
 
-	global.Logger.Infof("register LocalOSS route in /oss on save path: %s", savePath)
+	conf.Logger.Infof("register LocalOSS route in /oss on save path: %s", savePath)
 }

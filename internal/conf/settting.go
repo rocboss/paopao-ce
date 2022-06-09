@@ -1,4 +1,4 @@
-package setting
+package conf
 
 import (
 	"strings"
@@ -218,7 +218,7 @@ func (f *FeaturesSettingS) flatFeatures(suite []string) []string {
 	return features
 }
 
-// Cfg get value by key if exsit
+// Cfg get value by key if exist
 func (f *FeaturesSettingS) Cfg(key string) (string, bool) {
 	key = strings.ToLower(key)
 	value, exist := f.features[key]

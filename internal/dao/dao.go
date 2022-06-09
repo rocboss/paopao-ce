@@ -3,7 +3,7 @@ package dao
 import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/minio/minio-go/v7"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
 	"gorm.io/gorm"
@@ -53,22 +53,22 @@ func NewDataService(engine *gorm.DB, zinc *zinc.ZincClient) core.DataService {
 }
 
 func NewObjectStorageService() (oss core.ObjectStorageService) {
-	if global.CfgIf("AliOSS") {
+	if conf.CfgIf("AliOSS") {
 		oss = newAliossServent()
-		global.Logger.Infoln("use AliOSS as object storage")
-	} else if global.CfgIf("MinIO") {
+		conf.Logger.Infoln("use AliOSS as object storage")
+	} else if conf.CfgIf("MinIO") {
 		oss = newMinioServeant()
-		global.Logger.Infoln("use MinIO as object storage")
-	} else if global.CfgIf("S3") {
+		conf.Logger.Infoln("use MinIO as object storage")
+	} else if conf.CfgIf("S3") {
 		oss = newS3Servent()
-		global.Logger.Infoln("use S3 as object storage")
-	} else if global.CfgIf("LocalOSS") {
+		conf.Logger.Infoln("use S3 as object storage")
+	} else if conf.CfgIf("LocalOSS") {
 		oss = newLocalossServent()
-		global.Logger.Infoln("use LocalOSS as object storage")
+		conf.Logger.Infoln("use LocalOSS as object storage")
 	} else {
 		// default use AliOSS
 		oss = newAliossServent()
-		global.Logger.Infoln("use default AliOSS as object storage")
+		conf.Logger.Infoln("use default AliOSS as object storage")
 	}
 	return
 }

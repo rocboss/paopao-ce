@@ -9,17 +9,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 )
 
 func newLocalossServent() *localossServant {
-	savePath, err := filepath.Abs(global.LocalOSSSetting.SavePath)
+	savePath, err := filepath.Abs(conf.LocalOSSSetting.SavePath)
 	if err != nil {
-		global.Logger.Fatalf("get localOSS save path err: %v", err)
+		conf.Logger.Fatalf("get localOSS save path err: %v", err)
 	}
 
 	return &localossServant{
-		savePath: savePath + "/" + global.LocalOSSSetting.Bucket + "/",
+		savePath: savePath + "/" + conf.LocalOSSSetting.Bucket + "/",
 		domain:   getOssDomain(),
 	}
 }

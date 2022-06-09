@@ -9,21 +9,21 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 )
 
 func newMinioServeant() *minioServant {
 	// Initialize minio client object.
-	client, err := minio.New(global.MinIOSetting.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(global.MinIOSetting.AccessKey, global.MinIOSetting.SecretKey, ""),
-		Secure: global.MinIOSetting.Secure,
+	client, err := minio.New(conf.MinIOSetting.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(conf.MinIOSetting.AccessKey, conf.MinIOSetting.SecretKey, ""),
+		Secure: conf.MinIOSetting.Secure,
 	})
 	if err != nil {
-		global.Logger.Fatalf("minio.New err: %v", err)
+		conf.Logger.Fatalf("minio.New err: %v", err)
 	}
 	return &minioServant{
 		client: client,
-		bucket: global.MinIOSetting.Bucket,
+		bucket: conf.MinIOSetting.Bucket,
 		domain: getOssDomain(),
 	}
 }
@@ -33,7 +33,7 @@ func (s *minioServant) PutObject(objectKey string, reader io.Reader, objectSize 
 	if err != nil {
 		return "", err
 	}
-	global.Logger.Infoln("Successfully uploaded bytes: ", uploadInfo)
+	conf.Logger.Infoln("Successfully uploaded bytes: ", uploadInfo)
 	return s.domain + objectKey, nil
 }
 func (s *minioServant) SignURL(objectKey string, expiredInSec int64) (string, error) {

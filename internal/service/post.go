@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/util"
@@ -109,7 +109,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 	for _, item := range param.Contents {
 		if err = item.Check(); err != nil {
 			// 属性非法
-			global.Logger.Infof("contents check err: %v", err)
+			conf.Logger.Infof("contents check err: %v", err)
 			continue
 		}
 
@@ -378,7 +378,7 @@ func GetPostCount(conditions *model.ConditionsT) (int64, error) {
 }
 
 func GetPostListFromSearch(q *core.QueryT, offset, limit int) ([]*model.PostFormated, int64, error) {
-	queryResult, err := ds.QueryAll(q, global.ZincSetting.Index, offset, limit)
+	queryResult, err := ds.QueryAll(q, conf.ZincSetting.Index, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -392,7 +392,7 @@ func GetPostListFromSearch(q *core.QueryT, offset, limit int) ([]*model.PostForm
 }
 
 func GetPostListFromSearchByQuery(query string, offset, limit int) ([]*model.PostFormated, int64, error) {
-	queryResult, err := ds.QuerySearch(global.ZincSetting.Index, query, offset, limit)
+	queryResult, err := ds.QuerySearch(conf.ZincSetting.Index, query, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -406,7 +406,7 @@ func GetPostListFromSearchByQuery(query string, offset, limit int) ([]*model.Pos
 }
 
 func PushPostToSearch(post *model.Post) {
-	indexName := global.ZincSetting.Index
+	indexName := conf.ZincSetting.Index
 
 	postFormated := post.Format()
 	postFormated.User = &model.UserFormated{
@@ -457,20 +457,20 @@ func PushPostToSearch(post *model.Post) {
 }
 
 func DeleteSearchPost(post *model.Post) error {
-	indexName := global.ZincSetting.Index
+	indexName := conf.ZincSetting.Index
 
 	return ds.DelDoc(indexName, fmt.Sprintf("%d", post.ID))
 }
 
 func PushPostsToSearch(c *gin.Context) {
-	if ok, _ := global.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
+	if ok, _ := conf.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
 		splitNum := 1000
 		totalRows, _ := GetPostCount(&model.ConditionsT{})
 
 		pages := math.Ceil(float64(totalRows) / float64(splitNum))
 		nums := int(pages)
 
-		indexName := global.ZincSetting.Index
+		indexName := conf.ZincSetting.Index
 		// 创建索引
 		ds.CreateSearchIndex(indexName)
 
@@ -520,7 +520,7 @@ func PushPostsToSearch(c *gin.Context) {
 			}
 		}
 
-		global.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
+		conf.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
 	}
 }
 
@@ -574,8 +574,8 @@ func FormatZincPost(queryResult *zinc.QueryResultT) ([]*model.PostFormated, erro
 
 func GetPostTags(param *PostTagsReq) ([]*model.TagFormated, error) {
 	num := param.Num
-	if num > global.AppSetting.MaxPageSize {
-		num = global.AppSetting.MaxPageSize
+	if num > conf.AppSetting.MaxPageSize {
+		num = conf.AppSetting.MaxPageSize
 	}
 
 	conditions := &model.ConditionsT{}

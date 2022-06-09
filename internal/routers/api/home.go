@@ -11,7 +11,7 @@ import (
 	"github.com/afocus/captcha"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/app"
@@ -62,7 +62,7 @@ func GetCaptcha(c *gin.Context) {
 	key := util.EncodeMD5(uuid.Must(uuid.NewV4()).String())
 
 	// 五分钟有效期
-	global.Redis.SetEX(c, "PaoPaoCaptcha:"+key, password, time.Minute*5)
+	conf.Redis.SetEX(c, "PaoPaoCaptcha:"+key, password, time.Minute*5)
 
 	response := app.NewResponse(c)
 	response.ToResponse(gin.H{
@@ -76,27 +76,27 @@ func PostCaptcha(c *gin.Context) {
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		conf.Logger.Errorf("app.BindAndValid errs: %v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
 	}
 
 	// 验证图片验证码
-	if res, err := global.Redis.Get(c.Request.Context(), "PaoPaoCaptcha:"+param.ImgCaptchaID).Result(); err != nil || res != param.ImgCaptcha {
+	if res, err := conf.Redis.Get(c.Request.Context(), "PaoPaoCaptcha:"+param.ImgCaptchaID).Result(); err != nil || res != param.ImgCaptcha {
 		response.ToErrorResponse(errcode.ErrorCaptchaPassword)
 		return
 	}
-	global.Redis.Del(c.Request.Context(), "PaoPaoCaptcha:"+param.ImgCaptchaID).Result()
+	conf.Redis.Del(c.Request.Context(), "PaoPaoCaptcha:"+param.ImgCaptchaID).Result()
 
 	// 今日频次限制
-	if res, _ := global.Redis.Get(c.Request.Context(), "PaoPaoSmsCaptcha:"+param.Phone).Result(); convert.StrTo(res).MustInt() >= MAX_PHONE_CAPTCHA {
+	if res, _ := conf.Redis.Get(c.Request.Context(), "PaoPaoSmsCaptcha:"+param.Phone).Result(); convert.StrTo(res).MustInt() >= MAX_PHONE_CAPTCHA {
 		response.ToErrorResponse(errcode.TooManyPhoneCaptchaSend)
 		return
 	}
 
 	err := service.SendPhoneCaptcha(c, param.Phone)
 	if err != nil {
-		global.Logger.Errorf("app.SendPhoneCaptcha errs: %v", errs)
+		conf.Logger.Errorf("app.SendPhoneCaptcha errs: %v", errs)
 		response.ToErrorResponse(errcode.GetPhoneCaptchaError)
 		return
 	}

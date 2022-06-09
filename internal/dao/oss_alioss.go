@@ -6,18 +6,18 @@ import (
 	"strings"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 )
 
 func newAliossServent() *aliossServant {
-	client, err := oss.New(global.AliOSSSetting.Endpoint, global.AliOSSSetting.AccessKeyID, global.AliOSSSetting.AccessKeySecret)
+	client, err := oss.New(conf.AliOSSSetting.Endpoint, conf.AliOSSSetting.AccessKeyID, conf.AliOSSSetting.AccessKeySecret)
 	if err != nil {
-		global.Logger.Fatalf("alioss.New err: %v", err)
+		conf.Logger.Fatalf("alioss.New err: %v", err)
 	}
 
-	bucket, err := client.Bucket(global.AliOSSSetting.Bucket)
+	bucket, err := client.Bucket(conf.AliOSSSetting.Bucket)
 	if err != nil {
-		global.Logger.Fatalf("client.Bucket err: %v", err)
+		conf.Logger.Fatalf("client.Bucket err: %v", err)
 	}
 
 	return &aliossServant{
@@ -37,19 +37,19 @@ func (s *aliossServant) PutObject(objectKey string, reader io.Reader, objectSize
 func (s *aliossServant) SignURL(objectKey string, expiredInSec int64) (string, error) {
 	signedURL, err := s.bucket.SignURL(objectKey, oss.HTTPGet, expiredInSec)
 	if err != nil {
-		global.Logger.Errorf("client.SignURL err: %v", err)
+		conf.Logger.Errorf("client.SignURL err: %v", err)
 		return "", err
 	}
 
 	ur, err := url.Parse(signedURL)
 	if err != nil {
-		global.Logger.Errorf("url.Parse err: %v", err)
+		conf.Logger.Errorf("url.Parse err: %v", err)
 		return "", err
 	}
 
 	epath, err := url.PathUnescape(ur.Path)
 	if err != nil {
-		global.Logger.Errorf("url.PathUnescape err: %v", err)
+		conf.Logger.Errorf("url.PathUnescape err: %v", err)
 		return "", err
 	}
 

@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"gorm.io/gorm"
 )
@@ -90,7 +90,7 @@ func (d *dataServant) HandlePostAttachmentBought(post *model.Post, user *model.U
 		}
 
 		// 对附件主新增账单
-		income := int64(float64(post.AttachmentPrice) * global.AppSetting.AttachmentIncomeRate)
+		income := int64(float64(post.AttachmentPrice) * conf.AppSetting.AttachmentIncomeRate)
 		if income > 0 {
 			master := &model.User{
 				Model: &model.Model{

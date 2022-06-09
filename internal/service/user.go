@@ -9,7 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
-	"github.com/rocboss/paopao-ce/global"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
@@ -63,7 +63,7 @@ func DoLogin(ctx *gin.Context, param *AuthRequest) (*model.User, error) {
 	}
 
 	if user.Model != nil && user.ID > 0 {
-		if errTimes, err := global.Redis.Get(ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID)).Result(); err == nil {
+		if errTimes, err := conf.Redis.Get(ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID)).Result(); err == nil {
 			if convert.StrTo(errTimes).MustInt() >= MAX_LOGIN_ERR_TIMES {
 				return nil, errcode.TooManyLoginError
 			}
@@ -77,14 +77,14 @@ func DoLogin(ctx *gin.Context, param *AuthRequest) (*model.User, error) {
 			}
 
 			// 清空登录计数
-			global.Redis.Del(ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID))
+			conf.Redis.Del(ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID))
 			return user, nil
 		}
 
 		// 登录错误计数
-		_, err = global.Redis.Incr(ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID)).Result()
+		_, err = conf.Redis.Incr(ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID)).Result()
 		if err == nil {
-			global.Redis.Expire(ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID), time.Hour).Result()
+			conf.Redis.Expire(ctx, fmt.Sprintf("%s:%d", LOGIN_ERR_KEY, user.ID), time.Hour).Result()
 		}
 
 		return nil, errcode.UnauthorizedAuthFailed
@@ -332,12 +332,12 @@ func SendPhoneCaptcha(ctx *gin.Context, phone string) error {
 	}
 
 	// 写入计数缓存
-	global.Redis.Incr(ctx, "PaoPaoSmsCaptcha:"+phone).Result()
+	conf.Redis.Incr(ctx, "PaoPaoSmsCaptcha:"+phone).Result()
 
 	currentTime := time.Now()
 	endTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
 
-	global.Redis.Expire(ctx, "PaoPaoSmsCaptcha:"+phone, endTime.Sub(currentTime))
+	conf.Redis.Expire(ctx, "PaoPaoSmsCaptcha:"+phone, endTime.Sub(currentTime))
 
 	return nil
 }

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/rocboss/paopao-ce/pkg/setting"
+	"github.com/rocboss/paopao-ce/internal/conf"
 )
 
 type ZincClient struct {
@@ -71,7 +71,7 @@ type HitItem struct {
 }
 
 // NewClient 获取ZincClient新实例
-func NewClient(conf *setting.ZincSettingS) *ZincClient {
+func NewClient(conf *conf.ZincSettingS) *ZincClient {
 	return &ZincClient{
 		ZincClientConfig: &ZincClientConfig{
 			ZincHost:     conf.Host,

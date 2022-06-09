@@ -14,7 +14,7 @@ Server: # 服务设置
 Features:
   Default: ["Alipay", "Zinc", "MySQL", "Redis", "MinIO", "LoggerFile"]
   Develop: ["Sms", "Zinc", "MySQL", "AliOSS", "LoggerZinc"]
-  Slim: ["Zinc", "MySQL", "Redis", "MinIO", "LoggerFile"]
+  Slim: ["Zinc", "MySQL", "Redis", "LocalOSS", "LoggerFile"]
   Sms: "SmsJuhe"
 SmsJuhe:
   Key:
