@@ -4,8 +4,6 @@ import (
 	"log"
 	"sync"
 	"time"
-
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -25,7 +23,6 @@ var (
 	S3Setting       *S3SettingS
 	LocalOSSSetting *LocalOSSSettingS
 	JWTSetting      *JWTSettingS
-	Logger          *logrus.Logger
 	Mutex           *sync.Mutex
 )
 

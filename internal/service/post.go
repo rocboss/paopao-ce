@@ -13,6 +13,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/util"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
+	"github.com/sirupsen/logrus"
 )
 
 type TagType string
@@ -109,7 +110,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 	for _, item := range param.Contents {
 		if err = item.Check(); err != nil {
 			// 属性非法
-			conf.Logger.Infof("contents check err: %v", err)
+			logrus.Infof("contents check err: %v", err)
 			continue
 		}
 

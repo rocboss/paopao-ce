@@ -6,12 +6,12 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
+	"github.com/sirupsen/logrus"
 )
 
 var uploadAttachmentTypeMap = map[string]model.AttachmentType{
@@ -78,7 +78,7 @@ func UploadAttachment(c *gin.Context) {
 	uploadType := c.Request.FormValue("type")
 	file, fileHeader, err := c.Request.FormFile("file")
 	if err != nil {
-		conf.Logger.Errorf("api.UploadAttachment err: %v", err)
+		logrus.Errorf("api.UploadAttachment err: %v", err)
 		response.ToErrorResponse(errcode.FileUploadFailed)
 		return
 	}
@@ -93,7 +93,7 @@ func UploadAttachment(c *gin.Context) {
 	contentType := fileHeader.Header.Get("Content-Type")
 	fileExt, err := GetFileExt(fileHeader.Header.Get("Content-Type"))
 	if err != nil {
-		conf.Logger.Errorf("GetFileExt err: %v", err)
+		logrus.Errorf("GetFileExt err: %v", err)
 		response.ToErrorResponse(err.(*errcode.Error))
 		return
 	}
@@ -104,7 +104,7 @@ func UploadAttachment(c *gin.Context) {
 
 	objectUrl, err := objectStorage.PutObject(ossSavePath, file, fileHeader.Size, contentType)
 	if err != nil {
-		conf.Logger.Errorf("putObject err: %v", err)
+		logrus.Errorf("putObject err: %v", err)
 		response.ToErrorResponse(errcode.FileUploadFailed)
 		return
 	}
@@ -130,7 +130,7 @@ func UploadAttachment(c *gin.Context) {
 
 	attachment, err = service.CreateAttachment(attachment)
 	if err != nil {
-		conf.Logger.Errorf("service.CreateAttachment err: %v", err)
+		logrus.Errorf("service.CreateAttachment err: %v", err)
 		response.ToErrorResponse(errcode.FileUploadFailed)
 	}
 
@@ -144,7 +144,7 @@ func DownloadAttachmentPrecheck(c *gin.Context) {
 	// 加载content
 	content, err := service.GetPostContentByID(contentID)
 	if err != nil {
-		conf.Logger.Errorf("service.GetPostContentByID err: %v", err)
+		logrus.Errorf("service.GetPostContentByID err: %v", err)
 		response.ToErrorResponse(errcode.InvalidDownloadReq)
 	}
 	user, _ := c.Get("USER")
@@ -152,7 +152,7 @@ func DownloadAttachmentPrecheck(c *gin.Context) {
 		// 加载post
 		post, err := service.GetPost(content.PostID)
 		if err != nil {
-			conf.Logger.Errorf("service.GetPost err: %v", err)
+			logrus.Errorf("service.GetPost err: %v", err)
 			response.ToResponse(gin.H{
 				"paid": false,
 			})
@@ -186,7 +186,7 @@ func DownloadAttachment(c *gin.Context) {
 	// 加载content
 	content, err := service.GetPostContentByID(contentID)
 	if err != nil {
-		conf.Logger.Errorf("service.GetPostContentByID err: %v", err)
+		logrus.Errorf("service.GetPostContentByID err: %v", err)
 		response.ToErrorResponse(errcode.InvalidDownloadReq)
 	}
 
@@ -197,7 +197,7 @@ func DownloadAttachment(c *gin.Context) {
 		// 加载post
 		post, err := service.GetPost(content.PostID)
 		if err != nil {
-			conf.Logger.Errorf("service.GetPost err: %v", err)
+			logrus.Errorf("service.GetPost err: %v", err)
 			response.ToResponse(gin.H{
 				"paid": false,
 			})
@@ -226,7 +226,7 @@ func DownloadAttachment(c *gin.Context) {
 				AttachmentPrice: post.AttachmentPrice,
 			}, user.(*model.User))
 			if err != nil {
-				conf.Logger.Errorf("service.BuyPostAttachment err: %v", err)
+				logrus.Errorf("service.BuyPostAttachment err: %v", err)
 				if err == errcode.InsuffientDownloadMoney {
 
 					response.ToErrorResponse(errcode.InsuffientDownloadMoney)
@@ -242,7 +242,7 @@ func DownloadAttachment(c *gin.Context) {
 	objectKey := objectStorage.ObjectKey(content.Content)
 	signedURL, err := objectStorage.SignURL(objectKey, 60)
 	if err != nil {
-		conf.Logger.Errorf("client.SignURL err: %v", err)
+		logrus.Errorf("client.SignURL err: %v", err)
 		response.ToErrorResponse(errcode.DownloadReqError)
 		return
 	}

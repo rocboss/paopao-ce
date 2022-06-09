@@ -6,6 +6,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -55,20 +56,20 @@ func NewDataService(engine *gorm.DB, zinc *zinc.ZincClient) core.DataService {
 func NewObjectStorageService() (oss core.ObjectStorageService) {
 	if conf.CfgIf("AliOSS") {
 		oss = newAliossServent()
-		conf.Logger.Infoln("use AliOSS as object storage")
+		logrus.Infoln("use AliOSS as object storage")
 	} else if conf.CfgIf("MinIO") {
 		oss = newMinioServeant()
-		conf.Logger.Infoln("use MinIO as object storage")
+		logrus.Infoln("use MinIO as object storage")
 	} else if conf.CfgIf("S3") {
 		oss = newS3Servent()
-		conf.Logger.Infoln("use S3 as object storage")
+		logrus.Infoln("use S3 as object storage")
 	} else if conf.CfgIf("LocalOSS") {
 		oss = newLocalossServent()
-		conf.Logger.Infoln("use LocalOSS as object storage")
+		logrus.Infoln("use LocalOSS as object storage")
 	} else {
 		// default use AliOSS
 		oss = newAliossServent()
-		conf.Logger.Infoln("use default AliOSS as object storage")
+		logrus.Infoln("use default AliOSS as object storage")
 	}
 	return
 }
