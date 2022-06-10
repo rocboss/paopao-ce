@@ -21,14 +21,20 @@ var (
 	_ core.ObjectStorageService   = (*s3Servant)(nil)
 	_ core.ObjectStorageService   = (*localossServant)(nil)
 	_ core.AttachmentCheckService = (*attachmentCheckServant)(nil)
+	_ core.CacheIndexService      = (*simpleCacheIndexServant)(nil)
 )
 
 type dataServant struct {
+	useCacheIndex bool
+	cacheIndex    core.CacheIndexService
+
 	engine *gorm.DB
 	zinc   *zinc.ZincClient
+}
 
-	useCacheIndex   bool
-	indexActionCh   chan indexActionT
+type simpleCacheIndexServant struct {
+	getIndexPosts   func(offset, limit int) ([]*model.PostFormated, error)
+	indexActionCh   chan core.IndexActionT
 	indexPosts      []*model.PostFormated
 	atomicIndex     atomic.Value
 	maxIndexSize    int
@@ -59,29 +65,18 @@ type attachmentCheckServant struct {
 }
 
 func NewDataService(engine *gorm.DB, zinc *zinc.ZincClient) core.DataService {
-	if !conf.CfgIf("CacheIndex") {
-		return &dataServant{
-			engine:        engine,
-			zinc:          zinc,
-			useCacheIndex: false,
-		}
-	}
-
-	s := conf.CacheIndexSetting
 	ds := &dataServant{
-		engine:          engine,
-		zinc:            zinc,
-		useCacheIndex:   true,
-		maxIndexSize:    conf.CacheIndexSetting.MaxIndexSize,
-		indexPosts:      make([]*model.PostFormated, 0),
-		indexActionCh:   make(chan indexActionT, 100),                                      // optimize: size need configure by custom
-		checkTick:       time.NewTicker(time.Duration(s.CheckTickDuration) * time.Second),  // check whether need update index every 1 minute
-		expireIndexTick: time.NewTicker(time.Duration(s.ExpireTickDuration) * time.Second), // force expire index every 5 minute
+		engine: engine,
+		zinc:   zinc,
 	}
 
-	// start index posts
-	ds.atomicIndex.Store(ds.indexPosts)
-	go ds.startIndexPosts()
+	// initialize CacheIndex if needed
+	if !conf.CfgIf("CacheIndex") {
+		ds.useCacheIndex = false
+	} else {
+		ds.useCacheIndex = true
+		ds.cacheIndex = newSimpleCacheIndexServant(ds.getIndexPosts)
+	}
 
 	return ds
 }

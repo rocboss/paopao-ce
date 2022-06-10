@@ -1,18 +1,16 @@
 package dao
 
 import (
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/sirupsen/logrus"
 )
 
 func (d *dataServant) IndexPosts(offset int, limit int) ([]*model.PostFormated, error) {
 	if d.useCacheIndex {
-		posts := d.atomicIndex.Load().([]*model.PostFormated)
-		start := offset * limit
-		end := start + limit
-		if len(posts) >= end {
+		if posts, ok := d.cacheIndex.IndexPosts(offset, limit); ok {
 			logrus.Debugln("get index posts from cached")
-			return posts[start:end], nil
+			return posts, nil
 		}
 	}
 	logrus.Debugf("get index posts from database but useCacheIndex: %t", d.useCacheIndex)
@@ -69,49 +67,8 @@ func (d *dataServant) getIndexPosts(offset int, limit int) ([]*model.PostFormate
 	return d.MergePosts(posts)
 }
 
-func (d *dataServant) indexActive(act indexActionT) {
-	select {
-	case d.indexActionCh <- act:
-		logrus.Debugf("send indexAction by chan: %s", act)
-	default:
-		go func(ch chan<- indexActionT, act indexActionT) {
-			logrus.Debugf("send indexAction by goroutine: %s", act)
-			ch <- act
-		}(d.indexActionCh, act)
-	}
-}
-
-func (d *dataServant) startIndexPosts() {
-	var err error
-	for {
-		select {
-		case <-d.checkTick.C:
-			if len(d.indexPosts) == 0 {
-				logrus.Debugf("index posts by checkTick")
-				if d.indexPosts, err = d.getIndexPosts(0, d.maxIndexSize); err == nil {
-					d.atomicIndex.Store(d.indexPosts)
-				} else {
-					logrus.Errorf("get index posts err: %v", err)
-				}
-			}
-		case <-d.expireIndexTick.C:
-			logrus.Debugf("expire index posts by expireIndexTick")
-			if len(d.indexPosts) != 0 {
-				d.indexPosts = nil
-				d.atomicIndex.Store(d.indexPosts)
-			}
-		case action := <-d.indexActionCh:
-			switch action {
-			case idxActCreatePost, idxActUpdatePost, idxActDeletePost, idxActStickPost:
-				// prevent many update post in least time
-				if len(d.indexPosts) != 0 {
-					logrus.Debugf("remove index posts by action %s", action)
-					d.indexPosts = nil
-					d.atomicIndex.Store(d.indexPosts)
-				}
-			default:
-				// nop
-			}
-		}
+func (d *dataServant) indexActive(act core.IndexActionT) {
+	if d.useCacheIndex {
+		d.cacheIndex.SendAction(act)
 	}
 }

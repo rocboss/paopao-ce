@@ -3,6 +3,7 @@ package dao
 import (
 	"time"
 
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 )
 
@@ -12,7 +13,7 @@ func (d *dataServant) CreatePost(post *model.Post) (*model.Post, error) {
 	if err != nil {
 		return nil, err
 	}
-	d.indexActive(idxActCreatePost)
+	d.indexActive(core.IdxActCreatePost)
 	return p, nil
 }
 
@@ -20,7 +21,7 @@ func (d *dataServant) DeletePost(post *model.Post) error {
 	if err := post.Delete(d.engine); err != nil {
 		return err
 	}
-	d.indexActive(idxActDeletePost)
+	d.indexActive(core.IdxActDeletePost)
 	return nil
 }
 
@@ -34,7 +35,7 @@ func (d *dataServant) StickPost(post *model.Post) error {
 	if err := post.Update(d.engine); err != nil {
 		return err
 	}
-	d.indexActive(idxActStickPost)
+	d.indexActive(core.IdxActStickPost)
 	return nil
 }
 
@@ -59,7 +60,7 @@ func (d *dataServant) UpdatePost(post *model.Post) error {
 	if err := post.Update(d.engine); err != nil {
 		return err
 	}
-	d.indexActive(idxActUpdatePost)
+	d.indexActive(core.IdxActUpdatePost)
 	return nil
 }
 
