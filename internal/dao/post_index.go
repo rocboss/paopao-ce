@@ -103,9 +103,9 @@ func (d *dataServant) startIndexPosts() {
 		case action := <-d.indexActionCh:
 			switch action {
 			case idxActCreatePost, idxActUpdatePost, idxActDeletePost, idxActStickPost:
-				logrus.Debugf("remove index posts by action %s", action)
 				// prevent many update post in least time
 				if len(d.indexPosts) != 0 {
+					logrus.Debugf("remove index posts by action %s", action)
 					d.indexPosts = nil
 					d.atomicIndex.Store(d.indexPosts)
 				}
