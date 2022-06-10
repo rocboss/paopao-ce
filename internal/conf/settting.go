@@ -216,11 +216,13 @@ func (f *FeaturesSettingS) Use(suite []string, noDefault bool) error {
 func (f *FeaturesSettingS) flatFeatures(suite []string) []string {
 	features := make([]string, 0, len(suite)+10)
 	for s := suite[:]; len(s) > 0; s = s[:len(s)-1] {
-		item := strings.ToLower(s[0])
-		if items, exist := f.suites[item]; exist {
-			s = append(s, items...)
+		item := strings.TrimSpace(strings.ToLower(s[0]))
+		if len(item) > 0 {
+			if items, exist := f.suites[item]; exist {
+				s = append(s, items...)
+			}
+			features = append(features, item)
 		}
-		features = append(features, item)
 		s[0] = s[len(s)-1]
 	}
 	return features
