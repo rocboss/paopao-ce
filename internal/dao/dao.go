@@ -1,10 +1,14 @@
 package dao
 
 import (
+	"sync/atomic"
+	"time"
+
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/minio/minio-go/v7"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -22,6 +26,14 @@ var (
 type dataServant struct {
 	engine *gorm.DB
 	zinc   *zinc.ZincClient
+
+	useCacheIndex   bool
+	indexActionCh   chan indexActionT
+	indexPosts      []*model.PostFormated
+	atomicIndex     atomic.Value
+	maxIndexSize    int
+	checkTick       *time.Ticker
+	expireIndexTick *time.Ticker
 }
 
 type localossServant struct {
@@ -47,10 +59,31 @@ type attachmentCheckServant struct {
 }
 
 func NewDataService(engine *gorm.DB, zinc *zinc.ZincClient) core.DataService {
-	return &dataServant{
-		engine: engine,
-		zinc:   zinc,
+	if !conf.CfgIf("CacheIndex") {
+		return &dataServant{
+			engine:        engine,
+			zinc:          zinc,
+			useCacheIndex: false,
+		}
 	}
+
+	s := conf.CacheIndexSetting
+	ds := &dataServant{
+		engine:          engine,
+		zinc:            zinc,
+		useCacheIndex:   true,
+		maxIndexSize:    conf.CacheIndexSetting.MaxIndexSize,
+		indexPosts:      make([]*model.PostFormated, 0),
+		indexActionCh:   make(chan indexActionT, 100),                                      // optimize: size need configure by custom
+		checkTick:       time.NewTicker(time.Duration(s.CheckTickDuration) * time.Second),  // check whether need update index every 1 minute
+		expireIndexTick: time.NewTicker(time.Duration(s.ExpireTickDuration) * time.Second), // force expire index every 5 minute
+	}
+
+	// start index posts
+	ds.atomicIndex.Store(ds.indexPosts)
+	go ds.startIndexPosts()
+
+	return ds
 }
 
 func NewObjectStorageService() (oss core.ObjectStorageService) {

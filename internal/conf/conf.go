@@ -13,17 +13,18 @@ var (
 	redisSetting      *RedisSettingS
 	features          *FeaturesSettingS
 
-	ServerSetting   *ServerSettingS
-	AppSetting      *AppSettingS
-	SmsJuheSetting  *SmsJuheSettings
-	AlipaySetting   *AlipaySettingS
-	ZincSetting     *ZincSettingS
-	AliOSSSetting   *AliOSSSettingS
-	MinIOSetting    *MinIOSettingS
-	S3Setting       *S3SettingS
-	LocalOSSSetting *LocalOSSSettingS
-	JWTSetting      *JWTSettingS
-	Mutex           *sync.Mutex
+	ServerSetting     *ServerSettingS
+	AppSetting        *AppSettingS
+	CacheIndexSetting *CacheIndexSettingS
+	SmsJuheSetting    *SmsJuheSettings
+	AlipaySetting     *AlipaySettingS
+	ZincSetting       *ZincSettingS
+	AliOSSSetting     *AliOSSSettingS
+	MinIOSetting      *MinIOSettingS
+	S3Setting         *S3SettingS
+	LocalOSSSetting   *LocalOSSSettingS
+	JWTSetting        *JWTSettingS
+	Mutex             *sync.Mutex
 )
 
 func setupSetting(suite []string, noDefault bool) error {
@@ -42,6 +43,7 @@ func setupSetting(suite []string, noDefault bool) error {
 	objects := map[string]interface{}{
 		"App":        &AppSetting,
 		"Server":     &ServerSetting,
+		"CacheIndex": &CacheIndexSetting,
 		"Alipay":     &AlipaySetting,
 		"SmsJuhe":    &SmsJuheSetting,
 		"LoggerFile": &loggerFileSetting,
