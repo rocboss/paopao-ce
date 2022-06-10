@@ -96,14 +96,19 @@ func (d *dataServant) startIndexPosts() {
 			}
 		case <-d.expireIndexTick.C:
 			logrus.Debugf("expire index posts by expireIndexTick")
-			d.indexPosts = nil
-			d.atomicIndex.Store(d.indexPosts)
+			if len(d.indexPosts) != 0 {
+				d.indexPosts = nil
+				d.atomicIndex.Store(d.indexPosts)
+			}
 		case action := <-d.indexActionCh:
 			switch action {
 			case idxActCreatePost, idxActUpdatePost, idxActDeletePost, idxActStickPost:
 				logrus.Debugf("remove index posts by action %s", action)
-				d.indexPosts = nil
-				d.atomicIndex.Store(d.indexPosts)
+				// prevent many update post in least time
+				if len(d.indexPosts) != 0 {
+					d.indexPosts = nil
+					d.atomicIndex.Store(d.indexPosts)
+				}
 			default:
 				// nop
 			}
