@@ -1,12 +1,17 @@
 package dao
 
 import (
+	"errors"
 	"time"
 
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/sirupsen/logrus"
+)
+
+var (
+	errNotExist = errors.New("index posts cache not exist")
 )
 
 func newSimpleCacheIndexServant(getIndexPosts func(offset, limit int) ([]*model.PostFormated, error)) *simpleCacheIndexServant {
@@ -43,15 +48,15 @@ func newSimpleCacheIndexServant(getIndexPosts func(offset, limit int) ([]*model.
 	return cacheIndex
 }
 
-func (s *simpleCacheIndexServant) IndexPosts(offset int, limit int) ([]*model.PostFormated, bool) {
+func (s *simpleCacheIndexServant) IndexPosts(offset int, limit int) ([]*model.PostFormated, error) {
 	posts := s.atomicIndex.Load().([]*model.PostFormated)
 	end := offset + limit
 	size := len(posts)
 	logrus.Debugf("get index posts from posts: %d offset:%d limit:%d start:%d, end:%d", size, offset, limit, offset, end)
 	if size >= end {
-		return posts[offset:end], true
+		return posts[offset:end], nil
 	}
-	return nil, false
+	return nil, errNotExist
 }
 
 func (s *simpleCacheIndexServant) SendAction(act core.IndexActionT) {

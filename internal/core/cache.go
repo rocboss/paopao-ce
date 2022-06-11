@@ -1,9 +1,5 @@
 package core
 
-import (
-	"github.com/rocboss/paopao-ce/internal/model"
-)
-
 const (
 	IdxActNop IndexActionT = iota + 1
 	IdxActCreatePost
@@ -33,6 +29,6 @@ func (a IndexActionT) String() string {
 
 // CacheIndexService cache index service interface
 type CacheIndexService interface {
-	IndexPosts(offset int, limit int) ([]*model.PostFormated, bool)
+	IndexPostsService
 	SendAction(active IndexActionT)
 }
