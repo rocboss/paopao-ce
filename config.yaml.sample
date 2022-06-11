@@ -29,6 +29,7 @@ SimpleCacheIndex: # 缓存泡泡广场消息流
   MaxIndexSize: 200             # 最大缓存条数
   CheckTickDuration: 60         # 循环自检查每多少秒一次
   ExpireTickDuration: 300       # 每多少秒后强制过期缓存, 设置为0禁止强制使缓存过期
+  ActionQPS: 100                # 添加/删除/更新Post的QPS, 默认100，范围设置[10, 10000]
 LoggerFile: # 使用File写日志
   SavePath: data/paopao-ce/logs
   FileName: app
