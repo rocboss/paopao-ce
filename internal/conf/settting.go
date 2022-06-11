@@ -1,6 +1,7 @@
 package conf
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -77,17 +78,24 @@ type ZincSettingS struct {
 	Password string
 }
 
+type DatabaseSetingS struct {
+	TablePrefix string
+	LogLevel    logger.LogLevel
+}
+
 type MySQLSettingS struct {
 	UserName     string
 	Password     string
 	Host         string
 	DBName       string
-	TablePrefix  string
 	Charset      string
 	ParseTime    bool
-	LogLevel     logger.LogLevel
 	MaxIdleConns int
 	MaxOpenConns int
+}
+
+type Sqlite3SettingS struct {
+	Path string
 }
 
 type MinIOSettingS struct {
@@ -250,4 +258,15 @@ func (f *FeaturesSettingS) CfgIf(expression string) bool {
 		return true
 	}
 	return false
+}
+
+func (s *MySQLSettingS) Dsn() string {
+	return fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local",
+		s.UserName,
+		s.Password,
+		s.Host,
+		s.DBName,
+		s.Charset,
+		s.ParseTime,
+	)
 }

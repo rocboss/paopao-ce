@@ -9,7 +9,9 @@ import (
 var (
 	loggerFileSetting *LoggerFileSettingS
 	loggerZincSetting *LoggerZincSettingS
-	mySQLSetting      *MySQLSettingS
+	databaseSetting   *DatabaseSetingS
+	mysqlSetting      *MySQLSettingS
+	sqlite3Setting    *Sqlite3SettingS
 	redisSetting      *RedisSettingS
 	features          *FeaturesSettingS
 
@@ -48,7 +50,9 @@ func setupSetting(suite []string, noDefault bool) error {
 		"SmsJuhe":          &SmsJuheSetting,
 		"LoggerFile":       &loggerFileSetting,
 		"LoggerZinc":       &loggerZincSetting,
-		"MySQL":            &mySQLSetting,
+		"Database":         &databaseSetting,
+		"MySQL":            &mysqlSetting,
+		"Sqlite3":          &sqlite3Setting,
 		"Zinc":             &ZincSetting,
 		"Redis":            &redisSetting,
 		"JWT":              &JWTSetting,
