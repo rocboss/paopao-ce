@@ -74,12 +74,18 @@ func setupLogger() {
 			LocalTime: true,
 		}
 		logrus.SetOutput(out)
+		if level, err := logrus.ParseLevel(loggerFileSetting.Level); err == nil {
+			logrus.SetLevel(level)
+		}
 	} else if CfgIf("LoggerZinc") {
 		hook := &zincLogHook{
 			host:     loggerZincSetting.Host,
 			index:    loggerZincSetting.Index,
 			user:     loggerZincSetting.User,
 			password: loggerZincSetting.Password,
+		}
+		if level, err := logrus.ParseLevel(loggerZincSetting.Level); err == nil {
+			logrus.SetLevel(level)
 		}
 		logrus.SetOutput(io.Discard)
 		logrus.AddHook(hook)

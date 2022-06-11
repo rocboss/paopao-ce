@@ -16,6 +16,7 @@ type LoggerFileSettingS struct {
 	SavePath string
 	FileName string
 	FileExt  string
+	Level    string
 }
 
 type LoggerZincSettingS struct {
@@ -23,6 +24,7 @@ type LoggerZincSettingS struct {
 	Index    string
 	User     string
 	Password string
+	Level    string
 }
 
 type ServerSettingS struct {
@@ -42,6 +44,12 @@ type AppSettingS struct {
 	MaxPageSize           int
 	IsShastaTestnet       bool
 	TronApiKeys           []string
+}
+
+type CacheIndexSettingS struct {
+	MaxIndexSize       int
+	CheckTickDuration  int
+	ExpireTickDuration int
 }
 
 type AlipaySettingS struct {
@@ -197,7 +205,6 @@ func (f *FeaturesSettingS) Use(suite []string, noDefault bool) error {
 	}
 	features := f.flatFeatures(suite)
 	for _, feature := range features {
-		feature = strings.ToLower(feature)
 		if len(feature) == 0 {
 			continue
 		}
@@ -209,10 +216,13 @@ func (f *FeaturesSettingS) Use(suite []string, noDefault bool) error {
 func (f *FeaturesSettingS) flatFeatures(suite []string) []string {
 	features := make([]string, 0, len(suite)+10)
 	for s := suite[:]; len(s) > 0; s = s[:len(s)-1] {
-		if items, exist := f.suites[s[0]]; exist {
-			s = append(s, items...)
+		item := strings.TrimSpace(strings.ToLower(s[0]))
+		if len(item) > 0 {
+			if items, exist := f.suites[item]; exist {
+				s = append(s, items...)
+			}
+			features = append(features, item)
 		}
-		features = append(features, s[0])
 		s[0] = s[len(s)-1]
 	}
 	return features

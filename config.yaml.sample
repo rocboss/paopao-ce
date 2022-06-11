@@ -12,9 +12,11 @@ Server: # 服务设置
   ReadTimeout: 60
   WriteTimeout: 60
 Features:
-  Default: ["Alipay", "Zinc", "MySQL", "Redis", "MinIO", "LoggerFile"]
-  Develop: ["Sms", "Zinc", "MySQL", "AliOSS", "LoggerZinc"]
-  Slim: ["Zinc", "MySQL", "Redis", "LocalOSS", "LoggerFile"]
+  Default: ["Base", "Option", "MinIO", "LoggerFile"]
+  Develop: ["Base", "Option", "Sms", "AliOSS", "LoggerZinc"]
+  Slim: ["Base", "LocalOSS", "LoggerFile"]
+  Base: ["Zinc", "MySQL", "Redis", "Alipay",]
+  Option: ["CacheIndex"]
   Sms: "SmsJuhe"
 SmsJuhe:
   Key:
@@ -23,15 +25,21 @@ SmsJuhe:
 Alipay: 
   AppID: 
   PrivateKey: 
+CacheIndex: # 缓存泡泡广场消息流
+  MaxIndexSize: 200             # 最大缓存条数
+  CheckTickDuration: 60         # 循环自检查每多少秒一次
+  ExpireTickDuration: 300       # 每多少秒后强制过期缓存
 LoggerFile: # 使用File写日志
   SavePath: data/paopao-ce/logs
   FileName: app
   FileExt: .log
+  Level: info
 LoggerZinc: # 使用Zinc写日志
   Host: http://zinc:4080/es/_bulk
   Index: paopao-log
   User: admin
   Password: admin
+  Level: info
 JWT: # 鉴权加密
   Secret: 18a6413dc4fe394c66345ebe501b2f26
   Issuer: paopao-api

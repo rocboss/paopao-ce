@@ -324,6 +324,10 @@ func GetPostContentByID(id int64) (*model.PostContent, error) {
 	return ds.GetPostContentByID(id)
 }
 
+func GetIndexPosts(offset int, limit int) ([]*model.PostFormated, error) {
+	return ds.IndexPosts(offset, limit)
+}
+
 func GetPostList(req *PostListReq) ([]*model.PostFormated, error) {
 	posts, err := ds.GetPosts(req.Conditions, req.Offset, req.Limit)
 

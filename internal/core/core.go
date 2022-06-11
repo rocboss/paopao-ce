@@ -34,6 +34,7 @@ type DataService interface {
 	LockPost(post *model.Post) error
 	StickPost(post *model.Post) error
 	GetPostByID(id int64) (*model.Post, error)
+	IndexPosts(offset int, limit int) ([]*model.PostFormated, error)
 	GetPosts(conditions *model.ConditionsT, offset, limit int) ([]*model.Post, error)
 	GetPostCount(conditions *model.ConditionsT) (int64, error)
 	UpdatePost(post *model.Post) error

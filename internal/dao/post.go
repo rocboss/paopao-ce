@@ -3,16 +3,26 @@ package dao
 import (
 	"time"
 
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 )
 
 func (d *dataServant) CreatePost(post *model.Post) (*model.Post, error) {
 	post.LatestRepliedOn = time.Now().Unix()
-	return post.Create(d.engine)
+	p, err := post.Create(d.engine)
+	if err != nil {
+		return nil, err
+	}
+	d.indexActive(core.IdxActCreatePost)
+	return p, nil
 }
 
 func (d *dataServant) DeletePost(post *model.Post) error {
-	return post.Delete(d.engine)
+	if err := post.Delete(d.engine); err != nil {
+		return err
+	}
+	d.indexActive(core.IdxActDeletePost)
+	return nil
 }
 
 func (d *dataServant) LockPost(post *model.Post) error {
@@ -22,7 +32,11 @@ func (d *dataServant) LockPost(post *model.Post) error {
 
 func (d *dataServant) StickPost(post *model.Post) error {
 	post.IsTop = 1 - post.IsTop
-	return post.Update(d.engine)
+	if err := post.Update(d.engine); err != nil {
+		return err
+	}
+	d.indexActive(core.IdxActStickPost)
+	return nil
 }
 
 func (d *dataServant) GetPostByID(id int64) (*model.Post, error) {
@@ -43,7 +57,11 @@ func (d *dataServant) GetPostCount(conditions *model.ConditionsT) (int64, error)
 }
 
 func (d *dataServant) UpdatePost(post *model.Post) error {
-	return post.Update(d.engine)
+	if err := post.Update(d.engine); err != nil {
+		return err
+	}
+	d.indexActive(core.IdxActUpdatePost)
+	return nil
 }
 
 func (d *dataServant) GetUserPostStar(postID, userID int64) (*model.PostStar, error) {

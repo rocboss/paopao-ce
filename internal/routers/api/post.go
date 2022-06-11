@@ -23,14 +23,8 @@ func GetPostList(c *gin.Context) {
 	}
 
 	if q.Query == "" && q.Type == "search" {
-		// 直接读库
-		posts, err := service.GetPostList(&service.PostListReq{
-			Conditions: &model.ConditionsT{
-				"ORDER": "is_top DESC, latest_replied_on DESC",
-			},
-			Offset: (app.GetPage(c) - 1) * app.GetPageSize(c),
-			Limit:  app.GetPageSize(c),
-		})
+		offset, limit := app.GetPageOffset(c)
+		posts, err := service.GetIndexPosts(offset, limit)
 		if err != nil {
 			logrus.Errorf("service.GetPostList err: %v\n", err)
 			response.ToErrorResponse(errcode.GetPostsFailed)

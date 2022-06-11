@@ -1,10 +1,14 @@
 package dao
 
 import (
+	"sync/atomic"
+	"time"
+
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/minio/minio-go/v7"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -17,11 +21,25 @@ var (
 	_ core.ObjectStorageService   = (*s3Servant)(nil)
 	_ core.ObjectStorageService   = (*localossServant)(nil)
 	_ core.AttachmentCheckService = (*attachmentCheckServant)(nil)
+	_ core.CacheIndexService      = (*simpleCacheIndexServant)(nil)
 )
 
 type dataServant struct {
+	useCacheIndex bool
+	cacheIndex    core.CacheIndexService
+
 	engine *gorm.DB
 	zinc   *zinc.ZincClient
+}
+
+type simpleCacheIndexServant struct {
+	getIndexPosts   func(offset, limit int) ([]*model.PostFormated, error)
+	indexActionCh   chan core.IndexActionT
+	indexPosts      []*model.PostFormated
+	atomicIndex     atomic.Value
+	maxIndexSize    int
+	checkTick       *time.Ticker
+	expireIndexTick *time.Ticker
 }
 
 type localossServant struct {
@@ -47,10 +65,20 @@ type attachmentCheckServant struct {
 }
 
 func NewDataService(engine *gorm.DB, zinc *zinc.ZincClient) core.DataService {
-	return &dataServant{
+	ds := &dataServant{
 		engine: engine,
 		zinc:   zinc,
 	}
+
+	// initialize CacheIndex if needed
+	if !conf.CfgIf("CacheIndex") {
+		ds.useCacheIndex = false
+	} else {
+		ds.useCacheIndex = true
+		ds.cacheIndex = newSimpleCacheIndexServant(ds.getIndexPosts)
+	}
+
+	return ds
 }
 
 func NewObjectStorageService() (oss core.ObjectStorageService) {
