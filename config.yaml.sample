@@ -12,10 +12,10 @@ Server: # 服务设置
   ReadTimeout: 60
   WriteTimeout: 60
 Features:
-  Default: ["Base", "Option", "MinIO", "LoggerFile"]
-  Develop: ["Base", "Option", "Sms", "AliOSS", "LoggerZinc"]
-  Slim: ["Base", "LocalOSS", "LoggerFile"]
-  Base: ["Zinc", "MySQL", "Redis", "Alipay",]
+  Default: ["Base", "MySQL", "Option", "MinIO", "LoggerFile"]
+  Develop: ["Base", "MySQL", "Option", "Sms", "AliOSS", "LoggerZinc"]
+  Slim: ["Base", "Sqlite3", "LocalOSS", "LoggerFile"]
+  Base: ["Zinc", "Redis", "Alipay",]
   Option: ["SimpleCacheIndex"]
   Sms: "SmsJuhe"
 SmsJuhe:
@@ -75,17 +75,20 @@ LocalOSS: # 本地文件OSS存储配置
   Secure: False
   Bucket: paopao
   Domain: 127.0.0.1:8008
+Database: # Database通用配置
+  LogLevel: 2
+  TablePrefix: p_
 MySQL: # MySQL数据库
   Username: paopao
   Password: paopao
   Host: db:3306
   DBName: paopao
-  TablePrefix: p_
   Charset: utf8mb4
   ParseTime: True
-  LogLevel: 2
   MaxIdleConns: 10
   MaxOpenConns: 30
+Sqlite3: # Sqlite3数据库
+  Path: data/sqlite3/paopao-ce.db
 Redis:
   Host: redis:6379
   Password: 
