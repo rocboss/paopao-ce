@@ -87,6 +87,14 @@ MySQL: # MySQL数据库
   ParseTime: True
   MaxIdleConns: 10
   MaxOpenConns: 30
+Postgres:
+  User: paopao
+  Password: paopao
+  DBName: paopao
+  Host: localhost
+  Port: 5432
+  SSLMode: disable
+  TimeZone: Asia/Shanghai
 Sqlite3: # Sqlite3数据库
   Path: data/sqlite3/paopao-ce.db
 Redis:

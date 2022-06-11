@@ -16,10 +16,9 @@ require (
 	github.com/go-playground/validator/v10 v10.10.1 // indirect
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/go-resty/resty/v2 v2.7.0
-	github.com/gofrs/uuid v3.3.0+incompatible
+	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/minio/minio-go/v7 v7.0.27
-	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartwalle/alipay/v3 v3.1.7
 	github.com/spf13/viper v1.10.1
@@ -33,6 +32,7 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/resty.v1 v1.12.0
 	gorm.io/driver/mysql v1.3.4
+	gorm.io/driver/postgres v1.3.7
 	gorm.io/driver/sqlite v1.3.4
 	gorm.io/gorm v1.23.4
 	gorm.io/plugin/dbresolver v1.1.0

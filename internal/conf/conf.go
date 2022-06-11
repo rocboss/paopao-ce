@@ -11,6 +11,7 @@ var (
 	loggerZincSetting *LoggerZincSettingS
 	databaseSetting   *DatabaseSetingS
 	mysqlSetting      *MySQLSettingS
+	postgresSetting   *PostgresSettingS
 	sqlite3Setting    *Sqlite3SettingS
 	redisSetting      *RedisSettingS
 	features          *FeaturesSettingS
@@ -52,6 +53,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"LoggerZinc":       &loggerZincSetting,
 		"Database":         &databaseSetting,
 		"MySQL":            &mysqlSetting,
+		"Postgres":         &postgresSetting,
 		"Sqlite3":          &sqlite3Setting,
 		"Zinc":             &ZincSetting,
 		"Redis":            &redisSetting,

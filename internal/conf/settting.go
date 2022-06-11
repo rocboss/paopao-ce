@@ -94,6 +94,8 @@ type MySQLSettingS struct {
 	MaxOpenConns int
 }
 
+type PostgresSettingS map[string]string
+
 type Sqlite3SettingS struct {
 	Path string
 }
@@ -269,4 +271,14 @@ func (s *MySQLSettingS) Dsn() string {
 		s.Charset,
 		s.ParseTime,
 	)
+}
+
+func (s PostgresSettingS) Dsn() string {
+	var params []string
+	for k, v := range s {
+		if len(v) > 0 {
+			params = append(params, strings.ToLower(k)+"="+v)
+		}
+	}
+	return strings.Join(params, " ")
 }
