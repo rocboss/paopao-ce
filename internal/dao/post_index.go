@@ -8,7 +8,7 @@ import (
 
 func (d *dataServant) IndexPosts(offset int, limit int) ([]*model.PostFormated, error) {
 	if d.useCacheIndex {
-		if posts, ok := d.cacheIndex.IndexPosts(offset, limit); ok {
+		if posts, err := d.cacheIndex.IndexPosts(offset, limit); err == nil {
 			logrus.Debugln("get index posts from cached")
 			return posts, nil
 		}
