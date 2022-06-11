@@ -22,6 +22,7 @@ var (
 	MaxPhoneCaptchaUseTimes = NewError(20019, "手机验证码已达最大使用次数")
 	NicknameLengthLimit     = NewError(20020, "昵称长度2~12")
 	NoExistUsername         = NewError(20021, "用户不存在")
+	NoAdminPermission       = NewError(20022, "无管理权限")
 
 	GetPostsFailed          = NewError(30001, "获取动态列表失败")
 	CreatePostFailed        = NewError(30002, "动态发布失败")

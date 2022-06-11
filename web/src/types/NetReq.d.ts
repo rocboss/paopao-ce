@@ -86,10 +86,14 @@ declare module NetReq {
     }
 
     interface UserChangeNickname {
-        
+
     }
 
     interface UserChangePassword {
+
+    }
+
+    interface UserChangeStatus {
 
     }
 
@@ -140,19 +144,19 @@ declare module NetReq {
     type PostCreatePost = Item.PostProps
 
     interface PostDeletePost {
-        
+
     }
 
     type PostCreateComment = Item.CommentProps
 
     interface PostDeleteComment {
-        
+
     }
 
     type PostCreateCommentReply = Item.ReplyProps
 
-    interface PostDeleteCommentReply{
-        
+    interface PostDeleteCommentReply {
+
     }
 
 }

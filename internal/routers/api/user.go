@@ -251,6 +251,36 @@ func BindUserPhone(c *gin.Context) {
 	response.ToResponse(nil)
 }
 
+// 修改用户状态
+func ChangeUserStatus(c *gin.Context) {
+	param := service.ChangeUserStatusReq{}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &param)
+	if !valid {
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+
+	if param.Status != model.UserStatusNormal && param.Status != model.UserStatusClosed {
+		response.ToErrorResponse(errcode.InvalidParams)
+		return
+	}
+
+	user, err := service.GetUserByID(param.ID)
+	if err != nil {
+		logrus.Errorf("service.GetUserByID err: %v\n", err)
+		response.ToErrorResponse(errcode.NoExistUsername)
+		return
+	}
+
+	// 执行更新
+	user.Status = param.Status
+	service.UpdateUserInfo(user)
+
+	response.ToResponse(nil)
+}
+
 func GetUserProfile(c *gin.Context) {
 	response := app.NewResponse(c)
 	username := c.Query("username")

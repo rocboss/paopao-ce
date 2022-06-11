@@ -16,7 +16,7 @@ declare module Item {
         /** 用户余额（分） */
         balance?: number,
         /** 用户状态 */
-        status?: 0 | 1
+        status?: 1 | 2
     }
 
     /** 评论内容 */
@@ -160,7 +160,7 @@ declare module Item {
         /** 内容列表 */
         contents: PostItemProps[],
         /** 标签列表 */
-        tags: {[key: string]: number} | string,
+        tags: { [key: string]: number } | string,
         /** 是否锁定 */
         is_lock: number,
         /** 是否置顶 */

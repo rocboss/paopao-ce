@@ -52,6 +52,11 @@ type ChangeAvatarReq struct {
 	Avatar string `json:"avatar" form:"avatar" binding:"required"`
 }
 
+type ChangeUserStatusReq struct {
+	ID     int64 `json:"id" form:"id" binding:"required"`
+	Status int   `json:"status" form:"status" binding:"required"`
+}
+
 const LOGIN_ERR_KEY = "PaoPaoUserLoginErr"
 const MAX_LOGIN_ERR_TIMES = 10
 
@@ -224,6 +229,20 @@ func GetUserInfo(param *AuthRequest) (*model.User, error) {
 	}
 
 	return nil, errcode.UnauthorizedAuthNotExist
+}
+
+func GetUserByID(id int64) (*model.User, error) {
+	user, err := ds.GetUserByID(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if user.Model != nil && user.ID > 0 {
+		return user, nil
+	}
+
+	return nil, errcode.NoExistUsername
 }
 
 func GetUserByUsername(username string) (*model.User, error) {

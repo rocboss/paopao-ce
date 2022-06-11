@@ -232,3 +232,16 @@ export const getAttachment = (params: NetParams.UserGetAttachment): Promise<NetR
         params
     });
 };
+
+/**
+ * 管理·用户禁言/解禁
+ * @param {Object} data
+ * @returns Promise
+ */
+export const changeUserStatus = (data: NetParams.UserStatusReq): Promise<NetReq.UserChangeStatus> => {
+    return request({
+        method: 'post',
+        url: '/v1/admin/user/status',
+        data
+    });
+};

@@ -17,8 +17,8 @@
                         <div class="uid">UID. {{ user.id }}</div>
                     </div>
 
-                    <div class="user-opts">
-                        <n-space vertical>
+                    <div class="user-opts" v-if="store.state.userInfo.id > 0">
+                        <n-space>
                             <n-button
                                 size="small"
                                 secondary
@@ -26,6 +26,15 @@
                                 @click="openWhisper"
                             >
                                 私信
+                            </n-button>
+                            <n-button
+                                v-if="store.state.userInfo.is_admin"
+                                size="small"
+                                secondary
+                                :type="user.status === 1 ? 'error' : 'warning'"
+                                @click="banUser"
+                            >
+                                {{ user.status === 1 ? '禁言' : '解封' }}
                             </n-button>
                         </n-space>
                     </div>
@@ -72,17 +81,22 @@
 import { ref, reactive, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
-import { getUserProfile, getUserPosts } from '@/api/user';
+import { getUserProfile, getUserPosts, changeUserStatus } from '@/api/user';
+import { useDialog, useMessage } from 'naive-ui';
 
+const message = useMessage();
+const dialog = useDialog();
 const store = useStore();
 const route = useRoute();
 
 const loading = ref(false);
-const user = reactive({
+const user = reactive<Item.UserInfo>({
     id: 0,
     avatar: '',
     username: '',
     nickname: '',
+    is_admin: false,
+    status: 1,
 });
 const userLoading = ref(false);
 const showWhisper = ref(false);
@@ -121,6 +135,8 @@ const loadUser = () => {
             user.avatar = res.avatar;
             user.username = res.username;
             user.nickname = res.nickname;
+            user.is_admin = res.is_admin;
+            user.status = res.status;
             loadPosts();
         })
         .catch((err) => {
@@ -135,11 +151,36 @@ const updatePage = (p: number) => {
 };
 
 const openWhisper = () => {
-    // window.$message.warning('您尚未获得私信权限');
     showWhisper.value = true;
 };
 const whisperSuccess = () => {
     showWhisper.value = false;
+};
+const banUser = () => {
+    dialog.warning({
+        title: '警告',
+        content:
+            '确定对该用户进行' +
+            (user.status === 1 ? '禁言' : '解封') +
+            '处理吗？',
+        positiveText: '确定',
+        negativeText: '取消',
+        onPositiveClick: () => {
+            userLoading.value = true;
+            changeUserStatus({
+                id: user.id,
+                status: user.status === 1 ? 2 : 1,
+            })
+                .then((res) => {
+                    userLoading.value = false;
+                    loadUser();
+                })
+                .catch((err) => {
+                    userLoading.value = false;
+                    console.log(err);
+                });
+        },
+    });
 };
 watch(
     () => ({
@@ -185,6 +226,12 @@ onMounted(() => {
             margin-top: 10px;
             opacity: 0.75;
         }
+    }
+
+    .user-opts {
+        position: absolute;
+        top: 16px;
+        right: 16px;
     }
 }
 

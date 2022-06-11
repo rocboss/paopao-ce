@@ -76,6 +76,7 @@ func NewRouter() *gin.Engine {
 	// 鉴权路由组
 	authApi := r.Group("/").Use(middleware.JWT())
 	privApi := r.Group("/").Use(middleware.JWT()).Use(middleware.Priv())
+	adminApi := r.Group("/").Use(middleware.JWT()).Use(middleware.Admin())
 	{
 		// 同步索引
 		authApi.GET("/sync/index", api.SyncSearchIndex)
@@ -173,6 +174,8 @@ func NewRouter() *gin.Engine {
 		// 删除评论回复
 		privApi.DELETE("/post/comment/reply", api.DeletePostCommentReply)
 
+		// 管理·禁言/解封用户
+		adminApi.POST("/admin/user/status", api.ChangeUserStatus)
 	}
 	// 默认404
 	e.NoRoute(func(c *gin.Context) {

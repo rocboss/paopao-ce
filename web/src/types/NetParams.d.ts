@@ -66,6 +66,11 @@ declare module NetParams {
         page_size: number
     }
 
+    interface UserStatusReq {
+        id: number,
+        status: number
+    }
+
     interface UserReqRecharge {
         amount: number
     }
@@ -181,7 +186,7 @@ declare module NetParams {
         content: string
     }
 
-    interface PostDeleteCommentReply{
+    interface PostDeleteCommentReply {
         id: number
     }
 
