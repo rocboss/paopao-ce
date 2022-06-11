@@ -71,11 +71,11 @@ func NewDataService(engine *gorm.DB, zinc *zinc.ZincClient) core.DataService {
 	}
 
 	// initialize CacheIndex if needed
-	if !conf.CfgIf("CacheIndex") {
-		ds.useCacheIndex = false
-	} else {
+	if conf.CfgIf("SimpleCacheIndex") {
 		ds.useCacheIndex = true
 		ds.cacheIndex = newSimpleCacheIndexServant(ds.getIndexPosts)
+	} else {
+		ds.useCacheIndex = false
 	}
 
 	return ds

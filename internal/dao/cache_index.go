@@ -10,7 +10,7 @@ import (
 )
 
 func newSimpleCacheIndexServant(getIndexPosts func(offset, limit int) ([]*model.PostFormated, error)) *simpleCacheIndexServant {
-	s := conf.CacheIndexSetting
+	s := conf.SimpleCacheIndexSetting
 	cacheIndex := &simpleCacheIndexServant{
 		getIndexPosts:   getIndexPosts,
 		maxIndexSize:    s.MaxIndexSize,

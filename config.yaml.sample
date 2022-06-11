@@ -16,7 +16,7 @@ Features:
   Develop: ["Base", "Option", "Sms", "AliOSS", "LoggerZinc"]
   Slim: ["Base", "LocalOSS", "LoggerFile"]
   Base: ["Zinc", "MySQL", "Redis", "Alipay",]
-  Option: ["CacheIndex"]
+  Option: ["SimpleCacheIndex"]
   Sms: "SmsJuhe"
 SmsJuhe:
   Key:
@@ -25,7 +25,7 @@ SmsJuhe:
 Alipay: 
   AppID: 
   PrivateKey: 
-CacheIndex: # 缓存泡泡广场消息流
+SimpleCacheIndex: # 缓存泡泡广场消息流
   MaxIndexSize: 200             # 最大缓存条数
   CheckTickDuration: 60         # 循环自检查每多少秒一次
   ExpireTickDuration: 300       # 每多少秒后强制过期缓存
