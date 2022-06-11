@@ -62,14 +62,14 @@ func (d *dataServant) GetUsersByIDs(ids []int64) ([]*model.User, error) {
 func (d *dataServant) GetUsersByKeyword(keyword string) ([]*model.User, error) {
 	user := &model.User{}
 
-	if strings.Trim(keyword, " ") == "" {
+	keyword = strings.Trim(keyword, " ") + "%"
+	if keyword == "%" {
 		return user.List(d.engine, &model.ConditionsT{
 			"ORDER": "id ASC",
 		}, 0, 6)
 	} else {
-
 		return user.List(d.engine, &model.ConditionsT{
-			"username LIKE ?": strings.Trim(keyword, " ") + "%",
+			"username LIKE ?": keyword,
 		}, 0, 6)
 	}
 }
@@ -78,14 +78,14 @@ func (d *dataServant) GetUsersByKeyword(keyword string) ([]*model.User, error) {
 func (d *dataServant) GetTagsByKeyword(keyword string) ([]*model.Tag, error) {
 	tag := &model.Tag{}
 
-	if strings.Trim(keyword, " ") == "" {
+	keyword = "%" + strings.Trim(keyword, " ") + "%"
+	if keyword == "%%" {
 		return tag.List(d.engine, &model.ConditionsT{
 			"ORDER": "quote_num DESC",
 		}, 0, 6)
 	} else {
-
 		return tag.List(d.engine, &model.ConditionsT{
-			"tag LIKE ?": "%" + strings.Trim(keyword, " ") + "%",
+			"tag LIKE ?": keyword,
 			"ORDER":      "quote_num DESC",
 		}, 0, 6)
 	}
