@@ -46,7 +46,7 @@ type AppSettingS struct {
 	TronApiKeys           []string
 }
 
-type CacheIndexSettingS struct {
+type SimpleCacheIndexSettingS struct {
 	MaxIndexSize       int
 	CheckTickDuration  int
 	ExpireTickDuration int

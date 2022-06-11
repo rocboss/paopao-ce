@@ -13,18 +13,18 @@ var (
 	redisSetting      *RedisSettingS
 	features          *FeaturesSettingS
 
-	ServerSetting     *ServerSettingS
-	AppSetting        *AppSettingS
-	CacheIndexSetting *CacheIndexSettingS
-	SmsJuheSetting    *SmsJuheSettings
-	AlipaySetting     *AlipaySettingS
-	ZincSetting       *ZincSettingS
-	AliOSSSetting     *AliOSSSettingS
-	MinIOSetting      *MinIOSettingS
-	S3Setting         *S3SettingS
-	LocalOSSSetting   *LocalOSSSettingS
-	JWTSetting        *JWTSettingS
-	Mutex             *sync.Mutex
+	ServerSetting           *ServerSettingS
+	AppSetting              *AppSettingS
+	SimpleCacheIndexSetting *SimpleCacheIndexSettingS
+	SmsJuheSetting          *SmsJuheSettings
+	AlipaySetting           *AlipaySettingS
+	ZincSetting             *ZincSettingS
+	AliOSSSetting           *AliOSSSettingS
+	MinIOSetting            *MinIOSettingS
+	S3Setting               *S3SettingS
+	LocalOSSSetting         *LocalOSSSettingS
+	JWTSetting              *JWTSettingS
+	Mutex                   *sync.Mutex
 )
 
 func setupSetting(suite []string, noDefault bool) error {
@@ -41,21 +41,21 @@ func setupSetting(suite []string, noDefault bool) error {
 	}
 
 	objects := map[string]interface{}{
-		"App":        &AppSetting,
-		"Server":     &ServerSetting,
-		"CacheIndex": &CacheIndexSetting,
-		"Alipay":     &AlipaySetting,
-		"SmsJuhe":    &SmsJuheSetting,
-		"LoggerFile": &loggerFileSetting,
-		"LoggerZinc": &loggerZincSetting,
-		"MySQL":      &mySQLSetting,
-		"Zinc":       &ZincSetting,
-		"Redis":      &redisSetting,
-		"JWT":        &JWTSetting,
-		"AliOSS":     &AliOSSSetting,
-		"MinIO":      &MinIOSetting,
-		"LocalOSS":   &LocalOSSSetting,
-		"S3":         &S3Setting,
+		"App":              &AppSetting,
+		"Server":           &ServerSetting,
+		"SimpleCacheIndex": &SimpleCacheIndexSetting,
+		"Alipay":           &AlipaySetting,
+		"SmsJuhe":          &SmsJuheSetting,
+		"LoggerFile":       &loggerFileSetting,
+		"LoggerZinc":       &loggerZincSetting,
+		"MySQL":            &mySQLSetting,
+		"Zinc":             &ZincSetting,
+		"Redis":            &redisSetting,
+		"JWT":              &JWTSetting,
+		"AliOSS":           &AliOSSSetting,
+		"MinIO":            &MinIOSetting,
+		"LocalOSS":         &LocalOSSSetting,
+		"S3":               &S3Setting,
 	}
 	if err = setting.Unmarshal(objects); err != nil {
 		return err
