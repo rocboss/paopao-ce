@@ -15,9 +15,16 @@ func newSimpleCacheIndexServant(getIndexPosts func(offset, limit int) ([]*model.
 		getIndexPosts:   getIndexPosts,
 		maxIndexSize:    s.MaxIndexSize,
 		indexPosts:      make([]*model.PostFormated, 0),
-		indexActionCh:   make(chan core.IndexActionT, 100),                                 // optimize: size need configure by custom
-		checkTick:       time.NewTicker(time.Duration(s.CheckTickDuration) * time.Second),  // check whether need update index every 1 minute
-		expireIndexTick: time.NewTicker(time.Duration(s.ExpireTickDuration) * time.Second), // force expire index every 5 minute
+		indexActionCh:   make(chan core.IndexActionT, 100),                                // optimize: size need configure by custom
+		checkTick:       time.NewTicker(time.Duration(s.CheckTickDuration) * time.Second), // check whether need update index every 1 minute
+		expireIndexTick: time.NewTicker(time.Second),
+	}
+
+	// force expire index every ExpireTickDuration second
+	if s.ExpireTickDuration != 0 {
+		cacheIndex.expireIndexTick.Reset(time.Duration(s.CheckTickDuration) * time.Second)
+	} else {
+		cacheIndex.expireIndexTick.Stop()
 	}
 
 	// start index posts
