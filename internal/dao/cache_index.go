@@ -15,7 +15,6 @@ func newSimpleCacheIndexServant(getIndexPosts func(offset, limit int) ([]*model.
 		getIndexPosts:   getIndexPosts,
 		maxIndexSize:    s.MaxIndexSize,
 		indexPosts:      make([]*model.PostFormated, 0),
-		indexActionCh:   make(chan core.IndexActionT, 100),                                // optimize: size need configure by custom
 		checkTick:       time.NewTicker(time.Duration(s.CheckTickDuration) * time.Second), // check whether need update index every 1 minute
 		expireIndexTick: time.NewTicker(time.Second),
 	}
@@ -26,6 +25,16 @@ func newSimpleCacheIndexServant(getIndexPosts func(offset, limit int) ([]*model.
 	} else {
 		cacheIndex.expireIndexTick.Stop()
 	}
+
+	// indexActionCh capacity custom configure by conf.yaml need in [10, 10000]
+	// or re-compile source to adjust min/max capacity
+	capacity := s.ActionQPS
+	if capacity < 10 {
+		capacity = 10
+	} else if capacity > 10000 {
+		capacity = 10000
+	}
+	cacheIndex.indexActionCh = make(chan core.IndexActionT, capacity)
 
 	// start index posts
 	cacheIndex.atomicIndex.Store(cacheIndex.indexPosts)

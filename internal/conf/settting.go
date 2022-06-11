@@ -50,6 +50,7 @@ type SimpleCacheIndexSettingS struct {
 	MaxIndexSize       int
 	CheckTickDuration  int
 	ExpireTickDuration int
+	ActionQPS          int
 }
 
 type AlipaySettingS struct {
