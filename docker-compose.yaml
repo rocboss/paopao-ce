@@ -10,7 +10,7 @@ services:
       MYSQL_PASSWORD: paopao
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     volumes:
-      - ./scripts/paopao.sql:/docker-entrypoint-initdb.d/paopao.sql
+      - ./scripts/paopao-mysql.sql:/docker-entrypoint-initdb.d/paopao.sql
       - ./data/mysql/data:/var/lib/mysql
     ports:
       - 127.0.0.1::3306
