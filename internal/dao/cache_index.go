@@ -29,11 +29,11 @@ func newSimpleCacheIndexServant(getIndexPosts func(offset, limit int) ([]*model.
 
 func (s *simpleCacheIndexServant) IndexPosts(offset int, limit int) ([]*model.PostFormated, bool) {
 	posts := s.atomicIndex.Load().([]*model.PostFormated)
-	start := offset * limit
-	end := start + limit
-	if len(posts) >= end {
-		logrus.Debugln("get index posts from cached")
-		return posts[start:end], true
+	end := offset + limit
+	size := len(posts)
+	logrus.Debugf("get index posts from posts: %d offset:%d limit:%d start:%d, end:%d", size, offset, limit, offset, end)
+	if size >= end {
+		return posts[offset:end], true
 	}
 	return nil, false
 }
