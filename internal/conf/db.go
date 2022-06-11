@@ -6,6 +6,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -52,6 +53,9 @@ func newDBEngine() (*gorm.DB, error) {
 		if db, err = gorm.Open(mysql.Open(mysqlSetting.Dsn()), config); err == nil {
 			db.Use(plugin)
 		}
+	} else if CfgIf("Postgres") {
+		logrus.Debugf("use PostgreSQL as db dsn: %s", postgresSetting.Dsn())
+		db, err = gorm.Open(postgres.Open(postgresSetting.Dsn()), config)
 	} else if CfgIf("Sqlite3") {
 		logrus.Debugf("use Sqlite3 as db path: %s", sqlite3Setting.Path)
 		db, err = gorm.Open(sqlite.Open(sqlite3Setting.Path), config)
