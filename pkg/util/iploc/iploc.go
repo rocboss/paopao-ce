@@ -21,7 +21,12 @@ const (
 
 // Find get country and city base ip
 func Find(ip string) (string, string) {
-	offset := searchIndex(binary.BigEndian.Uint32(net.ParseIP(ip).To4()))
+	// If ip is "::1", To4 returns nil.
+	to4 := net.ParseIP(ip).To4()
+	if to4 == nil {
+		to4 = net.ParseIP("127.0.0.1").To4()
+	}
+	offset := searchIndex(binary.BigEndian.Uint32(to4))
 	if offset <= 0 {
 		return "", ""
 	}
