@@ -1,0 +1,334 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "paopao-ce API",
+      "description": "# The paopao-ce API documentation\n\nWelcome to the paopao-ce API documentation!\n\n",
+      "version": "0.1.0"
+    },
+    "servers": [
+      {
+        "url": "https://api.paopao.info"
+      }
+    ],
+    "tags": [],
+    "paths": {
+      "/{bucket}": {
+        "post": {
+          "summary": "Upload Image",
+          "description": "Upload an image to the given bucket.\nThe `content-type` header must be provided as well\nas the `content-length` header otherwise the request will be rejected.\n\nThe uploaded file must also not exceed the given `content-length`.",
+          "parameters": [
+            {
+              "name": "bucket",
+              "schema": {
+                "type": "string"
+              },
+              "in": "path",
+              "description": "The bucket that the image should be uploaded.",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "name": "content-length",
+              "schema": {
+                "type": "integer",
+                "format": "uint64"
+              },
+              "in": "header",
+              "description": "The total size of the image in bytes.",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "name": "format",
+              "schema": {
+                "$ref": "#/components/schemas/ImageKind"
+              },
+              "in": "query",
+              "description": "The format that the uploaded image is encoded in.\n\nIf not provided, lust will guess the encoding.",
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UploadInfo"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Bucket not found"
+            },
+            "400": {
+              "description": "The image format was incorrect or the system was\nunable to guess the format of the image."
+            },
+            "413": {
+              "description": "The upload exceeds the configured maximum file size."
+            },
+            "401": {
+              "description": "You are not authorized to complete this action.\n\nThis normally means the `Authorization` bearer has been left out\nof the request or is invalid."
+            }
+          }
+        }
+      },
+      "/{bucket}/{image_id}": {
+        "get": {
+          "summary": "Fetch Image",
+          "description": "Fetch the image from the storage backend and apply and additional affects\nif required.",
+          "parameters": [
+            {
+              "name": "bucket",
+              "schema": {
+                "type": "string"
+              },
+              "in": "path",
+              "description": "The bucket to try fetch the image from.",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "name": "image_id",
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "in": "path",
+              "description": "The id of the image.",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "name": "format",
+              "schema": {
+                "$ref": "#/components/schemas/ImageKind"
+              },
+              "in": "query",
+              "description": "The encoding format that the image should be returned as.",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "name": "size",
+              "schema": {
+                "type": "string"
+              },
+              "in": "query",
+              "description": "The size preset that should be used when returning the image.",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "name": "width",
+              "schema": {
+                "type": "integer",
+                "format": "uint32"
+              },
+              "in": "query",
+              "description": "A custom width to resize the returned image to.",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "name": "height",
+              "schema": {
+                "type": "integer",
+                "format": "uint32"
+              },
+              "in": "query",
+              "description": "A custom height to resize the returned image to.",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "name": "accept",
+              "schema": {
+                "type": "string"
+              },
+              "in": "header",
+              "description": "A set of `,` seperated content-types that could be sent as a response.\nE.g. `image/png,image/webp,image/gif`",
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/octet-stream": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "headers": {
+                "CONTENT-TYPE": {
+                  "required": true,
+                  "deprecated": false,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "The request is invalid with the current configuration.\n\nSee the detail section for more info.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Detail"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Bucket does not exist or image does not exist.\n\nSee the detail section for more info.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Detail"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Delete Image",
+          "description": "Delete the given image.\nThis will purge all variants of the image including sizing presets and formats.\n\nImages that do not exist already will be ignored and will not return a 404.",
+          "parameters": [
+            {
+              "name": "bucket",
+              "schema": {
+                "type": "string"
+              },
+              "in": "path",
+              "description": "The bucket to try delete the image from.",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "name": "image_id",
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "in": "path",
+              "description": "The image to delete try delete.",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            },
+            "401": {
+              "description": "You are not authorized to complete this action.\n\nThis normally means the `Authorization` bearer has been left out\nof the request or is invalid."
+            },
+            "404": {
+              "description": "Bucket does not exist."
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Detail": {
+          "type": "object",
+          "required": [
+            "detail"
+          ],
+          "properties": {
+            "detail": {
+              "type": "string",
+              "description": "Additional information regarding the response."
+            }
+          }
+        },
+        "ImageKind": {
+          "type": "string",
+          "enum": [
+            "png",
+            "jpeg",
+            "webp",
+            "gif"
+          ]
+        },
+        "ImageUploadInfo": {
+          "type": "object",
+          "required": [
+            "sizing_id"
+          ],
+          "properties": {
+            "sizing_id": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "The computed image sizing id.\n\nThis is useful for tracking files outside of lust as this is\ngenerally used for filtering within the storage systems."
+            }
+          }
+        },
+        "UploadInfo": {
+          "type": "object",
+          "required": [
+            "image_id",
+            "processing_time",
+            "io_time",
+            "checksum",
+            "images",
+            "bucket_id"
+          ],
+          "properties": {
+            "image_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The generated ID for the file.\n\nThis can be used to access the file for the given bucket."
+            },
+            "processing_time": {
+              "type": "number",
+              "format": "float",
+              "description": "The time spent processing the image in seconds."
+            },
+            "io_time": {
+              "type": "number",
+              "format": "float",
+              "description": "The time spent uploading the image to the persistent store."
+            },
+            "checksum": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "The crc32 checksum of the uploaded image."
+            },
+            "images": {
+              "type": "array",
+              "description": "The information that is specific to the image.",
+              "items": {
+                "$ref": "#/components/schemas/ImageUploadInfo"
+              }
+            },
+            "bucket_id": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "The id of the bucket the image was stored in.\n\nThis is useful for tracking files outside of lust as this is\ngenerally used for filtering within the storage systems."
+            }
+          }
+        }
+      }
+    }
+  }

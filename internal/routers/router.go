@@ -24,8 +24,9 @@ func NewRouter() *gin.Engine {
 	corsConfig.AddAllowHeaders("Authorization")
 	e.Use(cors.New(corsConfig))
 
-	// 按需注册 静态资源、LocalOSS 路由
+	// 按需注册 docs、静态资源、LocalOSS 路由
 	{
+		registerDocs(e)
 		registerStatick(e)
 		routeLocalOSS(e)
 	}
