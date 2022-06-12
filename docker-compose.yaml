@@ -42,6 +42,7 @@ services:
   
   zinc:
     image: public.ecr.aws/prabhat/zinc:latest
+    user: root
     restart: always
     ports:
       - 127.0.0.1::4080
