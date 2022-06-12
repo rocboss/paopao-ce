@@ -111,23 +111,6 @@ PaoPao主要由以下优秀的开源项目/工具构建
     ```
     提示: 如果需要内嵌web前端ui，请先构建web前端(建议设置web/.env为VITE_HOST="")。
 
- 5. docker构建
-    ```sh
-     # 默认参数构建, 默认内嵌web ui并设置api host为空
-     %> docker build -t your/paopao-ce:tag .
-
-     # 内嵌web ui并且自定义API host参数
-     %> docker build -t your/paopao-ce:tag --build-arg API_HOST=http://paopao.info .
-
-     # 内嵌web ui并且使用本地web/.env中的API host
-     %> docker build -t your/paopao-ce:tag --build-arg USE_API_HOST=no .
-
-     # 内嵌web ui并且使用本地编译的web/dist构建
-     %> docker build -t your/paopao-ce:tag --build-arg USE_DIST=yes .
-
-     # 只编译api server
-     %> docker build -t your/paopao-ce:tag --build-arg EMBED_UI=no .
-    ```
 
 #### 前端
 
@@ -146,20 +129,6 @@ PaoPao主要由以下优秀的开源项目/工具构建
     ```
 
     build完成后，可以在dist目录获取编译产出，配置nginx指向至该目录即可
-
-3. 使用Docker构建
-   ```sh
-   %> cd web
-
-   # 默认参数构建
-   %> docker build -t your/paopao-ce:web .
-
-   # 自定义API host 参数构建
-   %> docker build -t your/paopao-ce:web --build-arg API_HOST=http://paopao.info .
-
-   # 使用本地编译的dist构建
-   %> docker build -t your/paopao-ce:web --build-arg USE_DIST=yes .
-   ```
 
 #### 桌面端
 
@@ -184,11 +153,48 @@ PaoPao主要由以下优秀的开源项目/工具构建
    桌面端是使用[Rust](https://www.rust-lang.org/) + [tauri](https://github.com/tauri-apps/tauri)编写
    的，需要安装tauri的依赖，具体参考[https://tauri.studio/v1/guides/getting-started/prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites).
 
-### docker-compose 运行
+
+### 使用Docker构建、运行
+  * 后端:
+  ```sh
+  # 默认参数构建, 默认内嵌web ui并设置api host为空
+  %> docker build -t your/paopao-ce:tag .
+
+  # 内嵌web ui并且自定义API host参数
+  %> docker build -t your/paopao-ce:tag --build-arg API_HOST=http://paopao.info .
+
+  # 内嵌web ui并且使用本地web/.env中的API host
+  %> docker build -t your/paopao-ce:tag --build-arg USE_API_HOST=no .
+
+  # 内嵌web ui并且使用本地编译的web/dist构建
+  %> docker build -t your/paopao-ce:tag --build-arg USE_DIST=yes .
+
+  # 只编译api server
+  %> docker build -t your/paopao-ce:tag --build-arg EMBED_UI=no .
+
+  # 运行
+  %> docker run -p 8008:8008 -v ${PWD}/config.yaml.sample:/app/paopao-ce/config.yaml your/paopao-ce:tag
+  ```
+
+  * 前端:
+  ```sh
+  %> cd web
+
+  # 默认参数构建
+  %> docker build -t your/paopao-ce:web .
+
+  # 自定义API host 参数构建
+  %> docker build -t your/paopao-ce:web --build-arg API_HOST=http://paopao.info .
+
+  # 使用本地编译的dist构建
+  %> docker build -t your/paopao-ce:web --build-arg USE_DIST=yes .
+  ```
+
+### 使用 docker-compose 运行
 ```sh
 %> git clone https://github.com/rocboss/paopao-ce.git
 %> docker compose up --build
-# visit http://localhost:8008
+# visit http://127.0.0.1:8008
 ```
 默认是使用config.yaml.sample的配置，如果需要自定义配置，请拷贝默认配置文件(比如config.yaml)，修改后再同步配置到docker-compose.yaml如下：
 ```
@@ -212,6 +218,12 @@ PaoPao主要由以下优秀的开源项目/工具构建
 ....
 ```
 
+### API 文档
+构建时将 `docs` 添加到TAGS中:
+```sh
+%> make run TAGS='docs'
+# visit http://127.0.0.1:8008/docs
+```
 
 ### 其他说明
 
