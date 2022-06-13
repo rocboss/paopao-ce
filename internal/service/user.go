@@ -390,3 +390,7 @@ func GetSuggestTags(keyword string) ([]string, error) {
 
 	return ts, nil
 }
+
+func IsFriend(userId, friendId int64) bool {
+	return ds.IsFriend(userId, friendId)
+}

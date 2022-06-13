@@ -161,6 +161,8 @@ declare module Item {
         contents: PostItemProps[],
         /** 标签列表 */
         tags: { [key: string]: number } | string,
+        /** 可见性 0公开 1私密 2好友可见 */
+        visibility: 0 | 1 | 2,
         /** 是否锁定 */
         is_lock: number,
         /** 是否置顶 */

@@ -36,6 +36,7 @@ type PostCreationReq struct {
 	Tags            []string           `json:"tags" binding:"required"`
 	Users           []string           `json:"users" binding:"required"`
 	AttachmentPrice int64              `json:"attachment_price"`
+	Visibility      model.PostVisibleT `json:"visibility"`
 }
 
 type PostDelReq struct {
@@ -92,6 +93,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 		IP:              ip,
 		IPLoc:           util.GetIPLoc(ip),
 		AttachmentPrice: param.AttachmentPrice,
+		Visibility:      param.Visibility,
 	}
 	post, err := ds.CreatePost(post)
 	if err != nil {
@@ -325,7 +327,7 @@ func GetPostContentByID(id int64) (*model.PostContent, error) {
 }
 
 func GetIndexPosts(offset int, limit int) ([]*model.PostFormated, error) {
-	return ds.IndexPosts(offset, limit)
+	return ds.IndexPosts(0, offset, limit)
 }
 
 func GetPostList(req *PostListReq) ([]*model.PostFormated, error) {
@@ -411,6 +413,11 @@ func GetPostListFromSearchByQuery(query string, offset, limit int) ([]*model.Pos
 }
 
 func PushPostToSearch(post *model.Post) {
+	// TODO: 暂时不索引私密文章,后续再完善
+	if post.Visibility == model.PostVisitPrivate {
+		return
+	}
+
 	indexName := conf.ZincSetting.Index
 
 	postFormated := post.Format()
@@ -447,6 +454,7 @@ func PushPostToSearch(post *model.Post) {
 		"comment_count":     post.CommentCount,
 		"collection_count":  post.CollectionCount,
 		"upvote_count":      post.UpvoteCount,
+		"visibility":        post.Visibility,
 		"is_top":            post.IsTop,
 		"is_essence":        post.IsEssence,
 		"content":           contentFormated,
@@ -470,7 +478,9 @@ func DeleteSearchPost(post *model.Post) error {
 func PushPostsToSearch(c *gin.Context) {
 	if ok, _ := conf.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
 		splitNum := 1000
-		totalRows, _ := GetPostCount(&model.ConditionsT{})
+		totalRows, _ := GetPostCount(&model.ConditionsT{
+			"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},
+		})
 
 		pages := math.Ceil(float64(totalRows) / float64(splitNum))
 		nums := int(pages)
@@ -483,9 +493,11 @@ func PushPostsToSearch(c *gin.Context) {
 			data := []map[string]interface{}{}
 
 			posts, _ := GetPostList(&PostListReq{
-				Conditions: &model.ConditionsT{},
-				Offset:     i * splitNum,
-				Limit:      splitNum,
+				Conditions: &model.ConditionsT{
+					"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},
+				},
+				Offset: i * splitNum,
+				Limit:  splitNum,
 			})
 
 			for _, post := range posts {
@@ -508,6 +520,7 @@ func PushPostsToSearch(c *gin.Context) {
 					"comment_count":     post.CommentCount,
 					"collection_count":  post.CollectionCount,
 					"upvote_count":      post.UpvoteCount,
+					"visibility":        post.Visibility,
 					"is_top":            post.IsTop,
 					"is_essence":        post.IsEssence,
 					"content":           contentFormated,

@@ -31,7 +31,8 @@ func GetPostList(c *gin.Context) {
 			return
 		}
 		totalRows, _ := service.GetPostCount(&model.ConditionsT{
-			"ORDER": "latest_replied_on DESC",
+			"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},
+			"ORDER":           "latest_replied_on DESC",
 		})
 
 		response.ToResponseList(posts, totalRows)

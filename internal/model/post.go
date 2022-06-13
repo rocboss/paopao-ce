@@ -7,20 +7,30 @@ import (
 	"gorm.io/gorm"
 )
 
+// PostVisibleT 可访问类型，0公开，1私密，2好友
+type PostVisibleT int
+
+const (
+	PostVisitPublic PostVisibleT = iota
+	PostVisitPrivate
+	PostVisitFriend
+)
+
 type Post struct {
 	*Model
-	UserID          int64  `json:"user_id"`
-	CommentCount    int64  `json:"comment_count"`
-	CollectionCount int64  `json:"collection_count"`
-	UpvoteCount     int64  `json:"upvote_count"`
-	IsTop           int    `json:"is_top"`
-	IsEssence       int    `json:"is_essence"`
-	IsLock          int    `json:"is_lock"`
-	LatestRepliedOn int64  `json:"latest_replied_on"`
-	Tags            string `json:"tags"`
-	AttachmentPrice int64  `json:"attachment_price"`
-	IP              string `json:"ip"`
-	IPLoc           string `json:"ip_loc"`
+	UserID          int64        `json:"user_id"`
+	CommentCount    int64        `json:"comment_count"`
+	CollectionCount int64        `json:"collection_count"`
+	UpvoteCount     int64        `json:"upvote_count"`
+	Visibility      PostVisibleT `json:"visibility"`
+	IsTop           int          `json:"is_top"`
+	IsEssence       int          `json:"is_essence"`
+	IsLock          int          `json:"is_lock"`
+	LatestRepliedOn int64        `json:"latest_replied_on"`
+	Tags            string       `json:"tags"`
+	AttachmentPrice int64        `json:"attachment_price"`
+	IP              string       `json:"ip"`
+	IPLoc           string       `json:"ip_loc"`
 }
 
 type PostFormated struct {
@@ -31,6 +41,7 @@ type PostFormated struct {
 	CommentCount    int64                  `json:"comment_count"`
 	CollectionCount int64                  `json:"collection_count"`
 	UpvoteCount     int64                  `json:"upvote_count"`
+	Visibility      PostVisibleT           `json:"visibility"`
 	IsTop           int                    `json:"is_top"`
 	IsEssence       int                    `json:"is_essence"`
 	IsLock          int                    `json:"is_lock"`

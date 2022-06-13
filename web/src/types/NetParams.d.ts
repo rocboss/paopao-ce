@@ -157,7 +157,9 @@ declare module NetParams {
         /** 艾特用户列表 */
         users: string[],
         /** 附件价格 */
-        attachment_price: number
+        attachment_price: number,
+        /** 可见性 0公开 1私密 2好友可见 */
+        visibility: 0 | 1 | 2
     }
 
     interface PostDeletePost {

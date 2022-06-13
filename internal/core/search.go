@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
 )
 
@@ -12,8 +13,9 @@ const (
 type SearchType string
 
 type QueryT struct {
-	Query string
-	Type  SearchType
+	Query      string
+	Visibility []model.PostVisibleT
+	Type       SearchType
 }
 
 // SearchService search service interface that implement base zinc

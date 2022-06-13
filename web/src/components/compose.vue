@@ -141,6 +141,19 @@
                                 </n-icon>
                             </template>
                         </n-button>
+
+                         <n-button
+                            quaternary
+                            circle
+                            type="primary"
+                            @click.stop="switchEye"
+                        >
+                            <template #icon>
+                                <n-icon size="20" color="var(--primary-color)">
+                                    <eye-outline />
+                                </n-icon>
+                            </template>
+                        </n-button>
                     </div>
 
                     <div class="submit-wrap">
@@ -200,6 +213,19 @@
                     <template #create-button-default> 创建链接 </template>
                 </n-dynamic-input>
             </div>
+
+             <div class="eye-wrap" v-if="showEyeSet">
+                <n-radio-group v-model:value="visitType" name="radiogroup">
+                    <n-space>
+                        <n-radio
+                            v-for="visit in visibilities"
+                            :key="visit.value"
+                            :value="visit.value"
+                            :label="visit.label"
+                        />
+                    </n-space>
+                </n-radio-group>
+            </div>
         </div>
 
         <div class="compose-wrap" v-else>
@@ -242,10 +268,13 @@ import {
     VideocamOutline,
     AttachOutline,
     CompassOutline,
+    EyeOutline,
 } from '@vicons/ionicons5';
 import { createPost } from '@/api/post';
 import { parsePostTag } from '@/utils/content';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
+
+
 
 const emit = defineEmits<{
     (e: 'post-success', post: Item.PostProps): void;
@@ -257,8 +286,10 @@ const optionsRef = ref<MentionOption[]>([]);
 const loading = ref(false);
 const submitting = ref(false);
 const showLinkSet = ref(false);
+const showEyeSet = ref(false);
 const content = ref('');
 const links = ref([]);
+
 const uploadRef = ref<UploadInst>();
 const attachmentPrice = ref(0);
 const uploadType = ref('public/image');
@@ -266,6 +297,8 @@ const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
 const videoContents = ref<Item.CommentItemProps[]>([]);
 const attachmentContents = ref<Item.AttachmentProps[]>([]);
+const visitType = ref(0)
+const visibilities = [{value: 0, label: "公开"}, {value: 1, label: "私密"}, {value: 2, label: "好友可见"}]
 
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = ref();
@@ -275,6 +308,10 @@ const switchLink = () => {
     if (!showLinkSet.value) {
         links.value = [];
     }
+};
+
+const switchEye = () => {
+    showEyeSet.value = !showEyeSet.value;
 };
 
 // 加载at用户列表
@@ -513,6 +550,7 @@ const submitPost = () => {
         tags: Array.from(new Set(tags)),
         users: Array.from(new Set(users)),
         attachment_price: +attachmentPrice.value * 100,
+        visibility: visitType.value
     })
         .then((res) => {
             window.$message.success('发布成功');
@@ -521,6 +559,7 @@ const submitPost = () => {
 
             // 置空
             showLinkSet.value = false;
+            showEyeSet.value = false;
             uploadRef.value?.clear();
             fileQueue.value = [];
             content.value = '';
@@ -528,6 +567,7 @@ const submitPost = () => {
             imageContents.value = [];
             videoContents.value = [];
             attachmentContents.value = [];
+            visitType.value = 0;
         })
         .catch((err) => {
             submitting.value = false;
@@ -596,5 +636,8 @@ onMounted(() => {
     .n-upload-file-info__thumbnail {
         overflow: hidden;
     }
+}
+.eye-wrap {
+    margin-left: 64px;
 }
 </style>
