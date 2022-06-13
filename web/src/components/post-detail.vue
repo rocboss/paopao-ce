@@ -16,6 +16,33 @@
                     {{ post.user.nickname }}
                 </router-link>
                 <span class="username-wrap"> @{{ post.user.username }} </span>
+                <n-tag
+                    v-if="post.is_top"
+                    class="top-tag"
+                    type="warning"
+                    size="small"
+                    round
+                >
+                    置顶
+                </n-tag>
+                <n-tag
+                    v-if="post.visibility == 1"
+                    class="top-tag"
+                    type="error"
+                    size="small"
+                    round
+                >
+                    私密
+                </n-tag>
+                <n-tag
+                    v-if="post.visibility == 2"
+                    class="top-tag"
+                    type="info"
+                    size="small"
+                    round
+                >
+                    好友可见
+                </n-tag>
             </template>
             <template #header-extra>
                 <div
@@ -450,7 +477,9 @@ onMounted(() => {
         font-size: 14px;
         opacity: 0.75;
     }
-
+    .top-tag {
+        transform: scale(0.75);
+    }
     .options {
         opacity: 0.75;
     }

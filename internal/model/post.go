@@ -67,6 +67,7 @@ func (p *Post) Format() *PostFormated {
 			CommentCount:    p.CommentCount,
 			CollectionCount: p.CollectionCount,
 			UpvoteCount:     p.UpvoteCount,
+			Visibility:      p.Visibility,
 			IsTop:           p.IsTop,
 			IsEssence:       p.IsEssence,
 			IsLock:          p.IsLock,
