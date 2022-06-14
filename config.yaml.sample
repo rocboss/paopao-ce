@@ -12,8 +12,9 @@ Server: # 服务设置
   ReadTimeout: 60
   WriteTimeout: 60
 Features:
-  Default: ["Base", "MySQL", "Option", "MinIO", "LoggerFile"]
+  Default: ["Base", "MySQL", "Option", "LocalOSS", "LoggerFile"]
   Develop: ["Base", "MySQL", "Option", "Sms", "AliOSS", "LoggerZinc"]
+  Demo: ["Base", "MySQL", "Option", "Sms", "MinIO", "LoggerZinc"]
   Slim: ["Base", "Sqlite3", "LocalOSS", "LoggerFile"]
   Base: ["Zinc", "Redis", "Alipay",]
   Option: ["SimpleCacheIndex"]

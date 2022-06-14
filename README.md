@@ -194,7 +194,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
 ```sh
 %> git clone https://github.com/rocboss/paopao-ce.git
 %> docker compose up --build
-# visit http://127.0.0.1:8008
+# visit paopao-ce(http://127.0.0.1:8008) and phpMysqlAdmin(http://127.0.0.1:8080)
 ```
 默认是使用config.yaml.sample的配置，如果需要自定义配置，请拷贝默认配置文件(比如config.yaml)，修改后再同步配置到docker-compose.yaml如下：
 ```
@@ -217,6 +217,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
       - paopao-network
 ....
 ```
+***注意：默认提供的 docker-compose.yaml 仅仅用于搭建本机开发调试环境，paopao-ce/phpMysqlAdmin 默认只能本机访问，如果需要产品部署供外网访问，请自行修改配置参数或使用其他方式部署。***
 
 ### API 文档
 构建时将 `docs` 添加到TAGS中:
