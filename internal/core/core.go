@@ -34,7 +34,7 @@ type DataService interface {
 	DeletePost(post *model.Post) error
 	LockPost(post *model.Post) error
 	StickPost(post *model.Post) error
-	VisibilityPost(post *model.Post) error
+	VisiblePost(post *model.Post, visibility model.PostVisibleT) error
 	GetPostByID(id int64) (*model.Post, error)
 	GetPosts(conditions *model.ConditionsT, offset, limit int) ([]*model.Post, error)
 	MergePosts(posts []*model.Post) ([]*model.PostFormated, error)

@@ -8,12 +8,13 @@ import (
 )
 
 // PostVisibleT 可访问类型，0公开，1私密，2好友
-type PostVisibleT int
+type PostVisibleT uint8
 
 const (
 	PostVisitPublic PostVisibleT = iota
 	PostVisitPrivate
 	PostVisitFriend
+	PostVisitInvalid
 )
 
 type Post struct {
@@ -155,4 +156,19 @@ func (p *Post) Count(db *gorm.DB, conditions *ConditionsT) (int64, error) {
 
 func (p *Post) Update(db *gorm.DB) error {
 	return db.Model(&Post{}).Where("id = ? AND is_del = ?", p.Model.ID, 0).Save(p).Error
+}
+
+func (p PostVisibleT) String() string {
+	switch p {
+	case PostVisitPublic:
+		return "public"
+	case PostVisitPrivate:
+		return "private"
+	case PostVisitFriend:
+		return "friend"
+	case PostVisitInvalid:
+		return "invalid"
+	default:
+		return "unknow"
+	}
 }

@@ -394,3 +394,11 @@ func GetSuggestTags(keyword string) ([]string, error) {
 func IsFriend(userId, friendId int64) bool {
 	return ds.IsFriend(userId, friendId)
 }
+
+// checkPermision 检查是否拥有者或管理员
+func checkPermision(user *model.User, targetUserId int64) *errcode.Error {
+	if user == nil || (user.ID != targetUserId && !user.IsAdmin) {
+		return errcode.NoPermission
+	}
+	return nil
+}

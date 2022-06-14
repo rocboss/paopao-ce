@@ -6,6 +6,7 @@ const (
 	IdxActUpdatePost
 	IdxActDeletePost
 	IdxActStickPost
+	IdxActVisiblePost
 )
 
 type IndexActionT uint8
@@ -22,6 +23,8 @@ func (a IndexActionT) String() string {
 		return "delete post"
 	case IdxActStickPost:
 		return "stick post"
+	case IdxActVisiblePost:
+		return "visible post"
 	default:
 		return "unknow action"
 	}

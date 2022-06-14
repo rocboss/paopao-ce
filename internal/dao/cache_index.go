@@ -92,7 +92,12 @@ func (s *simpleCacheIndexServant) startIndexPosts() {
 			}
 		case action := <-s.indexActionCh:
 			switch action {
-			case core.IdxActCreatePost, core.IdxActUpdatePost, core.IdxActDeletePost, core.IdxActStickPost:
+			// TODO: 这里列出来是因为后续可能会精细化处理每种情况
+			case core.IdxActCreatePost,
+				core.IdxActUpdatePost,
+				core.IdxActDeletePost,
+				core.IdxActStickPost,
+				core.IdxActVisiblePost:
 				// prevent many update post in least time
 				if len(s.indexPosts) != 0 {
 					logrus.Debugf("remove index posts by action %s", action)

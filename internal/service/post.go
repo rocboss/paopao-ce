@@ -11,6 +11,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/pkg/errcode"
 	"github.com/rocboss/paopao-ce/pkg/util"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
 	"github.com/sirupsen/logrus"
@@ -219,16 +220,42 @@ func StickPost(id int64) error {
 	return nil
 }
 
-func VisibilityPost(id int64, visibility model.PostVisibleT) error {
-	post, _ := ds.GetPostByID(id)
+func VisiblePost(user *model.User, postId int64, visibility model.PostVisibleT) *errcode.Error {
+	if visibility >= model.PostVisitInvalid {
+		return errcode.InvalidParams
+	}
 
-	// 修改可见度
-	post.Visibility = visibility
-	err := ds.VisibilityPost(post)
+	post, err := ds.GetPostByID(postId)
 	if err != nil {
+		return errcode.GetPostFailed
+	}
+
+	if err := checkPermision(user, post.UserID); err != nil {
 		return err
 	}
 
+	// 相同属性，不需要操作了
+	oldVisibility := post.Visibility
+	if oldVisibility == visibility {
+		logrus.Infof("sample visibility no need operate postId: %d", postId)
+		return nil
+	}
+
+	if err = ds.VisiblePost(post, visibility); err != nil {
+		logrus.Warnf("update post failure: %v", err)
+		return errcode.VisblePostFailed
+	}
+
+	// 搜索处理
+	if oldVisibility == model.PostVisitPrivate {
+		// 从私密转为非私密需要push
+		logrus.Debugf("visible post set to re-public to add search index: %d, visibility: %s", post.ID, visibility)
+		go PushPostToSearch(post)
+	} else if visibility == model.PostVisitPrivate {
+		// 从非私密转为私密需要删除索引
+		logrus.Debugf("visible post set to private to delete search index: %d, visibility: %s", post.ID, visibility)
+		go DeleteSearchPost(post)
+	}
 	return nil
 }
 

@@ -564,3 +564,12 @@ func GetUserWalletBills(c *gin.Context) {
 
 	response.ToResponseList(bills, totalRows)
 }
+
+func userFrom(c *gin.Context) (*model.User, bool) {
+	if u, exists := c.Get("USER"); exists {
+		user, ok := u.(*model.User)
+		return user, ok
+	}
+	logrus.Debugln("user not exist")
+	return nil, false
+}
