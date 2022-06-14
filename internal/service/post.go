@@ -84,8 +84,13 @@ func (p *PostContentItem) Check() error {
 	return nil
 }
 
+// CreatePost 创建文章
+// TODO: maybe have bug need optimize for use transaction to create post
 func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Post, error) {
 	ip := c.ClientIP()
+	if len(ip) == 0 {
+		ip = "未知"
+	}
 
 	post := &model.Post{
 		UserID:          userID,
@@ -98,15 +103,6 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 	post, err := ds.CreatePost(post)
 	if err != nil {
 		return nil, err
-	}
-
-	// 创建标签
-	for _, t := range param.Tags {
-		tag := &model.Tag{
-			UserID: userID,
-			Tag:    t,
-		}
-		ds.CreateTag(tag)
 	}
 
 	for _, item := range param.Contents {
@@ -127,27 +123,43 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 			Type:    item.Type,
 			Sort:    item.Sort,
 		}
-		ds.CreatePostContent(postContent)
+		if _, err := ds.CreatePostContent(postContent); err != nil {
+			return nil, err
+		}
 	}
 
-	// 推送Search
-	go PushPostToSearch(post)
-
-	// 创建用户消息提醒
-	for _, u := range param.Users {
-		user, err := ds.GetUserByUsername(u)
-		if err != nil || user.ID == userID {
-			continue
+	// TODO: 目前非私密文章才能有如下操作，后续再优化
+	if post.Visibility != model.PostVisitPrivate {
+		// 创建标签
+		for _, t := range param.Tags {
+			tag := &model.Tag{
+				UserID: userID,
+				Tag:    t,
+			}
+			if _, err := ds.CreateTag(tag); err != nil {
+				return nil, err
+			}
 		}
+		// 创建用户消息提醒
+		for _, u := range param.Users {
+			user, err := ds.GetUserByUsername(u)
+			if err != nil || user.ID == userID {
+				continue
+			}
 
-		// 创建消息提醒
-		go ds.CreateMessage(&model.Message{
-			SenderUserID:   userID,
-			ReceiverUserID: user.ID,
-			Type:           model.MESSAGE_POST,
-			Brief:          "在新发布的泡泡动态中@了你",
-			PostID:         post.ID,
-		})
+			// 创建消息提醒
+			// TODO: 优化消息提醒处理机制
+			go ds.CreateMessage(&model.Message{
+				SenderUserID:   userID,
+				ReceiverUserID: user.ID,
+				Type:           model.MESSAGE_POST,
+				Brief:          "在新发布的泡泡动态中@了你",
+				PostID:         post.ID,
+			})
+		}
+		// 推送Search
+		// TODO: 优化推送文章到搜索的处理机制，最好使用通道channel传递文章，可以省goroutine
+		go PushPostToSearch(post)
 	}
 
 	return post, nil
