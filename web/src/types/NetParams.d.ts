@@ -124,6 +124,12 @@ declare module NetParams {
         id: number
     }
 
+    interface PostVisibilityPost {
+        id: number,
+        /** 可见性 0公开 1私密 2好友可见 */
+        visibility: 0 | 1 | 2
+    }
+
     interface PostGetPostStar {
         id: number
     }

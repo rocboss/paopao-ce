@@ -288,6 +288,42 @@ func StickPost(c *gin.Context) {
 	})
 }
 
+func VisibilityPost(c *gin.Context) {
+	param := service.PostVisibilityReq{}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &param)
+	if !valid {
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+
+	user, _ := c.Get("USER")
+
+	// 获取Post
+	postFormated, err := service.GetPost(param.ID)
+	if err != nil {
+		logrus.Errorf("service.GetPost err: %v\n", err)
+		response.ToErrorResponse(errcode.GetPostFailed)
+		return
+	}
+
+	if postFormated.UserID != user.(*model.User).ID && !user.(*model.User).IsAdmin {
+		response.ToErrorResponse(errcode.NoPermission)
+		return
+	}
+	err = service.VisibilityPost(param.ID, param.Visibility)
+	if err != nil {
+		logrus.Errorf("service.LockPost err: %v\n", err)
+		response.ToErrorResponse(errcode.LockPostFailed)
+		return
+	}
+
+	response.ToResponse(gin.H{
+		"visibility": param.Visibility,
+	})
+}
+
 func GetPostTags(c *gin.Context) {
 	param := service.PostTagsReq{}
 	response := app.NewResponse(c)

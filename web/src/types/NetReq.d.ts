@@ -116,6 +116,11 @@ declare module NetReq {
         top_status: 0 | 1
     }
 
+    interface PostVisibilityPost {
+        /** 可见性 0公开 1私密 2好友可见 */
+        visibility_status: 0 | 1 | 2
+    }
+
     interface PostGetPostStar {
         status: boolean
     }

@@ -167,6 +167,9 @@ func NewRouter() *gin.Engine {
 		// 置顶动态
 		privApi.POST("/post/stick", api.StickPost)
 
+		// 修改动态可见度
+		privApi.POST("/post/visibility", api.VisibilityPost)
+
 		// 发布动态评论
 		privApi.POST("/post/comment", api.CreatePostComment)
 

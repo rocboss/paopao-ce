@@ -51,6 +51,11 @@ type PostStickReq struct {
 	ID int64 `json:"id" binding:"required"`
 }
 
+type PostVisibilityReq struct {
+	ID         int64              `json:"id" binding:"required"`
+	Visibility model.PostVisibleT `json:"visibility"`
+}
+
 type PostStarReq struct {
 	ID int64 `json:"id" binding:"required"`
 }
@@ -207,6 +212,19 @@ func StickPost(id int64) error {
 
 	err := ds.StickPost(post)
 
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func VisibilityPost(id int64, visibility model.PostVisibleT) error {
+	post, _ := ds.GetPostByID(id)
+
+	// 修改可见度
+	post.Visibility = visibility
+	err := ds.VisibilityPost(post)
 	if err != nil {
 		return err
 	}

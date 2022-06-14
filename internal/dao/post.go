@@ -39,6 +39,10 @@ func (d *dataServant) StickPost(post *model.Post) error {
 	return nil
 }
 
+func (d *dataServant) VisibilityPost(post *model.Post) error {
+	return post.Update(d.engine)
+}
+
 func (d *dataServant) GetPostByID(id int64) (*model.Post, error) {
 	post := &model.Post{
 		Model: &model.Model{
