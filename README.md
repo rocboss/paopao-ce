@@ -226,6 +226,63 @@ PaoPao主要由以下优秀的开源项目/工具构建
 # visit http://127.0.0.1:8008/docs
 ```
 
+### 关于config.yaml
+`config.yaml.sample` 是一份完整的配置文件模版，paopao-ce启动时会读取configs/config.yaml、./config.yaml任意一份配置文件（优先读取最先找到的文件）。
+
+```sh
+%> cp config.yaml.sample config.yaml
+%> vi config.yaml # 修改参数
+%> paopao-ce
+```
+配置文件中的 `Features` 小节是声明paopao-ce运行时开启哪些功能项:
+```yaml
+...
+
+Features:
+  Default: ["Base", "MySQL", "Option", "LocalOSS", "LoggerFile"]
+  Develop: ["Base", "MySQL", "Option", "Sms", "AliOSS", "LoggerZinc"]
+  Demo: ["Base", "MySQL", "Option", "Sms", "MinIO", "LoggerZinc"]
+  Slim: ["Base", "Sqlite3", "LocalOSS", "LoggerFile"]
+  Base: ["Zinc", "Redis", "Alipay",]
+  Option: ["SimpleCacheIndex"]
+  Sms: "SmsJuhe"
+
+...
+```
+
+如上： Default/Develop/Demo/Slim 是不同 功能集套件(Features Suite)， Base/Option 是子功能套件， Sms是关于短信验证码功能的参数选项。
+这里 `Default`套件 代表的意思是： 使用`Base/Option` 中的功能 外加 `MySQL/LocalOSS/LoggerFile`功能，也就是说开启了`Zinc/Redis/Alipay/SimpleCacheIndex/MySQL/LocalOSS/LoggerFile` 7项功能； `Develop`套件依例类推。 使用Feautures:
+
+```sh
+%> release/paopao-ce --help
+Usage of release/paopao-ce:
+  -features value
+        use special features
+  -no-default-features
+        whether use default features
+
+%> release/paopao-ce # 默认使用 Default 功能套件
+
+%> release/paopao-ce --no-default-features --features develop # 不包含 default 中的功能集，仅仅使用 develop 中声明的功能集
+
+%> release/paopao-ce --features sms  # 使用 default 中的功能集，外加 sms 功能
+
+%> release/paopao-ce --nodefault-features --features sqlite3,localoss,loggerfile,redis # 手动指定需要开启的功能集
+```
+
+目前支持的功能集合:
+* 数据库: MySQL/Sqlite3/PostgreSQL
+* 对象存储: AliOSS/MinIO/LocalOSS
+  `LocalOSS` 提供使用本地目录文件作为对象存储的功能，仅用于开发调试环境；
+* 缓存: Redis/SimpleCacheIndex
+  `SimpleCacheIndex`提供 广场文章列表 的缓存功能；
+* 搜索: Zinc
+* 日志: LoggerFile/LoggerZinc
+  `LoggerFile` 使用文件写日志；
+  `LoggerZinc` 使用Zinc写日志;
+* 支付: Alipay
+* 短信验证码: SmsJuhe(需要开启sms)
+
 ### 其他说明
 
 建议后端服务使用 `supervisor` 守护进程，并通过 `nginx` 反向代理后，提供API给前端服务调用。
