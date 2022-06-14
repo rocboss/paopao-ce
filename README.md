@@ -267,21 +267,22 @@ Usage of release/paopao-ce:
 
 %> release/paopao-ce --features sms  # 使用 default 中的功能集，外加 sms 功能
 
-%> release/paopao-ce --nodefault-features --features sqlite3,localoss,loggerfile,redis # 手动指定需要开启的功能集
+%> release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,redis # 手动指定需要开启的功能集
 ```
 
 目前支持的功能集合:
-* 数据库: MySQL/Sqlite3/PostgreSQL
-* 对象存储: AliOSS/MinIO/LocalOSS
-  `LocalOSS` 提供使用本地目录文件作为对象存储的功能，仅用于开发调试环境；
-* 缓存: Redis/SimpleCacheIndex
-  `SimpleCacheIndex`提供 广场文章列表 的缓存功能；
-* 搜索: Zinc
-* 日志: LoggerFile/LoggerZinc
-  `LoggerFile` 使用文件写日志；
-  `LoggerZinc` 使用Zinc写日志;
-* 支付: Alipay
-* 短信验证码: SmsJuhe(需要开启sms)
+* 数据库: MySQL/Sqlite3/PostgreSQL   
+* 对象存储: AliOSS/MinIO/LocalOSS    
+  `LocalOSS` 提供使用本地目录文件作为对象存储的功能，仅用于开发调试环境；  
+* 缓存: Redis/SimpleCacheIndex   
+  `SimpleCacheIndex`提供 广场文章列表 的缓存功能；  
+* 搜索: Zinc  
+* 日志: LoggerFile/LoggerZinc  
+  `LoggerFile` 使用文件写日志；  
+  `LoggerZinc` 使用Zinc写日志;  
+* 支付: Alipay  
+* 短信验证码: SmsJuhe(需要开启sms)  
+  `Sms`功能如果没有开启，任意短信验证码都可以绑定手机；  
 
 ### 其他说明
 
