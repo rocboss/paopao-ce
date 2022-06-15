@@ -26,7 +26,7 @@
                     置顶
                 </n-tag>
                 <n-tag
-                    v-if="post.visibility == VisibilityEnum.PUBLIC"
+                    v-if="post.visibility == VisibilityEnum.PRIVATE"
                     class="top-tag"
                     type="error"
                     size="small"
