@@ -26,7 +26,7 @@
                     置顶
                 </n-tag>
                 <n-tag
-                    v-if="post.visibility == 1"
+                    v-if="post.visibility == VisibilityEnum.PUBLIC"
                     class="top-tag"
                     type="error"
                     size="small"
@@ -35,7 +35,7 @@
                     私密
                 </n-tag>
                 <n-tag
-                    v-if="post.visibility == 2"
+                    v-if="post.visibility == VisibilityEnum.FRIEND"
                     class="top-tag"
                     type="info"
                     size="small"
@@ -219,6 +219,7 @@ import {
     visibilityPost
 } from '@/api/post';
 import type { DropdownOption } from 'naive-ui';
+import { VisibilityEnum } from '@/utils/IEnum';
 
 const store = useStore();
 const router = useRouter();
@@ -235,7 +236,7 @@ const showLockModal = ref(false);
 const showStickModal = ref(false);
 const showVisibilityModal = ref(false);
 const loading = ref(false);
-const tempVisibility = ref<Item.VisibilityStatus>(0);
+const tempVisibility = ref<VisibilityEnum>(VisibilityEnum.PUBLIC);
 
 const emit = defineEmits<{
     (e: 'reload'): void;
@@ -314,7 +315,7 @@ const adminOptions = computed(() => {
             });
         }
     }
-    if (post.value.visibility === 0) {
+    if (post.value.visibility === VisibilityEnum.PUBLIC) {
         options.push({
             label: '公开',
             key: 'vpublic',
@@ -323,7 +324,7 @@ const adminOptions = computed(() => {
                 , { label: '好友可见', key: 'vfriend' }
             ]
         })
-    } else if (post.value.visibility === 1) {
+    } else if (post.value.visibility === VisibilityEnum.PRIVATE) {
         options.push({
             label: '私密',
             key: 'vprivate',

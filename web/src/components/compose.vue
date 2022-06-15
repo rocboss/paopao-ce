@@ -273,6 +273,7 @@ import {
 import { createPost } from '@/api/post';
 import { parsePostTag } from '@/utils/content';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
+import { VisibilityEnum, PostItemTypeEnum } from '@/utils/IEnum';
 
 
 
@@ -297,8 +298,12 @@ const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
 const videoContents = ref<Item.CommentItemProps[]>([]);
 const attachmentContents = ref<Item.AttachmentProps[]>([]);
-const visitType = ref<Item.VisibilityStatus>(0)
-const visibilities = [{value: 0, label: "公开"}, {value: 1, label: "私密"}, {value: 2, label: "好友可见"}]
+const visitType = ref<VisibilityEnum>(VisibilityEnum.PUBLIC);
+const visibilities = [
+    {value: VisibilityEnum.PUBLIC, label: "公开"}
+    , {value: VisibilityEnum.PRIVATE, label: "私密"}
+    , {value: VisibilityEnum.FRIEND, label: "好友可见"}
+];
 
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = ref();
@@ -505,7 +510,7 @@ const submitPost = () => {
 
     contents.push({
         content: content.value,
-        type: 2, // 文字
+        type: PostItemTypeEnum.TEXT, // 文字
         sort,
     });
 
@@ -513,7 +518,7 @@ const submitPost = () => {
         sort++;
         contents.push({
             content: img.content,
-            type: 3, // 图片
+            type: PostItemTypeEnum.IMAGEURL, // 图片
             sort,
         });
     });
@@ -521,7 +526,7 @@ const submitPost = () => {
         sort++;
         contents.push({
             content: video.content,
-            type: 4, // 图片
+            type: PostItemTypeEnum.VIDEOURL, // 视频
             sort,
         });
     });
@@ -529,7 +534,7 @@ const submitPost = () => {
         sort++;
         contents.push({
             content: attachment.content,
-            type: 7, // 附件
+            type: PostItemTypeEnum.ATTACHMENT, // 附件
             sort,
         });
     });
@@ -538,7 +543,7 @@ const submitPost = () => {
             sort++;
             contents.push({
                 content: link,
-                type: 6, // 链接
+                type: PostItemTypeEnum.LINKURL, // 链接
                 sort,
             });
         });
@@ -567,7 +572,7 @@ const submitPost = () => {
             imageContents.value = [];
             videoContents.value = [];
             attachmentContents.value = [];
-            visitType.value = 0;
+            visitType.value = VisibilityEnum.PUBLIC;
         })
         .catch((err) => {
             submitting.value = false;

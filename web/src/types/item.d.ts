@@ -1,8 +1,5 @@
 declare module Item {
 
-    /** 可见性：0为公开，1为私密，2为好友可见 */
-    type VisibilityStatus = 0 | 1 | 2;
-
     interface UserInfo {
         /** 用户UID */
         id: number,
@@ -31,7 +28,7 @@ declare module Item {
         /** 评论者UID */
         user_id: number,
         /** 类别：1为标题，2为文字段落，3为图片地址，4为视频地址，5为语音地址，6为链接地址 */
-        type: number,
+        type: import('@/utils/IEnum').CommentItemTypeEnum,
         /** 内容 */
         content: string,
         /** 排序，越小越靠前 */
@@ -114,7 +111,7 @@ declare module Item {
         /** 内容ID */
         id: number,
         /** 类型：1为标题，2为文字段落，3为图片地址，4为视频地址，5为语音地址，6为链接地址，7为附件资源，8为收费资源 */
-        type: number,
+        type: import('@/utils/IEnum').PostItemTypeEnum,
         /** POST ID */
         post_id: number,
         /** 内容 */
@@ -165,7 +162,7 @@ declare module Item {
         /** 标签列表 */
         tags: { [key: string]: number } | string,
         /** 可见性：0为公开，1为私密，2为好友可见 */
-        visibility: VisibilityStatus,
+        visibility: import('@/utils/IEnum').VisibilityEnum,
         /** 是否锁定 */
         is_lock: number,
         /** 是否置顶 */
@@ -195,7 +192,7 @@ declare module Item {
     interface MessageProps {
         id: number,
         /** 类型：1为动态，2为评论，3为回复，4为私信，99为系统通知 */
-        type: 1 | 2 | 3 | 4 | 99,
+        type: import('@/utils/IEnum').MessageTypeEnum,
         /** 摘要说明 */
         brief: string,
         /** 详细内容 */
@@ -233,7 +230,7 @@ declare module Item {
     interface AttachmentProps {
         id: number,
         /** 类别：1为图片，2为视频，3为其他附件 */
-        type: 1 | 2 | 3,
+        type: import('@/utils/IEnum').AttachmentTypeEnum,
         /** 发布者用户UID */
         user_id: number,
         /** 发布者用户数据 */
