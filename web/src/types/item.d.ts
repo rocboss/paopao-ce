@@ -1,5 +1,8 @@
 declare module Item {
 
+    /** 可见性：0为公开，1为私密，2为好友可见 */
+    type VisibilityStatus = 0 | 1 | 2;
+
     interface UserInfo {
         /** 用户UID */
         id: number,
@@ -161,8 +164,8 @@ declare module Item {
         contents: PostItemProps[],
         /** 标签列表 */
         tags: { [key: string]: number } | string,
-        /** 可见性 0公开 1私密 2好友可见 */
-        visibility: 0 | 1 | 2,
+        /** 可见性：0为公开，1为私密，2为好友可见 */
+        visibility: VisibilityStatus,
         /** 是否锁定 */
         is_lock: number,
         /** 是否置顶 */

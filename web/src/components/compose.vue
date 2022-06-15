@@ -297,7 +297,7 @@ const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
 const videoContents = ref<Item.CommentItemProps[]>([]);
 const attachmentContents = ref<Item.AttachmentProps[]>([]);
-const visitType = ref<0 | 1 | 2>(0)
+const visitType = ref<Item.VisibilityStatus>(0)
 const visibilities = [{value: 0, label: "公开"}, {value: 1, label: "私密"}, {value: 2, label: "好友可见"}]
 
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';

@@ -235,7 +235,7 @@ const showLockModal = ref(false);
 const showStickModal = ref(false);
 const showVisibilityModal = ref(false);
 const loading = ref(false);
-const tempVisibility = ref<0 | 1 | 2>(0);
+const tempVisibility = ref<Item.VisibilityStatus>(0);
 
 const emit = defineEmits<{
     (e: 'reload'): void;

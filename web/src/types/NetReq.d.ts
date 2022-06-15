@@ -117,8 +117,8 @@ declare module NetReq {
     }
 
     interface PostVisibilityPost {
-        /** 可见性 0公开 1私密 2好友可见 */
-        visibility_status: 0 | 1 | 2
+        /** 可见性：0为公开，1为私密，2为好友可见 */
+        visibility_status: Item.VisibilityStatus
     }
 
     interface PostGetPostStar {
