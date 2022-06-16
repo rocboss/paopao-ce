@@ -274,21 +274,11 @@ func GetUserCollections(userID int64, offset, limit int) ([]*model.PostFormated,
 	if err != nil {
 		return nil, 0, err
 	}
-	postIDs := []int64{}
+	var posts []*model.Post
 	for _, collection := range collections {
-		postIDs = append(postIDs, collection.PostID)
+		posts = append(posts, collection.Post)
 	}
-
-	// 获取Posts
-	posts, err := ds.GetPosts(&model.ConditionsT{
-		"id IN ?": postIDs,
-		"ORDER":   "id DESC",
-	}, 0, 0)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	postsFormated, err := FormatPosts(posts)
+	postsFormated, err := ds.MergePosts(posts)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -306,21 +296,12 @@ func GetUserStars(userID int64, offset, limit int) ([]*model.PostFormated, int64
 	if err != nil {
 		return nil, 0, err
 	}
-	postIDs := []int64{}
+
+	var posts []*model.Post
 	for _, star := range stars {
-		postIDs = append(postIDs, star.PostID)
+		posts = append(posts, star.Post)
 	}
-
-	// 获取Posts
-	posts, err := ds.GetPosts(&model.ConditionsT{
-		"id IN ?": postIDs,
-		"ORDER":   "id DESC",
-	}, 0, 0)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	postsFormated, err := FormatPosts(posts)
+	postsFormated, err := ds.MergePosts(posts)
 	if err != nil {
 		return nil, 0, err
 	}

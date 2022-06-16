@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -269,6 +270,12 @@ func CreatePostStar(postID, userID int64) (*model.PostStar, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// 私密post不可操作
+	if post.Visibility == model.PostVisitPrivate {
+		return nil, errors.New("no permision")
+	}
+
 	star, err := ds.CreatePostStar(postID, userID)
 	if err != nil {
 		return nil, err
@@ -294,6 +301,12 @@ func DeletePostStar(star *model.PostStar) error {
 	if err != nil {
 		return err
 	}
+
+	// 私密post不可操作
+	if post.Visibility == model.PostVisitPrivate {
+		return errors.New("no permision")
+	}
+
 	// 更新Post点赞数
 	post.UpvoteCount--
 	ds.UpdatePost(post)
@@ -314,6 +327,12 @@ func CreatePostCollection(postID, userID int64) (*model.PostCollection, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// 私密post不可操作
+	if post.Visibility == model.PostVisitPrivate {
+		return nil, errors.New("no permision")
+	}
+
 	collection, err := ds.CreatePostCollection(postID, userID)
 	if err != nil {
 		return nil, err
@@ -339,6 +358,12 @@ func DeletePostCollection(collection *model.PostCollection) error {
 	if err != nil {
 		return err
 	}
+
+	// 私密post不可操作
+	if post.Visibility == model.PostVisitPrivate {
+		return errors.New("no permision")
+	}
+
 	// 更新Post点赞数
 	post.CollectionCount--
 	ds.UpdatePost(post)

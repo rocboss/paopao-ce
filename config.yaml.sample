@@ -77,8 +77,8 @@ LocalOSS: # 本地文件OSS存储配置
   Bucket: paopao
   Domain: 127.0.0.1:8008
 Database: # Database通用配置
-  LogLevel: 2
-  TablePrefix: p_
+  LogLevel: error   # 日志级别 silent|error|warn|info
+  TablePrefix: p_   # 表名前缀
 MySQL: # MySQL数据库
   Username: paopao
   Password: paopao
@@ -88,7 +88,7 @@ MySQL: # MySQL数据库
   ParseTime: True
   MaxIdleConns: 10
   MaxOpenConns: 30
-Postgres:
+Postgres: # PostgreSQL数据库
   User: paopao
   Password: paopao
   DBName: paopao
