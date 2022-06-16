@@ -156,11 +156,16 @@ func PostStar(c *gin.Context) {
 	star, err := service.GetPostStar(param.ID, userID.(int64))
 	if err != nil {
 		// 创建Star
-		service.CreatePostStar(param.ID, userID.(int64))
+		_, err = service.CreatePostStar(param.ID, userID.(int64))
 		status = true
 	} else {
 		// 取消Star
-		service.DeletePostStar(star)
+		err = service.DeletePostStar(star)
+	}
+
+	if err != nil {
+		response.ToErrorResponse(errcode.NoPermission)
+		return
 	}
 
 	response.ToResponse(gin.H{
@@ -204,11 +209,16 @@ func PostCollection(c *gin.Context) {
 	collection, err := service.GetPostCollection(param.ID, userID.(int64))
 	if err != nil {
 		// 创建collection
-		service.CreatePostCollection(param.ID, userID.(int64))
+		_, err = service.CreatePostCollection(param.ID, userID.(int64))
 		status = true
 	} else {
 		// 取消Star
-		service.DeletePostCollection(collection)
+		err = service.DeletePostCollection(collection)
+	}
+
+	if err != nil {
+		response.ToErrorResponse(errcode.NoPermission)
+		return
 	}
 
 	response.ToResponse(gin.H{

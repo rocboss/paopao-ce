@@ -120,7 +120,7 @@ func (d *dataServant) GetUserPostStars(userID int64, offset, limit int) ([]*mode
 	}
 
 	return star.List(d.engine, &model.ConditionsT{
-		"ORDER": "id DESC",
+		"ORDER": d.engine.NamingStrategy.TableName("PostStar") + ".id DESC",
 	}, offset, limit)
 }
 
@@ -159,7 +159,7 @@ func (d *dataServant) GetUserPostCollections(userID int64, offset, limit int) ([
 	}
 
 	return collection.List(d.engine, &model.ConditionsT{
-		"ORDER": "id DESC",
+		"ORDER": d.engine.NamingStrategy.TableName("PostCollection") + ".id DESC",
 	}, offset, limit)
 }
 
