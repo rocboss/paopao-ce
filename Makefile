@@ -13,7 +13,10 @@ BUILD_DATE := $(shell date +'%Y-%m-%d %H:%M:%S')
 SHA_SHORT := $(shell git rev-parse --short HEAD)
 
 TAGS = ""
-LDFLAGS = -X "main.version=${BUILD_VERSION}" -X "main.buildDate=${BUILD_DATE}" -X "main.commitID=${SHA_SHORT}" -w -s
+MOD_NAME = github.com/rocboss/paopao-ce
+LDFLAGS = -X "${MOD_NAME}/pkg/debug.version=${BUILD_VERSION}" \
+          -X "${MOD_NAME}/pkg/debug.buildDate=${BUILD_DATE}" \
+		  -X "${MOD_NAME}/pkg/debug.commitID=${SHA_SHORT}" -w -s
 
 all: fmt build
 
