@@ -91,6 +91,17 @@ func (p *PostContentItem) Check() error {
 	return nil
 }
 
+func tagsFrom(originTags []string) []string {
+	tags := make([]string, 0, len(originTags))
+	for _, tag := range originTags {
+		// TODO: 优化tag有效性检测
+		if tag = strings.TrimSpace(tag); len(tag) > 0 {
+			tags = append(tags, tag)
+		}
+	}
+	return tags
+}
+
 // CreatePost 创建文章
 // TODO: maybe have bug need optimize for use transaction to create post
 func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Post, error) {
@@ -99,9 +110,10 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 		ip = "未知"
 	}
 
+	tags := tagsFrom(param.Tags)
 	post := &model.Post{
 		UserID:          userID,
-		Tags:            strings.Join(param.Tags, ","),
+		Tags:            strings.Join(tags, ","),
 		IP:              ip,
 		IPLoc:           util.GetIPLoc(ip),
 		AttachmentPrice: param.AttachmentPrice,
@@ -138,7 +150,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 	// TODO: 目前非私密文章才能有如下操作，后续再优化
 	if post.Visibility != model.PostVisitPrivate {
 		// 创建标签
-		for _, t := range param.Tags {
+		for _, t := range tags {
 			tag := &model.Tag{
 				UserID: userID,
 				Tag:    t,
