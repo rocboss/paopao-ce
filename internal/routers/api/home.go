@@ -16,6 +16,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/convert"
+	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 	"github.com/rocboss/paopao-ce/pkg/util"
 	"github.com/sirupsen/logrus"
@@ -29,7 +30,7 @@ const MAX_PHONE_CAPTCHA = 10
 func Version(c *gin.Context) {
 	response := app.NewResponse(c)
 	response.ToResponse(gin.H{
-		"version": "PaoPao Service v1.0",
+		"BuildInfo": debug.ReadBuildInfo(),
 	})
 }
 
