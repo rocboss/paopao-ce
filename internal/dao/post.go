@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"strings"
 	"time"
 
 	"github.com/rocboss/paopao-ce/internal/core"
@@ -36,6 +37,46 @@ func (d *dataServant) StickPost(post *model.Post) error {
 		return err
 	}
 	d.indexActive(core.IdxActStickPost)
+	return nil
+}
+
+func (d *dataServant) VisiblePost(post *model.Post, visibility model.PostVisibleT) error {
+	oldVisibility := post.Visibility
+	post.Visibility = visibility
+	// TODO: 这个判断是否可以不要呢
+	if oldVisibility == visibility {
+		return nil
+	}
+	// 私密推文 特殊处理
+	if visibility == model.PostVisitPrivate {
+		// 强制取消置顶
+		// TODO: 置顶推文用户是否有权设置成私密？ 后续完善
+		post.IsTop = 0
+	}
+	db := d.engine.Begin()
+	err := post.Update(db)
+	if err != nil {
+		db.Rollback()
+		return err
+	}
+
+	// tag处理
+	tags := strings.Split(post.Tags, ",")
+	for _, t := range tags {
+		tag := &model.Tag{
+			Tag: t,
+		}
+		// TODO: 暂时宽松不处理错误，这里或许可以有优化，后续完善
+		if oldVisibility == model.PostVisitPrivate {
+			// 从私密转为非私密才需要重新创建tag
+			d.createTag(db, tag)
+		} else if visibility == model.PostVisitPrivate {
+			// 从非私密转为私密才需要删除tag
+			d.deleteTag(db, tag)
+		}
+	}
+	db.Commit()
+	d.indexActive(core.IdxActVisiblePost)
 	return nil
 }
 
@@ -79,7 +120,7 @@ func (d *dataServant) GetUserPostStars(userID int64, offset, limit int) ([]*mode
 	}
 
 	return star.List(d.engine, &model.ConditionsT{
-		"ORDER": "id DESC",
+		"ORDER": d.engine.NamingStrategy.TableName("PostStar") + ".id DESC",
 	}, offset, limit)
 }
 
@@ -118,7 +159,7 @@ func (d *dataServant) GetUserPostCollections(userID int64, offset, limit int) ([
 	}
 
 	return collection.List(d.engine, &model.ConditionsT{
-		"ORDER": "id DESC",
+		"ORDER": d.engine.NamingStrategy.TableName("PostCollection") + ".id DESC",
 	}, offset, limit)
 }
 

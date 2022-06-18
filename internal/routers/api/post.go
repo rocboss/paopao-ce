@@ -31,7 +31,8 @@ func GetPostList(c *gin.Context) {
 			return
 		}
 		totalRows, _ := service.GetPostCount(&model.ConditionsT{
-			"ORDER": "latest_replied_on DESC",
+			"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},
+			"ORDER":           "latest_replied_on DESC",
 		})
 
 		response.ToResponseList(posts, totalRows)
@@ -155,11 +156,16 @@ func PostStar(c *gin.Context) {
 	star, err := service.GetPostStar(param.ID, userID.(int64))
 	if err != nil {
 		// 创建Star
-		service.CreatePostStar(param.ID, userID.(int64))
+		_, err = service.CreatePostStar(param.ID, userID.(int64))
 		status = true
 	} else {
 		// 取消Star
-		service.DeletePostStar(star)
+		err = service.DeletePostStar(star)
+	}
+
+	if err != nil {
+		response.ToErrorResponse(errcode.NoPermission)
+		return
 	}
 
 	response.ToResponse(gin.H{
@@ -203,11 +209,16 @@ func PostCollection(c *gin.Context) {
 	collection, err := service.GetPostCollection(param.ID, userID.(int64))
 	if err != nil {
 		// 创建collection
-		service.CreatePostCollection(param.ID, userID.(int64))
+		_, err = service.CreatePostCollection(param.ID, userID.(int64))
 		status = true
 	} else {
 		// 取消Star
-		service.DeletePostCollection(collection)
+		err = service.DeletePostCollection(collection)
+	}
+
+	if err != nil {
+		response.ToErrorResponse(errcode.NoPermission)
+		return
 	}
 
 	response.ToResponse(gin.H{
@@ -284,6 +295,28 @@ func StickPost(c *gin.Context) {
 
 	response.ToResponse(gin.H{
 		"top_status": 1 - postFormated.IsTop,
+	})
+}
+
+func VisiblePost(c *gin.Context) {
+	param := service.PostVisibilityReq{}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &param)
+	if !valid {
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+
+	user, _ := userFrom(c)
+	if err := service.VisiblePost(user, param.ID, param.Visibility); err != nil {
+		logrus.Errorf("service.VisiblePost err: %v\n", err)
+		response.ToErrorResponse(err)
+		return
+	}
+
+	response.ToResponse(gin.H{
+		"visibility": param.Visibility,
 	})
 }
 

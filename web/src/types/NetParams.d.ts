@@ -124,6 +124,12 @@ declare module NetParams {
         id: number
     }
 
+    interface PostVisibilityPost {
+        id: number,
+        /** 可见性：0为公开，1为私密，2为好友可见 */
+        visibility: import('@/utils/IEnum').VisibilityEnum
+    }
+
     interface PostGetPostStar {
         id: number
     }
@@ -157,7 +163,9 @@ declare module NetParams {
         /** 艾特用户列表 */
         users: string[],
         /** 附件价格 */
-        attachment_price: number
+        attachment_price: number,
+        /** 可见性：0为公开，1为私密，2为好友可见 */
+        visibility: import('@/utils/IEnum').VisibilityEnum
     }
 
     interface PostDeletePost {

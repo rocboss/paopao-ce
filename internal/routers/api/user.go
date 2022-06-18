@@ -313,13 +313,23 @@ func GetUserPosts(c *gin.Context) {
 		return
 	}
 
-	conditions := &model.ConditionsT{
-		"user_id": user.ID,
-		"ORDER":   "latest_replied_on DESC",
+	visibilities := []model.PostVisibleT{model.PostVisitPublic}
+	if u, exists := c.Get("USER"); exists {
+		self := u.(*model.User)
+		if self.ID == user.ID || self.IsAdmin {
+			visibilities = append(visibilities, model.PostVisitPrivate, model.PostVisitFriend)
+		} else if service.IsFriend(user.ID, self.ID) {
+			visibilities = append(visibilities, model.PostVisitFriend)
+		}
+	}
+	conditions := model.ConditionsT{
+		"user_id":         user.ID,
+		"visibility IN ?": visibilities,
+		"ORDER":           "latest_replied_on DESC",
 	}
 
 	posts, err := service.GetPostList(&service.PostListReq{
-		Conditions: conditions,
+		Conditions: &conditions,
 		Offset:     (app.GetPage(c) - 1) * app.GetPageSize(c),
 		Limit:      app.GetPageSize(c),
 	})
@@ -328,7 +338,7 @@ func GetUserPosts(c *gin.Context) {
 		response.ToErrorResponse(errcode.GetPostsFailed)
 		return
 	}
-	totalRows, _ := service.GetPostCount(conditions)
+	totalRows, _ := service.GetPostCount(&conditions)
 
 	response.ToResponseList(posts, totalRows)
 }
@@ -553,4 +563,13 @@ func GetUserWalletBills(c *gin.Context) {
 	}
 
 	response.ToResponseList(bills, totalRows)
+}
+
+func userFrom(c *gin.Context) (*model.User, bool) {
+	if u, exists := c.Get("USER"); exists {
+		user, ok := u.(*model.User)
+		return user, ok
+	}
+	logrus.Debugln("user not exist")
+	return nil, false
 }

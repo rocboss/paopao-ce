@@ -69,9 +69,13 @@ func NewRouter() *gin.Engine {
 
 		// 获取用户基本信息
 		noAuthApi.GET("/user/profile", api.GetUserProfile)
+	}
 
+	// 宽松鉴权路由组
+	looseApi := r.Group("/").Use(middleware.JwtLoose())
+	{
 		// 获取用户动态列表
-		noAuthApi.GET("/user/posts", api.GetUserPosts)
+		looseApi.GET("/user/posts", api.GetUserPosts)
 	}
 
 	// 鉴权路由组
@@ -162,6 +166,9 @@ func NewRouter() *gin.Engine {
 
 		// 置顶动态
 		privApi.POST("/post/stick", api.StickPost)
+
+		// 修改动态可见度
+		privApi.POST("/post/visibility", api.VisiblePost)
 
 		// 发布动态评论
 		privApi.POST("/post/comment", api.CreatePostComment)

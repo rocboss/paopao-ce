@@ -32,8 +32,9 @@ type dataServant struct {
 	zinc   *zinc.ZincClient
 }
 
+type indexPostsFunc func(int64, int, int) ([]*model.PostFormated, error)
 type simpleCacheIndexServant struct {
-	getIndexPosts   func(offset, limit int) ([]*model.PostFormated, error)
+	getIndexPosts   indexPostsFunc
 	indexActionCh   chan core.IndexActionT
 	indexPosts      []*model.PostFormated
 	atomicIndex     atomic.Value

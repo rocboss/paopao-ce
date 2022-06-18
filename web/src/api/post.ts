@@ -108,6 +108,15 @@ export const stickPost = (data: NetParams.PostStickPost): Promise<NetReq.PostSti
     });
 };
 
+/** 置顶/取消置顶动态 */
+export const visibilityPost = (data: NetParams.PostVisibilityPost): Promise<NetReq.PostVisibilityPost> => {
+    return request({
+        method: 'post',
+        url: '/v1/post/visibility',
+        data
+    });
+};
+
 /** 发布动态评论 */
 export const createComment = (data: NetParams.PostCreateComment): Promise<NetReq.PostCreateComment> => {
     return request({

@@ -14,7 +14,7 @@ var (
 	errNotExist = errors.New("index posts cache not exist")
 )
 
-func newSimpleCacheIndexServant(getIndexPosts func(offset, limit int) ([]*model.PostFormated, error)) *simpleCacheIndexServant {
+func newSimpleCacheIndexServant(getIndexPosts indexPostsFunc) *simpleCacheIndexServant {
 	s := conf.SimpleCacheIndexSetting
 	cacheIndex := &simpleCacheIndexServant{
 		getIndexPosts:   getIndexPosts,
@@ -48,7 +48,7 @@ func newSimpleCacheIndexServant(getIndexPosts func(offset, limit int) ([]*model.
 	return cacheIndex
 }
 
-func (s *simpleCacheIndexServant) IndexPosts(offset int, limit int) ([]*model.PostFormated, error) {
+func (s *simpleCacheIndexServant) IndexPosts(_userId int64, offset int, limit int) ([]*model.PostFormated, error) {
 	posts := s.atomicIndex.Load().([]*model.PostFormated)
 	end := offset + limit
 	size := len(posts)
@@ -78,7 +78,7 @@ func (s *simpleCacheIndexServant) startIndexPosts() {
 		case <-s.checkTick.C:
 			if len(s.indexPosts) == 0 {
 				logrus.Debugf("index posts by checkTick")
-				if s.indexPosts, err = s.getIndexPosts(0, s.maxIndexSize); err == nil {
+				if s.indexPosts, err = s.getIndexPosts(0, 0, s.maxIndexSize); err == nil {
 					s.atomicIndex.Store(s.indexPosts)
 				} else {
 					logrus.Errorf("get index posts err: %v", err)
@@ -92,7 +92,12 @@ func (s *simpleCacheIndexServant) startIndexPosts() {
 			}
 		case action := <-s.indexActionCh:
 			switch action {
-			case core.IdxActCreatePost, core.IdxActUpdatePost, core.IdxActDeletePost, core.IdxActStickPost:
+			// TODO: 这里列出来是因为后续可能会精细化处理每种情况
+			case core.IdxActCreatePost,
+				core.IdxActUpdatePost,
+				core.IdxActDeletePost,
+				core.IdxActStickPost,
+				core.IdxActVisiblePost:
 				// prevent many update post in least time
 				if len(s.indexPosts) != 0 {
 					logrus.Debugf("remove index posts by action %s", action)

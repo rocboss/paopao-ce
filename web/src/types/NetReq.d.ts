@@ -116,6 +116,11 @@ declare module NetReq {
         top_status: 0 | 1
     }
 
+    interface PostVisibilityPost {
+        /** 可见性：0为公开，1为私密，2为好友可见 */
+        visibility_status: import('@/utils/IEnum').VisibilityEnum
+    }
+
     interface PostGetPostStar {
         status: boolean
     }

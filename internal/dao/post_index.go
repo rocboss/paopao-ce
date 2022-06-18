@@ -6,15 +6,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (d *dataServant) IndexPosts(offset int, limit int) ([]*model.PostFormated, error) {
+func (d *dataServant) IndexPosts(userId int64, offset int, limit int) ([]*model.PostFormated, error) {
 	if d.useCacheIndex {
-		if posts, err := d.cacheIndex.IndexPosts(offset, limit); err == nil {
+		if posts, err := d.cacheIndex.IndexPosts(userId, offset, limit); err == nil {
 			logrus.Debugln("get index posts from cached")
 			return posts, nil
 		}
 	}
 	logrus.Debugf("get index posts from database but useCacheIndex: %t", d.useCacheIndex)
-	return d.getIndexPosts(offset, limit)
+	return d.getIndexPosts(userId, offset, limit)
 }
 
 func (d *dataServant) MergePosts(posts []*model.Post) ([]*model.PostFormated, error) {
@@ -56,9 +56,11 @@ func (d *dataServant) MergePosts(posts []*model.Post) ([]*model.PostFormated, er
 	return postsFormated, nil
 }
 
-func (d *dataServant) getIndexPosts(offset int, limit int) ([]*model.PostFormated, error) {
+// getIndexPosts _userId保留未来使用
+func (d *dataServant) getIndexPosts(_userId int64, offset int, limit int) ([]*model.PostFormated, error) {
 	posts, err := (&model.Post{}).List(d.engine, &model.ConditionsT{
-		"ORDER": "is_top DESC, latest_replied_on DESC",
+		"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},
+		"ORDER":           "is_top DESC, latest_replied_on DESC",
 	}, offset, limit)
 	if err != nil {
 		logrus.Debugf("getIndexPosts err: %v", err)

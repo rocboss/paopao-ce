@@ -74,3 +74,36 @@ func JWT() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func JwtLoose() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token, exist := c.GetQuery("token")
+		if !exist {
+			token = c.GetHeader("Authorization")
+			// 验证前端传过来的token格式，不为空，开头为Bearer
+			if strings.HasPrefix(token, "Bearer ") {
+				// 验证通过，提取有效部分（除去Bearer)
+				token = token[7:]
+			} else {
+				c.Next()
+			}
+		}
+		if len(token) > 0 {
+			if claims, err := app.ParseToken(token); err == nil {
+				c.Set("UID", claims.UID)
+				c.Set("USERNAME", claims.Username)
+				// 加载用户信息
+				user := &model.User{
+					Model: &model.Model{
+						ID: claims.UID,
+					},
+				}
+				user, err := user.Get(conf.DBEngine)
+				if err == nil && (conf.JWTSetting.Issuer+":"+user.Salt) == claims.Issuer {
+					c.Set("USER", user)
+				}
+			}
+		}
+		c.Next()
+	}
+}

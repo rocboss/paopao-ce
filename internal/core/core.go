@@ -34,8 +34,10 @@ type DataService interface {
 	DeletePost(post *model.Post) error
 	LockPost(post *model.Post) error
 	StickPost(post *model.Post) error
+	VisiblePost(post *model.Post, visibility model.PostVisibleT) error
 	GetPostByID(id int64) (*model.Post, error)
 	GetPosts(conditions *model.ConditionsT, offset, limit int) ([]*model.Post, error)
+	MergePosts(posts []*model.Post) ([]*model.PostFormated, error)
 	GetPostCount(conditions *model.ConditionsT) (int64, error)
 	UpdatePost(post *model.Post) error
 	GetUserPostStar(postID, userID int64) (*model.PostStar, error)
@@ -70,4 +72,6 @@ type DataService interface {
 	GetLatestPhoneCaptcha(phone string) (*model.Captcha, error)
 	UsePhoneCaptcha(captcha *model.Captcha) error
 	SendPhoneCaptcha(phone string) error
+
+	IsFriend(userID int64, friendID int64) bool
 }
