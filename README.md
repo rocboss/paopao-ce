@@ -274,8 +274,9 @@ Usage of release/paopao-ce:
 * 数据库: MySQL/Sqlite3/PostgreSQL   
 * 对象存储: AliOSS/MinIO/LocalOSS    
   `LocalOSS` 提供使用本地目录文件作为对象存储的功能，仅用于开发调试环境；  
-* 缓存: Redis/SimpleCacheIndex   
-  `SimpleCacheIndex`提供 广场文章列表 的缓存功能；  
+* 缓存: Redis/SimpleCacheIndex/BigCacheIndex     
+  `SimpleCacheIndex`提供简单的 广场推文列表 的缓存功能；   
+  `BigCacheIndex` 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面；  
 * 搜索: Zinc  
 * 日志: LoggerFile/LoggerZinc  
   `LoggerFile` 使用文件写日志；  

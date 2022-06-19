@@ -19,6 +19,7 @@ var (
 	ServerSetting           *ServerSettingS
 	AppSetting              *AppSettingS
 	SimpleCacheIndexSetting *SimpleCacheIndexSettingS
+	BigCacheIndexSetting    *BigCacheIndexSettingS
 	SmsJuheSetting          *SmsJuheSettings
 	AlipaySetting           *AlipaySettingS
 	ZincSetting             *ZincSettingS
@@ -47,6 +48,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"App":              &AppSetting,
 		"Server":           &ServerSetting,
 		"SimpleCacheIndex": &SimpleCacheIndexSetting,
+		"BigCacheIndex":    &BigCacheIndexSetting,
 		"Alipay":           &AlipaySetting,
 		"SmsJuhe":          &SmsJuheSetting,
 		"LoggerFile":       &loggerFileSetting,
@@ -70,6 +72,10 @@ func setupSetting(suite []string, noDefault bool) error {
 	JWTSetting.Expire *= time.Second
 	ServerSetting.ReadTimeout *= time.Second
 	ServerSetting.WriteTimeout *= time.Second
+	SimpleCacheIndexSetting.CheckTickDuration *= time.Second
+	SimpleCacheIndexSetting.ExpireTickDuration *= time.Second
+	BigCacheIndexSetting.ExpireInSecond *= time.Second
+
 	Mutex = &sync.Mutex{}
 	return nil
 }

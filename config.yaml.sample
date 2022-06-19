@@ -13,7 +13,7 @@ Server: # 服务设置
   WriteTimeout: 60
 Features:
   Default: ["Base", "MySQL", "Option", "LocalOSS", "LoggerFile"]
-  Develop: ["Base", "MySQL", "Option", "Sms", "AliOSS", "LoggerZinc"]
+  Develop: ["Base", "MySQL", "BigCacheIndex", "Sms", "AliOSS", "LoggerZinc"]
   Demo: ["Base", "MySQL", "Option", "Sms", "MinIO", "LoggerZinc"]
   Slim: ["Base", "Sqlite3", "LocalOSS", "LoggerFile"]
   Base: ["Zinc", "Redis", "Alipay",]
@@ -31,6 +31,11 @@ SimpleCacheIndex: # 缓存泡泡广场消息流
   CheckTickDuration: 60         # 循环自检查每多少秒一次
   ExpireTickDuration: 300       # 每多少秒后强制过期缓存, 设置为0禁止强制使缓存过期
   ActionQPS: 100                # 添加/删除/更新Post的QPS, 默认100，范围设置[10, 10000]
+BigCacheIndex: # 使用BigCache缓存泡泡广场消息流
+  MaxIndexPage: 1024          # 最大缓存页数，必须是2^n, 代表最大同时缓存多少页数据
+  Verbose: False              # 是否打印cache操作的log
+  ExpireInSecond: 300         # 多少秒(>0)后强制过期缓存
+  UpdateQPS: 100              # 添加/删除/更新Post的QPS, 默认100
 LoggerFile: # 使用File写日志
   SavePath: data/paopao-ce/logs
   FileName: app

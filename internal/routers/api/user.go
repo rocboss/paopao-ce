@@ -570,6 +570,13 @@ func userFrom(c *gin.Context) (*model.User, bool) {
 		user, ok := u.(*model.User)
 		return user, ok
 	}
-	logrus.Debugln("user not exist")
 	return nil, false
+}
+
+func userIdFrom(c *gin.Context) (int64, bool) {
+	if u, exists := c.Get("UID"); exists {
+		uid, ok := u.(int64)
+		return uid, ok
+	}
+	return -1, false
 }

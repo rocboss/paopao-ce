@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
@@ -20,13 +21,13 @@ func newSimpleCacheIndexServant(getIndexPosts indexPostsFunc) *simpleCacheIndexS
 		getIndexPosts:   getIndexPosts,
 		maxIndexSize:    s.MaxIndexSize,
 		indexPosts:      make([]*model.PostFormated, 0),
-		checkTick:       time.NewTicker(time.Duration(s.CheckTickDuration) * time.Second), // check whether need update index every 1 minute
+		checkTick:       time.NewTicker(s.CheckTickDuration), // check whether need update index every 1 minute
 		expireIndexTick: time.NewTicker(time.Second),
 	}
 
 	// force expire index every ExpireTickDuration second
 	if s.ExpireTickDuration != 0 {
-		cacheIndex.expireIndexTick.Reset(time.Duration(s.CheckTickDuration) * time.Second)
+		cacheIndex.expireIndexTick.Reset(s.CheckTickDuration)
 	} else {
 		cacheIndex.expireIndexTick.Stop()
 	}
@@ -109,4 +110,12 @@ func (s *simpleCacheIndexServant) startIndexPosts() {
 			}
 		}
 	}
+}
+
+func (s *simpleCacheIndexServant) Name() string {
+	return "SimpleCacheIndex"
+}
+
+func (s *simpleCacheIndexServant) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
 }
