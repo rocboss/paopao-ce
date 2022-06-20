@@ -18,8 +18,10 @@ require (
 	github.com/go-playground/validator/v10 v10.10.1 // indirect
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/go-resty/resty/v2 v2.7.0
+	github.com/goccy/go-json v0.9.7
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/google/go-cmp v0.5.7 // indirect
+	github.com/json-iterator/go v1.1.12
 	github.com/minio/minio-go/v7 v7.0.27
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartwalle/alipay/v3 v3.1.7

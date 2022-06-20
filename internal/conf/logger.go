@@ -1,11 +1,11 @@
 package conf
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"time"
 
+	"github.com/rocboss/paopao-ce/pkg/json"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"gopkg.in/resty.v1"

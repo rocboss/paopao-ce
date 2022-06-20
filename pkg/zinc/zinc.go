@@ -1,7 +1,6 @@
 package zinc
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/pkg/json"
 )
 
 type ZincClient struct {
