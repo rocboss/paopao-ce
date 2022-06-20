@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/rocboss/paopao-ce/internal/conf"
@@ -29,6 +30,14 @@ func newMinioServeant() *minioServant {
 	}
 }
 
+func (s *minioServant) Name() string {
+	return "MinIO"
+}
+
+func (s *minioServant) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
+}
+
 func (s *minioServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string) (string, error) {
 	uploadInfo, err := s.client.PutObject(context.Background(), s.bucket, objectKey, reader, objectSize, minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
@@ -37,6 +46,7 @@ func (s *minioServant) PutObject(objectKey string, reader io.Reader, objectSize 
 	logrus.Infoln("Successfully uploaded bytes: ", uploadInfo)
 	return s.domain + objectKey, nil
 }
+
 func (s *minioServant) SignURL(objectKey string, expiredInSec int64) (string, error) {
 	// TODO: Set request parameters for content-disposition.
 	reqParams := make(url.Values)

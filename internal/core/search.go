@@ -2,7 +2,6 @@ package core
 
 import (
 	"github.com/rocboss/paopao-ce/internal/model"
-	"github.com/rocboss/paopao-ce/pkg/zinc"
 )
 
 const (
@@ -12,18 +11,23 @@ const (
 
 type SearchType string
 
-type QueryT struct {
+type QueryReq struct {
 	Query      string
 	Visibility []model.PostVisibleT
 	Type       SearchType
 }
 
-// SearchService search service interface that implement base zinc
-type SearchService interface {
-	CreateSearchIndex(indexName string)
-	BulkPushDoc(data []map[string]interface{}) (bool, error)
-	DelDoc(indexName, id string) error
-	QueryAll(q *QueryT, indexName string, offset, limit int) (*zinc.QueryResultT, error)
-	QuerySearch(indexName, query string, offset, limit int) (*zinc.QueryResultT, error)
-	QueryTagSearch(indexName, query string, offset, limit int) (*zinc.QueryResultT, error)
+type QueryResp struct {
+	Items []*model.PostFormated
+	Total int64
+}
+
+// TweetSearchService tweet search service interface
+type TweetSearchService interface {
+	VersionInfo
+
+	IndexName() string
+	AddDocuments(documents []map[string]interface{}, primaryKey ...string) (bool, error)
+	DeleteDocuments(identifiers []string) error
+	Search(q *QueryReq, offset, limit int) (*QueryResp, error)
 }

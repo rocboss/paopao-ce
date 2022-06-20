@@ -7,7 +7,6 @@ import (
 // DataService data service interface that process data related logic on database
 type DataService interface {
 	WalletService
-	SearchService
 	IndexPostsService
 
 	GetComments(conditions *model.ConditionsT, offset, limit int) ([]*model.Comment, error)
@@ -38,6 +37,7 @@ type DataService interface {
 	GetPostByID(id int64) (*model.Post, error)
 	GetPosts(conditions *model.ConditionsT, offset, limit int) ([]*model.Post, error)
 	MergePosts(posts []*model.Post) ([]*model.PostFormated, error)
+	RevampPosts(posts []*model.PostFormated) ([]*model.PostFormated, error)
 	GetPostCount(conditions *model.ConditionsT) (int64, error)
 	UpdatePost(post *model.Post) error
 	GetUserPostStar(postID, userID int64) (*model.PostStar, error)

@@ -34,5 +34,6 @@ func (a IndexActionT) String() string {
 type CacheIndexService interface {
 	VersionInfo
 	IndexPostsService
+
 	SendAction(active IndexActionT)
 }
