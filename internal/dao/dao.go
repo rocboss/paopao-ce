@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/allegro/bigcache/v3"
 	"github.com/minio/minio-go/v7"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
@@ -22,6 +23,7 @@ var (
 	_ core.ObjectStorageService   = (*localossServant)(nil)
 	_ core.AttachmentCheckService = (*attachmentCheckServant)(nil)
 	_ core.CacheIndexService      = (*simpleCacheIndexServant)(nil)
+	_ core.CacheIndexService      = (*bigCacheIndexServant)(nil)
 )
 
 type dataServant struct {
@@ -41,6 +43,18 @@ type simpleCacheIndexServant struct {
 	maxIndexSize    int
 	checkTick       *time.Ticker
 	expireIndexTick *time.Ticker
+}
+
+type postsEntry struct {
+	key   string
+	posts []*model.PostFormated
+}
+type bigCacheIndexServant struct {
+	getIndexPosts      indexPostsFunc
+	indexActionCh      chan core.IndexActionT
+	cachePostsCh       chan *postsEntry
+	cache              *bigcache.BigCache
+	lastCacheResetTime time.Time
 }
 
 type localossServant struct {
@@ -72,11 +86,17 @@ func NewDataService(engine *gorm.DB, zinc *zinc.ZincClient) core.DataService {
 	}
 
 	// initialize CacheIndex if needed
+	ds.useCacheIndex = true
 	if conf.CfgIf("SimpleCacheIndex") {
-		ds.useCacheIndex = true
 		ds.cacheIndex = newSimpleCacheIndexServant(ds.getIndexPosts)
+	} else if conf.CfgIf("BigCacheIndex") {
+		ds.cacheIndex = newBigCacheIndexServant(ds.getIndexPosts)
 	} else {
 		ds.useCacheIndex = false
+	}
+
+	if ds.useCacheIndex {
+		logrus.Infof("use cache index service by %s for version: %s", ds.cacheIndex.Name(), ds.cacheIndex.Version())
 	}
 
 	return ds

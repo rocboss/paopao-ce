@@ -55,9 +55,6 @@ func NewRouter() *gin.Engine {
 	// 无鉴权路由组
 	noAuthApi := r.Group("/")
 	{
-		// 获取广场流
-		noAuthApi.GET("/posts", api.GetPostList)
-
 		// 获取动态详情
 		noAuthApi.GET("/post", api.GetPost)
 
@@ -74,6 +71,9 @@ func NewRouter() *gin.Engine {
 	// 宽松鉴权路由组
 	looseApi := r.Group("/").Use(middleware.JwtLoose())
 	{
+		// 获取广场流
+		looseApi.GET("/posts", api.GetPostList)
+
 		// 获取用户动态列表
 		looseApi.GET("/user/posts", api.GetUserPosts)
 	}

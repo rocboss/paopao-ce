@@ -9,7 +9,7 @@ import (
 func (d *dataServant) IndexPosts(userId int64, offset int, limit int) ([]*model.PostFormated, error) {
 	if d.useCacheIndex {
 		if posts, err := d.cacheIndex.IndexPosts(userId, offset, limit); err == nil {
-			logrus.Debugln("get index posts from cached")
+			logrus.Debugf("get index posts from cached by userId: %d", userId)
 			return posts, nil
 		}
 	}
@@ -57,6 +57,7 @@ func (d *dataServant) MergePosts(posts []*model.Post) ([]*model.PostFormated, er
 }
 
 // getIndexPosts _userId保留未来使用
+// TODO: 未来可能根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
 func (d *dataServant) getIndexPosts(_userId int64, offset int, limit int) ([]*model.PostFormated, error) {
 	posts, err := (&model.Post{}).List(d.engine, &model.ConditionsT{
 		"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},

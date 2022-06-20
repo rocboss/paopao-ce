@@ -49,9 +49,16 @@ type AppSettingS struct {
 
 type SimpleCacheIndexSettingS struct {
 	MaxIndexSize       int
-	CheckTickDuration  int
-	ExpireTickDuration int
+	CheckTickDuration  time.Duration
+	ExpireTickDuration time.Duration
 	ActionQPS          int
+}
+
+type BigCacheIndexSettingS struct {
+	MaxIndexPage   int
+	ExpireInSecond time.Duration
+	Verbose        bool
+	UpdateQPS      int
 }
 
 type AlipaySettingS struct {
