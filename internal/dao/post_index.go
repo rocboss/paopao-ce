@@ -17,45 +17,6 @@ func (d *dataServant) IndexPosts(userId int64, offset int, limit int) ([]*model.
 	return d.getIndexPosts(userId, offset, limit)
 }
 
-func (d *dataServant) MergePosts(posts []*model.Post) ([]*model.PostFormated, error) {
-	postIds := make([]int64, 0, len(posts))
-	userIds := make([]int64, 0, len(posts))
-	for _, post := range posts {
-		postIds = append(postIds, post.ID)
-		userIds = append(userIds, post.UserID)
-	}
-
-	postContents, err := d.GetPostContentsByIDs(postIds)
-	if err != nil {
-		return nil, err
-	}
-
-	users, err := d.GetUsersByIDs(userIds)
-	if err != nil {
-		return nil, err
-	}
-
-	userMap := make(map[int64]*model.UserFormated, len(users))
-	for _, user := range users {
-		userMap[user.ID] = user.Format()
-	}
-
-	contentMap := make(map[int64][]*model.PostContentFormated, len(postContents))
-	for _, content := range postContents {
-		contentMap[content.PostID] = append(contentMap[content.PostID], content.Format())
-	}
-
-	// 数据整合
-	postsFormated := make([]*model.PostFormated, 0, len(posts))
-	for _, post := range posts {
-		postFormated := post.Format()
-		postFormated.User = userMap[post.UserID]
-		postFormated.Contents = contentMap[post.ID]
-		postsFormated = append(postsFormated, postFormated)
-	}
-	return postsFormated, nil
-}
-
 // getIndexPosts _userId保留未来使用
 // TODO: 未来可能根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
 func (d *dataServant) getIndexPosts(_userId int64, offset int, limit int) ([]*model.PostFormated, error) {

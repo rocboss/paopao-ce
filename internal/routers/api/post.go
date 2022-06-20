@@ -14,7 +14,7 @@ import (
 func GetPostList(c *gin.Context) {
 	response := app.NewResponse(c)
 
-	q := &core.QueryT{
+	q := &core.QueryReq{
 		Query: c.Query("query"),
 		Type:  "search",
 	}
@@ -23,8 +23,8 @@ func GetPostList(c *gin.Context) {
 	}
 
 	userId, _ := userIdFrom(c)
+	offset, limit := app.GetPageOffset(c)
 	if q.Query == "" && q.Type == "search" {
-		offset, limit := app.GetPageOffset(c)
 		posts, err := service.GetIndexPosts(userId, offset, limit)
 		if err != nil {
 			logrus.Errorf("service.GetPostList err: %v\n", err)
@@ -38,7 +38,7 @@ func GetPostList(c *gin.Context) {
 
 		response.ToResponseList(posts, totalRows)
 	} else {
-		posts, totalRows, err := service.GetPostListFromSearch(q, (app.GetPage(c)-1)*app.GetPageSize(c), app.GetPageSize(c))
+		posts, totalRows, err := service.GetPostListFromSearch(q, offset, limit)
 
 		if err != nil {
 			logrus.Errorf("service.GetPostListFromSearch err: %v\n", err)

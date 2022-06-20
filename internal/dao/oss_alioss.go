@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/sirupsen/logrus"
@@ -25,6 +26,14 @@ func newAliossServent() *aliossServant {
 		bucket: bucket,
 		domain: getOssDomain(),
 	}
+}
+
+func (s *aliossServant) Name() string {
+	return "AliOSS"
+}
+
+func (s *aliossServant) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
 }
 
 func (s *aliossServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string) (string, error) {

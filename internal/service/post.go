@@ -478,32 +478,24 @@ func GetPostCount(conditions *model.ConditionsT) (int64, error) {
 	return ds.GetPostCount(conditions)
 }
 
-func GetPostListFromSearch(q *core.QueryT, offset, limit int) ([]*model.PostFormated, int64, error) {
-	queryResult, err := ds.QueryAll(q, conf.ZincSetting.Index, offset, limit)
+func GetPostListFromSearch(q *core.QueryReq, offset, limit int) ([]*model.PostFormated, int64, error) {
+	resp, err := ts.Search(q, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
-
-	posts, err := FormatZincPost(queryResult)
+	posts, err := ds.RevampPosts(resp.Items)
 	if err != nil {
 		return nil, 0, err
 	}
-
-	return posts, queryResult.Hits.Total.Value, nil
+	return posts, resp.Total, nil
 }
 
 func GetPostListFromSearchByQuery(query string, offset, limit int) ([]*model.PostFormated, int64, error) {
-	queryResult, err := ds.QuerySearch(conf.ZincSetting.Index, query, offset, limit)
-	if err != nil {
-		return nil, 0, err
+	q := &core.QueryReq{
+		Query: query,
+		Type:  "search",
 	}
-
-	posts, err := FormatZincPost(queryResult)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return posts, queryResult.Hits.Total.Value, nil
+	return GetPostListFromSearch(q, offset, limit)
 }
 
 func PushPostToSearch(post *model.Post) {
@@ -511,8 +503,6 @@ func PushPostToSearch(post *model.Post) {
 	if post.Visibility == model.PostVisitPrivate {
 		return
 	}
-
-	indexName := conf.ZincSetting.Index
 
 	postFormated := post.Format()
 	postFormated.User = &model.UserFormated{
@@ -539,7 +529,7 @@ func PushPostToSearch(post *model.Post) {
 	data := []map[string]interface{}{}
 	data = append(data, map[string]interface{}{
 		"index": map[string]interface{}{
-			"_index": indexName,
+			"_index": ts.IndexName(),
 			"_id":    fmt.Sprintf("%d", post.ID),
 		},
 	}, map[string]interface{}{
@@ -560,13 +550,11 @@ func PushPostToSearch(post *model.Post) {
 		"modified_on":       post.ModifiedOn,
 	})
 
-	ds.BulkPushDoc(data)
+	ts.AddDocuments(data)
 }
 
 func DeleteSearchPost(post *model.Post) error {
-	indexName := conf.ZincSetting.Index
-
-	return ds.DelDoc(indexName, fmt.Sprintf("%d", post.ID))
+	return ts.DeleteDocuments([]string{fmt.Sprintf("%d", post.ID)})
 }
 
 func PushPostsToSearch(c *gin.Context) {
@@ -578,10 +566,6 @@ func PushPostsToSearch(c *gin.Context) {
 
 		pages := math.Ceil(float64(totalRows) / float64(splitNum))
 		nums := int(pages)
-
-		indexName := conf.ZincSetting.Index
-		// 创建索引
-		ds.CreateSearchIndex(indexName)
 
 		for i := 0; i < nums; i++ {
 			data := []map[string]interface{}{}
@@ -605,7 +589,7 @@ func PushPostsToSearch(c *gin.Context) {
 
 				data = append(data, map[string]interface{}{
 					"index": map[string]interface{}{
-						"_index": indexName,
+						"_index": ts.IndexName(),
 						"_id":    fmt.Sprintf("%d", post.ID),
 					},
 				}, map[string]interface{}{
@@ -628,7 +612,7 @@ func PushPostsToSearch(c *gin.Context) {
 			}
 
 			if len(data) > 0 {
-				ds.BulkPushDoc(data)
+				ts.AddDocuments(data)
 			}
 		}
 
