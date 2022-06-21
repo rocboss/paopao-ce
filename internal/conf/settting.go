@@ -49,6 +49,7 @@ type AppSettingS struct {
 
 type CacheIndexSettingS struct {
 	MaxUpdateQPS int
+	MinWorker    int
 }
 
 type SimpleCacheIndexSettingS struct {
@@ -82,6 +83,7 @@ type FeaturesSettingS struct {
 
 type TweetSearchS struct {
 	MaxUpdateQPS int
+	MinWorker    int
 }
 
 type ZincSettingS struct {
