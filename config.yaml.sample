@@ -26,16 +26,16 @@ SmsJuhe:
 Alipay: 
   AppID: 
   PrivateKey: 
+CacheIndex:
+  MaxUpdateQPS: 100             # 最大添加/删除/更新Post的QPS, 设置范围[10, 10000], 默认100
 SimpleCacheIndex: # 缓存泡泡广场消息流
   MaxIndexSize: 200             # 最大缓存条数
   CheckTickDuration: 60         # 循环自检查每多少秒一次
   ExpireTickDuration: 300       # 每多少秒后强制过期缓存, 设置为0禁止强制使缓存过期
-  ActionQPS: 100                # 添加/删除/更新Post的QPS, 默认100，范围设置[10, 10000]
 BigCacheIndex: # 使用BigCache缓存泡泡广场消息流
-  MaxIndexPage: 1024          # 最大缓存页数，必须是2^n, 代表最大同时缓存多少页数据
-  Verbose: False              # 是否打印cache操作的log
-  ExpireInSecond: 300         # 多少秒(>0)后强制过期缓存
-  UpdateQPS: 100              # 添加/删除/更新Post的QPS, 默认100
+  MaxIndexPage: 1024            # 最大缓存页数，必须是2^n, 代表最大同时缓存多少页数据
+  Verbose: False                # 是否打印cache操作的log
+  ExpireInSecond: 300           # 多少秒(>0)后强制过期缓存
 LoggerFile: # 使用File写日志
   SavePath: data/paopao-ce/logs
   FileName: app
@@ -51,6 +51,8 @@ JWT: # 鉴权加密
   Secret: 18a6413dc4fe394c66345ebe501b2f26
   Issuer: paopao-api
   Expire: 86400
+TweetSearch: # 推文关键字搜索相关配置
+  MaxUpdateQPS: 100            # 最大添加/删除/更新Post的QPS，设置范围[10, 10000], 默认100
 Zinc: # Zinc搜索配置
   Host: http://zinc:4080
   Index: paopao-data
