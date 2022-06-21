@@ -22,12 +22,14 @@ type QueryResp struct {
 	Total int64
 }
 
+type DocItems []map[string]interface{}
+
 // TweetSearchService tweet search service interface
 type TweetSearchService interface {
 	VersionInfo
 
 	IndexName() string
-	AddDocuments(documents []map[string]interface{}, primaryKey ...string) (bool, error)
+	AddDocuments(documents DocItems, primaryKey ...string) (bool, error)
 	DeleteDocuments(identifiers []string) error
 	Search(q *QueryReq, offset, limit int) (*QueryResp, error)
 }

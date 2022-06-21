@@ -177,8 +177,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 			})
 		}
 		// 推送Search
-		// TODO: 优化推送文章到搜索的处理机制，最好使用通道channel传递文章，可以省goroutine
-		go PushPostToSearch(post)
+		PushPostToSearch(post)
 	}
 
 	return post, nil
@@ -204,7 +203,7 @@ func DeletePost(id int64) error {
 	}
 
 	// 删除索引
-	go DeleteSearchPost(post)
+	DeleteSearchPost(post)
 
 	return nil
 }
@@ -263,11 +262,11 @@ func VisiblePost(user *model.User, postId int64, visibility model.PostVisibleT) 
 	if oldVisibility == model.PostVisitPrivate {
 		// 从私密转为非私密需要push
 		logrus.Debugf("visible post set to re-public to add search index: %d, visibility: %s", post.ID, visibility)
-		go PushPostToSearch(post)
+		PushPostToSearch(post)
 	} else if visibility == model.PostVisitPrivate {
 		// 从非私密转为私密需要删除索引
 		logrus.Debugf("visible post set to private to delete search index: %d, visibility: %s", post.ID, visibility)
-		go DeleteSearchPost(post)
+		DeleteSearchPost(post)
 	}
 	return nil
 }
@@ -298,7 +297,7 @@ func CreatePostStar(postID, userID int64) (*model.PostStar, error) {
 	ds.UpdatePost(post)
 
 	// 更新索引
-	go PushPostToSearch(post)
+	PushPostToSearch(post)
 
 	return star, nil
 }
@@ -324,7 +323,7 @@ func DeletePostStar(star *model.PostStar) error {
 	ds.UpdatePost(post)
 
 	// 更新索引
-	go PushPostToSearch(post)
+	PushPostToSearch(post)
 
 	return nil
 }
@@ -355,7 +354,7 @@ func CreatePostCollection(postID, userID int64) (*model.PostCollection, error) {
 	ds.UpdatePost(post)
 
 	// 更新索引
-	go PushPostToSearch(post)
+	PushPostToSearch(post)
 
 	return collection, nil
 }
@@ -381,7 +380,7 @@ func DeletePostCollection(collection *model.PostCollection) error {
 	ds.UpdatePost(post)
 
 	// 更新索引
-	go PushPostToSearch(post)
+	PushPostToSearch(post)
 
 	return nil
 }
@@ -526,7 +525,7 @@ func PushPostToSearch(post *model.Post) {
 		tagMaps[tag] = 1
 	}
 
-	data := []map[string]interface{}{}
+	data := core.DocItems{}
 	data = append(data, map[string]interface{}{
 		"index": map[string]interface{}{
 			"_index": ts.IndexName(),

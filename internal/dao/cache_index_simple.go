@@ -34,7 +34,7 @@ func newSimpleCacheIndexServant(getIndexPosts indexPostsFunc) *simpleCacheIndexS
 
 	// indexActionCh capacity custom configure by conf.yaml need in [10, 10000]
 	// or re-compile source to adjust min/max capacity
-	capacity := s.ActionQPS
+	capacity := conf.CacheIndexSetting.MaxUpdateQPS
 	if capacity < 10 {
 		capacity = 10
 	} else if capacity > 10000 {

@@ -16,6 +16,6 @@ var (
 func Initialize() {
 	ds = dao.NewDataService()
 	ts = dao.NewTweetSearchService()
-	attachmentChecker = dao.NewAttachmentCheckerService()
+	attachmentChecker = dao.NewAttachmentCheckService()
 	DisablePhoneVerify = !conf.CfgIf("Sms")
 }

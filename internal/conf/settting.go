@@ -47,18 +47,20 @@ type AppSettingS struct {
 	TronApiKeys           []string
 }
 
+type CacheIndexSettingS struct {
+	MaxUpdateQPS int
+}
+
 type SimpleCacheIndexSettingS struct {
 	MaxIndexSize       int
 	CheckTickDuration  time.Duration
 	ExpireTickDuration time.Duration
-	ActionQPS          int
 }
 
 type BigCacheIndexSettingS struct {
 	MaxIndexPage   int
 	ExpireInSecond time.Duration
 	Verbose        bool
-	UpdateQPS      int
 }
 
 type AlipaySettingS struct {
@@ -76,6 +78,10 @@ type FeaturesSettingS struct {
 	kv       map[string]string
 	suites   map[string][]string
 	features map[string]string
+}
+
+type TweetSearchS struct {
+	MaxUpdateQPS int
 }
 
 type ZincSettingS struct {

@@ -48,6 +48,7 @@ func NewObjectStorageService() (oss core.ObjectStorageService) {
 		// default use AliOSS as object storage service
 		oss = newAliossServent()
 		logrus.Infof("use default AliOSS as object storage by version %s", oss.Version())
+		return
 	}
 	logrus.Infof("use %s as object storage by version %s", oss.Name(), oss.Version())
 	return

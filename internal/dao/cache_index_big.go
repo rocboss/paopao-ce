@@ -34,7 +34,7 @@ func newBigCacheIndexServant(getIndexPosts indexPostsFunc) *bigCacheIndexServant
 
 	// indexActionCh capacity custom configure by conf.yaml need in [10, 10000]
 	// or re-compile source to adjust min/max capacity
-	capacity := s.UpdateQPS
+	capacity := conf.CacheIndexSetting.MaxUpdateQPS
 	if capacity < 10 {
 		capacity = 10
 	} else if capacity > 10000 {
@@ -43,6 +43,7 @@ func newBigCacheIndexServant(getIndexPosts indexPostsFunc) *bigCacheIndexServant
 	cacheIndex.indexActionCh = make(chan core.IndexActionT, capacity)
 	cacheIndex.cachePostsCh = make(chan *postsEntry, capacity)
 
+	// 启动索引更新器
 	go cacheIndex.startIndexPosts()
 
 	return cacheIndex
@@ -84,10 +85,10 @@ func (s *bigCacheIndexServant) cachePosts(key string, posts []*model.PostFormate
 	entry := &postsEntry{key: key, posts: posts}
 	select {
 	case s.cachePostsCh <- entry:
-		logrus.Debugf("send indexAction by chan of key: %s", key)
+		logrus.Debugf("cachePosts by chan of key: %s", key)
 	default:
 		go func(ch chan<- *postsEntry, entry *postsEntry) {
-			logrus.Debugf("send indexAction by goroutine of key: %s", key)
+			logrus.Debugf("cachePosts indexAction by goroutine of key: %s", key)
 			ch <- entry
 		}(s.cachePostsCh, entry)
 	}

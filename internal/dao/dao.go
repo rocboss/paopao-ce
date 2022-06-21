@@ -50,7 +50,7 @@ func NewDataService() core.DataService {
 	return ds
 }
 
-func NewAttachmentCheckerService() core.AttachmentCheckService {
+func NewAttachmentCheckService() core.AttachmentCheckService {
 	return &attachmentCheckServant{
 		domain: getOssDomain(),
 	}

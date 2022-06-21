@@ -18,10 +18,12 @@ var (
 
 	ServerSetting           *ServerSettingS
 	AppSetting              *AppSettingS
+	CacheIndexSetting       *CacheIndexSettingS
 	SimpleCacheIndexSetting *SimpleCacheIndexSettingS
 	BigCacheIndexSetting    *BigCacheIndexSettingS
 	SmsJuheSetting          *SmsJuheSettings
 	AlipaySetting           *AlipaySettingS
+	TweetSearchSetting      *TweetSearchS
 	ZincSetting             *ZincSettingS
 	AliOSSSetting           *AliOSSSettingS
 	MinIOSetting            *MinIOSettingS
@@ -47,6 +49,7 @@ func setupSetting(suite []string, noDefault bool) error {
 	objects := map[string]interface{}{
 		"App":              &AppSetting,
 		"Server":           &ServerSetting,
+		"CacheIndex":       &CacheIndexSetting,
 		"SimpleCacheIndex": &SimpleCacheIndexSetting,
 		"BigCacheIndex":    &BigCacheIndexSetting,
 		"Alipay":           &AlipaySetting,
@@ -57,6 +60,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"MySQL":            &mysqlSetting,
 		"Postgres":         &postgresSetting,
 		"Sqlite3":          &sqlite3Setting,
+		"TweetSearch":      &TweetSearchSetting,
 		"Zinc":             &ZincSetting,
 		"Redis":            &redisSetting,
 		"JWT":              &JWTSetting,

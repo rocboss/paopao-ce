@@ -32,7 +32,7 @@ func (s *zincTweetSearchServant) IndexName() string {
 	return s.indexName
 }
 
-func (s *zincTweetSearchServant) AddDocuments(data []map[string]interface{}, primaryKey ...string) (bool, error) {
+func (s *zincTweetSearchServant) AddDocuments(data core.DocItems, primaryKey ...string) (bool, error) {
 	return s.client.BulkPushDoc(data)
 }
 
