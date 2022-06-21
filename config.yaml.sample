@@ -53,6 +53,7 @@ JWT: # 鉴权加密
   Expire: 86400
 TweetSearch: # 推文关键字搜索相关配置
   MaxUpdateQPS: 100            # 最大添加/删除/更新Post的QPS，设置范围[10, 10000], 默认100
+  MinWorker: 10                # 最小后台更新工作者, 设置范围[5, 1000], 默认10
 Zinc: # Zinc搜索配置
   Host: http://zinc:4080
   Index: paopao-data

@@ -47,8 +47,17 @@ func NewTweetSearchService() core.TweetSearchService {
 	}
 	logrus.Infof("use %s as tweet search serice by version %s", bts.ts.Name(), bts.ts.Version())
 
+	numWorker := conf.TweetSearchSetting.MinWorker
+	if numWorker < 5 {
+		numWorker = 5
+	} else if numWorker > 1000 {
+		numWorker = 1000
+	}
+	logrus.Debugf("use %d backend worker to update documents to search engine", numWorker)
 	// 启动文档更新器
-	go bts.startUpdateDocs()
+	for ; numWorker > 0; numWorker-- {
+		go bts.startUpdateDocs()
+	}
 
 	return bts
 }

@@ -42,10 +42,17 @@ func (s *bridgeTweetSearchServant) updateDocs(doc *documents) {
 	case s.updateDocsCh <- doc:
 		logrus.Debugln("addDocuments send documents by chan")
 	default:
-		go func(ch chan<- *documents, item *documents) {
-			s.updateDocsCh <- item
-			logrus.Debugln("addDocuments send documents by goroutine")
-		}(s.updateDocsCh, doc)
+		go func(item *documents) {
+			if len(item.docItems) > 0 {
+				if _, err := s.ts.AddDocuments(item.docItems, item.primaryKey...); err != nil {
+					logrus.Errorf("addDocuments in gorotine occurs error: %v", err)
+				}
+			} else if len(item.identifiers) > 0 {
+				if err := s.ts.DeleteDocuments(item.identifiers); err != nil {
+					logrus.Errorf("deleteDocuments in gorotine occurs error: %s", err)
+				}
+			}
+		}(doc)
 	}
 }
 
@@ -55,8 +62,7 @@ func (s *bridgeTweetSearchServant) startUpdateDocs() {
 			if _, err := s.ts.AddDocuments(doc.docItems, doc.primaryKey...); err != nil {
 				logrus.Errorf("addDocuments occurs error: %v", err)
 			}
-		}
-		if len(doc.identifiers) > 0 {
+		} else if len(doc.identifiers) > 0 {
 			if err := s.ts.DeleteDocuments(doc.identifiers); err != nil {
 				logrus.Errorf("deleteDocuments occurs error: %s", err)
 			}
