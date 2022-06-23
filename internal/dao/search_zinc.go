@@ -49,7 +49,7 @@ func (s *zincTweetSearchServant) AddDocuments(data core.DocItems, primaryKey ...
 		})
 	}
 	buf = append(buf, data...)
-	return s.client.BulkPushDoc(data)
+	return s.client.BulkPushDoc(buf)
 }
 
 func (s *zincTweetSearchServant) DeleteDocuments(identifiers []string) error {
