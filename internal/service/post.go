@@ -12,9 +12,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
-	"github.com/rocboss/paopao-ce/pkg/json"
 	"github.com/rocboss/paopao-ce/pkg/util"
-	"github.com/rocboss/paopao-ce/pkg/zinc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -430,47 +428,7 @@ func GetPostList(req *PostListReq) ([]*model.PostFormated, error) {
 		return nil, err
 	}
 
-	return FormatPosts(posts)
-}
-
-func FormatPosts(posts []*model.Post) ([]*model.PostFormated, error) {
-	postIds := []int64{}
-	userIds := []int64{}
-	for _, post := range posts {
-		postIds = append(postIds, post.ID)
-		userIds = append(userIds, post.UserID)
-	}
-
-	postContents, err := ds.GetPostContentsByIDs(postIds)
-	if err != nil {
-		return nil, err
-	}
-
-	users, err := ds.GetUsersByIDs(userIds)
-	if err != nil {
-		return nil, err
-	}
-
-	// 数据整合
-	postsFormated := []*model.PostFormated{}
-	for _, post := range posts {
-		postFormated := post.Format()
-
-		for _, user := range users {
-			if user.ID == postFormated.UserID {
-				postFormated.User = user.Format()
-			}
-		}
-		for _, content := range postContents {
-			if content.PostID == post.ID {
-				postFormated.Contents = append(postFormated.Contents, content.Format())
-			}
-		}
-
-		postsFormated = append(postsFormated, postFormated)
-	}
-
-	return postsFormated, nil
+	return ds.MergePosts(posts)
 }
 
 func GetPostCount(conditions *model.ConditionsT) (int64, error) {
@@ -525,13 +483,7 @@ func PushPostToSearch(post *model.Post) {
 		tagMaps[tag] = 1
 	}
 
-	data := core.DocItems{}
-	data = append(data, map[string]interface{}{
-		"index": map[string]interface{}{
-			"_index": ts.IndexName(),
-			"_id":    fmt.Sprintf("%d", post.ID),
-		},
-	}, map[string]interface{}{
+	data := core.DocItems{{
 		"id":                post.ID,
 		"user_id":           post.UserID,
 		"comment_count":     post.CommentCount,
@@ -547,9 +499,9 @@ func PushPostToSearch(post *model.Post) {
 		"attachment_price":  post.AttachmentPrice,
 		"created_on":        post.CreatedOn,
 		"modified_on":       post.ModifiedOn,
-	})
+	}}
 
-	ts.AddDocuments(data)
+	ts.AddDocuments(data, fmt.Sprintf("%d", post.ID))
 }
 
 func DeleteSearchPost(post *model.Post) error {
@@ -567,8 +519,6 @@ func PushPostsToSearch(c *gin.Context) {
 		nums := int(pages)
 
 		for i := 0; i < nums; i++ {
-			data := []map[string]interface{}{}
-
 			posts, _ := GetPostList(&PostListReq{
 				Conditions: &model.ConditionsT{
 					"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},
@@ -586,12 +536,7 @@ func PushPostsToSearch(c *gin.Context) {
 					}
 				}
 
-				data = append(data, map[string]interface{}{
-					"index": map[string]interface{}{
-						"_index": ts.IndexName(),
-						"_id":    fmt.Sprintf("%d", post.ID),
-					},
-				}, map[string]interface{}{
+				docs := core.DocItems{{
 					"id":                post.ID,
 					"user_id":           post.User.ID,
 					"comment_count":     post.CommentCount,
@@ -607,64 +552,13 @@ func PushPostsToSearch(c *gin.Context) {
 					"attachment_price":  post.AttachmentPrice,
 					"created_on":        post.CreatedOn,
 					"modified_on":       post.ModifiedOn,
-				})
-			}
-
-			if len(data) > 0 {
-				ts.AddDocuments(data)
+				}}
+				ts.AddDocuments(docs, fmt.Sprintf("%d", post.ID))
 			}
 		}
 
 		conf.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
 	}
-}
-
-func FormatZincPost(queryResult *zinc.QueryResultT) ([]*model.PostFormated, error) {
-	posts := []*model.PostFormated{}
-	for _, hit := range queryResult.Hits.Hits {
-		item := &model.PostFormated{}
-
-		raw, _ := json.Marshal(hit.Source)
-		err := json.Unmarshal(raw, item)
-		if err == nil {
-			posts = append(posts, item)
-		}
-	}
-
-	postIds := []int64{}
-	userIds := []int64{}
-	for _, post := range posts {
-		postIds = append(postIds, post.ID)
-		userIds = append(userIds, post.UserID)
-	}
-	postContents, err := ds.GetPostContentsByIDs(postIds)
-	if err != nil {
-		return nil, err
-	}
-
-	users, err := ds.GetUsersByIDs(userIds)
-	if err != nil {
-		return nil, err
-	}
-
-	// 数据整合
-	for _, post := range posts {
-		for _, user := range users {
-			if user.ID == post.UserID {
-				post.User = user.Format()
-			}
-		}
-		if post.Contents == nil {
-			post.Contents = []*model.PostContentFormated{}
-		}
-		for _, content := range postContents {
-			if content.PostID == post.ID {
-				post.Contents = append(post.Contents, content.Format())
-			}
-		}
-	}
-
-	return posts, nil
 }
 
 func GetPostTags(param *PostTagsReq) ([]*model.TagFormated, error) {

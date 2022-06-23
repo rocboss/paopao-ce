@@ -290,14 +290,19 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 目前支持的功能集合:
 * 数据库: MySQL/Sqlite3/PostgreSQL   
 * 对象存储: AliOSS/MinIO/LocalOSS    
+  `AliOSS` 阿里云对象存储服务；  
+  `MinIO` [MinIO](https://github.com/minio/minio)对象存储服务；  
   `LocalOSS` 提供使用本地目录文件作为对象存储的功能，仅用于开发调试环境；  
 * 缓存: Redis/SimpleCacheIndex/BigCacheIndex     
-  `SimpleCacheIndex`提供简单的 广场推文列表 的缓存功能；   
+  `SimpleCacheIndex` 提供简单的 广场推文列表 的缓存功能；   
   `BigCacheIndex` 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面；  
-* 搜索: Zinc  
-* 日志: LoggerFile/LoggerZinc  
-  `LoggerFile` 使用文件写日志；  
-  `LoggerZinc` 使用Zinc写日志;  
+* 搜索: Zinc/Meili   
+  `Zinc` 基于[Zinc](https://github.com/zinclabs/zinc)搜索引擎提供推文搜索服务(目前状态: 稳定，推荐使用)；  
+  `Meili` 基于[Meilisearch](https://github.com/meilisearch/meilisearch)搜索引擎提供推文搜索服务(目前状态: 内测阶段);  
+* 日志: LoggerFile/LoggerZinc/LoggerMeili  
+  `LoggerFile` 使用文件写日志(目前状态: 稳定);   
+  `LoggerZinc` 使用[Zinc](https://github.com/zinclabs/zinc)写日志(目前状态: 稳定，推荐使用);    
+  `LoggerMeili` 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志(目前状态: 内测阶段);  
 * 支付: Alipay  
 * 短信验证码: SmsJuhe(需要开启sms)  
   `Sms`功能如果没有开启，任意短信验证码都可以绑定手机；  

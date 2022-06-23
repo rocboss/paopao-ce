@@ -74,7 +74,7 @@ type HitItem struct {
 func NewClient(conf *conf.ZincSettingS) *ZincClient {
 	return &ZincClient{
 		ZincClientConfig: &ZincClientConfig{
-			ZincHost:     conf.Host,
+			ZincHost:     conf.Endpoint(),
 			ZincUser:     conf.User,
 			ZincPassword: conf.Password,
 		},
@@ -90,7 +90,7 @@ func (c *ZincClient) CreateIndex(name string, p *ZincIndexProperty) bool {
 			Properties: p,
 		},
 	}
-	resp, err := c.request().SetBody(data).Put(c.ZincHost + "/api/index")
+	resp, err := c.request().SetBody(data).Put("/api/index")
 
 	if err != nil || resp.StatusCode() != http.StatusOK {
 		return false
@@ -101,7 +101,7 @@ func (c *ZincClient) CreateIndex(name string, p *ZincIndexProperty) bool {
 
 // 检查索引是否存在
 func (c *ZincClient) ExistIndex(name string) bool {
-	resp, err := c.request().Get(c.ZincHost + "/api/index")
+	resp, err := c.request().Get("/api/index")
 
 	if err != nil || resp.StatusCode() != http.StatusOK {
 		return false
@@ -122,7 +122,7 @@ func (c *ZincClient) ExistIndex(name string) bool {
 
 // 新增/更新文档
 func (c *ZincClient) PutDoc(name string, id int64, doc interface{}) (bool, error) {
-	resp, err := c.request().SetBody(doc).Put(fmt.Sprintf("%s/api/%s/_doc/%d", c.ZincHost, name, id))
+	resp, err := c.request().SetBody(doc).Put(fmt.Sprintf("/api/%s/_doc/%d", name, id))
 
 	if err != nil {
 		return false, err
@@ -145,7 +145,7 @@ func (c *ZincClient) BulkPushDoc(docs []map[string]interface{}) (bool, error) {
 		}
 	}
 
-	resp, err := c.request().SetBody(dataStr).Post(fmt.Sprintf("%s/api/_bulk", c.ZincHost))
+	resp, err := c.request().SetBody(dataStr).Post("/api/_bulk")
 	if err != nil {
 		return false, err
 	}
@@ -158,7 +158,7 @@ func (c *ZincClient) BulkPushDoc(docs []map[string]interface{}) (bool, error) {
 }
 
 func (c *ZincClient) EsQuery(indexName string, q interface{}) (*QueryResultT, error) {
-	resp, err := c.request().SetBody(q).Post(fmt.Sprintf("%s/es/%s/_search", c.ZincHost, indexName))
+	resp, err := c.request().SetBody(q).Post(fmt.Sprintf("/es/%s/_search", indexName))
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func (c *ZincClient) EsQuery(indexName string, q interface{}) (*QueryResultT, er
 }
 
 func (c *ZincClient) ApiQuery(indexName string, q interface{}) (*QueryResultT, error) {
-	resp, err := c.request().SetBody(q).Post(fmt.Sprintf("%s/api/%s/_search", c.ZincHost, indexName))
+	resp, err := c.request().SetBody(q).Post(fmt.Sprintf("/api/%s/_search", indexName))
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func (c *ZincClient) ApiQuery(indexName string, q interface{}) (*QueryResultT, e
 }
 
 func (c *ZincClient) DelDoc(indexName, id string) error {
-	resp, err := c.request().Delete(fmt.Sprintf("%s/api/%s/_doc/%s", c.ZincHost, indexName, id))
+	resp, err := c.request().Delete(fmt.Sprintf("/api/%s/_doc/%s", indexName, id))
 	if err != nil {
 		return err
 	}
@@ -211,6 +211,7 @@ func (c *ZincClient) DelDoc(indexName, id string) error {
 func (c *ZincClient) request() *resty.Request {
 	client := resty.New()
 	client.DisableWarn = true
+	client.SetBaseURL(c.ZincHost)
 	client.SetBasicAuth(c.ZincUser, c.ZincPassword)
 
 	return client.R()

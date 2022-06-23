@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"github.com/meilisearch/meilisearch-go"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
@@ -28,6 +29,11 @@ type zincTweetSearchServant struct {
 	client    *zinc.ZincClient
 }
 
+type meiliTweetSearchServant struct {
+	client *meilisearch.Client
+	index  *meilisearch.Index
+}
+
 func NewTweetSearchService() core.TweetSearchService {
 	bts := &bridgeTweetSearchServant{}
 
@@ -41,6 +47,8 @@ func NewTweetSearchService() core.TweetSearchService {
 
 	if conf.CfgIf("Zinc") {
 		bts.ts = newZincTweetSearchServant()
+	} else if conf.CfgIf("Meili") {
+		bts.ts = newMeiliTweetSearchServant()
 	} else {
 		// default use Zinc as tweet search service
 		bts.ts = newZincTweetSearchServant()

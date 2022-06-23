@@ -33,7 +33,23 @@ func (s *zincTweetSearchServant) IndexName() string {
 }
 
 func (s *zincTweetSearchServant) AddDocuments(data core.DocItems, primaryKey ...string) (bool, error) {
-	return s.client.BulkPushDoc(data)
+	buf := make(core.DocItems, 0, len(data)+1)
+	if len(primaryKey) > 0 {
+		buf = append(buf, map[string]interface{}{
+			"index": map[string]interface{}{
+				"_index": s.indexName,
+				"_id":    primaryKey[0],
+			},
+		})
+	} else {
+		buf = append(buf, map[string]interface{}{
+			"index": map[string]interface{}{
+				"_index": s.indexName,
+			},
+		})
+	}
+	buf = append(buf, data...)
+	return s.client.BulkPushDoc(buf)
 }
 
 func (s *zincTweetSearchServant) DeleteDocuments(identifiers []string) error {

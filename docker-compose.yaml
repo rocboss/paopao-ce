@@ -39,7 +39,19 @@ services:
       DATA_PATH: /data
     networks:
       - paopao-network
-  
+
+  # meili:
+  #   image: getmeili/meilisearch:v0.27.0
+  #   restart: always
+  #   ports:
+  #     - 7700:7700
+  #   volumes:
+  #     - ./data/meili/data:/meili_data
+  #   environment:
+  #     - MEILI_MASTER_KEY=paopao-meilisearch
+  #   networks:
+  #     - paopao-network
+
   phpmyadmin:
     image: phpmyadmin:5.2
     depends_on:

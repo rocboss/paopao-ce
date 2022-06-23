@@ -1,92 +1,34 @@
 package conf
 
 import (
-	"fmt"
 	"io"
-	"time"
 
-	"github.com/rocboss/paopao-ce/pkg/json"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"gopkg.in/resty.v1"
 )
 
-type zincLogIndex struct {
-	Index map[string]string `json:"index"`
-}
-
-type zincLogData struct {
-	Time    time.Time     `json:"time"`
-	Level   logrus.Level  `json:"level"`
-	Message string        `json:"message"`
-	Data    logrus.Fields `json:"data"`
-}
-
-type zincLogHook struct {
-	host     string
-	index    string
-	user     string
-	password string
-}
-
-func (h *zincLogHook) Fire(entry *logrus.Entry) error {
-	index := &zincLogIndex{
-		Index: map[string]string{
-			"_index": h.index,
-		},
+func newFileLogger() io.Writer {
+	return &lumberjack.Logger{
+		Filename:  loggerFileSetting.SavePath + "/" + loggerFileSetting.FileName + loggerFileSetting.FileExt,
+		MaxSize:   600,
+		MaxAge:    10,
+		LocalTime: true,
 	}
-	indexBytes, _ := json.Marshal(index)
-
-	data := &zincLogData{
-		Time:    entry.Time,
-		Level:   entry.Level,
-		Message: entry.Message,
-		Data:    entry.Data,
-	}
-	dataBytes, _ := json.Marshal(data)
-
-	logStr := string(indexBytes) + "\n" + string(dataBytes) + "\n"
-	client := resty.New()
-
-	if _, err := client.SetDisableWarn(true).R().
-		SetHeader("Content-Type", "application/json").
-		SetBasicAuth(h.user, h.password).
-		SetBody(logStr).
-		Post(h.host); err != nil {
-		fmt.Println(err.Error())
-	}
-
-	return nil
-}
-
-func (h *zincLogHook) Levels() []logrus.Level {
-	return logrus.AllLevels
 }
 
 func setupLogger() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetLevel(LoggerSetting.logLevel())
 
 	if CfgIf("LoggerFile") {
-		out := &lumberjack.Logger{
-			Filename:  loggerFileSetting.SavePath + "/" + loggerFileSetting.FileName + loggerFileSetting.FileExt,
-			MaxSize:   600,
-			MaxAge:    10,
-			LocalTime: true,
-		}
+		out := newFileLogger()
 		logrus.SetOutput(out)
-		if level, err := logrus.ParseLevel(loggerFileSetting.Level); err == nil {
-			logrus.SetLevel(level)
-		}
 	} else if CfgIf("LoggerZinc") {
-		hook := &zincLogHook{
-			host:     loggerZincSetting.Host,
-			index:    loggerZincSetting.Index,
-			user:     loggerZincSetting.User,
-			password: loggerZincSetting.Password,
-		}
-		if level, err := logrus.ParseLevel(loggerZincSetting.Level); err == nil {
-			logrus.SetLevel(level)
-		}
+		hook := newZincLogHook()
+		logrus.SetOutput(io.Discard)
+		logrus.AddHook(hook)
+	} else if CfgIf("LoggerMeili") {
+		hook := newMeiliLogHook()
 		logrus.SetOutput(io.Discard)
 		logrus.AddHook(hook)
 	}
