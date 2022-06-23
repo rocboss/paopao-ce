@@ -25,8 +25,8 @@ WORKDIR /paopao-ce
 COPY . .
 COPY --from=frontend /web/dist ./web/dist
 ENV GOPROXY=https://goproxy.cn
-RUN [ $EMBED_UI != yes ] || make build TAGS='embed'
-RUN [ $EMBED_UI = yes ] || make build
+RUN [ $EMBED_UI != yes ] || make build TAGS='embed jsoniter'
+RUN [ $EMBED_UI = yes ] || make build TAGS='jsoniter'
 
 FROM alpine:3.16
 ARG API_HOST

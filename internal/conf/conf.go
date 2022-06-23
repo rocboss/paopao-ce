@@ -7,14 +7,16 @@ import (
 )
 
 var (
-	loggerFileSetting *LoggerFileSettingS
-	loggerZincSetting *LoggerZincSettingS
-	databaseSetting   *DatabaseSetingS
-	mysqlSetting      *MySQLSettingS
-	postgresSetting   *PostgresSettingS
-	sqlite3Setting    *Sqlite3SettingS
-	redisSetting      *RedisSettingS
-	features          *FeaturesSettingS
+	LoggerSetting      *LoggerSettingS
+	loggerFileSetting  *LoggerFileSettingS
+	loggerZincSetting  *LoggerZincSettingS
+	loggerMeiliSetting *LoggerMeiliSettingS
+	databaseSetting    *DatabaseSetingS
+	mysqlSetting       *MySQLSettingS
+	postgresSetting    *PostgresSettingS
+	sqlite3Setting     *Sqlite3SettingS
+	redisSetting       *RedisSettingS
+	features           *FeaturesSettingS
 
 	ServerSetting           *ServerSettingS
 	AppSetting              *AppSettingS
@@ -25,6 +27,7 @@ var (
 	AlipaySetting           *AlipaySettingS
 	TweetSearchSetting      *TweetSearchS
 	ZincSetting             *ZincSettingS
+	MeiliSetting            *MeiliSettingS
 	AliOSSSetting           *AliOSSSettingS
 	MinIOSetting            *MinIOSettingS
 	S3Setting               *S3SettingS
@@ -54,14 +57,17 @@ func setupSetting(suite []string, noDefault bool) error {
 		"BigCacheIndex":    &BigCacheIndexSetting,
 		"Alipay":           &AlipaySetting,
 		"SmsJuhe":          &SmsJuheSetting,
+		"Logger":           &LoggerSetting,
 		"LoggerFile":       &loggerFileSetting,
 		"LoggerZinc":       &loggerZincSetting,
+		"LoggerMeili":      &loggerMeiliSetting,
 		"Database":         &databaseSetting,
 		"MySQL":            &mysqlSetting,
 		"Postgres":         &postgresSetting,
 		"Sqlite3":          &sqlite3Setting,
 		"TweetSearch":      &TweetSearchSetting,
 		"Zinc":             &ZincSetting,
+		"Meili":            &MeiliSetting,
 		"Redis":            &redisSetting,
 		"JWT":              &JWTSetting,
 		"AliOSS":           &AliOSSSetting,

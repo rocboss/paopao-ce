@@ -525,13 +525,7 @@ func PushPostToSearch(post *model.Post) {
 		tagMaps[tag] = 1
 	}
 
-	data := core.DocItems{}
-	data = append(data, map[string]interface{}{
-		"index": map[string]interface{}{
-			"_index": ts.IndexName(),
-			"_id":    fmt.Sprintf("%d", post.ID),
-		},
-	}, map[string]interface{}{
+	data := core.DocItems{{
 		"id":                post.ID,
 		"user_id":           post.UserID,
 		"comment_count":     post.CommentCount,
@@ -547,9 +541,9 @@ func PushPostToSearch(post *model.Post) {
 		"attachment_price":  post.AttachmentPrice,
 		"created_on":        post.CreatedOn,
 		"modified_on":       post.ModifiedOn,
-	})
+	}}
 
-	ts.AddDocuments(data)
+	ts.AddDocuments(data, fmt.Sprintf("%d", post.ID))
 }
 
 func DeleteSearchPost(post *model.Post) error {
@@ -567,8 +561,6 @@ func PushPostsToSearch(c *gin.Context) {
 		nums := int(pages)
 
 		for i := 0; i < nums; i++ {
-			data := []map[string]interface{}{}
-
 			posts, _ := GetPostList(&PostListReq{
 				Conditions: &model.ConditionsT{
 					"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},
@@ -586,12 +578,7 @@ func PushPostsToSearch(c *gin.Context) {
 					}
 				}
 
-				data = append(data, map[string]interface{}{
-					"index": map[string]interface{}{
-						"_index": ts.IndexName(),
-						"_id":    fmt.Sprintf("%d", post.ID),
-					},
-				}, map[string]interface{}{
+				docs := core.DocItems{{
 					"id":                post.ID,
 					"user_id":           post.User.ID,
 					"comment_count":     post.CommentCount,
@@ -607,11 +594,8 @@ func PushPostsToSearch(c *gin.Context) {
 					"attachment_price":  post.AttachmentPrice,
 					"created_on":        post.CreatedOn,
 					"modified_on":       post.ModifiedOn,
-				})
-			}
-
-			if len(data) > 0 {
-				ts.AddDocuments(data)
+				}}
+				ts.AddDocuments(docs, fmt.Sprintf("%d", post.ID))
 			}
 		}
 
