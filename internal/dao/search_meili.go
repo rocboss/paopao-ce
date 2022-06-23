@@ -50,12 +50,10 @@ func (s *meiliTweetSearchServant) IndexName() string {
 }
 
 func (s *meiliTweetSearchServant) AddDocuments(data core.DocItems, primaryKey ...string) (bool, error) {
-	task, err := s.index.AddDocuments(data, primaryKey...)
-	if err != nil {
+	if _, err := s.index.AddDocuments(data, primaryKey...); err != nil {
 		logrus.Errorf("meiliTweetSearchServant.AddDocuments error: %v", err)
 		return false, err
 	}
-	logrus.Debugf("meiliTweetSearchServant.AddDocuments task: %+v", task.Details)
 	return true, nil
 }
 
