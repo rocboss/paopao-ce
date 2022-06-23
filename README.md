@@ -302,7 +302,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 * 日志: LoggerFile/LoggerZinc/LoggerMeili  
   `LoggerFile` 使用文件写日志(目前状态: 稳定);   
   `LoggerZinc` 使用[Zinc](https://github.com/zinclabs/zinc)写日志(目前状态: 稳定，推荐使用);    
-  `LoggerMeili` 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志(目前状态: 调试阶段);  
+  `LoggerMeili` 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志(目前状态: 内测阶段);  
 * 支付: Alipay  
 * 短信验证码: SmsJuhe(需要开启sms)  
   `Sms`功能如果没有开启，任意短信验证码都可以绑定手机；  

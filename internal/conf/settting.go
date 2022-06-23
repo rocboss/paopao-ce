@@ -33,10 +33,12 @@ type LoggerZincSettingS struct {
 }
 
 type LoggerMeiliSettingS struct {
-	Host   string
-	Index  string
-	ApiKey string
-	Secure bool
+	Host         string
+	Index        string
+	ApiKey       string
+	Secure       bool
+	MaxLogBuffer int
+	MinWorker    int
 }
 
 type ServerSettingS struct {
@@ -359,6 +361,24 @@ func (s *LoggerZincSettingS) Endpoint() string {
 
 func (s *LoggerMeiliSettingS) Endpoint() string {
 	return endpoint(s.Host, s.Secure)
+}
+
+func (s *LoggerMeiliSettingS) minWork() int {
+	if s.MinWorker < 5 {
+		return 5
+	} else if s.MinWorker > 100 {
+		return 100
+	}
+	return s.MinWorker
+}
+
+func (s *LoggerMeiliSettingS) maxLogBuffer() int {
+	if s.MaxLogBuffer < 10 {
+		return 10
+	} else if s.MaxLogBuffer > 1000 {
+		return 1000
+	}
+	return s.MaxLogBuffer
 }
 
 func (s *ZincSettingS) Endpoint() string {
