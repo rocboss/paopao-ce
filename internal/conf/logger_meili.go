@@ -22,11 +22,13 @@ func (h *meiliLogHook) Fire(entry *logrus.Entry) error {
 		"data":    entry.Data,
 	}}
 
-	// 先尝试进log缓存，否则直接加文档
+	// 先尝试进log缓存，否则直接新开goroutine加文档
 	select {
 	case h.addDocsCh <- &data:
 	default:
-		h.index().AddDocuments(data)
+		go func(index *meilisearch.Index, item meiliLogData) {
+			index.AddDocuments(item)
+		}(h.index(), data)
 	}
 
 	return nil
@@ -63,6 +65,15 @@ func newMeiliLogHook() *meiliLogHook {
 			Uid:        hook.idxName,
 			PrimaryKey: "id",
 		})
+		rankingRules := []string{
+			"message",
+			"time:desc",
+		}
+		sortableAttributes := []string{
+			"time:desc",
+		}
+		index.UpdateRankingRules(&rankingRules)
+		index.UpdateSortableAttributes(&sortableAttributes)
 	}
 
 	// 初始化addDocsCh

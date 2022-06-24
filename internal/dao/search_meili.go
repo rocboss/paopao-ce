@@ -25,10 +25,12 @@ func newMeiliTweetSearchServant() *meiliTweetSearchServant {
 		})
 		searchableAttributes := []string{"content", "tags"}
 		sortableAttributes := []string{"is_top", "latest_replied_on"}
+		filterableAttributes := []string{"tags"}
 
 		index := client.Index(s.Index)
 		index.UpdateSearchableAttributes(&searchableAttributes)
 		index.UpdateSortableAttributes(&sortableAttributes)
+		index.UpdateFilterableAttributes(&filterableAttributes)
 	}
 
 	return &meiliTweetSearchServant{
@@ -50,12 +52,10 @@ func (s *meiliTweetSearchServant) IndexName() string {
 }
 
 func (s *meiliTweetSearchServant) AddDocuments(data core.DocItems, primaryKey ...string) (bool, error) {
-	task, err := s.index.AddDocuments(data, primaryKey...)
-	if err != nil {
+	if _, err := s.index.AddDocuments(data, primaryKey...); err != nil {
 		logrus.Errorf("meiliTweetSearchServant.AddDocuments error: %v", err)
 		return false, err
 	}
-	logrus.Debugf("meiliTweetSearchServant.AddDocuments task: %+v", task.Details)
 	return true, nil
 }
 
@@ -80,10 +80,9 @@ func (s *meiliTweetSearchServant) Search(q *core.QueryReq, offset, limit int) (*
 
 func (s *meiliTweetSearchServant) queryByContent(q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
 	resp, err := s.index.Search(q.Query, &meilisearch.SearchRequest{
-		Offset:               int64(offset),
-		Limit:                int64(limit),
-		AttributesToRetrieve: []string{"*"},
-		Sort:                 []string{"is_top:desc", "latest_replied_on:desc"},
+		Offset: int64(offset),
+		Limit:  int64(limit),
+		Sort:   []string{"is_top:desc", "latest_replied_on:desc"},
 	})
 	if err != nil {
 		return nil, err
@@ -93,10 +92,10 @@ func (s *meiliTweetSearchServant) queryByContent(q *core.QueryReq, offset, limit
 
 func (s *meiliTweetSearchServant) queryByTag(q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
 	resp, err := s.index.Search("#"+q.Query, &meilisearch.SearchRequest{
-		Offset:               int64(offset),
-		Limit:                int64(limit),
-		AttributesToRetrieve: []string{"*"},
-		Sort:                 []string{"is_top:desc", "latest_replied_on:desc"},
+		Offset: int64(offset),
+		Limit:  int64(limit),
+		Filter: []string{"tags." + q.Query + "=1"},
+		Sort:   []string{"is_top:desc", "latest_replied_on:desc"},
 	})
 	if err != nil {
 		return nil, err
@@ -106,10 +105,9 @@ func (s *meiliTweetSearchServant) queryByTag(q *core.QueryReq, offset, limit int
 
 func (s *meiliTweetSearchServant) queryAny(offset, limit int) (*core.QueryResp, error) {
 	resp, err := s.index.Search("", &meilisearch.SearchRequest{
-		Offset:  int64(offset),
-		Limit:   int64(limit),
-		Matches: true,
-		Sort:    []string{"is_top:desc", "latest_replied_on:desc"},
+		Offset: int64(offset),
+		Limit:  int64(limit),
+		Sort:   []string{"is_top:desc", "latest_replied_on:desc"},
 	})
 	if err != nil {
 		return nil, err
