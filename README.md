@@ -174,7 +174,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
   docker build -t your/paopao-ce:tag --build-arg EMBED_UI=no .
 
   # 运行
-  docker run -p 8008:8008 -v ${PWD}/config.yaml.sample:/app/paopao-ce/config.yaml your/paopao-ce:tag
+  docker run -d -p 8008:8008 -v ${PWD}/config.yaml.sample:/app/paopao-ce/config.yaml your/paopao-ce:tag
   ```
 
   * 前端:
@@ -185,10 +185,13 @@ PaoPao主要由以下优秀的开源项目/工具构建
   docker build -t your/paopao-ce:web .
 
   # 自定义API host 参数构建
-  docker build -t your/paopao-ce:web --build-arg API_HOST=http://paopao.info .
+  docker build -t your/paopao-ce:web --build-arg API_HOST=http://api.paopao.info .
 
   # 使用本地编译的dist构建
   docker build -t your/paopao-ce:web --build-arg USE_DIST=yes .
+
+  # 运行
+  docker run -d -p 8010:80 your/paopao-ce:web
   ```
 
 ### 方式四. 使用 docker-compose 运行
@@ -306,6 +309,113 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 * 支付: Alipay  
 * 短信验证码: SmsJuhe(需要开启sms)  
   `Sms`功能如果没有开启，任意短信验证码都可以绑定手机；  
+
+### 搭建依赖环境
+#### [Zinc](https://github.com/zinclabs/zinc)搜索引擎:
+* Zinc运行
+```sh
+# 创建用于存放zinc数据的目录
+mkdir -p data/zinc/data
+
+# 使用Docker运行zinc
+docker run -d --name zinc --user root -v ${PWD}/data/zinc/data:/data -p 4080:4080 -e ZINC_FIRST_ADMIN_USER=admin -e ZINC_FIRST_ADMIN_PASSWORD=admin -e DATA_PATH=/data public.ecr.aws/prabhat/zinc:latest
+
+# 查看zinc运行状态
+docker ps
+CONTAINER ID   IMAGE                                COMMAND                  CREATED        STATUS        PORTS                    NAMES
+41465feea2ff   getmeili/meilisearch:v0.27.0         "tini -- /bin/sh -c …"   20 hours ago   Up 20 hours   0.0.0.0:7700->7700/tcp   paopao-ce-meili-1
+7daf982ca062   public.ecr.aws/prabhat/zinc:latest   "/go/bin/zinc"           3 weeks ago    Up 6 days     0.0.0.0:4080->4080/tcp   zinc
+
+# 使用docker compose运行
+docker compose up -d zinc
+```
+
+* 修改Zinc配置
+```yaml
+# features中加上 Zinc 和 LoggerZinc
+Features:
+  Default: ["Zinc", "LoggerZinc", "Base", "Sqlite3", "BigCacheIndex","MinIO"]
+...
+LoggerZinc: # 使用Zinc写日志
+  Host: 127.0.0.1:4080  # 这里的host就是paopao-ce能访问到的zinc主机
+  Index: paopao-log
+  User: admin
+  Password: admin
+  Secure: False         # 如果使用https访问zinc就设置为True
+...
+Zinc: # Zinc搜索配置
+  Host: 127.0.0.1:4080
+  Index: paopao-data
+  User: admin
+  Password: admin
+  Secure: False
+```
+
+#### [Meilisearch](https://github.com/meilisearch/meilisearch)搜索引擎:
+* Meili运行
+```sh
+mkdir -p data/meili/data
+
+# 使用Docker运行
+docker run -d --name meili -v ${PWD}/data/meili/data:/meili_data -p 7700:7700 -e MEILI_MASTER_KEY=paopao-meilisearch getmeili/meilisearch:v0.27.0
+
+# 使用docker compose运行， 需要删除docker-compose.yaml中关于meili的注释
+docker compose up -d meili
+
+# 查看meili运行状态
+docker compose ps
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+paopao-ce-meili-1   "tini -- /bin/sh -c …"   meili               running             0.0.0.0:7700->7700/tcp
+```
+
+* 修改Meili配置
+```yaml
+# features中加上 Meili 和 LoggerMeili
+Features:
+  Default: ["Meili", "LoggerMeili", "Base", "Sqlite3", "BigCacheIndex","MinIO"]
+...
+LoggerMeili: # 使用Meili写日志
+  Host: 127.0.0.1:7700
+  Index: paopao-log
+  ApiKey: paopao-meilisearch
+  Secure: False
+  MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
+  MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
+...
+Meili: # Meili搜索配置
+  Host: 127.0.0.1:7700      # 这里的host就是paopao-ce能访问到的zinc主机
+  Index: paopao-data
+  ApiKey: paopao-meilisearch
+  Secure: False             # 如果使用https访问meili就设置为True
+```
+
+#### [MinIO](https://github.com/minio/minio)对象存储服务
+* MinIO运行
+```sh
+mkdir -p data/minio/data
+
+# 使用Docker运行
+docker run -d --name minio -v ${PWD}/data/minio/data:/data -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER=minio-root-user -e  MINIO_ROOT_PASSWORD=minio-root-password -e MINIO_DEFAULT_BUCKETS=paopao:public bitnami/minio:latest
+
+# 使用docker compose运行， 需要删除docker-compose.yaml中关于minio的注释
+docker compose up -d minio
+```
+
+* 修改Minio配置
+```yaml
+# features中加上 MinIO
+Features:
+  Default: ["MinIO", "Meili", "LoggerMeili", "Base", "Sqlite3", "BigCacheIndex"]
+...
+MinIO: # MinIO 存储配置
+  AccessKey: Q3AM3UQ867SPQQA43P2F      # AccessKey/SecretKey 需要登入minio管理界面手动创建，管理界面地址: http://127.0.0.1:9001
+  SecretKey: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+  Secure: False
+  Endpoint: 127.0.0.1:9000             # 根据部署的minio主机修改对应地址
+  Bucket: paopao                       # 如上，需要在管理界面创建bucket并赋予外部可读写权限
+  Domain: 127.0.0.1:9000               # minio外网访问的地址(如果想让外网访问，这里需要设置为外网可访问到的minio主机地址)
+...
+```
 
 ### 其他说明
 
