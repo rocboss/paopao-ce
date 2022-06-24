@@ -17,6 +17,21 @@ services:
     networks:
       - paopao-network
 
+  # minio:
+  #   image: bitnami/minio:latest
+  #   restart: always
+  #   environment:
+  #     MINIO_ROOT_USER: minio-root-user
+  #     MINIO_ROOT_PASSWORD: minio-root-password
+  #     MINIO_DEFAULT_BUCKETS: paopao:public
+  #   ports:
+  #     - 127.0.0.1:9000:9000
+  #     - 127.0.0.1:9001:9001
+  #   volumes:
+  #     - ./data/minio/data:/data
+  #   networks:
+  #     - paopao-network
+
   redis:
     image: redis:7.0-alpine
     restart: always
