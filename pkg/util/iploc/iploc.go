@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/binary"
 	"net"
+	"strings"
 
 	"github.com/yinheli/mahonia"
 )
@@ -21,6 +22,9 @@ const (
 
 // Find get country and city base ip
 func Find(ip string) (string, string) {
+	if strings.Trim(ip, " ") == "" {
+		return "", ""
+	}
 	// If ip is "::1", To4 returns nil.
 	to4 := net.ParseIP(ip).To4()
 	if to4 == nil {
