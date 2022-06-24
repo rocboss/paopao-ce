@@ -25,8 +25,8 @@ services:
   #     MINIO_ROOT_PASSWORD: minio-root-password
   #     MINIO_DEFAULT_BUCKETS: paopao:public
   #   ports:
-  #     - 127.0.0.1:9000:9000
-  #     - 127.0.0.1:9001:9001
+  #     - 9000:9000
+  #     - 9001:9001
   #   volumes:
   #     - ./data/minio/data:/data
   #   networks:
@@ -36,7 +36,7 @@ services:
     image: redis:7.0-alpine
     restart: always
     ports:
-      - 127.0.0.1::6379
+      - 6379:6379
     networks:
       - paopao-network
   
@@ -45,7 +45,7 @@ services:
     user: root
     restart: always
     ports:
-      - 127.0.0.1::4080
+      - 4080:4080
     volumes:
       - ./data/zinc/data:/data
     environment:
@@ -66,13 +66,22 @@ services:
   #     - MEILI_MASTER_KEY=paopao-meilisearch
   #   networks:
   #     - paopao-network
+  
+  # # a ui for managing your meilisearch instances
+  # uirecord:
+  #   image: bitriory/uirecord:latest
+  #   restart: always
+  #   ports:
+  #     - 7701:3000
+  #   networks:
+  #     - paopao-network
 
   phpmyadmin:
     image: phpmyadmin:5.2
     depends_on:
       - db
     ports:
-      - 127.0.0.1:8080:80
+      - 8080:80
     environment:
       - PMA_HOST=db
       - PMA_USER=paopao
@@ -93,7 +102,7 @@ services:
       - ./config.yaml.sample:/app/paopao-ce/config.yaml
       - ./data/paopao-ce/data:/app/paopao-ce/data
     ports:
-      - 127.0.0.1:8008:8008
+      - 8008:8008
     networks:
       - paopao-network
 
