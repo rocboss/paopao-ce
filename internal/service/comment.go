@@ -136,7 +136,7 @@ func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq)
 	ds.UpdatePost(post)
 
 	// 更新索引
-	go PushPostToSearch(post)
+	PushPostToSearch(post)
 
 	// 创建用户消息提醒
 	postMaster, err := ds.GetUserByID(post.UserID)
@@ -251,7 +251,7 @@ func CreatePostCommentReply(ctx *gin.Context, commentID int64, content string, u
 	ds.UpdatePost(post)
 
 	// 更新索引
-	go PushPostToSearch(post)
+	PushPostToSearch(post)
 
 	// 创建用户消息提醒
 	commentMaster, err := ds.GetUserByID(comment.UserID)
@@ -325,7 +325,7 @@ func DeletePostCommentReply(reply *model.CommentReply) error {
 	ds.UpdatePost(post)
 
 	// 更新索引
-	go PushPostToSearch(post)
+	PushPostToSearch(post)
 
 	return nil
 }

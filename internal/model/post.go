@@ -7,20 +7,31 @@ import (
 	"gorm.io/gorm"
 )
 
+// PostVisibleT 可访问类型，0公开，1私密，2好友
+type PostVisibleT uint8
+
+const (
+	PostVisitPublic PostVisibleT = iota
+	PostVisitPrivate
+	PostVisitFriend
+	PostVisitInvalid
+)
+
 type Post struct {
 	*Model
-	UserID          int64  `json:"user_id"`
-	CommentCount    int64  `json:"comment_count"`
-	CollectionCount int64  `json:"collection_count"`
-	UpvoteCount     int64  `json:"upvote_count"`
-	IsTop           int    `json:"is_top"`
-	IsEssence       int    `json:"is_essence"`
-	IsLock          int    `json:"is_lock"`
-	LatestRepliedOn int64  `json:"latest_replied_on"`
-	Tags            string `json:"tags"`
-	AttachmentPrice int64  `json:"attachment_price"`
-	IP              string `json:"ip"`
-	IPLoc           string `json:"ip_loc"`
+	UserID          int64        `json:"user_id"`
+	CommentCount    int64        `json:"comment_count"`
+	CollectionCount int64        `json:"collection_count"`
+	UpvoteCount     int64        `json:"upvote_count"`
+	Visibility      PostVisibleT `json:"visibility"`
+	IsTop           int          `json:"is_top"`
+	IsEssence       int          `json:"is_essence"`
+	IsLock          int          `json:"is_lock"`
+	LatestRepliedOn int64        `json:"latest_replied_on"`
+	Tags            string       `json:"tags"`
+	AttachmentPrice int64        `json:"attachment_price"`
+	IP              string       `json:"ip"`
+	IPLoc           string       `json:"ip_loc"`
 }
 
 type PostFormated struct {
@@ -31,6 +42,7 @@ type PostFormated struct {
 	CommentCount    int64                  `json:"comment_count"`
 	CollectionCount int64                  `json:"collection_count"`
 	UpvoteCount     int64                  `json:"upvote_count"`
+	Visibility      PostVisibleT           `json:"visibility"`
 	IsTop           int                    `json:"is_top"`
 	IsEssence       int                    `json:"is_essence"`
 	IsLock          int                    `json:"is_lock"`
@@ -56,6 +68,7 @@ func (p *Post) Format() *PostFormated {
 			CommentCount:    p.CommentCount,
 			CollectionCount: p.CollectionCount,
 			UpvoteCount:     p.UpvoteCount,
+			Visibility:      p.Visibility,
 			IsTop:           p.IsTop,
 			IsEssence:       p.IsEssence,
 			IsLock:          p.IsLock,
@@ -143,4 +156,19 @@ func (p *Post) Count(db *gorm.DB, conditions *ConditionsT) (int64, error) {
 
 func (p *Post) Update(db *gorm.DB) error {
 	return db.Model(&Post{}).Where("id = ? AND is_del = ?", p.Model.ID, 0).Save(p).Error
+}
+
+func (p PostVisibleT) String() string {
+	switch p {
+	case PostVisitPublic:
+		return "public"
+	case PostVisitPrivate:
+		return "private"
+	case PostVisitFriend:
+		return "friend"
+	case PostVisitInvalid:
+		return "invalid"
+	default:
+		return "unknow"
+	}
 }

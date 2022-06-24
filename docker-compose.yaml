@@ -8,7 +8,7 @@ services:
       MYSQL_DATABASE: paopao
       MYSQL_USER: paopao
       MYSQL_PASSWORD: paopao
-      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
     volumes:
       - ./scripts/paopao-mysql.sql:/docker-entrypoint-initdb.d/paopao.sql
       - ./data/mysql/data:/var/lib/mysql
@@ -25,23 +25,9 @@ services:
     networks:
       - paopao-network
   
-  minio:
-    image: bitnami/minio:latest
-    restart: always
-    environment:
-      MINIO_ROOT_USER: minio-root-user
-      MINIO_ROOT_PASSWORD: minio-root-password
-      MINIO_DEFAULT_BUCKETS: paopao:public
-    ports:
-      - 127.0.0.1:9000:9000
-      - 127.0.0.1:9001:9001
-    volumes:
-      - ./data/minio/data:/data
-    networks:
-      - paopao-network
-  
   zinc:
     image: public.ecr.aws/prabhat/zinc:latest
+    user: root
     restart: always
     ports:
       - 127.0.0.1::4080
@@ -54,6 +40,31 @@ services:
     networks:
       - paopao-network
 
+  # meili:
+  #   image: getmeili/meilisearch:v0.27.0
+  #   restart: always
+  #   ports:
+  #     - 7700:7700
+  #   volumes:
+  #     - ./data/meili/data:/meili_data
+  #   environment:
+  #     - MEILI_MASTER_KEY=paopao-meilisearch
+  #   networks:
+  #     - paopao-network
+
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    depends_on:
+      - db
+    ports:
+      - 127.0.0.1:8080:80
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=paopao
+      - PMA_PASSWORD=paopao
+    networks:
+      - paopao-network
+
   backend:
     build:
       context: .
@@ -62,7 +73,6 @@ services:
       - db
       - redis
       - zinc
-      - minio
     # modify below to reflect your custom configure
     volumes:
       - ./config.yaml.sample:/app/paopao-ce/config.yaml

@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/pkg/json"
 	"gopkg.in/resty.v1"
 )
 
@@ -157,4 +157,9 @@ func (d *dataServant) SendPhoneCaptcha(phone string) error {
 	}
 	captchaModel.Create(d.engine)
 	return nil
+}
+
+func (d *dataServant) IsFriend(_userID int64, _friendID int64) bool {
+	// TODO: you are friend in all now
+	return true
 }

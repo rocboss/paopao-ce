@@ -16,6 +16,33 @@
                     {{ post.user.nickname }}
                 </router-link>
                 <span class="username-wrap"> @{{ post.user.username }} </span>
+                <n-tag
+                    v-if="post.is_top"
+                    class="top-tag"
+                    type="warning"
+                    size="small"
+                    round
+                >
+                    置顶
+                </n-tag>
+                <n-tag
+                    v-if="post.visibility == VisibilityEnum.PRIVATE"
+                    class="top-tag"
+                    type="error"
+                    size="small"
+                    round
+                >
+                    私密
+                </n-tag>
+                <n-tag
+                    v-if="post.visibility == VisibilityEnum.FRIEND"
+                    class="top-tag"
+                    type="info"
+                    size="small"
+                    round
+                >
+                    好友可见
+                </n-tag>
             </template>
             <template #header-extra>
                 <div
@@ -82,6 +109,21 @@
                     positive-text="确认"
                     negative-text="取消"
                     @positive-click="execStickAction"
+                />
+                <!-- 修改可见度确认 -->
+                <n-modal
+                    v-model:show="showVisibilityModal"
+                    :mask-closable="false"
+                    preset="dialog"
+                    title="提示"
+                    :content="
+                        '确定将该泡泡动态可见度修改为' +
+                        (tempVisibility == 0 ? '公开' : (tempVisibility == 1 ? '私密' : '好友可见')) +
+                        '吗？'
+                    "
+                    positive-text="确认"
+                    negative-text="取消"
+                    @positive-click="execVisibilityAction"
                 />
             </template>
             <div v-if="post.texts.length > 0">
@@ -174,7 +216,10 @@ import {
     deletePost,
     lockPost,
     stickPost,
+    visibilityPost
 } from '@/api/post';
+import type { DropdownOption } from 'naive-ui';
+import { VisibilityEnum } from '@/utils/IEnum';
 
 const store = useStore();
 const router = useRouter();
@@ -189,7 +234,9 @@ const props = withDefaults(
 const showDelModal = ref(false);
 const showLockModal = ref(false);
 const showStickModal = ref(false);
+const showVisibilityModal = ref(false);
 const loading = ref(false);
+const tempVisibility = ref<VisibilityEnum>(VisibilityEnum.PUBLIC);
 
 const emit = defineEmits<{
     (e: 'reload'): void;
@@ -238,7 +285,7 @@ const post = computed({
 });
 
 const adminOptions = computed(() => {
-    let options = [
+    let options: DropdownOption[] = [
         {
             label: '删除',
             key: 'delete',
@@ -267,6 +314,34 @@ const adminOptions = computed(() => {
                 key: 'unstick',
             });
         }
+    }
+    if (post.value.visibility === VisibilityEnum.PUBLIC) {
+        options.push({
+            label: '公开',
+            key: 'vpublic',
+            children: [
+                { label: '私密', key: 'vprivate' }
+                , { label: '好友可见', key: 'vfriend' }
+            ]
+        })
+    } else if (post.value.visibility === VisibilityEnum.PRIVATE) {
+        options.push({
+            label: '私密',
+            key: 'vprivate',
+            children: [
+                { label: '公开', key: 'vpublic' }
+                , { label: '好友可见', key: 'vfriend' }
+            ]
+        })
+    } else {
+        options.push({
+            label: '好友可见',
+            key: 'vfriend',
+            children: [
+                { label: '公开', key: 'vpublic' }
+                , { label: '私密', key: 'vprivate' }
+            ]
+        })
     }
     return options;
 });
@@ -306,16 +381,34 @@ const doClickText = (e: MouseEvent, id: number) => {
     goPostDetail(id);
 };
 const handlePostAction = (
-    item: 'delete' | 'lock' | 'unlock' | 'stick' | 'unstick'
+    item: 'delete' | 'lock' | 'unlock' | 'stick' | 'unstick' | 'vpublic' | 'vprivate' | 'vfriend'
 ) => {
-    if (item === 'delete') {
-        showDelModal.value = true;
-    }
-    if (item === 'lock' || item === 'unlock') {
-        showLockModal.value = true;
-    }
-    if (item === 'stick' || item === 'unstick') {
-        showStickModal.value = true;
+    switch (item) {
+        case 'delete':
+            showDelModal.value = true;
+            break;
+        case 'lock':
+        case 'unlock':
+            showLockModal.value = true;
+            break;
+        case 'stick':
+        case 'unstick':
+            showStickModal.value = true;
+            break;
+        case 'vpublic':
+            tempVisibility.value = 0;
+            showVisibilityModal.value = true;
+            break;
+        case 'vprivate':
+            tempVisibility.value = 1;
+            showVisibilityModal.value = true;
+            break;
+        case 'vfriend':
+            tempVisibility.value = 2;
+            showVisibilityModal.value = true;
+            break;
+        default:
+            break;
     }
 };
 const execDelAction = () => {
@@ -361,6 +454,19 @@ const execStickAction = () => {
             } else {
                 window.$message.success('取消置顶成功');
             }
+        })
+        .catch((err) => {
+            loading.value = false;
+        });
+};
+const execVisibilityAction = () => {
+    visibilityPost({
+        id: post.value.id,
+        visibility: tempVisibility.value
+    })
+        .then((res) => {
+            emit('reload');
+            window.$message.success('修改可见性成功');
         })
         .catch((err) => {
             loading.value = false;
@@ -450,7 +556,9 @@ onMounted(() => {
         font-size: 14px;
         opacity: 0.75;
     }
-
+    .top-tag {
+        transform: scale(0.75);
+    }
     .options {
         opacity: 0.75;
     }

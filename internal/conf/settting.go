@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/gorm/logger"
 )
@@ -13,11 +14,14 @@ type Setting struct {
 	vp *viper.Viper
 }
 
+type LoggerSettingS struct {
+	Level string
+}
+
 type LoggerFileSettingS struct {
 	SavePath string
 	FileName string
 	FileExt  string
-	Level    string
 }
 
 type LoggerZincSettingS struct {
@@ -25,7 +29,16 @@ type LoggerZincSettingS struct {
 	Index    string
 	User     string
 	Password string
-	Level    string
+	Secure   bool
+}
+
+type LoggerMeiliSettingS struct {
+	Host         string
+	Index        string
+	ApiKey       string
+	Secure       bool
+	MaxLogBuffer int
+	MinWorker    int
 }
 
 type ServerSettingS struct {
@@ -47,11 +60,21 @@ type AppSettingS struct {
 	TronApiKeys           []string
 }
 
+type CacheIndexSettingS struct {
+	MaxUpdateQPS int
+	MinWorker    int
+}
+
 type SimpleCacheIndexSettingS struct {
 	MaxIndexSize       int
-	CheckTickDuration  int
-	ExpireTickDuration int
-	ActionQPS          int
+	CheckTickDuration  time.Duration
+	ExpireTickDuration time.Duration
+}
+
+type BigCacheIndexSettingS struct {
+	MaxIndexPage   int
+	ExpireInSecond time.Duration
+	Verbose        bool
 }
 
 type AlipaySettingS struct {
@@ -71,16 +94,29 @@ type FeaturesSettingS struct {
 	features map[string]string
 }
 
+type TweetSearchS struct {
+	MaxUpdateQPS int
+	MinWorker    int
+}
+
 type ZincSettingS struct {
 	Host     string
 	Index    string
 	User     string
 	Password string
+	Secure   bool
+}
+
+type MeiliSettingS struct {
+	Host   string
+	Index  string
+	ApiKey string
+	Secure bool
 }
 
 type DatabaseSetingS struct {
 	TablePrefix string
-	LogLevel    logger.LogLevel
+	LogLevel    string
 }
 
 type MySQLSettingS struct {
@@ -281,4 +317,82 @@ func (s PostgresSettingS) Dsn() string {
 		}
 	}
 	return strings.Join(params, " ")
+}
+
+func (s *DatabaseSetingS) logLevel() logger.LogLevel {
+	switch strings.ToLower(s.LogLevel) {
+	case "silent":
+		return logger.Silent
+	case "error":
+		return logger.Error
+	case "warn":
+		return logger.Warn
+	case "info":
+		return logger.Info
+	default:
+		return logger.Error
+	}
+}
+
+func (s *LoggerSettingS) logLevel() logrus.Level {
+	switch strings.ToLower(s.Level) {
+	case "panic":
+		return logrus.PanicLevel
+	case "fatal":
+		return logrus.FatalLevel
+	case "error":
+		return logrus.ErrorLevel
+	case "warn", "warning":
+		return logrus.WarnLevel
+	case "info":
+		return logrus.InfoLevel
+	case "debug":
+		return logrus.DebugLevel
+	case "trace":
+		return logrus.TraceLevel
+	default:
+		return logrus.ErrorLevel
+	}
+}
+
+func (s *LoggerZincSettingS) Endpoint() string {
+	return endpoint(s.Host, s.Secure)
+}
+
+func (s *LoggerMeiliSettingS) Endpoint() string {
+	return endpoint(s.Host, s.Secure)
+}
+
+func (s *LoggerMeiliSettingS) minWork() int {
+	if s.MinWorker < 5 {
+		return 5
+	} else if s.MinWorker > 100 {
+		return 100
+	}
+	return s.MinWorker
+}
+
+func (s *LoggerMeiliSettingS) maxLogBuffer() int {
+	if s.MaxLogBuffer < 10 {
+		return 10
+	} else if s.MaxLogBuffer > 1000 {
+		return 1000
+	}
+	return s.MaxLogBuffer
+}
+
+func (s *ZincSettingS) Endpoint() string {
+	return endpoint(s.Host, s.Secure)
+}
+
+func (s *MeiliSettingS) Endpoint() string {
+	return endpoint(s.Host, s.Secure)
+}
+
+func endpoint(host string, secure bool) string {
+	schema := "http"
+	if secure {
+		schema = "https"
+	}
+	return schema + "://" + host
 }

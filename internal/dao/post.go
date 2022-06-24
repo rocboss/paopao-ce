@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"strings"
 	"time"
 
 	"github.com/rocboss/paopao-ce/internal/core"
@@ -36,6 +37,46 @@ func (d *dataServant) StickPost(post *model.Post) error {
 		return err
 	}
 	d.indexActive(core.IdxActStickPost)
+	return nil
+}
+
+func (d *dataServant) VisiblePost(post *model.Post, visibility model.PostVisibleT) error {
+	oldVisibility := post.Visibility
+	post.Visibility = visibility
+	// TODO: 这个判断是否可以不要呢
+	if oldVisibility == visibility {
+		return nil
+	}
+	// 私密推文 特殊处理
+	if visibility == model.PostVisitPrivate {
+		// 强制取消置顶
+		// TODO: 置顶推文用户是否有权设置成私密？ 后续完善
+		post.IsTop = 0
+	}
+	db := d.engine.Begin()
+	err := post.Update(db)
+	if err != nil {
+		db.Rollback()
+		return err
+	}
+
+	// tag处理
+	tags := strings.Split(post.Tags, ",")
+	for _, t := range tags {
+		tag := &model.Tag{
+			Tag: t,
+		}
+		// TODO: 暂时宽松不处理错误，这里或许可以有优化，后续完善
+		if oldVisibility == model.PostVisitPrivate {
+			// 从私密转为非私密才需要重新创建tag
+			d.createTag(db, tag)
+		} else if visibility == model.PostVisitPrivate {
+			// 从非私密转为私密才需要删除tag
+			d.deleteTag(db, tag)
+		}
+	}
+	db.Commit()
+	d.indexActive(core.IdxActVisiblePost)
 	return nil
 }
 
@@ -79,7 +120,7 @@ func (d *dataServant) GetUserPostStars(userID int64, offset, limit int) ([]*mode
 	}
 
 	return star.List(d.engine, &model.ConditionsT{
-		"ORDER": "id DESC",
+		"ORDER": d.engine.NamingStrategy.TableName("PostStar") + ".id DESC",
 	}, offset, limit)
 }
 
@@ -118,7 +159,7 @@ func (d *dataServant) GetUserPostCollections(userID int64, offset, limit int) ([
 	}
 
 	return collection.List(d.engine, &model.ConditionsT{
-		"ORDER": "id DESC",
+		"ORDER": d.engine.NamingStrategy.TableName("PostCollection") + ".id DESC",
 	}, offset, limit)
 }
 
@@ -165,4 +206,81 @@ func (d *dataServant) GetPostAttatchmentBill(postID, userID int64) (*model.PostA
 	}
 
 	return bill.Get(d.engine)
+}
+
+// MergePosts post数据整合
+func (d *dataServant) MergePosts(posts []*model.Post) ([]*model.PostFormated, error) {
+	postIds := make([]int64, 0, len(posts))
+	userIds := make([]int64, 0, len(posts))
+	for _, post := range posts {
+		postIds = append(postIds, post.ID)
+		userIds = append(userIds, post.UserID)
+	}
+
+	postContents, err := d.GetPostContentsByIDs(postIds)
+	if err != nil {
+		return nil, err
+	}
+
+	users, err := d.GetUsersByIDs(userIds)
+	if err != nil {
+		return nil, err
+	}
+
+	userMap := make(map[int64]*model.UserFormated, len(users))
+	for _, user := range users {
+		userMap[user.ID] = user.Format()
+	}
+
+	contentMap := make(map[int64][]*model.PostContentFormated, len(postContents))
+	for _, content := range postContents {
+		contentMap[content.PostID] = append(contentMap[content.PostID], content.Format())
+	}
+
+	// 数据整合
+	postsFormated := make([]*model.PostFormated, 0, len(posts))
+	for _, post := range posts {
+		postFormated := post.Format()
+		postFormated.User = userMap[post.UserID]
+		postFormated.Contents = contentMap[post.ID]
+		postsFormated = append(postsFormated, postFormated)
+	}
+	return postsFormated, nil
+}
+
+// RevampPosts post数据整形修复
+func (d *dataServant) RevampPosts(posts []*model.PostFormated) ([]*model.PostFormated, error) {
+	postIds := make([]int64, 0, len(posts))
+	userIds := make([]int64, 0, len(posts))
+	for _, post := range posts {
+		postIds = append(postIds, post.ID)
+		userIds = append(userIds, post.UserID)
+	}
+
+	postContents, err := d.GetPostContentsByIDs(postIds)
+	if err != nil {
+		return nil, err
+	}
+
+	users, err := d.GetUsersByIDs(userIds)
+	if err != nil {
+		return nil, err
+	}
+
+	userMap := make(map[int64]*model.UserFormated, len(users))
+	for _, user := range users {
+		userMap[user.ID] = user.Format()
+	}
+
+	contentMap := make(map[int64][]*model.PostContentFormated, len(postContents))
+	for _, content := range postContents {
+		contentMap[content.PostID] = append(contentMap[content.PostID], content.Format())
+	}
+
+	// 数据整合
+	for _, post := range posts {
+		post.User = userMap[post.UserID]
+		post.Contents = contentMap[post.ID]
+	}
+	return posts, nil
 }

@@ -11,11 +11,12 @@ import (
 	"github.com/rocboss/paopao-ce/internal"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/routers"
+	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/rocboss/paopao-ce/pkg/util"
 )
 
 var (
-	version, buildDate, commitID string
+	version, commitID, buildDate string
 
 	noDefaultFeatures bool
 	features          suites
@@ -59,7 +60,7 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	util.PrintHelloBanner(fmt.Sprintf("paopao %s (build:%s %s)", version, commitID, buildDate))
+	util.PrintHelloBanner(debug.VersionInfo())
 	fmt.Fprintf(color.Output, "PaoPao service listen on %s\n",
 		color.GreenString(fmt.Sprintf("http://%s:%s", conf.ServerSetting.HttpIp, conf.ServerSetting.HttpPort)),
 	)

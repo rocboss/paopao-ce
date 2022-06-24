@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/sirupsen/logrus"
 )
@@ -23,6 +24,14 @@ func newLocalossServent() *localossServant {
 		savePath: savePath + "/" + conf.LocalOSSSetting.Bucket + "/",
 		domain:   getOssDomain(),
 	}
+}
+
+func (s *localossServant) Name() string {
+	return "LocalOSS"
+}
+
+func (s *localossServant) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
 }
 
 func (s *localossServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string) (string, error) {

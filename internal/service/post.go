@@ -1,7 +1,7 @@
 package service
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -11,8 +11,8 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/pkg/errcode"
 	"github.com/rocboss/paopao-ce/pkg/util"
-	"github.com/rocboss/paopao-ce/pkg/zinc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -36,6 +36,7 @@ type PostCreationReq struct {
 	Tags            []string           `json:"tags" binding:"required"`
 	Users           []string           `json:"users" binding:"required"`
 	AttachmentPrice int64              `json:"attachment_price"`
+	Visibility      model.PostVisibleT `json:"visibility"`
 }
 
 type PostDelReq struct {
@@ -48,6 +49,11 @@ type PostLockReq struct {
 
 type PostStickReq struct {
 	ID int64 `json:"id" binding:"required"`
+}
+
+type PostVisibilityReq struct {
+	ID         int64              `json:"id" binding:"required"`
+	Visibility model.PostVisibleT `json:"visibility"`
 }
 
 type PostStarReq struct {
@@ -83,28 +89,37 @@ func (p *PostContentItem) Check() error {
 	return nil
 }
 
+func tagsFrom(originTags []string) []string {
+	tags := make([]string, 0, len(originTags))
+	for _, tag := range originTags {
+		// TODO: 优化tag有效性检测
+		if tag = strings.TrimSpace(tag); len(tag) > 0 {
+			tags = append(tags, tag)
+		}
+	}
+	return tags
+}
+
+// CreatePost 创建文章
+// TODO: maybe have bug need optimize for use transaction to create post
 func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Post, error) {
 	ip := c.ClientIP()
+	if len(ip) == 0 {
+		ip = "未知"
+	}
 
+	tags := tagsFrom(param.Tags)
 	post := &model.Post{
 		UserID:          userID,
-		Tags:            strings.Join(param.Tags, ","),
+		Tags:            strings.Join(tags, ","),
 		IP:              ip,
 		IPLoc:           util.GetIPLoc(ip),
 		AttachmentPrice: param.AttachmentPrice,
+		Visibility:      param.Visibility,
 	}
 	post, err := ds.CreatePost(post)
 	if err != nil {
 		return nil, err
-	}
-
-	// 创建标签
-	for _, t := range param.Tags {
-		tag := &model.Tag{
-			UserID: userID,
-			Tag:    t,
-		}
-		ds.CreateTag(tag)
 	}
 
 	for _, item := range param.Contents {
@@ -125,27 +140,42 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 			Type:    item.Type,
 			Sort:    item.Sort,
 		}
-		ds.CreatePostContent(postContent)
+		if _, err := ds.CreatePostContent(postContent); err != nil {
+			return nil, err
+		}
 	}
 
-	// 推送Search
-	go PushPostToSearch(post)
-
-	// 创建用户消息提醒
-	for _, u := range param.Users {
-		user, err := ds.GetUserByUsername(u)
-		if err != nil || user.ID == userID {
-			continue
+	// TODO: 目前非私密文章才能有如下操作，后续再优化
+	if post.Visibility != model.PostVisitPrivate {
+		// 创建标签
+		for _, t := range tags {
+			tag := &model.Tag{
+				UserID: userID,
+				Tag:    t,
+			}
+			if _, err := ds.CreateTag(tag); err != nil {
+				return nil, err
+			}
 		}
+		// 创建用户消息提醒
+		for _, u := range param.Users {
+			user, err := ds.GetUserByUsername(u)
+			if err != nil || user.ID == userID {
+				continue
+			}
 
-		// 创建消息提醒
-		go ds.CreateMessage(&model.Message{
-			SenderUserID:   userID,
-			ReceiverUserID: user.ID,
-			Type:           model.MESSAGE_POST,
-			Brief:          "在新发布的泡泡动态中@了你",
-			PostID:         post.ID,
-		})
+			// 创建消息提醒
+			// TODO: 优化消息提醒处理机制
+			go ds.CreateMessage(&model.Message{
+				SenderUserID:   userID,
+				ReceiverUserID: user.ID,
+				Type:           model.MESSAGE_POST,
+				Brief:          "在新发布的泡泡动态中@了你",
+				PostID:         post.ID,
+			})
+		}
+		// 推送Search
+		PushPostToSearch(post)
 	}
 
 	return post, nil
@@ -171,7 +201,7 @@ func DeletePost(id int64) error {
 	}
 
 	// 删除索引
-	go DeleteSearchPost(post)
+	DeleteSearchPost(post)
 
 	return nil
 }
@@ -200,6 +230,45 @@ func StickPost(id int64) error {
 	return nil
 }
 
+func VisiblePost(user *model.User, postId int64, visibility model.PostVisibleT) *errcode.Error {
+	if visibility >= model.PostVisitInvalid {
+		return errcode.InvalidParams
+	}
+
+	post, err := ds.GetPostByID(postId)
+	if err != nil {
+		return errcode.GetPostFailed
+	}
+
+	if err := checkPermision(user, post.UserID); err != nil {
+		return err
+	}
+
+	// 相同属性，不需要操作了
+	oldVisibility := post.Visibility
+	if oldVisibility == visibility {
+		logrus.Infof("sample visibility no need operate postId: %d", postId)
+		return nil
+	}
+
+	if err = ds.VisiblePost(post, visibility); err != nil {
+		logrus.Warnf("update post failure: %v", err)
+		return errcode.VisblePostFailed
+	}
+
+	// 搜索处理
+	if oldVisibility == model.PostVisitPrivate {
+		// 从私密转为非私密需要push
+		logrus.Debugf("visible post set to re-public to add search index: %d, visibility: %s", post.ID, visibility)
+		PushPostToSearch(post)
+	} else if visibility == model.PostVisitPrivate {
+		// 从非私密转为私密需要删除索引
+		logrus.Debugf("visible post set to private to delete search index: %d, visibility: %s", post.ID, visibility)
+		DeleteSearchPost(post)
+	}
+	return nil
+}
+
 func GetPostStar(postID, userID int64) (*model.PostStar, error) {
 	return ds.GetUserPostStar(postID, userID)
 }
@@ -210,6 +279,12 @@ func CreatePostStar(postID, userID int64) (*model.PostStar, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// 私密post不可操作
+	if post.Visibility == model.PostVisitPrivate {
+		return nil, errors.New("no permision")
+	}
+
 	star, err := ds.CreatePostStar(postID, userID)
 	if err != nil {
 		return nil, err
@@ -220,7 +295,7 @@ func CreatePostStar(postID, userID int64) (*model.PostStar, error) {
 	ds.UpdatePost(post)
 
 	// 更新索引
-	go PushPostToSearch(post)
+	PushPostToSearch(post)
 
 	return star, nil
 }
@@ -235,12 +310,18 @@ func DeletePostStar(star *model.PostStar) error {
 	if err != nil {
 		return err
 	}
+
+	// 私密post不可操作
+	if post.Visibility == model.PostVisitPrivate {
+		return errors.New("no permision")
+	}
+
 	// 更新Post点赞数
 	post.UpvoteCount--
 	ds.UpdatePost(post)
 
 	// 更新索引
-	go PushPostToSearch(post)
+	PushPostToSearch(post)
 
 	return nil
 }
@@ -255,6 +336,12 @@ func CreatePostCollection(postID, userID int64) (*model.PostCollection, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// 私密post不可操作
+	if post.Visibility == model.PostVisitPrivate {
+		return nil, errors.New("no permision")
+	}
+
 	collection, err := ds.CreatePostCollection(postID, userID)
 	if err != nil {
 		return nil, err
@@ -265,7 +352,7 @@ func CreatePostCollection(postID, userID int64) (*model.PostCollection, error) {
 	ds.UpdatePost(post)
 
 	// 更新索引
-	go PushPostToSearch(post)
+	PushPostToSearch(post)
 
 	return collection, nil
 }
@@ -280,12 +367,18 @@ func DeletePostCollection(collection *model.PostCollection) error {
 	if err != nil {
 		return err
 	}
+
+	// 私密post不可操作
+	if post.Visibility == model.PostVisitPrivate {
+		return errors.New("no permision")
+	}
+
 	// 更新Post点赞数
 	post.CollectionCount--
 	ds.UpdatePost(post)
 
 	// 更新索引
-	go PushPostToSearch(post)
+	PushPostToSearch(post)
 
 	return nil
 }
@@ -324,8 +417,8 @@ func GetPostContentByID(id int64) (*model.PostContent, error) {
 	return ds.GetPostContentByID(id)
 }
 
-func GetIndexPosts(offset int, limit int) ([]*model.PostFormated, error) {
-	return ds.IndexPosts(offset, limit)
+func GetIndexPosts(userId int64, offset int, limit int) ([]*model.PostFormated, error) {
+	return ds.IndexPosts(userId, offset, limit)
 }
 
 func GetPostList(req *PostListReq) ([]*model.PostFormated, error) {
@@ -335,83 +428,38 @@ func GetPostList(req *PostListReq) ([]*model.PostFormated, error) {
 		return nil, err
 	}
 
-	return FormatPosts(posts)
-}
-
-func FormatPosts(posts []*model.Post) ([]*model.PostFormated, error) {
-	postIds := []int64{}
-	userIds := []int64{}
-	for _, post := range posts {
-		postIds = append(postIds, post.ID)
-		userIds = append(userIds, post.UserID)
-	}
-
-	postContents, err := ds.GetPostContentsByIDs(postIds)
-	if err != nil {
-		return nil, err
-	}
-
-	users, err := ds.GetUsersByIDs(userIds)
-	if err != nil {
-		return nil, err
-	}
-
-	// 数据整合
-	postsFormated := []*model.PostFormated{}
-	for _, post := range posts {
-		postFormated := post.Format()
-
-		for _, user := range users {
-			if user.ID == postFormated.UserID {
-				postFormated.User = user.Format()
-			}
-		}
-		for _, content := range postContents {
-			if content.PostID == post.ID {
-				postFormated.Contents = append(postFormated.Contents, content.Format())
-			}
-		}
-
-		postsFormated = append(postsFormated, postFormated)
-	}
-
-	return postsFormated, nil
+	return ds.MergePosts(posts)
 }
 
 func GetPostCount(conditions *model.ConditionsT) (int64, error) {
 	return ds.GetPostCount(conditions)
 }
 
-func GetPostListFromSearch(q *core.QueryT, offset, limit int) ([]*model.PostFormated, int64, error) {
-	queryResult, err := ds.QueryAll(q, conf.ZincSetting.Index, offset, limit)
+func GetPostListFromSearch(q *core.QueryReq, offset, limit int) ([]*model.PostFormated, int64, error) {
+	resp, err := ts.Search(q, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
-
-	posts, err := FormatZincPost(queryResult)
+	posts, err := ds.RevampPosts(resp.Items)
 	if err != nil {
 		return nil, 0, err
 	}
-
-	return posts, queryResult.Hits.Total.Value, nil
+	return posts, resp.Total, nil
 }
 
 func GetPostListFromSearchByQuery(query string, offset, limit int) ([]*model.PostFormated, int64, error) {
-	queryResult, err := ds.QuerySearch(conf.ZincSetting.Index, query, offset, limit)
-	if err != nil {
-		return nil, 0, err
+	q := &core.QueryReq{
+		Query: query,
+		Type:  "search",
 	}
-
-	posts, err := FormatZincPost(queryResult)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return posts, queryResult.Hits.Total.Value, nil
+	return GetPostListFromSearch(q, offset, limit)
 }
 
 func PushPostToSearch(post *model.Post) {
-	indexName := conf.ZincSetting.Index
+	// TODO: 暂时不索引私密文章,后续再完善
+	if post.Visibility == model.PostVisitPrivate {
+		return
+	}
 
 	postFormated := post.Format()
 	postFormated.User = &model.UserFormated{
@@ -435,18 +483,13 @@ func PushPostToSearch(post *model.Post) {
 		tagMaps[tag] = 1
 	}
 
-	data := []map[string]interface{}{}
-	data = append(data, map[string]interface{}{
-		"index": map[string]interface{}{
-			"_index": indexName,
-			"_id":    fmt.Sprintf("%d", post.ID),
-		},
-	}, map[string]interface{}{
+	data := core.DocItems{{
 		"id":                post.ID,
 		"user_id":           post.UserID,
 		"comment_count":     post.CommentCount,
 		"collection_count":  post.CollectionCount,
 		"upvote_count":      post.UpvoteCount,
+		"visibility":        post.Visibility,
 		"is_top":            post.IsTop,
 		"is_essence":        post.IsEssence,
 		"content":           contentFormated,
@@ -456,36 +499,32 @@ func PushPostToSearch(post *model.Post) {
 		"attachment_price":  post.AttachmentPrice,
 		"created_on":        post.CreatedOn,
 		"modified_on":       post.ModifiedOn,
-	})
+	}}
 
-	ds.BulkPushDoc(data)
+	ts.AddDocuments(data, fmt.Sprintf("%d", post.ID))
 }
 
 func DeleteSearchPost(post *model.Post) error {
-	indexName := conf.ZincSetting.Index
-
-	return ds.DelDoc(indexName, fmt.Sprintf("%d", post.ID))
+	return ts.DeleteDocuments([]string{fmt.Sprintf("%d", post.ID)})
 }
 
 func PushPostsToSearch(c *gin.Context) {
 	if ok, _ := conf.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
 		splitNum := 1000
-		totalRows, _ := GetPostCount(&model.ConditionsT{})
+		totalRows, _ := GetPostCount(&model.ConditionsT{
+			"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},
+		})
 
 		pages := math.Ceil(float64(totalRows) / float64(splitNum))
 		nums := int(pages)
 
-		indexName := conf.ZincSetting.Index
-		// 创建索引
-		ds.CreateSearchIndex(indexName)
-
 		for i := 0; i < nums; i++ {
-			data := []map[string]interface{}{}
-
 			posts, _ := GetPostList(&PostListReq{
-				Conditions: &model.ConditionsT{},
-				Offset:     i * splitNum,
-				Limit:      splitNum,
+				Conditions: &model.ConditionsT{
+					"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},
+				},
+				Offset: i * splitNum,
+				Limit:  splitNum,
 			})
 
 			for _, post := range posts {
@@ -497,17 +536,13 @@ func PushPostsToSearch(c *gin.Context) {
 					}
 				}
 
-				data = append(data, map[string]interface{}{
-					"index": map[string]interface{}{
-						"_index": indexName,
-						"_id":    fmt.Sprintf("%d", post.ID),
-					},
-				}, map[string]interface{}{
+				docs := core.DocItems{{
 					"id":                post.ID,
 					"user_id":           post.User.ID,
 					"comment_count":     post.CommentCount,
 					"collection_count":  post.CollectionCount,
 					"upvote_count":      post.UpvoteCount,
+					"visibility":        post.Visibility,
 					"is_top":            post.IsTop,
 					"is_essence":        post.IsEssence,
 					"content":           contentFormated,
@@ -517,64 +552,13 @@ func PushPostsToSearch(c *gin.Context) {
 					"attachment_price":  post.AttachmentPrice,
 					"created_on":        post.CreatedOn,
 					"modified_on":       post.ModifiedOn,
-				})
-			}
-
-			if len(data) > 0 {
-				ds.BulkPushDoc(data)
+				}}
+				ts.AddDocuments(docs, fmt.Sprintf("%d", post.ID))
 			}
 		}
 
 		conf.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
 	}
-}
-
-func FormatZincPost(queryResult *zinc.QueryResultT) ([]*model.PostFormated, error) {
-	posts := []*model.PostFormated{}
-	for _, hit := range queryResult.Hits.Hits {
-		item := &model.PostFormated{}
-
-		raw, _ := json.Marshal(hit.Source)
-		err := json.Unmarshal(raw, item)
-		if err == nil {
-			posts = append(posts, item)
-		}
-	}
-
-	postIds := []int64{}
-	userIds := []int64{}
-	for _, post := range posts {
-		postIds = append(postIds, post.ID)
-		userIds = append(userIds, post.UserID)
-	}
-	postContents, err := ds.GetPostContentsByIDs(postIds)
-	if err != nil {
-		return nil, err
-	}
-
-	users, err := ds.GetUsersByIDs(userIds)
-	if err != nil {
-		return nil, err
-	}
-
-	// 数据整合
-	for _, post := range posts {
-		for _, user := range users {
-			if user.ID == post.UserID {
-				post.User = user.Format()
-			}
-		}
-		if post.Contents == nil {
-			post.Contents = []*model.PostContentFormated{}
-		}
-		for _, content := range postContents {
-			if content.PostID == post.ID {
-				post.Contents = append(post.Contents, content.Format())
-			}
-		}
-	}
-
-	return posts, nil
 }
 
 func GetPostTags(param *PostTagsReq) ([]*model.TagFormated, error) {

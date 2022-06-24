@@ -1,16 +1,3 @@
-/*
- Navicat Premium Data Transfer
-
- Source Server         : paopao-ce
- Source Server Type    : SQLite
- Source Server Version : 3035005
- Source Schema         : main
-
- Target Server Type    : SQLite
- Target Server Version : 3035005
- File Encoding         : 65001
-*/
-
 PRAGMA foreign_keys = false;
 
 -- ----------------------------
@@ -135,6 +122,7 @@ CREATE TABLE "p_post" (
   "comment_count" integer NOT NULL,
   "collection_count" integer NOT NULL,
   "upvote_count" integer NOT NULL,
+  "visibility" integer NOT NULL,
   "is_top" integer NOT NULL,
   "is_essence" integer NOT NULL,
   "is_lock" integer NOT NULL,
@@ -179,6 +167,14 @@ CREATE TABLE "p_post_collection" (
   "deleted_on" integer NOT NULL,
   "is_del" integer NOT NULL,
   PRIMARY KEY ("id")
+);
+
+-- ----------------------------
+-- Indexes structure for table p_post
+-- ----------------------------
+CREATE INDEX "main"."idx_visibility"
+ON "p_post" (
+  "visibility" ASC
 );
 
 -- ----------------------------

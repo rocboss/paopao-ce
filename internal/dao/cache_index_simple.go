@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
@@ -14,26 +15,26 @@ var (
 	errNotExist = errors.New("index posts cache not exist")
 )
 
-func newSimpleCacheIndexServant(getIndexPosts func(offset, limit int) ([]*model.PostFormated, error)) *simpleCacheIndexServant {
+func newSimpleCacheIndexServant(getIndexPosts indexPostsFunc) *simpleCacheIndexServant {
 	s := conf.SimpleCacheIndexSetting
 	cacheIndex := &simpleCacheIndexServant{
 		getIndexPosts:   getIndexPosts,
 		maxIndexSize:    s.MaxIndexSize,
 		indexPosts:      make([]*model.PostFormated, 0),
-		checkTick:       time.NewTicker(time.Duration(s.CheckTickDuration) * time.Second), // check whether need update index every 1 minute
+		checkTick:       time.NewTicker(s.CheckTickDuration), // check whether need update index every 1 minute
 		expireIndexTick: time.NewTicker(time.Second),
 	}
 
 	// force expire index every ExpireTickDuration second
 	if s.ExpireTickDuration != 0 {
-		cacheIndex.expireIndexTick.Reset(time.Duration(s.CheckTickDuration) * time.Second)
+		cacheIndex.expireIndexTick.Reset(s.CheckTickDuration)
 	} else {
 		cacheIndex.expireIndexTick.Stop()
 	}
 
 	// indexActionCh capacity custom configure by conf.yaml need in [10, 10000]
 	// or re-compile source to adjust min/max capacity
-	capacity := s.ActionQPS
+	capacity := conf.CacheIndexSetting.MaxUpdateQPS
 	if capacity < 10 {
 		capacity = 10
 	} else if capacity > 10000 {
@@ -48,7 +49,7 @@ func newSimpleCacheIndexServant(getIndexPosts func(offset, limit int) ([]*model.
 	return cacheIndex
 }
 
-func (s *simpleCacheIndexServant) IndexPosts(offset int, limit int) ([]*model.PostFormated, error) {
+func (s *simpleCacheIndexServant) IndexPosts(_userId int64, offset int, limit int) ([]*model.PostFormated, error) {
 	posts := s.atomicIndex.Load().([]*model.PostFormated)
 	end := offset + limit
 	size := len(posts)
@@ -78,7 +79,7 @@ func (s *simpleCacheIndexServant) startIndexPosts() {
 		case <-s.checkTick.C:
 			if len(s.indexPosts) == 0 {
 				logrus.Debugf("index posts by checkTick")
-				if s.indexPosts, err = s.getIndexPosts(0, s.maxIndexSize); err == nil {
+				if s.indexPosts, err = s.getIndexPosts(0, 0, s.maxIndexSize); err == nil {
 					s.atomicIndex.Store(s.indexPosts)
 				} else {
 					logrus.Errorf("get index posts err: %v", err)
@@ -92,7 +93,12 @@ func (s *simpleCacheIndexServant) startIndexPosts() {
 			}
 		case action := <-s.indexActionCh:
 			switch action {
-			case core.IdxActCreatePost, core.IdxActUpdatePost, core.IdxActDeletePost, core.IdxActStickPost:
+			// TODO: 这里列出来是因为后续可能会精细化处理每种情况
+			case core.IdxActCreatePost,
+				core.IdxActUpdatePost,
+				core.IdxActDeletePost,
+				core.IdxActStickPost,
+				core.IdxActVisiblePost:
 				// prevent many update post in least time
 				if len(s.indexPosts) != 0 {
 					logrus.Debugf("remove index posts by action %s", action)
@@ -104,4 +110,12 @@ func (s *simpleCacheIndexServant) startIndexPosts() {
 			}
 		}
 	}
+}
+
+func (s *simpleCacheIndexServant) Name() string {
+	return "SimpleCacheIndex"
+}
+
+func (s *simpleCacheIndexServant) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
 }

@@ -24,8 +24,9 @@ func NewRouter() *gin.Engine {
 	corsConfig.AddAllowHeaders("Authorization")
 	e.Use(cors.New(corsConfig))
 
-	// 按需注册 静态资源、LocalOSS 路由
+	// 按需注册 docs、静态资源、LocalOSS 路由
 	{
+		registerDocs(e)
 		registerStatick(e)
 		routeLocalOSS(e)
 	}
@@ -54,9 +55,6 @@ func NewRouter() *gin.Engine {
 	// 无鉴权路由组
 	noAuthApi := r.Group("/")
 	{
-		// 获取广场流
-		noAuthApi.GET("/posts", api.GetPostList)
-
 		// 获取动态详情
 		noAuthApi.GET("/post", api.GetPost)
 
@@ -68,9 +66,16 @@ func NewRouter() *gin.Engine {
 
 		// 获取用户基本信息
 		noAuthApi.GET("/user/profile", api.GetUserProfile)
+	}
+
+	// 宽松鉴权路由组
+	looseApi := r.Group("/").Use(middleware.JwtLoose())
+	{
+		// 获取广场流
+		looseApi.GET("/posts", api.GetPostList)
 
 		// 获取用户动态列表
-		noAuthApi.GET("/user/posts", api.GetUserPosts)
+		looseApi.GET("/user/posts", api.GetUserPosts)
 	}
 
 	// 鉴权路由组
@@ -161,6 +166,9 @@ func NewRouter() *gin.Engine {
 
 		// 置顶动态
 		privApi.POST("/post/stick", api.StickPost)
+
+		// 修改动态可见度
+		privApi.POST("/post/visibility", api.VisiblePost)
 
 		// 发布动态评论
 		privApi.POST("/post/comment", api.CreatePostComment)

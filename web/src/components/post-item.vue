@@ -27,6 +27,24 @@
                 >
                     置顶
                 </n-tag>
+                <n-tag
+                    v-if="post.visibility == 1"
+                    class="top-tag"
+                    type="error"
+                    size="small"
+                    round
+                >
+                    私密
+                </n-tag>
+                <n-tag
+                    v-if="post.visibility == 2"
+                    class="top-tag"
+                    type="info"
+                    size="small"
+                    round
+                >
+                    好友可见
+                </n-tag>
             </template>
             <template #header-extra>
                 <span class="timestamp">

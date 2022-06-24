@@ -35,6 +35,7 @@ var (
 	InsuffientDownloadMoney = NewError(30009, "附件下载失败:账户资金不足")
 	DownloadExecFail        = NewError(30010, "附件下载失败:扣费失败")
 	StickPostFailed         = NewError(30011, "动态置顶失败")
+	VisblePostFailed        = NewError(30012, "更新可见性失败")
 
 	GetCommentsFailed   = NewError(40001, "获取评论列表失败")
 	CreateCommentFailed = NewError(40002, "评论发布失败")

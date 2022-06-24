@@ -12,10 +12,11 @@ Server: # 服务设置
   ReadTimeout: 60
   WriteTimeout: 60
 Features:
-  Default: ["Base", "MySQL", "Option", "MinIO", "LoggerFile"]
-  Develop: ["Base", "MySQL", "Option", "Sms", "AliOSS", "LoggerZinc"]
+  Default: ["Base", "MySQL", "Option", "Zinc", "LocalOSS", "LoggerFile"]
+  Develop: ["Base", "MySQL", "BigCacheIndex", "Meili", "Sms", "AliOSS", "LoggerMeili"]
+  Demo: ["Base", "MySQL", "Option", "Zinc", "Sms", "MinIO", "LoggerZinc"]
   Slim: ["Base", "Sqlite3", "LocalOSS", "LoggerFile"]
-  Base: ["Zinc", "Redis", "Alipay",]
+  Base: ["Redis", "Alipay"]
   Option: ["SimpleCacheIndex"]
   Sms: "SmsJuhe"
 SmsJuhe:
@@ -25,31 +26,53 @@ SmsJuhe:
 Alipay: 
   AppID: 
   PrivateKey: 
+CacheIndex:
+  MaxUpdateQPS: 100             # 最大添加/删除/更新Post的QPS, 设置范围[10, 10000], 默认100
 SimpleCacheIndex: # 缓存泡泡广场消息流
   MaxIndexSize: 200             # 最大缓存条数
   CheckTickDuration: 60         # 循环自检查每多少秒一次
   ExpireTickDuration: 300       # 每多少秒后强制过期缓存, 设置为0禁止强制使缓存过期
-  ActionQPS: 100                # 添加/删除/更新Post的QPS, 默认100，范围设置[10, 10000]
+BigCacheIndex: # 使用BigCache缓存泡泡广场消息流
+  MaxIndexPage: 1024            # 最大缓存页数，必须是2^n, 代表最大同时缓存多少页数据
+  Verbose: False                # 是否打印cache操作的log
+  ExpireInSecond: 300           # 多少秒(>0)后强制过期缓存
+Logger: # 日志通用配置
+  Level: debug # 日志级别 panic|fatal|error|warn|info|debug|trace
 LoggerFile: # 使用File写日志
   SavePath: data/paopao-ce/logs
   FileName: app
   FileExt: .log
-  Level: info
 LoggerZinc: # 使用Zinc写日志
-  Host: http://zinc:4080/es/_bulk
+  Host: zinc:4080
   Index: paopao-log
   User: admin
   Password: admin
-  Level: info
+  Secure: False
+LoggerMeili: # 使用Meili写日志
+  Host: meili:7700
+  Index: paopao-log
+  ApiKey: paopao-meilisearch
+  Secure: False
+  MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
+  MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
 JWT: # 鉴权加密
   Secret: 18a6413dc4fe394c66345ebe501b2f26
   Issuer: paopao-api
   Expire: 86400
+TweetSearch: # 推文关键字搜索相关配置
+  MaxUpdateQPS: 100            # 最大添加/删除/更新Post的QPS，设置范围[10, 10000], 默认100
+  MinWorker: 10                # 最小后台更新工作者, 设置范围[5, 1000], 默认10
 Zinc: # Zinc搜索配置
-  Host: http://zinc:4080
+  Host: zinc:4080
   Index: paopao-data
   User: admin
   Password: admin
+  Secure: False
+Meili: # Meili搜索配置
+  Host: meili:7700
+  Index: paopao-data
+  ApiKey: paopao-meilisearch
+  Secure: False
 AliOSS: # 阿里云OSS存储配置
   Endpoint:
   AccessKeyID: 
@@ -76,8 +99,8 @@ LocalOSS: # 本地文件OSS存储配置
   Bucket: paopao
   Domain: 127.0.0.1:8008
 Database: # Database通用配置
-  LogLevel: 2
-  TablePrefix: p_
+  LogLevel: error   # 日志级别 silent|error|warn|info
+  TablePrefix: p_   # 表名前缀
 MySQL: # MySQL数据库
   Username: paopao
   Password: paopao
@@ -87,7 +110,7 @@ MySQL: # MySQL数据库
   ParseTime: True
   MaxIdleConns: 10
   MaxOpenConns: 30
-Postgres:
+Postgres: # PostgreSQL数据库
   User: paopao
   Password: paopao
   DBName: paopao

@@ -137,6 +137,7 @@ CREATE TABLE `p_post` (
   `comment_count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '评论数',
   `collection_count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '收藏数',
   `upvote_count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '点赞数',
+  `visibility` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '可见性 0公开 1私密 2好友可见',
   `is_top` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否置顶',
   `is_essence` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否精华',
   `is_lock` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否锁定',
@@ -150,7 +151,8 @@ CREATE TABLE `p_post` (
   `deleted_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
   `is_del` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否删除 0 为未删除、1 为已删除',
   PRIMARY KEY (`id`) USING BTREE,
-  KEY `idx_user` (`user_id`) USING BTREE
+  KEY `idx_user` (`user_id`) USING BTREE,
+  KEY `idx_visibility` (`visibility`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1080017989 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='冒泡/文章';
 
 -- ----------------------------

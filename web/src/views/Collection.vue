@@ -71,3 +71,12 @@ onMounted(() => {
     loadPosts();
 });
 </script>
+
+<style lang="less" scoped>
+.pagination-wrap {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+}
+</style>
