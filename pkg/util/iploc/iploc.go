@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/binary"
 	"net"
+	"strings"
 
 	"github.com/yinheli/mahonia"
 )
@@ -19,17 +20,27 @@ const (
 	cRedirectMode2 = 0x02
 )
 
-// Find get country and city base ip
+// Find get country and city base ip. return empty country
+// and city when ip that pass from argument is empty string
+// or invalid ip address that net.ParseIP(...).To4 return nil
+// eg: "::1"
 func Find(ip string) (string, string) {
-	// If ip is "::1", To4 returns nil.
-	to4 := net.ParseIP(ip).To4()
-	if to4 == nil {
-		to4 = net.ParseIP("127.0.0.1").To4()
+	ip = strings.Trim(ip, " ")
+	if len(ip) == 0 {
+		return "", ""
 	}
+
+	to4 := net.ParseIP(ip).To4()
+	// If ip is "::1", To4 returns nil.
+	if to4 == nil {
+		return "", ""
+	}
+
 	offset := searchIndex(binary.BigEndian.Uint32(to4))
 	if offset <= 0 {
 		return "", ""
 	}
+
 	var country, area []byte
 	mode := readMode(offset + 4)
 	if mode == cRedirectMode1 {

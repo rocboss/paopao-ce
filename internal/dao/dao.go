@@ -11,7 +11,6 @@ import (
 var (
 	_ core.DataService            = (*dataServant)(nil)
 	_ core.AttachmentCheckService = (*attachmentCheckServant)(nil)
-	_ core.TweetSearchService     = (*zincTweetSearchServant)(nil)
 )
 
 type dataServant struct {

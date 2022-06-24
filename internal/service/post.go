@@ -104,10 +104,6 @@ func tagsFrom(originTags []string) []string {
 // TODO: maybe have bug need optimize for use transaction to create post
 func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Post, error) {
 	ip := c.ClientIP()
-	if len(ip) == 0 {
-		ip = "未知"
-	}
-
 	tags := tagsFrom(param.Tags)
 	post := &model.Post{
 		UserID:          userID,
