@@ -1,0 +1,6 @@
+data
+.vscode
+release
+*Dockerfile*
+web/node_modules
+web/src-tauri/target

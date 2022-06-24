@@ -65,14 +65,9 @@ func newMeiliLogHook() *meiliLogHook {
 			Uid:        hook.idxName,
 			PrimaryKey: "id",
 		})
-		rankingRules := []string{
-			"message",
-			"time:desc",
-		}
 		sortableAttributes := []string{
-			"time:desc",
+			"time",
 		}
-		index.UpdateRankingRules(&rankingRules)
 		index.UpdateSortableAttributes(&sortableAttributes)
 	}
 

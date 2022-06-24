@@ -162,7 +162,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
   docker build -t your/paopao-ce:tag .
 
   # 内嵌web ui并且自定义API host参数
-  docker build -t your/paopao-ce:tag --build-arg API_HOST=http://paopao.info .
+  docker build -t your/paopao-ce:tag --build-arg API_HOST=http://api.paopao.info .
 
   # 内嵌web ui并且使用本地web/.env中的API host
   docker build -t your/paopao-ce:tag --build-arg USE_API_HOST=no .
@@ -198,7 +198,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
 ```sh
 git clone https://github.com/rocboss/paopao-ce.git
 docker compose up --build
-# visit paopao-ce(http://127.0.0.1:8008) and phpMysqlAdmin(http://127.0.0.1:8080)
+# visit paopao-ce(http://127.0.0.1:8008) and phpMyadmin(http://127.0.0.1:8080)
 ```
 
 默认是使用config.yaml.sample的配置，如果需要自定义配置，请拷贝默认配置文件(比如config.yaml)，修改后再同步配置到docker-compose.yaml如下：
@@ -311,7 +311,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
   `Sms`功能如果没有开启，任意短信验证码都可以绑定手机；  
 
 ### 搭建依赖环境
-#### [Zinc](https://github.com/zinclabs/zinc)搜索引擎:
+#### [Zinc](https://github.com/zinclabs/zinc) 搜索引擎:
 * Zinc运行
 ```sh
 # 创建用于存放zinc数据的目录
@@ -328,6 +328,7 @@ CONTAINER ID   IMAGE                                COMMAND                  CRE
 
 # 使用docker compose运行
 docker compose up -d zinc
+# visit http://localhost:4080 打开自带的ui管理界面
 ```
 
 * 修改Zinc配置
@@ -351,21 +352,31 @@ Zinc: # Zinc搜索配置
   Secure: False
 ```
 
-#### [Meilisearch](https://github.com/meilisearch/meilisearch)搜索引擎:
+#### [Meilisearch](https://github.com/meilisearch/meilisearch) 搜索引擎:
 * Meili运行
 ```sh
 mkdir -p data/meili/data
 
 # 使用Docker运行
 docker run -d --name meili -v ${PWD}/data/meili/data:/meili_data -p 7700:7700 -e MEILI_MASTER_KEY=paopao-meilisearch getmeili/meilisearch:v0.27.0
+# visit http://localhost:7700 打开自带的搜索前端ui
 
-# 使用docker compose运行， 需要删除docker-compose.yaml中关于meili的注释
+# 使用docker compose运行，需要删除docker-compose.yaml中关于meili的注释
 docker compose up -d meili
+
+# 使用docker运行meilisearch的ui管理前端
+docker run -d --name uirecord -p 7701:3000 bitriory/uirecord
+# visit http://localhost:7701
+
+# 使用docker compose运行meilisearch的ui管理前端，需要删除docker-compose.yaml中关于uirecord的注释
+docker compose up -d uirecord
+# visit http://loclahost:7701
 
 # 查看meili运行状态
 docker compose ps
-NAME                COMMAND                  SERVICE             STATUS              PORTS
-paopao-ce-meili-1   "tini -- /bin/sh -c …"   meili               running             0.0.0.0:7700->7700/tcp
+NAME                   COMMAND                  SERVICE             STATUS              PORTS
+paopao-ce-meili-1      "tini -- /bin/sh -c …"   meili               running             0.0.0.0:7700->7700/tcp
+paopao-ce-uirecord-1   "docker-entrypoint.s…"   uirecord            running             0.0.0.0:7701->3000/tcp
 ```
 
 * 修改Meili配置
@@ -383,13 +394,13 @@ LoggerMeili: # 使用Meili写日志
   MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
 ...
 Meili: # Meili搜索配置
-  Host: 127.0.0.1:7700      # 这里的host就是paopao-ce能访问到的zinc主机
+  Host: 127.0.0.1:7700      # 这里的host就是paopao-ce能访问到的meili主机
   Index: paopao-data
   ApiKey: paopao-meilisearch
   Secure: False             # 如果使用https访问meili就设置为True
 ```
 
-#### [MinIO](https://github.com/minio/minio)对象存储服务
+#### [MinIO](https://github.com/minio/minio) 对象存储服务
 * MinIO运行
 ```sh
 mkdir -p data/minio/data
