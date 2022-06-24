@@ -65,6 +65,15 @@ func newMeiliLogHook() *meiliLogHook {
 			Uid:        hook.idxName,
 			PrimaryKey: "id",
 		})
+		rankingRules := []string{
+			"message",
+			"time:desc",
+		}
+		sortableAttributes := []string{
+			"time:desc",
+		}
+		index.UpdateRankingRules(&rankingRules)
+		index.UpdateSortableAttributes(&sortableAttributes)
 	}
 
 	// 初始化addDocsCh
