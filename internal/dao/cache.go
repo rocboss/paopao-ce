@@ -19,7 +19,7 @@ type postsEntry struct {
 	posts []*model.PostFormated
 }
 
-type indexPostsFunc func(int64, int, int) ([]*model.PostFormated, error)
+type indexPostsFunc func(*model.User, int, int) ([]*model.PostFormated, error)
 
 type bigCacheIndexServant struct {
 	getIndexPosts      indexPostsFunc

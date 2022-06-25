@@ -3,6 +3,7 @@ package dao
 import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,8 +34,8 @@ func (s *bridgeTweetSearchServant) DeleteDocuments(identifiers []string) error {
 	return nil
 }
 
-func (s *bridgeTweetSearchServant) Search(q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
-	return s.ts.Search(q, offset, limit)
+func (s *bridgeTweetSearchServant) Search(user *model.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
+	return s.ts.Search(user, q, offset, limit)
 }
 
 func (s *bridgeTweetSearchServant) updateDocs(doc *documents) {

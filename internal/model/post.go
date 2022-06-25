@@ -137,6 +137,30 @@ func (p *Post) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]
 	return posts, nil
 }
 
+func (p *Post) Fetch(db *gorm.DB, predicates Predicates, offset, limit int) ([]*Post, error) {
+	var posts []*Post
+	var err error
+	if offset >= 0 && limit > 0 {
+		db = db.Offset(offset).Limit(limit)
+	}
+	if p.UserID > 0 {
+		db = db.Where("user_id = ?", p.UserID)
+	}
+	for query, args := range predicates {
+		if query == "ORDER" {
+			db = db.Order(args[0])
+		} else {
+			db = db.Where(query, args...)
+		}
+	}
+
+	if err = db.Where("is_del = ?", 0).Find(&posts).Error; err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}
+
 func (p *Post) Count(db *gorm.DB, conditions *ConditionsT) (int64, error) {
 	var count int64
 	if p.UserID > 0 {

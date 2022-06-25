@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	"github.com/rocboss/paopao-ce/pkg/types"
 	"gorm.io/gorm"
 	"gorm.io/plugin/soft_delete"
 )
@@ -17,6 +18,7 @@ type Model struct {
 }
 
 type ConditionsT map[string]interface{}
+type Predicates map[string]types.AnySlice
 
 func (m *Model) BeforeCreate(tx *gorm.DB) (err error) {
 	nowTime := time.Now().Unix()
