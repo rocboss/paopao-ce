@@ -9,6 +9,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/json"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
+	"github.com/sirupsen/logrus"
 )
 
 func newZincTweetSearchServant() *zincTweetSearchServant {
@@ -74,8 +75,15 @@ func (s *zincTweetSearchServant) Search(user *model.User, q *core.QueryReq, offs
 		resp, err = s.queryByContent(user, q, offset, limit)
 	} else if q.Type == core.SearchTypeTag && q.Query != "" {
 		resp, err = s.queryByTag(user, q, offset, limit)
+	} else {
+		resp, err = s.queryAny(user, offset, limit)
 	}
-	resp, err = s.queryAny(user, offset, limit)
+	if err != nil {
+		logrus.Errorf("zincTweetSearchServant.search searchType:%s query:%s error:%v", q.Type, q.Query, err)
+		return
+	}
+
+	logrus.Debugf("zincTweetSearchServant.Search type:%s query:%s resp Hits:%d NbHits:%d offset: %d limit:%d ", q.Type, q.Query, len(resp.Items), resp.Total, offset, limit)
 	s.filterResp(user, resp)
 	return
 }
