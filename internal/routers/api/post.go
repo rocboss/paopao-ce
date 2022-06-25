@@ -22,10 +22,10 @@ func GetPostList(c *gin.Context) {
 		q.Type = "tag"
 	}
 
-	userId, _ := userIdFrom(c)
+	user, _ := userFrom(c)
 	offset, limit := app.GetPageOffset(c)
 	if q.Query == "" && q.Type == "search" {
-		posts, err := service.GetIndexPosts(userId, offset, limit)
+		posts, err := service.GetIndexPosts(user, offset, limit)
 		if err != nil {
 			logrus.Errorf("service.GetPostList err: %v\n", err)
 			response.ToErrorResponse(errcode.GetPostsFailed)
@@ -38,7 +38,7 @@ func GetPostList(c *gin.Context) {
 
 		response.ToResponseList(posts, totalRows)
 	} else {
-		posts, totalRows, err := service.GetPostListFromSearch(q, offset, limit)
+		posts, totalRows, err := service.GetPostListFromSearch(user, q, offset, limit)
 
 		if err != nil {
 			logrus.Errorf("service.GetPostListFromSearch err: %v\n", err)

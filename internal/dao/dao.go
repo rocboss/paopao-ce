@@ -3,22 +3,26 @@ package dao
 import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/pkg/zinc"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 var (
-	_ core.DataService            = (*dataServant)(nil)
-	_ core.AttachmentCheckService = (*attachmentCheckServant)(nil)
+	_ core.DataService                = (*dataServant)(nil)
+	_ core.AttachmentCheckService     = (*attachmentCheckServant)(nil)
+	_ core.AuthorizationManageService = (*simpleAuthorizationManageService)(nil)
 )
 
 type dataServant struct {
-	useCacheIndex bool
-	cacheIndex    core.CacheIndexService
+	useCacheIndex     bool
+	cacheIndex        core.CacheIndexService
+	ams               core.AuthorizationManageService
+	engine            *gorm.DB
+	getIndexPostsFunc indexPostsFunc
+}
 
-	engine *gorm.DB
-	zinc   *zinc.ZincClient
+type simpleAuthorizationManageService struct {
+	db *gorm.DB
 }
 
 type attachmentCheckServant struct {
@@ -26,17 +30,18 @@ type attachmentCheckServant struct {
 }
 
 func NewDataService() core.DataService {
-	client := zinc.NewClient(conf.ZincSetting)
 	ds := &dataServant{
 		engine: conf.DBEngine,
-		zinc:   client,
+		ams:    NewAuthorizationManageService(),
 	}
 
 	// initialize CacheIndex if needed
 	ds.useCacheIndex = true
 	if conf.CfgIf("SimpleCacheIndex") {
-		ds.cacheIndex = newSimpleCacheIndexServant(ds.getIndexPosts)
+		ds.getIndexPostsFunc = ds.simpleCacheIndexGetPosts
+		ds.cacheIndex = newSimpleCacheIndexServant(ds.simpleCacheIndexGetPosts)
 	} else if conf.CfgIf("BigCacheIndex") {
+		ds.getIndexPostsFunc = ds.getIndexPosts
 		ds.cacheIndex = newBigCacheIndexServant(ds.getIndexPosts)
 	} else {
 		ds.useCacheIndex = false
@@ -47,6 +52,10 @@ func NewDataService() core.DataService {
 	}
 
 	return ds
+}
+
+func NewAuthorizationManageService() core.AuthorizationManageService {
+	return newSimpleAuthorizationManageService()
 }
 
 func NewAttachmentCheckService() core.AttachmentCheckService {

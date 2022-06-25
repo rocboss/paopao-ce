@@ -5,5 +5,5 @@ import (
 )
 
 type IndexPostsService interface {
-	IndexPosts(userId int64, offset int, limit int) ([]*model.PostFormated, error)
+	IndexPosts(user *model.User, offset int, limit int) ([]*model.PostFormated, error)
 }

@@ -141,8 +141,8 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 		}
 	}
 
-	// TODO: 目前非私密文章才能有如下操作，后续再优化
-	if post.Visibility != model.PostVisitPrivate {
+	// 私密推文不创建标签与用户提醒
+	if post.Visibility == model.PostVisitPrivate {
 		// 创建标签
 		for _, t := range tags {
 			tag := &model.Tag{
@@ -153,6 +153,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 				return nil, err
 			}
 		}
+
 		// 创建用户消息提醒
 		for _, u := range param.Users {
 			user, err := ds.GetUserByUsername(u)
@@ -170,9 +171,10 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 				PostID:         post.ID,
 			})
 		}
-		// 推送Search
-		PushPostToSearch(post)
 	}
+
+	// 推送Search
+	PushPostToSearch(post)
 
 	return post, nil
 }
@@ -240,28 +242,11 @@ func VisiblePost(user *model.User, postId int64, visibility model.PostVisibleT) 
 		return err
 	}
 
-	// 相同属性，不需要操作了
-	oldVisibility := post.Visibility
-	if oldVisibility == visibility {
-		logrus.Infof("sample visibility no need operate postId: %d", postId)
-		return nil
-	}
-
 	if err = ds.VisiblePost(post, visibility); err != nil {
 		logrus.Warnf("update post failure: %v", err)
 		return errcode.VisblePostFailed
 	}
 
-	// 搜索处理
-	if oldVisibility == model.PostVisitPrivate {
-		// 从私密转为非私密需要push
-		logrus.Debugf("visible post set to re-public to add search index: %d, visibility: %s", post.ID, visibility)
-		PushPostToSearch(post)
-	} else if visibility == model.PostVisitPrivate {
-		// 从非私密转为私密需要删除索引
-		logrus.Debugf("visible post set to private to delete search index: %d, visibility: %s", post.ID, visibility)
-		DeleteSearchPost(post)
-	}
 	return nil
 }
 
@@ -413,8 +398,8 @@ func GetPostContentByID(id int64) (*model.PostContent, error) {
 	return ds.GetPostContentByID(id)
 }
 
-func GetIndexPosts(userId int64, offset int, limit int) ([]*model.PostFormated, error) {
-	return ds.IndexPosts(userId, offset, limit)
+func GetIndexPosts(user *model.User, offset int, limit int) ([]*model.PostFormated, error) {
+	return ds.IndexPosts(user, offset, limit)
 }
 
 func GetPostList(req *PostListReq) ([]*model.PostFormated, error) {
@@ -431,8 +416,8 @@ func GetPostCount(conditions *model.ConditionsT) (int64, error) {
 	return ds.GetPostCount(conditions)
 }
 
-func GetPostListFromSearch(q *core.QueryReq, offset, limit int) ([]*model.PostFormated, int64, error) {
-	resp, err := ts.Search(q, offset, limit)
+func GetPostListFromSearch(user *model.User, q *core.QueryReq, offset, limit int) ([]*model.PostFormated, int64, error) {
+	resp, err := ts.Search(user, q, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -443,20 +428,15 @@ func GetPostListFromSearch(q *core.QueryReq, offset, limit int) ([]*model.PostFo
 	return posts, resp.Total, nil
 }
 
-func GetPostListFromSearchByQuery(query string, offset, limit int) ([]*model.PostFormated, int64, error) {
+func GetPostListFromSearchByQuery(user *model.User, query string, offset, limit int) ([]*model.PostFormated, int64, error) {
 	q := &core.QueryReq{
 		Query: query,
 		Type:  "search",
 	}
-	return GetPostListFromSearch(q, offset, limit)
+	return GetPostListFromSearch(user, q, offset, limit)
 }
 
 func PushPostToSearch(post *model.Post) {
-	// TODO: 暂时不索引私密文章,后续再完善
-	if post.Visibility == model.PostVisitPrivate {
-		return
-	}
-
 	postFormated := post.Format()
 	postFormated.User = &model.UserFormated{
 		ID: post.UserID,
@@ -516,11 +496,9 @@ func PushPostsToSearch(c *gin.Context) {
 
 		for i := 0; i < nums; i++ {
 			posts, _ := GetPostList(&PostListReq{
-				Conditions: &model.ConditionsT{
-					"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},
-				},
-				Offset: i * splitNum,
-				Limit:  splitNum,
+				Conditions: &model.ConditionsT{},
+				Offset:     i * splitNum,
+				Limit:      splitNum,
 			})
 
 			for _, post := range posts {

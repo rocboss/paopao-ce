@@ -293,7 +293,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
   `LocalOSS` 提供使用本地目录文件作为对象存储的功能，仅用于开发调试环境；  
 * 缓存: Redis/SimpleCacheIndex/BigCacheIndex     
   `SimpleCacheIndex` 提供简单的 广场推文列表 的缓存功能；   
-  `BigCacheIndex` 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面；  
+  `BigCacheIndex` 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(推荐使用)；  
 * 搜索: Zinc/Meili   
   `Zinc` 基于[Zinc](https://github.com/zinclabs/zinc)搜索引擎提供推文搜索服务(目前状态: 稳定，推荐使用)；  
   `Meili` 基于[Meilisearch](https://github.com/meilisearch/meilisearch)搜索引擎提供推文搜索服务(目前状态: 内测阶段);  

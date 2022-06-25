@@ -49,18 +49,18 @@ func newBigCacheIndexServant(getIndexPosts indexPostsFunc) *bigCacheIndexServant
 	return cacheIndex
 }
 
-func (s *bigCacheIndexServant) IndexPosts(userId int64, offset int, limit int) ([]*model.PostFormated, error) {
-	key := s.keyFrom(userId, offset, limit)
+func (s *bigCacheIndexServant) IndexPosts(user *model.User, offset int, limit int) ([]*model.PostFormated, error) {
+	key := s.keyFrom(user, offset, limit)
 	posts, err := s.getPosts(key)
 	if err == nil {
-		logrus.Debugf("get index posts from cache by key: %s userId: %d offset:%d limit:%d", key, userId, offset, limit)
+		logrus.Debugf("bigCacheIndexServant.IndexPosts get index posts from cache by key: %s", key)
 		return posts, nil
 	}
 
-	if posts, err = s.getIndexPosts(userId, offset, limit); err != nil {
+	if posts, err = s.getIndexPosts(user, offset, limit); err != nil {
 		return nil, err
 	}
-	logrus.Debugf("get index posts from database by userId: %d offset:%d limit:%d", userId, offset, limit)
+	logrus.Debugf("bigCacheIndexServant.IndexPosts get index posts from database by key: %s", key)
 	s.cachePosts(key, posts)
 	return posts, nil
 }
@@ -68,14 +68,14 @@ func (s *bigCacheIndexServant) IndexPosts(userId int64, offset int, limit int) (
 func (s *bigCacheIndexServant) getPosts(key string) ([]*model.PostFormated, error) {
 	data, err := s.cache.Get(key)
 	if err != nil {
-		logrus.Debugf("get posts by key: %s from cache err: %v", key, err)
+		logrus.Debugf("bigCacheIndexServant.getPosts get posts by key: %s from cache err: %v", key, err)
 		return nil, err
 	}
 	buf := bytes.NewBuffer(data)
 	dec := gob.NewDecoder(buf)
 	var posts []*model.PostFormated
 	if err := dec.Decode(&posts); err != nil {
-		logrus.Debugf("get posts from cache in decode err: %v", err)
+		logrus.Debugf("bigCacheIndexServant.getPosts get posts from cache in decode err: %v", err)
 		return nil, err
 	}
 	return posts, nil
@@ -85,10 +85,10 @@ func (s *bigCacheIndexServant) cachePosts(key string, posts []*model.PostFormate
 	entry := &postsEntry{key: key, posts: posts}
 	select {
 	case s.cachePostsCh <- entry:
-		logrus.Debugf("cachePosts by chan of key: %s", key)
+		logrus.Debugf("bigCacheIndexServant.cachePosts cachePosts by chan of key: %s", key)
 	default:
 		go func(ch chan<- *postsEntry, entry *postsEntry) {
-			logrus.Debugf("cachePosts indexAction by goroutine of key: %s", key)
+			logrus.Debugf("bigCacheIndexServant.cachePosts cachePosts indexAction by goroutine of key: %s", key)
 			ch <- entry
 		}(s.cachePostsCh, entry)
 	}
@@ -98,26 +98,30 @@ func (s *bigCacheIndexServant) setPosts(entry *postsEntry) {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	if err := enc.Encode(entry.posts); err != nil {
-		logrus.Debugf("setPosts encode post entry err: %v", err)
+		logrus.Debugf("bigCacheIndexServant.setPosts setPosts encode post entry err: %v", err)
 		return
 	}
 	if err := s.cache.Set(entry.key, buf.Bytes()); err != nil {
-		logrus.Debugf("setPosts set cache err: %v", err)
+		logrus.Debugf("bigCacheIndexServant.setPosts setPosts set cache err: %v", err)
 	}
-	logrus.Debugf("setPosts set cache by key: %s", entry.key)
+	logrus.Debugf("bigCacheIndexServant.setPosts setPosts set cache by key: %s", entry.key)
 }
 
-func (s *bigCacheIndexServant) keyFrom(userId int64, offset int, limit int) string {
+func (s *bigCacheIndexServant) keyFrom(user *model.User, offset int, limit int) string {
+	var userId int64 = -1
+	if user != nil {
+		userId = user.ID
+	}
 	return fmt.Sprintf("index:%d:%d:%d", userId, offset, limit)
 }
 
 func (s *bigCacheIndexServant) SendAction(act core.IndexActionT) {
 	select {
 	case s.indexActionCh <- act:
-		logrus.Debugf("send indexAction by chan: %s", act)
+		logrus.Debugf("bigCacheIndexServant.SendAction send indexAction by chan: %s", act)
 	default:
 		go func(ch chan<- core.IndexActionT, act core.IndexActionT) {
-			logrus.Debugf("send indexAction by goroutine: %s", act)
+			logrus.Debugf("bigCacheIndexServant.SendAction send indexAction by goroutine: %s", act)
 			ch <- act
 		}(s.indexActionCh, act)
 	}

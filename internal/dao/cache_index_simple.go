@@ -49,7 +49,7 @@ func newSimpleCacheIndexServant(getIndexPosts indexPostsFunc) *simpleCacheIndexS
 	return cacheIndex
 }
 
-func (s *simpleCacheIndexServant) IndexPosts(_userId int64, offset int, limit int) ([]*model.PostFormated, error) {
+func (s *simpleCacheIndexServant) IndexPosts(_user *model.User, offset int, limit int) ([]*model.PostFormated, error) {
 	posts := s.atomicIndex.Load().([]*model.PostFormated)
 	end := offset + limit
 	size := len(posts)
@@ -79,7 +79,7 @@ func (s *simpleCacheIndexServant) startIndexPosts() {
 		case <-s.checkTick.C:
 			if len(s.indexPosts) == 0 {
 				logrus.Debugf("index posts by checkTick")
-				if s.indexPosts, err = s.getIndexPosts(0, 0, s.maxIndexSize); err == nil {
+				if s.indexPosts, err = s.getIndexPosts(nil, 0, s.maxIndexSize); err == nil {
 					s.atomicIndex.Store(s.indexPosts)
 				} else {
 					logrus.Errorf("get index posts err: %v", err)

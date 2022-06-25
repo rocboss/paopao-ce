@@ -31,5 +31,5 @@ type TweetSearchService interface {
 	IndexName() string
 	AddDocuments(documents DocItems, primaryKey ...string) (bool, error)
 	DeleteDocuments(identifiers []string) error
-	Search(q *QueryReq, offset, limit int) (*QueryResp, error)
+	Search(user *model.User, q *QueryReq, offset, limit int) (*QueryResp, error)
 }

@@ -24,14 +24,28 @@ type bridgeTweetSearchServant struct {
 	updateDocsCh chan *documents
 }
 
+type tweetSearchFilter struct {
+	ams core.AuthorizationManageService
+}
+
 type zincTweetSearchServant struct {
-	indexName string
-	client    *zinc.ZincClient
+	tweetSearchFilter
+
+	indexName     string
+	client        *zinc.ZincClient
+	publicFilter  string
+	privateFilter string
+	friendFilter  string
 }
 
 type meiliTweetSearchServant struct {
-	client *meilisearch.Client
-	index  *meilisearch.Index
+	tweetSearchFilter
+
+	client        *meilisearch.Client
+	index         *meilisearch.Index
+	publicFilter  string
+	privateFilter string
+	friendFilter  string
 }
 
 func NewTweetSearchService() core.TweetSearchService {
