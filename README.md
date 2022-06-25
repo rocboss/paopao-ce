@@ -6,7 +6,6 @@
 [![Stargazers][stars-shield]][stars-url]
 [![MIT License][license-shield]][license-url]
 [![Contributors][contributors-shield]][contributors-url]
-[![Issues][issues-shield]][issues-url]
 
 <!-- PROJECT LOGO -->
 <div align="center">
@@ -71,11 +70,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
 ### 安装说明
 
 
-### 方式一. 宝塔安装
-
-我们为宝塔用户提供了超详细安装教程(v0.1.0版本)，仅供参考，[点此查看](https://www.rocs.me/archives/paopao_bt_install.html)
-
-### 方式二. 手动安装
+### 方式一. 手动安装（推荐）
 
 克隆代码库
 
@@ -155,7 +150,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
    的，需要安装tauri的依赖，具体参考[https://tauri.studio/v1/guides/getting-started/prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites).
 
 
-### 方式三. 使用Docker构建、运行
+### 方式二. 使用Docker构建、运行
   * 后端:
   ```sh
   # 默认参数构建, 默认内嵌web ui并设置api host为空
@@ -194,7 +189,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
   docker run -d -p 8010:80 your/paopao-ce:web
   ```
 
-### 方式四. 使用 docker-compose 运行
+### 方式三. 使用 docker-compose 运行
 ```sh
 git clone https://github.com/rocboss/paopao-ce.git
 docker compose up --build
