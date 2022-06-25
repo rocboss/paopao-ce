@@ -44,6 +44,7 @@ func NewDataService() core.DataService {
 		ds.getIndexPostsFunc = ds.getIndexPosts
 		ds.cacheIndex = newBigCacheIndexServant(ds.getIndexPosts)
 	} else {
+		ds.getIndexPostsFunc = ds.getIndexPosts
 		ds.useCacheIndex = false
 	}
 
