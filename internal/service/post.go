@@ -247,6 +247,10 @@ func VisiblePost(user *model.User, postId int64, visibility model.PostVisibleT) 
 		return errcode.VisblePostFailed
 	}
 
+	// 推送Search
+	post.Visibility = visibility
+	PushPostToSearch(post)
+
 	return nil
 }
 
