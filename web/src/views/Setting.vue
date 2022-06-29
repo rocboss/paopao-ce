@@ -9,6 +9,10 @@
                     :src="store.state.userInfo.avatar"
                 />
                 <n-upload
+                    v-if="
+                        store.state.userInfo.phone &&
+                        store.state.userInfo.phone.length > 0
+                    "
                     ref="avatarRef"
                     :action="uploadGateway"
                     :headers="{
@@ -82,7 +86,7 @@
             </div>
             <div v-else>
                 <n-alert title="手机绑定提示" type="warning">
-                    成功绑定手机后，才能进行换头像、发动态、回复等交互哦~
+                    成功绑定手机后，才能进行换头像、发动态、回复等交互哦~<br />
                     <a
                         class="hash-link"
                         @click="showPhoneBind = true"
@@ -569,10 +573,6 @@ onMounted(() => {
         .avatar-img {
             margin-bottom: 10px;
         }
-    }
-
-    .hash-link {
-        margin-left: 12px;
     }
 
     .phone-bind-wrap {
