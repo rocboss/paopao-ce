@@ -12,6 +12,7 @@ import (
 var (
 	_ core.CacheIndexService = (*simpleCacheIndexServant)(nil)
 	_ core.CacheIndexService = (*bigCacheIndexServant)(nil)
+	_ core.CacheIndexService = (*noneCacheIndexServant)(nil)
 )
 
 type postsEntry struct {
@@ -37,4 +38,8 @@ type simpleCacheIndexServant struct {
 	maxIndexSize    int
 	checkTick       *time.Ticker
 	expireIndexTick *time.Ticker
+}
+
+type noneCacheIndexServant struct {
+	getIndexPosts indexPostsFunc
 }

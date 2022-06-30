@@ -14,11 +14,10 @@ var (
 )
 
 type dataServant struct {
-	useCacheIndex     bool
-	cacheIndex        core.CacheIndexService
-	ams               core.AuthorizationManageService
-	engine            *gorm.DB
-	getIndexPostsFunc indexPostsFunc
+	core.CacheIndexService
+
+	ams    core.AuthorizationManageService
+	engine *gorm.DB
 }
 
 type simpleAuthorizationManageService struct {
@@ -36,21 +35,14 @@ func NewDataService() core.DataService {
 	}
 
 	// initialize CacheIndex if needed
-	ds.useCacheIndex = true
 	if conf.CfgIf("SimpleCacheIndex") {
-		ds.getIndexPostsFunc = ds.simpleCacheIndexGetPosts
-		ds.cacheIndex = newSimpleCacheIndexServant(ds.simpleCacheIndexGetPosts)
+		ds.CacheIndexService = newSimpleCacheIndexServant(ds.simpleCacheIndexGetPosts)
 	} else if conf.CfgIf("BigCacheIndex") {
-		ds.getIndexPostsFunc = ds.getIndexPosts
-		ds.cacheIndex = newBigCacheIndexServant(ds.getIndexPosts)
+		ds.CacheIndexService = newBigCacheIndexServant(ds.getIndexPosts)
 	} else {
-		ds.getIndexPostsFunc = ds.getIndexPosts
-		ds.useCacheIndex = false
+		ds.CacheIndexService = newNoneCacheIndexServant(ds.getIndexPosts)
 	}
-
-	if ds.useCacheIndex {
-		logrus.Infof("use %s as cache index service by version: %s", ds.cacheIndex.Name(), ds.cacheIndex.Version())
-	}
+	logrus.Infof("use %s as cache index service by version: %s", ds.CacheIndexService.Name(), ds.CacheIndexService.Version())
 
 	return ds
 }
