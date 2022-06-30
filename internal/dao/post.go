@@ -14,7 +14,7 @@ func (d *dataServant) CreatePost(post *model.Post) (*model.Post, error) {
 	if err != nil {
 		return nil, err
 	}
-	d.indexActive(core.IdxActCreatePost)
+	d.SendAction(core.IdxActCreatePost)
 	return p, nil
 }
 
@@ -22,7 +22,7 @@ func (d *dataServant) DeletePost(post *model.Post) error {
 	if err := post.Delete(d.engine); err != nil {
 		return err
 	}
-	d.indexActive(core.IdxActDeletePost)
+	d.SendAction(core.IdxActDeletePost)
 	return nil
 }
 
@@ -36,7 +36,7 @@ func (d *dataServant) StickPost(post *model.Post) error {
 	if err := post.Update(d.engine); err != nil {
 		return err
 	}
-	d.indexActive(core.IdxActStickPost)
+	d.SendAction(core.IdxActStickPost)
 	return nil
 }
 
@@ -76,7 +76,7 @@ func (d *dataServant) VisiblePost(post *model.Post, visibility model.PostVisible
 		}
 	}
 	db.Commit()
-	d.indexActive(core.IdxActVisiblePost)
+	d.SendAction(core.IdxActVisiblePost)
 	return nil
 }
 
@@ -101,7 +101,7 @@ func (d *dataServant) UpdatePost(post *model.Post) error {
 	if err := post.Update(d.engine); err != nil {
 		return err
 	}
-	d.indexActive(core.IdxActUpdatePost)
+	d.SendAction(core.IdxActUpdatePost)
 	return nil
 }
 

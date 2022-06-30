@@ -49,7 +49,7 @@ func newSimpleCacheIndexServant(getIndexPosts indexPostsFunc) *simpleCacheIndexS
 	return cacheIndex
 }
 
-func (s *simpleCacheIndexServant) IndexPosts(_user *model.User, offset int, limit int) ([]*model.PostFormated, error) {
+func (s *simpleCacheIndexServant) IndexPosts(user *model.User, offset int, limit int) ([]*model.PostFormated, error) {
 	posts := s.atomicIndex.Load().([]*model.PostFormated)
 	end := offset + limit
 	size := len(posts)
@@ -57,7 +57,9 @@ func (s *simpleCacheIndexServant) IndexPosts(_user *model.User, offset int, limi
 	if size >= end {
 		return posts[offset:end], nil
 	}
-	return nil, errNotExist
+
+	logrus.Debugln("simpleCacheIndexServant.IndexPosts get index posts from database")
+	return s.getIndexPosts(user, offset, limit)
 }
 
 func (s *simpleCacheIndexServant) SendAction(act core.IndexActionT) {
