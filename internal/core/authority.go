@@ -42,6 +42,7 @@ type Action struct {
 	UserId int64
 }
 
+// AuthorizationManageService 授权管理服务
 type AuthorizationManageService interface {
 	IsAllow(user *model.User, action *Action) bool
 	GetFriendFilter(userId int64) FriendFilter

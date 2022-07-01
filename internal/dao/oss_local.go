@@ -14,23 +14,24 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func newLocalossServent() *localossServant {
+func newLocalossServent() (*localossServant, versionInfo) {
 	savePath, err := filepath.Abs(conf.LocalOSSSetting.SavePath)
 	if err != nil {
 		logrus.Fatalf("get localOSS save path err: %v", err)
 	}
 
-	return &localossServant{
+	obj := &localossServant{
 		savePath: savePath + "/" + conf.LocalOSSSetting.Bucket + "/",
 		domain:   getOssDomain(),
 	}
+	return obj, obj
 }
 
-func (s *localossServant) Name() string {
+func (s *localossServant) name() string {
 	return "LocalOSS"
 }
 
-func (s *localossServant) Version() *semver.Version {
+func (s *localossServant) version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 

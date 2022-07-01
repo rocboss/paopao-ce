@@ -59,15 +59,16 @@ func NewTweetSearchService() core.TweetSearchService {
 	}
 	bts.updateDocsCh = make(chan *documents, capacity)
 
+	var v versionInfo
 	if conf.CfgIf("Zinc") {
-		bts.ts = newZincTweetSearchServant()
+		bts.ts, v = newZincTweetSearchServant()
 	} else if conf.CfgIf("Meili") {
-		bts.ts = newMeiliTweetSearchServant()
+		bts.ts, v = newMeiliTweetSearchServant()
 	} else {
 		// default use Zinc as tweet search service
-		bts.ts = newZincTweetSearchServant()
+		bts.ts, v = newZincTweetSearchServant()
 	}
-	logrus.Infof("use %s as tweet search serice by version %s", bts.ts.Name(), bts.ts.Version())
+	logrus.Infof("use %s as tweet search serice by version %s", v.name(), v.version())
 
 	numWorker := conf.TweetSearchSetting.MinWorker
 	if numWorker < 5 {

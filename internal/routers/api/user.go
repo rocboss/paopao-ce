@@ -204,7 +204,7 @@ func ChangeAvatar(c *gin.Context) {
 		user = u.(*model.User)
 	}
 
-	if err := attachmentChecker.Check(param.Avatar); err != nil {
+	if err := attachmentChecker.CheckAttachment(param.Avatar); err != nil {
 		response.ToErrorResponse(errcode.InvalidParams)
 		return
 	}

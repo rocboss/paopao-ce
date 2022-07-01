@@ -34,22 +34,23 @@ type minioServant struct {
 type s3Servant = minioServant
 
 func NewObjectStorageService() (oss core.ObjectStorageService) {
+	var v versionInfo
 	if conf.CfgIf("AliOSS") {
-		oss = newAliossServent()
+		oss, v = newAliossServent()
 	} else if conf.CfgIf("MinIO") {
-		oss = newMinioServeant()
+		oss, v = newMinioServeant()
 	} else if conf.CfgIf("S3") {
-		oss = newS3Servent()
-		logrus.Infof("use S3 as object storage by version %s", oss.Version())
+		oss, v = newS3Servent()
+		logrus.Infof("use S3 as object storage by version %s", v.version())
 		return
 	} else if conf.CfgIf("LocalOSS") {
-		oss = newLocalossServent()
+		oss, v = newLocalossServent()
 	} else {
 		// default use AliOSS as object storage service
-		oss = newAliossServent()
-		logrus.Infof("use default AliOSS as object storage by version %s", oss.Version())
+		oss, v = newAliossServent()
+		logrus.Infof("use default AliOSS as object storage by version %s", v.version())
 		return
 	}
-	logrus.Infof("use %s as object storage by version %s", oss.Name(), oss.Version())
+	logrus.Infof("use %s as object storage by version %s", v.name(), v.version())
 	return
 }

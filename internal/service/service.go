@@ -9,13 +9,11 @@ import (
 var (
 	ds                 core.DataService
 	ts                 core.TweetSearchService
-	attachmentChecker  core.AttachmentCheckService
 	DisablePhoneVerify bool
 )
 
 func Initialize() {
 	ds = dao.NewDataService()
 	ts = dao.NewTweetSearchService()
-	attachmentChecker = dao.NewAttachmentCheckService()
 	DisablePhoneVerify = !conf.CfgIf("Sms")
 }

@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"errors"
 	"time"
 
 	"github.com/Masterminds/semver/v3"
@@ -11,11 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	errNotExist = errors.New("index posts cache not exist")
-)
-
-func newSimpleCacheIndexServant(getIndexPosts indexPostsFunc) *simpleCacheIndexServant {
+func newSimpleCacheIndexServant(getIndexPosts indexPostsFunc) (*simpleCacheIndexServant, versionInfo) {
 	s := conf.SimpleCacheIndexSetting
 	cacheIndex := &simpleCacheIndexServant{
 		getIndexPosts:   getIndexPosts,
@@ -46,7 +41,7 @@ func newSimpleCacheIndexServant(getIndexPosts indexPostsFunc) *simpleCacheIndexS
 	cacheIndex.atomicIndex.Store(cacheIndex.indexPosts)
 	go cacheIndex.startIndexPosts()
 
-	return cacheIndex
+	return cacheIndex, cacheIndex
 }
 
 func (s *simpleCacheIndexServant) IndexPosts(user *model.User, offset int, limit int) ([]*model.PostFormated, error) {
@@ -114,10 +109,10 @@ func (s *simpleCacheIndexServant) startIndexPosts() {
 	}
 }
 
-func (s *simpleCacheIndexServant) Name() string {
+func (s *simpleCacheIndexServant) name() string {
 	return "SimpleCacheIndex"
 }
 
-func (s *simpleCacheIndexServant) Version() *semver.Version {
+func (s *simpleCacheIndexServant) version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }

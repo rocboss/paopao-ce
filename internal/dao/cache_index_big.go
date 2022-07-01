@@ -14,7 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func newBigCacheIndexServant(getIndexPosts indexPostsFunc) *bigCacheIndexServant {
+func newBigCacheIndexServant(getIndexPosts indexPostsFunc) (*bigCacheIndexServant, versionInfo) {
 	s := conf.BigCacheIndexSetting
 
 	config := bigcache.DefaultConfig(s.ExpireInSecond)
@@ -46,7 +46,7 @@ func newBigCacheIndexServant(getIndexPosts indexPostsFunc) *bigCacheIndexServant
 	// 启动索引更新器
 	go cacheIndex.startIndexPosts()
 
-	return cacheIndex
+	return cacheIndex, cacheIndex
 }
 
 func (s *bigCacheIndexServant) IndexPosts(user *model.User, offset int, limit int) ([]*model.PostFormated, error) {
@@ -153,10 +153,10 @@ func (s *bigCacheIndexServant) startIndexPosts() {
 	}
 }
 
-func (s *bigCacheIndexServant) Name() string {
+func (s *bigCacheIndexServant) name() string {
 	return "BigCacheIndex"
 }
 
-func (s *bigCacheIndexServant) Version() *semver.Version {
+func (s *bigCacheIndexServant) version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }

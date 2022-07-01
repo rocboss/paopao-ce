@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func newS3Servent() *s3Servant {
+func newS3Servent() (*s3Servant, versionInfo) {
 	// Initialize s3 client object use minio-go.
 	client, err := minio.New(conf.S3Setting.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(conf.S3Setting.AccessKey, conf.S3Setting.SecretKey, ""),
@@ -16,9 +16,11 @@ func newS3Servent() *s3Servant {
 	if err != nil {
 		logrus.Fatalf("s3.New err: %v", err)
 	}
-	return &s3Servant{
+
+	obj := &s3Servant{
 		client: client,
 		bucket: conf.MinIOSetting.Bucket,
 		domain: getOssDomain(),
 	}
+	return obj, obj
 }

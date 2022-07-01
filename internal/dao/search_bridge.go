@@ -1,19 +1,10 @@
 package dao
 
 import (
-	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/sirupsen/logrus"
 )
-
-func (s *bridgeTweetSearchServant) Name() string {
-	return "BridgeTweetSearch"
-}
-
-func (s *bridgeTweetSearchServant) Version() *semver.Version {
-	return semver.MustParse("v0.1.0")
-}
 
 func (s *bridgeTweetSearchServant) IndexName() string {
 	return s.ts.IndexName()
