@@ -6,10 +6,11 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model"
 )
 
-func newNoneCacheIndexServant(getIndexPosts indexPostsFunc) *noneCacheIndexServant {
-	return &noneCacheIndexServant{
+func newNoneCacheIndexServant(getIndexPosts indexPostsFunc) (*noneCacheIndexServant, versionInfo) {
+	obj := &noneCacheIndexServant{
 		getIndexPosts: getIndexPosts,
 	}
+	return obj, obj
 }
 
 func (s *noneCacheIndexServant) IndexPosts(user *model.User, offset int, limit int) ([]*model.PostFormated, error) {
@@ -20,10 +21,10 @@ func (s *noneCacheIndexServant) SendAction(act core.IndexActionT) {
 	// empty
 }
 
-func (s *noneCacheIndexServant) Name() string {
+func (s *noneCacheIndexServant) name() string {
 	return "NoneCacheIndex"
 }
 
-func (s *noneCacheIndexServant) Version() *semver.Version {
+func (s *noneCacheIndexServant) version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }

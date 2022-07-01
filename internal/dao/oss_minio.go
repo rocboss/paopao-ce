@@ -14,7 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func newMinioServeant() *minioServant {
+func newMinioServeant() (*minioServant, versionInfo) {
 	// Initialize minio client object.
 	client, err := minio.New(conf.MinIOSetting.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(conf.MinIOSetting.AccessKey, conf.MinIOSetting.SecretKey, ""),
@@ -23,18 +23,20 @@ func newMinioServeant() *minioServant {
 	if err != nil {
 		logrus.Fatalf("minio.New err: %v", err)
 	}
-	return &minioServant{
+
+	obj := &minioServant{
 		client: client,
 		bucket: conf.MinIOSetting.Bucket,
 		domain: getOssDomain(),
 	}
+	return obj, obj
 }
 
-func (s *minioServant) Name() string {
+func (s *minioServant) name() string {
 	return "MinIO"
 }
 
-func (s *minioServant) Version() *semver.Version {
+func (s *minioServant) version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 

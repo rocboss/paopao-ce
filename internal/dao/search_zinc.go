@@ -12,11 +12,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func newZincTweetSearchServant() *zincTweetSearchServant {
+func newZincTweetSearchServant() (*zincTweetSearchServant, versionInfo) {
 	s := conf.ZincSetting
 	zts := &zincTweetSearchServant{
 		tweetSearchFilter: tweetSearchFilter{
-			ams: NewAuthorizationManageService(),
+			ams: newAuthorizationManageService(),
 		},
 		indexName:     s.Index,
 		client:        zinc.NewClient(s),
@@ -26,14 +26,14 @@ func newZincTweetSearchServant() *zincTweetSearchServant {
 	}
 	zts.createIndex()
 
-	return zts
+	return zts, zts
 }
 
-func (s *zincTweetSearchServant) Name() string {
+func (s *zincTweetSearchServant) name() string {
 	return "Zinc"
 }
 
-func (s *zincTweetSearchServant) Version() *semver.Version {
+func (s *zincTweetSearchServant) version() *semver.Version {
 	return semver.MustParse("v0.2.0")
 }
 

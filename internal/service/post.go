@@ -75,7 +75,7 @@ func (p *PostContentItem) Check() error {
 	// 检查附件是否是本站资源
 	if p.Type == model.CONTENT_TYPE_IMAGE || p.Type == model.CONTENT_TYPE_VIDEO || p.Type == model.
 		CONTENT_TYPE_ATTACHMENT {
-		if err := attachmentChecker.Check(p.Content); err != nil {
+		if err := ds.CheckAttachment(p.Content); err != nil {
 			return err
 		}
 	}

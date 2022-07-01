@@ -26,8 +26,6 @@ type DocItems []map[string]interface{}
 
 // TweetSearchService tweet search service interface
 type TweetSearchService interface {
-	VersionInfo
-
 	IndexName() string
 	AddDocuments(documents DocItems, primaryKey ...string) (bool, error)
 	DeleteDocuments(identifiers []string) error

@@ -115,7 +115,7 @@ func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq)
 	for _, item := range param.Contents {
 		// 检查附件是否是本站资源
 		if item.Type == model.CONTENT_TYPE_IMAGE || item.Type == model.CONTENT_TYPE_VIDEO || item.Type == model.CONTENT_TYPE_ATTACHMENT {
-			if err := attachmentChecker.Check(item.Content); err != nil {
+			if err := ds.CheckAttachment(item.Content); err != nil {
 				continue
 			}
 		}

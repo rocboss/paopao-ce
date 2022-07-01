@@ -9,12 +9,12 @@ import (
 
 var (
 	_ core.DataService                = (*dataServant)(nil)
-	_ core.AttachmentCheckService     = (*attachmentCheckServant)(nil)
 	_ core.AuthorizationManageService = (*simpleAuthorizationManageService)(nil)
 )
 
 type dataServant struct {
 	core.CacheIndexService
+	core.AttachmentCheckService
 
 	ams    core.AuthorizationManageService
 	engine *gorm.DB
@@ -30,29 +30,32 @@ type attachmentCheckServant struct {
 
 func NewDataService() core.DataService {
 	ds := &dataServant{
+		ams:                    newAuthorizationManageService(),
+		AttachmentCheckService: NewAttachmentCheckService(),
+
 		engine: conf.DBEngine,
-		ams:    NewAuthorizationManageService(),
 	}
 
 	// initialize CacheIndex if needed
+	var v versionInfo
 	if conf.CfgIf("SimpleCacheIndex") {
-		ds.CacheIndexService = newSimpleCacheIndexServant(ds.simpleCacheIndexGetPosts)
+		ds.CacheIndexService, v = newSimpleCacheIndexServant(ds.simpleCacheIndexGetPosts)
 	} else if conf.CfgIf("BigCacheIndex") {
-		ds.CacheIndexService = newBigCacheIndexServant(ds.getIndexPosts)
+		ds.CacheIndexService, v = newBigCacheIndexServant(ds.getIndexPosts)
 	} else {
-		ds.CacheIndexService = newNoneCacheIndexServant(ds.getIndexPosts)
+		ds.CacheIndexService, v = newNoneCacheIndexServant(ds.getIndexPosts)
 	}
-	logrus.Infof("use %s as cache index service by version: %s", ds.CacheIndexService.Name(), ds.CacheIndexService.Version())
+	logrus.Infof("use %s as cache index service by version: %s", v.name(), v.version())
 
 	return ds
-}
-
-func NewAuthorizationManageService() core.AuthorizationManageService {
-	return newSimpleAuthorizationManageService()
 }
 
 func NewAttachmentCheckService() core.AttachmentCheckService {
 	return &attachmentCheckServant{
 		domain: getOssDomain(),
 	}
+}
+
+func newAuthorizationManageService() core.AuthorizationManageService {
+	return newSimpleAuthorizationManageService()
 }

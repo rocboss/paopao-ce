@@ -12,7 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func newMeiliTweetSearchServant() *meiliTweetSearchServant {
+func newMeiliTweetSearchServant() (*meiliTweetSearchServant, versionInfo) {
 	s := conf.MeiliSetting
 	client := meilisearch.NewClient(meilisearch.ClientConfig{
 		Host:   s.Endpoint(),
@@ -35,9 +35,9 @@ func newMeiliTweetSearchServant() *meiliTweetSearchServant {
 		index.UpdateFilterableAttributes(&filterableAttributes)
 	}
 
-	return &meiliTweetSearchServant{
+	obj := &meiliTweetSearchServant{
 		tweetSearchFilter: tweetSearchFilter{
-			ams: NewAuthorizationManageService(),
+			ams: newAuthorizationManageService(),
 		},
 		client:        client,
 		index:         client.Index(s.Index),
@@ -45,13 +45,14 @@ func newMeiliTweetSearchServant() *meiliTweetSearchServant {
 		privateFilter: fmt.Sprintf("visibility=%d AND user_id=", model.PostVisitPrivate),
 		friendFilter:  fmt.Sprintf("visibility=%d", model.PostVisitFriend),
 	}
+	return obj, obj
 }
 
-func (s *meiliTweetSearchServant) Name() string {
+func (s *meiliTweetSearchServant) name() string {
 	return "Meili"
 }
 
-func (s *meiliTweetSearchServant) Version() *semver.Version {
+func (s *meiliTweetSearchServant) version() *semver.Version {
 	return semver.MustParse("v0.2.0")
 }
 

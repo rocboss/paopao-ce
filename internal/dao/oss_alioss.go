@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func newAliossServent() *aliossServant {
+func newAliossServent() (*aliossServant, versionInfo) {
 	client, err := oss.New(conf.AliOSSSetting.Endpoint, conf.AliOSSSetting.AccessKeyID, conf.AliOSSSetting.AccessKeySecret)
 	if err != nil {
 		logrus.Fatalf("alioss.New err: %v", err)
@@ -22,17 +22,18 @@ func newAliossServent() *aliossServant {
 		logrus.Fatalf("client.Bucket err: %v", err)
 	}
 
-	return &aliossServant{
+	obj := &aliossServant{
 		bucket: bucket,
 		domain: getOssDomain(),
 	}
+	return obj, obj
 }
 
-func (s *aliossServant) Name() string {
+func (s *aliossServant) name() string {
 	return "AliOSS"
 }
 
-func (s *aliossServant) Version() *semver.Version {
+func (s *aliossServant) version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 

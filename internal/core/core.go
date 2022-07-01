@@ -1,77 +1,34 @@
 package core
 
-import (
-	"github.com/rocboss/paopao-ce/internal/model"
-)
-
-// DataService data service interface that process data related logic on database
+// DataService 数据服务集成
 type DataService interface {
+	// 钱包服务
 	WalletService
+
+	// 消息服务
+	MessageService
+
+	// 话题服务
+	TopicService
+
+	// 广场泡泡服务
 	IndexPostsService
 
-	GetComments(conditions *model.ConditionsT, offset, limit int) ([]*model.Comment, error)
-	GetCommentByID(id int64) (*model.Comment, error)
-	DeleteComment(comment *model.Comment) error
-	GetCommentCount(conditions *model.ConditionsT) (int64, error)
-	CreateComment(comment *model.Comment) (*model.Comment, error)
-	CreateCommentReply(reply *model.CommentReply) (*model.CommentReply, error)
-	GetCommentReplyByID(id int64) (*model.CommentReply, error)
-	DeleteCommentReply(reply *model.CommentReply) error
-	GetCommentContentsByIDs(ids []int64) ([]*model.CommentContent, error)
-	GetCommentRepliesByID(ids []int64) ([]*model.CommentReplyFormated, error)
-	CreateCommentContent(content *model.CommentContent) (*model.CommentContent, error)
+	// 推文服务
+	TweetService
+	TweetManageService
+	TweetHelpService
 
-	CreateMessage(msg *model.Message) (*model.Message, error)
-	GetUnreadCount(userID int64) (int64, error)
-	GetMessageByID(id int64) (*model.Message, error)
-	ReadMessage(message *model.Message) error
-	GetMessages(conditions *model.ConditionsT, offset, limit int) ([]*model.MessageFormated, error)
-	GetMessageCount(conditions *model.ConditionsT) (int64, error)
+	// 附件检测服务
+	AttachmentCheckService
 
-	CreateAttachment(attachment *model.Attachment) (*model.Attachment, error)
-	CreatePost(post *model.Post) (*model.Post, error)
-	DeletePost(post *model.Post) error
-	LockPost(post *model.Post) error
-	StickPost(post *model.Post) error
-	VisiblePost(post *model.Post, visibility model.PostVisibleT) error
-	GetPostByID(id int64) (*model.Post, error)
-	GetPosts(conditions *model.ConditionsT, offset, limit int) ([]*model.Post, error)
-	MergePosts(posts []*model.Post) ([]*model.PostFormated, error)
-	RevampPosts(posts []*model.PostFormated) ([]*model.PostFormated, error)
-	GetPostCount(conditions *model.ConditionsT) (int64, error)
-	UpdatePost(post *model.Post) error
-	GetUserPostStar(postID, userID int64) (*model.PostStar, error)
-	GetUserPostStars(userID int64, offset, limit int) ([]*model.PostStar, error)
-	GetUserPostStarCount(userID int64) (int64, error)
-	CreatePostStar(postID, userID int64) (*model.PostStar, error)
-	DeletePostStar(p *model.PostStar) error
-	GetUserPostCollection(postID, userID int64) (*model.PostCollection, error)
-	GetUserPostCollections(userID int64, offset, limit int) ([]*model.PostCollection, error)
-	GetUserPostCollectionCount(userID int64) (int64, error)
-	GetUserWalletBills(userID int64, offset, limit int) ([]*model.WalletStatement, error)
-	GetUserWalletBillCount(userID int64) (int64, error)
-	CreatePostCollection(postID, userID int64) (*model.PostCollection, error)
-	DeletePostCollection(p *model.PostCollection) error
-	GetPostAttatchmentBill(postID, userID int64) (*model.PostAttachmentBill, error)
-	CreatePostContent(content *model.PostContent) (*model.PostContent, error)
-	GetPostContentsByIDs(ids []int64) ([]*model.PostContent, error)
-	GetPostContentByID(id int64) (*model.PostContent, error)
+	// 评论服务
+	CommentService
+	CommentManageService
 
-	CreateTag(tag *model.Tag) (*model.Tag, error)
-	DeleteTag(tag *model.Tag) error
-	GetTags(conditions *model.ConditionsT, offset, limit int) ([]*model.Tag, error)
+	// 用户服务
+	UserManageService
 
-	GetUserByID(id int64) (*model.User, error)
-	GetUserByUsername(username string) (*model.User, error)
-	GetUserByPhone(phone string) (*model.User, error)
-	GetUsersByIDs(ids []int64) ([]*model.User, error)
-	GetUsersByKeyword(keyword string) ([]*model.User, error)
-	GetTagsByKeyword(keyword string) ([]*model.Tag, error)
-	CreateUser(user *model.User) (*model.User, error)
-	UpdateUser(user *model.User) error
-	GetLatestPhoneCaptcha(phone string) (*model.Captcha, error)
-	UsePhoneCaptcha(captcha *model.Captcha) error
-	SendPhoneCaptcha(phone string) error
-
-	IsFriend(userID int64, friendID int64) bool
+	// 安全服务
+	SecurityService
 }
