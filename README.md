@@ -107,6 +107,23 @@ PaoPao主要由以下优秀的开源项目/工具构建
     ```
     提示: 如果需要内嵌web前端ui，请先构建web前端(建议设置web/.env为VITE_HOST="")。
 
+5. 使用内置的Migrate机制自动升级维护SQL DDL:
+    ```sh
+    # 添加 Migration 功能到 Features 中 开启migrate功能
+    vim config.yaml
+    # file: config.yaml
+    # Features:
+    #   Default: ["Base", "MySQL", "Zinc", "MinIO", "LoggerZinc", "Migration"]
+   
+    # 编译时加入migration tag编译出支持migrate功能的可执行文件
+    make build TAGS='migration'
+    release/paopao-ce
+
+    # 或者 带上migration tag直接运行
+    make run TAGS='migration'
+    ```
+    > 注意：默认编译出来的执行文件是不内置migrate功能的，需要编译时带上migration tag才能内置支持migrage功能。
+
 
 #### 前端
 
@@ -219,7 +236,7 @@ docker compose up --build
 ....
 ```
 
-> 注意：默认提供的 docker-compose.yaml 仅用于搭建本机开发调试环境，paopao-ce/phpMysqlAdmin 默认只能本机访问，如果需要产品部署供外网访问，请自行修改配置参数或使用其他方式部署。
+> 注意：默认提供的 docker-compose.yaml 初衷是搭建本机开发调试环境，如果需要产品部署供外网访问，请自行调优配置参数或使用其他方式部署。
 
 ### API 文档
 构建时将 `docs` 添加到TAGS中:
@@ -300,7 +317,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 * 日志: LoggerFile/LoggerZinc/LoggerMeili  
   `LoggerFile` 使用文件写日志(目前状态: 稳定);   
   `LoggerZinc` 使用[Zinc](https://github.com/zinclabs/zinc)写日志(目前状态: 稳定，推荐使用);    
-  `LoggerMeili` 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志(目前状态: 内测阶段);  
+  `LoggerMeili` 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志(目前状态: 稳定，推荐使用);  
 * 支付: Alipay  
 * 短信验证码: SmsJuhe(需要开启sms)  
   `Sms`功能如果没有开启，任意短信验证码都可以绑定手机；  

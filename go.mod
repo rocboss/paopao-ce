@@ -20,6 +20,7 @@ require (
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/goccy/go-json v0.9.7
 	github.com/gofrs/uuid v4.0.0+incompatible
+	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/json-iterator/go v1.1.12
 	github.com/meilisearch/meilisearch-go v0.19.1
@@ -31,7 +32,6 @@ require (
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
 	golang.org/x/crypto v0.0.0-20220307211146-efcb8507fb70 // indirect
 	golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9 // indirect
-	golang.org/x/sys v0.0.0-20220310020820-b874c991c1a5 // indirect
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/resty.v1 v1.12.0

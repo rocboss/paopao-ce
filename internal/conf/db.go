@@ -24,7 +24,7 @@ func newDBEngine() (*gorm.DB, error) {
 		logrus.StandardLogger(), // io writer（日志输出的目标，前缀和日志包含的内容）
 		logger.Config{
 			SlowThreshold:             time.Second,                // 慢 SQL 阈值
-			LogLevel:                  databaseSetting.logLevel(), // 日志级别
+			LogLevel:                  DatabaseSetting.logLevel(), // 日志级别
 			IgnoreRecordNotFoundError: true,                       // 忽略ErrRecordNotFound（记录未找到）错误
 			Colorful:                  false,                      // 禁用彩色打印
 		},
@@ -33,7 +33,7 @@ func newDBEngine() (*gorm.DB, error) {
 	config := &gorm.Config{
 		Logger: newLogger,
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   databaseSetting.TablePrefix,
+			TablePrefix:   DatabaseSetting.TablePrefix,
 			SingularTable: true,
 		},
 	}
@@ -41,27 +41,27 @@ func newDBEngine() (*gorm.DB, error) {
 	plugin := dbresolver.Register(dbresolver.Config{}).
 		SetConnMaxIdleTime(time.Hour).
 		SetConnMaxLifetime(24 * time.Hour).
-		SetMaxIdleConns(mysqlSetting.MaxIdleConns).
-		SetMaxOpenConns(mysqlSetting.MaxOpenConns)
+		SetMaxIdleConns(MysqlSetting.MaxIdleConns).
+		SetMaxOpenConns(MysqlSetting.MaxOpenConns)
 
 	var (
 		db  *gorm.DB
 		err error
 	)
 	if CfgIf("MySQL") {
-		logrus.Debugf("use MySQL as db dsn: %s", mysqlSetting.Dsn())
-		if db, err = gorm.Open(mysql.Open(mysqlSetting.Dsn()), config); err == nil {
+		logrus.Debugln("use MySQL as db")
+		if db, err = gorm.Open(mysql.Open(MysqlSetting.Dsn()), config); err == nil {
 			db.Use(plugin)
 		}
 	} else if CfgIf("Postgres") {
-		logrus.Debugf("use PostgreSQL as db dsn: %s", postgresSetting.Dsn())
-		db, err = gorm.Open(postgres.Open(postgresSetting.Dsn()), config)
+		logrus.Debugln("use PostgreSQL as db")
+		db, err = gorm.Open(postgres.Open(PostgresSetting.Dsn()), config)
 	} else if CfgIf("Sqlite3") {
-		logrus.Debugf("use Sqlite3 as db path: %s", sqlite3Setting.Path)
-		db, err = gorm.Open(sqlite.Open(sqlite3Setting.Path), config)
+		logrus.Debugf("use Sqlite3 as db dsn: %s", Sqlite3Setting.Dsn())
+		db, err = gorm.Open(sqlite.Open(Sqlite3Setting.Dsn()), config)
 	} else {
-		logrus.Debugf("use default of MySQL as db dsn: %s", mysqlSetting.Dsn())
-		if db, err = gorm.Open(mysql.Open(mysqlSetting.Dsn()), config); err == nil {
+		logrus.Debugln("use default of MySQL as db")
+		if db, err = gorm.Open(mysql.Open(MysqlSetting.Dsn()), config); err == nil {
 			db.Use(plugin)
 		}
 	}

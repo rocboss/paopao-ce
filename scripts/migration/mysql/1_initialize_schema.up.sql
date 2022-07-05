@@ -1,10 +1,6 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
--- ----------------------------
--- Table structure for p_attachment
--- ----------------------------
-DROP TABLE IF EXISTS `p_attachment`;
 CREATE TABLE `p_attachment` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint unsigned NOT NULL DEFAULT '0',
@@ -21,10 +17,6 @@ CREATE TABLE `p_attachment` (
   KEY `idx_user` (`user_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=100041 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='附件';
 
--- ----------------------------
--- Table structure for p_captcha
--- ----------------------------
-DROP TABLE IF EXISTS `p_captcha`;
 CREATE TABLE `p_captcha` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '验证码ID',
   `phone` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '手机号',
@@ -41,10 +33,6 @@ CREATE TABLE `p_captcha` (
   KEY `idx_use_times` (`use_times`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1021 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='手机验证码';
 
--- ----------------------------
--- Table structure for p_comment
--- ----------------------------
-DROP TABLE IF EXISTS `p_comment`;
 CREATE TABLE `p_comment` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '评论ID',
   `post_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'POST ID',
@@ -60,10 +48,6 @@ CREATE TABLE `p_comment` (
   KEY `idx_user` (`user_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=6001736 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='评论';
 
--- ----------------------------
--- Table structure for p_comment_content
--- ----------------------------
-DROP TABLE IF EXISTS `p_comment_content`;
 CREATE TABLE `p_comment_content` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '内容ID',
   `comment_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '评论ID',
@@ -82,10 +66,6 @@ CREATE TABLE `p_comment_content` (
   KEY `idx_sort` (`sort`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=11001738 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='评论内容';
 
--- ----------------------------
--- Table structure for p_comment_reply
--- ----------------------------
-DROP TABLE IF EXISTS `p_comment_reply`;
 CREATE TABLE `p_comment_reply` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '回复ID',
   `comment_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '评论ID',
@@ -102,10 +82,6 @@ CREATE TABLE `p_comment_reply` (
   KEY `idx_comment` (`comment_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=12000015 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='评论回复';
 
--- ----------------------------
--- Table structure for p_message
--- ----------------------------
-DROP TABLE IF EXISTS `p_message`;
 CREATE TABLE `p_message` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '消息通知ID',
   `sender_user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '发送方用户ID',
@@ -127,10 +103,6 @@ CREATE TABLE `p_message` (
   KEY `idx_type` (`type`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=16000033 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='消息通知';
 
--- ----------------------------
--- Table structure for p_post
--- ----------------------------
-DROP TABLE IF EXISTS `p_post`;
 CREATE TABLE `p_post` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主题ID',
   `user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
@@ -153,10 +125,6 @@ CREATE TABLE `p_post` (
   KEY `idx_user` (`user_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1080017989 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='冒泡/文章';
 
--- ----------------------------
--- Table structure for p_post_attachment_bill
--- ----------------------------
-DROP TABLE IF EXISTS `p_post_attachment_bill`;
 CREATE TABLE `p_post_attachment_bill` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '购买记录ID',
   `post_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'POST ID',
@@ -171,10 +139,6 @@ CREATE TABLE `p_post_attachment_bill` (
   KEY `idx_user` (`user_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=5000002 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='冒泡/文章附件账单';
 
--- ----------------------------
--- Table structure for p_post_collection
--- ----------------------------
-DROP TABLE IF EXISTS `p_post_collection`;
 CREATE TABLE `p_post_collection` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '收藏ID',
   `post_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'POST ID',
@@ -188,10 +152,6 @@ CREATE TABLE `p_post_collection` (
   KEY `idx_user` (`user_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=6000012 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='冒泡/文章收藏';
 
--- ----------------------------
--- Table structure for p_post_content
--- ----------------------------
-DROP TABLE IF EXISTS `p_post_content`;
 CREATE TABLE `p_post_content` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '内容ID',
   `post_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'POST ID',
@@ -208,10 +168,6 @@ CREATE TABLE `p_post_content` (
   KEY `idx_user` (`user_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=180022546 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='冒泡/文章内容';
 
--- ----------------------------
--- Table structure for p_post_star
--- ----------------------------
-DROP TABLE IF EXISTS `p_post_star`;
 CREATE TABLE `p_post_star` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '收藏ID',
   `post_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'POST ID',
@@ -225,10 +181,6 @@ CREATE TABLE `p_post_star` (
   KEY `idx_user` (`user_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=6000028 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='冒泡/文章点赞';
 
--- ----------------------------
--- Table structure for p_tag
--- ----------------------------
-DROP TABLE IF EXISTS `p_tag`;
 CREATE TABLE `p_tag` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '标签ID',
   `user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建者ID',
@@ -244,10 +196,6 @@ CREATE TABLE `p_tag` (
   KEY `idx_num` (`quote_num`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=9000065 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='标签';
 
--- ----------------------------
--- Table structure for p_user
--- ----------------------------
-DROP TABLE IF EXISTS `p_user`;
 CREATE TABLE `p_user` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   `nickname` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '昵称',
@@ -268,10 +216,6 @@ CREATE TABLE `p_user` (
   KEY `idx_phone` (`phone`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=100058 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户';
 
--- ----------------------------
--- Table structure for p_wallet_recharge
--- ----------------------------
-DROP TABLE IF EXISTS `p_wallet_recharge`;
 CREATE TABLE `p_wallet_recharge` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '充值ID',
   `user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
@@ -288,10 +232,6 @@ CREATE TABLE `p_wallet_recharge` (
   KEY `idx_trade_status` (`trade_status`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=10023 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='钱包流水';
 
--- ----------------------------
--- Table structure for p_wallet_statement
--- ----------------------------
-DROP TABLE IF EXISTS `p_wallet_statement`;
 CREATE TABLE `p_wallet_statement` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '账单ID',
   `user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',

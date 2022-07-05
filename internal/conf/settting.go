@@ -319,6 +319,10 @@ func (s PostgresSettingS) Dsn() string {
 	return strings.Join(params, " ")
 }
 
+func (s *Sqlite3SettingS) Dsn() string {
+	return "file:" + s.Path + "?cache=shared&mode=rwc"
+}
+
 func (s *DatabaseSetingS) logLevel() logger.LogLevel {
 	switch strings.ToLower(s.LogLevel) {
 	case "silent":

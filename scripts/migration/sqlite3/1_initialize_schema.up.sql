@@ -1,9 +1,3 @@
-PRAGMA foreign_keys = false;
-
--- ----------------------------
--- Table structure for p_attachment
--- ----------------------------
-DROP TABLE IF EXISTS "p_attachment";
 CREATE TABLE "p_attachment" (
   "id" integer NOT NULL,
   "user_id" integer NOT NULL,
@@ -19,10 +13,6 @@ CREATE TABLE "p_attachment" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_captcha
--- ----------------------------
-DROP TABLE IF EXISTS "p_captcha";
 CREATE TABLE "p_captcha" (
   "id" integer NOT NULL,
   "phone" text(16) NOT NULL,
@@ -36,10 +26,6 @@ CREATE TABLE "p_captcha" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_comment
--- ----------------------------
-DROP TABLE IF EXISTS "p_comment";
 CREATE TABLE "p_comment" (
   "id" integer NOT NULL,
   "post_id" integer NOT NULL,
@@ -53,10 +39,6 @@ CREATE TABLE "p_comment" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_comment_content
--- ----------------------------
-DROP TABLE IF EXISTS "p_comment_content";
 CREATE TABLE "p_comment_content" (
   "id" integer NOT NULL,
   "comment_id" integer NOT NULL,
@@ -71,10 +53,6 @@ CREATE TABLE "p_comment_content" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_comment_reply
--- ----------------------------
-DROP TABLE IF EXISTS "p_comment_reply";
 CREATE TABLE "p_comment_reply" (
   "id" integer NOT NULL,
   "comment_id" integer NOT NULL,
@@ -90,10 +68,6 @@ CREATE TABLE "p_comment_reply" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_message
--- ----------------------------
-DROP TABLE IF EXISTS "p_message";
 CREATE TABLE "p_message" (
   "id" integer NOT NULL,
   "sender_user_id" integer NOT NULL,
@@ -112,10 +86,6 @@ CREATE TABLE "p_message" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_post
--- ----------------------------
-DROP TABLE IF EXISTS "p_post";
 CREATE TABLE "p_post" (
   "id" integer NOT NULL,
   "user_id" integer NOT NULL,
@@ -137,10 +107,6 @@ CREATE TABLE "p_post" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_post_attachment_bill
--- ----------------------------
-DROP TABLE IF EXISTS "p_post_attachment_bill";
 CREATE TABLE "p_post_attachment_bill" (
   "id" integer NOT NULL,
   "post_id" integer NOT NULL,
@@ -153,10 +119,6 @@ CREATE TABLE "p_post_attachment_bill" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_post_collection
--- ----------------------------
-DROP TABLE IF EXISTS "p_post_collection";
 CREATE TABLE "p_post_collection" (
   "id" integer NOT NULL,
   "post_id" integer NOT NULL,
@@ -168,10 +130,6 @@ CREATE TABLE "p_post_collection" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_post_content
--- ----------------------------
-DROP TABLE IF EXISTS "p_post_content";
 CREATE TABLE "p_post_content" (
   "id" integer NOT NULL,
   "post_id" integer NOT NULL,
@@ -186,10 +144,6 @@ CREATE TABLE "p_post_content" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_post_star
--- ----------------------------
-DROP TABLE IF EXISTS "p_post_star";
 CREATE TABLE "p_post_star" (
   "id" integer NOT NULL,
   "post_id" integer NOT NULL,
@@ -201,10 +155,6 @@ CREATE TABLE "p_post_star" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_tag
--- ----------------------------
-DROP TABLE IF EXISTS "p_tag";
 CREATE TABLE "p_tag" (
   "id" integer NOT NULL,
   "user_id" integer NOT NULL,
@@ -217,10 +167,6 @@ CREATE TABLE "p_tag" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_user
--- ----------------------------
-DROP TABLE IF EXISTS "p_user";
 CREATE TABLE "p_user" (
   "id" integer NOT NULL,
   "nickname" text(32) NOT NULL,
@@ -239,10 +185,6 @@ CREATE TABLE "p_user" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_wallet_recharge
--- ----------------------------
-DROP TABLE IF EXISTS "p_wallet_recharge";
 CREATE TABLE "p_wallet_recharge" (
   "id" integer NOT NULL,
   "user_id" integer NOT NULL,
@@ -256,10 +198,6 @@ CREATE TABLE "p_wallet_recharge" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Table structure for p_wallet_statement
--- ----------------------------
-DROP TABLE IF EXISTS "p_wallet_statement";
 CREATE TABLE "p_wallet_statement" (
   "id" integer NOT NULL,
   "user_id" integer NOT NULL,
@@ -274,36 +212,27 @@ CREATE TABLE "p_wallet_statement" (
   PRIMARY KEY ("id")
 );
 
--- ----------------------------
--- Indexes structure for table p_attachment
--- ----------------------------
 CREATE INDEX "main"."idx_user"
 ON "p_attachment" (
   "user_id" ASC
 );
 
--- ----------------------------
--- Indexes structure for table p_captcha
--- ----------------------------
 CREATE INDEX "main"."idx_expired_on"
 ON "p_captcha" (
   "expired_on" ASC
 );
+
 CREATE INDEX "main"."idx_phone"
 ON "p_captcha" (
   "phone" ASC
 );
+
 CREATE INDEX "main"."idx_use_times"
 ON "p_captcha" (
   "use_times" ASC
 );
 
--- ----------------------------
--- Indexes structure for table p_comment
--- ----------------------------
 CREATE INDEX "main"."idx_post"
 ON "p_comment" (
   "post_id" ASC
 );
-
-PRAGMA foreign_keys = true;
