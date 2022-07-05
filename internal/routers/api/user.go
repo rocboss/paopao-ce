@@ -453,7 +453,7 @@ func GetUserRechargeLink(c *gin.Context) {
 	p.OutTradeNo = fmt.Sprintf("%d", recharge.ID)
 	p.Subject = "PaoPao用户钱包充值"
 	p.TotalAmount = fmt.Sprintf("%.2f", float64(recharge.Amount)/100.0)
-	p.NotifyURL = "https://" + c.Request.Host + "/alipay/notify"
+	p.NotifyURL = "https://" + c.Request.Host + "/v1/alipay/notify"
 
 	rsp, err := client.TradePreCreate(p)
 	if err != nil {
