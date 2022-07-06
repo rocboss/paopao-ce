@@ -13,7 +13,7 @@ Server: # 服务设置
   WriteTimeout: 60
 Features:
   Default: ["Base", "MySQL", "Option", "Zinc", "LocalOSS", "LoggerFile"]
-  Develop: ["Base", "MySQL", "BigCacheIndex", "Meili", "Sms", "AliOSS", "LoggerMeili"]
+  Develop: ["Base", "MySQL", "BigCacheIndex", "Meili", "Sms", "AliOSS", "LoggerMeili", "Migration"]
   Demo: ["Base", "MySQL", "Option", "Zinc", "Sms", "MinIO", "LoggerZinc"]
   Slim: ["Base", "Sqlite3", "LocalOSS", "LoggerFile"]
   Base: ["Redis", "Alipay"]

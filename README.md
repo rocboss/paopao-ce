@@ -122,7 +122,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
     # 或者 带上migration tag直接运行
     make run TAGS='migration'
     ```
-    > 注意：默认编译出来的执行文件是不内置migrate功能的，需要编译时带上migration tag才能内置支持migrage功能。
+    > 注意：默认编译出来的可执行文件是不内置migrate功能，需要编译时带上migration tag才能内置支持migrage功能。
 
 
 #### 前端
@@ -313,11 +313,11 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
   `BigCacheIndex` 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(推荐使用)；  
 * 搜索: Zinc/Meili   
   `Zinc` 基于[Zinc](https://github.com/zinclabs/zinc)搜索引擎提供推文搜索服务(目前状态: 稳定，推荐使用)；  
-  `Meili` 基于[Meilisearch](https://github.com/meilisearch/meilisearch)搜索引擎提供推文搜索服务(目前状态: 内测阶段);  
+  `Meili` 基于[Meilisearch](https://github.com/meilisearch/meilisearch)搜索引擎提供推文搜索服务(目前状态: 稳定，推荐使用);  
 * 日志: LoggerFile/LoggerZinc/LoggerMeili  
   `LoggerFile` 使用文件写日志(目前状态: 稳定);   
   `LoggerZinc` 使用[Zinc](https://github.com/zinclabs/zinc)写日志(目前状态: 稳定，推荐使用);    
-  `LoggerMeili` 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志(目前状态: 稳定，推荐使用);  
+  `LoggerMeili` 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志(目前状态: 目前状态: 内测阶段);  
 * 支付: Alipay  
 * 短信验证码: SmsJuhe(需要开启sms)  
   `Sms`功能如果没有开启，任意短信验证码都可以绑定手机；  
