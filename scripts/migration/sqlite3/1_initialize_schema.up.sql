@@ -1,3 +1,5 @@
+PRAGMA foreign_keys = false;
+
 CREATE TABLE "p_attachment" (
   "id" integer NOT NULL,
   "user_id" integer NOT NULL,
@@ -236,3 +238,5 @@ CREATE INDEX "main"."idx_post"
 ON "p_comment" (
   "post_id" ASC
 );
+
+PRAGMA foreign_keys = true;
