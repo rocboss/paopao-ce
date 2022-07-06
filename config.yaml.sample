@@ -1,5 +1,4 @@
 App: # APP基础设置项
-  BarkToken: 
   AttachmentIncomeRate: 0.8
   MaxCommentCount: 10
   DefaultContextTimeout: 60

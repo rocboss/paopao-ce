@@ -50,14 +50,11 @@ type ServerSettingS struct {
 }
 
 type AppSettingS struct {
-	BarkToken             string
 	MaxCommentCount       int64
 	AttachmentIncomeRate  float64
 	DefaultContextTimeout time.Duration
 	DefaultPageSize       int
 	MaxPageSize           int
-	IsShastaTestnet       bool
-	TronApiKeys           []string
 }
 
 type CacheIndexSettingS struct {
