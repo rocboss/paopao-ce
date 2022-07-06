@@ -11,13 +11,13 @@ var (
 	loggerFileSetting  *LoggerFileSettingS
 	loggerZincSetting  *LoggerZincSettingS
 	loggerMeiliSetting *LoggerMeiliSettingS
-	databaseSetting    *DatabaseSetingS
-	mysqlSetting       *MySQLSettingS
-	postgresSetting    *PostgresSettingS
-	sqlite3Setting     *Sqlite3SettingS
 	redisSetting       *RedisSettingS
 	features           *FeaturesSettingS
 
+	DatabaseSetting         *DatabaseSetingS
+	MysqlSetting            *MySQLSettingS
+	PostgresSetting         *PostgresSettingS
+	Sqlite3Setting          *Sqlite3SettingS
 	ServerSetting           *ServerSettingS
 	AppSetting              *AppSettingS
 	CacheIndexSetting       *CacheIndexSettingS
@@ -61,10 +61,10 @@ func setupSetting(suite []string, noDefault bool) error {
 		"LoggerFile":       &loggerFileSetting,
 		"LoggerZinc":       &loggerZincSetting,
 		"LoggerMeili":      &loggerMeiliSetting,
-		"Database":         &databaseSetting,
-		"MySQL":            &mysqlSetting,
-		"Postgres":         &postgresSetting,
-		"Sqlite3":          &sqlite3Setting,
+		"Database":         &DatabaseSetting,
+		"MySQL":            &MysqlSetting,
+		"Postgres":         &PostgresSetting,
+		"Sqlite3":          &Sqlite3Setting,
 		"TweetSearch":      &TweetSearchSetting,
 		"Zinc":             &ZincSetting,
 		"Meili":            &MeiliSetting,
