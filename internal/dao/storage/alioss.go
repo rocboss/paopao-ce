@@ -1,4 +1,4 @@
-package dao
+package storage
 
 import (
 	"io"
@@ -7,33 +7,25 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/sirupsen/logrus"
 )
 
-func newAliossServent() (*aliossServant, versionInfo) {
-	client, err := oss.New(conf.AliOSSSetting.Endpoint, conf.AliOSSSetting.AccessKeyID, conf.AliOSSSetting.AccessKeySecret)
-	if err != nil {
-		logrus.Fatalf("alioss.New err: %v", err)
-	}
+var (
+	_ core.ObjectStorageService = (*aliossServant)(nil)
+	_ core.VersionInfo          = (*aliossServant)(nil)
+)
 
-	bucket, err := client.Bucket(conf.AliOSSSetting.Bucket)
-	if err != nil {
-		logrus.Fatalf("client.Bucket err: %v", err)
-	}
-
-	obj := &aliossServant{
-		bucket: bucket,
-		domain: getOssDomain(),
-	}
-	return obj, obj
+type aliossServant struct {
+	bucket *oss.Bucket
+	domain string
 }
 
-func (s *aliossServant) name() string {
+func (s *aliossServant) Name() string {
 	return "AliOSS"
 }
 
-func (s *aliossServant) version() *semver.Version {
+func (s *aliossServant) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 

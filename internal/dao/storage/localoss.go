@@ -1,4 +1,4 @@
-package dao
+package storage
 
 import (
 	"errors"
@@ -10,28 +10,24 @@ import (
 	"time"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/sirupsen/logrus"
+	"github.com/rocboss/paopao-ce/internal/core"
 )
 
-func newLocalossServent() (*localossServant, versionInfo) {
-	savePath, err := filepath.Abs(conf.LocalOSSSetting.SavePath)
-	if err != nil {
-		logrus.Fatalf("get localOSS save path err: %v", err)
-	}
+var (
+	_ core.ObjectStorageService = (*localossServant)(nil)
+	_ core.VersionInfo          = (*localossServant)(nil)
+)
 
-	obj := &localossServant{
-		savePath: savePath + "/" + conf.LocalOSSSetting.Bucket + "/",
-		domain:   getOssDomain(),
-	}
-	return obj, obj
+type localossServant struct {
+	savePath string
+	domain   string
 }
 
-func (s *localossServant) name() string {
+func (s *localossServant) Name() string {
 	return "LocalOSS"
 }
 
-func (s *localossServant) version() *semver.Version {
+func (s *localossServant) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 

@@ -260,8 +260,15 @@ func GetUserByUsername(username string) (*model.User, error) {
 }
 
 // UpdateUserInfo 更新用户信息
-func UpdateUserInfo(user *model.User) error {
-	return ds.UpdateUser(user)
+func UpdateUserInfo(user *model.User) *errcode.Error {
+	err := ds.CheckAttachment(user.Avatar)
+	if err != nil {
+		return errcode.InvalidParams
+	}
+	if err = ds.UpdateUser(user); err != nil {
+		return errcode.ServerError
+	}
+	return nil
 }
 
 // GetUserCollections 获取用户收藏列表

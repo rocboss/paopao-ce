@@ -11,6 +11,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/model/rest"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 	"github.com/rocboss/paopao-ce/pkg/util"
 	"github.com/sirupsen/logrus"
@@ -166,7 +167,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 			go ds.CreateMessage(&model.Message{
 				SenderUserID:   userID,
 				ReceiverUserID: user.ID,
-				Type:           model.MESSAGE_POST,
+				Type:           model.MsgTypePost,
 				Brief:          "在新发布的泡泡动态中@了你",
 				PostID:         post.ID,
 			})
@@ -402,7 +403,7 @@ func GetPostContentByID(id int64) (*model.PostContent, error) {
 	return ds.GetPostContentByID(id)
 }
 
-func GetIndexPosts(user *model.User, offset int, limit int) ([]*model.PostFormated, error) {
+func GetIndexPosts(user *model.User, offset int, limit int) (*rest.IndexTweetsResp, error) {
 	return ds.IndexPosts(user, offset, limit)
 }
 

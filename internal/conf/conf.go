@@ -116,3 +116,27 @@ func Cfg(key string) (string, bool) {
 func CfgIf(expression string) bool {
 	return features.CfgIf(expression)
 }
+
+func GetOssDomain() string {
+	uri := "https://"
+	if CfgIf("AliOSS") {
+		return uri + AliOSSSetting.Domain + "/"
+	} else if CfgIf("MinIO") {
+		if !MinIOSetting.Secure {
+			uri = "http://"
+		}
+		return uri + MinIOSetting.Domain + "/" + MinIOSetting.Bucket + "/"
+	} else if CfgIf("S3") {
+		if !S3Setting.Secure {
+			uri = "http://"
+		}
+		// TODO: will not work well need test in real world
+		return uri + S3Setting.Domain + "/" + S3Setting.Bucket + "/"
+	} else if CfgIf("LocalOSS") {
+		if !LocalOSSSetting.Secure {
+			uri = "http://"
+		}
+		return uri + LocalOSSSetting.Domain + "/oss/" + LocalOSSSetting.Bucket + "/"
+	}
+	return uri + AliOSSSetting.Domain + "/"
+}

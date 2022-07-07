@@ -1,4 +1,4 @@
-package dao
+package cache
 
 import (
 	"bytes"
@@ -8,48 +8,32 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/allegro/bigcache/v3"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/model/rest"
 	"github.com/sirupsen/logrus"
 )
 
-func newBigCacheIndexServant(getIndexPosts indexPostsFunc) (*bigCacheIndexServant, versionInfo) {
-	s := conf.BigCacheIndexSetting
+var (
+	_ core.CacheIndexService = (*bigCacheIndexServant)(nil)
+	_ core.VersionInfo       = (*bigCacheIndexServant)(nil)
+)
 
-	config := bigcache.DefaultConfig(s.ExpireInSecond)
-	config.Shards = s.MaxIndexPage
-	config.Verbose = s.Verbose
-	config.MaxEntrySize = 10000
-	config.Logger = logrus.StandardLogger()
-	cache, err := bigcache.NewBigCache(config)
-	if err != nil {
-		logrus.Fatalf("initial bigCahceIndex failure by err: %v", err)
-	}
-
-	cacheIndex := &bigCacheIndexServant{
-		getIndexPosts: getIndexPosts,
-		cache:         cache,
-	}
-
-	// indexActionCh capacity custom configure by conf.yaml need in [10, 10000]
-	// or re-compile source to adjust min/max capacity
-	capacity := conf.CacheIndexSetting.MaxUpdateQPS
-	if capacity < 10 {
-		capacity = 10
-	} else if capacity > 10000 {
-		capacity = 10000
-	}
-	cacheIndex.indexActionCh = make(chan core.IndexActionT, capacity)
-	cacheIndex.cachePostsCh = make(chan *postsEntry, capacity)
-
-	// 启动索引更新器
-	go cacheIndex.startIndexPosts()
-
-	return cacheIndex, cacheIndex
+type postsEntry struct {
+	key    string
+	tweets *rest.IndexTweetsResp
 }
 
-func (s *bigCacheIndexServant) IndexPosts(user *model.User, offset int, limit int) ([]*model.PostFormated, error) {
+type bigCacheIndexServant struct {
+	ips core.IndexPostsService
+
+	indexActionCh      chan core.IndexActionT
+	cachePostsCh       chan *postsEntry
+	cache              *bigcache.BigCache
+	lastCacheResetTime time.Time
+}
+
+func (s *bigCacheIndexServant) IndexPosts(user *model.User, offset int, limit int) (*rest.IndexTweetsResp, error) {
 	key := s.keyFrom(user, offset, limit)
 	posts, err := s.getPosts(key)
 	if err == nil {
@@ -57,7 +41,7 @@ func (s *bigCacheIndexServant) IndexPosts(user *model.User, offset int, limit in
 		return posts, nil
 	}
 
-	if posts, err = s.getIndexPosts(user, offset, limit); err != nil {
+	if posts, err = s.ips.IndexPosts(user, offset, limit); err != nil {
 		return nil, err
 	}
 	logrus.Debugf("bigCacheIndexServant.IndexPosts get index posts from database by key: %s", key)
@@ -65,7 +49,7 @@ func (s *bigCacheIndexServant) IndexPosts(user *model.User, offset int, limit in
 	return posts, nil
 }
 
-func (s *bigCacheIndexServant) getPosts(key string) ([]*model.PostFormated, error) {
+func (s *bigCacheIndexServant) getPosts(key string) (*rest.IndexTweetsResp, error) {
 	data, err := s.cache.Get(key)
 	if err != nil {
 		logrus.Debugf("bigCacheIndexServant.getPosts get posts by key: %s from cache err: %v", key, err)
@@ -73,16 +57,16 @@ func (s *bigCacheIndexServant) getPosts(key string) ([]*model.PostFormated, erro
 	}
 	buf := bytes.NewBuffer(data)
 	dec := gob.NewDecoder(buf)
-	var posts []*model.PostFormated
-	if err := dec.Decode(&posts); err != nil {
+	var resp rest.IndexTweetsResp
+	if err := dec.Decode(&resp); err != nil {
 		logrus.Debugf("bigCacheIndexServant.getPosts get posts from cache in decode err: %v", err)
 		return nil, err
 	}
-	return posts, nil
+	return &resp, nil
 }
 
-func (s *bigCacheIndexServant) cachePosts(key string, posts []*model.PostFormated) {
-	entry := &postsEntry{key: key, posts: posts}
+func (s *bigCacheIndexServant) cachePosts(key string, tweets *rest.IndexTweetsResp) {
+	entry := &postsEntry{key: key, tweets: tweets}
 	select {
 	case s.cachePostsCh <- entry:
 		logrus.Debugf("bigCacheIndexServant.cachePosts cachePosts by chan of key: %s", key)
@@ -97,7 +81,7 @@ func (s *bigCacheIndexServant) cachePosts(key string, posts []*model.PostFormate
 func (s *bigCacheIndexServant) setPosts(entry *postsEntry) {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
-	if err := enc.Encode(entry.posts); err != nil {
+	if err := enc.Encode(entry.tweets); err != nil {
 		logrus.Debugf("bigCacheIndexServant.setPosts setPosts encode post entry err: %v", err)
 		return
 	}
@@ -153,10 +137,10 @@ func (s *bigCacheIndexServant) startIndexPosts() {
 	}
 }
 
-func (s *bigCacheIndexServant) name() string {
+func (s *bigCacheIndexServant) Name() string {
 	return "BigCacheIndex"
 }
 
-func (s *bigCacheIndexServant) version() *semver.Version {
+func (s *bigCacheIndexServant) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }

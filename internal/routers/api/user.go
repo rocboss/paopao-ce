@@ -199,20 +199,18 @@ func ChangeAvatar(c *gin.Context) {
 		return
 	}
 
-	user := &model.User{}
-	if u, exists := c.Get("USER"); exists {
-		user = u.(*model.User)
-	}
-
-	if err := attachmentChecker.CheckAttachment(param.Avatar); err != nil {
-		response.ToErrorResponse(errcode.InvalidParams)
+	user, exist := userFrom(c)
+	if !exist {
+		response.ToErrorResponse(errcode.UnauthorizedTokenError)
 		return
 	}
 
 	// 执行绑定
 	user.Avatar = param.Avatar
-	service.UpdateUserInfo(user)
-
+	if err := service.UpdateUserInfo(user); err != nil {
+		response.ToErrorResponse(err)
+		return
+	}
 	response.ToResponse(nil)
 }
 

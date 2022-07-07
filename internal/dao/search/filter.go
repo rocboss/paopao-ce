@@ -1,9 +1,14 @@
-package dao
+package search
 
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/pkg/types"
 )
+
+type tweetSearchFilter struct {
+	ams core.AuthorizationManageService
+}
 
 func (s *tweetSearchFilter) filterResp(user *model.User, resp *core.QueryResp) {
 	// 管理员不过滤
@@ -27,7 +32,8 @@ func (s *tweetSearchFilter) filterResp(user *model.User, resp *core.QueryResp) {
 		}
 	} else {
 		var cutFriend, cutPrivate bool
-		friendFilter := s.ams.GetFriendFilter(user.ID)
+		friendFilter := s.ams.BeFriendFilter(user.ID)
+		friendFilter[user.ID] = types.Empty{}
 		for i := 0; i <= latestIndex; i++ {
 			item = items[i]
 			cutFriend = (item.Visibility == model.PostVisitFriend && !friendFilter.IsFriend(item.UserID))

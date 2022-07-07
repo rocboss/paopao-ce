@@ -12,5 +12,4 @@ var (
 
 func Initialize() {
 	objectStorage = dao.NewObjectStorageService()
-	attachmentChecker = dao.NewAttachmentCheckService()
 }

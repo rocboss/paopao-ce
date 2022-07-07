@@ -1,10 +1,25 @@
-package dao
+package search
 
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/sirupsen/logrus"
 )
+
+var (
+	_ core.TweetSearchService = (*bridgeTweetSearchServant)(nil)
+)
+
+type documents struct {
+	primaryKey  []string
+	docItems    core.DocItems
+	identifiers []string
+}
+
+type bridgeTweetSearchServant struct {
+	ts           core.TweetSearchService
+	updateDocsCh chan *documents
+}
 
 func (s *bridgeTweetSearchServant) IndexName() string {
 	return s.ts.IndexName()

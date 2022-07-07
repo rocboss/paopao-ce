@@ -144,7 +144,7 @@ func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq)
 		go ds.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: postMaster.ID,
-			Type:           model.MESSAGE_COMMENT,
+			Type:           model.MsgtypeComment,
 			Brief:          "在泡泡中评论了你",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
@@ -160,7 +160,7 @@ func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq)
 		go ds.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: user.ID,
-			Type:           model.MESSAGE_COMMENT,
+			Type:           model.MsgtypeComment,
 			Brief:          "在泡泡评论中@了你",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
@@ -259,7 +259,7 @@ func CreatePostCommentReply(ctx *gin.Context, commentID int64, content string, u
 		go ds.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: commentMaster.ID,
-			Type:           model.MESSAGE_REPLY,
+			Type:           model.MsgTypeReply,
 			Brief:          "在泡泡评论下回复了你",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
@@ -271,7 +271,7 @@ func CreatePostCommentReply(ctx *gin.Context, commentID int64, content string, u
 		go ds.CreateMessage(&model.Message{
 			SenderUserID:   userID,
 			ReceiverUserID: postMaster.ID,
-			Type:           model.MESSAGE_REPLY,
+			Type:           model.MsgTypeReply,
 			Brief:          "在泡泡评论下发布了新回复",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
@@ -285,7 +285,7 @@ func CreatePostCommentReply(ctx *gin.Context, commentID int64, content string, u
 			go ds.CreateMessage(&model.Message{
 				SenderUserID:   userID,
 				ReceiverUserID: user.ID,
-				Type:           model.MESSAGE_REPLY,
+				Type:           model.MsgTypeReply,
 				Brief:          "在泡泡评论的回复中@了你",
 				PostID:         post.ID,
 				CommentID:      comment.ID,

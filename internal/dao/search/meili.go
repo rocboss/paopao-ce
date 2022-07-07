@@ -1,58 +1,36 @@
-package dao
+package search
 
 import (
 	"fmt"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/meilisearch/meilisearch-go"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/json"
 	"github.com/sirupsen/logrus"
 )
 
-func newMeiliTweetSearchServant() (*meiliTweetSearchServant, versionInfo) {
-	s := conf.MeiliSetting
-	client := meilisearch.NewClient(meilisearch.ClientConfig{
-		Host:   s.Endpoint(),
-		APIKey: s.ApiKey,
-	})
+var (
+	_ core.TweetSearchService = (*meiliTweetSearchServant)(nil)
+	_ core.VersionInfo        = (*meiliTweetSearchServant)(nil)
+)
 
-	if _, err := client.Index(s.Index).FetchInfo(); err != nil {
-		logrus.Debugf("create index because fetch index info error: %v", err)
-		client.CreateIndex(&meilisearch.IndexConfig{
-			Uid:        s.Index,
-			PrimaryKey: "id",
-		})
-		searchableAttributes := []string{"content", "tags"}
-		sortableAttributes := []string{"is_top", "latest_replied_on"}
-		filterableAttributes := []string{"tags", "visibility", "user_id"}
+type meiliTweetSearchServant struct {
+	tweetSearchFilter
 
-		index := client.Index(s.Index)
-		index.UpdateSearchableAttributes(&searchableAttributes)
-		index.UpdateSortableAttributes(&sortableAttributes)
-		index.UpdateFilterableAttributes(&filterableAttributes)
-	}
-
-	obj := &meiliTweetSearchServant{
-		tweetSearchFilter: tweetSearchFilter{
-			ams: newAuthorizationManageService(),
-		},
-		client:        client,
-		index:         client.Index(s.Index),
-		publicFilter:  fmt.Sprintf("visibility=%d", model.PostVisitPublic),
-		privateFilter: fmt.Sprintf("visibility=%d AND user_id=", model.PostVisitPrivate),
-		friendFilter:  fmt.Sprintf("visibility=%d", model.PostVisitFriend),
-	}
-	return obj, obj
+	client        *meilisearch.Client
+	index         *meilisearch.Index
+	publicFilter  string
+	privateFilter string
+	friendFilter  string
 }
 
-func (s *meiliTweetSearchServant) name() string {
+func (s *meiliTweetSearchServant) Name() string {
 	return "Meili"
 }
 
-func (s *meiliTweetSearchServant) version() *semver.Version {
+func (s *meiliTweetSearchServant) Version() *semver.Version {
 	return semver.MustParse("v0.2.0")
 }
 

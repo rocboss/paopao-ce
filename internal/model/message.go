@@ -5,15 +5,16 @@ import "gorm.io/gorm"
 type MessageT int8
 
 const (
-	MESSAGE_POST MessageT = iota + 1
-	MESSAGE_COMMENT
-	MESSAGE_REPLY
-	MESSAGE_WHISPER
-)
-const MESSAGE_SYSTEM MessageT = 99
+	MsgTypePost MessageT = iota + 1
+	MsgtypeComment
+	MsgTypeReply
+	MsgTypeWhisper
+	MsgTypeRequestingFriend
+	MsgTypeSystem MessageT = 99
 
-const MSG_UNREAD = 0
-const MSG_READED = 1
+	MsgStatusUnread = 0
+	MsgStatusReaded = 1
+)
 
 type Message struct {
 	*Model

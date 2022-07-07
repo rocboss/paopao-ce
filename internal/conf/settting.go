@@ -80,9 +80,10 @@ type AlipaySettingS struct {
 }
 
 type SmsJuheSettings struct {
-	Key    string
-	TplID  string
-	TplVal string
+	Gateway string
+	Key     string
+	TplID   string
+	TplVal  string
 }
 
 type FeaturesSettingS struct {

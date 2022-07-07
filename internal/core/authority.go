@@ -45,8 +45,8 @@ type Action struct {
 // AuthorizationManageService 授权管理服务
 type AuthorizationManageService interface {
 	IsAllow(user *model.User, action *Action) bool
-	GetFriendFilter(userId int64) FriendFilter
-	GetFriendIds(userId int64) []int64
+	BeFriendFilter(userId int64) FriendFilter
+	BeFriendIds(userId int64) ([]int64, error)
 }
 
 func (f FriendFilter) IsFriend(userId int64) bool {
