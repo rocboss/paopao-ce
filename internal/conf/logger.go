@@ -18,7 +18,7 @@ func newFileLogger() io.Writer {
 
 func setupLogger() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
-	logrus.SetLevel(LoggerSetting.logLevel())
+	logrus.SetLevel(loggerSetting.logLevel())
 
 	if CfgIf("LoggerFile") {
 		out := newFileLogger()

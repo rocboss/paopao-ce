@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	LoggerSetting      *LoggerSettingS
+	loggerSetting      *LoggerSettingS
 	loggerFileSetting  *LoggerFileSettingS
 	loggerZincSetting  *LoggerZincSettingS
 	loggerMeiliSetting *LoggerMeiliSettingS
@@ -57,7 +57,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"BigCacheIndex":    &BigCacheIndexSetting,
 		"Alipay":           &AlipaySetting,
 		"SmsJuhe":          &SmsJuheSetting,
-		"Logger":           &LoggerSetting,
+		"Logger":           &loggerSetting,
 		"LoggerFile":       &loggerFileSetting,
 		"LoggerZinc":       &loggerZincSetting,
 		"LoggerMeili":      &loggerMeiliSetting,
@@ -97,11 +97,7 @@ func Initialize(suite []string, noDefault bool) {
 	}
 
 	setupLogger()
-
-	err = setupDBEngine()
-	if err != nil {
-		log.Fatalf("init.setupDBEngine err: %v", err)
-	}
+	setupDBEngine()
 }
 
 // Cfg get value by key if exist

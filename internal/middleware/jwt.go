@@ -12,6 +12,8 @@ import (
 )
 
 func JWT() gin.HandlerFunc {
+	// TODO: optimize get user from a simple service that provide fetch a user info interface.
+	db := conf.MustGormDB()
 	return func(c *gin.Context) {
 		var (
 			token string
@@ -54,7 +56,7 @@ func JWT() gin.HandlerFunc {
 						ID: claims.UID,
 					},
 				}
-				user, _ = user.Get(conf.DBEngine)
+				user, _ = user.Get(db)
 				c.Set("USER", user)
 
 				// 强制下线机制
@@ -76,6 +78,8 @@ func JWT() gin.HandlerFunc {
 }
 
 func JwtLoose() gin.HandlerFunc {
+	// TODO: optimize get user from a simple service that provide fetch a user info interface.
+	db := conf.MustGormDB()
 	return func(c *gin.Context) {
 		token, exist := c.GetQuery("token")
 		if !exist {
@@ -98,7 +102,7 @@ func JwtLoose() gin.HandlerFunc {
 						ID: claims.UID,
 					},
 				}
-				user, err := user.Get(conf.DBEngine)
+				user, err := user.Get(db)
 				if err == nil && (conf.JWTSetting.Issuer+":"+user.Salt) == claims.Issuer {
 					c.Set("USER", user)
 				}
