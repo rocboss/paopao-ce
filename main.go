@@ -16,8 +16,6 @@ import (
 )
 
 var (
-	version, commitID, buildDate string
-
 	noDefaultFeatures bool
 	features          suites
 )

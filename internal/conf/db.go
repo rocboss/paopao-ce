@@ -1,6 +1,7 @@
 package conf
 
 import (
+	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -15,9 +16,20 @@ import (
 )
 
 var (
-	DBEngine *gorm.DB
-	Redis    *redis.Client
+	db    *gorm.DB
+	Redis *redis.Client
+	once  sync.Once
 )
+
+func MustGormDB() *gorm.DB {
+	once.Do(func() {
+		var err error
+		if db, err = newDBEngine(); err != nil {
+			logrus.Fatalf("new gorm db failed: %s", err)
+		}
+	})
+	return db
+}
 
 func newDBEngine() (*gorm.DB, error) {
 	newLogger := logger.New(
@@ -69,19 +81,10 @@ func newDBEngine() (*gorm.DB, error) {
 	return db, err
 }
 
-// setupDBEngine 暂时只支持MySQL
-func setupDBEngine() error {
-	var err error
-	DBEngine, err = newDBEngine()
-	if err != nil {
-		return err
-	}
-
+func setupDBEngine() {
 	Redis = redis.NewClient(&redis.Options{
 		Addr:     redisSetting.Host,
 		Password: redisSetting.Password,
 		DB:       redisSetting.DB,
 	})
-
-	return nil
 }

@@ -39,7 +39,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		c core.CacheIndexService
 		v core.VersionInfo
 	)
-	db := conf.DBEngine
+	db := conf.MustGormDB()
 
 	i := newIndexPostsService(db)
 	if conf.CfgIf("SimpleCacheIndex") {
@@ -71,7 +71,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 
 func NewAuthorizationManageService() core.AuthorizationManageService {
 	return &authorizationManageServant{
-		db: conf.DBEngine,
+		db: conf.MustGormDB(),
 	}
 }
 
