@@ -6,8 +6,7 @@ import (
 )
 
 var (
-	objectStorage     core.ObjectStorageService
-	attachmentChecker core.AttachmentCheckService
+	objectStorage core.ObjectStorageService
 )
 
 func Initialize() {
