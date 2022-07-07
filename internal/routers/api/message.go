@@ -81,7 +81,7 @@ func SendUserWhisper(c *gin.Context) {
 	_, err := service.CreateWhisper(c, &model.Message{
 		SenderUserID:   userID.(int64),
 		ReceiverUserID: param.UserID,
-		Type:           model.MESSAGE_WHISPER,
+		Type:           model.MsgTypeWhisper,
 		Brief:          "给你发送新私信了",
 		Content:        param.Content,
 	})

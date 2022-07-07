@@ -1,37 +1,70 @@
-package dao
+package jinzhu
 
 import (
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/pkg/types"
 	"gorm.io/gorm"
 )
 
-func (d *dataServant) GetRechargeByID(id int64) (*model.WalletRecharge, error) {
+var (
+	_ core.WalletService = (*walletServant)(nil)
+)
+
+type walletServant struct {
+	db *gorm.DB
+}
+
+func newWalletService(db *gorm.DB) core.WalletService {
+	return &walletServant{
+		db: db,
+	}
+}
+
+func (d *walletServant) GetRechargeByID(id int64) (*model.WalletRecharge, error) {
 	recharge := &model.WalletRecharge{
 		Model: &model.Model{
 			ID: id,
 		},
 	}
 
-	return recharge.Get(d.engine)
+	return recharge.Get(d.db)
 }
-func (d *dataServant) CreateRecharge(userId, amount int64) (*model.WalletRecharge, error) {
+func (d *walletServant) CreateRecharge(userId, amount int64) (*model.WalletRecharge, error) {
 	recharge := &model.WalletRecharge{
 		UserID: userId,
 		Amount: amount,
 	}
 
-	return recharge.Create(d.engine)
+	return recharge.Create(d.db)
 }
 
-func (d *dataServant) HandleRechargeSuccess(recharge *model.WalletRecharge, tradeNo string) error {
+func (d *walletServant) GetUserWalletBills(userID int64, offset, limit int) ([]*model.WalletStatement, error) {
+	statement := &model.WalletStatement{
+		UserID: userID,
+	}
+
+	return statement.List(d.db, &model.ConditionsT{
+		"ORDER": "id DESC",
+	}, offset, limit)
+}
+
+func (d *walletServant) GetUserWalletBillCount(userID int64) (int64, error) {
+	statement := &model.WalletStatement{
+		UserID: userID,
+	}
+	return statement.Count(d.db, &model.ConditionsT{})
+}
+
+func (d *walletServant) HandleRechargeSuccess(recharge *model.WalletRecharge, tradeNo string) error {
 	user, _ := (&model.User{
 		Model: &model.Model{
 			ID: recharge.UserID,
 		},
-	}).Get(d.engine)
+	}).Get(d.db)
 
-	return d.engine.Transaction(func(tx *gorm.DB) error {
+	return d.db.Transaction(func(tx *gorm.DB) error {
 		// 扣除金额
 		if err := tx.Model(user).Update("balance", gorm.Expr("balance + ?", recharge.Amount)).Error; err != nil {
 			// 返回任何错误都会回滚事务
@@ -49,7 +82,7 @@ func (d *dataServant) HandleRechargeSuccess(recharge *model.WalletRecharge, trad
 		}
 
 		// 标记为已付款
-		if err := tx.Model(recharge).Updates(map[string]interface{}{
+		if err := tx.Model(recharge).Updates(map[string]types.Any{
 			"trade_no":     tradeNo,
 			"trade_status": "TRADE_SUCCESS",
 		}).Error; err != nil {
@@ -61,8 +94,8 @@ func (d *dataServant) HandleRechargeSuccess(recharge *model.WalletRecharge, trad
 	})
 }
 
-func (d *dataServant) HandlePostAttachmentBought(post *model.Post, user *model.User) error {
-	return d.engine.Transaction(func(tx *gorm.DB) error {
+func (d *walletServant) HandlePostAttachmentBought(post *model.Post, user *model.User) error {
+	return d.db.Transaction(func(tx *gorm.DB) error {
 		// 扣除金额
 		if err := tx.Model(user).Update("balance", gorm.Expr("balance - ?", post.AttachmentPrice)).Error; err != nil {
 			// 返回任何错误都会回滚事务
@@ -97,7 +130,7 @@ func (d *dataServant) HandlePostAttachmentBought(post *model.Post, user *model.U
 					ID: post.UserID,
 				},
 			}
-			master, _ = master.Get(d.engine)
+			master, _ = master.Get(d.db)
 
 			if err := tx.Model(master).Update("balance", gorm.Expr("balance + ?", income)).Error; err != nil {
 				// 返回任何错误都会回滚事务

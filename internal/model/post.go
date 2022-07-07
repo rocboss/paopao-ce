@@ -161,6 +161,16 @@ func (p *Post) Fetch(db *gorm.DB, predicates Predicates, offset, limit int) ([]*
 	return posts, nil
 }
 
+func (p *Post) CountBy(db *gorm.DB, predicates Predicates) (count int64, err error) {
+	for query, args := range predicates {
+		if query != "ORDER" {
+			db = db.Where(query, args...)
+		}
+	}
+	err = db.Model(p).Count(&count).Error
+	return
+}
+
 func (p *Post) Count(db *gorm.DB, conditions *ConditionsT) (int64, error) {
 	var count int64
 	if p.UserID > 0 {

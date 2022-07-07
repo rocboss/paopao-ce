@@ -1,39 +1,35 @@
-package dao
+package search
 
 import (
-	"fmt"
-
 	"github.com/Masterminds/semver/v3"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/json"
+	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
 	"github.com/sirupsen/logrus"
 )
 
-func newZincTweetSearchServant() (*zincTweetSearchServant, versionInfo) {
-	s := conf.ZincSetting
-	zts := &zincTweetSearchServant{
-		tweetSearchFilter: tweetSearchFilter{
-			ams: newAuthorizationManageService(),
-		},
-		indexName:     s.Index,
-		client:        zinc.NewClient(s),
-		publicFilter:  fmt.Sprintf("visibility:%d", model.PostVisitPublic),
-		privateFilter: fmt.Sprintf("visibility:%d AND user_id:%%d", model.PostVisitPrivate),
-		friendFilter:  fmt.Sprintf("visibility:%d", model.PostVisitFriend),
-	}
-	zts.createIndex()
+var (
+	_ core.TweetSearchService = (*zincTweetSearchServant)(nil)
+	_ core.VersionInfo        = (*zincTweetSearchServant)(nil)
+)
 
-	return zts, zts
+type zincTweetSearchServant struct {
+	tweetSearchFilter
+
+	indexName     string
+	client        *zinc.ZincClient
+	publicFilter  string
+	privateFilter string
+	friendFilter  string
 }
 
-func (s *zincTweetSearchServant) name() string {
+func (s *zincTweetSearchServant) Name() string {
 	return "Zinc"
 }
 
-func (s *zincTweetSearchServant) version() *semver.Version {
+func (s *zincTweetSearchServant) Version() *semver.Version {
 	return semver.MustParse("v0.2.0")
 }
 
@@ -44,15 +40,15 @@ func (s *zincTweetSearchServant) IndexName() string {
 func (s *zincTweetSearchServant) AddDocuments(data core.DocItems, primaryKey ...string) (bool, error) {
 	buf := make(core.DocItems, 0, len(data)+1)
 	if len(primaryKey) > 0 {
-		buf = append(buf, map[string]interface{}{
-			"index": map[string]interface{}{
+		buf = append(buf, map[string]types.Any{
+			"index": map[string]types.Any{
 				"_index": s.indexName,
 				"_id":    primaryKey[0],
 			},
 		})
 	} else {
-		buf = append(buf, map[string]interface{}{
-			"index": map[string]interface{}{
+		buf = append(buf, map[string]types.Any{
+			"index": map[string]types.Any{
 				"_index": s.indexName,
 			},
 		})
@@ -89,9 +85,9 @@ func (s *zincTweetSearchServant) Search(user *model.User, q *core.QueryReq, offs
 }
 
 func (s *zincTweetSearchServant) queryByContent(user *model.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
-	resp, err := s.client.EsQuery(s.indexName, map[string]interface{}{
-		"query": map[string]interface{}{
-			"match_phrase": map[string]interface{}{
+	resp, err := s.client.EsQuery(s.indexName, map[string]types.Any{
+		"query": map[string]types.Any{
+			"match_phrase": map[string]types.Any{
 				"content": q.Query,
 			},
 		},
@@ -106,9 +102,9 @@ func (s *zincTweetSearchServant) queryByContent(user *model.User, q *core.QueryR
 }
 
 func (s *zincTweetSearchServant) queryByTag(user *model.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
-	resp, err := s.client.ApiQuery(s.indexName, map[string]interface{}{
+	resp, err := s.client.ApiQuery(s.indexName, map[string]types.Any{
 		"search_type": "querystring",
-		"query": map[string]interface{}{
+		"query": map[string]types.Any{
 			"term": "tags." + q.Query + ":1",
 		},
 		"sort_fields": []string{"-is_top", "-latest_replied_on"},
@@ -122,8 +118,8 @@ func (s *zincTweetSearchServant) queryByTag(user *model.User, q *core.QueryReq, 
 }
 
 func (s *zincTweetSearchServant) queryAny(user *model.User, offset, limit int) (*core.QueryResp, error) {
-	queryMap := map[string]interface{}{
-		"query": map[string]interface{}{
+	queryMap := map[string]types.Any{
+		"query": map[string]types.Any{
 			"match_all": map[string]string{},
 		},
 		"sort": []string{"-is_top", "-latest_replied_on"},

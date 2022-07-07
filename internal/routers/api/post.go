@@ -25,18 +25,14 @@ func GetPostList(c *gin.Context) {
 	user, _ := userFrom(c)
 	offset, limit := app.GetPageOffset(c)
 	if q.Query == "" && q.Type == "search" {
-		posts, err := service.GetIndexPosts(user, offset, limit)
+		resp, err := service.GetIndexPosts(user, offset, limit)
 		if err != nil {
 			logrus.Errorf("service.GetPostList err: %v\n", err)
 			response.ToErrorResponse(errcode.GetPostsFailed)
 			return
 		}
-		totalRows, _ := service.GetPostCount(&model.ConditionsT{
-			"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},
-			"ORDER":           "latest_replied_on DESC",
-		})
 
-		response.ToResponseList(posts, totalRows)
+		response.ToResponseList(resp.Tweets, resp.Total)
 	} else {
 		posts, totalRows, err := service.GetPostListFromSearch(user, q, offset, limit)
 

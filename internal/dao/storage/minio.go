@@ -1,4 +1,4 @@
-package dao
+package storage
 
 import (
 	"context"
@@ -9,34 +9,28 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/sirupsen/logrus"
 )
 
-func newMinioServeant() (*minioServant, versionInfo) {
-	// Initialize minio client object.
-	client, err := minio.New(conf.MinIOSetting.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(conf.MinIOSetting.AccessKey, conf.MinIOSetting.SecretKey, ""),
-		Secure: conf.MinIOSetting.Secure,
-	})
-	if err != nil {
-		logrus.Fatalf("minio.New err: %v", err)
-	}
+var (
+	_ core.ObjectStorageService = (*minioServant)(nil)
+	_ core.VersionInfo          = (*minioServant)(nil)
+)
 
-	obj := &minioServant{
-		client: client,
-		bucket: conf.MinIOSetting.Bucket,
-		domain: getOssDomain(),
-	}
-	return obj, obj
+type minioServant struct {
+	client *minio.Client
+	bucket string
+	domain string
 }
 
-func (s *minioServant) name() string {
+type s3Servant = minioServant
+
+func (s *minioServant) Name() string {
 	return "MinIO"
 }
 
-func (s *minioServant) version() *semver.Version {
+func (s *minioServant) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 

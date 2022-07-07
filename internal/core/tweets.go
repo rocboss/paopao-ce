@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/model/rest"
 )
 
 // TweetService 推文检索服务
@@ -44,5 +45,5 @@ type TweetHelpService interface {
 
 // IndexPostsService 广场首页推文列表服务
 type IndexPostsService interface {
-	IndexPosts(user *model.User, offset int, limit int) ([]*model.PostFormated, error)
+	IndexPosts(user *model.User, offset int, limit int) (*rest.IndexTweetsResp, error)
 }

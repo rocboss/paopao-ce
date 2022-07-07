@@ -19,6 +19,7 @@ Features:
   Option: ["SimpleCacheIndex"]
   Sms: "SmsJuhe"
 SmsJuhe:
+  Gateway: https://v.juhe.cn/sms/send
   Key:
   TplID:
   TplVal: "#code#=%d&#m#=%d"
