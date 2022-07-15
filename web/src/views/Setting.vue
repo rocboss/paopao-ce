@@ -48,7 +48,12 @@
                     round
                     type="success"
                     size="small"
-                    v-if="!showNicknameEdit"
+                    v-if="
+                        !showNicknameEdit &&
+                        store.state.userInfo.phone &&
+                        store.state.userInfo.phone.length > 0 &&
+                        store.state.userInfo.status == 1
+                    "
                     @click="handleNicknameShow"
                 >
                     <template #icon>
@@ -78,7 +83,7 @@
                     quaternary
                     round
                     type="success"
-                    v-if="!showPhoneBind"
+                    v-if="!showPhoneBind && store.state.userInfo.status == 1"
                     @click="showPhoneBind = true"
                 >
                     换绑手机
