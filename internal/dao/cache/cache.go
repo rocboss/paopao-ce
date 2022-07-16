@@ -23,8 +23,9 @@ func NewBigCacheIndexService(indexPosts core.IndexPostsService) (core.CacheIndex
 	}
 
 	cacheIndex := &bigCacheIndexServant{
-		ips:   indexPosts,
-		cache: cache,
+		ips:             indexPosts,
+		cache:           cache,
+		preventDuration: 10 * time.Second,
 	}
 
 	// indexActionCh capacity custom configure by conf.yaml need in [10, 10000]
@@ -35,7 +36,7 @@ func NewBigCacheIndexService(indexPosts core.IndexPostsService) (core.CacheIndex
 	} else if capacity > 10000 {
 		capacity = 10000
 	}
-	cacheIndex.indexActionCh = make(chan core.IndexActionT, capacity)
+	cacheIndex.indexActionCh = make(chan *core.IndexAction, capacity)
 	cacheIndex.cachePostsCh = make(chan *postsEntry, capacity)
 
 	// 启动索引更新器
@@ -69,7 +70,7 @@ func NewSimpleCacheIndexService(indexPosts core.IndexPostsService) (core.CacheIn
 	} else if capacity > 10000 {
 		capacity = 10000
 	}
-	cacheIndex.indexActionCh = make(chan core.IndexActionT, capacity)
+	cacheIndex.indexActionCh = make(chan core.IdxAct, capacity)
 
 	// start index posts
 	cacheIndex.atomicIndex.Store(cacheIndex.indexPosts)

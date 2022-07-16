@@ -20,7 +20,7 @@ func (s *noneCacheIndexServant) IndexPosts(user *model.User, offset int, limit i
 	return s.ips.IndexPosts(user, offset, limit)
 }
 
-func (s *noneCacheIndexServant) SendAction(act core.IndexActionT) {
+func (s *noneCacheIndexServant) SendAction(_act core.IdxAct, _post *model.Post) {
 	// empty
 }
 

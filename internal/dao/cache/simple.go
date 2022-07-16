@@ -19,7 +19,7 @@ var (
 type simpleCacheIndexServant struct {
 	ips core.IndexPostsService
 
-	indexActionCh   chan core.IndexActionT
+	indexActionCh   chan core.IdxAct
 	indexPosts      *rest.IndexTweetsResp
 	atomicIndex     atomic.Value
 	maxIndexSize    int
@@ -45,12 +45,12 @@ func (s *simpleCacheIndexServant) IndexPosts(user *model.User, offset int, limit
 	return s.ips.IndexPosts(user, offset, limit)
 }
 
-func (s *simpleCacheIndexServant) SendAction(act core.IndexActionT) {
+func (s *simpleCacheIndexServant) SendAction(act core.IdxAct, _post *model.Post) {
 	select {
 	case s.indexActionCh <- act:
 		logrus.Debugf("simpleCacheIndexServant.SendAction send indexAction by chan: %s", act)
 	default:
-		go func(ch chan<- core.IndexActionT, act core.IndexActionT) {
+		go func(ch chan<- core.IdxAct, act core.IdxAct) {
 			logrus.Debugf("simpleCacheIndexServant.SendAction send indexAction by goroutine: %s", act)
 			ch <- act
 		}(s.indexActionCh, act)
@@ -102,5 +102,5 @@ func (s *simpleCacheIndexServant) Name() string {
 }
 
 func (s *simpleCacheIndexServant) Version() *semver.Version {
-	return semver.MustParse("v0.1.0")
+	return semver.MustParse("v0.2.0")
 }

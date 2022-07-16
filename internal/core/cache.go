@@ -1,7 +1,9 @@
 package core
 
+import "github.com/rocboss/paopao-ce/internal/model"
+
 const (
-	IdxActNop IndexActionT = iota + 1
+	IdxActNop IdxAct = iota + 1
 	IdxActCreatePost
 	IdxActUpdatePost
 	IdxActDeletePost
@@ -9,9 +11,14 @@ const (
 	IdxActVisiblePost
 )
 
-type IndexActionT uint8
+type IdxAct uint8
 
-func (a IndexActionT) String() string {
+type IndexAction struct {
+	Act  IdxAct
+	Post *model.Post
+}
+
+func (a IdxAct) String() string {
 	switch a {
 	case IdxActNop:
 		return "no operator"
@@ -30,9 +37,16 @@ func (a IndexActionT) String() string {
 	}
 }
 
+func NewIndexAction(act IdxAct, post *model.Post) *IndexAction {
+	return &IndexAction{
+		Act:  act,
+		Post: post,
+	}
+}
+
 // CacheIndexService cache index service interface
 type CacheIndexService interface {
 	IndexPostsService
 
-	SendAction(active IndexActionT)
+	SendAction(act IdxAct, post *model.Post)
 }
