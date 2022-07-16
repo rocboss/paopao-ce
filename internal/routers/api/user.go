@@ -205,9 +205,7 @@ func ChangeAvatar(c *gin.Context) {
 		return
 	}
 
-	// 执行绑定
-	user.Avatar = param.Avatar
-	if err := service.UpdateUserInfo(user); err != nil {
+	if err := service.ChangeUserAvatar(user, param.Avatar); err != nil {
 		response.ToErrorResponse(err)
 		return
 	}
