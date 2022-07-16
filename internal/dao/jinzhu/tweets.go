@@ -166,7 +166,7 @@ func (s *tweetManageServant) CreatePost(post *model.Post) (*model.Post, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.cacheIndex.SendAction(core.IdxActCreatePost)
+	s.cacheIndex.SendAction(core.IdxActCreatePost, post)
 	return p, nil
 }
 
@@ -174,7 +174,7 @@ func (s *tweetManageServant) DeletePost(post *model.Post) error {
 	if err := post.Delete(s.db); err != nil {
 		return err
 	}
-	s.cacheIndex.SendAction(core.IdxActDeletePost)
+	s.cacheIndex.SendAction(core.IdxActDeletePost, post)
 	return nil
 }
 
@@ -188,7 +188,7 @@ func (s *tweetManageServant) StickPost(post *model.Post) error {
 	if err := post.Update(s.db); err != nil {
 		return err
 	}
-	s.cacheIndex.SendAction(core.IdxActStickPost)
+	s.cacheIndex.SendAction(core.IdxActStickPost, post)
 	return nil
 }
 
@@ -228,7 +228,7 @@ func (s *tweetManageServant) VisiblePost(post *model.Post, visibility model.Post
 		}
 	}
 	db.Commit()
-	s.cacheIndex.SendAction(core.IdxActVisiblePost)
+	s.cacheIndex.SendAction(core.IdxActVisiblePost, post)
 	return nil
 }
 
@@ -236,7 +236,7 @@ func (s *tweetManageServant) UpdatePost(post *model.Post) error {
 	if err := post.Update(s.db); err != nil {
 		return err
 	}
-	s.cacheIndex.SendAction(core.IdxActUpdatePost)
+	s.cacheIndex.SendAction(core.IdxActUpdatePost, post)
 	return nil
 }
 
