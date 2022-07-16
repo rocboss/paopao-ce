@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -62,5 +63,8 @@ func main() {
 	fmt.Fprintf(color.Output, "PaoPao service listen on %s\n",
 		color.GreenString(fmt.Sprintf("http://%s:%s", conf.ServerSetting.HttpIp, conf.ServerSetting.HttpPort)),
 	)
-	s.ListenAndServe()
+
+	if err := s.ListenAndServe(); err != nil {
+		log.Fatalf("run app failed: %s", err)
+	}
 }
