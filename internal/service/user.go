@@ -261,14 +261,18 @@ func GetUserByUsername(username string) (*model.User, error) {
 
 // UpdateUserInfo 更新用户信息
 func UpdateUserInfo(user *model.User) *errcode.Error {
-	err := ds.CheckAttachment(user.Avatar)
-	if err != nil {
-		return errcode.InvalidParams
-	}
-	if err = ds.UpdateUser(user); err != nil {
+	if err := ds.UpdateUser(user); err != nil {
 		return errcode.ServerError
 	}
 	return nil
+}
+
+func ChangeUserAvatar(user *model.User, avatar string) *errcode.Error {
+	if err := ds.CheckAttachment(avatar); err != nil {
+		return errcode.InvalidParams
+	}
+	user.Avatar = avatar
+	return UpdateUserInfo(user)
 }
 
 // GetUserCollections 获取用户收藏列表
