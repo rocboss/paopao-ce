@@ -127,11 +127,11 @@ PaoPao主要由以下优秀的开源项目/工具构建
 
 #### 前端
 
-1. 进入前端目录 `web`，编辑 `.env` 文件中后端服务地址，下载依赖包
+1. 进入前端目录 `web`，拷贝`.env` 到 `.env.local`，编辑 `.env.local ` 文件中后端服务地址及其他配置项，下载依赖包
 
     ```sh
-    cd ./web
-    vim .env
+    cd ./web && cp .env .env.local
+    vim .env.local
     yarn
     ```
 
@@ -145,11 +145,11 @@ PaoPao主要由以下优秀的开源项目/工具构建
 
 #### 桌面端
 
-1. 进入前端目录 `web`，编辑 `.env` 文件中后端服务地址，下载依赖包
+1. 进入前端目录 `web`，拷贝`.env` 到 `.env.local`，编辑 `.env.local ` 文件中后端服务地址及其他配置项，下载依赖包
 
     ```sh
-    cd ./web
-    vim .env
+    cd ./web && cp .env .env.local
+    vim .env.local
     yarn
     ```
 

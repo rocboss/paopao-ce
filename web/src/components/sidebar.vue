@@ -151,57 +151,60 @@ onMounted(() => {
     };
 });
 const menuOptions = computed(() => {
+    const options = [
+        {
+            label: '广场',
+            key: 'home',
+            icon: () => h(HomeOutline),
+            href: '/',
+        },
+        {
+            label: '话题',
+            key: 'topic',
+            icon: () => h(Hash),
+            href: '/topic',
+        },
+        {
+            label: '主页',
+            key: 'profile',
+            icon: () => h(LeafOutline),
+            href: '/profile',
+        },
+        {
+            label: '提醒',
+            key: 'notification',
+            icon: () => h(NotificationsOutline),
+            href: '/notification',
+        },
+        {
+            label: '收藏',
+            key: 'collection',
+            icon: () => h(BookmarkOutline),
+            href: '/collection',
+        },
+        {
+            label: '点赞',
+            key: 'star',
+            icon: () => h(HeartOutline),
+            href: '/star',
+        }
+    ];
+    if (import.meta.env.VITE_ENABLE_WALLET.toLocaleLowerCase() === 'true') {
+        options.push({
+            label: '钱包',
+            key: 'wallet',
+            icon: () => h(WalletOutline),
+            href: '/wallet',
+        });
+    }
+    options.push({
+        label: '设置',
+        key: 'setting',
+        icon: () => h(SettingsOutline),
+        href: '/setting',
+    });
     return store.state.userInfo.id > 0
-        ? [
-              {
-                  label: '广场',
-                  key: 'home',
-                  icon: () => h(HomeOutline),
-                  href: '/',
-              },
-              {
-                  label: '话题',
-                  key: 'topic',
-                  icon: () => h(Hash),
-                  href: '/topic',
-              },
-              {
-                  label: '主页',
-                  key: 'profile',
-                  icon: () => h(LeafOutline),
-                  href: '/profile',
-              },
-              {
-                  label: '提醒',
-                  key: 'notification',
-                  icon: () => h(NotificationsOutline),
-                  href: '/notification',
-              },
-              {
-                  label: '收藏',
-                  key: 'collection',
-                  icon: () => h(BookmarkOutline),
-                  href: '/collection',
-              },
-              {
-                  label: '点赞',
-                  key: 'star',
-                  icon: () => h(HeartOutline),
-                  href: '/star',
-              },
-              {
-                  label: '钱包',
-                  key: 'wallet',
-                  icon: () => h(WalletOutline),
-                  href: '/wallet',
-              },
-              {
-                  label: '设置',
-                  key: 'setting',
-                  icon: () => h(SettingsOutline),
-                  href: '/setting',
-              },
-          ]
+        ? options
         : [
               {
                   label: '广场',

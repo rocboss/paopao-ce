@@ -6,7 +6,7 @@ ARG EMBED_UI=yes
 ARG USE_DIST=no
 WORKDIR /web
 COPY web/ ./
-RUN [ $EMBED_UI != yes ] || [ $USE_API_HOST != yes ] || echo "VITE_HOST='$API_HOST'">.env
+RUN [ $EMBED_UI != yes ] || [ $USE_API_HOST != yes ] || echo "VITE_HOST='$API_HOST'">.env.local
 RUN [ $EMBED_UI != yes ] || [ $USE_DIST != no ] || (yarn && yarn build)
 RUN [ $EMBED_UI = yes ] || mkdir dist || echo ""
 

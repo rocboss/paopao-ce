@@ -73,7 +73,9 @@
                             </n-button>
                         </n-upload-trigger>
 
-                        <n-upload-trigger #="{ handleClick }" abstract>
+                        <n-upload-trigger
+                            v-if="allowTweetVideo"
+                            #="{ handleClick }" abstract>
                             <n-button
                                 :disabled="
                                     (fileQueue.length > 0 &&
@@ -101,7 +103,9 @@
                             </n-button>
                         </n-upload-trigger>
 
-                        <n-upload-trigger #="{ handleClick }" abstract>
+                        <n-upload-trigger
+                            v-if="allowTweetAttachment"
+                            #="{ handleClick }" abstract>
                             <n-button
                                 :disabled="
                                     (fileQueue.length > 0 &&
@@ -143,6 +147,7 @@
                         </n-button>
 
                          <n-button
+                            v-if="allowTweetVisibility"
                             quaternary
                             circle
                             type="primary"
@@ -190,6 +195,7 @@
                         v-if="attachmentContents.length > 0"
                     >
                         <n-input-number
+                            v-if="allowTweetAttachmentPrice"
                             v-model:value="attachmentPrice"
                             :min="0"
                             :max="100000"
@@ -299,12 +305,17 @@ const imageContents = ref<Item.CommentItemProps[]>([]);
 const videoContents = ref<Item.CommentItemProps[]>([]);
 const attachmentContents = ref<Item.AttachmentProps[]>([]);
 const visitType = ref<VisibilityEnum>(VisibilityEnum.PUBLIC);
+const defaultVisitType = ref<VisibilityEnum>(VisibilityEnum.FRIEND)
 const visibilities = [
     {value: VisibilityEnum.PUBLIC, label: "公开"}
     , {value: VisibilityEnum.PRIVATE, label: "私密"}
     , {value: VisibilityEnum.FRIEND, label: "好友可见"}
 ];
 
+const allowTweetVideo = (import.meta.env.VITE_ALLOW_TWEET_VIDEO.toLocaleLowerCase() === 'true')
+const allowTweetAttachment = (import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT.toLocaleLowerCase() === 'true')
+const allowTweetAttachmentPrice = (import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT_PRICE.toLocaleLowerCase() === 'true')
+const allowTweetVisibility = (import.meta.env.VITE_ALLOW_TWEET_VISIBILITY.toLocaleLowerCase() === 'true')
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = ref();
 
@@ -572,7 +583,7 @@ const submitPost = () => {
             imageContents.value = [];
             videoContents.value = [];
             attachmentContents.value = [];
-            visitType.value = VisibilityEnum.PUBLIC;
+            visitType.value = defaultVisitType.value;;
         })
         .catch((err) => {
             submitting.value = false;
@@ -583,6 +594,15 @@ const triggerAuth = (key: string) => {
     store.commit('triggerAuthKey', key);
 };
 onMounted(() => {
+    if (import.meta.env.VITE_DEFAULT_TWEET_VISIBILITY.toLowerCase() === 'friend') {
+        defaultVisitType.value = VisibilityEnum.FRIEND
+    } else if (import.meta.env.VITE_DEFAULT_TWEET_VISIBILITY.toLowerCase()  === 'public') {
+        defaultVisitType.value = VisibilityEnum.PUBLIC
+    } else {
+        defaultVisitType.value = VisibilityEnum.PRIVATE
+    }
+
+    visitType.value = defaultVisitType.value;
     uploadToken.value = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
 });
 </script>
