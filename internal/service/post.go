@@ -143,7 +143,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 	}
 
 	// 私密推文不创建标签与用户提醒
-	if post.Visibility == model.PostVisitPrivate {
+	if post.Visibility != model.PostVisitPrivate {
 		// 创建标签
 		for _, t := range tags {
 			tag := &model.Tag{
