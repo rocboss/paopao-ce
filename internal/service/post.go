@@ -102,11 +102,29 @@ func tagsFrom(originTags []string) []string {
 }
 
 // CreatePost 创建文章
-// TODO: maybe have bug need optimize for use transaction to create post
-func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Post, error) {
+// TODO: 推文+推文内容需要在一个事务中添加，后续优化
+func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (post *model.Post, err error) {
+	// 获取媒体内容
+	mediaContents := make([]string, 0, len(param.Contents))
+	for _, item := range param.Contents {
+		switch item.Type {
+		case model.CONTENT_TYPE_IMAGE,
+			model.CONTENT_TYPE_VIDEO,
+			model.CONTENT_TYPE_AUDIO,
+			model.CONTENT_TYPE_ATTACHMENT,
+			model.CONTENT_TYPE_CHARGE_ATTACHMENT:
+			mediaContents = append(mediaContents, item.Content)
+		}
+	}
+	defer func() {
+		if err != nil {
+			deleteOssObjects(mediaContents)
+		}
+	}()
+
 	ip := c.ClientIP()
 	tags := tagsFrom(param.Tags)
-	post := &model.Post{
+	post = &model.Post{
 		UserID:          userID,
 		Tags:            strings.Join(tags, ","),
 		IP:              ip,
@@ -114,7 +132,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 		AttachmentPrice: param.AttachmentPrice,
 		Visibility:      param.Visibility,
 	}
-	post, err := ds.CreatePost(post)
+	post, err = ds.CreatePost(post)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +155,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 			Type:    item.Type,
 			Sort:    item.Sort,
 		}
-		if _, err := ds.CreatePostContent(postContent); err != nil {
+		if _, err = ds.CreatePostContent(postContent); err != nil {
 			return nil, err
 		}
 	}
@@ -199,7 +217,17 @@ func DeletePost(user *model.User, id int64) *errcode.Error {
 		return errcode.DeletePostFailed
 	}
 
-	// 删除推文的媒体内容, 宽松处理错误(就是不处理)
+	// 删除推文的媒体内容
+	deleteOssObjects(mediaContents)
+
+	// 删除索引
+	DeleteSearchPost(post)
+
+	return nil
+}
+
+// deleteOssObjects 删除推文的媒体内容, 宽松处理错误(就是不处理), 后续完善
+func deleteOssObjects(mediaContents []string) {
 	mediaContentsSize := len(mediaContents)
 	if mediaContentsSize > 1 {
 		objectKeys := make([]string, 0, mediaContentsSize)
@@ -211,11 +239,6 @@ func DeletePost(user *model.User, id int64) *errcode.Error {
 	} else if mediaContentsSize == 1 {
 		oss.DeleteObject(oss.ObjectKey(mediaContents[0]))
 	}
-
-	// 删除索引
-	DeleteSearchPost(post)
-
-	return nil
 }
 
 func LockPost(id int64) error {

@@ -184,7 +184,7 @@ func (s *tweetManageServant) DeletePost(post *model.Post) ([]string, error) {
 			}
 
 			// 删推文
-			if err := (post).Delete(tx); err != nil {
+			if err := post.Delete(tx); err != nil {
 				return err
 			}
 
