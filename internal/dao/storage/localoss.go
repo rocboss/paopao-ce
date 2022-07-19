@@ -72,8 +72,11 @@ func (s *localossServant) DeleteObjcets(objectKeys []string) (err error) {
 }
 
 func (s *localossServant) IsObjectExist(objectKey string) (bool, error) {
-	// TODO
-	return false, nil
+	fi, err := os.Stat(s.savePath + objectKey)
+	if err != nil {
+		return false, err
+	}
+	return !fi.IsDir(), nil
 }
 
 func (s *localossServant) SignURL(objectKey string, expiredInSec int64) (string, error) {

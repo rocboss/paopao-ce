@@ -101,7 +101,7 @@ func DeletePost(c *gin.Context) {
 	err := service.DeletePost(user, param.ID)
 	if err != nil {
 		logrus.Errorf("service.DeletePost err: %v\n", err)
-		response.ToErrorResponse(errcode.DeletePostFailed)
+		response.ToErrorResponse(err)
 		return
 	}
 
