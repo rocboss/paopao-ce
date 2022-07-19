@@ -101,3 +101,10 @@ func (c *CommentReply) Delete(db *gorm.DB) error {
 		"is_del":     1,
 	}).Error
 }
+
+func (c *CommentReply) DeleteByCommentIds(db *gorm.DB, commentIds []int64) error {
+	return db.Model(c).Where("comment_id IN ?", commentIds).Updates(map[string]interface{}{
+		"deleted_on": time.Now().Unix(),
+		"is_del":     1,
+	}).Error
+}

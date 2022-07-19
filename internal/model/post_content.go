@@ -1,6 +1,10 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 // 类型，1标题，2文字段落，3图片地址，4视频地址，5语音地址，6链接地址，7附件资源
 
@@ -17,6 +21,14 @@ const (
 	CONTENT_TYPE_CHARGE_ATTACHMENT
 )
 
+var mediaContentType = []PostContentT{
+	CONTENT_TYPE_IMAGE,
+	CONTENT_TYPE_VIDEO,
+	CONTENT_TYPE_AUDIO,
+	CONTENT_TYPE_ATTACHMENT,
+	CONTENT_TYPE_CHARGE_ATTACHMENT,
+}
+
 type PostContent struct {
 	*Model
 	PostID  int64        `json:"post_id"`
@@ -31,6 +43,18 @@ type PostContentFormated struct {
 	Content string       `json:"content"`
 	Type    PostContentT `json:"type"`
 	Sort    int64        `json:"sort"`
+}
+
+func (p *PostContent) DeleteByPostId(db *gorm.DB, postId int64) error {
+	return db.Model(p).Where("post_id = ?", postId).Updates(map[string]interface{}{
+		"deleted_on": time.Now().Unix(),
+		"is_del":     1,
+	}).Error
+}
+
+func (p *PostContent) MediaContentsByPostId(db *gorm.DB, postId int64) (contents []string, err error) {
+	err = db.Model(p).Where("post_id = ? AND type IN ?", postId, mediaContentType).Select("content").Find(&contents).Error
+	return
 }
 
 func (p *PostContent) Create(db *gorm.DB) (*PostContent, error) {

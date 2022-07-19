@@ -57,6 +57,25 @@ func (s *localossServant) PutObject(objectKey string, reader io.Reader, objectSi
 	return s.domain + objectKey, nil
 }
 
+func (s *localossServant) DeleteObject(objectKey string) error {
+	return os.Remove(s.savePath + objectKey)
+}
+
+func (s *localossServant) DeleteObjcets(objectKeys []string) (err error) {
+	// 宽松处理删除动作，尽可能删除所有objectKey，如果出错，只返回最后一个错误
+	for _, objectKey := range objectKeys {
+		if e := os.Remove(s.savePath + objectKey); e != nil {
+			err = e
+		}
+	}
+	return
+}
+
+func (s *localossServant) IsObjectExist(objectKey string) (bool, error) {
+	// TODO
+	return false, nil
+}
+
 func (s *localossServant) SignURL(objectKey string, expiredInSec int64) (string, error) {
 	if expiredInSec < 0 {
 		return "", fmt.Errorf("invalid expires: %d, expires must bigger than 0", expiredInSec)

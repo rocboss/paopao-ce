@@ -170,12 +170,85 @@ func (s *tweetManageServant) CreatePost(post *model.Post) (*model.Post, error) {
 	return p, nil
 }
 
-func (s *tweetManageServant) DeletePost(post *model.Post) error {
-	if err := post.Delete(s.db); err != nil {
-		return err
+func (s *tweetManageServant) DeletePost(post *model.Post) ([]string, error) {
+	var mediaContents []string
+
+	postId := post.ID
+	postContent := &model.PostContent{}
+	err := s.db.Transaction(
+		func(tx *gorm.DB) error {
+			if contents, err := postContent.MediaContentsByPostId(tx, postId); err == nil {
+				mediaContents = contents
+			} else {
+				return err
+			}
+
+			// 删推文
+			if err := (post).Delete(tx); err != nil {
+				return err
+			}
+
+			// 删内容
+			if err := postContent.DeleteByPostId(tx, postId); err != nil {
+				return err
+			}
+
+			// 删评论
+			if contents, err := s.deleteCommentByPostId(tx, postId); err == nil {
+				mediaContents = append(mediaContents, contents...)
+			} else {
+				return err
+			}
+
+			if tags := strings.Split(post.Tags, ","); len(tags) > 0 {
+				// 删tag，宽松处理错误，有错误不会回滚
+				deleteTags(tx, tags)
+			}
+
+			return nil
+		},
+	)
+
+	if err != nil {
+		return nil, err
 	}
+
 	s.cacheIndex.SendAction(core.IdxActDeletePost, post)
-	return nil
+	return mediaContents, nil
+}
+
+func (s *tweetManageServant) deleteCommentByPostId(db *gorm.DB, postId int64) ([]string, error) {
+	comment := &model.Comment{}
+	commentContent := &model.CommentContent{}
+
+	// 获取推文的所有评论id
+	commentIds, err := comment.CommentIdsByPostId(db, postId)
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取评论的媒体内容
+	mediaContents, err := commentContent.MediaContentsByCommentId(db, commentIds)
+	if err != nil {
+		return nil, err
+	}
+
+	// 删评论
+	if err = comment.DeleteByPostId(db, postId); err != nil {
+		return nil, err
+	}
+
+	// 删评论内容
+	if err = commentContent.DeleteByCommentIds(db, commentIds); err != nil {
+		return nil, err
+	}
+
+	// 删评论的评论
+	if err = (&model.CommentReply{}).DeleteByCommentIds(db, commentIds); err != nil {
+		return nil, err
+	}
+
+	return mediaContents, nil
 }
 
 func (s *tweetManageServant) LockPost(post *model.Post) error {

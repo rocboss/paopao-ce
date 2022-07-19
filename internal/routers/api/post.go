@@ -92,22 +92,13 @@ func DeletePost(c *gin.Context) {
 		return
 	}
 
-	user, _ := c.Get("USER")
-
-	// 获取Post
-	postFormated, err := service.GetPost(param.ID)
-	if err != nil {
-		logrus.Errorf("service.GetPost err: %v\n", err)
-		response.ToErrorResponse(errcode.GetPostFailed)
-		return
-	}
-
-	if postFormated.UserID != user.(*model.User).ID && !user.(*model.User).IsAdmin {
+	user, exist := userFrom(c)
+	if !exist {
 		response.ToErrorResponse(errcode.NoPermission)
 		return
 	}
 
-	err = service.DeletePost(param.ID)
+	err := service.DeletePost(user, param.ID)
 	if err != nil {
 		logrus.Errorf("service.DeletePost err: %v\n", err)
 		response.ToErrorResponse(errcode.DeletePostFailed)
