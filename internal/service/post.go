@@ -231,7 +231,7 @@ func deleteOssObjects(mediaContents []string) {
 	mediaContentsSize := len(mediaContents)
 	if mediaContentsSize > 1 {
 		objectKeys := make([]string, 0, mediaContentsSize)
-		for _, cUrl := range objectKeys {
+		for _, cUrl := range mediaContents {
 			objectKeys = append(objectKeys, oss.ObjectKey(cUrl))
 		}
 		// TODO: 优化处理尽量使用channel传递objectKeys使用可控数量的Goroutine集中处理object删除动作，后续完善
