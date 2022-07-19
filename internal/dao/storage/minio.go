@@ -43,6 +43,37 @@ func (s *minioServant) PutObject(objectKey string, reader io.Reader, objectSize 
 	return s.domain + objectKey, nil
 }
 
+func (s *minioServant) DeleteObject(objectKey string) error {
+	return s.client.RemoveObject(context.Background(), s.bucket, objectKey, minio.RemoveObjectOptions{ForceDelete: true})
+}
+
+func (s *minioServant) DeleteObjcets(objectKeys []string) (err error) {
+	objectsCh := make(chan minio.ObjectInfo, len(objectKeys))
+
+	resCh := s.client.RemoveObjects(context.Background(), s.bucket, objectsCh, minio.RemoveObjectsOptions{})
+	for _, objectKey := range objectKeys {
+		objectsCh <- minio.ObjectInfo{
+			Key: objectKey,
+		}
+	}
+
+	// 宽松处理所有错误，只记录最后一次发生的错误
+	for result := range resCh {
+		if result.Err != nil {
+			err = result.Err
+		}
+	}
+	return
+}
+
+func (s *minioServant) IsObjectExist(objectKey string) (bool, error) {
+	_, err := s.client.StatObject(context.Background(), s.bucket, objectKey, minio.StatObjectOptions{})
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 func (s *minioServant) SignURL(objectKey string, expiredInSec int64) (string, error) {
 	// TODO: Set request parameters for content-disposition.
 	reqParams := make(url.Values)

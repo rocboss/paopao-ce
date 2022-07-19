@@ -91,7 +91,7 @@ func (p *Post) Create(db *gorm.DB) (*Post, error) {
 }
 
 func (s *Post) Delete(db *gorm.DB) error {
-	return db.Model(&Post{}).Where("id = ? AND is_del = ?", s.Model.ID, 0).Updates(map[string]interface{}{
+	return db.Model(s).Where("id = ?", s.Model.ID).Updates(map[string]interface{}{
 		"deleted_on": time.Now().Unix(),
 		"is_del":     1,
 	}).Error

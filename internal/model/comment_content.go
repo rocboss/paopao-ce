@@ -1,6 +1,10 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type CommentContent struct {
 	*Model
@@ -40,4 +44,16 @@ func (c *CommentContent) Create(db *gorm.DB) (*CommentContent, error) {
 	err := db.Create(&c).Error
 
 	return c, err
+}
+
+func (c *CommentContent) MediaContentsByCommentId(db *gorm.DB, commentIds []int64) (contents []string, err error) {
+	err = db.Model(c).Where("comment_id IN ? AND type = ?", commentIds, CONTENT_TYPE_IMAGE).Select("content").Find(&contents).Error
+	return
+}
+
+func (c *CommentContent) DeleteByCommentIds(db *gorm.DB, commentIds []int64) error {
+	return db.Model(c).Where("comment_id IN ?", commentIds).Updates(map[string]interface{}{
+		"deleted_on": time.Now().Unix(),
+		"is_del":     1,
+	}).Error
 }

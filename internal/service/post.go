@@ -180,23 +180,36 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 	return post, nil
 }
 
-func DeletePost(id int64) error {
-	post, _ := ds.GetPostByID(id)
-
-	// tag删除
-	tags := strings.Split(post.Tags, ",")
-	for _, t := range tags {
-
-		tag := &model.Tag{
-			Tag: t,
-		}
-		ds.DeleteTag(tag)
+func DeletePost(user *model.User, id int64) *errcode.Error {
+	if user == nil {
+		return errcode.NoPermission
 	}
 
-	err := ds.DeletePost(post)
-
+	post, err := ds.GetPostByID(id)
 	if err != nil {
-		return err
+		return errcode.GetPostFailed
+	}
+	if post.UserID != user.ID && !user.IsAdmin {
+		return errcode.NoPermission
+	}
+
+	mediaContents, err := ds.DeletePost(post)
+	if err != nil {
+		logrus.Errorf("service.DeletePost delete post failed: %s", err)
+		return errcode.DeletePostFailed
+	}
+
+	// 删除推文的媒体内容, 宽松处理错误(就是不处理)
+	mediaContentsSize := len(mediaContents)
+	if mediaContentsSize > 1 {
+		objectKeys := make([]string, 0, mediaContentsSize)
+		for _, cUrl := range mediaContents {
+			objectKeys = append(objectKeys, oss.ObjectKey(cUrl))
+		}
+		// TODO: 优化处理尽量使用channel传递objectKeys使用可控数量的Goroutine集中处理object删除动作，后续完善
+		go oss.DeleteObjcets(objectKeys)
+	} else if mediaContentsSize == 1 {
+		oss.DeleteObject(oss.ObjectKey(mediaContents[0]))
 	}
 
 	// 删除索引

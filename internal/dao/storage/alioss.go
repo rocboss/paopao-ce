@@ -37,6 +37,19 @@ func (s *aliossServant) PutObject(objectKey string, reader io.Reader, objectSize
 	return s.domain + objectKey, nil
 }
 
+func (s *aliossServant) DeleteObject(objectKey string) error {
+	return s.bucket.DeleteObject(objectKey)
+}
+
+func (s *aliossServant) DeleteObjcets(objectKeys []string) error {
+	_, err := s.bucket.DeleteObjects(objectKeys)
+	return err
+}
+
+func (s *aliossServant) IsObjectExist(objectKey string) (bool, error) {
+	return s.bucket.IsObjectExist(objectKey)
+}
+
 func (s *aliossServant) SignURL(objectKey string, expiredInSec int64) (string, error) {
 	signedURL, err := s.bucket.SignURL(objectKey, oss.HTTPGet, expiredInSec)
 	if err != nil {

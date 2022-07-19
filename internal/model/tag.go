@@ -1,6 +1,10 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Tag struct {
 	*Model
@@ -56,6 +60,13 @@ func (t *Tag) Update(db *gorm.DB) error {
 	return db.Model(&Tag{}).Where("id = ? AND is_del = ?", t.Model.ID, 0).Save(t).Error
 }
 
+func (t *Tag) Delete(db *gorm.DB) error {
+	return db.Model(t).Where("id = ?", t.Model.ID).Updates(map[string]interface{}{
+		"deleted_on": time.Now().Unix(),
+		"is_del":     1,
+	}).Error
+}
+
 func (t *Tag) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]*Tag, error) {
 	var tags []*Tag
 	var err error
@@ -78,4 +89,9 @@ func (t *Tag) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]*
 	}
 
 	return tags, nil
+}
+
+func (t *Tag) TagsFrom(db *gorm.DB, tags []string) (res []*Tag, err error) {
+	err = db.Where("tag IN ?", tags).Find(&res).Error
+	return
 }
