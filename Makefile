@@ -1,6 +1,14 @@
 .PHONY: all build run test clean fmt help
 
 TARGET = paopao-ce
+ifeq ($(OS),Windows_NT)
+TARGET := $(TARGET).exe
+endif
+
+ifeq (n$(CGO_ENABLED),n)
+CGO_ENABLED := 1
+endif
+
 RELEASE_ROOT = release
 RELEASE_FILES = LICENSE README.md config.yaml.sample scripts configs
 RELEASE_LINUX_AMD64 = $(RELEASE_ROOT)/linux-amd64/$(TARGET)
@@ -42,23 +50,23 @@ release: linux-amd64 darwin-amd64 darwin-arm64 windows-x64
 
 .PHONY: linux-amd64
 linux-amd64:
-	@echo Build paopao-ce [linux-amd64]
-	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_LINUX_AMD64)/$(TARGET)
+	@echo Build paopao-ce [linux-amd64] CGO_ENABLED=$(CGO_ENABLED)
+	@CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 go build -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_LINUX_AMD64)/$(TARGET)
 
 .PHONY: darwin-amd64
 darwin-amd64:
-	@echo Build paopao-ce [darwin-amd64]
-	@CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_AMD64)/$(TARGET)
+	@echo Build paopao-ce [darwin-amd64] CGO_ENABLED=$(CGO_ENABLED)
+	@CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_AMD64)/$(TARGET)
 
 .PHONY: darwin-arm64
 darwin-arm64:
-	@echo Build paopao-ce [darwin-arm64]
-	@CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_ARM64)/$(TARGET)
+	@echo Build paopao-ce [darwin-arm64] CGO_ENABLED=$(CGO_ENABLED)
+	@CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=arm64 go build -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_ARM64)/$(TARGET)
 
 .PHONY: windows-x64
 windows-x64:
-	@echo Build paopao-ce [windows-x64]
-	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_WINDOWS_AMD64)/$(TARGET).exe
+	@echo Build paopao-ce [windows-x64] CGO_ENABLED=$(CGO_ENABLED)
+	@CGO_ENABLED=$(CGO_ENABLED) GOOS=windows GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_WINDOWS_AMD64)/$(TARGET)
 
 clean:
 	@go clean
