@@ -9,24 +9,37 @@ import (
 )
 
 func Priv() gin.HandlerFunc {
-	enablePhoneBind := conf.CfgIf("PhoneBind")
-	return func(c *gin.Context) {
-		if user, exist := c.Get("USER"); exist {
-			if userModel, ok := user.(*model.User); ok {
-				if userModel.Status == model.UserStatusNormal {
-					if enablePhoneBind && userModel.Phone == "" {
-						response := app.NewResponse(c)
-						response.ToErrorResponse(errcode.AccountNoPhoneBind)
-						c.Abort()
+	if conf.CfgIf("PhoneBind") {
+		return func(c *gin.Context) {
+			if u, exist := c.Get("USER"); exist {
+				if user, ok := u.(*model.User); ok {
+					if user.Status == model.UserStatusNormal {
+						if user.Phone == "" {
+							response := app.NewResponse(c)
+							response.ToErrorResponse(errcode.AccountNoPhoneBind)
+							c.Abort()
+							return
+						}
+						c.Next()
 						return
 					}
+				}
+			}
+			response := app.NewResponse(c)
+			response.ToErrorResponse(errcode.UserHasBeenBanned)
+			c.Abort()
+		}
+	} else {
+		return func(c *gin.Context) {
+			if u, exist := c.Get("USER"); exist {
+				if user, ok := u.(*model.User); ok && user.Status == model.UserStatusNormal {
 					c.Next()
 					return
 				}
 			}
+			response := app.NewResponse(c)
+			response.ToErrorResponse(errcode.UserHasBeenBanned)
+			c.Abort()
 		}
-		response := app.NewResponse(c)
-		response.ToErrorResponse(errcode.UserHasBeenBanned)
-		c.Abort()
 	}
 }
