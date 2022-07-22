@@ -225,10 +225,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 
-const defaultImg =
-    'https://paopao-assets.oss-cn-shanghai.aliyuncs.com/public/404.png';
-const thumbnail =
-    '?x-oss-process=image/resize,m_fill,w_300,h_300,limit_0/auto-orient,1/format,png';
+const defaultImg = import.meta.env.VITE_DEFAULT_TWEET_IMAGE_404;
+const thumbnail = import.meta.env.VITE_TWEET_IMAGE_THUMBNAIL;
 const props = withDefaults(defineProps<{
     imgs: Item.PostItemProps[],
 }>(), {
