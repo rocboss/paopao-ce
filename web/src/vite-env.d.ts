@@ -12,6 +12,8 @@ interface ImportMetaEnv {
     readonly VITE_ALLOW_TWEET_VISIBILITY: string
     readonly VITE_ALLOW_PHONE_BIND: string
     readonly VITE_DEFAULT_TWEET_VISIBILITY: string
+    readonly VITE_DEFAULT_TWEET_IMAGE_404: string
+    readonly VITE_TWEET_IMAGE_THUMBNAIL: string
 }
 
 interface ImportMeta {
