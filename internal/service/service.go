@@ -14,8 +14,8 @@ var (
 )
 
 func Initialize() {
-	ds = dao.NewDataService()
-	ts = dao.NewTweetSearchService()
-	oss = dao.NewObjectStorageService()
+	ds = dao.DataService()
+	ts = dao.TweetSearchService()
+	oss = dao.ObjectStorageService()
 	DisablePhoneVerify = !conf.CfgIf("Sms")
 }

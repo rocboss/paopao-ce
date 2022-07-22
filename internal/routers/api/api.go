@@ -10,5 +10,5 @@ var (
 )
 
 func Initialize() {
-	objectStorage = dao.NewObjectStorageService()
+	objectStorage = dao.ObjectStorageService()
 }
