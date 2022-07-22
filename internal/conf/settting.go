@@ -317,8 +317,12 @@ func (s PostgresSettingS) Dsn() string {
 	return strings.Join(params, " ")
 }
 
-func (s *Sqlite3SettingS) Dsn() string {
-	return "file:" + s.Path + "?cache=shared&mode=rwc"
+func (s *Sqlite3SettingS) Dsn(driverName string) string {
+	pragmas := "_foreign_keys=1&_journal_mode=WAL&_synchronous=NORMAL&_busy_timeout=8000"
+	if driverName == "sqlite" {
+		pragmas = "_pragma=foreign_keys(1)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=busy_timeout(8000)&_pragma=journal_size_limit(100000000)"
+	}
+	return fmt.Sprintf("file:%s?%s", s.Path, pragmas)
 }
 
 func (s *DatabaseSetingS) logLevel() logger.LogLevel {

@@ -8,7 +8,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
@@ -69,8 +68,8 @@ func newDBEngine() (*gorm.DB, error) {
 		logrus.Debugln("use PostgreSQL as db")
 		db, err = gorm.Open(postgres.Open(PostgresSetting.Dsn()), config)
 	} else if CfgIf("Sqlite3") {
-		logrus.Debugf("use Sqlite3 as db dsn: %s", Sqlite3Setting.Dsn())
-		db, err = gorm.Open(sqlite.Open(Sqlite3Setting.Dsn()), config)
+		logrus.Debugf("use Sqlite3 as db path:%s sqlite3InCgoEnabled:%t", Sqlite3Setting.Path, sqlite3InCgoEnabled)
+		db, err = gormOpenSqlite3(config)
 	} else {
 		logrus.Debugln("use default of MySQL as db")
 		if db, err = gorm.Open(mysql.Open(MysqlSetting.Dsn()), config); err == nil {
