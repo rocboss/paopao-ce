@@ -15,7 +15,7 @@ Features:
   Develop: ["Base", "MySQL", "BigCacheIndex", "Meili", "Sms", "AliOSS", "LoggerMeili", "Migration"]
   Demo: ["Base", "MySQL", "Option", "Zinc", "Sms", "MinIO", "LoggerZinc"]
   Slim: ["Base", "Sqlite3", "LocalOSS", "LoggerFile"]
-  Base: ["Redis", "Alipay"]
+  Base: ["Redis", "Alipay", "PhoneBind"]
   Option: ["SimpleCacheIndex"]
   Sms: "SmsJuhe"
 SmsJuhe:

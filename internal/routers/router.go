@@ -49,9 +49,6 @@ func NewRouter() *gin.Engine {
 	// 发送验证码
 	r.POST("/captcha", api.PostCaptcha)
 
-	// 支付宝回调
-	r.POST("/alipay/notify", api.AlipayNotify)
-
 	// 无鉴权路由组
 	noAuthApi := r.Group("/")
 	{
@@ -108,7 +105,9 @@ func NewRouter() *gin.Engine {
 		authApi.GET("/user/stars", api.GetUserStars)
 
 		// 绑定用户手机号
-		authApi.POST("/user/phone", api.BindUserPhone)
+		if conf.CfgIf("PhoneBind") {
+			authApi.POST("/user/phone", api.BindUserPhone)
+		}
 
 		// 修改密码
 		authApi.POST("/user/password", api.ChangeUserPassword)
@@ -124,15 +123,6 @@ func NewRouter() *gin.Engine {
 
 		// 检索标签
 		authApi.GET("/suggest/tags", api.GetSuggestTags)
-
-		// 用户充值
-		authApi.POST("/user/recharge", api.GetUserRechargeLink)
-
-		// 用户充值
-		authApi.GET("/user/recharge", api.GetUserRechargeResult)
-
-		// 获取用户账单
-		authApi.GET("/user/wallet/bills", api.GetUserWalletBills)
 
 		// 上传资源
 		privApi.POST("/attachment", api.UploadAttachment)
@@ -185,6 +175,10 @@ func NewRouter() *gin.Engine {
 		// 管理·禁言/解封用户
 		adminApi.POST("/admin/user/status", api.ChangeUserStatus)
 	}
+
+	// 支付宝路由注册
+	alipayRoute(r, authApi)
+
 	// 默认404
 	e.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -192,6 +186,7 @@ func NewRouter() *gin.Engine {
 			"msg":  "Not Found",
 		})
 	})
+
 	// 默认405
 	e.NoMethod(func(c *gin.Context) {
 		c.JSON(http.StatusMethodNotAllowed, gin.H{
@@ -199,6 +194,7 @@ func NewRouter() *gin.Engine {
 			"msg":  "Method Not Allowed",
 		})
 	})
+
 	return e
 }
 
@@ -215,4 +211,22 @@ func routeLocalOSS(e *gin.Engine) {
 	e.Static("/oss", savePath)
 
 	logrus.Infof("register LocalOSS route in /oss on save path: %s", savePath)
+}
+
+func alipayRoute(public gin.IRoutes, authApi gin.IRoutes) {
+	if !conf.CfgIf("Alipay") {
+		return
+	}
+
+	// 支付宝回调
+	public.POST("/alipay/notify", api.AlipayNotify)
+
+	// 用户充值
+	authApi.POST("/user/recharge", api.GetUserRechargeLink)
+
+	// 获取钱包余额
+	authApi.GET("/user/recharge", api.GetUserRechargeResult)
+
+	// 获取用户账单
+	authApi.GET("/user/wallet/bills", api.GetUserWalletBills)
 }

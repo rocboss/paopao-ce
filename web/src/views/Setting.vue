@@ -9,9 +9,10 @@
                     :src="store.state.userInfo.avatar"
                 />
                 <n-upload
-                    v-if="
+                    v-if="!allowPhoneBind || (
+                        allowPhoneBind &&
                         store.state.userInfo.phone &&
-                        store.state.userInfo.phone.length > 0
+                        store.state.userInfo.phone.length > 0)
                     "
                     ref="avatarRef"
                     :action="uploadGateway"
@@ -48,11 +49,12 @@
                     round
                     type="success"
                     size="small"
-                    v-if="
-                        !showNicknameEdit &&
+                    v-if="!showNicknameEdit && (!allowPhoneBind || (
+                        allowPhoneBind &&
                         store.state.userInfo.phone &&
                         store.state.userInfo.phone.length > 0 &&
-                        store.state.userInfo.status == 1
+                        store.state.userInfo.status == 1)
+                    )
                     "
                     @click="handleNicknameShow"
                 >
@@ -70,7 +72,9 @@
             </div>
         </n-card>
 
-        <n-card title="手机号" size="small" class="setting-card">
+        <n-card
+            v-if="allowPhoneBind" 
+            title="手机号" size="small" class="setting-card">
             <div
                 v-if="
                     store.state.userInfo.phone &&
@@ -270,6 +274,7 @@ import type {
     InputInst,
 } from 'naive-ui';
 
+const allowPhoneBind= (import.meta.env.VITE_ALLOW_PHONE_BIND.toLocaleLowerCase() === 'true')
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
 const uploadType = ref('public/avatar');
