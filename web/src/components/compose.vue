@@ -321,13 +321,16 @@ const uploadToken = ref();
 
 const switchLink = () => {
     showLinkSet.value = !showLinkSet.value;
-    if (!showLinkSet.value) {
-        links.value = [];
+    if (showLinkSet.value && showEyeSet.value) {
+        showEyeSet.value = false
     }
 };
 
 const switchEye = () => {
     showEyeSet.value = !showEyeSet.value;
+     if (showEyeSet.value && showLinkSet.value) {
+        showLinkSet.value = false
+    }
 };
 
 // 加载at用户列表
@@ -642,6 +645,13 @@ onMounted(() => {
             }
         }
     }
+    .link-wrap {
+        margin-left: 42px;
+        margin-right: 42px;
+    }
+    .eye-wrap {
+        margin-left: 64px;
+    }
     .login-wrap {
         display: flex;
         justify-content: center;
@@ -661,8 +671,5 @@ onMounted(() => {
     .n-upload-file-info__thumbnail {
         overflow: hidden;
     }
-}
-.eye-wrap {
-    margin-left: 64px;
 }
 </style>
