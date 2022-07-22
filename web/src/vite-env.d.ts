@@ -10,6 +10,7 @@ interface ImportMetaEnv {
     readonly VITE_ALLOW_TWEET_ATTACHMENT_PRICE: string
     readonly VITE_ALLOW_TWEET_VIDEO: string
     readonly VITE_ALLOW_TWEET_VISIBILITY: string
+    readonly VITE_ALLOW_PHONE_BINDING: string
     readonly VITE_DEFAULT_TWEET_VISIBILITY: string
 }
 
