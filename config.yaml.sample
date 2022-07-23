@@ -82,8 +82,8 @@ AliOSS: # 阿里云OSS存储配置
 COS: # 腾讯云COS存储配置
   SecretID: 
   SecretKey: 
-  Region: 
-  Bucket: 
+  Region: ap-shanghai
+  Bucket: demo-1888888888
   Domain: 
 MinIO: # MinIO 存储配置
   AccessKey: Q3AM3UQ867SPQQA43P2F
