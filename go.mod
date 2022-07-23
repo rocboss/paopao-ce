@@ -22,6 +22,7 @@ require (
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/google/go-cmp v0.5.7 // indirect
+	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.21.12+incompatible
 	github.com/json-iterator/go v1.1.12
 	github.com/meilisearch/meilisearch-go v0.19.1
 	github.com/minio/minio-go/v7 v7.0.27
@@ -30,7 +31,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartwalle/alipay/v3 v3.1.7
 	github.com/spf13/viper v1.10.1
-	github.com/tencentyun/cos-go-sdk-v5 v0.7.35 // indirect
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.35
 	github.com/ugorji/go v1.2.7 // indirect
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
 	golang.org/x/crypto v0.0.0-20220307211146-efcb8507fb70 // indirect
