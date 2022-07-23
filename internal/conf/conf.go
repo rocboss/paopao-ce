@@ -30,6 +30,7 @@ var (
 	MeiliSetting            *MeiliSettingS
 	AliOSSSetting           *AliOSSSettingS
 	COSSetting              *COSSettingS
+	HuaweiOBSSetting        *HuaweiOBSSettingS
 	MinIOSetting            *MinIOSettingS
 	S3Setting               *S3SettingS
 	LocalOSSSetting         *LocalOSSSettingS
@@ -73,6 +74,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"JWT":              &JWTSetting,
 		"AliOSS":           &AliOSSSetting,
 		"COS":              &COSSetting,
+		"HuaweiOBS":        &HuaweiOBSSetting,
 		"MinIO":            &MinIOSetting,
 		"LocalOSS":         &LocalOSSSetting,
 		"S3":               &S3Setting,
@@ -121,6 +123,8 @@ func GetOssDomain() string {
 		return uri + AliOSSSetting.Domain + "/"
 	} else if CfgIf("COS") {
 		return uri + COSSetting.Domain + "/"
+	} else if CfgIf("HuaweiOBS") {
+		return uri + HuaweiOBSSetting.Domain + "/"
 	} else if CfgIf("MinIO") {
 		if !MinIOSetting.Secure {
 			uri = "http://"

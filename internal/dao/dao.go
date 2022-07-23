@@ -43,20 +43,22 @@ func ObjectStorageService() core.ObjectStorageService {
 	onceOss.Do(func() {
 		var v core.VersionInfo
 		if conf.CfgIf("AliOSS") {
-			oss, v = storage.NewAliossService()
+			oss, v = storage.MustAliossService()
 		} else if conf.CfgIf("COS") {
-			oss, v = storage.NewCosServent()
+			oss, v = storage.NewCosService()
+		} else if conf.CfgIf("HuaweiOBS") {
+			oss, v = storage.MustHuaweiobsService()
 		} else if conf.CfgIf("MinIO") {
-			oss, v = storage.NewMinioService()
+			oss, v = storage.MustMinioService()
 		} else if conf.CfgIf("S3") {
-			oss, v = storage.NewS3Service()
+			oss, v = storage.MustS3Service()
 			logrus.Infof("use S3 as object storage by version %s", v.Version())
 			return
 		} else if conf.CfgIf("LocalOSS") {
-			oss, v = storage.NewLocalossService()
+			oss, v = storage.MustLocalossService()
 		} else {
 			// default use AliOSS as object storage service
-			oss, v = storage.NewAliossService()
+			oss, v = storage.MustAliossService()
 			logrus.Infof("use default AliOSS as object storage by version %s", v.Version())
 			return
 		}

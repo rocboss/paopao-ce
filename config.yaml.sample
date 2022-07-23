@@ -85,6 +85,12 @@ COS: # 腾讯云COS存储配置
   Region: ap-shanghai
   Bucket: demo-1888888888
   Domain: 
+HuaweiOBS: # 华为云OBS存储配置
+  AccessKey: 
+  SecretKey: 
+  Endpoint: 
+  Bucket: paopao
+  Domain: 
 MinIO: # MinIO 存储配置
   AccessKey: Q3AM3UQ867SPQQA43P2F
   SecretKey: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG

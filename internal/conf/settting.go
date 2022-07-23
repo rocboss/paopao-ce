@@ -159,6 +159,7 @@ type AliOSSSettingS struct {
 	Bucket          string
 	Domain          string
 }
+
 type COSSettingS struct {
 	SecretID  string
 	SecretKey string
@@ -166,6 +167,15 @@ type COSSettingS struct {
 	Bucket    string
 	Domain    string
 }
+
+type HuaweiOBSSettingS struct {
+	AccessKey string
+	SecretKey string
+	Endpoint  string
+	Bucket    string
+	Domain    string
+}
+
 type LocalOSSSettingS struct {
 	SavePath string
 	Secure   bool

@@ -1,4 +1,4 @@
-.PHONY: all build run test clean fmt help
+.PHONY: all build run test clean fmt pre-commit help
 
 TARGET = paopao-ce
 ifeq ($(OS),Windows_NT)
@@ -81,6 +81,9 @@ fmt:
 
 test:
 	@go test ./...
+
+pre-commit: fmt
+	go mod tidy
 
 help:
 	@echo "make: make"

@@ -306,9 +306,10 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 * 数据库: MySQL/Sqlite3/PostgreSQL   
   `Gorm` + `MySQL`/`Sqlite3`/`PostgreSQL` 使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Grom` + `MySQL`组合(目前状态：稳定，默认，推荐使用)；    
   `Sqlx` + `MySQL`/`PostgreSQL` 使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM(目前状态：WIP)；      
-* 对象存储: AliOSS/COS/MinIO/LocalOSS    
-  `AliOSS` 阿里云对象存储服务；  
-  `COS` 腾讯云对象存储服务
+* 对象存储: AliOSS/COS/HuaweiOBS/MinIO/LocalOSS      
+  `AliOSS` 阿里云对象存储服务；    
+  `COS` 腾讯云对象存储服务；  
+  `HuaweiOBS` 华为云对象存储服务；  
   `MinIO` [MinIO](https://github.com/minio/minio)对象存储服务；  
   `LocalOSS` 提供使用本地目录文件作为对象存储的功能，仅用于开发调试环境；  
 * 缓存: Redis/SimpleCacheIndex/BigCacheIndex     
