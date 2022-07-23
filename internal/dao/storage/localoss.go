@@ -61,7 +61,7 @@ func (s *localossServant) DeleteObject(objectKey string) error {
 	return os.Remove(s.savePath + objectKey)
 }
 
-func (s *localossServant) DeleteObjcets(objectKeys []string) (err error) {
+func (s *localossServant) DeleteObjects(objectKeys []string) (err error) {
 	// 宽松处理删除动作，尽可能删除所有objectKey，如果出错，只返回最后一个错误
 	for _, objectKey := range objectKeys {
 		if e := os.Remove(s.savePath + objectKey); e != nil {

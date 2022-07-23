@@ -47,7 +47,7 @@ func (s *minioServant) DeleteObject(objectKey string) error {
 	return s.client.RemoveObject(context.Background(), s.bucket, objectKey, minio.RemoveObjectOptions{ForceDelete: true})
 }
 
-func (s *minioServant) DeleteObjcets(objectKeys []string) (err error) {
+func (s *minioServant) DeleteObjects(objectKeys []string) (err error) {
 	objectsCh := make(chan minio.ObjectInfo, len(objectKeys))
 
 	resCh := s.client.RemoveObjects(context.Background(), s.bucket, objectsCh, minio.RemoveObjectsOptions{})

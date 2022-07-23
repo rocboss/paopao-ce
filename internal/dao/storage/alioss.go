@@ -41,7 +41,7 @@ func (s *aliossServant) DeleteObject(objectKey string) error {
 	return s.bucket.DeleteObject(objectKey)
 }
 
-func (s *aliossServant) DeleteObjcets(objectKeys []string) error {
+func (s *aliossServant) DeleteObjects(objectKeys []string) error {
 	_, err := s.bucket.DeleteObjects(objectKeys)
 	return err
 }

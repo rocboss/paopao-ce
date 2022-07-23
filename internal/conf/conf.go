@@ -29,6 +29,7 @@ var (
 	ZincSetting             *ZincSettingS
 	MeiliSetting            *MeiliSettingS
 	AliOSSSetting           *AliOSSSettingS
+	COSSetting              *COSSettingS
 	MinIOSetting            *MinIOSettingS
 	S3Setting               *S3SettingS
 	LocalOSSSetting         *LocalOSSSettingS
@@ -71,6 +72,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"Redis":            &redisSetting,
 		"JWT":              &JWTSetting,
 		"AliOSS":           &AliOSSSetting,
+		"COS":              &COSSetting,
 		"MinIO":            &MinIOSetting,
 		"LocalOSS":         &LocalOSSSetting,
 		"S3":               &S3Setting,
@@ -117,6 +119,8 @@ func GetOssDomain() string {
 	uri := "https://"
 	if CfgIf("AliOSS") {
 		return uri + AliOSSSetting.Domain + "/"
+	} else if CfgIf("COS") {
+		return uri + COSSetting.Domain + "/"
 	} else if CfgIf("MinIO") {
 		if !MinIOSetting.Secure {
 			uri = "http://"

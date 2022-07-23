@@ -44,6 +44,8 @@ func ObjectStorageService() core.ObjectStorageService {
 		var v core.VersionInfo
 		if conf.CfgIf("AliOSS") {
 			oss, v = storage.NewAliossService()
+		} else if conf.CfgIf("COS") {
+			oss, v = storage.NewCosServent()
 		} else if conf.CfgIf("MinIO") {
 			oss, v = storage.NewMinioService()
 		} else if conf.CfgIf("S3") {

@@ -1,6 +1,9 @@
 package storage
 
 import (
+	"fmt"
+	"net/http"
+	"net/url"
 	"path/filepath"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -9,6 +12,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/sirupsen/logrus"
+	"github.com/tencentyun/cos-go-sdk-v5"
 )
 
 func NewAliossService() (core.ObjectStorageService, core.VersionInfo) {
@@ -24,6 +28,24 @@ func NewAliossService() (core.ObjectStorageService, core.VersionInfo) {
 
 	obj := &aliossServant{
 		bucket: bucket,
+		domain: conf.GetOssDomain(),
+	}
+	return obj, obj
+}
+
+func NewCosServent() (core.ObjectStorageService, core.VersionInfo) {
+	u, _ := url.Parse(fmt.Sprintf("https://%s.cos.%s.myqcloud.com", conf.COSSetting.Bucket, conf.COSSetting.Region))
+	su, _ := url.Parse(fmt.Sprintf("https://cos.%s.myqcloud.com", conf.COSSetting.Region))
+
+	client := cos.NewClient(&cos.BaseURL{BucketURL: u, ServiceURL: su}, &http.Client{
+		Transport: &cos.AuthorizationTransport{
+			SecretID:  conf.COSSetting.SecretID,
+			SecretKey: conf.COSSetting.SecretKey,
+		},
+	})
+
+	obj := &cosServant{
+		client: client,
 		domain: conf.GetOssDomain(),
 	}
 	return obj, obj

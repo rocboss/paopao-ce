@@ -74,9 +74,15 @@ Meili: # Meili搜索配置
   ApiKey: paopao-meilisearch
   Secure: False
 AliOSS: # 阿里云OSS存储配置
-  Endpoint:
+  Endpoint: 
   AccessKeyID: 
   AccessKeySecret: 
+  Bucket: 
+  Domain: 
+COS: # 腾讯云COS存储配置
+  SecretID: 
+  SecretKey: 
+  Region: 
   Bucket: 
   Domain: 
 MinIO: # MinIO 存储配置

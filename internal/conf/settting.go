@@ -159,7 +159,13 @@ type AliOSSSettingS struct {
 	Bucket          string
 	Domain          string
 }
-
+type COSSettingS struct {
+	SecretID  string
+	SecretKey string
+	Region    string
+	Bucket    string
+	Domain    string
+}
 type LocalOSSSettingS struct {
 	SavePath string
 	Secure   bool

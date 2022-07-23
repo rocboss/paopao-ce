@@ -235,7 +235,7 @@ func deleteOssObjects(mediaContents []string) {
 			objectKeys = append(objectKeys, oss.ObjectKey(cUrl))
 		}
 		// TODO: 优化处理尽量使用channel传递objectKeys使用可控数量的Goroutine集中处理object删除动作，后续完善
-		go oss.DeleteObjcets(objectKeys)
+		go oss.DeleteObjects(objectKeys)
 	} else if mediaContentsSize == 1 {
 		oss.DeleteObject(oss.ObjectKey(mediaContents[0]))
 	}
