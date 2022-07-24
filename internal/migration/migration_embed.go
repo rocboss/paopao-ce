@@ -49,18 +49,19 @@ func Run() {
 		return
 	}
 
+	migrationsTable := conf.DatabaseSetting.TablePrefix + "schema_migrations"
 	if conf.CfgIf("MySQL") {
 		srcDriver, err = iofs.New(migration.Files, "mysql")
-		dbDriver, err2 = mysql.WithInstance(db, &mysql.Config{})
+		dbDriver, err2 = mysql.WithInstance(db, &mysql.Config{MigrationsTable: migrationsTable})
 	} else if conf.CfgIf("PostgreSQL") || conf.CfgIf("Postgres") {
 		srcDriver, err = iofs.New(migration.Files, "postgres")
-		dbDriver, err2 = postgres.WithInstance(db, &postgres.Config{})
+		dbDriver, err2 = postgres.WithInstance(db, &postgres.Config{MigrationsTable: migrationsTable})
 	} else if conf.CfgIf("Sqlite3") {
 		srcDriver, err = iofs.New(migration.Files, "sqlite3")
-		dbDriver, err2 = sqlite3.WithInstance(db, &sqlite3.Config{})
+		dbDriver, err2 = sqlite3.WithInstance(db, &sqlite3.Config{MigrationsTable: migrationsTable})
 	} else {
 		srcDriver, err = iofs.New(migration.Files, "mysql")
-		dbDriver, err2 = mysql.WithInstance(db, &mysql.Config{})
+		dbDriver, err2 = mysql.WithInstance(db, &mysql.Config{MigrationsTable: migrationsTable})
 	}
 
 	if err2 != nil {
