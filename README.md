@@ -327,9 +327,9 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
   `Alipay`  开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能；   
 * 短信验证码: SmsJuhe(需要开启sms)    
   `Sms` 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机；     
-* 其他: PhoneBind/PersistObjct
-  `PhoneBind` 开启手机绑定功能；
-  `PersistObject` 开启对象存储的持久化对象功能，允许先创建临时对象然后再持久化；     
+* 其他: PhoneBind/PersistObjct    
+  `PhoneBind` 开启手机绑定功能；   
+  `PersistObject` 开启对象存储的持久化对象功能，允许先创建临时对象然后再持久化；       
 
 ### 搭建依赖环境
 #### [Zinc](https://github.com/zinclabs/zinc) 搜索引擎:
