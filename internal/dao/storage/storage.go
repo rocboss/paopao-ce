@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
+	"strconv"
+	"time"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/huaweicloud/huaweicloud-sdk-go-obs/obs"
@@ -19,17 +21,20 @@ import (
 func MustAliossService() (core.ObjectStorageService, core.VersionInfo) {
 	client, err := oss.New(conf.AliOSSSetting.Endpoint, conf.AliOSSSetting.AccessKeyID, conf.AliOSSSetting.AccessKeySecret)
 	if err != nil {
-		logrus.Fatalf("alioss.New err: %v", err)
+		logrus.Fatalf("storage.MustAliossService create client err: %s", err)
 	}
 
 	bucket, err := client.Bucket(conf.AliOSSSetting.Bucket)
 	if err != nil {
-		logrus.Fatalf("client.Bucket err: %v", err)
+		logrus.Fatalf("storage.MustAliossService create bucket err: %v", err)
 	}
 
 	obj := &aliossServant{
-		bucket: bucket,
-		domain: conf.GetOssDomain(),
+		bucket:             bucket,
+		domain:             conf.GetOssDomain(),
+		retainInDays:       time.Duration(conf.ObjectStorage.RetainInDays) * time.Hour * 24,
+		retainUntilDate:    time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC),
+		allowPersistObject: conf.CfgIf("PersistObject"),
 	}
 	return obj, obj
 }
@@ -56,12 +61,17 @@ func MustHuaweiobsService() (core.ObjectStorageService, core.VersionInfo) {
 	s := conf.HuaweiOBSSetting
 	client, err := obs.New(s.AccessKey, s.SecretKey, s.Endpoint)
 	if err != nil {
-		logrus.Fatalf("create huawei obs client failed: %s", err)
+		logrus.Fatalf("storage.MustHuaweiobsService create huawei obs client failed: %s", err)
 	}
+
+	retainUntilDays := time.Until(time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC)) / (24 * time.Hour)
 	obj := &huaweiobsServant{
-		client: client,
-		bucket: s.Bucket,
-		domain: conf.GetOssDomain(),
+		client:             client,
+		bucket:             s.Bucket,
+		domain:             conf.GetOssDomain(),
+		retainInDays:       int64(conf.ObjectStorage.RetainInDays),
+		retainUntilDays:    strconv.FormatInt(int64(retainUntilDays), 10),
+		allowPersistObject: conf.CfgIf("PersistObject"),
 	}
 	return obj, obj
 }
@@ -69,7 +79,7 @@ func MustHuaweiobsService() (core.ObjectStorageService, core.VersionInfo) {
 func MustLocalossService() (core.ObjectStorageService, core.VersionInfo) {
 	savePath, err := filepath.Abs(conf.LocalOSSSetting.SavePath)
 	if err != nil {
-		logrus.Fatalf("get localOSS save path err: %v", err)
+		logrus.Fatalf("storage.MustLocalossService get localOSS save path err: %v", err)
 	}
 
 	obj := &localossServant{
@@ -86,14 +96,18 @@ func MustMinioService() (core.ObjectStorageService, core.VersionInfo) {
 		Secure: conf.MinIOSetting.Secure,
 	})
 	if err != nil {
-		logrus.Fatalf("minio.New err: %v", err)
+		logrus.Fatalf("storage.MustMinioService create client failed: %s", err)
 	}
 
 	ms := &minioServant{
-		client: client,
-		bucket: conf.MinIOSetting.Bucket,
-		domain: conf.GetOssDomain(),
+		client:             client,
+		bucket:             conf.MinIOSetting.Bucket,
+		domain:             conf.GetOssDomain(),
+		retainInDays:       time.Duration(conf.ObjectStorage.RetainInDays) * time.Hour * 24,
+		retainUntilDate:    time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC),
+		allowPersistObject: conf.CfgIf("PersistObject"),
 	}
+
 	return ms, ms
 }
 
@@ -104,13 +118,17 @@ func MustS3Service() (core.ObjectStorageService, core.VersionInfo) {
 		Secure: conf.S3Setting.Secure,
 	})
 	if err != nil {
-		logrus.Fatalf("s3.New err: %v", err)
+		logrus.Fatalf("storage.MustS3Service create client failed: %s", err)
 	}
 
-	obj := &s3Servant{
-		client: client,
-		bucket: conf.MinIOSetting.Bucket,
-		domain: conf.GetOssDomain(),
+	s3 := &s3Servant{
+		client:             client,
+		bucket:             conf.MinIOSetting.Bucket,
+		domain:             conf.GetOssDomain(),
+		retainInDays:       time.Duration(conf.ObjectStorage.RetainInDays) * time.Hour * 24,
+		retainUntilDate:    time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC),
+		allowPersistObject: conf.CfgIf("PersistObject"),
 	}
-	return obj, obj
+
+	return s3, s3
 }

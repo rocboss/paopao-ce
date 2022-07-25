@@ -28,10 +28,10 @@ func (s *localossServant) Name() string {
 }
 
 func (s *localossServant) Version() *semver.Version {
-	return semver.MustParse("v0.1.0")
+	return semver.MustParse("v0.2.0")
 }
 
-func (s *localossServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string) (string, error) {
+func (s *localossServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, _persistance bool) (string, error) {
 	saveDir := s.savePath + filepath.Dir(objectKey)
 	err := os.MkdirAll(saveDir, 0750)
 	if err != nil && !os.IsExist(err) {
@@ -55,6 +55,11 @@ func (s *localossServant) PutObject(objectKey string, reader io.Reader, objectSi
 	}
 
 	return s.domain + objectKey, nil
+}
+
+func (s *localossServant) PersistObject(objectKey string) error {
+	// empty
+	return nil
 }
 
 func (s *localossServant) DeleteObject(objectKey string) error {

@@ -311,6 +311,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
   `COS` 腾讯云对象存储服务；  
   `HuaweiOBS` 华为云对象存储服务；  
   `MinIO` [MinIO](https://github.com/minio/minio)对象存储服务；  
+  `S3` AWS S3兼容的对象存储服务；    
   `LocalOSS` 提供使用本地目录文件作为对象存储的功能，仅用于开发调试环境；  
 * 缓存: Redis/SimpleCacheIndex/BigCacheIndex     
   `SimpleCacheIndex` 提供简单的 广场推文列表 的缓存功能；   
@@ -326,8 +327,9 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
   `Alipay`  开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能；   
 * 短信验证码: SmsJuhe(需要开启sms)    
   `Sms` 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机；     
-* 其他: PhoneBind   
-  `PhoneBind` 开启手机绑定功能；    
+* 其他: PhoneBind/PersistObjct
+  `PhoneBind` 开启手机绑定功能；
+  `PersistObject` 开启对象存储的持久化对象功能，允许先创建临时对象然后再持久化；     
 
 ### 搭建依赖环境
 #### [Zinc](https://github.com/zinclabs/zinc) 搜索引擎:

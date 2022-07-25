@@ -6,7 +6,8 @@ import (
 
 // ObjectStorageService storage service interface that implement base AliOSS、MINIO or other
 type ObjectStorageService interface {
-	PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string) (string, error)
+	PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error)
+	PersistObject(objectKey string) error
 	DeleteObject(objectKey string) error
 	DeleteObjects(objectKeys []string) error
 	IsObjectExist(objectKey string) (bool, error)

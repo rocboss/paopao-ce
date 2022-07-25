@@ -13,7 +13,7 @@ Server: # 服务设置
 Features:
   Default: ["Base", "MySQL", "Option", "Zinc", "LocalOSS", "LoggerFile"]
   Develop: ["Base", "MySQL", "BigCacheIndex", "Meili", "Sms", "AliOSS", "LoggerMeili", "Migration"]
-  Demo: ["Base", "MySQL", "Option", "Zinc", "Sms", "MinIO", "LoggerZinc"]
+  Demo: ["Base", "MySQL", "Option", "Zinc", "Sms", "MinIO", "LoggerZinc", "PersistObject"]
   Slim: ["Base", "Sqlite3", "LocalOSS", "LoggerFile"]
   Base: ["Redis", "Alipay", "PhoneBind"]
   Option: ["SimpleCacheIndex"]
@@ -73,6 +73,8 @@ Meili: # Meili搜索配置
   Index: paopao-data
   ApiKey: paopao-meilisearch
   Secure: False
+ObjectStorage: # 对象存储通用配置
+  RetainInDays: 2   # 临时对象过期时间多少天
 AliOSS: # 阿里云OSS存储配置
   Endpoint: 
   AccessKeyID: 

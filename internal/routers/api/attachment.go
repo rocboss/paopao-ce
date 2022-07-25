@@ -102,7 +102,7 @@ func UploadAttachment(c *gin.Context) {
 	randomPath := uuid.Must(uuid.NewV4()).String()
 	ossSavePath := uploadType + "/" + GeneratePath(randomPath[:8]) + "/" + randomPath[9:] + fileExt
 
-	objectUrl, err := objectStorage.PutObject(ossSavePath, file, fileHeader.Size, contentType)
+	objectUrl, err := objectStorage.PutObject(ossSavePath, file, fileHeader.Size, contentType, false)
 	if err != nil {
 		logrus.Errorf("putObject err: %v", err)
 		response.ToErrorResponse(errcode.FileUploadFailed)

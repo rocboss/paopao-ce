@@ -28,6 +28,7 @@ var (
 	TweetSearchSetting      *TweetSearchS
 	ZincSetting             *ZincSettingS
 	MeiliSetting            *MeiliSettingS
+	ObjectStorage           *ObjectStorageS
 	AliOSSSetting           *AliOSSSettingS
 	COSSetting              *COSSettingS
 	HuaweiOBSSetting        *HuaweiOBSSettingS
@@ -72,6 +73,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"Meili":            &MeiliSetting,
 		"Redis":            &redisSetting,
 		"JWT":              &JWTSetting,
+		"ObjectStorage":    &ObjectStorage,
 		"AliOSS":           &AliOSSSetting,
 		"COS":              &COSSetting,
 		"HuaweiOBS":        &HuaweiOBSSetting,

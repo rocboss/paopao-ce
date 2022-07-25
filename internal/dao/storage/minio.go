@@ -19,9 +19,12 @@ var (
 )
 
 type minioServant struct {
-	client *minio.Client
-	bucket string
-	domain string
+	client             *minio.Client
+	bucket             string
+	domain             string
+	retainInDays       time.Duration
+	retainUntilDate    time.Time
+	allowPersistObject bool
 }
 
 type s3Servant = minioServant
@@ -31,16 +34,32 @@ func (s *minioServant) Name() string {
 }
 
 func (s *minioServant) Version() *semver.Version {
-	return semver.MustParse("v0.1.0")
+	return semver.MustParse("v0.2.0")
 }
 
-func (s *minioServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string) (string, error) {
-	uploadInfo, err := s.client.PutObject(context.Background(), s.bucket, objectKey, reader, objectSize, minio.PutObjectOptions{ContentType: contentType})
+func (s *minioServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+	opts := minio.PutObjectOptions{ContentType: contentType}
+	if s.allowPersistObject && !persistance {
+		opts.Mode = minio.Governance
+		opts.RetainUntilDate = time.Now().Add(s.retainInDays)
+	}
+	uploadInfo, err := s.client.PutObject(context.Background(), s.bucket, objectKey, reader, objectSize, opts)
 	if err != nil {
 		return "", err
 	}
 	logrus.Infoln("Successfully uploaded bytes: ", uploadInfo)
 	return s.domain + objectKey, nil
+}
+
+func (s *minioServant) PersistObject(objectKey string) error {
+	if !s.allowPersistObject {
+		return nil
+	}
+	retentionMode := minio.Governance
+	return s.client.PutObjectRetention(context.Background(), s.bucket, objectKey, minio.PutObjectRetentionOptions{
+		Mode:            &retentionMode,
+		RetainUntilDate: &s.retainUntilDate,
+	})
 }
 
 func (s *minioServant) DeleteObject(objectKey string) error {
