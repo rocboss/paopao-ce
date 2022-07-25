@@ -38,7 +38,6 @@ func persistMediaContents(contents []*PostContentItem) (items []string, err erro
 			}
 			if err = oss.PersistObject(oss.ObjectKey(item.Content)); err != nil {
 				logrus.Errorf("service.persistMediaContents failed: %s", err)
-				continue
 			}
 		}
 	}
