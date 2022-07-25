@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -17,8 +18,11 @@ var (
 )
 
 type aliossServant struct {
-	bucket *oss.Bucket
-	domain string
+	bucket             *oss.Bucket
+	domain             string
+	retainInDays       time.Duration
+	retainUntilDate    time.Time
+	allowPersistObject bool
 }
 
 func (s *aliossServant) Name() string {
@@ -26,15 +30,29 @@ func (s *aliossServant) Name() string {
 }
 
 func (s *aliossServant) Version() *semver.Version {
-	return semver.MustParse("v0.1.0")
+	return semver.MustParse("v0.2.0")
 }
 
-func (s *aliossServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string) (string, error) {
-	err := s.bucket.PutObject(objectKey, reader, oss.ContentLength(objectSize), oss.ContentType(contentType))
+func (s *aliossServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+	options := []oss.Option{
+		oss.ContentLength(objectSize),
+		oss.ContentType(contentType),
+	}
+	if s.allowPersistObject && !persistance {
+		options = append(options, oss.Expires(time.Now().Add(s.retainInDays)))
+	}
+	err := s.bucket.PutObject(objectKey, reader, options...)
 	if err != nil {
 		return "", err
 	}
 	return s.domain + objectKey, nil
+}
+
+func (s *aliossServant) PersistObject(objectKey string) error {
+	if !s.allowPersistObject {
+		return nil
+	}
+	return s.bucket.SetObjectMeta(objectKey, oss.Expires(s.retainUntilDate))
 }
 
 func (s *aliossServant) DeleteObject(objectKey string) error {

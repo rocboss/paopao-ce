@@ -17,9 +17,12 @@ var (
 )
 
 type huaweiobsServant struct {
-	client *obs.ObsClient
-	bucket string
-	domain string
+	client             *obs.ObsClient
+	bucket             string
+	domain             string
+	retainInDays       int64
+	retainUntilDays    string
+	allowPersistObject bool
 }
 
 func (s *huaweiobsServant) Name() string {
@@ -27,18 +30,31 @@ func (s *huaweiobsServant) Name() string {
 }
 
 func (s *huaweiobsServant) Version() *semver.Version {
-	return semver.MustParse("v0.1.0")
+	return semver.MustParse("v0.2.0")
 }
 
-func (s *huaweiobsServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string) (string, error) {
+func (s *huaweiobsServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
 	input := &obs.PutObjectInput{}
 	input.Bucket, input.Key, input.Body = s.bucket, objectKey, reader
 	input.ContentType, input.ContentLength = contentType, objectSize
+	if s.allowPersistObject && !persistance {
+		input.Expires = s.retainInDays
+	}
 	_, err := s.client.PutObject(input)
 	if err != nil {
 		return "", err
 	}
 	return s.domain + objectKey, nil
+}
+
+func (s *huaweiobsServant) PersistObject(objectKey string) error {
+	if !s.allowPersistObject {
+		return nil
+	}
+	_, err := s.client.SetObjectMetadata(&obs.SetObjectMetadataInput{
+		Expires: s.retainUntilDays,
+	})
+	return err
 }
 
 func (s *huaweiobsServant) DeleteObject(objectKey string) error {

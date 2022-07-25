@@ -30,10 +30,10 @@ func (s *cosServant) Name() string {
 }
 
 func (s *cosServant) Version() *semver.Version {
-	return semver.MustParse("v0.1.0")
+	return semver.MustParse("v0.2.0")
 }
 
-func (s *cosServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string) (string, error) {
+func (s *cosServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, _persistance bool) (string, error) {
 	_, err := s.client.Object.Put(context.Background(), objectKey, reader, &cos.ObjectPutOptions{
 		ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
 			ContentType: contentType,
@@ -43,6 +43,11 @@ func (s *cosServant) PutObject(objectKey string, reader io.Reader, objectSize in
 		return "", err
 	}
 	return s.domain + objectKey, nil
+}
+
+func (s *cosServant) PersistObject(objectKey string) error {
+	// empty
+	return nil
 }
 
 func (s *cosServant) DeleteObject(objectKey string) error {

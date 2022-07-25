@@ -89,7 +89,19 @@ func GetPostComments(postID int64, sort string, offset, limit int) ([]*model.Com
 	return commentsFormated, totalRows, nil
 }
 
-func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq) (*model.Comment, error) {
+func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq) (comment *model.Comment, err error) {
+	var mediaContents []string
+
+	defer func() {
+		if err != nil {
+			deleteOssObjects(mediaContents)
+		}
+	}()
+
+	if mediaContents, err = persistMediaContents(param.Contents); err != nil {
+		return
+	}
+
 	// 加载Post
 	post, err := ds.GetPostByID(param.PostID)
 
@@ -101,7 +113,7 @@ func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq)
 		return nil, errcode.MaxCommentCount
 	}
 	ip := ctx.ClientIP()
-	comment := &model.Comment{
+	comment = &model.Comment{
 		PostID: post.ID,
 		UserID: userID,
 		IP:     ip,

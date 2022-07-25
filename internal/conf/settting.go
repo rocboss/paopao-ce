@@ -134,6 +134,10 @@ type Sqlite3SettingS struct {
 	Path string
 }
 
+type ObjectStorageS struct {
+	RetainInDays int
+}
+
 type MinIOSettingS struct {
 	AccessKey string
 	SecretKey string

@@ -14,6 +14,7 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/sirupsen/logrus"
 )
 
 const MAX_CAPTCHA_TIMES = 2
@@ -267,10 +268,22 @@ func UpdateUserInfo(user *model.User) *errcode.Error {
 	return nil
 }
 
-func ChangeUserAvatar(user *model.User, avatar string) *errcode.Error {
+func ChangeUserAvatar(user *model.User, avatar string) (err *errcode.Error) {
+	defer func() {
+		if err != nil {
+			deleteOssObjects([]string{avatar})
+		}
+	}()
+
 	if err := ds.CheckAttachment(avatar); err != nil {
 		return errcode.InvalidParams
 	}
+
+	if err := oss.PersistObject(oss.ObjectKey(avatar)); err != nil {
+		logrus.Errorf("service.ChangeUserAvatar persist object failed: %s", err)
+		return errcode.ServerError
+	}
+
 	user.Avatar = avatar
 	return UpdateUserInfo(user)
 }

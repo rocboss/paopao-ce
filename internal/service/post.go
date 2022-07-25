@@ -104,23 +104,17 @@ func tagsFrom(originTags []string) []string {
 // CreatePost 创建文章
 // TODO: 推文+推文内容需要在一个事务中添加，后续优化
 func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (post *model.Post, err error) {
-	// 获取媒体内容
-	mediaContents := make([]string, 0, len(param.Contents))
-	for _, item := range param.Contents {
-		switch item.Type {
-		case model.CONTENT_TYPE_IMAGE,
-			model.CONTENT_TYPE_VIDEO,
-			model.CONTENT_TYPE_AUDIO,
-			model.CONTENT_TYPE_ATTACHMENT,
-			model.CONTENT_TYPE_CHARGE_ATTACHMENT:
-			mediaContents = append(mediaContents, item.Content)
-		}
-	}
+	var mediaContents []string
+
 	defer func() {
 		if err != nil {
 			deleteOssObjects(mediaContents)
 		}
 	}()
+
+	if mediaContents, err = persistMediaContents(param.Contents); err != nil {
+		return
+	}
 
 	ip := c.ClientIP()
 	tags := tagsFrom(param.Tags)
@@ -168,9 +162,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (post *mode
 				UserID: userID,
 				Tag:    t,
 			}
-			if _, err := ds.CreateTag(tag); err != nil {
-				return nil, err
-			}
+			ds.CreateTag(tag)
 		}
 
 		// 创建用户消息提醒
