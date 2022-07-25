@@ -10,7 +10,6 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/minio/minio-go/v7"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -43,11 +42,10 @@ func (s *minioServant) PutObject(objectKey string, reader io.Reader, objectSize 
 		opts.Mode = minio.Governance
 		opts.RetainUntilDate = time.Now().Add(s.retainInDays)
 	}
-	uploadInfo, err := s.client.PutObject(context.Background(), s.bucket, objectKey, reader, objectSize, opts)
+	_, err := s.client.PutObject(context.Background(), s.bucket, objectKey, reader, objectSize, opts)
 	if err != nil {
 		return "", err
 	}
-	logrus.Infoln("Successfully uploaded bytes: ", uploadInfo)
 	return s.domain + objectKey, nil
 }
 
