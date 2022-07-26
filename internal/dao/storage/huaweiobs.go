@@ -13,31 +13,62 @@ import (
 
 var (
 	_ core.ObjectStorageService = (*huaweiobsServant)(nil)
+	_ core.OssCreateService     = (*hwobsCreateServant)(nil)
+	_ core.OssCreateService     = (*hwobsCreateRetentionServant)(nil)
+	_ core.OssCreateService     = (*hwobsCreateTempDirServant)(nil)
 	_ core.VersionInfo          = (*huaweiobsServant)(nil)
 )
 
+type hwobsCreateServant struct {
+	client *obs.ObsClient
+	bucket string
+	domain string
+}
+
+type hwobsCreateRetentionServant struct {
+	client          *obs.ObsClient
+	bucket          string
+	domain          string
+	retainInDays    int64
+	retainUntilDays string
+}
+
+type hwobsCreateTempDirServant struct {
+	client  *obs.ObsClient
+	bucket  string
+	domain  string
+	tempDir string
+}
+
 type huaweiobsServant struct {
-	client             *obs.ObsClient
-	bucket             string
-	domain             string
-	retainInDays       int64
-	retainUntilDays    string
-	allowPersistObject bool
+	core.OssCreateService
+
+	client *obs.ObsClient
+	bucket string
+	domain string
 }
 
-func (s *huaweiobsServant) Name() string {
-	return "HuaweiOBS"
-}
-
-func (s *huaweiobsServant) Version() *semver.Version {
-	return semver.MustParse("v0.2.0")
-}
-
-func (s *huaweiobsServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+func (s *hwobsCreateServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, _persistance bool) (string, error) {
 	input := &obs.PutObjectInput{}
 	input.Bucket, input.Key, input.Body = s.bucket, objectKey, reader
 	input.ContentType, input.ContentLength = contentType, objectSize
-	if s.allowPersistObject && !persistance {
+	_, err := s.client.PutObject(input)
+	if err != nil {
+		return "", err
+	}
+	return s.domain + objectKey, nil
+}
+
+func (s *hwobsCreateServant) PersistObject(_objectKey string) error {
+	// empty
+	return nil
+}
+
+func (s *hwobsCreateRetentionServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+	input := &obs.PutObjectInput{}
+	input.Bucket, input.Key, input.Body = s.bucket, objectKey, reader
+	input.ContentType, input.ContentLength = contentType, objectSize
+	if !persistance {
 		input.Expires = s.retainInDays
 	}
 	_, err := s.client.PutObject(input)
@@ -47,12 +78,52 @@ func (s *huaweiobsServant) PutObject(objectKey string, reader io.Reader, objectS
 	return s.domain + objectKey, nil
 }
 
-func (s *huaweiobsServant) PersistObject(objectKey string) error {
-	if !s.allowPersistObject {
-		return nil
-	}
+func (s *hwobsCreateRetentionServant) PersistObject(objectKey string) error {
 	_, err := s.client.SetObjectMetadata(&obs.SetObjectMetadataInput{
 		Expires: s.retainUntilDays,
+	})
+	return err
+}
+
+func (s *hwobsCreateTempDirServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+	if !persistance {
+		objectKey = s.tempDir + objectKey
+	}
+	input := &obs.PutObjectInput{}
+	input.Bucket, input.Key, input.Body = s.bucket, objectKey, reader
+	input.ContentType, input.ContentLength = contentType, objectSize
+	_, err := s.client.PutObject(input)
+	if err != nil {
+		return "", err
+	}
+	return s.domain + objectKey, nil
+}
+
+func (s *hwobsCreateTempDirServant) PersistObject(objectKey string) error {
+	// is object exist that key equel objectKey
+	input := &obs.GetObjectMetadataInput{
+		Bucket: s.bucket,
+		Key:    objectKey,
+	}
+	_, err := s.client.GetObjectMetadata(input)
+	if err == nil {
+		// do nothing if object exist
+		return nil
+	}
+
+	tmpObjKey := s.tempDir + objectKey
+	copyInput := &obs.CopyObjectInput{
+		CopySourceBucket: s.bucket,
+		CopySourceKey:    tmpObjKey,
+	}
+	copyInput.Bucket, copyInput.Key = s.bucket, objectKey
+	if _, err = s.client.CopyObject(copyInput); err != nil {
+		return err
+	}
+
+	_, err = s.client.DeleteObject(&obs.DeleteObjectInput{
+		Bucket: s.bucket,
+		Key:    tmpObjKey,
 	})
 	return err
 }
@@ -125,4 +196,12 @@ func (s *huaweiobsServant) ObjectURL(objetKey string) string {
 
 func (s *huaweiobsServant) ObjectKey(objectUrl string) string {
 	return strings.Replace(objectUrl, s.domain, "", -1)
+}
+
+func (s *huaweiobsServant) Name() string {
+	return "HuaweiOBS"
+}
+
+func (s *huaweiobsServant) Version() *semver.Version {
+	return semver.MustParse("v0.2.0")
 }

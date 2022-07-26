@@ -14,31 +14,60 @@ import (
 
 var (
 	_ core.ObjectStorageService = (*aliossServant)(nil)
+	_ core.OssCreateService     = (*aliossCreateServant)(nil)
+	_ core.OssCreateService     = (*aliossCreateRetentionServant)(nil)
+	_ core.OssCreateService     = (*aliossCreateTempDirServant)(nil)
 	_ core.VersionInfo          = (*aliossServant)(nil)
 )
 
+type aliossCreateServant struct {
+	bucket *oss.Bucket
+	domain string
+}
+
+type aliossCreateRetentionServant struct {
+	bucket          *oss.Bucket
+	domain          string
+	retainInDays    time.Duration
+	retainUntilDate time.Time
+}
+
+type aliossCreateTempDirServant struct {
+	bucket  *oss.Bucket
+	domain  string
+	tempDir string
+}
+
 type aliossServant struct {
-	bucket             *oss.Bucket
-	domain             string
-	retainInDays       time.Duration
-	retainUntilDate    time.Time
-	allowPersistObject bool
+	core.OssCreateService
+
+	bucket *oss.Bucket
+	domain string
 }
 
-func (s *aliossServant) Name() string {
-	return "AliOSS"
-}
-
-func (s *aliossServant) Version() *semver.Version {
-	return semver.MustParse("v0.2.0")
-}
-
-func (s *aliossServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+func (s *aliossCreateServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, _persistance bool) (string, error) {
 	options := []oss.Option{
 		oss.ContentLength(objectSize),
 		oss.ContentType(contentType),
 	}
-	if s.allowPersistObject && !persistance {
+	err := s.bucket.PutObject(objectKey, reader, options...)
+	if err != nil {
+		return "", err
+	}
+	return s.domain + objectKey, nil
+}
+
+func (s *aliossCreateServant) PersistObject(_objectKey string) error {
+	// empty
+	return nil
+}
+
+func (s *aliossCreateRetentionServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+	options := []oss.Option{
+		oss.ContentLength(objectSize),
+		oss.ContentType(contentType),
+	}
+	if !persistance {
 		options = append(options, oss.Expires(time.Now().Add(s.retainInDays)))
 	}
 	err := s.bucket.PutObject(objectKey, reader, options...)
@@ -48,11 +77,37 @@ func (s *aliossServant) PutObject(objectKey string, reader io.Reader, objectSize
 	return s.domain + objectKey, nil
 }
 
-func (s *aliossServant) PersistObject(objectKey string) error {
-	if !s.allowPersistObject {
+func (s *aliossCreateRetentionServant) PersistObject(objectKey string) error {
+	return s.bucket.SetObjectMeta(objectKey, oss.Expires(s.retainUntilDate))
+}
+
+func (s *aliossCreateTempDirServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+	if !persistance {
+		objectKey = s.tempDir + objectKey
+	}
+	options := []oss.Option{
+		oss.ContentLength(objectSize),
+		oss.ContentType(contentType),
+	}
+	err := s.bucket.PutObject(objectKey, reader, options...)
+	if err != nil {
+		return "", err
+	}
+	return s.domain + objectKey, nil
+}
+
+func (s *aliossCreateTempDirServant) PersistObject(objectKey string) error {
+	exsit, err := s.bucket.IsObjectExist(objectKey)
+	if err != nil {
+		return err
+	}
+	if exsit {
 		return nil
 	}
-	return s.bucket.SetObjectMeta(objectKey, oss.Expires(s.retainUntilDate))
+	if _, err := s.bucket.CopyObject(s.tempDir+objectKey, objectKey); err != nil {
+		return err
+	}
+	return s.bucket.DeleteObject(s.tempDir + objectKey)
 }
 
 func (s *aliossServant) DeleteObject(objectKey string) error {
@@ -97,4 +152,12 @@ func (s *aliossServant) ObjectURL(objetKey string) string {
 
 func (s *aliossServant) ObjectKey(objectUrl string) string {
 	return strings.Replace(objectUrl, s.domain, "", -1)
+}
+
+func (s *aliossServant) Name() string {
+	return "AliOSS"
+}
+
+func (s *aliossServant) Version() *semver.Version {
+	return semver.MustParse("v0.2.0")
 }

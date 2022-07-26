@@ -14,31 +14,60 @@ import (
 
 var (
 	_ core.ObjectStorageService = (*minioServant)(nil)
+	_ core.OssCreateService     = (*minioCreateServant)(nil)
+	_ core.OssCreateService     = (*minioCreateRetentionServant)(nil)
+	_ core.OssCreateService     = (*minioCreateTempDirServant)(nil)
 	_ core.VersionInfo          = (*minioServant)(nil)
 )
 
+type minioCreateServant struct {
+	client *minio.Client
+	bucket string
+	domain string
+}
+
+type minioCreateRetentionServant struct {
+	client          *minio.Client
+	bucket          string
+	domain          string
+	retainInDays    time.Duration
+	retainUntilDate time.Time
+}
+
+type minioCreateTempDirServant struct {
+	client  *minio.Client
+	bucket  string
+	domain  string
+	tempDir string
+}
+
 type minioServant struct {
-	client             *minio.Client
-	bucket             string
-	domain             string
-	retainInDays       time.Duration
-	retainUntilDate    time.Time
-	allowPersistObject bool
+	core.OssCreateService
+
+	client *minio.Client
+	bucket string
+	domain string
 }
 
 type s3Servant = minioServant
 
-func (s *minioServant) Name() string {
-	return "MinIO"
-}
-
-func (s *minioServant) Version() *semver.Version {
-	return semver.MustParse("v0.2.0")
-}
-
-func (s *minioServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+func (s *minioCreateServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, _persistance bool) (string, error) {
 	opts := minio.PutObjectOptions{ContentType: contentType}
-	if s.allowPersistObject && !persistance {
+	_, err := s.client.PutObject(context.Background(), s.bucket, objectKey, reader, objectSize, opts)
+	if err != nil {
+		return "", err
+	}
+	return s.domain + objectKey, nil
+}
+
+func (s *minioCreateServant) PersistObject(_objectKey string) error {
+	// empty
+	return nil
+}
+
+func (s *minioCreateRetentionServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+	opts := minio.PutObjectOptions{ContentType: contentType}
+	if !persistance {
 		opts.Mode = minio.Governance
 		opts.RetainUntilDate = time.Now().Add(s.retainInDays)
 	}
@@ -49,15 +78,47 @@ func (s *minioServant) PutObject(objectKey string, reader io.Reader, objectSize 
 	return s.domain + objectKey, nil
 }
 
-func (s *minioServant) PersistObject(objectKey string) error {
-	if !s.allowPersistObject {
-		return nil
-	}
+func (s *minioCreateRetentionServant) PersistObject(objectKey string) error {
 	retentionMode := minio.Governance
 	return s.client.PutObjectRetention(context.Background(), s.bucket, objectKey, minio.PutObjectRetentionOptions{
 		Mode:            &retentionMode,
 		RetainUntilDate: &s.retainUntilDate,
 	})
+}
+
+func (s *minioCreateTempDirServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+	opts := minio.PutObjectOptions{ContentType: contentType}
+	if !persistance {
+		objectKey = s.tempDir + objectKey
+	}
+	_, err := s.client.PutObject(context.Background(), s.bucket, objectKey, reader, objectSize, opts)
+	if err != nil {
+		return "", err
+	}
+	return s.domain + objectKey, nil
+}
+
+func (s *minioCreateTempDirServant) PersistObject(objectKey string) error {
+	_, err := s.client.StatObject(context.Background(), s.bucket, objectKey, minio.StatObjectOptions{})
+	if err == nil {
+		// do nothing if object exist
+		return nil
+	}
+
+	tmpObjKey := s.tempDir + objectKey
+	src := minio.CopySrcOptions{
+		Bucket: s.bucket,
+		Object: tmpObjKey,
+	}
+	dst := minio.CopyDestOptions{
+		Bucket: s.bucket,
+		Object: objectKey,
+	}
+	if _, err = s.client.CopyObject(context.Background(), dst, src); err != nil {
+		return err
+	}
+
+	return s.client.RemoveObject(context.Background(), s.bucket, tmpObjKey, minio.RemoveObjectOptions{ForceDelete: true})
 }
 
 func (s *minioServant) DeleteObject(objectKey string) error {
@@ -107,4 +168,12 @@ func (s *minioServant) ObjectURL(objetKey string) string {
 
 func (s *minioServant) ObjectKey(objectUrl string) string {
 	return strings.Replace(objectUrl, s.domain, "", -1)
+}
+
+func (s *minioServant) Name() string {
+	return "MinIO"
+}
+
+func (s *minioServant) Version() *semver.Version {
+	return semver.MustParse("v0.2.0")
 }
