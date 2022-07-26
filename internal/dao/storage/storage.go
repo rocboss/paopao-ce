@@ -26,15 +26,38 @@ func MustAliossService() (core.ObjectStorageService, core.VersionInfo) {
 
 	bucket, err := client.Bucket(conf.AliOSSSetting.Bucket)
 	if err != nil {
-		logrus.Fatalf("storage.MustAliossService create bucket err: %v", err)
+		logrus.Fatalf("storage.MustAliossService create bucket err: %s", err)
+	}
+
+	domain := conf.GetOssDomain()
+	var cs core.OssCreateService
+	if conf.CfgIf("OSS:TempDir") {
+		cs = &aliossCreateTempDirServant{
+			bucket:  bucket,
+			domain:  domain,
+			tempDir: conf.ObjectStorage.TempDirSlash(),
+		}
+		logrus.Debugln("use OSS:TempDir feature")
+	} else if conf.CfgIf("OSS:Retention") {
+		cs = &aliossCreateRetentionServant{
+			bucket:          bucket,
+			domain:          domain,
+			retainInDays:    time.Duration(conf.ObjectStorage.RetainInDays) * time.Hour * 24,
+			retainUntilDate: time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC),
+		}
+		logrus.Debugln("use OSS:Retention feature")
+	} else {
+		cs = &aliossCreateServant{
+			bucket: bucket,
+			domain: domain,
+		}
+		logrus.Debugln("use OSS:Direct feature")
 	}
 
 	obj := &aliossServant{
-		bucket:             bucket,
-		domain:             conf.GetOssDomain(),
-		retainInDays:       time.Duration(conf.ObjectStorage.RetainInDays) * time.Hour * 24,
-		retainUntilDate:    time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC),
-		allowPersistObject: conf.CfgIf("PersistObject"),
+		OssCreateService: cs,
+		bucket:           bucket,
+		domain:           conf.GetOssDomain(),
 	}
 	return obj, obj
 }
@@ -50,9 +73,28 @@ func NewCosService() (core.ObjectStorageService, core.VersionInfo) {
 		},
 	})
 
+	domain := conf.GetOssDomain()
+	var cs core.OssCreateService
+	if conf.CfgIf("OSS:TempDir") {
+		cs = &cosCreateTempDirServant{
+			client:    client,
+			domain:    domain,
+			bucketUrl: fmt.Sprintf("%s.cos.%s.myqcloud.com/", conf.COSSetting.Bucket, conf.COSSetting.Region),
+			tempDir:   conf.ObjectStorage.TempDirSlash(),
+		}
+		logrus.Debugln("use OSS:TempDir feature")
+	} else {
+		cs = &cosCreateServant{
+			client: client,
+			domain: domain,
+		}
+		logrus.Debugln("use OSS:Direct feature")
+	}
+
 	obj := &cosServant{
-		client: client,
-		domain: conf.GetOssDomain(),
+		OssCreateService: cs,
+		client:           client,
+		domain:           domain,
 	}
 	return obj, obj
 }
@@ -64,14 +106,40 @@ func MustHuaweiobsService() (core.ObjectStorageService, core.VersionInfo) {
 		logrus.Fatalf("storage.MustHuaweiobsService create huawei obs client failed: %s", err)
 	}
 
-	retainUntilDays := time.Until(time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC)) / (24 * time.Hour)
+	domain := conf.GetOssDomain()
+	var cs core.OssCreateService
+	if conf.CfgIf("OSS:TempDir") {
+		cs = &hwobsCreateTempDirServant{
+			client:  client,
+			bucket:  s.Bucket,
+			domain:  domain,
+			tempDir: conf.ObjectStorage.TempDirSlash(),
+		}
+		logrus.Debugln("use OSS:TempDir feature")
+	} else if conf.CfgIf("OSS:Retention") {
+		retainUntilDays := time.Until(time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC)) / (24 * time.Hour)
+		cs = &hwobsCreateRetentionServant{
+			client:          client,
+			bucket:          s.Bucket,
+			domain:          domain,
+			retainInDays:    int64(conf.ObjectStorage.RetainInDays),
+			retainUntilDays: strconv.FormatInt(int64(retainUntilDays), 10),
+		}
+		logrus.Debugln("use OSS:Retention feature")
+	} else {
+		cs = &hwobsCreateServant{
+			client: client,
+			bucket: s.Bucket,
+			domain: domain,
+		}
+		logrus.Debugln("use OSS:Direct feature")
+	}
+
 	obj := &huaweiobsServant{
-		client:             client,
-		bucket:             s.Bucket,
-		domain:             conf.GetOssDomain(),
-		retainInDays:       int64(conf.ObjectStorage.RetainInDays),
-		retainUntilDays:    strconv.FormatInt(int64(retainUntilDays), 10),
-		allowPersistObject: conf.CfgIf("PersistObject"),
+		OssCreateService: cs,
+		client:           client,
+		bucket:           s.Bucket,
+		domain:           domain,
 	}
 	return obj, obj
 }
@@ -79,12 +147,31 @@ func MustHuaweiobsService() (core.ObjectStorageService, core.VersionInfo) {
 func MustLocalossService() (core.ObjectStorageService, core.VersionInfo) {
 	savePath, err := filepath.Abs(conf.LocalOSSSetting.SavePath)
 	if err != nil {
-		logrus.Fatalf("storage.MustLocalossService get localOSS save path err: %v", err)
+		logrus.Fatalf("storage.MustLocalossService get localOSS save path err: %s", err)
+	}
+
+	domain := conf.GetOssDomain()
+	savePath = savePath + "/" + conf.LocalOSSSetting.Bucket + "/"
+	var cs core.OssCreateService
+	if conf.CfgIf("OSS:TempDir") {
+		cs = &localossCreateTempDirServant{
+			savePath: savePath,
+			domain:   domain,
+			tempDir:  conf.ObjectStorage.TempDirSlash(),
+		}
+		logrus.Debugln("use OSS:TempDir feature")
+	} else {
+		cs = &localossCreateServant{
+			savePath: savePath,
+			domain:   domain,
+		}
+		logrus.Debugln("use OSS:Direct feature")
 	}
 
 	obj := &localossServant{
-		savePath: savePath + "/" + conf.LocalOSSSetting.Bucket + "/",
-		domain:   conf.GetOssDomain(),
+		OssCreateService: cs,
+		savePath:         savePath,
+		domain:           domain,
 	}
 	return obj, obj
 }
@@ -99,16 +186,41 @@ func MustMinioService() (core.ObjectStorageService, core.VersionInfo) {
 		logrus.Fatalf("storage.MustMinioService create client failed: %s", err)
 	}
 
-	ms := &minioServant{
-		client:             client,
-		bucket:             conf.MinIOSetting.Bucket,
-		domain:             conf.GetOssDomain(),
-		retainInDays:       time.Duration(conf.ObjectStorage.RetainInDays) * time.Hour * 24,
-		retainUntilDate:    time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC),
-		allowPersistObject: conf.CfgIf("PersistObject"),
+	domain := conf.GetOssDomain()
+	var cs core.OssCreateService
+	if conf.CfgIf("OSS:TempDir") {
+		cs = &minioCreateTempDirServant{
+			client:  client,
+			bucket:  conf.MinIOSetting.Bucket,
+			domain:  domain,
+			tempDir: conf.ObjectStorage.TempDirSlash(),
+		}
+		logrus.Debugln("use OSS:TempDir feature")
+	} else if conf.CfgIf("OSS:Retention") {
+		cs = &minioCreateRetentionServant{
+			client:          client,
+			bucket:          conf.MinIOSetting.Bucket,
+			domain:          domain,
+			retainInDays:    time.Duration(conf.ObjectStorage.RetainInDays) * time.Hour * 24,
+			retainUntilDate: time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC),
+		}
+		logrus.Debugln("use OSS:Retention feature")
+	} else {
+		cs = &minioCreateServant{
+			client: client,
+			bucket: conf.MinIOSetting.Bucket,
+			domain: domain,
+		}
+		logrus.Debugln("use OSS:Direct feature")
 	}
 
-	return ms, ms
+	obj := &minioServant{
+		OssCreateService: cs,
+		client:           client,
+		bucket:           conf.MinIOSetting.Bucket,
+		domain:           domain,
+	}
+	return obj, obj
 }
 
 func MustS3Service() (core.ObjectStorageService, core.VersionInfo) {
@@ -121,14 +233,39 @@ func MustS3Service() (core.ObjectStorageService, core.VersionInfo) {
 		logrus.Fatalf("storage.MustS3Service create client failed: %s", err)
 	}
 
-	s3 := &s3Servant{
-		client:             client,
-		bucket:             conf.MinIOSetting.Bucket,
-		domain:             conf.GetOssDomain(),
-		retainInDays:       time.Duration(conf.ObjectStorage.RetainInDays) * time.Hour * 24,
-		retainUntilDate:    time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC),
-		allowPersistObject: conf.CfgIf("PersistObject"),
+	domain := conf.GetOssDomain()
+	var cs core.OssCreateService
+	if conf.CfgIf("OSS:TempDir") {
+		cs = &minioCreateTempDirServant{
+			client:  client,
+			bucket:  conf.MinIOSetting.Bucket,
+			domain:  domain,
+			tempDir: conf.ObjectStorage.TempDirSlash(),
+		}
+		logrus.Debugln("use OSS:TempDir feature")
+	} else if conf.CfgIf("OSS:Retention") {
+		cs = &minioCreateRetentionServant{
+			client:          client,
+			bucket:          conf.MinIOSetting.Bucket,
+			domain:          domain,
+			retainInDays:    time.Duration(conf.ObjectStorage.RetainInDays) * time.Hour * 24,
+			retainUntilDate: time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC),
+		}
+		logrus.Debugln("use OSS:Retention feature")
+	} else {
+		cs = &minioCreateServant{
+			client: client,
+			bucket: conf.MinIOSetting.Bucket,
+			domain: domain,
+		}
+		logrus.Debugln("use OSS:Direct feature")
 	}
 
-	return s3, s3
+	obj := &s3Servant{
+		OssCreateService: cs,
+		client:           client,
+		bucket:           conf.MinIOSetting.Bucket,
+		domain:           domain,
+	}
+	return obj, obj
 }

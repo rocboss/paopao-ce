@@ -136,6 +136,7 @@ type Sqlite3SettingS struct {
 
 type ObjectStorageS struct {
 	RetainInDays int
+	TempDir      string
 }
 
 type MinIOSettingS struct {
@@ -405,6 +406,10 @@ func (s *LoggerMeiliSettingS) maxLogBuffer() int {
 		return 1000
 	}
 	return s.MaxLogBuffer
+}
+
+func (s *ObjectStorageS) TempDirSlash() string {
+	return strings.Trim(s.TempDir, " /") + "/"
 }
 
 func (s *ZincSettingS) Endpoint() string {

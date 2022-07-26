@@ -17,26 +17,35 @@ import (
 
 var (
 	_ core.ObjectStorageService = (*cosServant)(nil)
+	_ core.OssCreateService     = (*cosCreateServant)(nil)
+	_ core.OssCreateService     = (*cosCreateTempDirServant)(nil)
 	_ core.VersionInfo          = (*cosServant)(nil)
 )
 
-type cosServant struct {
+type cosCreateServant struct {
 	client *cos.Client
 	domain string
 }
 
-func (s *cosServant) Name() string {
-	return "COS"
+type cosCreateTempDirServant struct {
+	client    *cos.Client
+	domain    string
+	bucketUrl string
+	tempDir   string
 }
 
-func (s *cosServant) Version() *semver.Version {
-	return semver.MustParse("v0.2.0")
+type cosServant struct {
+	core.OssCreateService
+
+	client *cos.Client
+	domain string
 }
 
-func (s *cosServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, _persistance bool) (string, error) {
+func (s *cosCreateServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, _persistance bool) (string, error) {
 	_, err := s.client.Object.Put(context.Background(), objectKey, reader, &cos.ObjectPutOptions{
 		ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
-			ContentType: contentType,
+			ContentType:   contentType,
+			ContentLength: objectSize,
 		},
 	})
 	if err != nil {
@@ -45,9 +54,41 @@ func (s *cosServant) PutObject(objectKey string, reader io.Reader, objectSize in
 	return s.domain + objectKey, nil
 }
 
-func (s *cosServant) PersistObject(objectKey string) error {
+func (s *cosCreateServant) PersistObject(_objectKey string) error {
 	// empty
 	return nil
+}
+
+func (s *cosCreateTempDirServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+	if !persistance {
+		objectKey = s.tempDir + objectKey
+	}
+	_, err := s.client.Object.Put(context.Background(), objectKey, reader, &cos.ObjectPutOptions{
+		ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
+			ContentType:   contentType,
+			ContentLength: objectSize,
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+	return s.domain + objectKey, nil
+}
+
+func (s *cosCreateTempDirServant) PersistObject(objectKey string) error {
+	exsit, err := s.client.Object.IsExist(context.Background(), objectKey)
+	if err != nil {
+		return err
+	}
+	if exsit {
+		return nil
+	}
+	_, _, err = s.client.Object.Copy(context.Background(), objectKey, s.bucketUrl+s.tempDir+objectKey, nil)
+	if err != nil {
+		return err
+	}
+	_, err = s.client.Object.Delete(context.Background(), s.tempDir+objectKey, nil)
+	return err
 }
 
 func (s *cosServant) DeleteObject(objectKey string) error {
@@ -95,4 +136,12 @@ func (s *cosServant) ObjectURL(objetKey string) string {
 
 func (s *cosServant) ObjectKey(objectUrl string) string {
 	return strings.Replace(objectUrl, s.domain, "", -1)
+}
+
+func (s *cosServant) Name() string {
+	return "COS"
+}
+
+func (s *cosServant) Version() *semver.Version {
+	return semver.MustParse("v0.2.0")
 }
