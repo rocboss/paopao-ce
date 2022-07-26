@@ -118,17 +118,24 @@ func (s *localossCreateTempDirServant) PersistObject(objectKey string) error {
 	if err != nil {
 		return err
 	}
+	needCloseReader := true
+	defer func() {
+		if needCloseReader {
+			reader.Close()
+		}
+	}()
+
 	writer, err := os.Create(s.savePath + objectKey)
 	if err != nil {
 		return err
 	}
 	defer writer.Close()
 	if _, err = io.Copy(writer, reader); err != nil {
-		reader.Close()
 		return err
 	}
-	reader.Close()
 
+	reader.Close()
+	needCloseReader = false
 	if err = os.Remove(tmpObjPath); err != nil {
 		return err
 	}
