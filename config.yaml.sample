@@ -75,6 +75,7 @@ Meili: # Meili搜索配置
   Secure: False
 ObjectStorage: # 对象存储通用配置
   RetainInDays: 2   # 临时对象过期时间多少天
+  TempDir: tmp      # 临时对象存放目录名
 AliOSS: # 阿里云OSS存储配置
   Endpoint: 
   AccessKeyID: 
