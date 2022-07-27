@@ -82,14 +82,15 @@ func (s *aliossCreateRetentionServant) PersistObject(objectKey string) error {
 }
 
 func (s *aliossCreateTempDirServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+	objectName := objectKey
 	if !persistance {
-		objectKey = s.tempDir + objectKey
+		objectName = s.tempDir + objectKey
 	}
 	options := []oss.Option{
 		oss.ContentLength(objectSize),
 		oss.ContentType(contentType),
 	}
-	err := s.bucket.PutObject(objectKey, reader, options...)
+	err := s.bucket.PutObject(objectName, reader, options...)
 	if err != nil {
 		return "", err
 	}
@@ -102,6 +103,7 @@ func (s *aliossCreateTempDirServant) PersistObject(objectKey string) error {
 		return err
 	}
 	if exsit {
+		logrus.Debugf("object exist so do nothing objectKey: %s", objectKey)
 		return nil
 	}
 	if _, err := s.bucket.CopyObject(s.tempDir+objectKey, objectKey); err != nil {
