@@ -86,11 +86,12 @@ func (s *hwobsCreateRetentionServant) PersistObject(objectKey string) error {
 }
 
 func (s *hwobsCreateTempDirServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+	objectName := objectKey
 	if !persistance {
-		objectKey = s.tempDir + objectKey
+		objectName = s.tempDir + objectKey
 	}
 	input := &obs.PutObjectInput{}
-	input.Bucket, input.Key, input.Body = s.bucket, objectKey, reader
+	input.Bucket, input.Key, input.Body = s.bucket, objectName, reader
 	input.ContentType, input.ContentLength = contentType, objectSize
 	_, err := s.client.PutObject(input)
 	if err != nil {
@@ -107,7 +108,7 @@ func (s *hwobsCreateTempDirServant) PersistObject(objectKey string) error {
 	}
 	_, err := s.client.GetObjectMetadata(input)
 	if err == nil {
-		// do nothing if object exist
+		logrus.Debugf("object exist so do nothing objectKey: %s", objectKey)
 		return nil
 	}
 

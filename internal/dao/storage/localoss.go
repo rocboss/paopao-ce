@@ -11,6 +11,7 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -70,16 +71,17 @@ func (s *localossCreateServant) PersistObject(_objectKey string) error {
 }
 
 func (s *localossCreateTempDirServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+	objectName := objectKey
 	if !persistance {
-		objectKey = s.tempDir + objectKey
+		objectName = s.tempDir + objectKey
 	}
-	saveDir := s.savePath + filepath.Dir(objectKey)
+	saveDir := s.savePath + filepath.Dir(objectName)
 	err := os.MkdirAll(saveDir, 0750)
 	if err != nil && !os.IsExist(err) {
 		return "", err
 	}
 
-	savePath := s.savePath + objectKey
+	savePath := s.savePath + objectName
 	writer, err := os.Create(savePath)
 	if err != nil {
 		return "", err
@@ -104,7 +106,7 @@ func (s *localossCreateTempDirServant) PersistObject(objectKey string) error {
 		return err
 	}
 	if !fi.IsDir() {
-		// do nothing if object is exsit
+		logrus.Debugf("object exist so do nothing objectKey: %s", objectKey)
 		return nil
 	}
 

@@ -60,10 +60,11 @@ func (s *cosCreateServant) PersistObject(_objectKey string) error {
 }
 
 func (s *cosCreateTempDirServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, persistance bool) (string, error) {
+	objectName := objectKey
 	if !persistance {
-		objectKey = s.tempDir + objectKey
+		objectName = s.tempDir + objectKey
 	}
-	_, err := s.client.Object.Put(context.Background(), objectKey, reader, &cos.ObjectPutOptions{
+	_, err := s.client.Object.Put(context.Background(), objectName, reader, &cos.ObjectPutOptions{
 		ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
 			ContentType:   contentType,
 			ContentLength: objectSize,
@@ -81,6 +82,7 @@ func (s *cosCreateTempDirServant) PersistObject(objectKey string) error {
 		return err
 	}
 	if exsit {
+		logrus.Debugf("object exist so do nothing objectKey: %s", objectKey)
 		return nil
 	}
 	_, _, err = s.client.Object.Copy(context.Background(), objectKey, s.bucketUrl+s.tempDir+objectKey, nil)
