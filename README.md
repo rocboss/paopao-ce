@@ -20,9 +20,9 @@
     <br />
     <a href="https://www.paopao.info/">View Demo</a>
     ·
-    <a href="https://github.com/rocboss/paopao-ce/issues">Report Bug</a>
+    <a href="https://github.com/rocboss/paopao-ce/pulls">Pull Request</a>
     ·
-    <a href="https://www.rocs.me/archives/paopao.html">Features</a>
+    <a href="https://www.yuque.com/rocs/paopao/about">Features</a>
   </p>
 </div>
 
