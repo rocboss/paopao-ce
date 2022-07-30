@@ -84,24 +84,36 @@ const loadPosts = () => {
 };
 
 const onPostSuccess = (post: Item.PostProps) => {
-   let items = [];
-   let length = list.value.length;
-   if (length == pageSize.value) {
+    // 如果不在第一页，需要跳转到详情页面
+    if (page.value != 1) {
+        router.push({
+            name: 'post',
+            query: {
+                id: post.id,
+            },
+        });
+        return;
+    }
+    
+    // 如果实在第一页，就地插入新推文到文章列表中
+    let items = [];
+    let length = list.value.length;
+    if (length == pageSize.value) {
         length--;
-   }
-   var i = 0;
-   for (;i < length; i++) {
+    }
+    var i = 0;
+    for (;i < length; i++) {
         let item: Item.PostProps = list.value[i];
         if (!item.is_top) {
             break;
         }
         items.push(item);  
-   }
-   items.push(post);
-   for (;i < length; i++) {
+    }
+    items.push(post);
+    for (;i < length; i++) {
         items.push(list.value[i]);
-   }
-   list.value = items;
+    }
+    list.value = items;
 };
 
 const updatePage = (p: number) => {
