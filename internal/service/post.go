@@ -103,11 +103,8 @@ func tagsFrom(originTags []string) []string {
 
 // CreatePost 创建文章
 // TODO: 推文+推文内容需要在一个事务中添加，后续优化
-func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.PostFormated, error) {
-	var (
-		err           error
-		mediaContents []string
-	)
+func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (_ *model.PostFormated, err error) {
+	var mediaContents []string
 
 	defer func() {
 		if err != nil {
@@ -116,7 +113,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 	}()
 
 	if mediaContents, err = persistMediaContents(param.Contents); err != nil {
-		return nil, err
+		return
 	}
 
 	ip := c.ClientIP()
@@ -135,7 +132,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.Pos
 	}
 
 	for _, item := range param.Contents {
-		if err = item.Check(); err != nil {
+		if err := item.Check(); err != nil {
 			// 属性非法
 			logrus.Infof("contents check err: %v", err)
 			continue
