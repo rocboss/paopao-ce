@@ -84,12 +84,9 @@ const loadPosts = () => {
 };
 
 const onPostSuccess = (post: Item.PostProps) => {
-    router.push({
-        name: 'post',
-        query: {
-            id: post.id,
-        },
-    });
+    setTimeout(() => {
+        loadPosts();
+    }, 50);
 };
 
 const updatePage = (p: number) => {
