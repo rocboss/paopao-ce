@@ -103,8 +103,11 @@ func tagsFrom(originTags []string) []string {
 
 // CreatePost 创建文章
 // TODO: 推文+推文内容需要在一个事务中添加，后续优化
-func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (post *model.Post, err error) {
-	var mediaContents []string
+func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (*model.PostFormated, error) {
+	var (
+		err           error
+		mediaContents []string
+	)
 
 	defer func() {
 		if err != nil {
@@ -113,12 +116,12 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (post *mode
 	}()
 
 	if mediaContents, err = persistMediaContents(param.Contents); err != nil {
-		return
+		return nil, err
 	}
 
 	ip := c.ClientIP()
 	tags := tagsFrom(param.Tags)
-	post = &model.Post{
+	post := &model.Post{
 		UserID:          userID,
 		Tags:            strings.Join(tags, ","),
 		IP:              ip,
@@ -187,7 +190,11 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (post *mode
 	// 推送Search
 	PushPostToSearch(post)
 
-	return post, nil
+	formatedPosts, err := ds.RevampPosts([]*model.PostFormated{post.Format()})
+	if err != nil {
+		return nil, err
+	}
+	return formatedPosts[0], nil
 }
 
 func DeletePost(user *model.User, id int64) *errcode.Error {
