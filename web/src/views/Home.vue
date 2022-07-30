@@ -87,9 +87,9 @@ const onPostSuccess = (post: Item.PostProps) => {
    let items = [];
    let length = list.value.length;
    if (length == pageSize.value) {
-        length--
+        length--;
    }
-   var i = 0
+   var i = 0;
    for (;i < length; i++) {
         let item: Item.PostProps = list.value[i];
         if (!item.is_top) {
