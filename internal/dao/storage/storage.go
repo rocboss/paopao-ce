@@ -238,7 +238,7 @@ func MustS3Service() (core.ObjectStorageService, core.VersionInfo) {
 	if conf.CfgIf("OSS:TempDir") {
 		cs = &minioCreateTempDirServant{
 			client:  client,
-			bucket:  conf.MinIOSetting.Bucket,
+			bucket:  conf.S3Setting.Bucket,
 			domain:  domain,
 			tempDir: conf.ObjectStorage.TempDirSlash(),
 		}
@@ -246,7 +246,7 @@ func MustS3Service() (core.ObjectStorageService, core.VersionInfo) {
 	} else if conf.CfgIf("OSS:Retention") {
 		cs = &minioCreateRetentionServant{
 			client:          client,
-			bucket:          conf.MinIOSetting.Bucket,
+			bucket:          conf.S3Setting.Bucket,
 			domain:          domain,
 			retainInDays:    time.Duration(conf.ObjectStorage.RetainInDays) * time.Hour * 24,
 			retainUntilDate: time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC),
@@ -255,7 +255,7 @@ func MustS3Service() (core.ObjectStorageService, core.VersionInfo) {
 	} else {
 		cs = &minioCreateServant{
 			client: client,
-			bucket: conf.MinIOSetting.Bucket,
+			bucket: conf.S3Setting.Bucket,
 			domain: domain,
 		}
 		logrus.Debugln("use OSS:Direct feature")
@@ -264,7 +264,7 @@ func MustS3Service() (core.ObjectStorageService, core.VersionInfo) {
 	obj := &s3Servant{
 		OssCreateService: cs,
 		client:           client,
-		bucket:           conf.MinIOSetting.Bucket,
+		bucket:           conf.S3Setting.Bucket,
 		domain:           domain,
 	}
 	return obj, obj
