@@ -23,8 +23,11 @@
                     size="small"
                     class="theme-switch-wrap"
                 >
-                    <template #icon>
-                        <dark-mode-outlined />
+                    <template #checked-icon>
+                        <n-icon :component="LightModeOutlined" />
+                    </template>
+                    <template #unchecked-icon>
+                        <n-icon :component="DarkModeOutlined" />
                     </template>
                 </n-switch>
             </div>
