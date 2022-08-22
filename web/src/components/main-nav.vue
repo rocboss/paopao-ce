@@ -40,7 +40,7 @@ import { onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useOsTheme } from 'naive-ui';
-import { DarkModeOutlined, ChevronLeftRound } from '@vicons/material';
+import { LightModeOutlined, DarkModeOutlined, ChevronLeftRound } from '@vicons/material';
 
 const store = useStore();
 const router = useRouter();
