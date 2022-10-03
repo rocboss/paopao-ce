@@ -340,7 +340,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 mkdir -p data/zinc/data
 
 # 使用Docker运行zinc
-docker run -d --name zinc --user root -v ${PWD}/data/zinc/data:/data -p 4080:4080 -e ZINC_FIRST_ADMIN_USER=admin -e ZINC_FIRST_ADMIN_PASSWORD=admin -e DATA_PATH=/data public.ecr.aws/h9e2j3o7/zinc:latest
+docker run -d --name zinc --user root -v ${PWD}/data/zinc/data:/data -p 4080:4080 -e ZINC_FIRST_ADMIN_USER=admin -e ZINC_FIRST_ADMIN_PASSWORD=admin -e DATA_PATH=/data public.ecr.aws/zinclabs/zinc:latest
 
 # 查看zinc运行状态
 docker ps
