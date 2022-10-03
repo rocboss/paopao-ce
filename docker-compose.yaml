@@ -41,7 +41,7 @@ services:
       - paopao-network
   
   zinc:
-    image: public.ecr.aws/prabhat/zinc:latest
+    image: public.ecr.aws/zinclabs/zinc:latest
     user: root
     restart: always
     ports:
