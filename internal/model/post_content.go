@@ -72,7 +72,7 @@ func (p *PostContent) Format() *PostContentFormated {
 	}
 	return &PostContentFormated{
 		ID:      p.ID,
-		PostID:  p.ID,
+		PostID:  p.PostID,
 		Content: p.Content,
 		Type:    p.Type,
 		Sort:    p.Sort,
