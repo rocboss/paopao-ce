@@ -4,5 +4,6 @@
 config.yaml
 *.log
 paopao-ce*
-release
-data
+/release
+/data
+/custom

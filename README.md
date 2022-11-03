@@ -248,7 +248,7 @@ make run TAGS='docs'
 
 ### 配置说明
 
-`config.yaml.sample` 是一份完整的配置文件模版，paopao-ce启动时会读取`./configs/config.yaml`、`./config.yaml`任意一份配置文件（优先读取最先找到的文件）。
+`config.yaml.sample` 是一份完整的配置文件模版，paopao-ce启动时会读取`./custom/config.yaml`、`./config.yaml`任意一份配置文件（优先读取最先找到的文件）。
 
 ```sh
 cp config.yaml.sample config.yaml

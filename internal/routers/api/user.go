@@ -6,7 +6,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/app"
@@ -413,36 +412,6 @@ func GetUserRechargeLink(c *gin.Context) {
 		logrus.Errorf("service.CreateRecharge err: %v\n", err)
 		response.ToErrorResponse(errcode.RechargeReqFail)
 		return
-
-	}
-
-	client, err := alipay.New(conf.AlipaySetting.AppID, conf.AlipaySetting.PrivateKey, true)
-	// 将 key 的验证调整到初始化阶段
-	if err != nil {
-		logrus.Errorf("alipay.New err: %v\n", err)
-		response.ToErrorResponse(errcode.RechargeReqFail)
-		return
-	}
-
-	err = client.LoadAppPublicCertFromFile("configs/alipayAppCertPublicKey.crt") // 加载应用公钥证书
-	if err != nil {
-		logrus.Errorf("client.LoadAppPublicCertFromFile err: %v\n", err)
-		response.ToErrorResponse(errcode.RechargeReqFail)
-		return
-	}
-
-	err = client.LoadAliPayRootCertFromFile("configs/alipayRootCert.crt") // 加载支付宝根证书
-	if err != nil {
-		logrus.Errorf("client.LoadAliPayRootCertFromFile err: %v\n", err)
-		response.ToErrorResponse(errcode.RechargeReqFail)
-		return
-	}
-
-	err = client.LoadAliPayPublicCertFromFile("configs/alipayCertPublicKey_RSA2.crt") // 加载支付宝公钥证书
-	if err != nil {
-		logrus.Errorf("client.LoadAliPayPublicCertFromFile err: %v\n", err)
-		response.ToErrorResponse(errcode.RechargeReqFail)
-		return
 	}
 
 	p := alipay.TradePreCreate{}
@@ -451,7 +420,7 @@ func GetUserRechargeLink(c *gin.Context) {
 	p.TotalAmount = fmt.Sprintf("%.2f", float64(recharge.Amount)/100.0)
 	p.NotifyURL = "https://" + c.Request.Host + "/v1/alipay/notify"
 
-	rsp, err := client.TradePreCreate(p)
+	rsp, err := alipayClient.TradePreCreate(p)
 	if err != nil {
 		logrus.Errorf("client.TradePreCreate err: %v\n", err)
 		response.ToErrorResponse(errcode.RechargeReqFail)
@@ -495,37 +464,9 @@ func AlipayNotify(c *gin.Context) {
 	response := app.NewResponse(c)
 	c.Request.ParseForm()
 
-	aliClient, err := alipay.New(conf.AlipaySetting.AppID, conf.AlipaySetting.PrivateKey, true)
-	// 将 key 的验证调整到初始化阶段
+	_, err := alipayClient.GetTradeNotification(c.Request)
 	if err != nil {
-		logrus.Errorf("alipay.New err: %v\n", err)
-		response.ToErrorResponse(errcode.RechargeReqFail)
-		return
-	}
-	err = aliClient.LoadAppPublicCertFromFile("configs/alipayAppCertPublicKey.crt") // 加载应用公钥证书
-	if err != nil {
-		logrus.Errorf("client.LoadAppPublicCertFromFile err: %v\n", err)
-		response.ToErrorResponse(errcode.RechargeReqFail)
-		return
-	}
-
-	err = aliClient.LoadAliPayRootCertFromFile("configs/alipayRootCert.crt") // 加载支付宝根证书
-	if err != nil {
-		logrus.Errorf("client.LoadAliPayRootCertFromFile err: %v\n", err)
-		response.ToErrorResponse(errcode.RechargeReqFail)
-		return
-	}
-
-	err = aliClient.LoadAliPayPublicCertFromFile("configs/alipayCertPublicKey_RSA2.crt") // 加载支付宝公钥证书
-	if err != nil {
-		logrus.Errorf("client.LoadAliPayPublicCertFromFile err: %v\n", err)
-		response.ToErrorResponse(errcode.RechargeReqFail)
-		return
-	}
-
-	_, err = aliClient.GetTradeNotification(c.Request)
-	if err != nil {
-		logrus.Errorf("aliClient.GetTradeNotification err: %v\n", err)
+		logrus.Errorf("alipayClient.GetTradeNotification err: %v\n", err)
 		logrus.Infoln(c.Request.Form)
 		response.ToErrorResponse(errcode.RechargeNotifyError)
 		return

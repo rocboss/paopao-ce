@@ -75,8 +75,12 @@ type BigCacheIndexSettingS struct {
 }
 
 type AlipaySettingS struct {
-	AppID      string
-	PrivateKey string
+	AppID             string
+	PrivateKey        string
+	RootCertFile      string
+	PublicCertFile    string
+	AppPublicCertFile string
+	InProduction      bool
 }
 
 type SmsJuheSettings struct {
@@ -204,7 +208,7 @@ func NewSetting() (*Setting, error) {
 	vp := viper.New()
 	vp.SetConfigName("config")
 	vp.AddConfigPath(".")
-	vp.AddConfigPath("configs/")
+	vp.AddConfigPath("custom/")
 	vp.SetConfigType("yaml")
 	err := vp.ReadInConfig()
 	if err != nil {
