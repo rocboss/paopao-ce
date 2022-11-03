@@ -3,7 +3,7 @@ package app
 import (
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 )
@@ -11,7 +11,7 @@ import (
 type Claims struct {
 	UID      int64  `json:"uid"`
 	Username string `json:"username"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 func GetJWTSecret() []byte {
@@ -19,13 +19,12 @@ func GetJWTSecret() []byte {
 }
 
 func GenerateToken(User *model.User) (string, error) {
-	nowTime := time.Now()
-	expireTime := nowTime.Add(conf.JWTSetting.Expire)
+	expireTime := time.Now().Add(conf.JWTSetting.Expire)
 	claims := Claims{
 		UID:      User.ID,
 		Username: User.Username,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expireTime.Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expireTime),
 			Issuer:    conf.JWTSetting.Issuer + ":" + User.Salt,
 		},
 	}
@@ -36,7 +35,7 @@ func GenerateToken(User *model.User) (string, error) {
 }
 
 func ParseToken(token string) (*Claims, error) {
-	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (any, error) {
 		return GetJWTSecret(), nil
 	})
 	if err != nil {

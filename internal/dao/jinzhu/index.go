@@ -4,7 +4,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/internal/model/rest"
-	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -43,14 +42,14 @@ func newSimpleIndexPostsService(db *gorm.DB) core.IndexPostsService {
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
 func (s *indexPostsServant) IndexPosts(user *model.User, offset int, limit int) (*rest.IndexTweetsResp, error) {
 	predicates := model.Predicates{
-		"ORDER": types.AnySlice{"is_top DESC, latest_replied_on DESC"},
+		"ORDER": []any{"is_top DESC, latest_replied_on DESC"},
 	}
 	if user == nil {
-		predicates["visibility = ?"] = []types.Any{model.PostVisitPublic}
+		predicates["visibility = ?"] = []any{model.PostVisitPublic}
 	} else if !user.IsAdmin {
 		friendIds, _ := s.ams.BeFriendIds(user.ID)
 		friendIds = append(friendIds, user.ID)
-		args := types.AnySlice{model.PostVisitPublic, model.PostVisitPrivate, user.ID, model.PostVisitFriend, friendIds}
+		args := []any{model.PostVisitPublic, model.PostVisitPrivate, user.ID, model.PostVisitFriend, friendIds}
 		predicates["visibility = ? OR (visibility = ? AND user_id = ?) OR (visibility = ? AND user_id IN ?)"] = args
 	}
 
@@ -78,8 +77,8 @@ func (s *indexPostsServant) IndexPosts(user *model.User, offset int, limit int) 
 // simpleCacheIndexGetPosts simpleCacheIndex 专属获取广场推文列表函数
 func (s *simpleIndexPostsServant) IndexPosts(_user *model.User, offset int, limit int) (*rest.IndexTweetsResp, error) {
 	predicates := model.Predicates{
-		"visibility = ?": []types.Any{model.PostVisitPublic},
-		"ORDER":          []types.Any{"is_top DESC, latest_replied_on DESC"},
+		"visibility = ?": []any{model.PostVisitPublic},
+		"ORDER":          []any{"is_top DESC, latest_replied_on DESC"},
 	}
 
 	posts, err := (&model.Post{}).Fetch(s.db, predicates, offset, limit)

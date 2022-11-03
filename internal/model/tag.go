@@ -61,7 +61,7 @@ func (t *Tag) Update(db *gorm.DB) error {
 }
 
 func (t *Tag) Delete(db *gorm.DB) error {
-	return db.Model(t).Where("id = ?", t.Model.ID).Updates(map[string]interface{}{
+	return db.Model(t).Where("id = ?", t.Model.ID).Updates(map[string]any{
 		"deleted_on": time.Now().Unix(),
 		"is_del":     1,
 	}).Error

@@ -43,7 +43,7 @@ func (p *PostCollection) Create(db *gorm.DB) (*PostCollection, error) {
 }
 
 func (p *PostCollection) Delete(db *gorm.DB) error {
-	return db.Model(&PostCollection{}).Omit("Post").Where("id = ? AND is_del = ?", p.Model.ID, 0).Updates(map[string]interface{}{
+	return db.Model(&PostCollection{}).Omit("Post").Where("id = ? AND is_del = ?", p.Model.ID, 0).Updates(map[string]any{
 		"deleted_on": time.Now().Unix(),
 		"is_del":     1,
 	}).Error

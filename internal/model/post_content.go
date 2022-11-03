@@ -49,7 +49,7 @@ type PostContentFormated struct {
 }
 
 func (p *PostContent) DeleteByPostId(db *gorm.DB, postId int64) error {
-	return db.Model(p).Where("post_id = ?", postId).Updates(map[string]interface{}{
+	return db.Model(p).Where("post_id = ?", postId).Updates(map[string]any{
 		"deleted_on": time.Now().Unix(),
 		"is_del":     1,
 	}).Error

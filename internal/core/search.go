@@ -22,7 +22,7 @@ type QueryResp struct {
 	Total int64
 }
 
-type DocItems []map[string]interface{}
+type DocItems []map[string]any
 
 // TweetSearchService tweet search service interface
 type TweetSearchService interface {

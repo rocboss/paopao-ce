@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func GetParamSign(param map[string]interface{}, secretKey string) string {
+func GetParamSign(param map[string]any, secretKey string) string {
 	signRaw := ""
 
 	rawStrs := []string{}

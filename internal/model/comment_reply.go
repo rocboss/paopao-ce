@@ -96,14 +96,14 @@ func (c *CommentReply) Get(db *gorm.DB) (*CommentReply, error) {
 }
 
 func (c *CommentReply) Delete(db *gorm.DB) error {
-	return db.Model(&CommentReply{}).Where("id = ? AND is_del = ?", c.Model.ID, 0).Updates(map[string]interface{}{
+	return db.Model(&CommentReply{}).Where("id = ? AND is_del = ?", c.Model.ID, 0).Updates(map[string]any{
 		"deleted_on": time.Now().Unix(),
 		"is_del":     1,
 	}).Error
 }
 
 func (c *CommentReply) DeleteByCommentIds(db *gorm.DB, commentIds []int64) error {
-	return db.Model(c).Where("comment_id IN ?", commentIds).Updates(map[string]interface{}{
+	return db.Model(c).Where("comment_id IN ?", commentIds).Updates(map[string]any{
 		"deleted_on": time.Now().Unix(),
 		"is_del":     1,
 	}).Error
