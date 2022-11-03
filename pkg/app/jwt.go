@@ -3,7 +3,7 @@ package app
 import (
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 )
@@ -19,8 +19,7 @@ func GetJWTSecret() []byte {
 }
 
 func GenerateToken(User *model.User) (string, error) {
-	nowTime := time.Now()
-	expireTime := nowTime.Add(conf.JWTSetting.Expire)
+	expireTime := time.Now().Add(conf.JWTSetting.Expire)
 	claims := Claims{
 		UID:      User.ID,
 		Username: User.Username,
