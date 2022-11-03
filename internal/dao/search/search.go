@@ -72,8 +72,9 @@ func NewBridgeTweetSearchService(ts core.TweetSearchService) core.TweetSearchSer
 		capacity = 10000
 	}
 	bts := &bridgeTweetSearchServant{
-		ts:           ts,
-		updateDocsCh: make(chan *documents, capacity),
+		ts:               ts,
+		updateDocsCh:     make(chan *documents, capacity),
+		updateDocsTempCh: make(chan *documents, 100),
 	}
 
 	numWorker := conf.TweetSearchSetting.MinWorker
