@@ -108,7 +108,7 @@ func (c *Comment) Create(db *gorm.DB) (*Comment, error) {
 }
 
 func (c *Comment) Delete(db *gorm.DB) error {
-	return db.Model(c).Where("id = ?", c.Model.ID).Updates(map[string]interface{}{
+	return db.Model(c).Where("id = ?", c.Model.ID).Updates(map[string]any{
 		"deleted_on": time.Now().Unix(),
 		"is_del":     1,
 	}).Error
@@ -120,7 +120,7 @@ func (c *Comment) CommentIdsByPostId(db *gorm.DB, postId int64) (ids []int64, er
 }
 
 func (c *Comment) DeleteByPostId(db *gorm.DB, postId int64) error {
-	return db.Model(c).Where("post_id = ?", postId).Updates(map[string]interface{}{
+	return db.Model(c).Where("post_id = ?", postId).Updates(map[string]any{
 		"deleted_on": time.Now().Unix(),
 		"is_del":     1,
 	}).Error

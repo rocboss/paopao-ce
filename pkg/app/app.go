@@ -22,7 +22,7 @@ func NewResponse(ctx *gin.Context) *Response {
 	return &Response{Ctx: ctx}
 }
 
-func (r *Response) ToResponse(data interface{}) {
+func (r *Response) ToResponse(data any) {
 	hostname, _ := os.Hostname()
 	if data == nil {
 		data = gin.H{
@@ -41,7 +41,7 @@ func (r *Response) ToResponse(data interface{}) {
 	r.Ctx.JSON(http.StatusOK, data)
 }
 
-func (r *Response) ToResponseList(list interface{}, totalRows int64) {
+func (r *Response) ToResponseList(list any, totalRows int64) {
 	r.ToResponse(gin.H{
 		"list": list,
 		"pager": Pager{

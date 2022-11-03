@@ -4,7 +4,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
-	"github.com/rocboss/paopao-ce/pkg/types"
 	"gorm.io/gorm"
 )
 
@@ -82,7 +81,7 @@ func (d *walletServant) HandleRechargeSuccess(recharge *model.WalletRecharge, tr
 		}
 
 		// 标记为已付款
-		if err := tx.Model(recharge).Updates(map[string]types.Any{
+		if err := tx.Model(recharge).Updates(map[string]any{
 			"trade_no":     tradeNo,
 			"trade_status": "TRADE_SUCCESS",
 		}).Error; err != nil {

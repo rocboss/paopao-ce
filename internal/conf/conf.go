@@ -52,7 +52,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		}
 	}
 
-	objects := map[string]interface{}{
+	objects := map[string]any{
 		"App":              &AppSetting,
 		"Server":           &ServerSetting,
 		"CacheIndex":       &CacheIndexSetting,
@@ -114,7 +114,7 @@ func Cfg(key string) (string, bool) {
 // CfgIf check expression is true. if expression just have a string like
 // `Sms` is mean `Sms` whether define in suite feature settings. expression like
 // `Sms = SmsJuhe` is mean whether `Sms` define in suite feature settings and value
-// is `SmsJuhe``
+// is `SmsJuhe`
 func CfgIf(expression string) bool {
 	return features.CfgIf(expression)
 }

@@ -5,7 +5,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/json"
-	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
 	"github.com/sirupsen/logrus"
 )
@@ -40,15 +39,15 @@ func (s *zincTweetSearchServant) IndexName() string {
 func (s *zincTweetSearchServant) AddDocuments(data core.DocItems, primaryKey ...string) (bool, error) {
 	buf := make(core.DocItems, 0, len(data)+1)
 	if len(primaryKey) > 0 {
-		buf = append(buf, map[string]types.Any{
-			"index": map[string]types.Any{
+		buf = append(buf, map[string]any{
+			"index": map[string]any{
 				"_index": s.indexName,
 				"_id":    primaryKey[0],
 			},
 		})
 	} else {
-		buf = append(buf, map[string]types.Any{
-			"index": map[string]types.Any{
+		buf = append(buf, map[string]any{
+			"index": map[string]any{
 				"_index": s.indexName,
 			},
 		})
@@ -85,9 +84,9 @@ func (s *zincTweetSearchServant) Search(user *model.User, q *core.QueryReq, offs
 }
 
 func (s *zincTweetSearchServant) queryByContent(user *model.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
-	resp, err := s.client.EsQuery(s.indexName, map[string]types.Any{
-		"query": map[string]types.Any{
-			"match_phrase": map[string]types.Any{
+	resp, err := s.client.EsQuery(s.indexName, map[string]any{
+		"query": map[string]any{
+			"match_phrase": map[string]any{
 				"content": q.Query,
 			},
 		},
@@ -102,9 +101,9 @@ func (s *zincTweetSearchServant) queryByContent(user *model.User, q *core.QueryR
 }
 
 func (s *zincTweetSearchServant) queryByTag(user *model.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
-	resp, err := s.client.ApiQuery(s.indexName, map[string]types.Any{
+	resp, err := s.client.ApiQuery(s.indexName, map[string]any{
 		"search_type": "querystring",
-		"query": map[string]types.Any{
+		"query": map[string]any{
 			"term": "tags." + q.Query + ":1",
 		},
 		"sort_fields": []string{"-is_top", "-latest_replied_on"},
@@ -118,8 +117,8 @@ func (s *zincTweetSearchServant) queryByTag(user *model.User, q *core.QueryReq, 
 }
 
 func (s *zincTweetSearchServant) queryAny(user *model.User, offset, limit int) (*core.QueryResp, error) {
-	queryMap := map[string]types.Any{
-		"query": map[string]types.Any{
+	queryMap := map[string]any{
+		"query": map[string]any{
 			"match_all": map[string]string{},
 		},
 		"sort": []string{"-is_top", "-latest_replied_on"},

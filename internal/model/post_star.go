@@ -41,7 +41,7 @@ func (p *PostStar) Create(db *gorm.DB) (*PostStar, error) {
 }
 
 func (p *PostStar) Delete(db *gorm.DB) error {
-	return db.Model(&PostStar{}).Omit("Post").Where("id = ? AND is_del = ?", p.Model.ID, 0).Updates(map[string]interface{}{
+	return db.Model(&PostStar{}).Omit("Post").Where("id = ? AND is_del = ?", p.Model.ID, 0).Updates(map[string]any{
 		"deleted_on": time.Now().Unix(),
 		"is_del":     1,
 	}).Error

@@ -5,7 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type meiliLogData []map[string]interface{}
+type meiliLogData []map[string]any
 
 type meiliLogHook struct {
 	config    meilisearch.ClientConfig

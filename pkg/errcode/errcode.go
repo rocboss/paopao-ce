@@ -33,7 +33,7 @@ func (e *Error) Msg() string {
 	return e.msg
 }
 
-func (e *Error) Msgf(args []interface{}) string {
+func (e *Error) Msgf(args []any) string {
 	return fmt.Sprintf(e.msg, args...)
 }
 

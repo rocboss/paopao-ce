@@ -214,7 +214,7 @@ func NewSetting() (*Setting, error) {
 	return &Setting{vp}, nil
 }
 
-func (s *Setting) ReadSection(k string, v interface{}) error {
+func (s *Setting) ReadSection(k string, v any) error {
 	err := s.vp.UnmarshalKey(k, v)
 	if err != nil {
 		return err
@@ -223,7 +223,7 @@ func (s *Setting) ReadSection(k string, v interface{}) error {
 	return nil
 }
 
-func (s *Setting) Unmarshal(objects map[string]interface{}) error {
+func (s *Setting) Unmarshal(objects map[string]any) error {
 	for k, v := range objects {
 		err := s.vp.UnmarshalKey(k, v)
 		if err != nil {
@@ -244,7 +244,7 @@ func (s *Setting) FeaturesFrom(k string) *FeaturesSettingS {
 		switch v := val.(type) {
 		case string:
 			kv[key] = v
-		case []interface{}:
+		case []any:
 			suites[key] = sub.GetStringSlice(key)
 		}
 	}
@@ -304,7 +304,7 @@ func (f *FeaturesSettingS) Cfg(key string) (string, bool) {
 // CfgIf check expression is true. if expression just have a string like
 // `Sms` is mean `Sms` whether define in suite feature settings. expression like
 // `Sms = SmsJuhe` is mean whether `Sms` define in suite feature settings and value
-// is `SmsJuhe``
+// is `SmsJuhe`
 func (f *FeaturesSettingS) CfgIf(expression string) bool {
 	kv := strings.Split(expression, "=")
 	key := strings.Trim(strings.ToLower(kv[0]), " ")
