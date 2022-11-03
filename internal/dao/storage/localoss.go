@@ -102,10 +102,7 @@ func (s *localossCreateTempDirServant) PutObject(objectKey string, reader io.Rea
 
 func (s *localossCreateTempDirServant) PersistObject(objectKey string) error {
 	fi, err := os.Stat(s.savePath + objectKey)
-	if err != nil {
-		return err
-	}
-	if !fi.IsDir() {
+	if err == nil && !fi.IsDir() {
 		logrus.Debugf("object exist so do nothing objectKey: %s", objectKey)
 		return nil
 	}
