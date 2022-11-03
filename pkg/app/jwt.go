@@ -11,7 +11,7 @@ import (
 type Claims struct {
 	UID      int64  `json:"uid"`
 	Username string `json:"username"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 func GetJWTSecret() []byte {
@@ -23,8 +23,8 @@ func GenerateToken(User *model.User) (string, error) {
 	claims := Claims{
 		UID:      User.ID,
 		Username: User.Username,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expireTime.Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expireTime),
 			Issuer:    conf.JWTSetting.Issuer + ":" + User.Salt,
 		},
 	}
