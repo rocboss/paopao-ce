@@ -15,7 +15,7 @@ Features:
   Develop: ["Base", "MySQL", "BigCacheIndex", "Meili", "Sms", "AliOSS", "LoggerMeili", "OSS:Retention"]
   Demo: ["Base", "MySQL", "Option", "Zinc", "Sms", "MinIO", "LoggerZinc", "Migration"]
   Slim: ["Base", "Sqlite3", "LocalOSS", "LoggerFile", "OSS:TempDir"]
-  Base: ["Redis", "Alipay", "PhoneBind"]
+  Base: ["Redis", "PhoneBind"]
   Option: ["SimpleCacheIndex"]
   Sms: "SmsJuhe"
 SmsJuhe:
@@ -24,8 +24,11 @@ SmsJuhe:
   TplID:
   TplVal: "#code#=%d&#m#=%d"
 Alipay: 
-  AppID: 
-  PrivateKey: 
+  AppID:
+  InProduction: True
+  RootCertFile: "custom/alipay/RootCert.crt"
+  PublicCertFile: "custom/alipay/CertPublicKey_RSA2.crt"
+  AppPublicCertFile: "custom/alipay/AppCertPublicKey.crt" 
 CacheIndex:
   MaxUpdateQPS: 100             # 最大添加/删除/更新Post的QPS, 设置范围[10, 10000], 默认100
 SimpleCacheIndex: # 缓存泡泡广场消息流
