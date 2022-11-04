@@ -84,10 +84,10 @@ func NewRouter() *gin.Engine {
 	routeCore(authApi, privApi, adminApi)
 
 	// 支付宝路由注册
-	routeFriendship(authApi)
+	routeAlipay(r, authApi)
 
-	// Friendship路由注册
-	routeFriendship(authApi)
+	// Relationship相关路由注册
+	routeRelationship(authApi)
 
 	// 默认404
 	e.NoRoute(func(c *gin.Context) {
@@ -237,12 +237,22 @@ func routeAlipay(public gin.IRoutes, authApi gin.IRoutes) {
 	authApi.GET("/user/wallet/bills", api.GetUserWalletBills)
 }
 
-// routeFriendship register Friendship feature releated route if needed
-func routeFriendship(authApi gin.IRoutes) {
-	if !conf.CfgIf("Friendship") {
-		return
+// routeRelationship register Relationship releated routes
+func routeRelationship(authApi gin.IRoutes) {
+	if conf.CfgIf("Friendship") {
+		routeFriendship(authApi)
+	} else if conf.CfgIf("Followship") {
+		routeFollowship(authApi)
+	} else {
+		// 暂时默认使用好友模式
+		// TODO: 后期提供一种无关系模式(既不是好友模式也不是关注者模式)作为默认的关系模式
+		routeFriendship(authApi)
 	}
 
+}
+
+// routeFriendship register Friendship feature releated routes
+func routeFriendship(authApi gin.IRoutes) {
 	// 请求添加朋友
 	authApi.POST("/friend/requesting", api.RequestingFriend)
 
@@ -257,4 +267,9 @@ func routeFriendship(authApi gin.IRoutes) {
 
 	// 获取好友列表
 	authApi.GET("/user/contacts", api.GetContacts)
+}
+
+// routeFollowship register Followship feature releated routes
+func routeFollowship(authApi gin.IRoutes) {
+	// TODO: register followship routes
 }

@@ -332,6 +332,9 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
   `LoggerFile` 使用文件写日志(目前状态: 稳定);   
   `LoggerZinc` 使用[Zinc](https://github.com/zinclabs/zinc)写日志(目前状态: 稳定，推荐使用);    
   `LoggerMeili` 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志(目前状态: 内测阶段);  
+* 用户关系模式: Friendship/Followship    
+  `Friendship` 弱关系好友模式，类似微信朋友圈(目前状态: 开发阶段);    
+  `Followship` 关注者模式，类似Twitter的Follow模式(目前状态: WIP);    
 * 支付: Alipay   
   `Alipay`  开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能；   
 * 短信验证码: SmsJuhe(需要开启sms)    
