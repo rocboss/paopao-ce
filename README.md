@@ -239,11 +239,20 @@ docker compose up --build
 > 注意：默认提供的 docker-compose.yaml 初衷是搭建本机开发调试环境，如果需要产品部署供外网访问，请自行调优配置参数或使用其他方式部署。
 
 ### API 文档
-构建时将 `docs` 添加到TAGS中:
+* `config.yaml` 添加 `Docs:OpenAPI` 功能项:
+```yaml
+...
+Features:
+  Default: ["Base", "MySQL", "Option", "LocalOSS", "LoggerFile", "Docs"]
+  Docs: ["Docs:OpenAPI"]
+...
+```
+
+* 构建时将 `docs` 添加到TAGS中:
 ```sh
 make run TAGS='docs'
 
-# visit http://127.0.0.1:8008/docs
+# visit http://127.0.0.1:8008/docs/openapi
 ```
 
 ### 配置说明
@@ -326,7 +335,9 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 * 支付: Alipay   
   `Alipay`  开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能；   
 * 短信验证码: SmsJuhe(需要开启sms)    
-  `Sms` 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机；     
+  `Sms` 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机；
+* 开发文档: Docs:OpenAPI
+  `Docs:OpenAPI` 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi)；        
 * 其他: PhoneBind/OSS:Retention/OSS:TempDir     
   `PhoneBind` 手机绑定功能；     
   `OSS:Retention` 基于对象存储系统的对象过期自动删除特性实现 先创建临时对象再持久化的功能(目前状态: 内测阶段)；  

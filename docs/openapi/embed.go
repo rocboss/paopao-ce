@@ -1,7 +1,7 @@
 //go:build docs
 // +build docs
 
-package docs
+package openapi
 
 import (
 	"embed"

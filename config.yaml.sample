@@ -16,6 +16,7 @@ Features:
   Demo: ["Base", "MySQL", "Option", "Zinc", "Sms", "MinIO", "LoggerZinc", "Migration"]
   Slim: ["Base", "Sqlite3", "LocalOSS", "LoggerFile", "OSS:TempDir"]
   Base: ["Redis", "PhoneBind"]
+  Docs: ["Docs:OpenAPI"]
   Option: ["SimpleCacheIndex"]
   Sms: "SmsJuhe"
 SmsJuhe:
