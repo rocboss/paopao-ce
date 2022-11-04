@@ -336,7 +336,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
   `Alipay`  开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能；   
 * 短信验证码: SmsJuhe(需要开启sms)    
   `Sms` 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机；
-* 开发文档: Docs:OpenAPI
+* 开发文档: Docs:OpenAPI     
   `Docs:OpenAPI` 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi)；        
 * 其他: PhoneBind/OSS:Retention/OSS:TempDir     
   `PhoneBind` 手机绑定功能；     
@@ -467,7 +467,7 @@ MinIO: # MinIO 存储配置
 
 短信通道使用的[聚合数据](https://www.juhe.cn/)，如果申请不下来，可以考虑替换其他服务商。
 
-代码结构比较简单，很方便扩展
+代码结构比较简单，很方便扩展。 开发文档请参阅[docs](docs '开发文档').
 
 ## 👯‍♀️ 贡献
 
