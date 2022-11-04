@@ -92,13 +92,22 @@ func (m *Message) Get(db *gorm.DB) (*Message, error) {
 	if m.ReceiverUserID > 0 {
 		db = db.Where("receiver_user_id = ?", m.ReceiverUserID)
 	}
-
-	err := db.First(&message).Error
-	if err != nil {
-		return &message, err
+	if err := db.First(&message).Error; err != nil {
+		return nil, err
 	}
-
 	return &message, nil
+}
+
+func (m *Message) FetchBy(db *gorm.DB, predicates Predicates) ([]*Message, error) {
+	var messages []*Message
+	for k, v := range predicates {
+		db = db.Where(k, v...)
+	}
+	db = db.Where("is_del = 0")
+	if err := db.Find(&messages).Error; err != nil {
+		return nil, err
+	}
+	return messages, nil
 }
 
 func (c *Message) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]*Message, error) {

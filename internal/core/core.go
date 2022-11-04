@@ -19,16 +19,15 @@ type DataService interface {
 	TweetManageService
 	TweetHelpService
 
-	// 附件检测服务
-	AttachmentCheckService
-
 	// 评论服务
 	CommentService
 	CommentManageService
 
 	// 用户服务
 	UserManageService
+	ContactManageService
 
 	// 安全服务
 	SecurityService
+	AttachmentCheckService
 }

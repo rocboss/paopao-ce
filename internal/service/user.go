@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/model/rest"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 	"github.com/rocboss/paopao-ce/pkg/util"
@@ -217,6 +218,38 @@ func Register(username, password string) (*model.User, error) {
 	return user, nil
 }
 
+func RequestingFriend(user *model.User, param *rest.RequestingFriendReq) error {
+	if _, err := ds.GetUserByID(param.UserId); err != nil {
+		return errcode.NotExistFriendId
+	}
+	return ds.RequestingFriend(user.ID, param.UserId, param.Greetings)
+}
+
+func AddFriend(user *model.User, param *rest.AddFriendReq) error {
+	if _, err := ds.GetUserByID(param.UserId); err != nil {
+		return errcode.NotExistFriendId
+	}
+	return ds.AddFriend(user.ID, param.UserId)
+}
+
+func RejectFriend(user *model.User, param *rest.RejectFriendReq) error {
+	if _, err := ds.GetUserByID(param.UserId); err != nil {
+		return errcode.NotExistFriendId
+	}
+	return ds.RejectFriend(user.ID, param.UserId)
+}
+
+func DeleteFriend(user *model.User, param *rest.DeleteFriendReq) error {
+	if _, err := ds.GetUserByID(param.UserId); err != nil {
+		return errcode.NotExistFriendId
+	}
+	return ds.DeleteFriend(user.ID, param.UserId)
+}
+
+func GetContacts(user *model.User, offset int, limit int) (*rest.ContactsResp, error) {
+	return ds.GetContacts(user.ID, offset, limit)
+}
+
 // GetUserInfo 获取用户信息
 func GetUserInfo(param *AuthRequest) (*model.User, error) {
 	user, err := ds.GetUserByUsername(param.Username)
@@ -246,18 +279,31 @@ func GetUserByID(id int64) (*model.User, error) {
 	return nil, errcode.NoExistUsername
 }
 
-func GetUserByUsername(username string) (*model.User, error) {
-	user, err := ds.GetUserByUsername(username)
-
+func GetUserByUsername(user *model.User, username string) (*rest.UserProfileResp, error) {
+	other, err := ds.GetUserByUsername(username)
 	if err != nil {
 		return nil, err
 	}
 
-	if user.Model != nil && user.ID > 0 {
-		return user, nil
+	var resp *rest.UserProfileResp
+	if other.Model != nil && other.ID > 0 {
+		resp = &rest.UserProfileResp{
+			ID:       other.ID,
+			Nickname: other.Nickname,
+			Username: other.Username,
+			Status:   other.Status,
+			Avatar:   other.Avatar,
+			IsAdmin:  other.IsAdmin,
+			IsFriend: !(user == nil || user.ID == other.ID),
+		}
+	} else {
+		return nil, errcode.NoExistUsername
 	}
 
-	return nil, errcode.NoExistUsername
+	if user != nil && user.ID != other.ID {
+		resp.IsFriend = ds.IsFriend(user.ID, other.ID)
+	}
+	return resp, nil
 }
 
 // UpdateUserInfo 更新用户信息
@@ -285,7 +331,8 @@ func ChangeUserAvatar(user *model.User, avatar string) (err *errcode.Error) {
 	}
 
 	user.Avatar = avatar
-	return UpdateUserInfo(user)
+	err = UpdateUserInfo(user)
+	return
 }
 
 // GetUserCollections 获取用户收藏列表

@@ -36,6 +36,7 @@ const (
 type act uint8
 
 type FriendFilter map[int64]types.Empty
+type FriendSet map[string]types.Empty
 
 type Action struct {
 	Act    act
@@ -47,13 +48,12 @@ type AuthorizationManageService interface {
 	IsAllow(user *model.User, action *Action) bool
 	BeFriendFilter(userId int64) FriendFilter
 	BeFriendIds(userId int64) ([]int64, error)
+	MyFriendSet(userId int64) FriendSet
 }
 
 func (f FriendFilter) IsFriend(userId int64) bool {
-	// _, yesno := f[userId]
-	// return yesno
-	// so, you are friend with all world now
-	return true
+	_, yeah := f[userId]
+	return yeah
 }
 
 // IsAllow default true if user is admin

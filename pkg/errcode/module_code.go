@@ -57,4 +57,13 @@ var (
 	RechargeReqFail     = NewError(70001, "充值请求失败")
 	RechargeNotifyError = NewError(70002, "充值回调失败")
 	GetRechargeFailed   = NewError(70003, "充值详情获取失败")
+
+	NoRequestingFriendToSelf   = NewError(80001, "不允许添加自己为好友")
+	NotExistFriendId           = NewError(80002, "好友id不存在")
+	SendRequestingFriendFailed = NewError(80003, "申请添加朋友请求发送失败")
+	AddFriendFailed            = NewError(80004, "添加好友失败")
+	RejectFriendFailed         = NewError(80005, "拒绝好友失败")
+	DeleteFriendFailed         = NewError(80006, "删除好友失败")
+	GetContactsFailed          = NewError(80007, "获取联系人列表失败")
+	NoActionToSelf             = NewError(80008, "不允许对自己操作")
 )

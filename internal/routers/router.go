@@ -79,105 +79,15 @@ func NewRouter() *gin.Engine {
 	authApi := r.Group("/").Use(middleware.JWT())
 	privApi := r.Group("/").Use(middleware.JWT()).Use(middleware.Priv())
 	adminApi := r.Group("/").Use(middleware.JWT()).Use(middleware.Admin())
-	{
-		// 同步索引
-		authApi.GET("/sync/index", api.SyncSearchIndex)
 
-		// 获取当前用户信息
-		authApi.GET("/user/info", api.GetUserInfo)
-
-		// 获取当前用户未读消息数量
-		authApi.GET("/user/msgcount/unread", api.GetUnreadMsgCount)
-
-		// 获取消息列表
-		authApi.GET("/user/messages", api.GetMessages)
-
-		// 标记消息已读
-		authApi.POST("/user/message/read", api.ReadMessage)
-
-		// 发送用户私信
-		authApi.POST("/user/whisper", api.SendUserWhisper)
-
-		// 获取用户收藏列表
-		authApi.GET("/user/collections", api.GetUserCollections)
-
-		// 获取用户点赞列表
-		authApi.GET("/user/stars", api.GetUserStars)
-
-		// 绑定用户手机号
-		if conf.CfgIf("PhoneBind") {
-			authApi.POST("/user/phone", api.BindUserPhone)
-		}
-
-		// 修改密码
-		authApi.POST("/user/password", api.ChangeUserPassword)
-
-		// 修改昵称
-		authApi.POST("/user/nickname", api.ChangeNickname)
-
-		// 修改头像
-		authApi.POST("/user/avatar", api.ChangeAvatar)
-
-		// 检索用户
-		authApi.GET("/suggest/users", api.GetSuggestUsers)
-
-		// 检索标签
-		authApi.GET("/suggest/tags", api.GetSuggestTags)
-
-		// 上传资源
-		privApi.POST("/attachment", api.UploadAttachment)
-
-		// 下载资源预检
-		privApi.GET("/attachment/precheck", api.DownloadAttachmentPrecheck)
-
-		// 下载资源
-		privApi.GET("/attachment", api.DownloadAttachment)
-
-		// 发布动态
-		privApi.POST("/post", api.CreatePost)
-
-		// 删除动态
-		privApi.DELETE("/post", api.DeletePost)
-
-		// 获取动态点赞状态
-		authApi.GET("/post/star", api.GetPostStar)
-
-		// 动态点赞操作
-		privApi.POST("/post/star", api.PostStar)
-
-		// 获取动态收藏状态
-		authApi.GET("/post/collection", api.GetPostCollection)
-
-		// 动态收藏操作
-		privApi.POST("/post/collection", api.PostCollection)
-
-		// 锁定动态
-		privApi.POST("/post/lock", api.LockPost)
-
-		// 置顶动态
-		privApi.POST("/post/stick", api.StickPost)
-
-		// 修改动态可见度
-		privApi.POST("/post/visibility", api.VisiblePost)
-
-		// 发布动态评论
-		privApi.POST("/post/comment", api.CreatePostComment)
-
-		// 删除动态评论
-		privApi.DELETE("/post/comment", api.DeletePostComment)
-
-		// 发布评论回复
-		privApi.POST("/post/comment/reply", api.CreatePostCommentReply)
-
-		// 删除评论回复
-		privApi.DELETE("/post/comment/reply", api.DeletePostCommentReply)
-
-		// 管理·禁言/解封用户
-		adminApi.POST("/admin/user/status", api.ChangeUserStatus)
-	}
+	// 核心路由注册
+	routeCore(authApi, privApi, adminApi)
 
 	// 支付宝路由注册
-	alipayRoute(r, authApi)
+	routeFriendship(authApi)
+
+	// Friendship路由注册
+	routeFriendship(authApi)
 
 	// 默认404
 	e.NoRoute(func(c *gin.Context) {
@@ -198,7 +108,102 @@ func NewRouter() *gin.Engine {
 	return e
 }
 
-// routeLocalOSS register LocalOSS route if neeed
+func routeCore(authApi gin.IRoutes, privApi gin.IRoutes, adminApi gin.IRoutes) {
+	// 同步索引
+	authApi.GET("/sync/index", api.SyncSearchIndex)
+
+	// 获取当前用户信息
+	authApi.GET("/user/info", api.GetUserInfo)
+
+	// 获取当前用户未读消息数量
+	authApi.GET("/user/msgcount/unread", api.GetUnreadMsgCount)
+
+	// 获取消息列表
+	authApi.GET("/user/messages", api.GetMessages)
+
+	// 标记消息已读
+	authApi.POST("/user/message/read", api.ReadMessage)
+
+	// 发送用户私信
+	authApi.POST("/user/whisper", api.SendUserWhisper)
+
+	// 获取用户收藏列表
+	authApi.GET("/user/collections", api.GetUserCollections)
+
+	// 获取用户点赞列表
+	authApi.GET("/user/stars", api.GetUserStars)
+
+	// 绑定用户手机号
+	authApi.POST("/user/phone", api.BindUserPhone)
+
+	// 修改密码
+	authApi.POST("/user/password", api.ChangeUserPassword)
+
+	// 修改昵称
+	authApi.POST("/user/nickname", api.ChangeNickname)
+
+	// 修改头像
+	authApi.POST("/user/avatar", api.ChangeAvatar)
+
+	// 检索用户
+	authApi.GET("/suggest/users", api.GetSuggestUsers)
+
+	// 检索标签
+	authApi.GET("/suggest/tags", api.GetSuggestTags)
+
+	// 上传资源
+	privApi.POST("/attachment", api.UploadAttachment)
+
+	// 下载资源预检
+	privApi.GET("/attachment/precheck", api.DownloadAttachmentPrecheck)
+
+	// 下载资源
+	privApi.GET("/attachment", api.DownloadAttachment)
+
+	// 发布动态
+	privApi.POST("/post", api.CreatePost)
+
+	// 删除动态
+	privApi.DELETE("/post", api.DeletePost)
+
+	// 获取动态点赞状态
+	authApi.GET("/post/star", api.GetPostStar)
+
+	// 动态点赞操作
+	privApi.POST("/post/star", api.PostStar)
+
+	// 获取动态收藏状态
+	authApi.GET("/post/collection", api.GetPostCollection)
+
+	// 动态收藏操作
+	privApi.POST("/post/collection", api.PostCollection)
+
+	// 锁定动态
+	privApi.POST("/post/lock", api.LockPost)
+
+	// 置顶动态
+	privApi.POST("/post/stick", api.StickPost)
+
+	// 修改动态可见度
+	privApi.POST("/post/visibility", api.VisiblePost)
+
+	// 发布动态评论
+	privApi.POST("/post/comment", api.CreatePostComment)
+
+	// 删除动态评论
+	privApi.DELETE("/post/comment", api.DeletePostComment)
+
+	// 发布评论回复
+	privApi.POST("/post/comment/reply", api.CreatePostCommentReply)
+
+	// 删除评论回复
+	privApi.DELETE("/post/comment/reply", api.DeletePostCommentReply)
+
+	// 管理·禁言/解封用户
+	adminApi.POST("/admin/user/status", api.ChangeUserStatus)
+}
+
+// routeLocalOSS register LocalOSS route if needed
 func routeLocalOSS(e *gin.Engine) {
 	if !conf.CfgIf("LocalOSS") {
 		return
@@ -213,7 +218,8 @@ func routeLocalOSS(e *gin.Engine) {
 	logrus.Infof("register LocalOSS route in /oss on save path: %s", savePath)
 }
 
-func alipayRoute(public gin.IRoutes, authApi gin.IRoutes) {
+// routeAlipay register Alipay feature releated route if needed
+func routeAlipay(public gin.IRoutes, authApi gin.IRoutes) {
 	if !conf.CfgIf("Alipay") {
 		return
 	}
@@ -229,4 +235,26 @@ func alipayRoute(public gin.IRoutes, authApi gin.IRoutes) {
 
 	// 获取用户账单
 	authApi.GET("/user/wallet/bills", api.GetUserWalletBills)
+}
+
+// routeFriendship register Friendship feature releated route if needed
+func routeFriendship(authApi gin.IRoutes) {
+	if !conf.CfgIf("Friendship") {
+		return
+	}
+
+	// 请求添加朋友
+	authApi.POST("/friend/requesting", api.RequestingFriend)
+
+	// 同意添加好友
+	authApi.POST("/friend/add", api.AddFriend)
+
+	// 拒绝添加好友
+	authApi.POST("/friend/reject", api.RejectFriend)
+
+	// 删除好友
+	authApi.POST("/friend/delete", api.DeleteFriend)
+
+	// 获取好友列表
+	authApi.GET("/user/contacts", api.GetContacts)
 }
