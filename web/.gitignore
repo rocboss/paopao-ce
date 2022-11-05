@@ -23,5 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
+yarn.lock
 package-lock.json
 components.d.ts
