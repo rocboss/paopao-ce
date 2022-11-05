@@ -502,6 +502,8 @@ func DeleteSearchPost(post *model.Post) error {
 
 func PushPostsToSearch(c *gin.Context) {
 	if ok, _ := conf.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
+		defer conf.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
+
 		splitNum := 1000
 		totalRows, _ := GetPostCount(&model.ConditionsT{
 			"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},
@@ -533,8 +535,6 @@ func PushPostsToSearch(c *gin.Context) {
 				ts.AddDocuments(docs, fmt.Sprintf("%d", posts[i].ID))
 			}
 		}
-
-		conf.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
 	}
 }
 

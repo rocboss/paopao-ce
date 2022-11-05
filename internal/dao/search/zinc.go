@@ -256,13 +256,12 @@ func (s *zincTweetSearchServant) createIndex() {
 }
 
 func (s *zincTweetSearchServant) toDocs(data []core.TsDocItem) []map[string]any {
-	docs := make([]map[string]any, len(data))
+	docs := make([]map[string]any, 0, len(data))
 	for _, d := range data {
 		tagMaps := map[string]int8{}
 		for _, tag := range strings.Split(d.Post.Tags, ",") {
 			tagMaps[tag] = 1
 		}
-
 		docs = append(docs, map[string]any{
 			"id":                d.Post.ID,
 			"user_id":           d.Post.UserID,
