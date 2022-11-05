@@ -1,48 +1,25 @@
 <template>
     <div class="sidebar-wrap">
         <div class="logo-wrap">
-            <n-image
-                class="logo-img"
-                width="36"
-                :src="LOGO"
-                :preview-disabled="true"
-                @click="goHome"
-            />
+            <n-image class="logo-img" width="36" :src="LOGO" :preview-disabled="true" @click="goHome" />
         </div>
-        <n-menu
-            :accordion="true"
-            :collapsed="store.state.collapsedLeft"
-            :collapsed-width="64"
-            :icon-size="24"
-            :options="menuOptions"
-            :render-label="renderMenuLabel"
-            :render-icon="renderMenuIcon"
-            :value="selectedPath"
-            @update:value="goRouter"
-        />
+        <n-menu :accordion="true" :collapsed="store.state.collapsedLeft" :collapsed-width="64" :icon-size="24"
+            :options="menuOptions" :render-label="renderMenuLabel" :render-icon="renderMenuIcon" :value="selectedPath"
+            @update:value="goRouter" />
 
         <div class="user-wrap" v-if="store.state.userInfo.id > 0">
-            <n-avatar
-                class="user-avatar"
-                round
-                :size="34"
-                :src="store.state.userInfo.avatar"
-            />
+            <n-avatar class="user-avatar" round :size="34" :src="store.state.userInfo.avatar" />
 
             <div class="user-info">
                 <div class="nickname">
                     <span class="nickname-txt">
                         {{ store.state.userInfo.nickname }}
                     </span>
-                    <n-button
-                        class="logout"
-                        quaternary
-                        circle
-                        size="tiny"
-                        @click="handleLogout"
-                    >
+                    <n-button class="logout" quaternary circle size="tiny" @click="handleLogout">
                         <template #icon>
-                            <n-icon><log-out-outline /></n-icon>
+                            <n-icon>
+                                <log-out-outline />
+                            </n-icon>
                         </template>
                     </n-button>
                 </div>
@@ -50,36 +27,21 @@
             </div>
 
             <div class="user-mini-wrap">
-                <n-button
-                    class="logout"
-                    quaternary
-                    circle
-                    @click="handleLogout"
-                >
+                <n-button class="logout" quaternary circle @click="handleLogout">
                     <template #icon>
-                        <n-icon :size="24"><log-out-outline /></n-icon>
+                        <n-icon :size="24">
+                            <log-out-outline />
+                        </n-icon>
                     </template>
                 </n-button>
             </div>
         </div>
         <div class="user-wrap" v-else>
             <div class="login-wrap">
-                <n-button
-                    strong
-                    secondary
-                    round
-                    type="primary"
-                    @click="triggerAuth('signin')"
-                >
+                <n-button strong secondary round type="primary" @click="triggerAuth('signin')">
                     登录
                 </n-button>
-                <n-button
-                    strong
-                    secondary
-                    round
-                    type="info"
-                    @click="triggerAuth('signup')"
-                >
+                <n-button strong secondary round type="info" @click="triggerAuth('signup')">
                     注册
                 </n-button>
             </div>
@@ -95,10 +57,12 @@ import { NIcon, NBadge, useMessage } from 'naive-ui';
 import type { RouteRecordName } from "vue-router";
 import {
     HomeOutline,
-    BookmarkOutline,
-    NotificationsOutline,
-    HeartOutline,
+    BookmarksOutline,
+    MegaphoneOutline,
+    SparklesOutline,
+    ChatbubblesOutline,
     LeafOutline,
+    PeopleOutline,
     WalletOutline,
     SettingsOutline,
     LogOutOutline,
@@ -164,31 +128,39 @@ const menuOptions = computed(() => {
             icon: () => h(Hash),
             href: '/topic',
         },
-        {
-            label: '主页',
-            key: 'profile',
-            icon: () => h(LeafOutline),
-            href: '/profile',
-        },
-        {
-            label: '提醒',
-            key: 'notification',
-            icon: () => h(NotificationsOutline),
-            href: '/notification',
-        },
-        {
-            label: '收藏',
-            key: 'collection',
-            icon: () => h(BookmarkOutline),
-            href: '/collection',
-        },
-        {
-            label: '点赞',
-            key: 'star',
-            icon: () => h(HeartOutline),
-            href: '/star',
-        }
     ];
+    if (import.meta.env.VITE_ENABLE_ANOUNCEMENT.toLowerCase() === 'true') {
+        options.push( {
+            label: '公告',
+            key: 'anouncement',
+            icon: () => h(MegaphoneOutline),
+            href: '/anouncement',
+        });
+    }
+    options.push({
+        label: '主页',
+        key: 'profile',
+        icon: () => h(LeafOutline),
+        href: '/profile',
+    });
+    options.push({
+        label: '消息',
+        key: 'messages',
+        icon: () => h(ChatbubblesOutline),
+        href: '/messages',
+    })
+    options.push({
+        label: '收藏',
+        key: 'collection',
+        icon: () => h(BookmarksOutline),
+        href: '/collection',
+    });
+    options.push({
+        label: '好友',
+        key: 'contacts',
+        icon: () => h(PeopleOutline),
+        href: '/contacts',
+    });
     if (import.meta.env.VITE_ENABLE_WALLET.toLocaleLowerCase() === 'true') {
         options.push({
             label: '钱包',
@@ -203,22 +175,23 @@ const menuOptions = computed(() => {
         icon: () => h(SettingsOutline),
         href: '/setting',
     });
+
     return store.state.userInfo.id > 0
         ? options
         : [
-              {
-                  label: '广场',
-                  key: 'home',
-                  icon: () => h(HomeOutline),
-                  href: '/',
-              },
-              {
-                  label: '话题',
-                  key: 'topic',
-                  icon: () => h(Hash),
-                  href: '/topic',
-              },
-          ];
+            {
+                label: '广场',
+                key: 'home',
+                icon: () => h(HomeOutline),
+                href: '/',
+            },
+            {
+                label: '话题',
+                key: 'topic',
+                icon: () => h(Hash),
+                href: '/topic',
+            },
+        ];
 });
 
 const renderMenuLabel = (option: AnyObject) => {
@@ -228,7 +201,7 @@ const renderMenuLabel = (option: AnyObject) => {
     return option.label;
 };
 const renderMenuIcon = (option: AnyObject) => {
-    if (option.key === 'notification') {
+    if (option.key === 'messages') {
         return h(
             NBadge,
             {
@@ -285,21 +258,26 @@ window.$message = useMessage();
     right: calc(50% + var(--content-main) / 2 + 10px);
     padding: 12px 0;
     box-sizing: border-box;
+
     .n-menu .n-menu-item-content::before {
         border-radius: 21px;
     }
 }
+
 .logo-wrap {
     display: flex;
     justify-content: flex-start;
     margin-bottom: 12px;
+
     .logo-img {
         margin-left: 24px;
+
         &:hover {
             cursor: pointer;
         }
     }
 }
+
 .user-wrap {
     display: flex;
     align-items: center;
@@ -307,9 +285,11 @@ window.$message = useMessage();
     bottom: 12px;
     left: 12px;
     right: 12px;
+
     .user-mini-wrap {
         display: none;
     }
+
     .user-avatar {
         margin-right: 8px;
     }
@@ -350,31 +330,38 @@ window.$message = useMessage();
             opacity: 0.75;
         }
     }
+
     .login-wrap {
         display: flex;
         justify-content: center;
         width: 100%;
+
         button {
             margin: 0 4px;
         }
     }
 }
+
 .auth-card {
     .n-card-header {
         z-index: 999;
     }
 }
+
 @media screen and (max-width: 821px) {
     .sidebar-wrap {
         width: 65px;
         right: calc(100% - 60px);
     }
+
     .logo-wrap {
         .logo-img {
             margin-left: 12px !important;
         }
     }
+
     .user-wrap {
+
         .user-avatar,
         .user-info,
         .login-wrap {

@@ -160,9 +160,6 @@ import { useStore } from 'vuex';
 import { debounce } from 'lodash';
 import {
     ImageOutline,
-    VideocamOutline,
-    AttachOutline,
-    CompassOutline,
 } from '@vicons/ionicons5';
 import { createComment } from '@/api/post';
 import { getSuggestUsers } from '@/api/user';

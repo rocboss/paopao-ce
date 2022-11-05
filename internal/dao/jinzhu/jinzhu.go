@@ -47,7 +47,8 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		i = newSimpleIndexPostsService(db)
 		c, v = cache.NewSimpleCacheIndexService(i)
 	} else if conf.CfgIf("BigCacheIndex") {
-		c, v = cache.NewBigCacheIndexService(i)
+		a := newAuthorizationManageService(db)
+		c, v = cache.NewBigCacheIndexService(i, a)
 	} else {
 		c, v = cache.NewNoneCacheIndexService(i)
 	}
@@ -72,9 +73,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 }
 
 func NewAuthorizationManageService() core.AuthorizationManageService {
-	return &authorizationManageServant{
-		db: conf.MustGormDB(),
-	}
+	return newAuthorizationManageService(conf.MustGormDB())
 }
 
 func (s *dataServant) Name() string {

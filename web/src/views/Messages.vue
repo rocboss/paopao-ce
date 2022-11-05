@@ -1,6 +1,6 @@
 <template>
     <div>
-        <main-nav title="提醒" />
+        <main-nav title="消息" />
 
         <n-list class="main-content-wrap messages-wrap" bordered>
             <div v-if="loading" class="skeleton-wrap">
@@ -18,7 +18,7 @@
             </div>
 
             <template #footer>
-                <div class="pagination-wrap" v-if="totalPage > 0">
+                <div class="pagination-wrap" v-if="totalPage > 1">
                     <n-pagination
                         :page="page"
                         @update:page="updatePage"

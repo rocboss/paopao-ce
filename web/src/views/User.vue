@@ -13,48 +13,43 @@
                         <div class="username">
                             <strong>{{ user.nickname }}</strong>
                             <span> @{{ user.username }} </span>
+                            <n-tag
+                                v-if="store.state.userInfo.id > 0 && store.state.userInfo.username != user.username && user.is_friend"
+                                class="top-tag" type="info" size="small" round>
+                                好友
+                            </n-tag>
+                            <n-tag v-if="user.is_admin" class="top-tag" type="error" size="small" round>
+                                管理员
+                            </n-tag>
                         </div>
                         <div class="uid">UID. {{ user.id }}</div>
                     </div>
 
-                    <div class="user-opts" v-if="store.state.userInfo.id > 0">
-                        <n-space>
-                            <n-button
-                                size="small"
-                                secondary
-                                type="primary"
-                                @click="openWhisper"
-                            >
-                                私信
+                    <div class="user-opts"
+                        v-if="store.state.userInfo.id > 0 && store.state.userInfo.username != user.username">
+                        <n-dropdown placement="bottom-end" trigger="click" size="small" :options="userOptions"
+                            @select="handleUserAction">
+                            <n-button quaternary circle>
+                                <template #icon>
+                                    <n-icon>
+                                        <more-horiz-filled />
+                                    </n-icon>
+                                </template>
                             </n-button>
-                            <n-button
-                                v-if="store.state.userInfo.is_admin"
-                                size="small"
-                                secondary
-                                :type="user.status === 1 ? 'error' : 'warning'"
-                                @click="banUser"
-                            >
-                                {{ user.status === 1 ? '禁言' : '解封' }}
-                            </n-button>
-                        </n-space>
+                        </n-dropdown>
                     </div>
                 </div>
 
                 <!-- 私信组件 -->
-                <whisper
-                    :show="showWhisper"
-                    :user="user"
-                    @success="whisperSuccess"
-                />
+                <whisper :show="showWhisper" :user="user" @success="whisperSuccess" />
+
+                <!-- 加好友组件 -->
+                <whisper-add-friend :show="showAddFriendWhisper" :user="user" @success="addFriendWhisperSuccess" />
             </n-spin>
             <template #footer>
                 <div class="pagination-wrap" v-if="totalPage > 0">
-                    <n-pagination
-                        :page="page"
-                        @update:page="updatePage"
-                        :page-slot="!store.state.collapsedRight ? 8 : 5"
-                        :page-count="totalPage"
-                    />
+                    <n-pagination :page="page" @update:page="updatePage"
+                        :page-slot="!store.state.collapsedRight ? 8 : 5" :page-count="totalPage" />
                 </div>
             </template>
             <n-tabs class="profile-tabs-wrap" animated>
@@ -78,11 +73,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from 'vue';
+import { ref, reactive, watch, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
-import { getUserProfile, getUserPosts, changeUserStatus } from '@/api/user';
-import { useDialog, useMessage } from 'naive-ui';
+import { getUserProfile, getUserPosts, changeUserStatus, deleteFriend } from '@/api/user';
+import { useDialog, useMessage, DropdownOption } from 'naive-ui';
+import WhisperAddFriend from '../components/whisper-add-friend.vue';
+import { MoreHorizFilled } from '@vicons/material';
+import { VisibilityEnum } from '@/utils/IEnum';
 
 const message = useMessage();
 const dialog = useDialog();
@@ -96,10 +94,12 @@ const user = reactive<Item.UserInfo>({
     username: '',
     nickname: '',
     is_admin: false,
+    is_friend: true,
     status: 1,
 });
 const userLoading = ref(false);
 const showWhisper = ref(false);
+const showAddFriendWhisper = ref(false);
 const list = ref<Item.PostProps[]>([]);
 const username = ref(route.query.username || '');
 const page = ref(+(route.query.p as string) || 1);
@@ -136,6 +136,7 @@ const loadUser = () => {
             user.username = res.username;
             user.nickname = res.nickname;
             user.is_admin = res.is_admin;
+            user.is_friend = res.is_friend;
             user.status = res.status;
             loadPosts();
         })
@@ -153,8 +154,89 @@ const updatePage = (p: number) => {
 const openWhisper = () => {
     showWhisper.value = true;
 };
+const openAddFriendWhisper = () => {
+    showAddFriendWhisper.value = true;
+};
 const whisperSuccess = () => {
     showWhisper.value = false;
+};
+const addFriendWhisperSuccess = () => {
+    showAddFriendWhisper.value = false;
+};
+const userOptions = computed(() => {
+    let options: DropdownOption[] = [{
+        label: '私信',
+        key: 'whisper',
+    }];
+    if (store.state.userInfo.is_admin) {
+        if (user.status === 1) {
+            options.push({
+                label: '禁言',
+                key: 'banned',
+            });
+        } else {
+            options.push({
+                label: '解封',
+                key: 'deblocking',
+            });
+        }
+    }
+    if (user.is_friend) {
+        options.push({
+            label: '删除好友',
+            key: 'delete',
+        });
+    } else {
+        options.push({
+            label: '添加朋友',
+            key: 'requesting',
+        });
+    }
+    return options;
+});
+const handleUserAction = (
+    item: 'whisper' | 'delete' | 'requesting' | 'banned' | 'deblocking'
+) => {
+    switch (item) {
+        case 'whisper':
+            openWhisper();
+            break;
+        case 'delete':
+            openDeleteFriend();
+            break;
+        case 'requesting':
+            openAddFriendWhisper();
+            break;
+        case 'banned':
+        case 'deblocking':
+            banUser();
+            break;
+        default:
+            break;
+    }
+};
+const openDeleteFriend = () => {
+    dialog.warning({
+        title: '删除好友',
+        content: '将好友 “' + user.nickname + '” 删除，将同时删除 点赞/收藏 列表中关于该朋友的 “好友可见” 推文',
+        positiveText: '确定',
+        negativeText: '取消',
+        onPositiveClick: () => {
+            userLoading.value = true;
+            deleteFriend({
+                user_id: user.id,
+            })
+                .then((res) => {
+                    userLoading.value = false;
+                    user.is_friend = false
+                    loadPosts();
+                })
+                .catch((err) => {
+                    userLoading.value = false;
+                    console.log(err);
+                });
+        },
+    });
 };
 const banUser = () => {
     dialog.warning({
@@ -203,6 +285,7 @@ onMounted(() => {
 .profile-tabs-wrap {
     padding: 0 16px;
 }
+
 .profile-baseinfo {
     display: flex;
     padding: 16px;
@@ -226,12 +309,17 @@ onMounted(() => {
             margin-top: 10px;
             opacity: 0.75;
         }
+
+        .top-tag {
+            transform: scale(0.75);
+        }
     }
 
     .user-opts {
         position: absolute;
         top: 16px;
         right: 16px;
+        opacity: 0.75;
     }
 }
 

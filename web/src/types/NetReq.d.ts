@@ -51,13 +51,6 @@ declare module NetReq {
         pager: Item.PagerProps
     }
 
-    interface UserGetStars {
-        /** 帖子列表 */
-        list: Item.PostProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
-
     type UserGetUserProfile = Item.UserInfo
 
     interface UserGetBills {
@@ -94,6 +87,27 @@ declare module NetReq {
     }
 
     interface UserChangeStatus {
+
+    }
+
+    interface AddFriend {
+
+    }
+
+    interface DeleteFriend {
+
+    }
+
+    interface GetContacts {
+        contacts: Item.ContactsItemProps,
+        total: number
+    }
+
+    interface RejectFriend {
+
+    }
+
+    interface RequestingFriend {
 
     }
 
@@ -162,6 +176,13 @@ declare module NetReq {
 
     interface PostDeleteCommentReply {
 
+    }
+
+    interface GetContacts {
+        /** 评论列表 */
+        list: Item.ContactItemProps[],
+        /** 页码信息 */
+        pager: Item.PagerProps
     }
 
 }

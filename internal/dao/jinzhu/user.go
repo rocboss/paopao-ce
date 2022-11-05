@@ -88,8 +88,3 @@ func (s *userManageServant) CreateUser(user *model.User) (*model.User, error) {
 func (s *userManageServant) UpdateUser(user *model.User) error {
 	return user.Update(s.db)
 }
-
-func (s *userManageServant) IsFriend(userId int64, friendId int64) bool {
-	// just true now
-	return true
-}

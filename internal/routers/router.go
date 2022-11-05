@@ -60,9 +60,6 @@ func NewRouter() *gin.Engine {
 
 		// 获取话题列表
 		noAuthApi.GET("/tags", api.GetPostTags)
-
-		// 获取用户基本信息
-		noAuthApi.GET("/user/profile", api.GetUserProfile)
 	}
 
 	// 宽松鉴权路由组
@@ -73,6 +70,9 @@ func NewRouter() *gin.Engine {
 
 		// 获取用户动态列表
 		looseApi.GET("/user/posts", api.GetUserPosts)
+
+		// 获取用户基本信息
+		looseApi.GET("/user/profile", api.GetUserProfile)
 	}
 
 	// 鉴权路由组
@@ -248,7 +248,6 @@ func routeRelationship(authApi gin.IRoutes) {
 		// TODO: 后期提供一种无关系模式(既不是好友模式也不是关注者模式)作为默认的关系模式
 		routeFriendship(authApi)
 	}
-
 }
 
 // routeFriendship register Friendship feature releated routes

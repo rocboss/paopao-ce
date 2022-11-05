@@ -44,18 +44,9 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { darkTheme } from 'naive-ui';
-import { version, buildTime } from '../build/info.json';
 
 const store = useStore();
 const theme = computed(() => (store.state.theme === 'dark' ? darkTheme : null));
-
-console.log(
-    `%c Release Build Info 
-%cVersion			v${version}
-BuildTime		${buildTime}`,
-    'background:#000;color:#FFF;font-weight:bold;',
-    'background:#FFF;color:#000;'
-);
 </script>
 
 <style lang="less">
