@@ -14,7 +14,7 @@ var (
 
 type documents struct {
 	primaryKey  []string
-	docItems    core.DocItems
+	docItems    []core.TsDocItem
 	identifiers []string
 }
 
@@ -28,7 +28,7 @@ func (s *bridgeTweetSearchServant) IndexName() string {
 	return s.ts.IndexName()
 }
 
-func (s *bridgeTweetSearchServant) AddDocuments(data core.DocItems, primaryKey ...string) (bool, error) {
+func (s *bridgeTweetSearchServant) AddDocuments(data []core.TsDocItem, primaryKey ...string) (bool, error) {
 	s.updateDocs(&documents{
 		primaryKey: primaryKey,
 		docItems:   data,

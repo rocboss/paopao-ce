@@ -439,14 +439,13 @@ func GetIndexPosts(user *model.User, offset int, limit int) (*rest.IndexTweetsRe
 	return ds.IndexPosts(user, offset, limit)
 }
 
-func GetPostList(req *PostListReq) ([]*model.PostFormated, error) {
+func GetPostList(req *PostListReq) ([]*model.Post, []*model.PostFormated, error) {
 	posts, err := ds.GetPosts(req.Conditions, req.Offset, req.Limit)
-
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-
-	return ds.MergePosts(posts)
+	postFormated, err := ds.MergePosts(posts)
+	return posts, postFormated, err
 }
 
 func GetPostCount(conditions *model.ConditionsT) (int64, error) {
@@ -484,37 +483,17 @@ func PushPostToSearch(post *model.Post) {
 	}
 
 	contentFormated := ""
-
 	for _, content := range postFormated.Contents {
 		if content.Type == model.CONTENT_TYPE_TEXT || content.Type == model.CONTENT_TYPE_TITLE {
 			contentFormated = contentFormated + content.Content + "\n"
 		}
 	}
 
-	tagMaps := map[string]int8{}
-	for _, tag := range strings.Split(post.Tags, ",") {
-		tagMaps[tag] = 1
-	}
-
-	data := core.DocItems{{
-		"id":                post.ID,
-		"user_id":           post.UserID,
-		"comment_count":     post.CommentCount,
-		"collection_count":  post.CollectionCount,
-		"upvote_count":      post.UpvoteCount,
-		"visibility":        post.Visibility,
-		"is_top":            post.IsTop,
-		"is_essence":        post.IsEssence,
-		"content":           contentFormated,
-		"tags":              tagMaps,
-		"ip_loc":            post.IPLoc,
-		"latest_replied_on": post.LatestRepliedOn,
-		"attachment_price":  post.AttachmentPrice,
-		"created_on":        post.CreatedOn,
-		"modified_on":       post.ModifiedOn,
+	docs := []core.TsDocItem{{
+		Post:    post,
+		Content: contentFormated,
 	}}
-
-	ts.AddDocuments(data, fmt.Sprintf("%d", post.ID))
+	ts.AddDocuments(docs, fmt.Sprintf("%d", post.ID))
 }
 
 func DeleteSearchPost(post *model.Post) error {
@@ -523,6 +502,8 @@ func DeleteSearchPost(post *model.Post) error {
 
 func PushPostsToSearch(c *gin.Context) {
 	if ok, _ := conf.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
+		defer conf.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
+
 		splitNum := 1000
 		totalRows, _ := GetPostCount(&model.ConditionsT{
 			"visibility IN ?": []model.PostVisibleT{model.PostVisitPublic, model.PostVisitFriend},
@@ -532,43 +513,28 @@ func PushPostsToSearch(c *gin.Context) {
 		nums := int(pages)
 
 		for i := 0; i < nums; i++ {
-			posts, _ := GetPostList(&PostListReq{
+			posts, postsFormated, err := GetPostList(&PostListReq{
 				Conditions: &model.ConditionsT{},
 				Offset:     i * splitNum,
 				Limit:      splitNum,
 			})
-
-			for _, post := range posts {
+			if err != nil || len(posts) != len(postsFormated) {
+				continue
+			}
+			for i, pf := range postsFormated {
 				contentFormated := ""
-
-				for _, content := range post.Contents {
+				for _, content := range pf.Contents {
 					if content.Type == model.CONTENT_TYPE_TEXT || content.Type == model.CONTENT_TYPE_TITLE {
 						contentFormated = contentFormated + content.Content + "\n"
 					}
 				}
-
-				docs := core.DocItems{{
-					"id":                post.ID,
-					"user_id":           post.User.ID,
-					"comment_count":     post.CommentCount,
-					"collection_count":  post.CollectionCount,
-					"upvote_count":      post.UpvoteCount,
-					"visibility":        post.Visibility,
-					"is_top":            post.IsTop,
-					"is_essence":        post.IsEssence,
-					"content":           contentFormated,
-					"tags":              post.Tags,
-					"ip_loc":            post.IPLoc,
-					"latest_replied_on": post.LatestRepliedOn,
-					"attachment_price":  post.AttachmentPrice,
-					"created_on":        post.CreatedOn,
-					"modified_on":       post.ModifiedOn,
+				docs := []core.TsDocItem{{
+					Post:    posts[i],
+					Content: contentFormated,
 				}}
-				ts.AddDocuments(docs, fmt.Sprintf("%d", post.ID))
+				ts.AddDocuments(docs, fmt.Sprintf("%d", posts[i].ID))
 			}
 		}
-
-		conf.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
 	}
 }
 

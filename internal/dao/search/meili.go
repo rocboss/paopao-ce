@@ -2,6 +2,7 @@ package search
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/meilisearch/meilisearch-go"
@@ -26,20 +27,41 @@ type meiliTweetSearchServant struct {
 	friendFilter  string
 }
 
+type postInfo struct {
+	ID              int64              `json:"id"`
+	UserID          int64              `json:"user_id"`
+	CommentCount    int64              `json:"comment_count"`
+	CollectionCount int64              `json:"collection_count"`
+	UpvoteCount     int64              `json:"upvote_count"`
+	Visibility      model.PostVisibleT `json:"visibility"`
+	IsTop           int                `json:"is_top"`
+	IsEssence       int                `json:"is_essence"`
+	IsLock          int                `json:"is_lock"`
+	LatestRepliedOn int64              `json:"latest_replied_on"`
+	CreatedOn       int64              `json:"created_on"`
+	ModifiedOn      int64              `json:"modified_on"`
+	AttachmentPrice int64              `json:"attachment_price"`
+	IPLoc           string             `json:"ip_loc"`
+}
+
 func (s *meiliTweetSearchServant) Name() string {
 	return "Meili"
 }
 
 func (s *meiliTweetSearchServant) Version() *semver.Version {
-	return semver.MustParse("v0.2.0")
+	return semver.MustParse("v0.2.1")
 }
 
 func (s *meiliTweetSearchServant) IndexName() string {
 	return s.index.UID
 }
 
-func (s *meiliTweetSearchServant) AddDocuments(data core.DocItems, primaryKey ...string) (bool, error) {
-	if _, err := s.index.AddDocuments(data, primaryKey...); err != nil {
+func (s *meiliTweetSearchServant) AddDocuments(data []core.TsDocItem, primaryKey ...string) (bool, error) {
+	docs := s.toDocs(data)
+	if len(docs) == 0 {
+		return true, nil
+	}
+	if _, err := s.index.AddDocuments(docs, primaryKey...); err != nil {
 		logrus.Errorf("meiliTweetSearchServant.AddDocuments error: %v", err)
 		return false, err
 	}
@@ -103,7 +125,7 @@ func (s *meiliTweetSearchServant) queryByTag(user *model.User, q *core.QueryReq,
 	}
 
 	filter := s.filterList(user)
-	tagFilter := []string{"tags." + q.Query + "=1"}
+	tagFilter := []string{"tags=" + q.Query}
 	if len(filter) > 0 {
 		request.Filter = [][]string{tagFilter, {filter}}
 	} else {
@@ -154,19 +176,57 @@ func (s *meiliTweetSearchServant) filterList(user *model.User) string {
 func (s *meiliTweetSearchServant) postsFrom(resp *meilisearch.SearchResponse) (*core.QueryResp, error) {
 	posts := make([]*model.PostFormated, 0, len(resp.Hits))
 	for _, hit := range resp.Hits {
-		item := &model.PostFormated{}
 		raw, err := json.Marshal(hit)
 		if err != nil {
 			return nil, err
 		}
-		if err = json.Unmarshal(raw, item); err != nil {
+		p := &postInfo{}
+		if err = json.Unmarshal(raw, p); err != nil {
 			return nil, err
 		}
-		posts = append(posts, item)
+		posts = append(posts, &model.PostFormated{
+			ID:              p.ID,
+			UserID:          p.UserID,
+			CommentCount:    p.CommentCount,
+			CollectionCount: p.CollectionCount,
+			UpvoteCount:     p.UpvoteCount,
+			Visibility:      p.Visibility,
+			IsTop:           p.IsTop,
+			IsEssence:       p.IsEssence,
+			IsLock:          p.IsLock,
+			LatestRepliedOn: p.LatestRepliedOn,
+			CreatedOn:       p.CreatedOn,
+			ModifiedOn:      p.ModifiedOn,
+			AttachmentPrice: p.AttachmentPrice,
+			IPLoc:           p.IPLoc,
+		})
 	}
-
 	return &core.QueryResp{
 		Items: posts,
-		Total: resp.NbHits,
+		Total: resp.EstimatedTotalHits,
 	}, nil
+}
+
+func (s *meiliTweetSearchServant) toDocs(data []core.TsDocItem) []map[string]any {
+	docs := make([]map[string]any, 0, len(data))
+	for _, d := range data {
+		docs = append(docs, map[string]any{
+			"id":                d.Post.ID,
+			"user_id":           d.Post.UserID,
+			"comment_count":     d.Post.CommentCount,
+			"collection_count":  d.Post.CollectionCount,
+			"upvote_count":      d.Post.UpvoteCount,
+			"visibility":        d.Post.Visibility,
+			"is_top":            d.Post.IsTop,
+			"is_essence":        d.Post.IsEssence,
+			"content":           d.Content,
+			"tags":              strings.Split(d.Post.Tags, ","),
+			"ip_loc":            d.Post.IPLoc,
+			"latest_replied_on": d.Post.LatestRepliedOn,
+			"attachment_price":  d.Post.AttachmentPrice,
+			"created_on":        d.Post.CreatedOn,
+			"modified_on":       d.Post.ModifiedOn,
+		})
+	}
+	return docs
 }
