@@ -394,7 +394,7 @@ Zinc: # Zinc搜索配置
 mkdir -p data/meili/data
 
 # 使用Docker运行
-docker run -d --name meili -v ${PWD}/data/meili/data:/meili_data -p 7700:7700 -e MEILI_MASTER_KEY=paopao-meilisearch getmeili/meilisearch:v0.27.0
+docker run -d --name meili -v ${PWD}/data/meili/data:/meili_data -p 7700:7700 -e MEILI_MASTER_KEY=paopao-meilisearch getmeili/meilisearch:v0.29.0
 # visit http://localhost:7700 打开自带的搜索前端ui
 
 # 使用docker compose运行，需要删除docker-compose.yaml中关于meili的注释

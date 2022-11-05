@@ -1,6 +1,8 @@
 package search
 
 import (
+	"strings"
+
 	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
@@ -36,8 +38,12 @@ func (s *zincTweetSearchServant) IndexName() string {
 	return s.indexName
 }
 
-func (s *zincTweetSearchServant) AddDocuments(data core.DocItems, primaryKey ...string) (bool, error) {
-	buf := make(core.DocItems, 0, len(data)+1)
+func (s *zincTweetSearchServant) AddDocuments(data []core.TsDocItem, primaryKey ...string) (bool, error) {
+	if len(data) == 0 {
+		return true, nil
+	}
+
+	buf := make([]map[string]any, 0, len(data)+1)
 	if len(primaryKey) > 0 {
 		buf = append(buf, map[string]any{
 			"index": map[string]any{
@@ -52,7 +58,9 @@ func (s *zincTweetSearchServant) AddDocuments(data core.DocItems, primaryKey ...
 			},
 		})
 	}
-	buf = append(buf, data...)
+	docs := s.toDocs(data)
+	buf = append(buf, docs...)
+
 	return s.client.BulkPushDoc(buf)
 }
 
@@ -245,4 +253,32 @@ func (s *zincTweetSearchServant) createIndex() {
 			Store:    true,
 		},
 	})
+}
+
+func (s *zincTweetSearchServant) toDocs(data []core.TsDocItem) []map[string]any {
+	docs := make([]map[string]any, 0, len(data))
+	for _, d := range data {
+		tagMaps := map[string]int8{}
+		for _, tag := range strings.Split(d.Post.Tags, ",") {
+			tagMaps[tag] = 1
+		}
+		docs = append(docs, map[string]any{
+			"id":                d.Post.ID,
+			"user_id":           d.Post.UserID,
+			"comment_count":     d.Post.CommentCount,
+			"collection_count":  d.Post.CollectionCount,
+			"upvote_count":      d.Post.UpvoteCount,
+			"visibility":        d.Post.Visibility,
+			"is_top":            d.Post.IsTop,
+			"is_essence":        d.Post.IsEssence,
+			"content":           d.Content,
+			"tags":              tagMaps,
+			"ip_loc":            d.Post.IPLoc,
+			"latest_replied_on": d.Post.LatestRepliedOn,
+			"attachment_price":  d.Post.AttachmentPrice,
+			"created_on":        d.Post.CreatedOn,
+			"modified_on":       d.Post.ModifiedOn,
+		})
+	}
+	return docs
 }

@@ -447,7 +447,7 @@ func GetUserPosts(c *gin.Context) {
 		"ORDER":           "latest_replied_on DESC",
 	}
 
-	posts, err := service.GetPostList(&service.PostListReq{
+	_, posts, err := service.GetPostList(&service.PostListReq{
 		Conditions: &conditions,
 		Offset:     (app.GetPage(c) - 1) * app.GetPageSize(c),
 		Limit:      app.GetPageSize(c),
