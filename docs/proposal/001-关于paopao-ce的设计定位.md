@@ -5,10 +5,6 @@
 ### 概述
 
 TODO  
-
-### 预览
-![](.assets/justfortest.jpeg)
-TODO
  
 ### 更新记录
 #### v0.0(2022-11-04) - 北野
