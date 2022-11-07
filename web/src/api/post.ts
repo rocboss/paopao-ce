@@ -72,6 +72,15 @@ export const getPostComments = (params: NetParams.PostGetPostComments): Promise<
     });
 };
 
+/** 获取联系人列表 */
+export const getContacts = (params: NetParams.GetContacts): Promise<NetReq.GetContacts> => {
+    return request({
+        method: 'get',
+        url: '/v1/user/contacts',
+        params
+    });
+};
+
 /** 发布动态 */
 export const createPost = (data: NetParams.PostCreatePost): Promise<NetReq.PostCreatePost> => {
     return request({

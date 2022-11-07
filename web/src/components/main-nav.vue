@@ -18,6 +18,7 @@
                 {{ props.title }}
 
                 <n-switch
+                    v-if="props.theme"
                     :value="store.state.theme === 'dark'"
                     @update:value="switchTheme"
                     size="small"
@@ -49,10 +50,12 @@ const props = withDefaults(
     defineProps<{
         title: string;
         back?: boolean;
+        theme?: boolean;
     }>(),
     {
         title: '',
         back: false,
+        theme: true,
     }
 );
 const switchTheme = (theme: boolean) => {

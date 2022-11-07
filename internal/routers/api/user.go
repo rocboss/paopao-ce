@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/model/rest"
 	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/convert"
@@ -88,6 +89,132 @@ func Register(c *gin.Context) {
 		"id":       user.ID,
 		"username": user.Username,
 	})
+}
+
+func RequestingFriend(c *gin.Context) {
+	param := rest.RequestingFriendReq{}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &param)
+	if !valid {
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+
+	user, ok := userFrom(c)
+	if !ok {
+		response.ToErrorResponse(errcode.UnauthorizedAuthNotExist)
+	}
+	if user.ID == param.UserId {
+		response.ToErrorResponse(errcode.NoRequestingFriendToSelf)
+		return
+	}
+
+	if err := service.RequestingFriend(user, &param); err != nil {
+		logrus.Errorf("service.RequestingFriend err: %v", err)
+		response.ToErrorResponse(errcode.SendRequestingFriendFailed)
+		return
+	}
+
+	response.ToResponse(nil)
+}
+
+func AddFriend(c *gin.Context) {
+	param := rest.AddFriendReq{}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &param)
+	if !valid {
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+	user, ok := userFrom(c)
+	if !ok {
+		response.ToErrorResponse(errcode.UnauthorizedAuthNotExist)
+	}
+	if user.ID == param.UserId {
+		response.ToErrorResponse(errcode.NoActionToSelf)
+		return
+	}
+
+	if err := service.AddFriend(user, &param); err != nil {
+		logrus.Errorf("service.AddFriend err: %v", err)
+		response.ToErrorResponse(errcode.AddFriendFailed)
+		return
+	}
+
+	response.ToResponse(nil)
+}
+
+func RejectFriend(c *gin.Context) {
+	param := rest.RejectFriendReq{}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &param)
+	if !valid {
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+	user, ok := userFrom(c)
+	if !ok {
+		response.ToErrorResponse(errcode.UnauthorizedAuthNotExist)
+	}
+	if user.ID == param.UserId {
+		response.ToErrorResponse(errcode.NoActionToSelf)
+		return
+	}
+
+	if err := service.RejectFriend(user, &param); err != nil {
+		logrus.Errorf("service.RejectFriend err: %v", err)
+		response.ToErrorResponse(errcode.RejectFriendFailed)
+		return
+	}
+
+	response.ToResponse(nil)
+}
+
+func DeleteFriend(c *gin.Context) {
+	param := rest.DeleteFriendReq{}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &param)
+	if !valid {
+		logrus.Errorf("app.BindAndValid errs: %v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+	user, ok := userFrom(c)
+	if !ok {
+		response.ToErrorResponse(errcode.UnauthorizedAuthNotExist)
+	}
+	if user.ID == param.UserId {
+		response.ToErrorResponse(errcode.NoActionToSelf)
+		return
+	}
+
+	if err := service.DeleteFriend(user, &param); err != nil {
+		logrus.Errorf("service.DeleteFriend err: %v", err)
+		response.ToErrorResponse(errcode.DeleteFriendFailed)
+		return
+	}
+
+	response.ToResponse(nil)
+}
+
+func GetContacts(c *gin.Context) {
+	response := app.NewResponse(c)
+	user, ok := userFrom(c)
+	if !ok {
+		response.ToErrorResponse(errcode.UnauthorizedAuthNotExist)
+	}
+
+	offset, limit := app.GetPageOffset(c)
+	resp, err := service.GetContacts(user, offset, limit)
+	if err != nil {
+		logrus.Errorf("service.DeleteFriend err: %v", err)
+		response.ToErrorResponse(errcode.GetContactsFailed)
+		return
+	}
+	response.ToResponseList(resp.Contacts, resp.Total)
 }
 
 // 获取用户基本信息
@@ -241,7 +368,10 @@ func BindUserPhone(c *gin.Context) {
 
 	// 执行绑定
 	user.Phone = param.Phone
-	service.UpdateUserInfo(user)
+	if err := service.UpdateUserInfo(user); err != nil {
+		response.ToErrorResponse(err)
+		return
+	}
 
 	response.ToResponse(nil)
 }
@@ -279,29 +409,24 @@ func ChangeUserStatus(c *gin.Context) {
 func GetUserProfile(c *gin.Context) {
 	response := app.NewResponse(c)
 	username := c.Query("username")
+	user, _ := userFrom(c)
 
-	user, err := service.GetUserByUsername(username)
+	resp, err := service.GetUserByUsername(user, username)
 	if err != nil {
 		logrus.Errorf("service.GetUserByUsername err: %v\n", err)
 		response.ToErrorResponse(errcode.NoExistUsername)
 		return
 	}
 
-	response.ToResponse(gin.H{
-		"id":       user.ID,
-		"nickname": user.Nickname,
-		"username": user.Username,
-		"status":   user.Status,
-		"avatar":   user.Avatar,
-		"is_admin": user.IsAdmin,
-	})
+	response.ToResponse(resp)
 }
 
 func GetUserPosts(c *gin.Context) {
 	response := app.NewResponse(c)
 	username := c.Query("username")
+	user, exists := userFrom(c)
 
-	user, err := service.GetUserByUsername(username)
+	other, err := service.GetUserByUsername(user, username)
 	if err != nil {
 		logrus.Errorf("service.GetUserByUsername err: %v\n", err)
 		response.ToErrorResponse(errcode.NoExistUsername)
@@ -309,16 +434,15 @@ func GetUserPosts(c *gin.Context) {
 	}
 
 	visibilities := []model.PostVisibleT{model.PostVisitPublic}
-	if u, exists := c.Get("USER"); exists {
-		self := u.(*model.User)
-		if self.ID == user.ID || self.IsAdmin {
+	if exists {
+		if user.ID == other.ID || user.IsAdmin {
 			visibilities = append(visibilities, model.PostVisitPrivate, model.PostVisitFriend)
-		} else if service.IsFriend(user.ID, self.ID) {
+		} else if other.IsFriend {
 			visibilities = append(visibilities, model.PostVisitFriend)
 		}
 	}
 	conditions := model.ConditionsT{
-		"user_id":         user.ID,
+		"user_id":         other.ID,
 		"visibility IN ?": visibilities,
 		"ORDER":           "latest_replied_on DESC",
 	}

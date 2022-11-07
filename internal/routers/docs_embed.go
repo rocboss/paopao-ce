@@ -5,10 +5,13 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/docs"
+	"github.com/rocboss/paopao-ce/docs/openapi"
+	"github.com/rocboss/paopao-ce/internal/conf"
 )
 
 // registerDocs register docs asset route
 func registerDocs(e *gin.Engine) {
-	e.StaticFS("/docs", docs.NewFileSystem())
+	if conf.CfgIf("Docs:OpenAPI") {
+		e.StaticFS("/docs/openapi", openapi.NewFileSystem())
+	}
 }

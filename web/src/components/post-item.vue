@@ -64,14 +64,23 @@
             </template>
 
             <template #footer>
-                <post-attachment :attachments="post.attachments" />
+                <post-attachment 
+                    v-if="post.attachments.length > 0"
+                    :attachments="post.attachments" />
                 <post-attachment
+                    v-if="post.charge_attachments.length > 0"
                     :attachments="post.charge_attachments"
                     :price="post.attachment_price"
                 />
-                <post-image :imgs="post.imgs" />
-                <post-video :videos="post.videos" />
-                <post-link :links="post.links" />
+                <post-image
+                    v-if="post.imgs.length > 0"
+                    :imgs="post.imgs" />
+                <post-video
+                    v-if="post.videos.length > 0"
+                    :videos="post.videos" />
+                <post-link
+                    v-if="post.links.length > 0"
+                    :links="post.links" />
             </template>
             <template #action>
                 <n-space justify="space-between">

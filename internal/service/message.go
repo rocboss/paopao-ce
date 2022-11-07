@@ -82,6 +82,11 @@ func GetMessages(userID int64, offset, limit int) ([]*model.MessageFormated, int
 
 		}
 
+		// 好友申请消息不需要获取其他信息
+		if mf.Type == model.MsgTypeRequestingFriend {
+			continue
+		}
+
 		if mf.PostID > 0 {
 			post, err := GetPost(mf.PostID)
 			if err == nil {

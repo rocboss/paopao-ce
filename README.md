@@ -239,11 +239,20 @@ docker compose up --build
 > 注意：默认提供的 docker-compose.yaml 初衷是搭建本机开发调试环境，如果需要产品部署供外网访问，请自行调优配置参数或使用其他方式部署。
 
 ### API 文档
-构建时将 `docs` 添加到TAGS中:
+* `config.yaml` 添加 `Docs:OpenAPI` 功能项:
+```yaml
+...
+Features:
+  Default: ["Base", "MySQL", "Option", "LocalOSS", "LoggerFile", "Docs"]
+  Docs: ["Docs:OpenAPI"]
+...
+```
+
+* 构建时将 `docs` 添加到TAGS中:
 ```sh
 make run TAGS='docs'
 
-# visit http://127.0.0.1:8008/docs
+# visit http://127.0.0.1:8008/docs/openapi
 ```
 
 ### 配置说明
@@ -323,10 +332,15 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
   `LoggerFile` 使用文件写日志(目前状态: 稳定);   
   `LoggerZinc` 使用[Zinc](https://github.com/zinclabs/zinc)写日志(目前状态: 稳定，推荐使用);    
   `LoggerMeili` 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志(目前状态: 内测阶段);  
+* 用户关系模式: Friendship/Followship    
+  `Friendship` 弱关系好友模式，类似微信朋友圈(目前状态: 开发阶段);    
+  `Followship` 关注者模式，类似Twitter的Follow模式(目前状态: WIP);    
 * 支付: Alipay   
   `Alipay`  开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能；   
 * 短信验证码: SmsJuhe(需要开启sms)    
-  `Sms` 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机；     
+  `Sms` 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机；
+* 开发文档: Docs:OpenAPI     
+  `Docs:OpenAPI` 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi)；        
 * 其他: PhoneBind/OSS:Retention/OSS:TempDir     
   `PhoneBind` 手机绑定功能；     
   `OSS:Retention` 基于对象存储系统的对象过期自动删除特性实现 先创建临时对象再持久化的功能(目前状态: 内测阶段)；  
@@ -456,7 +470,7 @@ MinIO: # MinIO 存储配置
 
 短信通道使用的[聚合数据](https://www.juhe.cn/)，如果申请不下来，可以考虑替换其他服务商。
 
-代码结构比较简单，很方便扩展
+代码结构比较简单，很方便扩展。 开发文档请参阅[docs](docs '开发文档').
 
 ## 👯‍♀️ 贡献
 

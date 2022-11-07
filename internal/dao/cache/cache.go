@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func NewBigCacheIndexService(indexPosts core.IndexPostsService) (core.CacheIndexService, core.VersionInfo) {
+func NewBigCacheIndexService(ips core.IndexPostsService, ams core.AuthorizationManageService) (core.CacheIndexService, core.VersionInfo) {
 	s := conf.BigCacheIndexSetting
 
 	config := bigcache.DefaultConfig(s.ExpireInSecond)
@@ -23,7 +23,8 @@ func NewBigCacheIndexService(indexPosts core.IndexPostsService) (core.CacheIndex
 	}
 
 	cacheIndex := &bigCacheIndexServant{
-		ips:             indexPosts,
+		ips:             ips,
+		ams:             ams,
 		cache:           cache,
 		preventDuration: 10 * time.Second,
 	}

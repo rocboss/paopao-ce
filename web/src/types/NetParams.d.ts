@@ -52,11 +52,6 @@ declare module NetParams {
         page_size: number
     }
 
-    interface UserGetStars {
-        page: number,
-        page_size: number
-    }
-
     interface UserGetUserProfile {
         username: string
     }
@@ -84,6 +79,12 @@ declare module NetParams {
         captcha: string
     }
 
+    interface UserActivation {
+        activate_code: string,
+        captcha_id: string,
+        imgCaptcha: string
+    }
+
     interface UserGetCaptcha {
 
     }
@@ -91,6 +92,28 @@ declare module NetParams {
     interface UserWhisper {
         user_id: number,
         content: string
+    }
+
+    interface RequestingFriend {
+        user_id: number,
+        greetings: string
+    }
+
+    interface AddFriend {
+        user_id: number
+    }
+
+    interface RejectFriend {
+        user_id: number
+    }
+
+    interface DeleteFriend {
+        user_id: number
+    }
+
+    interface GetContacts {
+        page: number,
+        page_size: number
     }
 
     interface UserChangePassword {
@@ -153,6 +176,9 @@ declare module NetParams {
 
     interface PostGetPostComments {
         id: number
+    }
+
+    interface GetContacts {
     }
 
     interface PostCreatePost {

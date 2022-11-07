@@ -1,6 +1,6 @@
 // Core service implement base gorm+mysql/postgresql/sqlite3.
 // Jinzhu is the primary developer of gorm so use his name as
-// pakcage name as a saluter.
+// package name as a saluter.
 
 package jinzhu
 
@@ -29,6 +29,7 @@ type dataServant struct {
 	core.CommentService
 	core.CommentManageService
 	core.UserManageService
+	core.ContactManageService
 	core.SecurityService
 	core.AttachmentCheckService
 }
@@ -46,7 +47,8 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		i = newSimpleIndexPostsService(db)
 		c, v = cache.NewSimpleCacheIndexService(i)
 	} else if conf.CfgIf("BigCacheIndex") {
-		c, v = cache.NewBigCacheIndexService(i)
+		a := newAuthorizationManageService(db)
+		c, v = cache.NewBigCacheIndexService(i, a)
 	} else {
 		c, v = cache.NewNoneCacheIndexService(i)
 	}
@@ -63,6 +65,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		CommentService:         newCommentService(db),
 		CommentManageService:   newCommentManageService(db),
 		UserManageService:      newUserManageService(db),
+		ContactManageService:   newContactManageService(db),
 		SecurityService:        newSecurityService(db),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
 	}
@@ -70,9 +73,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 }
 
 func NewAuthorizationManageService() core.AuthorizationManageService {
-	return &authorizationManageServant{
-		db: conf.MustGormDB(),
-	}
+	return newAuthorizationManageService(conf.MustGormDB())
 }
 
 func (s *dataServant) Name() string {
@@ -80,5 +81,5 @@ func (s *dataServant) Name() string {
 }
 
 func (s *dataServant) Version() *semver.Version {
-	return semver.MustParse("v0.1.0")
+	return semver.MustParse("v0.2.0")
 }

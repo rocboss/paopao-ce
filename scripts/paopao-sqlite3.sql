@@ -91,6 +91,42 @@ CREATE TABLE "p_comment_reply" (
 );
 
 -- ----------------------------
+-- Table structure for p_contact
+-- ----------------------------
+DROP TABLE IF EXISTS "p_contact";
+CREATE TABLE "p_contact" (
+  "id" integer NOT NULL,
+  "user_id" integer NOT NULL,
+  "friend_id" integer NOT NULL,
+  "group_id" integer NOT NULL,
+  "remark" text(32) NOT NULL,
+  "status" integer NOT NULL,
+  "is_top" integer NOT NULL,
+  "is_black" integer NOT NULL,
+  "is_delete" integer NOT NULL,
+  "notice_enable" integer NOT NULL,
+  "created_on" integer NOT NULL,
+  "modified_on" integer NOT NULL,
+  "deleted_on" integer NOT NULL,
+  PRIMARY KEY ("id")
+);
+
+-- ----------------------------
+-- Table structure for p_contact_group
+-- ----------------------------
+DROP TABLE IF EXISTS "p_contact_group";
+CREATE TABLE "p_contact_group" (
+  "id" integer NOT NULL,
+  "user_id" integer NOT NULL,
+  "name" text(32) NOT NULL,
+  "is_delete" integer NOT NULL,
+  "created_on" integer NOT NULL,
+  "modified_on" integer NOT NULL,
+  "deleted_on" integer NOT NULL,
+  PRIMARY KEY ("id")
+);
+
+-- ----------------------------
 -- Table structure for p_message
 -- ----------------------------
 DROP TABLE IF EXISTS "p_message";
@@ -122,7 +158,6 @@ CREATE TABLE "p_post" (
   "comment_count" integer NOT NULL,
   "collection_count" integer NOT NULL,
   "upvote_count" integer NOT NULL,
-  "visibility" integer NOT NULL,
   "is_top" integer NOT NULL,
   "is_essence" integer NOT NULL,
   "is_lock" integer NOT NULL,
@@ -134,7 +169,7 @@ CREATE TABLE "p_post" (
   "created_on" integer NOT NULL,
   "modified_on" integer NOT NULL,
   "deleted_on" integer NOT NULL,
-  "is_del" integer NOT NULL,
+  "is_del" integer NOT NULL, `visibility` integer NOT NULL DEFAULT '0',
   PRIMARY KEY ("id")
 );
 
@@ -167,14 +202,6 @@ CREATE TABLE "p_post_collection" (
   "deleted_on" integer NOT NULL,
   "is_del" integer NOT NULL,
   PRIMARY KEY ("id")
-);
-
--- ----------------------------
--- Indexes structure for table p_post
--- ----------------------------
-CREATE INDEX "main"."idx_visibility"
-ON "p_post" (
-  "visibility" ASC
 );
 
 -- ----------------------------
@@ -313,6 +340,29 @@ ON "p_captcha" (
 CREATE INDEX "main"."idx_post"
 ON "p_comment" (
   "post_id" ASC
+);
+
+-- ----------------------------
+-- Indexes structure for table p_contact
+-- ----------------------------
+CREATE UNIQUE INDEX "main"."idx_user_friend_id"
+ON "p_contact" (
+  "user_id" ASC,
+  "friend_id" ASC
+);
+CREATE INDEX "main"."idx_user_friend_status"
+ON "p_contact" (
+  "user_id" ASC,
+  "friend_id" ASC,
+  "status" ASC
+);
+
+-- ----------------------------
+-- Indexes structure for table p_post
+-- ----------------------------
+CREATE INDEX "main"."idx_visibility"
+ON "p_post" (
+  "visibility" ASC
 );
 
 PRAGMA foreign_keys = true;

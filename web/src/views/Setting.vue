@@ -1,6 +1,6 @@
 <template>
     <div>
-        <main-nav title="设置" />
+        <main-nav title="设置" theme />
         <n-card title="基本信息" size="small" class="setting-card">
             <div class="base-line avatar">
                 <n-avatar
@@ -72,9 +72,7 @@
             </div>
         </n-card>
 
-        <n-card
-            v-if="allowPhoneBind" 
-            title="手机号" size="small" class="setting-card">
+        <n-card v-if="allowPhoneBind" title="手机号" size="small" class="setting-card">
             <div
                 v-if="
                     store.state.userInfo.phone &&
@@ -95,7 +93,7 @@
             </div>
             <div v-else>
                 <n-alert title="手机绑定提示" type="warning">
-                    成功绑定手机后，才能进行换头像、发动态、回复等交互哦~<br />
+                    成功绑定手机后，才能进行换头像、发动态、回复等交互~<br />
                     <a
                         class="hash-link"
                         @click="showPhoneBind = true"
@@ -174,6 +172,93 @@
                                     @click="handlePhoneBind"
                                 >
                                     绑定
+                                </n-button>
+                            </div>
+                        </n-col>
+                    </n-row>
+                </n-form>
+            </div>
+        </n-card>
+
+        <n-card v-if="allowActivation" title="激活码" size="small" class="setting-card">
+            <div
+                v-if="
+                    store.state.userInfo.activation &&
+                    store.state.userInfo.activation.length > 0
+                "
+            >
+                {{ store.state.userInfo.activation }}
+
+                <n-button
+                    quaternary
+                    round
+                    type="success"
+                    v-if="!showActivation"
+                    @click="showActivation = true"
+                >
+                    重新激活
+                </n-button>
+            </div>
+            <div v-else>
+                <n-alert title="激活码激活提示" type="warning">
+                    成功激活后后，才能发（公开/好友可见）动态、回复~<br />
+                    <a
+                        class="hash-link"
+                        @click="showActivation = true"
+                        v-if="!showActivation"
+                    >
+                    立即激活
+                    </a>
+                </n-alert>
+            </div>
+
+            <div class="phone-bind-wrap" v-if="showActivation">
+                <n-form
+                    ref="activateFormRef"
+                    :model="activateData"
+                    :rules="activateRules"
+                >
+                    <n-form-item path="activate_code" label="激活码">
+                        <n-input
+                            :value="activateData.activate_code"
+                            @update:value="(v: string) => (activateData.activate_code = v.trim())"
+                            placeholder="请输入激活码"
+                            @keydown.enter.prevent
+                        />
+                    </n-form-item>
+                    <n-form-item path="img_captcha" label="图形验证码">
+                        <div class="captcha-img-wrap">
+                            <n-input
+                                v-model:value="activateData.imgCaptcha"
+                                placeholder="请输入图形验证码后获取验证码"
+                            />
+                            <div class="captcha-img">
+                                <img
+                                    v-if="activateData.b64s"
+                                    :src="activateData.b64s"
+                                    @click="loadCaptcha4Activate"
+                                />
+                            </div>
+                        </div>
+                    </n-form-item>
+                    <n-row :gutter="[0, 24]">
+                        <n-col :span="24">
+                            <div class="form-submit-wrap">
+                                <n-button
+                                    quaternary
+                                    round
+                                    @click="showActivation = false"
+                                >
+                                    取消
+                                </n-button>
+                                <n-button
+                                    secondary
+                                    round
+                                    type="primary"
+                                    :loading="activating"
+                                    @click="handleActivation"
+                                >
+                                    激活
                                 </n-button>
                             </div>
                         </n-col>
@@ -262,6 +347,7 @@ import {
     getCaptcha,
     sendCaptcha,
     bindUserPhone,
+    activateUser,
     changePassword,
     changeNickname,
     changeAvatar,
@@ -274,14 +360,17 @@ import type {
     InputInst,
 } from 'naive-ui';
 
-const allowPhoneBind= (import.meta.env.VITE_ALLOW_PHONE_BIND.toLocaleLowerCase() === 'true')
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
 const uploadType = ref('public/avatar');
 
+const allowPhoneBind = (import.meta.env.VITE_ALLOW_PHONE_BIND.toLowerCase() === 'true')
+const allowActivation = (import.meta.env.VITE_ALLOW_ACTIVATION.toLowerCase() === 'true')
+
 const store = useStore();
 const sending = ref(false);
 const binding = ref(false);
+const activating = ref(false)
 const avatarRef = ref<UploadInst>();
 const inputInstRef = ref<InputInst>();
 const showNicknameEdit = ref(false);
@@ -290,7 +379,9 @@ const showPasswordSetting = ref(false);
 const smsDisabled = ref(false);
 const smsCounter = ref(60);
 const showPhoneBind = ref(false);
+const showActivation = ref(false);
 const phoneFormRef = ref<FormInst>();
+const activateFormRef = ref<FormInst>();
 const formRef = ref<FormInst>();
 const rPasswordFormItemRef = ref<FormItemInst>();
 const modelData = reactive({
@@ -302,6 +393,13 @@ const modelData = reactive({
     password: '',
     old_password: '',
     reenteredPassword: '',
+});
+
+const activateData = reactive({
+    id: '',
+    b64s: '',
+    imgCaptcha: '',
+    activate_code: '',
 });
 
 const beforeUpload = async (data: any) => {
@@ -426,11 +524,62 @@ const handlePhoneBind = (e: MouseEvent) => {
     });
 };
 
+const handleActivation = (e: MouseEvent) => {
+    e.preventDefault();
+    activateFormRef.value?.validate((errors) => {
+    if (activateData.imgCaptcha === '') {
+        window.$message.warning('请输入图片验证码');
+        return;
+    }
+    sending.value = true;
+        if (!errors) {
+            activating.value = true;
+            activateUser({
+                activate_code: activateData.activate_code,
+                captcha_id: activateData.id,
+                imgCaptcha: activateData.imgCaptcha
+            })
+                .then((res) => {
+                    activating.value = false;
+                    showActivation.value = false;
+                    window.$message.success('激活成功');
+
+                    store.commit('updateUserinfo', {
+                        ...store.state.userInfo,
+                        activation: activateData.activate_code,
+                    });
+
+                    activateData.id = '';
+                    activateData.b64s = '';
+                    activateData.imgCaptcha = '';
+                    activateData.activate_code = '';
+                })
+                .catch((err) => {
+                    activating.value = false;
+                    if (err.code === 20012) {
+                        loadCaptcha4Activate();
+                    }
+                });
+        }
+    });
+};
+
 const loadCaptcha = () => {
     getCaptcha()
         .then((res) => {
             modelData.id = res.id;
             modelData.b64s = res.b64s;
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
+
+const loadCaptcha4Activate = () => {
+    getCaptcha()
+        .then((res) => {
+            activateData.id = res.id;
+            activateData.b64s = res.b64s;
         })
         .catch((err) => {
             console.log(err);
@@ -505,6 +654,18 @@ const bindRules = {
         },
     ],
 };
+const activateRules = {
+    activate_code: [
+        {
+            required: true,
+            message: '请输入激活码',
+            trigger: ['input'],
+            validator: (rule: FormItemRule, value: any) => {
+                return /\d{6}$/.test(value);
+            },
+        },
+    ],
+};
 const passwordRules = {
     password: [
         {
@@ -548,6 +709,7 @@ onMounted(() => {
         store.commit('triggerAuthKey', 'signin');
     }
     loadCaptcha();
+    loadCaptcha4Activate();
 });
 </script>
 
@@ -583,6 +745,10 @@ onMounted(() => {
         .avatar-img {
             margin-bottom: 10px;
         }
+    }
+
+    .hash-link {
+        margin-left: 12px;
     }
 
     .phone-bind-wrap {

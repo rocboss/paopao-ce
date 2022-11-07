@@ -13,6 +13,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/internal/model/rest"
+	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,6 +29,7 @@ type postsEntry struct {
 
 type bigCacheIndexServant struct {
 	ips core.IndexPostsService
+	ams core.AuthorizationManageService
 
 	indexActionCh      chan *core.IndexAction
 	cachePostsCh       chan *postsEntry
@@ -133,7 +135,7 @@ func (s *bigCacheIndexServant) handleIndexAction(action *core.IndexAction) {
 	switch act {
 	case core.IdxActCreatePost, core.IdxActDeletePost:
 		if post.Visibility == model.PostVisitPrivate {
-			s.deleteCacheByUserId(post.UserID)
+			s.deleteCacheByUserId(post.UserID, true)
 			return
 		}
 	}
@@ -141,29 +143,34 @@ func (s *bigCacheIndexServant) handleIndexAction(action *core.IndexAction) {
 	// 如果在s.preventDuration时间内就清除所有缓存，否则只清除自个儿的缓存
 	// TODO: 需要优化只清除受影响的缓存，后续完善
 	if time.Since(s.lastCacheResetTime) > s.preventDuration {
-		s.cache.Reset()
-		s.lastCacheResetTime = time.Now()
-		logrus.Debugf("bigCacheIndexServant.handleIndexAction reset cache by %s", action.Act)
+		s.deleteCacheByUserId(post.UserID, false)
 	} else {
-		s.deleteCacheByUserId(post.UserID)
+		s.deleteCacheByUserId(post.UserID, true)
 	}
 }
 
-func (s *bigCacheIndexServant) deleteCacheByUserId(id int64) {
+func (s *bigCacheIndexServant) deleteCacheByUserId(id int64, oneself bool) {
 	var keys []string
 	userId := strconv.FormatInt(id, 10)
+	friendSet := core.FriendSet{}
+	if !oneself {
+		friendSet = s.ams.MyFriendSet(id)
+	}
+	friendSet[userId] = types.Empty{}
 
 	// 获取需要删除缓存的key，目前是仅删除自个儿的缓存
 	for it := s.cache.Iterator(); it.SetNext(); {
 		entry, err := it.Value()
 		if err != nil {
-			logrus.Debugf("bigCacheIndexServant.deleteCacheByUserId usrId: %s err:%s", userId, err)
+			logrus.Debugf("bigCacheIndexServant.deleteCacheByUserId userId: %s err:%s", userId, err)
 			return
 		}
 		key := entry.Key()
 		keyParts := strings.Split(key, ":")
-		if len(keyParts) > 2 && keyParts[0] == "index" && keyParts[1] == userId {
-			keys = append(keys, key)
+		if len(keyParts) > 2 && keyParts[0] == "index" {
+			if _, ok := friendSet[keyParts[1]]; ok {
+				keys = append(keys, key)
+			}
 		}
 	}
 
@@ -172,7 +179,7 @@ func (s *bigCacheIndexServant) deleteCacheByUserId(id int64) {
 		s.cache.Delete(k)
 	}
 	s.lastCacheResetTime = time.Now()
-	logrus.Debugf("bigCacheIndexServant.deleteCacheByUserId userId:%d", id)
+	logrus.Debugf("bigCacheIndexServant.deleteCacheByUserId userId:%s oneself:%t keys:%d", userId, oneself, len(keys))
 }
 
 func (s *bigCacheIndexServant) Name() string {

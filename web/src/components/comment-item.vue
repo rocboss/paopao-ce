@@ -71,7 +71,9 @@
             </template>
 
             <template #footer>
-                <post-image :imgs="comment.imgs" />
+                <post-image
+                    v-if="comment.imgs.length > 0"
+                    :imgs="comment.imgs" />
                 <!-- 回复列表 -->
                 <div class="reply-wrap">
                     <reply-item
