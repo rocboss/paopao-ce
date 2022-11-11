@@ -25,3 +25,15 @@ type webCoreRender struct {
 	core.BaseRender
 	api.UnimplementedWebCoreRender
 }
+
+func newWebCoreSrv() api.WebCore {
+	return &webCoreSrv{}
+}
+
+func newWebCoreBinding() api.WebCoreBinding {
+	return &webCoreBinding{}
+}
+
+func newWebCoreRender() api.WebCoreRender {
+	return &webCoreRender{}
+}
