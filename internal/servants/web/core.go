@@ -18,12 +18,12 @@ type webCoreSrv struct {
 
 type webCoreBinding struct {
 	core.BaseBinding
-	api.UnimplementedWebCoreBinding
+	*api.UnimplementedWebCoreBinding
 }
 
 type webCoreRender struct {
 	core.BaseRender
-	api.UnimplementedWebCoreRender
+	*api.UnimplementedWebCoreRender
 }
 
 func newWebCoreSrv() api.WebCore {
@@ -31,9 +31,17 @@ func newWebCoreSrv() api.WebCore {
 }
 
 func newWebCoreBinding() api.WebCoreBinding {
-	return &webCoreBinding{}
+	return &webCoreBinding{
+		UnimplementedWebCoreBinding: &api.UnimplementedWebCoreBinding{
+			BindAny: core.BindAny,
+		},
+	}
 }
 
 func newWebCoreRender() api.WebCoreRender {
-	return &webCoreRender{}
+	return &webCoreRender{
+		UnimplementedWebCoreRender: &api.UnimplementedWebCoreRender{
+			RenderAny: core.RenderAny,
+		},
+	}
 }

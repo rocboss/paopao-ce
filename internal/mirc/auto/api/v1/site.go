@@ -4,7 +4,6 @@ package v1
 
 import (
 	"errors"
-	"net/http"
 
 	gin "github.com/gin-gonic/gin"
 )
@@ -92,10 +91,14 @@ func RegisterWebCoreServant(e *gin.Engine, s WebCore, b WebCoreBinding, r WebCor
 type UnimplementedWebCoreServant struct{}
 
 // UnimplementedWebCoreBinding can be embedded to have forward compatible implementations.
-type UnimplementedWebCoreBinding struct{}
+type UnimplementedWebCoreBinding struct {
+	BindAny func(*gin.Context, any) error
+}
 
 // UnimplementedWebCoreRender can be embedded to have forward compatible implementations.
-type UnimplementedWebCoreRender struct{}
+type UnimplementedWebCoreRender struct {
+	RenderAny func(*gin.Context, any, error)
+}
 
 func (UnimplementedWebCoreServant) Chain() gin.HandlersChain {
 	return nil
@@ -119,26 +122,28 @@ func (UnimplementedWebCoreServant) Logout(c *gin.Context) error {
 
 func (UnimplementedWebCoreServant) mustEmbedUnimplementedWebCoreServant() {}
 
-func (UnimplementedWebCoreBinding) BindLogin(c *gin.Context) (*LoginReq, error) {
-	return nil, errors.New("method BindLogin not implemented")
+func (b *UnimplementedWebCoreBinding) BindLogin(c *gin.Context) (*LoginReq, error) {
+	obj := new(LoginReq)
+	err := b.BindAny(c, obj)
+	return obj, err
 }
 
-func (UnimplementedWebCoreBinding) mustEmbedUnimplementedWebCoreBinding() {}
+func (b *UnimplementedWebCoreBinding) mustEmbedUnimplementedWebCoreBinding() {}
 
-func (UnimplementedWebCoreRender) RenderIndex(c *gin.Context, err error) {
-	c.String(http.StatusInternalServerError, "method RenderLogout not implemented")
+func (r *UnimplementedWebCoreRender) RenderIndex(c *gin.Context, err error) {
+	r.RenderAny(c, nil, err)
 }
 
-func (UnimplementedWebCoreRender) RenderArticles(c *gin.Context, err error) {
-	c.String(http.StatusInternalServerError, "method RenderLogout not implemented")
+func (r *UnimplementedWebCoreRender) RenderArticles(c *gin.Context, err error) {
+	r.RenderAny(c, nil, err)
 }
 
-func (UnimplementedWebCoreRender) RenderLogin(c *gin.Context, data *LoginResp, err error) {
-	c.String(http.StatusInternalServerError, "method RenderLogin not implemented")
+func (r *UnimplementedWebCoreRender) RenderLogin(c *gin.Context, data *LoginResp, err error) {
+	r.RenderAny(c, data, err)
 }
 
-func (UnimplementedWebCoreRender) RenderLogout(c *gin.Context, err error) {
-	c.String(http.StatusInternalServerError, "method RenderLogout not implemented")
+func (r *UnimplementedWebCoreRender) RenderLogout(c *gin.Context, err error) {
+	r.RenderAny(c, nil, err)
 }
 
-func (UnimplementedWebCoreRender) mustEmbedUnimplementedWebCoreRender() {}
+func (r *UnimplementedWebCoreRender) mustEmbedUnimplementedWebCoreRender() {}

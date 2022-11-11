@@ -1,7 +1,7 @@
 package web
 
 import (
-	"github.com/rocboss/paopao-ce/internal/servants/core/xerror"
+	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
 
 var (

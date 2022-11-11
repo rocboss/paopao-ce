@@ -3,6 +3,11 @@ package xerror
 import (
 	"fmt"
 	"net/http"
+	"strings"
+)
+
+var (
+	codes = map[int]string{}
 )
 
 type Error struct {
@@ -11,7 +16,27 @@ type Error struct {
 	details []string
 }
 
-var codes = map[int]string{}
+type ValidError struct {
+	Message string
+}
+
+type ValidErrors []*ValidError
+
+func (v *ValidError) Error() string {
+	return v.Message
+}
+
+func (v ValidErrors) Error() string {
+	return strings.Join(v.Errors(), ",")
+}
+
+func (v ValidErrors) Errors() []string {
+	var errs []string
+	for _, err := range v {
+		errs = append(errs, err.Error())
+	}
+	return errs
+}
 
 func NewError(code int, msg string) *Error {
 	if _, ok := codes[code]; ok {
