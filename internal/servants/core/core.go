@@ -1,23 +1,23 @@
-package servants
+package core
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/model"
 )
 
-type baseServant struct {
+type BaseServant struct {
 	// TODO
 }
 
-type baseBinding struct {
+type BaseBinding struct {
 	// TODO
 }
 
-type baseRender struct {
+type BaseRender struct {
 	// TODO
 }
 
-func (baseServant) userFrom(c *gin.Context) (*model.User, bool) {
+func (BaseServant) userFrom(c *gin.Context) (*model.User, bool) {
 	if u, exists := c.Get("USER"); exists {
 		user, ok := u.(*model.User)
 		return user, ok

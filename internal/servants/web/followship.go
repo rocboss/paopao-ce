@@ -1,4 +1,4 @@
-package servants
+package web
 
 type webFollowshipSrv struct {
 	// TODO

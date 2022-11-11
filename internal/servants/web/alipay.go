@@ -1,4 +1,4 @@
-package servants
+package web
 
 type webAlipaySrv struct {
 	// TODO

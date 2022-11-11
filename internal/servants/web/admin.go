@@ -1,4 +1,4 @@
-package servants
+package web
 
 type webAdminSrv struct {
 	// TODO
