@@ -3,37 +3,27 @@ package app
 import (
 	"net/http"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/internal/servants"
 )
 
-func NewWebEngine() *gin.Engine {
-	e := gin.New()
-	e.HandleMethodNotAllowed = true
-	e.Use(gin.Logger())
-	e.Use(gin.Recovery())
+type Service interface {
+	Start()
+	Stop()
+	Info() string
+}
 
-	// 跨域配置
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowAllOrigins = true
-	corsConfig.AddAllowHeaders("Authorization")
-	e.Use(cors.New(corsConfig))
+func NewWebService() Service {
+	e := newWebEngine()
+	servants.RegisterWebServants(e)
 
-	// 默认404
-	e.NoRoute(func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code": 404,
-			"msg":  "Not Found",
-		})
-	})
-
-	// 默认405
-	e.NoMethod(func(c *gin.Context) {
-		c.JSON(http.StatusMethodNotAllowed, gin.H{
-			"code": 405,
-			"msg":  "Method Not Allowed",
-		})
-	})
-
-	return e
+	return &webService{
+		server: &http.Server{
+			Addr:           conf.ServerSetting.HttpIp + ":" + conf.ServerSetting.HttpPort,
+			Handler:        e,
+			ReadTimeout:    conf.ServerSetting.ReadTimeout,
+			WriteTimeout:   conf.ServerSetting.WriteTimeout,
+			MaxHeaderBytes: 1 << 20,
+		},
+	}
 }
