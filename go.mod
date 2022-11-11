@@ -39,6 +39,7 @@ require (
 	gorm.io/plugin/dbresolver v1.1.0
 	gorm.io/plugin/soft_delete v1.1.0
 	modernc.org/sqlite v1.17.3
+	github.com/alimy/mir/v3 v3.0.0
 )
 
 require (
@@ -130,4 +131,8 @@ require (
 	modernc.org/opt v0.1.1 // indirect
 	modernc.org/strutil v1.1.1 // indirect
 	modernc.org/token v1.0.0 // indirect
+)
+
+replace (
+	github.com/alimy/mir/v3 => ../../alimy/mir
 )
