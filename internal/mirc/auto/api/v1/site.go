@@ -3,9 +3,10 @@
 package v1
 
 import (
-	"errors"
+	"net/http"
 
-	gin "github.com/gin-gonic/gin"
+	"github.com/alimy/mir/v3"
+	"github.com/gin-gonic/gin"
 )
 
 type AgentInfo struct {
@@ -37,25 +38,25 @@ type WebCore interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
-	Index(c *gin.Context) error
-	Articles(c *gin.Context) error
-	Login(c *gin.Context, req *LoginReq) (*LoginResp, error)
-	Logout(c *gin.Context) error
+	Index(c *gin.Context) mir.Error
+	Articles(c *gin.Context) mir.Error
+	Login(c *gin.Context, req *LoginReq) (*LoginResp, mir.Error)
+	Logout(c *gin.Context) mir.Error
 
 	mustEmbedUnimplementedWebCoreServant()
 }
 
 type WebCoreBinding interface {
-	BindLogin(c *gin.Context) (*LoginReq, error)
+	BindLogin(c *gin.Context) (*LoginReq, mir.Error)
 
 	mustEmbedUnimplementedWebCoreBinding()
 }
 
 type WebCoreRender interface {
-	RenderIndex(c *gin.Context, err error)
-	RenderArticles(c *gin.Context, err error)
-	RenderLogin(c *gin.Context, data *LoginResp, err error)
-	RenderLogout(c *gin.Context, err error)
+	RenderIndex(c *gin.Context, err mir.Error)
+	RenderArticles(c *gin.Context, err mir.Error)
+	RenderLogin(c *gin.Context, data *LoginResp, err mir.Error)
+	RenderLogout(c *gin.Context, err mir.Error)
 
 	mustEmbedUnimplementedWebCoreRender()
 }
@@ -92,37 +93,37 @@ type UnimplementedWebCoreServant struct{}
 
 // UnimplementedWebCoreBinding can be embedded to have forward compatible implementations.
 type UnimplementedWebCoreBinding struct {
-	BindAny func(*gin.Context, any) error
+	BindAny func(*gin.Context, any) mir.Error
 }
 
 // UnimplementedWebCoreRender can be embedded to have forward compatible implementations.
 type UnimplementedWebCoreRender struct {
-	RenderAny func(*gin.Context, any, error)
+	RenderAny func(*gin.Context, any, mir.Error)
 }
 
 func (UnimplementedWebCoreServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedWebCoreServant) Index(c *gin.Context) error {
-	return errors.New("method Index not implemented")
+func (UnimplementedWebCoreServant) Index(c *gin.Context) mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) Articles(c *gin.Context) error {
-	return errors.New("method Index not implemented")
+func (UnimplementedWebCoreServant) Articles(c *gin.Context) mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) Login(c *gin.Context, req *LoginReq) (*LoginResp, error) {
-	return nil, errors.New("method Login not implemented")
+func (UnimplementedWebCoreServant) Login(c *gin.Context, req *LoginReq) (*LoginResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) Logout(c *gin.Context) error {
-	return errors.New("method Logout not implemented")
+func (UnimplementedWebCoreServant) Logout(c *gin.Context) mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
 func (UnimplementedWebCoreServant) mustEmbedUnimplementedWebCoreServant() {}
 
-func (b *UnimplementedWebCoreBinding) BindLogin(c *gin.Context) (*LoginReq, error) {
+func (b *UnimplementedWebCoreBinding) BindLogin(c *gin.Context) (*LoginReq, mir.Error) {
 	obj := new(LoginReq)
 	err := b.BindAny(c, obj)
 	return obj, err
@@ -130,19 +131,19 @@ func (b *UnimplementedWebCoreBinding) BindLogin(c *gin.Context) (*LoginReq, erro
 
 func (b *UnimplementedWebCoreBinding) mustEmbedUnimplementedWebCoreBinding() {}
 
-func (r *UnimplementedWebCoreRender) RenderIndex(c *gin.Context, err error) {
+func (r *UnimplementedWebCoreRender) RenderIndex(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderArticles(c *gin.Context, err error) {
+func (r *UnimplementedWebCoreRender) RenderArticles(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderLogin(c *gin.Context, data *LoginResp, err error) {
+func (r *UnimplementedWebCoreRender) RenderLogin(c *gin.Context, data *LoginResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderLogout(c *gin.Context, err error) {
+func (r *UnimplementedWebCoreRender) RenderLogout(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 

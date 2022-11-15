@@ -1,10 +1,10 @@
 package core
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 
+	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
@@ -30,16 +30,16 @@ func (BaseServant) userFrom(c *gin.Context) (*model.User, bool) {
 	return nil, false
 }
 
-func BindAny(c *gin.Context, obj any) error {
+func BindAny(c *gin.Context, obj any) mir.Error {
 	var errs xerror.ValidErrors
 	err := c.ShouldBind(obj)
 	if err != nil {
-		return fmt.Errorf("bind errs: %w", xerror.InvalidParams.WithDetails(errs.Error()))
+		return mir.NewError(xerror.InvalidParams.Code(), xerror.InvalidParams.WithDetails(errs.Error()))
 	}
 	return nil
 }
 
-func RenderAny(c *gin.Context, data any, err error) {
+func RenderAny(c *gin.Context, data any, err mir.Error) {
 	if err == nil {
 		hostname, _ := os.Hostname()
 		if data == nil {
@@ -59,7 +59,7 @@ func RenderAny(c *gin.Context, data any, err error) {
 		c.JSON(http.StatusOK, data)
 	} else {
 		// TODO: error process logic
-		resp := gin.H{"code": http.StatusInternalServerError, "msg": err.Error()}
+		resp := gin.H{"code": err.StatusCode(), "msg": err.Error()}
 		// xerr := &xerror.Error{}
 		// if errors.As(err, xerr) {
 		// 	resp["code"], resp["msg"] = xerr.Code(), xerr.Msg()
