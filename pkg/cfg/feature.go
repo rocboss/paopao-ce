@@ -6,6 +6,7 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/types"
 )
 
+// Features fetures info struct
 type Features struct {
 	kv       map[string]string
 	suites   map[string][]string
@@ -15,6 +16,7 @@ type Features struct {
 // Actions feature-func map alias type
 type Actions map[string]types.Fn
 
+// NewFeatures create new Features instance
 func NewFeatures(suites map[string][]string, kv map[string]string) *Features {
 	f := &Features{
 		suites:   suites,
@@ -25,16 +27,18 @@ func NewFeatures(suites map[string][]string, kv map[string]string) *Features {
 	return f
 }
 
-func emptyFeatures() *Features {
+func newEmptyFeatures() *Features {
 	return &Features{
 		features: make(map[string]string),
 	}
 }
 
+// UseDefault use default suite for features
 func (f *Features) UseDefault() {
 	f.Use([]string{"default"}, true)
 }
 
+// Use use custom suite for features
 func (f *Features) Use(suite []string, noDefault bool) error {
 	if noDefault && len(f.features) != 0 {
 		f.features = make(map[string]string)

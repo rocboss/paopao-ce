@@ -1,7 +1,7 @@
 package cfg
 
 var (
-	_features = emptyFeatures()
+	_features = newEmptyFeatures()
 
 	// Use alias of Features.Use func
 	Use = _features.Use
@@ -25,6 +25,7 @@ var (
 	Not = _features.CfgNot
 )
 
+// Initialize initialize features in cfg pkg
 func Initialize(suites map[string][]string, kv map[string]string) {
 	_features = NewFeatures(suites, kv)
 	{
