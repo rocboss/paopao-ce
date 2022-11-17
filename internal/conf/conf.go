@@ -4,6 +4,8 @@ import (
 	"log"
 	"sync"
 	"time"
+
+	"github.com/rocboss/paopao-ce/pkg/cfg"
 )
 
 var (
@@ -12,7 +14,6 @@ var (
 	loggerZincSetting  *LoggerZincSettingS
 	loggerMeiliSetting *LoggerMeiliSettingS
 	redisSetting       *RedisSettingS
-	features           *FeaturesSettingS
 
 	DatabaseSetting         *DatabaseSetingS
 	MysqlSetting            *MySQLSettingS
@@ -45,9 +46,11 @@ func setupSetting(suite []string, noDefault bool) error {
 		return err
 	}
 
-	features = setting.FeaturesFrom("Features")
+	// initialize features configure
+	ss, kv := setting.featuresInfoFrom("Features")
+	cfg.Initialize(ss, kv)
 	if len(suite) > 0 {
-		if err = features.Use(suite, noDefault); err != nil {
+		if err = cfg.Use(suite, noDefault); err != nil {
 			return err
 		}
 	}
@@ -106,59 +109,26 @@ func Initialize(suite []string, noDefault bool) {
 	setupDBEngine()
 }
 
-// Cfg get value by key if exist
-func Cfg(key string) (string, bool) {
-	return features.Cfg(key)
-}
-
-// CfgIf check expression is true. if expression just have a string like
-// `Sms` is mean `Sms` whether defined in suite feature settings. expression like
-// `Sms = SmsJuhe` is mean whether `Sms` define in suite feature settings and value
-// is `SmsJuhe`
-func CfgIf(expression string) bool {
-	return features.CfgIf(expression)
-}
-
-// CfgBe check expression is true then do the handle. if expression just have a string like
-// `Sms` is mean `Sms` whether defined in suite feature settings. expression like
-// `Sms = SmsJuhe` is mean whether `Sms` define in suite feature settings and value
-// is `SmsJuhe`
-func CfgBe(expression string, handle func()) {
-	if features.CfgIf(expression) {
-		handle()
-	}
-}
-
-// CfgNot check expression is not true then do the handle. if expression just have a string like
-// `Sms` is mean `Sms` whether defined in suite feature settings. expression like
-// `Sms = SmsJuhe` is mean whether `Sms` define in suite feature settings and value
-// is `SmsJuhe`
-func CfgNot(expression string, handle func()) {
-	if !features.CfgIf(expression) {
-		handle()
-	}
-}
-
 func GetOssDomain() string {
 	uri := "https://"
-	if CfgIf("AliOSS") {
+	if cfg.If("AliOSS") {
 		return uri + AliOSSSetting.Domain + "/"
-	} else if CfgIf("COS") {
+	} else if cfg.If("COS") {
 		return uri + COSSetting.Domain + "/"
-	} else if CfgIf("HuaweiOBS") {
+	} else if cfg.If("HuaweiOBS") {
 		return uri + HuaweiOBSSetting.Domain + "/"
-	} else if CfgIf("MinIO") {
+	} else if cfg.If("MinIO") {
 		if !MinIOSetting.Secure {
 			uri = "http://"
 		}
 		return uri + MinIOSetting.Domain + "/" + MinIOSetting.Bucket + "/"
-	} else if CfgIf("S3") {
+	} else if cfg.If("S3") {
 		if !S3Setting.Secure {
 			uri = "http://"
 		}
 		// TODO: will not work well need test in real world
 		return uri + S3Setting.Domain + "/" + S3Setting.Bucket + "/"
-	} else if CfgIf("LocalOSS") {
+	} else if cfg.If("LocalOSS") {
 		if !LocalOSSSetting.Secure {
 			uri = "http://"
 		}

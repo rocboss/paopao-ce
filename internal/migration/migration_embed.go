@@ -14,12 +14,13 @@ import (
 	"github.com/golang-migrate/migrate/v4/source"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/rocboss/paopao-ce/scripts/migration"
 	"github.com/sirupsen/logrus"
 )
 
 func Run() {
-	if !conf.CfgIf("Migration") {
+	if !cfg.If("Migration") {
 		logrus.Infoln("skip migrate because not add Migration feature in config.yaml")
 		return
 	}
@@ -32,13 +33,13 @@ func Run() {
 		err, err2 error
 	)
 
-	if conf.CfgIf("MySQL") {
+	if cfg.If("MySQL") {
 		dbName = conf.MysqlSetting.DBName
 		db, err = sql.Open("mysql", conf.MysqlSetting.Dsn()+"&multiStatements=true")
-	} else if conf.CfgIf("PostgreSQL") || conf.CfgIf("Postgres") {
+	} else if cfg.If("PostgreSQL") || cfg.If("Postgres") {
 		dbName = (*conf.PostgresSetting)["DBName"]
 		db, err = sql.Open("postgres", conf.PostgresSetting.Dsn())
-	} else if conf.CfgIf("Sqlite3") {
+	} else if cfg.If("Sqlite3") {
 		db, err = conf.OpenSqlite3()
 	} else {
 		dbName = conf.MysqlSetting.DBName
@@ -50,13 +51,13 @@ func Run() {
 	}
 
 	migrationsTable := conf.DatabaseSetting.TablePrefix + "schema_migrations"
-	if conf.CfgIf("MySQL") {
+	if cfg.If("MySQL") {
 		srcDriver, err = iofs.New(migration.Files, "mysql")
 		dbDriver, err2 = mysql.WithInstance(db, &mysql.Config{MigrationsTable: migrationsTable})
-	} else if conf.CfgIf("PostgreSQL") || conf.CfgIf("Postgres") {
+	} else if cfg.If("PostgreSQL") || cfg.If("Postgres") {
 		srcDriver, err = iofs.New(migration.Files, "postgres")
 		dbDriver, err2 = postgres.WithInstance(db, &postgres.Config{MigrationsTable: migrationsTable})
-	} else if conf.CfgIf("Sqlite3") {
+	} else if cfg.If("Sqlite3") {
 		srcDriver, err = iofs.New(migration.Files, "sqlite3")
 		dbDriver, err2 = sqlite3.WithInstance(db, &sqlite3.Config{MigrationsTable: migrationsTable})
 	} else {

@@ -1,4 +1,4 @@
-package conf
+package cfg
 
 import (
 	"testing"
@@ -13,7 +13,7 @@ func TestUseDefault(t *testing.T) {
 	kv := map[string]string{
 		"sms": "SmsJuhe",
 	}
-	features := newFeatures(suites, kv)
+	f := NewFeatures(suites, kv)
 	for _, data := range []struct {
 		key    string
 		expect string
@@ -25,7 +25,7 @@ func TestUseDefault(t *testing.T) {
 		{"Redis", "", true},
 		{"Database", "", false},
 	} {
-		if v, ok := features.Cfg(data.key); ok != data.exist || v != data.expect {
+		if v, ok := f.Cfg(data.key); ok != data.exist || v != data.expect {
 			t.Errorf("key: %s expect: %s exist: %t got v: %s ok: %t", data.key, data.expect, data.exist, v, ok)
 		}
 	}
@@ -35,7 +35,7 @@ func TestUseDefault(t *testing.T) {
 		"SmsJuhe":       false,
 		"default":       true,
 	} {
-		if ok := features.CfgIf(exp); res != ok {
+		if ok := f.CfgIf(exp); res != ok {
 			t.Errorf("CfgIf(%s) want %t got %t", exp, res, ok)
 		}
 	}
@@ -50,9 +50,9 @@ func TestUse(t *testing.T) {
 	kv := map[string]string{
 		"sms": "SmsJuhe",
 	}
-	features := newFeatures(suites, kv)
+	f := NewFeatures(suites, kv)
 
-	features.Use([]string{"develop"}, true)
+	f.Use([]string{"develop"}, true)
 	for _, data := range []struct {
 		key    string
 		expect string
@@ -64,7 +64,7 @@ func TestUse(t *testing.T) {
 		{"Redis", "", false},
 		{"Database", "", false},
 	} {
-		if v, ok := features.Cfg(data.key); ok != data.exist || v != data.expect {
+		if v, ok := f.Cfg(data.key); ok != data.exist || v != data.expect {
 			t.Errorf("key: %s expect: %s exist: %t got v: %s ok: %t", data.key, data.expect, data.exist, v, ok)
 		}
 	}
@@ -75,13 +75,13 @@ func TestUse(t *testing.T) {
 		"default":       false,
 		"develop":       true,
 	} {
-		if ok := features.CfgIf(exp); res != ok {
+		if ok := f.CfgIf(exp); res != ok {
 			t.Errorf("CfgIf(%s) want %t got %t", exp, res, ok)
 		}
 	}
 
-	features.UseDefault()
-	features.Use([]string{"slim", "", "demo"}, false)
+	f.UseDefault()
+	f.Use([]string{"slim", "", "demo"}, false)
 	for _, data := range []struct {
 		key    string
 		expect string
@@ -94,7 +94,7 @@ func TestUse(t *testing.T) {
 		{"Database", "", false},
 		{"demo", "", true},
 	} {
-		if v, ok := features.Cfg(data.key); ok != data.exist || v != data.expect {
+		if v, ok := f.Cfg(data.key); ok != data.exist || v != data.expect {
 			t.Errorf("key: %s expect: %s exist: %t got v: %s ok: %t", data.key, data.expect, data.exist, v, ok)
 		}
 	}
@@ -107,7 +107,7 @@ func TestUse(t *testing.T) {
 		"slim":          true,
 		"demo":          true,
 	} {
-		if ok := features.CfgIf(exp); res != ok {
+		if ok := f.CfgIf(exp); res != ok {
 			t.Errorf("CfgIf(%s) want %t got %t", exp, res, ok)
 		}
 	}
