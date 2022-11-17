@@ -18,10 +18,27 @@ type Actions map[string]types.Fn
 
 // NewFeatures create new Features instance
 func NewFeatures(suites map[string][]string, kv map[string]string) *Features {
-	f := &Features{
-		suites:   suites,
-		kv:       kv,
-		features: make(map[string]string),
+	f := newEmptyFeatures()
+	for k, v := range suites {
+		if len(k) > 0 {
+			for i := 0; i < len(v); i++ {
+				// ignore empty string
+				if len(v[i]) == 0 {
+					lastIdx := len(v) - 1
+					v[i] = v[lastIdx]
+					v = v[:lastIdx]
+					i--
+				}
+			}
+			if len(v) > 0 {
+				f.suites[k] = v
+			}
+		}
+	}
+	for k, v := range kv {
+		if len(k) > 0 && len(v) > 0 {
+			f.kv[k] = v
+		}
 	}
 	f.UseDefault()
 	return f
@@ -29,6 +46,8 @@ func NewFeatures(suites map[string][]string, kv map[string]string) *Features {
 
 func newEmptyFeatures() *Features {
 	return &Features{
+		suites:   make(map[string][]string),
+		kv:       make(map[string]string),
 		features: make(map[string]string),
 	}
 }
@@ -39,7 +58,7 @@ func (f *Features) UseDefault() {
 }
 
 // Use use custom suite for features
-func (f *Features) Use(suite []string, noDefault bool) error {
+func (f *Features) Use(suite []string, noDefault bool) {
 	if noDefault && len(f.features) != 0 {
 		f.features = make(map[string]string)
 	}
@@ -50,7 +69,6 @@ func (f *Features) Use(suite []string, noDefault bool) error {
 		}
 		f.features[feature] = f.kv[feature]
 	}
-	return nil
 }
 
 func (f *Features) flatFeatures(suite []string) []string {
