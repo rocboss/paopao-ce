@@ -50,9 +50,7 @@ func setupSetting(suite []string, noDefault bool) error {
 	ss, kv := setting.featuresInfoFrom("Features")
 	cfg.Initialize(ss, kv)
 	if len(suite) > 0 {
-		if err = cfg.Use(suite, noDefault); err != nil {
-			return err
-		}
+		cfg.Use(suite, noDefault)
 	}
 
 	objects := map[string]any{
