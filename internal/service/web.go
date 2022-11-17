@@ -12,8 +12,24 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 )
 
+type baseService struct{}
+
 type webService struct {
+	baseService
+
 	server *http.Server
+}
+
+func (baseService) PreStart() string {
+	return ""
+}
+
+func (baseService) PreStop() string {
+	return ""
+}
+
+func (s *webService) Name() string {
+	return "WebService"
 }
 
 func (s *webService) Start() {
@@ -26,7 +42,7 @@ func (s *webService) Stop() {
 	s.server.Shutdown(context.Background())
 }
 
-func (s *webService) Info() string {
+func (s *webService) PreStart() string {
 	return fmt.Sprintf("PaoPao service listen on %s\n", color.GreenString("http://%s:%s", conf.ServerSetting.HttpIp, conf.ServerSetting.HttpPort))
 }
 

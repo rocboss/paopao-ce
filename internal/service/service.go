@@ -20,9 +20,11 @@ var (
 )
 
 type Service interface {
+	Name() string
+	PreStart() string
+	PreStop() string
 	Start()
 	Stop()
-	Info() string
 }
 
 func NewWebService() Service {
