@@ -14,10 +14,6 @@ type localossSrv struct {
 
 // RouteLocalOSS register LocalOSS route if needed
 func RouteLocalOSS(e *gin.Engine) {
-	if !conf.CfgIf("LocalOSS") {
-		return
-	}
-
 	savePath, err := filepath.Abs(conf.LocalOSSSetting.SavePath)
 	if err != nil {
 		logrus.Fatalf("get localOSS save path err: %v", err)

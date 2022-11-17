@@ -2,14 +2,14 @@ package chain
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/app"
+	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 )
 
 func Priv() gin.HandlerFunc {
-	if conf.CfgIf("PhoneBind") {
+	if cfg.If("PhoneBind") {
 		return func(c *gin.Context) {
 			if u, exist := c.Get("USER"); exist {
 				if user, ok := u.(*model.User); ok {

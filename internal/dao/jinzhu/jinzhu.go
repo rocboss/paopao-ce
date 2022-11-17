@@ -10,6 +10,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/dao/security"
+	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,10 +44,10 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	db := conf.MustGormDB()
 
 	i := newIndexPostsService(db)
-	if conf.CfgIf("SimpleCacheIndex") {
+	if cfg.If("SimpleCacheIndex") {
 		i = newSimpleIndexPostsService(db)
 		c, v = cache.NewSimpleCacheIndexService(i)
-	} else if conf.CfgIf("BigCacheIndex") {
+	} else if cfg.If("BigCacheIndex") {
 		a := newAuthorizationManageService(db)
 		c, v = cache.NewBigCacheIndexService(i, a)
 	} else {

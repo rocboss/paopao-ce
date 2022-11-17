@@ -9,6 +9,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/middleware"
 	"github.com/rocboss/paopao-ce/internal/routers/api"
+	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,7 +29,10 @@ func NewRouter() *gin.Engine {
 	{
 		registerDocs(e)
 		registerStatick(e)
-		routeLocalOSS(e)
+
+		cfg.Be("LocalOSS", func() {
+			routeLocalOSS(e)
+		})
 	}
 
 	// v1 group api
@@ -84,7 +88,9 @@ func NewRouter() *gin.Engine {
 	routeCore(authApi, privApi, adminApi)
 
 	// 支付宝路由注册
-	routeAlipay(r, authApi)
+	cfg.Be("Alipay", func() {
+		routeAlipay(r, authApi)
+	})
 
 	// Relationship相关路由注册
 	routeRelationship(authApi)
@@ -205,10 +211,6 @@ func routeCore(authApi gin.IRoutes, privApi gin.IRoutes, adminApi gin.IRoutes) {
 
 // routeLocalOSS register LocalOSS route if needed
 func routeLocalOSS(e *gin.Engine) {
-	if !conf.CfgIf("LocalOSS") {
-		return
-	}
-
 	savePath, err := filepath.Abs(conf.LocalOSSSetting.SavePath)
 	if err != nil {
 		logrus.Fatalf("get localOSS save path err: %v", err)
@@ -220,10 +222,6 @@ func routeLocalOSS(e *gin.Engine) {
 
 // routeAlipay register Alipay feature releated route if needed
 func routeAlipay(public gin.IRoutes, authApi gin.IRoutes) {
-	if !conf.CfgIf("Alipay") {
-		return
-	}
-
 	// 支付宝回调
 	public.POST("/alipay/notify", api.AlipayNotify)
 
@@ -239,15 +237,18 @@ func routeAlipay(public gin.IRoutes, authApi gin.IRoutes) {
 
 // routeRelationship register Relationship releated routes
 func routeRelationship(authApi gin.IRoutes) {
-	if conf.CfgIf("Friendship") {
-		routeFriendship(authApi)
-	} else if conf.CfgIf("Followship") {
-		routeFollowship(authApi)
-	} else {
+	cfg.In(cfg.Actions{
+		"Friendship": func() {
+			routeFriendship(authApi)
+		},
+		"Followship": func() {
+			routeFollowship(authApi)
+		},
+	}, func() {
 		// 暂时默认使用好友模式
 		// TODO: 后期提供一种无关系模式(既不是好友模式也不是关注者模式)作为默认的关系模式
 		routeFriendship(authApi)
-	}
+	})
 }
 
 // routeFriendship register Friendship feature releated routes

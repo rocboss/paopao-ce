@@ -8,6 +8,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/internal/servants"
+	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,7 +44,7 @@ func Initialize() {
 	ds = dao.DataService()
 	ts = dao.TweetSearchService()
 	oss = dao.ObjectStorageService()
-	DisablePhoneVerify = !conf.CfgIf("Sms")
+	DisablePhoneVerify = !cfg.If("Sms")
 }
 
 // persistMediaContents 获取媒体内容并持久化
