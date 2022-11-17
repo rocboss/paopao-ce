@@ -112,11 +112,31 @@ func Cfg(key string) (string, bool) {
 }
 
 // CfgIf check expression is true. if expression just have a string like
-// `Sms` is mean `Sms` whether define in suite feature settings. expression like
+// `Sms` is mean `Sms` whether defined in suite feature settings. expression like
 // `Sms = SmsJuhe` is mean whether `Sms` define in suite feature settings and value
 // is `SmsJuhe`
 func CfgIf(expression string) bool {
 	return features.CfgIf(expression)
+}
+
+// CfgBe check expression is true then do the handle. if expression just have a string like
+// `Sms` is mean `Sms` whether defined in suite feature settings. expression like
+// `Sms = SmsJuhe` is mean whether `Sms` define in suite feature settings and value
+// is `SmsJuhe`
+func CfgBe(expression string, handle func()) {
+	if features.CfgIf(expression) {
+		handle()
+	}
+}
+
+// CfgNot check expression is not true then do the handle. if expression just have a string like
+// `Sms` is mean `Sms` whether defined in suite feature settings. expression like
+// `Sms = SmsJuhe` is mean whether `Sms` define in suite feature settings and value
+// is `SmsJuhe`
+func CfgNot(expression string, handle func()) {
+	if !features.CfgIf(expression) {
+		handle()
+	}
 }
 
 func GetOssDomain() string {
