@@ -62,12 +62,15 @@
     "windows": [
       {
         "title": "泡泡 | 一个清新文艺的微社区",
-        "width": 1080,
+        "width": 1024,
         "height": 800,
         "resizable": false,
         "fullscreen": false,
         "transparent": true,
-        "decorations": true
+        "decorations": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "acceptFirstMouse": false
       }
     ],
     "security": {
