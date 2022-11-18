@@ -37,7 +37,7 @@ Web端：
 更多演示请前往[官网](https://www.paopao.info)体验（谢绝灌水）  
 
 桌面端：  
-![](.github/desktop-tauri.jpeg)
+![](docs/proposal/.assets/00-00.png)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
