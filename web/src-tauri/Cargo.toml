@@ -1,6 +1,6 @@
 [package]
 name = "paopao"
-version = "0.1.0"
+version = "0.2.0"
 description = "Paopao App"
 authors = ["Rocboss"]
 license = "MIT License"
@@ -9,10 +9,10 @@ edition = "2021"
 rust-version = "1.57"
 
 [build-dependencies]
-tauri-build = { version = "1.0", features = [] }
+tauri-build = { version = "1.2", features = [] }
 
 [dependencies]
-tauri = { version = "1.0", features = ["api-all", "macos-private-api"] }
+tauri = { version = "1.2", features = ["api-all", "macos-private-api"] }
 
 [features]
 # by default Tauri runs in production mode
