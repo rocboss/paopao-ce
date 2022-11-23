@@ -17,9 +17,9 @@
 
 ### 疑问
 
-1. 为什么引入go-mir？   
+1. 为什么引入go-mir？     
 TODO；
-1. 为什么要兼容RESTful/gRPC服务？
+1. 为什么要兼容RESTful/gRPC服务？    
 RESTful API是提供给Web端使用的，包括paopao-ce web端以及后期的运维端admin； gRPC API是提供给移动端(iOS/Android)使用的服务。RESTful API天然对web端浏览器友好，而gRPC生态对后端、移动端天然友好，可以根据google-protocol-buffers DSL定义服务API自动生成服务端、客户端代码，非常利于开发，特别是移动端开发，省去了编写客户端网络数据服务相关的业务逻辑，只需要专注于页面逻辑编写，后端数据获取的网络数据访问逻辑直接调用自动生成的gRPC API客户端代码即可，大大的减轻移动端开发的心智负担。后端引入gRPC主要就是考虑到移动端(iOS/Android)开发的开发效率，在减轻移动端开发网络数据获取业务逻辑的心智负担上，gRPC生态与RESTful生态相比优势明显，因此强力引入。再一个就是[go-mir](https://github.com/alimy/mir) v3为RESTful服务的开发提供类似gRPC服务的开发体验，也为后端兼容RESTful/gRPC服务创造了很好的条件，只要代码结构组织清晰，将会有很好的后端开发体验。
     >*目前移动端 iOS/Android APP还在规划中，这里后续的后端gRPC API服务也是为此做准备，敬请期待～*
 
