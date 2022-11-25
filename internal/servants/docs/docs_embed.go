@@ -1,7 +1,7 @@
 //go:build docs
 // +build docs
 
-package servants
+package docs
 
 import (
 	"github.com/gin-gonic/gin"
@@ -9,8 +9,8 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/cfg"
 )
 
-// registerDocs register docs asset route
-func registerDocs(e *gin.Engine) {
+// RegisterDocs register docs asset route
+func RegisterDocs(e *gin.Engine) {
 	cfg.Be("Docs:OpenAPI", func() {
 		e.StaticFS("/docs/openapi", openapi.NewFileSystem())
 	})

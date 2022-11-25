@@ -1,7 +1,7 @@
 //go:build embed
 // +build embed
 
-package servants
+package statick
 
 import (
 	"net/http"
@@ -10,8 +10,8 @@ import (
 	"github.com/rocboss/paopao-ce/web"
 )
 
-// registerStatick register static assets route
-func registerStatick(e *gin.Engine) {
+// RegisterStatick register static assets route
+func RegisterStatick(e *gin.Engine) {
 	routeStatic(e, "/", "/index.html", "/favicon.ico", "/assets/*filepath")
 }
 
