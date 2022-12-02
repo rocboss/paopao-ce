@@ -1,6 +1,12 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package core
 
-import "github.com/rocboss/paopao-ce/internal/model"
+import (
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
+)
 
 const (
 	IdxActNop IdxAct = iota + 1
@@ -15,7 +21,7 @@ type IdxAct uint8
 
 type IndexAction struct {
 	Act  IdxAct
-	Post *model.Post
+	Post *dbr.Post
 }
 
 func (a IdxAct) String() string {
@@ -37,7 +43,7 @@ func (a IdxAct) String() string {
 	}
 }
 
-func NewIndexAction(act IdxAct, post *model.Post) *IndexAction {
+func NewIndexAction(act IdxAct, post *dbr.Post) *IndexAction {
 	return &IndexAction{
 		Act:  act,
 		Post: post,
@@ -48,5 +54,5 @@ func NewIndexAction(act IdxAct, post *model.Post) *IndexAction {
 type CacheIndexService interface {
 	IndexPostsService
 
-	SendAction(act IdxAct, post *model.Post)
+	SendAction(act IdxAct, post *dbr.Post)
 }

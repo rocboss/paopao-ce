@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package app
 
 import (
@@ -5,7 +9,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/core"
 )
 
 type Claims struct {
@@ -18,7 +22,7 @@ func GetJWTSecret() []byte {
 	return []byte(conf.JWTSetting.Secret)
 }
 
-func GenerateToken(User *model.User) (string, error) {
+func GenerateToken(User *core.User) (string, error) {
 	expireTime := time.Now().Add(conf.JWTSetting.Expire)
 	claims := Claims{
 		UID:      User.ID,

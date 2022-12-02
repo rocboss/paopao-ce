@@ -1,8 +1,12 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package jinzhu
 
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/pkg/types"
 	"gorm.io/gorm"
 )
@@ -21,7 +25,7 @@ func newAuthorizationManageService(db *gorm.DB) core.AuthorizationManageService 
 	}
 }
 
-func (s *authorizationManageServant) IsAllow(user *model.User, action *core.Action) bool {
+func (s *authorizationManageServant) IsAllow(user *core.User, action *core.Action) bool {
 	// user is activation if had bind phone
 	isActivation := (len(user.Phone) != 0)
 	isFriend := s.isFriend(user.ID, action.UserId)
@@ -30,7 +34,7 @@ func (s *authorizationManageServant) IsAllow(user *model.User, action *core.Acti
 }
 
 func (s *authorizationManageServant) MyFriendSet(userId int64) core.FriendSet {
-	ids, err := (&model.Contact{UserId: userId}).MyFriendIds(s.db)
+	ids, err := (&dbr.Contact{UserId: userId}).MyFriendIds(s.db)
 	if err != nil {
 		return core.FriendSet{}
 	}
@@ -43,7 +47,7 @@ func (s *authorizationManageServant) MyFriendSet(userId int64) core.FriendSet {
 }
 
 func (s *authorizationManageServant) BeFriendFilter(userId int64) core.FriendFilter {
-	ids, err := (&model.Contact{FriendId: userId}).BeFriendIds(s.db)
+	ids, err := (&dbr.Contact{FriendId: userId}).BeFriendIds(s.db)
 	if err != nil {
 		return core.FriendFilter{}
 	}
@@ -56,12 +60,12 @@ func (s *authorizationManageServant) BeFriendFilter(userId int64) core.FriendFil
 }
 
 func (s *authorizationManageServant) BeFriendIds(userId int64) ([]int64, error) {
-	return (&model.Contact{FriendId: userId}).BeFriendIds(s.db)
+	return (&dbr.Contact{FriendId: userId}).BeFriendIds(s.db)
 }
 
 func (s *authorizationManageServant) isFriend(userId int64, friendId int64) bool {
-	contact, err := (&model.Contact{UserId: friendId, FriendId: userId}).GetByUserFriend(s.db)
-	if err == nil || contact.Status == model.ContactStatusAgree {
+	contact, err := (&dbr.Contact{UserId: friendId, FriendId: userId}).GetByUserFriend(s.db)
+	if err == nil || contact.Status == dbr.ContactStatusAgree {
 		return true
 	}
 	return false

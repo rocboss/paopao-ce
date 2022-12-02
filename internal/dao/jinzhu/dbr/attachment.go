@@ -1,13 +1,17 @@
-package model
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
+package dbr
 
 import "gorm.io/gorm"
 
 type AttachmentType int
 
 const (
-	ATTACHMENT_TYPE_IMAGE AttachmentType = iota + 1
-	ATTACHMENT_TYPE_VIDEO
-	ATTACHMENT_TYPE_OTHER
+	AttachmentTypeImage AttachmentType = iota + 1
+	AttachmentTypeVideo
+	AttachmentTypeOther
 )
 
 type Attachment struct {

@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package chain
 
 import (
@@ -6,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 )
@@ -51,8 +55,8 @@ func JWT() gin.HandlerFunc {
 				c.Set("USERNAME", claims.Username)
 
 				// 加载用户信息
-				user := &model.User{
-					Model: &model.Model{
+				user := &core.User{
+					Model: &core.Model{
 						ID: claims.UID,
 					},
 				}
@@ -97,8 +101,8 @@ func JwtLoose() gin.HandlerFunc {
 				c.Set("UID", claims.UID)
 				c.Set("USERNAME", claims.Username)
 				// 加载用户信息
-				user := &model.User{
-					Model: &model.Model{
+				user := &core.User{
+					Model: &core.Model{
 						ID: claims.UID,
 					},
 				}

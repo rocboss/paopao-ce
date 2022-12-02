@@ -1,4 +1,8 @@
-package model
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
+package dbr
 
 import (
 	"time"
@@ -7,27 +11,26 @@ import (
 )
 
 // 类型，1标题，2文字段落，3图片地址，4视频地址，5语音地址，6链接地址，7附件资源
-
 type PostContentT int
 
 const (
-	CONTENT_TYPE_TITLE PostContentT = iota + 1
-	CONTENT_TYPE_TEXT
-	CONTENT_TYPE_IMAGE
-	CONTENT_TYPE_VIDEO
-	CONTENT_TYPE_AUDIO
-	CONTENT_TYPE_LINK
-	CONTENT_TYPE_ATTACHMENT
-	CONTENT_TYPE_CHARGE_ATTACHMENT
+	ContentTypeTitle PostContentT = iota + 1
+	ContentTypeText
+	ContentTypeImage
+	ContentTypeVideo
+	ContentTypeAudio
+	ContentTypeLink
+	ContentTypeAttachment
+	ContentTypeChargeAttachment
 )
 
 var (
 	mediaContentType = []PostContentT{
-		CONTENT_TYPE_IMAGE,
-		CONTENT_TYPE_VIDEO,
-		CONTENT_TYPE_AUDIO,
-		CONTENT_TYPE_ATTACHMENT,
-		CONTENT_TYPE_CHARGE_ATTACHMENT,
+		ContentTypeImage,
+		ContentTypeVideo,
+		ContentTypeAudio,
+		ContentTypeAttachment,
+		ContentTypeChargeAttachment,
 	}
 )
 

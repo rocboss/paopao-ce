@@ -1,9 +1,13 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package internal
 
 import (
-	"github.com/rocboss/paopao-ce/internal/migration"
-	"github.com/rocboss/paopao-ce/internal/routers/api"
-	"github.com/rocboss/paopao-ce/internal/service"
+	"github.com/rocboss/paopao-ce/internal/broker/migration"
+	wb "github.com/rocboss/paopao-ce/internal/servants/web/broker"
+	"github.com/rocboss/paopao-ce/internal/servants/web/routers/api"
 )
 
 func Initialize() {
@@ -11,6 +15,6 @@ func Initialize() {
 	migration.Run()
 
 	// initialize service
-	service.Initialize()
+	wb.Initialize()
 	api.Initialize()
 }

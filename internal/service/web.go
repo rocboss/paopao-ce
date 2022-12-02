@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package service
 
 import (
@@ -10,22 +14,13 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/internal/servants"
 )
-
-type baseService struct{}
 
 type webService struct {
 	baseService
 
 	server *http.Server
-}
-
-func (baseService) PreStart() string {
-	return ""
-}
-
-func (baseService) PreStop() string {
-	return ""
 }
 
 func (s *webService) Name() string {
@@ -42,7 +37,7 @@ func (s *webService) Stop() {
 	s.server.Shutdown(context.Background())
 }
 
-func (s *webService) PreStart() string {
+func (s *webService) String() string {
 	return fmt.Sprintf("PaoPao service listen on %s\n", color.GreenString("http://%s:%s", conf.ServerSetting.HttpIp, conf.ServerSetting.HttpPort))
 }
 
@@ -75,4 +70,18 @@ func newWebEngine() *gin.Engine {
 	})
 
 	return e
+}
+
+func NewWebService() Service {
+	e := newWebEngine()
+	servants.RegisterWebServants(e)
+	return &webService{
+		server: &http.Server{
+			Addr:           conf.ServerSetting.HttpIp + ":" + conf.ServerSetting.HttpPort,
+			Handler:        e,
+			ReadTimeout:    conf.ServerSetting.ReadTimeout,
+			WriteTimeout:   conf.ServerSetting.WriteTimeout,
+			MaxHeaderBytes: 1 << 20,
+		},
+	}
 }

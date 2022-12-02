@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package search
 
 import (
@@ -5,7 +9,6 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/json"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
 	"github.com/sirupsen/logrus"
@@ -73,7 +76,7 @@ func (s *zincTweetSearchServant) DeleteDocuments(identifiers []string) error {
 	return nil
 }
 
-func (s *zincTweetSearchServant) Search(user *model.User, q *core.QueryReq, offset, limit int) (resp *core.QueryResp, err error) {
+func (s *zincTweetSearchServant) Search(user *core.User, q *core.QueryReq, offset, limit int) (resp *core.QueryResp, err error) {
 	if q.Type == core.SearchTypeDefault && q.Query != "" {
 		resp, err = s.queryByContent(user, q, offset, limit)
 	} else if q.Type == core.SearchTypeTag && q.Query != "" {
@@ -91,7 +94,7 @@ func (s *zincTweetSearchServant) Search(user *model.User, q *core.QueryReq, offs
 	return
 }
 
-func (s *zincTweetSearchServant) queryByContent(user *model.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
+func (s *zincTweetSearchServant) queryByContent(user *core.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
 	resp, err := s.client.EsQuery(s.indexName, map[string]any{
 		"query": map[string]any{
 			"match_phrase": map[string]any{
@@ -108,7 +111,7 @@ func (s *zincTweetSearchServant) queryByContent(user *model.User, q *core.QueryR
 	return s.postsFrom(resp)
 }
 
-func (s *zincTweetSearchServant) queryByTag(user *model.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
+func (s *zincTweetSearchServant) queryByTag(user *core.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
 	resp, err := s.client.ApiQuery(s.indexName, map[string]any{
 		"search_type": "querystring",
 		"query": map[string]any{
@@ -124,7 +127,7 @@ func (s *zincTweetSearchServant) queryByTag(user *model.User, q *core.QueryReq, 
 	return s.postsFrom(resp)
 }
 
-func (s *zincTweetSearchServant) queryAny(user *model.User, offset, limit int) (*core.QueryResp, error) {
+func (s *zincTweetSearchServant) queryAny(user *core.User, offset, limit int) (*core.QueryResp, error) {
 	queryMap := map[string]any{
 		"query": map[string]any{
 			"match_all": map[string]string{},
@@ -141,9 +144,9 @@ func (s *zincTweetSearchServant) queryAny(user *model.User, offset, limit int) (
 }
 
 func (s *zincTweetSearchServant) postsFrom(resp *zinc.QueryResultT) (*core.QueryResp, error) {
-	posts := make([]*model.PostFormated, 0, len(resp.Hits.Hits))
+	posts := make([]*core.PostFormated, 0, len(resp.Hits.Hits))
 	for _, hit := range resp.Hits.Hits {
-		item := &model.PostFormated{}
+		item := &core.PostFormated{}
 		raw, err := json.Marshal(hit.Source)
 		if err != nil {
 			return nil, err

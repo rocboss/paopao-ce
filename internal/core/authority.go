@@ -1,7 +1,10 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package core
 
 import (
-	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/types"
 )
 
@@ -33,23 +36,17 @@ const (
 	ActCreateActivationCode
 )
 
-type act uint8
+type (
+	act uint8
 
-type FriendFilter map[int64]types.Empty
-type FriendSet map[string]types.Empty
+	FriendFilter map[int64]types.Empty
+	FriendSet    map[string]types.Empty
 
-type Action struct {
-	Act    act
-	UserId int64
-}
-
-// AuthorizationManageService 授权管理服务
-type AuthorizationManageService interface {
-	IsAllow(user *model.User, action *Action) bool
-	BeFriendFilter(userId int64) FriendFilter
-	BeFriendIds(userId int64) ([]int64, error)
-	MyFriendSet(userId int64) FriendSet
-}
+	Action struct {
+		Act    act
+		UserId int64
+	}
+)
 
 func (f FriendFilter) IsFriend(userId int64) bool {
 	_, yeah := f[userId]
@@ -57,7 +54,7 @@ func (f FriendFilter) IsFriend(userId int64) bool {
 }
 
 // IsAllow default true if user is admin
-func (a act) IsAllow(user *model.User, userId int64, isFriend bool, isActivation bool) bool {
+func (a act) IsAllow(user *User, userId int64, isFriend bool, isActivation bool) bool {
 	if user.IsAdmin {
 		return true
 	}
@@ -115,4 +112,12 @@ func (a act) IsAllow(user *model.User, userId int64, isFriend bool, isActivation
 	}
 
 	return false
+}
+
+// AuthorizationManageService 授权管理服务
+type AuthorizationManageService interface {
+	IsAllow(user *User, action *Action) bool
+	BeFriendFilter(userId int64) FriendFilter
+	BeFriendIds(userId int64) ([]int64, error)
+	MyFriendSet(userId int64) FriendSet
 }

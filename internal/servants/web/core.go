@@ -1,8 +1,12 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package web
 
 import (
 	api "github.com/rocboss/paopao-ce/internal/mirc/auto/api/v1"
-	"github.com/rocboss/paopao-ce/internal/servants/core"
+	"github.com/rocboss/paopao-ce/internal/servants/base"
 )
 
 var (
@@ -12,17 +16,17 @@ var (
 )
 
 type webCoreSrv struct {
-	core.BaseServant
+	base.BaseServant
 	api.UnimplementedWebCoreServant
 }
 
 type webCoreBinding struct {
-	core.BaseBinding
+	base.BaseBinding
 	*api.UnimplementedWebCoreBinding
 }
 
 type webCoreRender struct {
-	core.BaseRender
+	base.BaseRender
 	*api.UnimplementedWebCoreRender
 }
 
@@ -33,7 +37,7 @@ func newWebCoreSrv() api.WebCore {
 func newWebCoreBinding() api.WebCoreBinding {
 	return &webCoreBinding{
 		UnimplementedWebCoreBinding: &api.UnimplementedWebCoreBinding{
-			BindAny: core.BindAny,
+			BindAny: base.BindAny,
 		},
 	}
 }
@@ -41,7 +45,7 @@ func newWebCoreBinding() api.WebCoreBinding {
 func newWebCoreRender() api.WebCoreRender {
 	return &webCoreRender{
 		UnimplementedWebCoreRender: &api.UnimplementedWebCoreRender{
-			RenderAny: core.RenderAny,
+			RenderAny: base.RenderAny,
 		},
 	}
 }

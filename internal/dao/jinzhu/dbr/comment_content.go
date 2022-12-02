@@ -1,4 +1,8 @@
-package model
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
+package dbr
 
 import (
 	"time"
@@ -47,7 +51,7 @@ func (c *CommentContent) Create(db *gorm.DB) (*CommentContent, error) {
 }
 
 func (c *CommentContent) MediaContentsByCommentId(db *gorm.DB, commentIds []int64) (contents []string, err error) {
-	err = db.Model(c).Where("comment_id IN ? AND type = ?", commentIds, CONTENT_TYPE_IMAGE).Select("content").Find(&contents).Error
+	err = db.Model(c).Where("comment_id IN ? AND type = ?", commentIds, ContentTypeImage).Select("content").Find(&contents).Error
 	return
 }
 
