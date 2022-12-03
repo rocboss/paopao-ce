@@ -57,7 +57,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
 
 ### 环境要求
 
-* Go (1.17+)
+* Go (1.18+)
 * Node.js (14+)
 * MySQL (5.7+)
 * Redis
@@ -464,17 +464,42 @@ MinIO: # MinIO 存储配置
 ...
 ```
 
+### 源代码分支管理 
+**主代码库`github.com/rocboss/paopao-ce`**      
+```bash
+git branch
+main
+beta
+dev
+feature/bleve
+feature/followship
+feature/mir
+feature/localoss
+jc/alimy
+```
+**分支说明**        
+* 分支`main`是主分支，也是paopao-ce的稳定版本发布分支，只有经过内部测试，没有重大bug出现的稳定代码才会推进到这个分支；该分支主要由`beta`分支代码演进而来，原则上**只接受bug修复PR**。`rc版本/稳定版本` 发布都应该在`main`主分支中进行。
+* 分支`beta`是公测分支，代码推进到`main`主分支的候选分支；该分支主要由`dev`分支代码演进而来，**接受bug修复以及新功能优化的PR**，原则上不接受新功能PR。`alpha/beta版本` 发布都应该在`beta`公测分支下进行。
+* 分支`dev`是开发分支，**不定期频繁更新**，接受 *新功能PR、代码优化PR、bug修复PR*；**新功能PR** 都应该首先提交给`dev`分支进行合并，bug修复/代码优化 后 **冻结新功能** 将代码演进合并到`beta`分支。
+* `feature/*`是新功能子分支，一般新功能子分支都是 *从`dev`开发分支fork出来的*；子功能分支 **只专注于该新功能** 代码的开发/优化，待开发接近内测阶段 *提交新功能PR给`dev`分支进行review/merge*，待新功能代码演进到`beta`分支后，原则上是可以删除该分支，但也可以保留到稳定版本发布。**该分支专注于新功能的开发，只接受新功能的bug修复/优化PR**。
+* `jc/*`是代码库维护者的开发分支，一般包含一些局部优化或者bug修复代码，有时可以直接将代码merge到`dev/beta`分支，原则上不允许直接merge代码到`main`主分支。
+
+**代码分支演进图**        
+![](docs/proposal/.assets/00-01.png)
+
 ### 其他说明
 
 建议后端服务使用 `supervisor` 守护进程，并通过 `nginx` 反向代理后，提供API给前端服务调用。
 
 短信通道使用的[聚合数据](https://www.juhe.cn/)，如果申请不下来，可以考虑替换其他服务商。
 
-代码结构比较简单，很方便扩展。 开发文档请参阅[docs](docs '开发文档').
+代码结构比较简单，很方便扩展，开发文档请参阅[docs](docs '开发文档').
 
 ## 👯‍♀️ 贡献
 
 喜欢的朋友欢迎给个Star、贡献PR。
+
+[![Star History Chart](https://api.star-history.com/svg?repos=rocboss/paopao-ce&type=Date)](https://star-history.com/#rocboss/paopao-ce&Date)
 
 ## License
 
