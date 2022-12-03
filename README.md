@@ -6,6 +6,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![MIT License][license-shield]][license-url]
 [![Contributors][contributors-shield]][contributors-url]
+[![Sourcegraph](https://img.shields.io/badge/view%20on-Sourcegraph-brightgreen.svg)](https://sourcegraph.com/github.com/rocboss/paopao-ce)
 
 <!-- PROJECT LOGO -->
 <div align="center">
