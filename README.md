@@ -493,11 +493,13 @@ jc/alimy
 
 短信通道使用的[聚合数据](https://www.juhe.cn/)，如果申请不下来，可以考虑替换其他服务商。
 
-代码结构比较简单，很方便扩展。 开发文档请参阅[docs](docs '开发文档').
+代码结构比较简单，很方便扩展，开发文档请参阅[docs](docs '开发文档').
 
 ## 👯‍♀️ 贡献
 
 喜欢的朋友欢迎给个Star、贡献PR。
+
+[![Star History Chart](https://api.star-history.com/svg?repos=rocboss/paopao-ce&type=Date)](https://star-history.com/#rocboss/paopao-ce&Date)
 
 ## License
 
