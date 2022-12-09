@@ -1,17 +1,23 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package main
 
 import (
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/internal/routers"
+	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/rocboss/paopao-ce/pkg/util"
 )
@@ -47,24 +53,41 @@ func flagParse() {
 	flag.Parse()
 }
 
-func main() {
-	gin.SetMode(conf.ServerSetting.RunMode)
+func runService(ss []service.Service) {
+	gin.SetMode(conf.RunMode())
 
-	router := routers.NewRouter()
-	s := &http.Server{
-		Addr:           conf.ServerSetting.HttpIp + ":" + conf.ServerSetting.HttpPort,
-		Handler:        router,
-		ReadTimeout:    conf.ServerSetting.ReadTimeout,
-		WriteTimeout:   conf.ServerSetting.WriteTimeout,
-		MaxHeaderBytes: 1 << 20,
+	fmt.Fprintf(color.Output, "\nstarting run service...\n\n")
+	for _, s := range ss {
+		go func(s service.Service) {
+			fmt.Fprintf(color.Output, "%s[start] - %s\n", s.Name(), s)
+			if err := s.Start(); err != nil {
+				log.Fatalf("%s[start] - occurs on error: %s\n", s.Name(), err)
+			}
+		}(s)
 	}
 
-	util.PrintHelloBanner(debug.VersionInfo())
-	fmt.Fprintf(color.Output, "PaoPao service listen on %s\n",
-		color.GreenString(fmt.Sprintf("http://%s:%s", conf.ServerSetting.HttpIp, conf.ServerSetting.HttpPort)),
-	)
+	quit := make(chan os.Signal, 1)
+	// kill (no param) default send syscall.SIGTERM
+	// kill -2 is syscall.SIGINT
+	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	fmt.Fprintf(color.Output, "\nshutting down server...\n\n")
 
-	if err := s.ListenAndServe(); err != nil {
-		log.Fatalf("run app failed: %s", err)
+	for _, s := range ss {
+		if err := s.Stop(); err != nil {
+			fmt.Fprintf(color.Output, "%s[stop] - occurs on error: %s\n", s.Name(), err)
+		}
+		fmt.Fprintf(color.Output, "%s[stop] - finish...\n", s.Name())
+	}
+}
+
+func main() {
+	util.PrintHelloBanner(debug.VersionInfo())
+
+	if ss := service.InitService(); len(ss) > 0 {
+		runService(ss)
+	} else {
+		fmt.Fprintf(color.Output, "no service need start so just exit")
 	}
 }

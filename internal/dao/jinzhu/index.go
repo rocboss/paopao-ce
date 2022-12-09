@@ -1,9 +1,12 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package jinzhu
 
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/model"
-	"github.com/rocboss/paopao-ce/internal/model/rest"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -40,20 +43,20 @@ func newSimpleIndexPostsService(db *gorm.DB) core.IndexPostsService {
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *indexPostsServant) IndexPosts(user *model.User, offset int, limit int) (*rest.IndexTweetsResp, error) {
-	predicates := model.Predicates{
+func (s *indexPostsServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+	predicates := dbr.Predicates{
 		"ORDER": []any{"is_top DESC, latest_replied_on DESC"},
 	}
 	if user == nil {
-		predicates["visibility = ?"] = []any{model.PostVisitPublic}
+		predicates["visibility = ?"] = []any{dbr.PostVisitPublic}
 	} else if !user.IsAdmin {
 		friendIds, _ := s.ams.BeFriendIds(user.ID)
 		friendIds = append(friendIds, user.ID)
-		args := []any{model.PostVisitPublic, model.PostVisitPrivate, user.ID, model.PostVisitFriend, friendIds}
+		args := []any{dbr.PostVisitPublic, dbr.PostVisitPrivate, user.ID, dbr.PostVisitFriend, friendIds}
 		predicates["visibility = ? OR (visibility = ? AND user_id = ?) OR (visibility = ? AND user_id IN ?)"] = args
 	}
 
-	posts, err := (&model.Post{}).Fetch(s.db, predicates, offset, limit)
+	posts, err := (&dbr.Post{}).Fetch(s.db, predicates, offset, limit)
 	if err != nil {
 		logrus.Debugf("gormIndexPostsServant.IndexPosts err: %v", err)
 		return nil, err
@@ -63,25 +66,25 @@ func (s *indexPostsServant) IndexPosts(user *model.User, offset int, limit int) 
 		return nil, err
 	}
 
-	total, err := (&model.Post{}).CountBy(s.db, predicates)
+	total, err := (&dbr.Post{}).CountBy(s.db, predicates)
 	if err != nil {
 		return nil, err
 	}
 
-	return &rest.IndexTweetsResp{
+	return &core.IndexTweetList{
 		Tweets: formatPosts,
 		Total:  total,
 	}, nil
 }
 
 // simpleCacheIndexGetPosts simpleCacheIndex 专属获取广场推文列表函数
-func (s *simpleIndexPostsServant) IndexPosts(_user *model.User, offset int, limit int) (*rest.IndexTweetsResp, error) {
-	predicates := model.Predicates{
-		"visibility = ?": []any{model.PostVisitPublic},
+func (s *simpleIndexPostsServant) IndexPosts(_user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+	predicates := dbr.Predicates{
+		"visibility = ?": []any{dbr.PostVisitPublic},
 		"ORDER":          []any{"is_top DESC, latest_replied_on DESC"},
 	}
 
-	posts, err := (&model.Post{}).Fetch(s.db, predicates, offset, limit)
+	posts, err := (&dbr.Post{}).Fetch(s.db, predicates, offset, limit)
 	if err != nil {
 		logrus.Debugf("gormSimpleIndexPostsServant.IndexPosts err: %v", err)
 		return nil, err
@@ -92,12 +95,12 @@ func (s *simpleIndexPostsServant) IndexPosts(_user *model.User, offset int, limi
 		return nil, err
 	}
 
-	total, err := (&model.Post{}).CountBy(s.db, predicates)
+	total, err := (&dbr.Post{}).CountBy(s.db, predicates)
 	if err != nil {
 		return nil, err
 	}
 
-	return &rest.IndexTweetsResp{
+	return &core.IndexTweetList{
 		Tweets: formatPosts,
 		Total:  total,
 	}, nil

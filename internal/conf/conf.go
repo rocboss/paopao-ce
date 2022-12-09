@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package conf
 
 import (
@@ -20,6 +24,8 @@ var (
 	PostgresSetting         *PostgresSettingS
 	Sqlite3Setting          *Sqlite3SettingS
 	ServerSetting           *ServerSettingS
+	WebServerSetting        *ServerSettingS
+	DocsServerSetting       *ServerSettingS
 	AppSetting              *AppSettingS
 	CacheIndexSetting       *CacheIndexSettingS
 	SimpleCacheIndexSetting *SimpleCacheIndexSettingS
@@ -56,6 +62,8 @@ func setupSetting(suite []string, noDefault bool) error {
 	objects := map[string]any{
 		"App":              &AppSetting,
 		"Server":           &ServerSetting,
+		"WebServer":        &WebServerSetting,
+		"DocsServer":       &DocsServerSetting,
 		"CacheIndex":       &CacheIndexSetting,
 		"SimpleCacheIndex": &SimpleCacheIndexSetting,
 		"BigCacheIndex":    &BigCacheIndexSetting,
@@ -133,4 +141,11 @@ func GetOssDomain() string {
 		return uri + LocalOSSSetting.Domain + "/oss/" + LocalOSSSetting.Bucket + "/"
 	}
 	return uri + AliOSSSetting.Domain + "/"
+}
+
+func RunMode() string {
+	if !cfg.If("Deprecated:OldWeb") {
+		return ServerSetting.RunMode
+	}
+	return AppSetting.RunMode
 }

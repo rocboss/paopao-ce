@@ -1,8 +1,12 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package jinzhu
 
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
 )
 
@@ -31,42 +35,42 @@ func newCommentManageService(db *gorm.DB) core.CommentManageService {
 	}
 }
 
-func (s *commentServant) GetComments(conditions *model.ConditionsT, offset, limit int) ([]*model.Comment, error) {
-	return (&model.Comment{}).List(s.db, conditions, offset, limit)
+func (s *commentServant) GetComments(conditions *core.ConditionsT, offset, limit int) ([]*core.Comment, error) {
+	return (&dbr.Comment{}).List(s.db, conditions, offset, limit)
 }
 
-func (s *commentServant) GetCommentByID(id int64) (*model.Comment, error) {
-	comment := &model.Comment{
-		Model: &model.Model{
+func (s *commentServant) GetCommentByID(id int64) (*core.Comment, error) {
+	comment := &dbr.Comment{
+		Model: &dbr.Model{
 			ID: id,
 		},
 	}
 	return comment.Get(s.db)
 }
 
-func (s *commentServant) GetCommentReplyByID(id int64) (*model.CommentReply, error) {
-	reply := &model.CommentReply{
-		Model: &model.Model{
+func (s *commentServant) GetCommentReplyByID(id int64) (*core.CommentReply, error) {
+	reply := &dbr.CommentReply{
+		Model: &dbr.Model{
 			ID: id,
 		},
 	}
 	return reply.Get(s.db)
 }
 
-func (s *commentServant) GetCommentCount(conditions *model.ConditionsT) (int64, error) {
-	return (&model.Comment{}).Count(s.db, conditions)
+func (s *commentServant) GetCommentCount(conditions *core.ConditionsT) (int64, error) {
+	return (&dbr.Comment{}).Count(s.db, conditions)
 }
 
-func (s *commentServant) GetCommentContentsByIDs(ids []int64) ([]*model.CommentContent, error) {
-	commentContent := &model.CommentContent{}
-	return commentContent.List(s.db, &model.ConditionsT{
+func (s *commentServant) GetCommentContentsByIDs(ids []int64) ([]*core.CommentContent, error) {
+	commentContent := &dbr.CommentContent{}
+	return commentContent.List(s.db, &dbr.ConditionsT{
 		"comment_id IN ?": ids,
 	}, 0, 0)
 }
 
-func (s *commentServant) GetCommentRepliesByID(ids []int64) ([]*model.CommentReplyFormated, error) {
-	CommentReply := &model.CommentReply{}
-	replies, err := CommentReply.List(s.db, &model.ConditionsT{
+func (s *commentServant) GetCommentRepliesByID(ids []int64) ([]*core.CommentReplyFormated, error) {
+	CommentReply := &dbr.CommentReply{}
+	replies, err := CommentReply.List(s.db, &dbr.ConditionsT{
 		"comment_id IN ?": ids,
 	}, 0, 0)
 
@@ -83,7 +87,7 @@ func (s *commentServant) GetCommentRepliesByID(ids []int64) ([]*model.CommentRep
 	if err != nil {
 		return nil, err
 	}
-	repliesFormated := []*model.CommentReplyFormated{}
+	repliesFormated := []*core.CommentReplyFormated{}
 	for _, reply := range replies {
 		replyFormated := reply.Format()
 		for _, user := range users {
@@ -101,22 +105,22 @@ func (s *commentServant) GetCommentRepliesByID(ids []int64) ([]*model.CommentRep
 	return repliesFormated, nil
 }
 
-func (s *commentManageServant) DeleteComment(comment *model.Comment) error {
+func (s *commentManageServant) DeleteComment(comment *core.Comment) error {
 	return comment.Delete(s.db)
 }
 
-func (s *commentManageServant) CreateComment(comment *model.Comment) (*model.Comment, error) {
+func (s *commentManageServant) CreateComment(comment *core.Comment) (*core.Comment, error) {
 	return comment.Create(s.db)
 }
 
-func (s *commentManageServant) CreateCommentReply(reply *model.CommentReply) (*model.CommentReply, error) {
+func (s *commentManageServant) CreateCommentReply(reply *core.CommentReply) (*core.CommentReply, error) {
 	return reply.Create(s.db)
 }
 
-func (s *commentManageServant) DeleteCommentReply(reply *model.CommentReply) error {
+func (s *commentManageServant) DeleteCommentReply(reply *core.CommentReply) error {
 	return reply.Delete(s.db)
 }
 
-func (s *commentManageServant) CreateCommentContent(content *model.CommentContent) (*model.CommentContent, error) {
+func (s *commentManageServant) CreateCommentContent(content *core.CommentContent) (*core.CommentContent, error) {
 	return content.Create(s.db)
 }

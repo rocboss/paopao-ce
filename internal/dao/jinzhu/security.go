@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package jinzhu
 
 import (
@@ -10,7 +14,7 @@ import (
 
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/pkg/json"
 	"gopkg.in/resty.v1"
 	"gorm.io/gorm"
@@ -36,14 +40,14 @@ type juhePhoneCaptchaRsp struct {
 }
 
 // 获取最新短信验证码
-func (s *securityServant) GetLatestPhoneCaptcha(phone string) (*model.Captcha, error) {
-	return (&model.Captcha{
+func (s *securityServant) GetLatestPhoneCaptcha(phone string) (*core.Captcha, error) {
+	return (&dbr.Captcha{
 		Phone: phone,
 	}).Get(s.db)
 }
 
 // 更新短信验证码
-func (s *securityServant) UsePhoneCaptcha(captcha *model.Captcha) error {
+func (s *securityServant) UsePhoneCaptcha(captcha *core.Captcha) error {
 	captcha.UseTimes++
 	return captcha.Update(s.db)
 }
@@ -82,7 +86,7 @@ func (s *securityServant) SendPhoneCaptcha(phone string) error {
 	}
 
 	// 写入表
-	captchaModel := &model.Captcha{
+	captchaModel := &dbr.Captcha{
 		Phone:     phone,
 		Captcha:   strconv.Itoa(captcha),
 		ExpiredOn: time.Now().Add(time.Minute * time.Duration(m)).Unix(),
