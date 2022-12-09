@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/alimy/mir/v3"
-	gin "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
 type LoginReq struct {

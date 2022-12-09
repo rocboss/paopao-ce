@@ -142,8 +142,8 @@ github.com/alecthomas/units v0.0.0-20190717042225-c3de453c63f4/go.mod h1:ybxpYRF
 github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d/go.mod h1:rBZYJk541a8SKzHPHnH3zbiI+7dagKZ0cgpgrD7Fyho=
 github.com/alexflint/go-filemutex v0.0.0-20171022225611-72bdc8eae2ae/go.mod h1:CgnQgUtFrFz9mxFNtED3jI5tLDjKlOM+oUF/sTk6ps0=
 github.com/alexflint/go-filemutex v1.1.0/go.mod h1:7P4iRhttt/nUvUOrYIhcpMzv2G6CY9UnI16Z+UJqRyk=
-github.com/alimy/mir/v3 v3.0.0-alpha.3 h1:/GyBC0G041NIP3W62im8DtAwxRPSfSaivSQK6MV9fFc=
-github.com/alimy/mir/v3 v3.0.0-alpha.3/go.mod h1:ybhT2ijOiDn0lLwWzIY6vXdv+uzZrctS7VFfczcXBWU=
+github.com/alimy/mir/v3 v3.0.0-alpha.4 h1:tSmyyhgutMHjgx9TO9891ZCY4qbr3g8FGar4z+9Hhq4=
+github.com/alimy/mir/v3 v3.0.0-alpha.4/go.mod h1:ybhT2ijOiDn0lLwWzIY6vXdv+uzZrctS7VFfczcXBWU=
 github.com/aliyun/aliyun-oss-go-sdk v2.2.2+incompatible h1:9gWa46nstkJ9miBReJcN8Gq34cBFbzSpQZVVT9N09TM=
 github.com/aliyun/aliyun-oss-go-sdk v2.2.2+incompatible/go.mod h1:T/Aws4fEfogEE9v+HPhhw+CntffsBHJ8nXQCwKr0/g8=
 github.com/allegro/bigcache v1.2.1-0.20190218064605-e24eb225f156/go.mod h1:Cb/ax3seSYIx7SuZdm2G2xzfwmv3TPSk2ucNfQESPXM=
