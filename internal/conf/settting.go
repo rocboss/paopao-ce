@@ -54,6 +54,7 @@ type ServerSettingS struct {
 }
 
 type AppSettingS struct {
+	RunMode               string
 	MaxCommentCount       int64
 	AttachmentIncomeRate  float64
 	DefaultContextTimeout time.Duration

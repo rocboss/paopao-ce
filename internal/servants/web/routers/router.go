@@ -118,6 +118,78 @@ func NewRouter() *gin.Engine {
 	return e
 }
 
+func RegisterRoute(e *gin.Engine) {
+	// 按需注册 docs、静态资源、LocalOSS 路由
+	{
+		registerDocs(e)
+		registerStatick(e)
+
+		cfg.Be("LocalOSS", func() {
+			routeLocalOSS(e)
+		})
+	}
+
+	// v1 group api
+	r := e.Group("/v1")
+
+	// 获取version
+	r.GET("/", api.Version)
+
+	// 用户登录
+	r.POST("/auth/login", api.Login)
+
+	// 用户注册
+	r.POST("/auth/register", api.Register)
+
+	// 获取验证码
+	r.GET("/captcha", api.GetCaptcha)
+
+	// 发送验证码
+	r.POST("/captcha", api.PostCaptcha)
+
+	// 无鉴权路由组
+	noAuthApi := r.Group("/")
+	{
+		// 获取动态详情
+		noAuthApi.GET("/post", api.GetPost)
+
+		// 获取动态评论
+		noAuthApi.GET("/post/comments", api.GetPostComments)
+
+		// 获取话题列表
+		noAuthApi.GET("/tags", api.GetPostTags)
+	}
+
+	// 宽松鉴权路由组
+	looseApi := r.Group("/").Use(chain.JwtLoose())
+	{
+		// 获取广场流
+		looseApi.GET("/posts", api.GetPostList)
+
+		// 获取用户动态列表
+		looseApi.GET("/user/posts", api.GetUserPosts)
+
+		// 获取用户基本信息
+		looseApi.GET("/user/profile", api.GetUserProfile)
+	}
+
+	// 鉴权路由组
+	authApi := r.Group("/").Use(chain.JWT())
+	privApi := r.Group("/").Use(chain.JWT()).Use(chain.Priv())
+	adminApi := r.Group("/").Use(chain.JWT()).Use(chain.Admin())
+
+	// 核心路由注册
+	routeCore(authApi, privApi, adminApi)
+
+	// 支付宝路由注册
+	cfg.Be("Alipay", func() {
+		routeAlipay(r, authApi)
+	})
+
+	// Relationship相关路由注册
+	routeRelationship(authApi)
+}
+
 func routeCore(authApi gin.IRoutes, privApi gin.IRoutes, adminApi gin.IRoutes) {
 	// 同步索引
 	authApi.GET("/sync/index", api.SyncSearchIndex)

@@ -23,8 +23,4 @@ var (
 	GatewayAppKeyClosed    = NewError(10113, "网关请求APP KEY已停用")
 	GatewayParamSignError  = NewError(10114, "网关请求参数签名错误")
 	GatewayTooManyRequests = NewError(10115, "网关请求频次超限")
-
-	FileUploadFailed = NewError(10200, "文件上传失败")
-	FileInvalidExt   = NewError(10201, "文件类型不合法")
-	FileInvalidSize  = NewError(10202, "文件大小超限")
 )

@@ -28,7 +28,7 @@ func (baseService) String() string {
 }
 
 func InitService() (ss []Service) {
-	ss = append(ss, newWebService())
+	ss = append(ss, newWebService(), newOldWebService())
 
 	for _, s := range ss {
 		if err := s.Init(); err != nil {

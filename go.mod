@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
+	github.com/alimy/mir/v3 v3.0.0-alpha.3
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.2+incompatible
 	github.com/allegro/bigcache/v3 v3.0.2
 	github.com/bytedance/sonic v1.5.0
@@ -39,7 +40,6 @@ require (
 	gorm.io/plugin/dbresolver v1.1.0
 	gorm.io/plugin/soft_delete v1.1.0
 	modernc.org/sqlite v1.17.3
-	github.com/alimy/mir/v3 v3.0.0
 )
 
 require (
@@ -131,8 +131,4 @@ require (
 	modernc.org/opt v0.1.1 // indirect
 	modernc.org/strutil v1.1.1 // indirect
 	modernc.org/token v1.0.0 // indirect
-)
-
-replace (
-	github.com/alimy/mir/v3 => ../../alimy/mir
 )

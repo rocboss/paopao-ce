@@ -8,23 +8,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type httpService interface {
-	Service
-
-	registerRoute(e *gin.Engine)
-}
-
 type baseHttpService struct {
 	baseService
 
 	server *httpServer
 }
 
-func (s *baseHttpService) Init() error {
+func (s *baseHttpService) registerRoute(h func(e *gin.Engine)) {
 	if s.server.status() != httpServerStarted {
-		s.registerRoute(s.server.e)
+		h(s.server.e)
 	}
-	return nil
 }
 
 func (s *baseHttpService) Start() error {
@@ -36,14 +29,4 @@ func (s *baseHttpService) Start() error {
 
 func (s *baseHttpService) Stop() error {
 	return s.server.stop()
-}
-
-func (s *baseHttpService) registerRoute(e *gin.Engine) {
-	// default empty
-}
-
-func newBaseHttpService(s *httpServer) httpService {
-	return &baseHttpService{
-		server: s,
-	}
 }

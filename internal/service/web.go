@@ -16,19 +16,20 @@ import (
 )
 
 type webService struct {
-	httpService
+	*baseHttpService
 }
 
 func (s *webService) Name() string {
 	return "WebService"
 }
 
-func (s *webService) registerRoute(e *gin.Engine) {
-	servants.RegisterWebServants(e)
+func (s *webService) Init() error {
+	s.registerRoute(servants.RegisterWebServants)
+	return nil
 }
 
 func (s *webService) String() string {
-	return fmt.Sprintf("PaoPao service listen on %s\n", color.GreenString("http://%s:%s", conf.ServerSetting.HttpIp, conf.ServerSetting.HttpPort))
+	return fmt.Sprintf("listen on %s\n", color.GreenString("http://%s:%s", conf.WebServerSetting.HttpIp, conf.WebServerSetting.HttpPort))
 }
 
 func newWebEngine() *gin.Engine {
@@ -63,7 +64,7 @@ func newWebEngine() *gin.Engine {
 }
 
 func newWebService() Service {
-	addr := conf.ServerSetting.HttpIp + ":" + conf.ServerSetting.HttpPort
+	addr := conf.WebServerSetting.HttpIp + ":" + conf.WebServerSetting.HttpPort
 	server := httpServerFrom(addr, func() *httpServer {
 		engine := newWebEngine()
 		return &httpServer{
@@ -71,13 +72,15 @@ func newWebService() Service {
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
-				ReadTimeout:    conf.ServerSetting.ReadTimeout,
-				WriteTimeout:   conf.ServerSetting.WriteTimeout,
+				ReadTimeout:    conf.WebServerSetting.ReadTimeout,
+				WriteTimeout:   conf.WebServerSetting.WriteTimeout,
 				MaxHeaderBytes: 1 << 20,
 			},
 		}
 	})
 	return &webService{
-		httpService: newBaseHttpService(server),
+		baseHttpService: &baseHttpService{
+			server: server,
+		},
 	}
 }
