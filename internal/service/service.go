@@ -4,14 +4,36 @@
 
 package service
 
+import (
+	"log"
+
+	"github.com/rocboss/paopao-ce/pkg/types"
+)
+
 type Service interface {
 	Name() string
-	Start()
-	Stop()
+	Init() error
+	Start() error
+	Stop() error
 }
 
-type baseService struct{}
+type baseService types.Empty
+
+func (baseService) Name() string {
+	return ""
+}
 
 func (baseService) String() string {
 	return ""
+}
+
+func InitService() (ss []Service) {
+	ss = append(ss, newWebService())
+
+	for _, s := range ss {
+		if err := s.Init(); err != nil {
+			log.Fatalf("initial %s service error: %s", s.Name(), err)
+		}
+	}
+	return
 }

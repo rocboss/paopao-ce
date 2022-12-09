@@ -5,9 +5,7 @@
 package service
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/fatih/color"
@@ -18,23 +16,15 @@ import (
 )
 
 type webService struct {
-	baseService
-
-	server *http.Server
+	httpService
 }
 
 func (s *webService) Name() string {
 	return "WebService"
 }
 
-func (s *webService) Start() {
-	if err := s.server.ListenAndServe(); err != nil {
-		log.Fatalf("run app failed: %s", err)
-	}
-}
-
-func (s *webService) Stop() {
-	s.server.Shutdown(context.Background())
+func (s *webService) registerRoute(e *gin.Engine) {
+	servants.RegisterWebServants(e)
 }
 
 func (s *webService) String() string {
@@ -72,16 +62,22 @@ func newWebEngine() *gin.Engine {
 	return e
 }
 
-func NewWebService() Service {
-	e := newWebEngine()
-	servants.RegisterWebServants(e)
+func newWebService() Service {
+	addr := conf.ServerSetting.HttpIp + ":" + conf.ServerSetting.HttpPort
+	server := httpServerFrom(addr, func() *httpServer {
+		engine := newWebEngine()
+		return &httpServer{
+			e: engine,
+			server: &http.Server{
+				Addr:           addr,
+				Handler:        engine,
+				ReadTimeout:    conf.ServerSetting.ReadTimeout,
+				WriteTimeout:   conf.ServerSetting.WriteTimeout,
+				MaxHeaderBytes: 1 << 20,
+			},
+		}
+	})
 	return &webService{
-		server: &http.Server{
-			Addr:           conf.ServerSetting.HttpIp + ":" + conf.ServerSetting.HttpPort,
-			Handler:        e,
-			ReadTimeout:    conf.ServerSetting.ReadTimeout,
-			WriteTimeout:   conf.ServerSetting.WriteTimeout,
-			MaxHeaderBytes: 1 << 20,
-		},
+		httpService: newBaseHttpService(server),
 	}
 }

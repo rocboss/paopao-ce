@@ -15,16 +15,12 @@ import (
 
 // RegisterWebServants register all the servants to gin.Engine
 func RegisterWebServants(e *gin.Engine) {
-	// 按需注册 docs、静态资源
-	{
-		docs.RegisterDocs(e)
-		statick.RegisterStatick(e)
-	}
+	docs.RegisterDocs(e)
+	statick.RegisterStatick(e)
+
+	cfg.Be("LocalOSS", func() {
+		localoss.RouteLocalOSS(e)
+	})
 
 	web.RouteWeb(e)
-	{
-		cfg.Be("LocalOSS", func() {
-			localoss.RouteLocalOSS(e)
-		})
-	}
 }

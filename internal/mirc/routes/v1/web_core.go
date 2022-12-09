@@ -38,7 +38,7 @@ type WebCore struct {
 	Chain    Chain                          `mir:"-"`
 	Group    Group                          `mir:"v1"`
 	Index    func(Get)                      `mir:"/index/"`
-	Articles func(Get)                      `mir:"/articles/:category/"`
+	Articles func(Get, Head)                `mir:"/articles/:category/"`
 	Login    func(Post, LoginReq) LoginResp `mir:"/user/login/"`
 	Logout   func(Post)                     `mir:"/user/logout/"`
 }
