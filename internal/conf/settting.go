@@ -45,7 +45,7 @@ type LoggerMeiliSettingS struct {
 	MinWorker    int
 }
 
-type ServerSettingS struct {
+type HttpServerSettingS struct {
 	RunMode      string
 	HttpIp       string
 	HttpPort     string

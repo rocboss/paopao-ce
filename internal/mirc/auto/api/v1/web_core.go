@@ -86,8 +86,8 @@ func RegisterWebCoreServant(e *gin.Engine, s WebCore, b WebCoreBinding, r WebCor
 		h := func(c *gin.Context) {
 			r.RenderArticles(c, s.Articles(c))
 		}
-		router.Handle("HEAD", "/articles/:category/", h)
 		router.Handle("GET", "/articles/:category/", h)
+		router.Handle("HEAD", "/articles/:category/", h)
 	}
 
 	router.Handle("GET", "/index/", func(c *gin.Context) {

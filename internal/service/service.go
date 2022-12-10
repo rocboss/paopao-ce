@@ -46,5 +46,20 @@ func newService() (ss []Service) {
 		ss = append(ss, newOldWebService())
 	})
 
+	cfg.In(cfg.Actions{
+		"Admin": func() {
+			ss = append(ss, newAdminService())
+		},
+		"SpaceX": func() {
+			ss = append(ss, newSpaceXService())
+		},
+		"Bot": func() {
+			ss = append(ss, newBotService())
+		},
+		"LocalOSS": func() {
+			ss = append(ss, newLocalossService())
+		},
+	})
+
 	return
 }

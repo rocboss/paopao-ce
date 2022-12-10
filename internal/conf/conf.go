@@ -23,9 +23,13 @@ var (
 	MysqlSetting            *MySQLSettingS
 	PostgresSetting         *PostgresSettingS
 	Sqlite3Setting          *Sqlite3SettingS
-	ServerSetting           *ServerSettingS
-	WebServerSetting        *ServerSettingS
-	DocsServerSetting       *ServerSettingS
+	ServerSetting           *HttpServerSettingS
+	WebServerSetting        *HttpServerSettingS
+	AdminServerSetting      *HttpServerSettingS
+	SpaceXServerSetting     *HttpServerSettingS
+	BotServerSetting        *HttpServerSettingS
+	LocalossServerSetting   *HttpServerSettingS
+	DocsServerSetting       *HttpServerSettingS
 	AppSetting              *AppSettingS
 	CacheIndexSetting       *CacheIndexSettingS
 	SimpleCacheIndexSetting *SimpleCacheIndexSettingS
@@ -63,6 +67,10 @@ func setupSetting(suite []string, noDefault bool) error {
 		"App":              &AppSetting,
 		"Server":           &ServerSetting,
 		"WebServer":        &WebServerSetting,
+		"AdminServer":      &AdminServerSetting,
+		"SpaceXServer":     &SpaceXServerSetting,
+		"BotServer":        &BotServerSetting,
+		"LocalossServer":   &LocalossServerSetting,
 		"DocsServer":       &DocsServerSetting,
 		"CacheIndex":       &CacheIndexSetting,
 		"SimpleCacheIndex": &SimpleCacheIndexSetting,

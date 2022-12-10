@@ -9,12 +9,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	api "github.com/rocboss/paopao-ce/internal/mirc/auto/api/s/v1"
 	"github.com/sirupsen/logrus"
 )
-
-type localossSrv struct {
-	// TODO
-}
 
 // RouteLocalOSS register LocalOSS route if needed
 func RouteLocalOSS(e *gin.Engine) {
@@ -25,4 +22,9 @@ func RouteLocalOSS(e *gin.Engine) {
 	e.Static("/oss", savePath)
 
 	logrus.Infof("register LocalOSS route in /oss on save path: %s", savePath)
+}
+
+// RouteLocaloss register LocalOSS route if needed
+func RouteLocaloss(e *gin.Engine) {
+	api.RegisterUserServant(e, newUserSrv(), newUserBinding(), newUserRender())
 }

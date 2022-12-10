@@ -11,6 +11,7 @@ import (
 	. "github.com/alimy/mir/v3/engine"
 
 	_ "github.com/rocboss/paopao-ce/internal/mirc/routes/m/v1"
+	_ "github.com/rocboss/paopao-ce/internal/mirc/routes/r/v1"
 	_ "github.com/rocboss/paopao-ce/internal/mirc/routes/s/v1"
 	_ "github.com/rocboss/paopao-ce/internal/mirc/routes/v1"
 	_ "github.com/rocboss/paopao-ce/internal/mirc/routes/x/v1"
