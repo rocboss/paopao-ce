@@ -7,6 +7,7 @@ package service
 import (
 	"log"
 
+	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/rocboss/paopao-ce/pkg/types"
 )
 
@@ -27,13 +28,23 @@ func (baseService) String() string {
 	return ""
 }
 
-func InitService() (ss []Service) {
-	ss = append(ss, newWebService(), newOldWebService())
-
+func InitService() []Service {
+	ss := newService()
 	for _, s := range ss {
 		if err := s.Init(); err != nil {
 			log.Fatalf("initial %s service error: %s", s.Name(), err)
 		}
 	}
+	return ss
+}
+
+func newService() (ss []Service) {
+	ss = append(ss, newWebService())
+
+	// add oldWebService if not depredcated OldWebService
+	cfg.Not("Deprecated:OldWeb", func() {
+		ss = append(ss, newOldWebService())
+	})
+
 	return
 }

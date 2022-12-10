@@ -7,10 +7,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
 
 	"github.com/fatih/color"
@@ -48,24 +48,27 @@ func init() {
 }
 
 func flagParse() {
-	flag.BoolVar(&noDefaultFeatures, "no-default-features", false, "whether use default features")
+	flag.BoolVar(&noDefaultFeatures, "no-default-features", false, "whether not use default features")
 	flag.Var(&features, "features", "use special features")
 	flag.Parse()
 }
 
-func runService(ss []service.Service) {
+func runService(wg *sync.WaitGroup, ss []service.Service) {
 	gin.SetMode(conf.RunMode())
 
 	fmt.Fprintf(color.Output, "\nstarting run service...\n\n")
 	for _, s := range ss {
 		go func(s service.Service) {
-			fmt.Fprintf(color.Output, "%s[start] - %s\n", s.Name(), s)
+			fmt.Fprintf(color.Output, "%s[start] - %s", s.Name(), s)
 			if err := s.Start(); err != nil {
-				log.Fatalf("%s[start] - occurs on error: %s\n", s.Name(), err)
+				fmt.Fprintf(color.Output, "%s[start] - occurs on error: %s\n", s.Name(), err)
 			}
+			wg.Done()
 		}(s)
 	}
+}
 
+func runManage(wg *sync.WaitGroup, ss []service.Service) {
 	quit := make(chan os.Signal, 1)
 	// kill (no param) default send syscall.SIGTERM
 	// kill -2 is syscall.SIGINT
@@ -80,13 +83,20 @@ func runService(ss []service.Service) {
 		}
 		fmt.Fprintf(color.Output, "%s[stop] - finish...\n", s.Name())
 	}
+	wg.Done()
 }
 
 func main() {
 	util.PrintHelloBanner(debug.VersionInfo())
 
 	if ss := service.InitService(); len(ss) > 0 {
-		runService(ss)
+		wg := &sync.WaitGroup{}
+		wg.Add(len(ss) + 1)
+
+		runService(wg, ss)
+		go runManage(wg, ss)
+
+		wg.Wait()
 	} else {
 		fmt.Fprintf(color.Output, "no service need start so just exit")
 	}
