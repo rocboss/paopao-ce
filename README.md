@@ -65,7 +65,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
 * Redis
 * Zinc
 
-\* Zinc是一款轻量级全文搜索引擎，可以查阅 <https://zincsearch.com/> 安装
+> Zinc是一款轻量级全文搜索引擎，可以查阅 <https://zincsearch.com/> 安装
 
 以上环境版本为PaoPao官方的开发版本，仅供参考，其他版本的环境未进行充分测试
 
@@ -498,7 +498,7 @@ jc/alimy
 代码结构比较简单，很方便扩展，开发文档请参阅[docs](docs '开发文档').
 
 ## 👯‍♀️ 贡献
-paopao-ce 是一个利用 *业余时间* 本着 **"Just for fun just do it."** 的心态 *持续有序* **开发/优化/维护**的开源项目，没有KPI考核、没有Roadmap进度压力、没有技术支持日程安排，或许有些许不足之处，但是重在精神可嘉。 借用网络中的话 **"F\*k talk, f\*k of tech innovation, Shut up and give me your code."** 一切都因更好的体验，一切都是为了爱好，一切都在代码里；期待老铁们加入，一起开发、一起折腾、一起快乐。
+paopao-ce 是一个利用 *业余时间* 本着 **"Just for fun just do it."** 的心态 *持续有序* **开发/优化/维护**的开源项目，没有KPI考核、没有Roadmap进度压力、没有技术支持日程安排，或许有些许不足之处，但是重在精神可嘉。 借用网络中的话 **"F\*k talk, f\*k of tech innovation, Shut up and show me your code."** 一切都因更好的体验，一切都是为了爱好，一切都在代码里；期待老铁们加入，一起开发、一起折腾、一起快乐。
 
 喜欢的朋友记得给个Star，欢迎贡献PR。  
 
