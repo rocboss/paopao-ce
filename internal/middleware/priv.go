@@ -1,10 +1,10 @@
 package middleware
 
 import (
+	"github.com/alimy/cfg"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/app"
-	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 )
 

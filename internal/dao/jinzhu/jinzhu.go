@@ -6,11 +6,11 @@ package jinzhu
 
 import (
 	"github.com/Masterminds/semver/v3"
+	"github.com/alimy/cfg"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/dao/security"
-	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/sirupsen/logrus"
 )
 

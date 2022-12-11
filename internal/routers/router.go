@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/alimy/cfg"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/middleware"
 	"github.com/rocboss/paopao-ce/internal/routers/api"
-	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/sirupsen/logrus"
 )
 
