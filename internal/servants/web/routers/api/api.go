@@ -5,10 +5,10 @@
 package api
 
 import (
+	"github.com/alimy/cfg"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao"
-	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/sirupsen/logrus"
 	"github.com/smartwalle/alipay/v3"
 )

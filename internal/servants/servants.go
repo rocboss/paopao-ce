@@ -5,6 +5,7 @@
 package servants
 
 import (
+	"github.com/alimy/cfg"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/servants/admin"
 	"github.com/rocboss/paopao-ce/internal/servants/bot"
@@ -13,7 +14,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants/space"
 	"github.com/rocboss/paopao-ce/internal/servants/statick"
 	"github.com/rocboss/paopao-ce/internal/servants/web"
-	"github.com/rocboss/paopao-ce/pkg/cfg"
 )
 
 // RegisterWebServants register all the servants to gin.Engine

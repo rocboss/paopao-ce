@@ -7,7 +7,7 @@ package conf
 import (
 	"io"
 
-	"github.com/rocboss/paopao-ce/pkg/cfg"
+	"github.com/alimy/cfg"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 )

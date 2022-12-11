@@ -8,12 +8,12 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/alimy/cfg"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
 	"github.com/rocboss/paopao-ce/internal/servants/web/routers/api"
-	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/sirupsen/logrus"
 )
 

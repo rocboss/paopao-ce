@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/alimy/cfg"
 	"github.com/go-redis/redis/v8"
-	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"

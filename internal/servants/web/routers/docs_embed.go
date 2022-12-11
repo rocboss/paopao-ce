@@ -8,9 +8,9 @@
 package routers
 
 import (
+	"github.com/alimy/cfg"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/docs/openapi"
-	"github.com/rocboss/paopao-ce/pkg/cfg"
 )
 
 // registerDocs register docs asset route

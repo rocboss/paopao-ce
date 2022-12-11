@@ -8,7 +8,7 @@
 package migration
 
 import (
-	"github.com/rocboss/paopao-ce/pkg/cfg"
+	"github.com/alimy/cfg"
 	"github.com/sirupsen/logrus"
 )
 

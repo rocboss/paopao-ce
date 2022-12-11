@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rocboss/paopao-ce/pkg/cfg"
+	"github.com/alimy/cfg"
 )
 
 var (
@@ -58,7 +58,7 @@ func setupSetting(suite []string, noDefault bool) error {
 
 	// initialize features configure
 	ss, kv := setting.featuresInfoFrom("Features")
-	cfg.Initialize(ss, kv)
+	cfg.Initial(ss, kv)
 	if len(suite) > 0 {
 		cfg.Use(suite, noDefault)
 	}
