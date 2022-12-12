@@ -323,7 +323,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`Bot` | 子服务 | WIP | 开启Bot服务|
 |`NativeOBS` | 子服务 | WIP | 开启NativeOBS服务|
 |`Deprecated:Web` | 子服务 | 稳定 | Deprecated(关闭) OldWeb服务|
-|`Gorm` | 数据库 | 稳定(默认) | 使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Grom` + `MySQL`组合|
+|`Gorm` | 数据库 | 稳定(默认) | 使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Gorm` + `MySQL`组合|
 |`Sqlx`| 数据库 | WIP | 使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM|
 |`MySQL`| 数据库 | 稳定(默认) | 使用MySQL作为数据库|
 |`Postgres`| 数据库 | 稳定 | 使用PostgreSQL作为数据库|
@@ -352,7 +352,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`Docs:OpenAPI` | 开发文档 | 稳定 | 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi) |
 |`PhoneBind` | 其他 | 稳定 | 手机绑定功能 |   
 
-功能项状态详情参考 [features-status](features-status.md).
+> 功能项状态详情参考 [features-status](features-status.md).
      
 ### 搭建依赖环境
 #### [Zinc](https://github.com/zinclabs/zinc) 搜索引擎:
