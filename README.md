@@ -323,8 +323,11 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`Bot` | 子服务 | WIP | 开启Bot服务|
 |`NativeOBS` | 子服务 | WIP | 开启NativeOBS服务|
 |`Deprecated:Web` | 子服务 | 稳定 | Deprecated(关闭) OldWeb服务|
-|`Gorm` + `MySQL`/`Sqlite3`/`PostgreSQL` | 数据库 | 稳定(默认) | 使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Grom` + `MySQL`组合|
-|`Sqlx` + `MySQL`/`Sqlite3`/`PostgreSQL`| 数据库 | WIP | 使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM|
+|`Gorm` | 数据库 | 稳定(默认) | 使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Grom` + `MySQL`组合|
+|`Sqlx`| 数据库 | WIP | 使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM|
+|`MySQL`| 数据库 | 稳定(默认) | 使用MySQL作为数据库|
+|`Postgres`| 数据库 | 稳定 | 使用PostgreSQL作为数据库|
+|`Sqlite3`| 数据库 | 稳定 | 使用Sqlite3作为数据库|
 |`AliOSS` | 对象存储 | 稳定(推荐) |阿里云对象存储服务|
 |`COS` | 对象存储 | 内测 |腾讯云对象存储服务|
 |`HuaweiOBS` | 对象存储 | 内测 |华为云对象存储服务|
@@ -342,10 +345,10 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`LoggerFile` | 日志 | 稳定 | 使用文件写日志 |
 |`LoggerZinc` | 日志 | 稳定(推荐) | 使用[Zinc](https://github.com/zinclabs/zinc)写日志 |
 |`LoggerMeili` | 日志 | 内测 | 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志 |
-|`Friendship` | 用户关系模式 | 内测(默认) | 弱关系好友模式，类似微信朋友圈 |
-|`Followship` | 用户关系模式 | WIP | 关注者模式，类似Twitter的Follow模式 |
+|`Friendship` | 关系模式 | 内测(默认) | 弱关系好友模式，类似微信朋友圈 |
+|`Followship` | 关系模式 | WIP | 关注者模式，类似Twitter的Follow模式 |
 |`Alipay` | 支付 | 稳定 | 开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能 |
-|`Sms` | 短信验证码 | 稳定 | 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机 |
+|`Sms` | 短信验证 | 稳定 | 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机 |
 |`Docs:OpenAPI` | 开发文档 | 稳定 | 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi) |
 |`PhoneBind` | 其他 | 稳定 | 手机绑定功能 |   
 
