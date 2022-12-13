@@ -66,13 +66,26 @@ func RegisterUserServant(e *gin.Engine, s User, b UserBinding, r UserRender) {
 
 	// register routes info to router
 	router.Handle("POST", "/user/logout/", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
 		r.RenderLogout(c, s.Logout())
 	})
 
 	router.Handle("POST", "/user/login/", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
 		req, err := b.BindLogin(c)
 		if err != nil {
 			r.RenderLogin(c, nil, err)
+			return
 		}
 		resp, err := s.Login(req)
 		r.RenderLogin(c, resp, err)

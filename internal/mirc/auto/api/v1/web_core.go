@@ -70,13 +70,26 @@ func RegisterWebCoreServant(e *gin.Engine, s WebCore, b WebCoreBinding, r WebCor
 
 	// register routes info to router
 	router.Handle("POST", "/user/logout/", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
 		r.RenderLogout(c, s.Logout())
 	})
 
 	router.Handle("POST", "/user/login/", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
 		req, err := b.BindLogin(c)
 		if err != nil {
 			r.RenderLogin(c, nil, err)
+			return
 		}
 		resp, err := s.Login(req)
 		r.RenderLogin(c, resp, err)
@@ -84,6 +97,12 @@ func RegisterWebCoreServant(e *gin.Engine, s WebCore, b WebCoreBinding, r WebCor
 
 	{
 		h := func(c *gin.Context) {
+			select {
+			case <-c.Request.Context().Done():
+				return
+			default:
+			}
+
 			r.RenderArticles(c, s.Articles())
 		}
 		router.Handle("HEAD", "/articles/:category/", h)
@@ -91,6 +110,12 @@ func RegisterWebCoreServant(e *gin.Engine, s WebCore, b WebCoreBinding, r WebCor
 	}
 
 	router.Handle("GET", "/index/", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
 		r.RenderIndex(c, s.Index())
 	})
 
