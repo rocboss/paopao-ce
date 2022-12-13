@@ -38,25 +38,25 @@ type WebCore interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
-	Logout(c *gin.Context) mir.Error
-	Login(c *gin.Context, req *LoginReq) (*LoginResp, mir.Error)
-	Articles(c *gin.Context) mir.Error
-	Index(c *gin.Context) mir.Error
+	Logout() mir.Error
+	Login(*LoginReq) (*LoginResp, mir.Error)
+	Articles() mir.Error
+	Index() mir.Error
 
 	mustEmbedUnimplementedWebCoreServant()
 }
 
 type WebCoreBinding interface {
-	BindLogin(c *gin.Context) (*LoginReq, mir.Error)
+	BindLogin(*gin.Context) (*LoginReq, mir.Error)
 
 	mustEmbedUnimplementedWebCoreBinding()
 }
 
 type WebCoreRender interface {
-	RenderLogout(c *gin.Context, err mir.Error)
-	RenderLogin(c *gin.Context, data *LoginResp, err mir.Error)
-	RenderArticles(c *gin.Context, err mir.Error)
-	RenderIndex(c *gin.Context, err mir.Error)
+	RenderLogout(*gin.Context, mir.Error)
+	RenderLogin(*gin.Context, *LoginResp, mir.Error)
+	RenderArticles(*gin.Context, mir.Error)
+	RenderIndex(*gin.Context, mir.Error)
 
 	mustEmbedUnimplementedWebCoreRender()
 }
@@ -70,7 +70,7 @@ func RegisterWebCoreServant(e *gin.Engine, s WebCore, b WebCoreBinding, r WebCor
 
 	// register routes info to router
 	router.Handle("POST", "/user/logout/", func(c *gin.Context) {
-		r.RenderLogout(c, s.Logout(c))
+		r.RenderLogout(c, s.Logout())
 	})
 
 	router.Handle("POST", "/user/login/", func(c *gin.Context) {
@@ -78,20 +78,20 @@ func RegisterWebCoreServant(e *gin.Engine, s WebCore, b WebCoreBinding, r WebCor
 		if err != nil {
 			r.RenderLogin(c, nil, err)
 		}
-		resp, err := s.Login(c, req)
+		resp, err := s.Login(req)
 		r.RenderLogin(c, resp, err)
 	})
 
 	{
 		h := func(c *gin.Context) {
-			r.RenderArticles(c, s.Articles(c))
+			r.RenderArticles(c, s.Articles())
 		}
 		router.Handle("HEAD", "/articles/:category/", h)
 		router.Handle("GET", "/articles/:category/", h)
 	}
 
 	router.Handle("GET", "/index/", func(c *gin.Context) {
-		r.RenderIndex(c, s.Index(c))
+		r.RenderIndex(c, s.Index())
 	})
 
 }
@@ -104,19 +104,19 @@ func (UnimplementedWebCoreServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedWebCoreServant) Logout(c *gin.Context) mir.Error {
+func (UnimplementedWebCoreServant) Logout() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) Login(c *gin.Context, req *LoginReq) (*LoginResp, mir.Error) {
+func (UnimplementedWebCoreServant) Login(req *LoginReq) (*LoginResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) Articles(c *gin.Context) mir.Error {
+func (UnimplementedWebCoreServant) Articles() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) Index(c *gin.Context) mir.Error {
+func (UnimplementedWebCoreServant) Index() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 

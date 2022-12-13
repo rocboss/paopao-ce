@@ -38,21 +38,21 @@ type User interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
-	Logout(c *gin.Context) mir.Error
-	Login(c *gin.Context, req *LoginReq) (*LoginResp, mir.Error)
+	Logout() mir.Error
+	Login(*LoginReq) (*LoginResp, mir.Error)
 
 	mustEmbedUnimplementedUserServant()
 }
 
 type UserBinding interface {
-	BindLogin(c *gin.Context) (*LoginReq, mir.Error)
+	BindLogin(*gin.Context) (*LoginReq, mir.Error)
 
 	mustEmbedUnimplementedUserBinding()
 }
 
 type UserRender interface {
-	RenderLogout(c *gin.Context, err mir.Error)
-	RenderLogin(c *gin.Context, data *LoginResp, err mir.Error)
+	RenderLogout(*gin.Context, mir.Error)
+	RenderLogin(*gin.Context, *LoginResp, mir.Error)
 
 	mustEmbedUnimplementedUserRender()
 }
@@ -66,7 +66,7 @@ func RegisterUserServant(e *gin.Engine, s User, b UserBinding, r UserRender) {
 
 	// register routes info to router
 	router.Handle("POST", "/user/logout/", func(c *gin.Context) {
-		r.RenderLogout(c, s.Logout(c))
+		r.RenderLogout(c, s.Logout())
 	})
 
 	router.Handle("POST", "/user/login/", func(c *gin.Context) {
@@ -74,7 +74,7 @@ func RegisterUserServant(e *gin.Engine, s User, b UserBinding, r UserRender) {
 		if err != nil {
 			r.RenderLogin(c, nil, err)
 		}
-		resp, err := s.Login(c, req)
+		resp, err := s.Login(req)
 		r.RenderLogin(c, resp, err)
 	})
 
@@ -88,11 +88,11 @@ func (UnimplementedUserServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedUserServant) Logout(c *gin.Context) mir.Error {
+func (UnimplementedUserServant) Logout() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedUserServant) Login(c *gin.Context, req *LoginReq) (*LoginResp, mir.Error) {
+func (UnimplementedUserServant) Login(req *LoginReq) (*LoginResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
