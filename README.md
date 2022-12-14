@@ -65,7 +65,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
 * Redis
 * Zinc
 
-\* Zinc是一款轻量级全文搜索引擎，可以查阅 <https://zincsearch.com/> 安装
+> Zinc是一款轻量级全文搜索引擎，可以查阅 <https://zincsearch.com/> 安装
 
 以上环境版本为PaoPao官方的开发版本，仅供参考，其他版本的环境未进行充分测试
 
@@ -314,40 +314,46 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 ```
 
 目前支持的功能集合:
-* 数据库: MySQL/Sqlite3/PostgreSQL   
-  `Gorm` + `MySQL`/`Sqlite3`/`PostgreSQL` 使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Grom` + `MySQL`组合(目前状态：稳定，默认，推荐使用)；    
-  `Sqlx` + `MySQL`/`PostgreSQL` 使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM(目前状态：WIP)；      
-* 对象存储: AliOSS/COS/HuaweiOBS/MinIO/LocalOSS      
-  `AliOSS` 阿里云对象存储服务；    
-  `COS` 腾讯云对象存储服务；  
-  `HuaweiOBS` 华为云对象存储服务；  
-  `MinIO` [MinIO](https://github.com/minio/minio)对象存储服务；  
-  `S3` AWS S3兼容的对象存储服务；    
-  `LocalOSS` 提供使用本地目录文件作为对象存储的功能，仅用于开发调试环境；  
-* 缓存: Redis/SimpleCacheIndex/BigCacheIndex     
-  `SimpleCacheIndex` 提供简单的 广场推文列表 的缓存功能；   
-  `BigCacheIndex` 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(推荐使用)；  
-* 搜索: Zinc/Meili   
-  `Zinc` 基于[Zinc](https://github.com/zinclabs/zinc)搜索引擎提供推文搜索服务(目前状态: 稳定，推荐使用)；  
-  `Meili` 基于[Meilisearch](https://github.com/meilisearch/meilisearch)搜索引擎提供推文搜索服务(目前状态: 稳定，推荐使用);  
-* 日志: LoggerFile/LoggerZinc/LoggerMeili  
-  `LoggerFile` 使用文件写日志(目前状态: 稳定);   
-  `LoggerZinc` 使用[Zinc](https://github.com/zinclabs/zinc)写日志(目前状态: 稳定，推荐使用);    
-  `LoggerMeili` 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志(目前状态: 内测阶段);  
-* 用户关系模式: Friendship/Followship    
-  `Friendship` 弱关系好友模式，类似微信朋友圈(目前状态: 开发阶段);    
-  `Followship` 关注者模式，类似Twitter的Follow模式(目前状态: WIP);    
-* 支付: Alipay   
-  `Alipay`  开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能；   
-* 短信验证码: SmsJuhe(需要开启sms)    
-  `Sms` 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机；
-* 开发文档: Docs:OpenAPI     
-  `Docs:OpenAPI` 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi)；        
-* 其他: PhoneBind/OSS:Retention/OSS:TempDir     
-  `PhoneBind` 手机绑定功能；     
-  `OSS:Retention` 基于对象存储系统的对象过期自动删除特性实现 先创建临时对象再持久化的功能(目前状态: 内测阶段)；  
-  `OSS:TempDir` 基于对象存储系统的对象拷贝/移动特性实现 先创建临时对象再持久化的功能(目前状态: 内测阶段)；     
+| 功能项 | 类别 | 状态 | 备注 |
+| ----- | ----- | ----- | ----- |
+|`OldWeb` | 子服务 | 稳定(默认) | 开启旧的Web服务 |
+|`Web` | 子服务 | WIP | 开启Web服务|
+|`Admin` | 子服务 | WIP | 开启Admin后台运维服务|
+|`SpaceX` | 子服务 | WIP | 开启SpaceX服务|
+|`Bot` | 子服务 | WIP | 开启Bot服务|
+|`NativeOBS` | 子服务 | WIP | 开启NativeOBS服务|
+|`Deprecated:Web` | 子服务 | 稳定 | Deprecated(关闭) OldWeb服务|
+|`Gorm` | 数据库 | 稳定(默认) | 使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Gorm` + `MySQL`组合|
+|`Sqlx`| 数据库 | WIP | 使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM|
+|`MySQL`| 数据库 | 稳定(默认) | 使用MySQL作为数据库|
+|`Postgres`| 数据库 | 稳定 | 使用PostgreSQL作为数据库|
+|`Sqlite3`| 数据库 | 稳定 | 使用Sqlite3作为数据库|
+|`AliOSS` | 对象存储 | 稳定(推荐) |阿里云对象存储服务|
+|`COS` | 对象存储 | 内测 |腾讯云对象存储服务|
+|`HuaweiOBS` | 对象存储 | 内测 |华为云对象存储服务|
+|`MinIO` | 对象存储 | 稳定 |[MinIO](https://github.com/minio/minio)对象存储服务|
+|`S3` | 对象存储 | 内测 |AWS S3兼容的对象存储服务|
+|`LocalOSS` | 对象存储 | 内测 |提供使用本地目录文件作为对象存储的功能，仅用于开发调试环境|
+|`OSS:Retention` | 对象存储 | 内测 |基于对象存储系统的对象过期自动删除特性实现 先创建临时对象再持久化的功能|
+|`OSS:TempDir` | 对象存储 | 内测 |基于对象存储系统的对象拷贝/移动特性实现 先创建临时对象再持久化的功能|
+|`Redis` | 缓存 | 稳定 | Redis缓存功能 |
+|`SimpleCacheIndex` | 缓存 | 稳定 | 提供简单的 广场推文列表 的缓存功能 |
+|`BigCacheIndex` | 缓存 | 稳定(推荐) | 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面 |
+|`Zinc` | 搜索 | 稳定(推荐) | 基于[Zinc](https://github.com/zinclabs/zinc)搜索引擎提供推文搜索服务 |
+|`Meili` | 搜索 | 稳定(推荐) | 基于[Meilisearch](https://github.com/meilisearch/meilisearch)搜索引擎提供推文搜索服务 |
+|`Bleve` | 搜索 | WIP | 基于[Bleve](https://github.com/blevesearch/bleve)搜索引擎提供推文搜索服务 |
+|`LoggerFile` | 日志 | 稳定 | 使用文件写日志 |
+|`LoggerZinc` | 日志 | 稳定(推荐) | 使用[Zinc](https://github.com/zinclabs/zinc)写日志 |
+|`LoggerMeili` | 日志 | 内测 | 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志 |
+|`Friendship` | 关系模式 | 内测(默认) | 弱关系好友模式，类似微信朋友圈 |
+|`Followship` | 关系模式 | WIP | 关注者模式，类似Twitter的Follow模式 |
+|`Alipay` | 支付 | 稳定 | 开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能 |
+|`Sms` | 短信验证 | 稳定 | 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机 |
+|`Docs:OpenAPI` | 开发文档 | 稳定 | 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi) |
+|`PhoneBind` | 其他 | 稳定 | 手机绑定功能 |   
 
+> 功能项状态详情参考 [features-status](features-status.md).
+     
 ### 搭建依赖环境
 #### [Zinc](https://github.com/zinclabs/zinc) 搜索引擎:
 * Zinc运行
@@ -498,7 +504,7 @@ jc/alimy
 代码结构比较简单，很方便扩展，开发文档请参阅[docs](docs '开发文档').
 
 ## 👯‍♀️ 贡献
-paopao-ce 是一个利用 *业余时间* 本着 **"Just for fun just do it."** 的心态 *持续有序* **开发/优化/维护**的开源项目，没有KPI考核、没有Roadmap进度压力、没有技术支持日程安排，或许有些许不足之处，但是重在精神可嘉。 借用网络中的话 **"F\*k talk, f\*k of tech innovation, Shut up and give me your code."** 一切都因更好的体验，一切都是为了爱好，一切都在代码里；期待老铁们加入，一起开发、一起折腾、一起快乐。
+paopao-ce 是一个利用 *业余时间* 本着 **"Just for fun just do it."** 的心态 *持续有序* **开发/优化/维护**的开源项目，没有KPI考核、没有Roadmap进度压力、没有技术支持日程安排，或许有些许不足之处，但是重在精神可嘉。 借用网络中的话 **"F\*k talk, f\*k of tech innovation, Shut up and show me your code."** 一切都因更好的体验，一切都是为了爱好，一切都在代码里；期待老铁们加入，一起开发、一起折腾、一起快乐。
 
 喜欢的朋友记得给个Star，欢迎贡献PR。  
 

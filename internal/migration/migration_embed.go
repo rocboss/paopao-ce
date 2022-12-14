@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 //go:build migration
 // +build migration
 
@@ -6,6 +10,7 @@ package migration
 import (
 	"database/sql"
 
+	"github.com/alimy/cfg"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database"
 	"github.com/golang-migrate/migrate/v4/database/mysql"
@@ -14,7 +19,6 @@ import (
 	"github.com/golang-migrate/migrate/v4/source"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/rocboss/paopao-ce/scripts/migration"
 	"github.com/sirupsen/logrus"
 )

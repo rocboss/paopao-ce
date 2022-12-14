@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package conf
 
 import (
@@ -41,7 +45,7 @@ type LoggerMeiliSettingS struct {
 	MinWorker    int
 }
 
-type ServerSettingS struct {
+type HttpServerSettingS struct {
 	RunMode      string
 	HttpIp       string
 	HttpPort     string
@@ -50,6 +54,7 @@ type ServerSettingS struct {
 }
 
 type AppSettingS struct {
+	RunMode               string
 	MaxCommentCount       int64
 	AttachmentIncomeRate  float64
 	DefaultContextTimeout time.Duration

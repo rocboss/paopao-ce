@@ -1,45 +1,65 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package service
 
 import (
-	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/dao"
-	"github.com/rocboss/paopao-ce/internal/model"
-	"github.com/rocboss/paopao-ce/pkg/cfg"
-	"github.com/sirupsen/logrus"
+	"log"
+
+	"github.com/alimy/cfg"
+	"github.com/rocboss/paopao-ce/pkg/types"
 )
 
-var (
-	ds                 core.DataService
-	ts                 core.TweetSearchService
-	oss                core.ObjectStorageService
-	DisablePhoneVerify bool
-)
-
-func Initialize() {
-	ds = dao.DataService()
-	ts = dao.TweetSearchService()
-	oss = dao.ObjectStorageService()
-	DisablePhoneVerify = !cfg.If("Sms")
+type Service interface {
+	Name() string
+	Init() error
+	Start() error
+	Stop() error
 }
 
-// persistMediaContents 获取媒体内容并持久化
-func persistMediaContents(contents []*PostContentItem) (items []string, err error) {
-	items = make([]string, 0, len(contents))
-	for _, item := range contents {
-		switch item.Type {
-		case model.CONTENT_TYPE_IMAGE,
-			model.CONTENT_TYPE_VIDEO,
-			model.CONTENT_TYPE_AUDIO,
-			model.CONTENT_TYPE_ATTACHMENT,
-			model.CONTENT_TYPE_CHARGE_ATTACHMENT:
-			items = append(items, item.Content)
-			if err != nil {
-				continue
-			}
-			if err = oss.PersistObject(oss.ObjectKey(item.Content)); err != nil {
-				logrus.Errorf("service.persistMediaContents failed: %s", err)
-			}
+type baseService types.Empty
+
+func (baseService) Name() string {
+	return ""
+}
+
+func (baseService) String() string {
+	return ""
+}
+
+func InitService() []Service {
+	ss := newService()
+	for _, s := range ss {
+		if err := s.Init(); err != nil {
+			log.Fatalf("initial %s service error: %s", s.Name(), err)
 		}
 	}
+	return ss
+}
+
+func newService() (ss []Service) {
+	ss = append(ss, newWebService())
+
+	// add oldWebService if not depredcated OldWebService
+	cfg.Not("Deprecated:OldWeb", func() {
+		ss = append(ss, newOldWebService())
+	})
+
+	cfg.In(cfg.Actions{
+		"Admin": func() {
+			ss = append(ss, newAdminService())
+		},
+		"SpaceX": func() {
+			ss = append(ss, newSpaceXService())
+		},
+		"Bot": func() {
+			ss = append(ss, newBotService())
+		},
+		"LocalOSS": func() {
+			ss = append(ss, newLocalossService())
+		},
+	})
+
 	return
 }

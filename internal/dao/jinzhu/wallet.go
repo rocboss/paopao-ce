@@ -1,9 +1,13 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package jinzhu
 
 import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
 )
 
@@ -21,17 +25,17 @@ func newWalletService(db *gorm.DB) core.WalletService {
 	}
 }
 
-func (d *walletServant) GetRechargeByID(id int64) (*model.WalletRecharge, error) {
-	recharge := &model.WalletRecharge{
-		Model: &model.Model{
+func (d *walletServant) GetRechargeByID(id int64) (*core.WalletRecharge, error) {
+	recharge := &dbr.WalletRecharge{
+		Model: &dbr.Model{
 			ID: id,
 		},
 	}
 
 	return recharge.Get(d.db)
 }
-func (d *walletServant) CreateRecharge(userId, amount int64) (*model.WalletRecharge, error) {
-	recharge := &model.WalletRecharge{
+func (d *walletServant) CreateRecharge(userId, amount int64) (*core.WalletRecharge, error) {
+	recharge := &dbr.WalletRecharge{
 		UserID: userId,
 		Amount: amount,
 	}
@@ -39,26 +43,26 @@ func (d *walletServant) CreateRecharge(userId, amount int64) (*model.WalletRecha
 	return recharge.Create(d.db)
 }
 
-func (d *walletServant) GetUserWalletBills(userID int64, offset, limit int) ([]*model.WalletStatement, error) {
-	statement := &model.WalletStatement{
+func (d *walletServant) GetUserWalletBills(userID int64, offset, limit int) ([]*core.WalletStatement, error) {
+	statement := &dbr.WalletStatement{
 		UserID: userID,
 	}
 
-	return statement.List(d.db, &model.ConditionsT{
+	return statement.List(d.db, &dbr.ConditionsT{
 		"ORDER": "id DESC",
 	}, offset, limit)
 }
 
 func (d *walletServant) GetUserWalletBillCount(userID int64) (int64, error) {
-	statement := &model.WalletStatement{
+	statement := &dbr.WalletStatement{
 		UserID: userID,
 	}
-	return statement.Count(d.db, &model.ConditionsT{})
+	return statement.Count(d.db, &dbr.ConditionsT{})
 }
 
-func (d *walletServant) HandleRechargeSuccess(recharge *model.WalletRecharge, tradeNo string) error {
-	user, _ := (&model.User{
-		Model: &model.Model{
+func (d *walletServant) HandleRechargeSuccess(recharge *core.WalletRecharge, tradeNo string) error {
+	user, _ := (&dbr.User{
+		Model: &dbr.Model{
 			ID: recharge.UserID,
 		},
 	}).Get(d.db)
@@ -71,7 +75,7 @@ func (d *walletServant) HandleRechargeSuccess(recharge *model.WalletRecharge, tr
 		}
 
 		// 新增账单
-		if err := tx.Create(&model.WalletStatement{
+		if err := tx.Create(&dbr.WalletStatement{
 			UserID:          user.ID,
 			ChangeAmount:    recharge.Amount,
 			BalanceSnapshot: user.Balance + recharge.Amount,
@@ -93,7 +97,7 @@ func (d *walletServant) HandleRechargeSuccess(recharge *model.WalletRecharge, tr
 	})
 }
 
-func (d *walletServant) HandlePostAttachmentBought(post *model.Post, user *model.User) error {
+func (d *walletServant) HandlePostAttachmentBought(post *core.Post, user *core.User) error {
 	return d.db.Transaction(func(tx *gorm.DB) error {
 		// 扣除金额
 		if err := tx.Model(user).Update("balance", gorm.Expr("balance - ?", post.AttachmentPrice)).Error; err != nil {
@@ -102,7 +106,7 @@ func (d *walletServant) HandlePostAttachmentBought(post *model.Post, user *model
 		}
 
 		// 新增账单
-		if err := tx.Create(&model.WalletStatement{
+		if err := tx.Create(&dbr.WalletStatement{
 			PostID:          post.ID,
 			UserID:          user.ID,
 			ChangeAmount:    -post.AttachmentPrice,
@@ -113,7 +117,7 @@ func (d *walletServant) HandlePostAttachmentBought(post *model.Post, user *model
 		}
 
 		// 新增附件购买记录
-		if err := tx.Create(&model.PostAttachmentBill{
+		if err := tx.Create(&dbr.PostAttachmentBill{
 			PostID:     post.ID,
 			UserID:     user.ID,
 			PaidAmount: post.AttachmentPrice,
@@ -124,8 +128,8 @@ func (d *walletServant) HandlePostAttachmentBought(post *model.Post, user *model
 		// 对附件主新增账单
 		income := int64(float64(post.AttachmentPrice) * conf.AppSetting.AttachmentIncomeRate)
 		if income > 0 {
-			master := &model.User{
-				Model: &model.Model{
+			master := &dbr.User{
+				Model: &dbr.Model{
 					ID: post.UserID,
 				},
 			}
@@ -137,7 +141,7 @@ func (d *walletServant) HandlePostAttachmentBought(post *model.Post, user *model
 			}
 
 			// 新增账单
-			if err := tx.Create(&model.WalletStatement{
+			if err := tx.Create(&dbr.WalletStatement{
 				PostID:          post.ID,
 				UserID:          master.ID,
 				ChangeAmount:    income,

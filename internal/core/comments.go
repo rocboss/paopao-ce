@@ -1,24 +1,36 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package core
 
 import (
-	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
+)
+
+type (
+	Comment              = dbr.Comment
+	CommentFormated      = dbr.CommentFormated
+	CommentReply         = dbr.CommentReply
+	CommentContent       = dbr.CommentContent
+	CommentReplyFormated = dbr.CommentReplyFormated
 )
 
 // CommentService 评论检索服务
 type CommentService interface {
-	GetComments(conditions *model.ConditionsT, offset, limit int) ([]*model.Comment, error)
-	GetCommentByID(id int64) (*model.Comment, error)
-	GetCommentCount(conditions *model.ConditionsT) (int64, error)
-	GetCommentReplyByID(id int64) (*model.CommentReply, error)
-	GetCommentContentsByIDs(ids []int64) ([]*model.CommentContent, error)
-	GetCommentRepliesByID(ids []int64) ([]*model.CommentReplyFormated, error)
+	GetComments(conditions *ConditionsT, offset, limit int) ([]*Comment, error)
+	GetCommentByID(id int64) (*Comment, error)
+	GetCommentCount(conditions *ConditionsT) (int64, error)
+	GetCommentReplyByID(id int64) (*CommentReply, error)
+	GetCommentContentsByIDs(ids []int64) ([]*CommentContent, error)
+	GetCommentRepliesByID(ids []int64) ([]*CommentReplyFormated, error)
 }
 
 // CommentManageService 评论管理服务
 type CommentManageService interface {
-	DeleteComment(comment *model.Comment) error
-	CreateComment(comment *model.Comment) (*model.Comment, error)
-	CreateCommentReply(reply *model.CommentReply) (*model.CommentReply, error)
-	DeleteCommentReply(reply *model.CommentReply) error
-	CreateCommentContent(content *model.CommentContent) (*model.CommentContent, error)
+	DeleteComment(comment *Comment) error
+	CreateComment(comment *Comment) (*Comment, error)
+	CreateCommentReply(reply *CommentReply) (*CommentReply, error)
+	DeleteCommentReply(reply *CommentReply) error
+	CreateCommentContent(content *CommentContent) (*CommentContent, error)
 }

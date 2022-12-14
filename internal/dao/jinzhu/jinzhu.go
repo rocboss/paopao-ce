@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 // Core service implement base gorm+mysql/postgresql/sqlite3.
 // Jinzhu is the primary developer of gorm so use his name as
 // package name as a saluter.
@@ -6,11 +10,11 @@ package jinzhu
 
 import (
 	"github.com/Masterminds/semver/v3"
+	"github.com/alimy/cfg"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/dao/security"
-	"github.com/rocboss/paopao-ce/pkg/cfg"
 	"github.com/sirupsen/logrus"
 )
 

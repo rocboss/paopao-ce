@@ -68,6 +68,18 @@ windows-x64:
 	@echo Build paopao-ce [windows-x64] CGO_ENABLED=$(CGO_ENABLED)
 	@CGO_ENABLED=$(CGO_ENABLED) GOOS=windows GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_WINDOWS_AMD64)/$(basename $(TARGET)).exe
 
+.PHONY: generate
+generate: gen-mir gen-grpc
+
+.PHONY: gen-mir
+gen-mir:
+	@go generate internal/mirc/main.go
+	@go fmt ./internal/mirc/...
+
+.PHONY: gen-grpc
+gen-grpc:
+	@go fmt ./internal/proto/...
+
 clean:
 	@go clean
 	@find ./release -type f -exec rm -r {} +

@@ -1,10 +1,13 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package search
 
 import (
 	"time"
 
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,7 +46,7 @@ func (s *bridgeTweetSearchServant) DeleteDocuments(identifiers []string) error {
 	return nil
 }
 
-func (s *bridgeTweetSearchServant) Search(user *model.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
+func (s *bridgeTweetSearchServant) Search(user *core.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
 	return s.ts.Search(user, q, offset, limit)
 }
 
