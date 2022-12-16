@@ -8,6 +8,10 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 )
 
+var (
+	_ core.AttachmentCheckService = (*attachmentCheckServant)(nil)
+)
+
 type attachmentCheckServant struct {
 	domain string
 }
