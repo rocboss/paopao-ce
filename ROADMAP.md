@@ -6,9 +6,9 @@ paopao-ce roadmap.
 * [ ] add `Lightship` feature
 * [ ] add `sqlx` feature
 * [ ] add new `web` service
-* [ ] add `deprecated:web` feature
-* [ ] support run multiple service in single paopao-ce instance
-* [ ] use [go-mir](https://github.com/alimy/mir) optimize paopao-ce source code architecture
+* [x] add `deprecated:web` feature
+* [x] support run multiple service in single paopao-ce instance
+* [x] use [go-mir](https://github.com/alimy/mir) optimize paopao-ce source code architecture
 
 
 ### Next
