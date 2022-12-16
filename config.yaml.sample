@@ -56,7 +56,7 @@ SmsJuhe:
   Gateway: https://v.juhe.cn/sms/send
   Key:
   TplID:
-  TplVal: "#code#=%d&#m#=%d"
+  TplVal: "#code#=%s&#m#=%d"
 Alipay: 
   AppID:
   InProduction: True

@@ -5,6 +5,8 @@
 package core
 
 import (
+	"time"
+
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 )
 
@@ -19,7 +21,12 @@ type SecurityService interface {
 	SendPhoneCaptcha(phone string) error
 }
 
-// 附件检测服务
+// AttachmentCheckService 附件检测服务
 type AttachmentCheckService interface {
 	CheckAttachment(uri string) error
+}
+
+// PhoneVerifyService 手机验证服务
+type PhoneVerifyService interface {
+	SendPhoneCaptcha(phone string, captcha string, expire time.Duration) error
 }

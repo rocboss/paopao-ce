@@ -46,6 +46,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		v core.VersionInfo
 	)
 	db := conf.MustGormDB()
+	pvs := security.NewPhoneVerifyService()
 
 	i := newIndexPostsService(db)
 	if cfg.If("SimpleCacheIndex") {
@@ -71,7 +72,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		CommentManageService:   newCommentManageService(db),
 		UserManageService:      newUserManageService(db),
 		ContactManageService:   newContactManageService(db),
-		SecurityService:        newSecurityService(db),
+		SecurityService:        newSecurityService(db, pvs),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
 	}
 	return ds, ds
