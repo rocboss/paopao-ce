@@ -8,11 +8,16 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/fatih/color"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/servants"
+)
+
+var (
+	_ Service = (*adminService)(nil)
 )
 
 type adminService struct {
@@ -21,6 +26,10 @@ type adminService struct {
 
 func (s *adminService) Name() string {
 	return "AdminService"
+}
+
+func (s *adminService) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
 }
 
 func (s *adminService) Init() error {

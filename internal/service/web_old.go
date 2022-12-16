@@ -8,9 +8,14 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/fatih/color"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/servants/web/routers"
+)
+
+var (
+	_ Service = (*oldWebService)(nil)
 )
 
 type oldWebService struct {
@@ -19,6 +24,10 @@ type oldWebService struct {
 
 func (s *oldWebService) Name() string {
 	return "OldWebService"
+}
+
+func (s *oldWebService) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
 }
 
 func (s *oldWebService) Init() error {

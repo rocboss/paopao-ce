@@ -57,11 +57,12 @@ func runService(wg *sync.WaitGroup, ss []service.Service) {
 	gin.SetMode(conf.RunMode())
 
 	fmt.Fprintf(color.Output, "\nstarting run service...\n\n")
+	l := service.MaxSidSize(ss)
 	for _, s := range ss {
 		go func(s service.Service) {
-			fmt.Fprintf(color.Output, "%s[start] - %s", s.Name(), s)
+			fmt.Fprintf(color.Output, "%s [start] - %s", util.SidStr(s.Name(), s.Version(), l), s)
 			if err := s.Start(); err != nil {
-				fmt.Fprintf(color.Output, "%s[start] - occurs on error: %s\n", s.Name(), err)
+				fmt.Fprintf(color.Output, "%s [start] - occurs on error: %s\n", util.SidStr(s.Name(), s.Version(), l), err)
 			}
 			wg.Done()
 		}(s)
@@ -76,12 +77,12 @@ func runManage(wg *sync.WaitGroup, ss []service.Service) {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	fmt.Fprintf(color.Output, "\nshutting down server...\n\n")
-
+	l := service.MaxSidSize(ss)
 	for _, s := range ss {
 		if err := s.Stop(); err != nil {
-			fmt.Fprintf(color.Output, "%s[stop] - occurs on error: %s\n", s.Name(), err)
+			fmt.Fprintf(color.Output, "%s [stop] - occurs on error: %s\n", util.SidStr(s.Name(), s.Version(), l), err)
 		}
-		fmt.Fprintf(color.Output, "%s[stop] - finish...\n", s.Name())
+		fmt.Fprintf(color.Output, "%s [stop] - finish...\n", util.SidStr(s.Name(), s.Version(), l))
 	}
 	wg.Done()
 }
