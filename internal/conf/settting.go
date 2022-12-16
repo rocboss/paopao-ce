@@ -5,6 +5,7 @@
 package conf
 
 import (
+	"embed"
 	"fmt"
 	"strings"
 	"time"
@@ -13,6 +14,9 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/gorm/logger"
 )
+
+//go:embed config.yaml
+var files embed.FS
 
 type Setting struct {
 	vp *viper.Viper
@@ -204,13 +208,21 @@ type JWTSettingS struct {
 }
 
 func NewSetting() (*Setting, error) {
+	cfgFile, err := files.Open("config.yaml")
+	if err != nil {
+		return nil, err
+	}
+	defer cfgFile.Close()
+
 	vp := viper.New()
 	vp.SetConfigName("config")
 	vp.AddConfigPath(".")
 	vp.AddConfigPath("custom/")
 	vp.SetConfigType("yaml")
-	err := vp.ReadInConfig()
-	if err != nil {
+	if err = vp.ReadConfig(cfgFile); err != nil {
+		return nil, err
+	}
+	if err = vp.MergeInConfig(); err != nil {
 		return nil, err
 	}
 
@@ -222,7 +234,6 @@ func (s *Setting) ReadSection(k string, v any) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
