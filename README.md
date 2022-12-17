@@ -39,7 +39,7 @@ Web端：
 更多演示请前往[官网](https://www.paopao.info)体验（谢绝灌水）  
 
 桌面端：  
-![](docs/proposal/.assets/00-00.png)
+![](docs/proposal/.assets/000-00.png)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -493,7 +493,7 @@ jc/alimy
 * `jc/*`是代码库维护者的开发分支，一般包含一些局部优化或者bug修复代码，有时可以直接将代码merge到`dev/beta`分支，原则上不允许直接merge代码到`main`主分支。
 
 **代码分支演进图**        
-![](docs/proposal/.assets/00-01.png)
+![](docs/proposal/.assets/000-01.png)
 
 ### 其他说明
 
