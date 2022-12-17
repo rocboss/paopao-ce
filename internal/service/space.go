@@ -25,7 +25,7 @@ type spaceXService struct {
 }
 
 func (s *spaceXService) Name() string {
-	return "WebService"
+	return "SpaceXService"
 }
 
 func (s *spaceXService) Version() *semver.Version {
