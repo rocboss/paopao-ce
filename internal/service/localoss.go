@@ -49,10 +49,11 @@ func newLocalossEngine() *gin.Engine {
 
 func newLocalossService() Service {
 	addr := conf.LocalossServerSetting.HttpIp + ":" + conf.LocalossServerSetting.HttpPort
-	server := httpServerFrom(addr, func() *httpServer {
+	server := httpServers.from(addr, func() *httpServer {
 		engine := newLocalossEngine()
 		return &httpServer{
-			e: engine,
+			baseServer: newBaseServe(),
+			e:          engine,
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,

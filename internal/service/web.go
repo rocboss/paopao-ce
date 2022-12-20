@@ -74,10 +74,11 @@ func newWebEngine() *gin.Engine {
 
 func newWebService() Service {
 	addr := conf.WebServerSetting.HttpIp + ":" + conf.WebServerSetting.HttpPort
-	server := httpServerFrom(addr, func() *httpServer {
+	server := httpServers.from(addr, func() *httpServer {
 		engine := newWebEngine()
 		return &httpServer{
-			e: engine,
+			baseServer: newBaseServe(),
+			e:          engine,
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,

@@ -4,35 +4,70 @@
 
 package service
 
+import "sync"
+
 var (
-	httpServers = make(map[string]*httpServer)
-	grpcServers = make(map[string]*grpcServer)
+	httpServers = newServerPool[*httpServer]()
+	grpcServers = newServerPool[*grpcServer]()
 )
 
 const (
-	_statusServerInitilized uint8 = iota + 1
+	_statusServerUnknow uint8 = iota
+	_statusServerInitilized
 	_statusServerStarted
 	_statusServerStoped
 )
 
-func httpServerFrom(addr string, newServer func() *httpServer) *httpServer {
-	s, exist := httpServers[addr]
+type server interface {
+	status() uint8
+	setStatus(uint8)
+	start() error
+	stop() error
+}
+
+type serverPool[T server] struct {
+	servers map[string]T
+}
+
+type baseServer struct {
+	sync.RWMutex
+	serverStatus uint8
+}
+
+func (p *serverPool[T]) from(addr string, newServer func() T) T {
+	s, exist := p.servers[addr]
 	if exist {
 		return s
 	}
 	s = newServer()
-	s.serverStatus = _statusServerInitilized
-	httpServers[addr] = s
+	s.setStatus(_statusServerInitilized)
+	p.servers[addr] = s
 	return s
 }
 
-func grpcServerFrom(addr string, newServer func() *grpcServer) *grpcServer {
-	s, exist := grpcServers[addr]
-	if exist {
-		return s
+func (s *baseServer) setStatus(status uint8) {
+	s.RLock()
+	defer s.RUnlock()
+
+	s.serverStatus = status
+}
+
+func (s *baseServer) status() uint8 {
+	s.RLock()
+	defer s.RUnlock()
+
+	return s.serverStatus
+}
+
+func newServerPool[T server]() *serverPool[T] {
+	return &serverPool[T]{
+		servers: make(map[string]T),
 	}
-	s = newServer()
-	s.serverStatus = _statusServerInitilized
-	grpcServers[addr] = s
-	return s
+}
+
+func newBaseServe() *baseServer {
+	return &baseServer{
+		RWMutex:      sync.RWMutex{},
+		serverStatus: _statusServerUnknow,
+	}
 }

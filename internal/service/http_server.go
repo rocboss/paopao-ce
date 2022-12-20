@@ -7,25 +7,20 @@ package service
 import (
 	"context"
 	"net/http"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 )
 
+var (
+	_ server = (*httpServer)(nil)
+)
+
 // httpServer wraper for gin.engine and http.Server
 type httpServer struct {
-	sync.RWMutex
+	*baseServer
 
-	e            *gin.Engine
-	server       *http.Server
-	serverStatus uint8
-}
-
-func (s *httpServer) status() uint8 {
-	s.RLock()
-	defer s.RUnlock()
-
-	return s.serverStatus
+	e      *gin.Engine
+	server *http.Server
 }
 
 func (s *httpServer) start() error {

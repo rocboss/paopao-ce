@@ -43,7 +43,7 @@ func (s *mobileService) String() string {
 
 func newMobileService() Service {
 	addr := conf.MobileServerSetting.Host + ":" + conf.MobileServerSetting.Port
-	server := grpcServerFrom(addr, func() *grpcServer {
+	server := grpcServers.from(addr, func() *grpcServer {
 		l, err := net.Listen("tcp", addr)
 		if err != nil {
 			// TODO: optimize error process
@@ -54,8 +54,9 @@ func newMobileService() Service {
 		s := grpc.NewServer()
 
 		return &grpcServer{
-			listener: l,
-			server:   s,
+			baseServer: newBaseServe(),
+			listener:   l,
+			server:     s,
 		}
 	})
 	return &mobileService{

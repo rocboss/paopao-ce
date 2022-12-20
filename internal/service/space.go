@@ -74,10 +74,11 @@ func newSpaceXEngine() *gin.Engine {
 
 func newSpaceXService() Service {
 	addr := conf.SpaceXServerSetting.HttpIp + ":" + conf.SpaceXServerSetting.HttpPort
-	server := httpServerFrom(addr, func() *httpServer {
+	server := httpServers.from(addr, func() *httpServer {
 		engine := newSpaceXEngine()
 		return &httpServer{
-			e: engine,
+			baseServer: newBaseServe(),
+			e:          engine,
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,

@@ -74,10 +74,11 @@ func newBotEngine() *gin.Engine {
 
 func newBotService() Service {
 	addr := conf.BotServerSetting.HttpIp + ":" + conf.BotServerSetting.HttpPort
-	server := httpServerFrom(addr, func() *httpServer {
+	server := httpServers.from(addr, func() *httpServer {
 		engine := newBotEngine()
 		return &httpServer{
-			e: engine,
+			baseServer: newBaseServe(),
+			e:          engine,
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,

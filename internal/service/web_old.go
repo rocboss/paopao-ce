@@ -41,10 +41,11 @@ func (s *oldWebService) String() string {
 
 func newOldWebService() Service {
 	addr := conf.ServerSetting.HttpIp + ":" + conf.ServerSetting.HttpPort
-	server := httpServerFrom(addr, func() *httpServer {
+	server := httpServers.from(addr, func() *httpServer {
 		engine := newWebEngine()
 		return &httpServer{
-			e: engine,
+			baseServer: newBaseServe(),
+			e:          engine,
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,

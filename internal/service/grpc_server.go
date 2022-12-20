@@ -6,25 +6,20 @@ package service
 
 import (
 	"net"
-	"sync"
 
 	"google.golang.org/grpc"
 )
 
+var (
+	_ server = (*grpcServer)(nil)
+)
+
 // grpcServer wraper for grpc.Server
 type grpcServer struct {
-	sync.RWMutex
+	*baseServer
 
-	listener     net.Listener
-	server       *grpc.Server
-	serverStatus uint8
-}
-
-func (s *grpcServer) status() uint8 {
-	s.RLock()
-	defer s.RUnlock()
-
-	return s.serverStatus
+	listener net.Listener
+	server   *grpc.Server
 }
 
 func (s *grpcServer) start() error {

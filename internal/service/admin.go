@@ -74,10 +74,11 @@ func newAdminEngine() *gin.Engine {
 
 func newAdminService() Service {
 	addr := conf.AdminServerSetting.HttpIp + ":" + conf.AdminServerSetting.HttpPort
-	server := httpServerFrom(addr, func() *httpServer {
+	server := httpServers.from(addr, func() *httpServer {
 		engine := newAdminEngine()
 		return &httpServer{
-			e: engine,
+			baseServer: newBaseServe(),
+			e:          engine,
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
