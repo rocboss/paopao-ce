@@ -20,5 +20,5 @@ func PrintHelloBanner(text string) {
 }
 
 func SidStr(name string, version *semver.Version, size int) string {
-	return fmt.Sprintf(fmt.Sprintf("%%s%%-%ds", size-len(name+version.String())+4), name, version)
+	return fmt.Sprintf(fmt.Sprintf("%%s@%%-%ds", size-len(name+version.String())+4), name, version)
 }

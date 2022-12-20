@@ -6,7 +6,7 @@ package space
 
 import (
 	"github.com/gin-gonic/gin"
-	api "github.com/rocboss/paopao-ce/internal/mirc/auto/api/x/v1"
+	api "github.com/rocboss/paopao-ce/auto/api/x/v1"
 )
 
 // RouteWeb register SpaceX route

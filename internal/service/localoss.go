@@ -31,7 +31,7 @@ func (s *localossService) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 
-func (s *localossService) Init() error {
+func (s *localossService) OnInit() error {
 	s.registerRoute(servants.RegisterLocalossServants)
 	return nil
 }

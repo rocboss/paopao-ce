@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
+	api "github.com/rocboss/paopao-ce/auto/api/s/v1"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	api "github.com/rocboss/paopao-ce/internal/mirc/auto/api/s/v1"
 	"github.com/sirupsen/logrus"
 )
 

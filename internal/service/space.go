@@ -32,7 +32,7 @@ func (s *spaceXService) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 
-func (s *spaceXService) Init() error {
+func (s *spaceXService) OnInit() error {
 	s.registerRoute(servants.RegisterSpaceXServants)
 	return nil
 }

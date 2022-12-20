@@ -31,6 +31,7 @@ require (
 	github.com/spf13/viper v1.14.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.35
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
+	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/resty.v1 v1.12.0
@@ -117,6 +118,7 @@ require (
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	golang.org/x/tools v0.1.12 // indirect
+	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

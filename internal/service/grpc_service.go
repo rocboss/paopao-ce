@@ -5,28 +5,28 @@
 package service
 
 import (
-	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
 )
 
-type baseHttpService struct {
+type baseGRPCService struct {
 	baseService
 
-	server *httpServer
+	server *grpcServer
 }
 
-func (s *baseHttpService) registerRoute(h func(e *gin.Engine)) {
+func (s *baseGRPCService) registerServer(h func(s *grpc.Server)) {
 	if s.server.status() != _statusServerStarted {
-		h(s.server.e)
+		h(s.server.server)
 	}
 }
 
-func (s *baseHttpService) OnStart() error {
+func (s *baseGRPCService) OnStart() error {
 	if err := s.server.start(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *baseHttpService) OnStop() error {
+func (s *baseGRPCService) OnStop() error {
 	return s.server.stop()
 }

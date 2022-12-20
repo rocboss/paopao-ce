@@ -32,7 +32,7 @@ func (s *botService) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 
-func (s *botService) Init() error {
+func (s *botService) OnInit() error {
 	s.registerRoute(servants.RegisterBotServants)
 	return nil
 }

@@ -15,9 +15,9 @@ import (
 type Service interface {
 	Name() string
 	Version() *semver.Version
-	Init() error
-	Start() error
-	Stop() error
+	OnInit() error
+	OnStart() error
+	OnStop() error
 }
 
 type baseService types.Empty
@@ -38,7 +38,7 @@ func (baseService) String() string {
 func InitService() []Service {
 	ss := newService()
 	for _, s := range ss {
-		if err := s.Init(); err != nil {
+		if err := s.OnInit(); err != nil {
 			log.Fatalf("initial %s service error: %s", s.Name(), err)
 		}
 	}
@@ -78,6 +78,9 @@ func newService() (ss []Service) {
 		},
 		"NativeOBS": func() {
 			ss = append(ss, newLocalossService())
+		},
+		"Mobile": func() {
+			ss = append(ss, newMobileService())
 		},
 	})
 	return

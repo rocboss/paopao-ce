@@ -43,6 +43,9 @@ DocsServer: # 开发文档服务
   HttpPort: 8011
   ReadTimeout: 60
   WriteTimeout: 60
+MobileServer: # 移动端grpc api服务
+  Host: 0.0.0.0
+  Port: 8020
 SmsJuhe:
   Gateway: https://v.juhe.cn/sms/send
   Key:

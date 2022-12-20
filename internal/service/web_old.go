@@ -30,7 +30,7 @@ func (s *oldWebService) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 
-func (s *oldWebService) Init() error {
+func (s *oldWebService) OnInit() error {
 	s.registerRoute(routers.RegisterRoute)
 	return nil
 }

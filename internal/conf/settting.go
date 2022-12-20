@@ -57,6 +57,11 @@ type HttpServerSettingS struct {
 	WriteTimeout time.Duration
 }
 
+type GRPCServerSettingS struct {
+	Host string
+	Port string
+}
+
 type AppSettingS struct {
 	RunMode               string
 	MaxCommentCount       int64

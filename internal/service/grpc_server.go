@@ -5,30 +5,29 @@
 package service
 
 import (
-	"context"
-	"net/http"
+	"net"
 	"sync"
 
-	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
 )
 
-// httpServer wraper for gin.engine and http.Server
-type httpServer struct {
+// grpcServer wraper for grpc.Server
+type grpcServer struct {
 	sync.RWMutex
 
-	e            *gin.Engine
-	server       *http.Server
+	listener     net.Listener
+	server       *grpc.Server
 	serverStatus uint8
 }
 
-func (s *httpServer) status() uint8 {
+func (s *grpcServer) status() uint8 {
 	s.RLock()
 	defer s.RUnlock()
 
 	return s.serverStatus
 }
 
-func (s *httpServer) start() error {
+func (s *grpcServer) start() error {
 	s.Lock()
 	if s.serverStatus == _statusServerStarted || s.serverStatus == _statusServerStoped {
 		return nil
@@ -37,7 +36,7 @@ func (s *httpServer) start() error {
 	s.serverStatus = _statusServerStarted
 	s.Unlock()
 
-	if err := s.server.ListenAndServe(); err != nil {
+	if err := s.server.Serve(s.listener); err != nil {
 		s.Lock()
 		s.serverStatus = oldStatus
 		s.Unlock()
@@ -47,16 +46,14 @@ func (s *httpServer) start() error {
 	return nil
 }
 
-func (s *httpServer) stop() error {
+func (s *grpcServer) stop() error {
 	s.Lock()
 	defer s.Unlock()
 
 	if s.serverStatus == _statusServerStoped || s.serverStatus == _statusServerInitilized {
 		return nil
 	}
-	if err := s.server.Shutdown(context.Background()); err != nil {
-		return err
-	}
+	s.server.Stop()
 	s.serverStatus = _statusServerStoped
 	return nil
 }

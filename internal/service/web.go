@@ -32,7 +32,7 @@ func (s *webService) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 
-func (s *webService) Init() error {
+func (s *webService) OnInit() error {
 	s.registerRoute(servants.RegisterWebServants)
 	return nil
 }

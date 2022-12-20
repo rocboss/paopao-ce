@@ -30,6 +30,7 @@ var (
 	BotServerSetting        *HttpServerSettingS
 	LocalossServerSetting   *HttpServerSettingS
 	DocsServerSetting       *HttpServerSettingS
+	MobileServerSetting     *GRPCServerSettingS
 	AppSetting              *AppSettingS
 	CacheIndexSetting       *CacheIndexSettingS
 	SimpleCacheIndexSetting *SimpleCacheIndexSettingS
@@ -72,6 +73,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"BotServer":        &BotServerSetting,
 		"LocalossServer":   &LocalossServerSetting,
 		"DocsServer":       &DocsServerSetting,
+		"MobileServer":     &MobileServerSetting,
 		"CacheIndex":       &CacheIndexSetting,
 		"SimpleCacheIndex": &SimpleCacheIndexSetting,
 		"BigCacheIndex":    &BigCacheIndexSetting,

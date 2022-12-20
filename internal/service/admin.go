@@ -32,7 +32,7 @@ func (s *adminService) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 
-func (s *adminService) Init() error {
+func (s *adminService) OnInit() error {
 	s.registerRoute(servants.RegisterAdminServants)
 	return nil
 }

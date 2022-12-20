@@ -11,9 +11,11 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants/bot"
 	"github.com/rocboss/paopao-ce/internal/servants/docs"
 	"github.com/rocboss/paopao-ce/internal/servants/localoss"
+	"github.com/rocboss/paopao-ce/internal/servants/mobile"
 	"github.com/rocboss/paopao-ce/internal/servants/space"
 	"github.com/rocboss/paopao-ce/internal/servants/statick"
 	"github.com/rocboss/paopao-ce/internal/servants/web"
+	"google.golang.org/grpc"
 )
 
 // RegisterWebServants register all the servants to gin.Engine
@@ -46,4 +48,9 @@ func RegisterBotServants(e *gin.Engine) {
 // RegisterLocalossServants register all the servants to gin.Engine
 func RegisterLocalossServants(e *gin.Engine) {
 	localoss.RouteLocaloss(e)
+}
+
+// RegisterMobileServants register all the servants to grpc.Server
+func RegisterMobileServants(s *grpc.Server) {
+	mobile.RegisterServants(s)
 }
