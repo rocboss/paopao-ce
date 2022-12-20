@@ -10,11 +10,11 @@ import (
 	. "github.com/alimy/mir/v3/core"
 	. "github.com/alimy/mir/v3/engine"
 
-	_ "github.com/rocboss/paopao-ce/mirc/routes/admin/v1"
-	_ "github.com/rocboss/paopao-ce/mirc/routes/bot/v1"
-	_ "github.com/rocboss/paopao-ce/mirc/routes/localoss/v1"
-	_ "github.com/rocboss/paopao-ce/mirc/routes/space/v1"
-	_ "github.com/rocboss/paopao-ce/mirc/routes/v1"
+	_ "github.com/rocboss/paopao-ce/mirc/admin/v1"
+	_ "github.com/rocboss/paopao-ce/mirc/bot/v1"
+	_ "github.com/rocboss/paopao-ce/mirc/localoss/v1"
+	_ "github.com/rocboss/paopao-ce/mirc/space/v1"
+	_ "github.com/rocboss/paopao-ce/mirc/v1"
 )
 
 //go:generate go run main.go
