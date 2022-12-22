@@ -23,6 +23,7 @@ type UserInfo struct {
 }
 
 type LoginReq struct {
+	BaseInfo  `json:"-"`
 	AgentInfo AgentInfo `json:"agent_info"`
 	Name      string    `json:"name"`
 	Passwd    string    `json:"passwd"`

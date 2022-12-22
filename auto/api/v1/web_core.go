@@ -7,9 +7,11 @@ import (
 
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 )
 
 type LoginReq struct {
+	BaseInfo  `json:"-"`
 	AgentInfo AgentInfo `json:"agent_info"`
 	Name      string    `json:"name"`
 	Passwd    string    `json:"passwd"`
@@ -18,6 +20,10 @@ type LoginReq struct {
 type AgentInfo struct {
 	Platform  string `json:"platform"`
 	UserAgent string `json:"user_agent"`
+}
+
+type BaseInfo struct {
+	User *dbr.User
 }
 
 type LoginResp struct {
@@ -105,8 +111,8 @@ func RegisterWebCoreServant(e *gin.Engine, s WebCore, b WebCoreBinding, r WebCor
 
 			r.RenderArticles(c, s.Articles())
 		}
-		router.Handle("HEAD", "/articles/:category/", h)
 		router.Handle("GET", "/articles/:category/", h)
+		router.Handle("HEAD", "/articles/:category/", h)
 	}
 
 	router.Handle("GET", "/index/", func(c *gin.Context) {

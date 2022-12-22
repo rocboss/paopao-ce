@@ -3,7 +3,7 @@
 
 |目录|系列API|备注|
 | ----- | ----- | ----- |
-|v1|/|Web v1版本RESTful API相关定义文件|
+|web|/|Web v1版本RESTful API相关定义文件|
 |admin|m|Admin后台运维系列相关RESTful API相关定义文件|
 |space|x|SpaceX系列相关RESTful API相关定义文件|
 |localoss|s| LocalOSS OBS系列RESTful API相关定义文件|

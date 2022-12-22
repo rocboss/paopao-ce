@@ -6,7 +6,6 @@ package base
 
 import (
 	"net/http"
-	"os"
 
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
@@ -26,7 +25,13 @@ type BaseRender struct {
 	// TODO
 }
 
-func (BaseServant) userFrom(c *gin.Context) (*core.User, bool) {
+type JsonResp struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg,omitempty"`
+	Data any    `json:",omitempty"`
+}
+
+func (BaseServant) UserFrom(c *gin.Context) (*core.User, bool) {
 	if u, exists := c.Get("USER"); exists {
 		user, ok := u.(*core.User)
 		return user, ok
@@ -45,33 +50,15 @@ func BindAny(c *gin.Context, obj any) mir.Error {
 
 func RenderAny(c *gin.Context, data any, err mir.Error) {
 	if err == nil {
-		hostname, _ := os.Hostname()
-		if data == nil {
-			data = gin.H{
-				"code":      0,
-				"msg":       "success",
-				"tracehost": hostname,
-			}
-		} else {
-			data = gin.H{
-				"code":      0,
-				"msg":       "success",
-				"data":      data,
-				"tracehost": hostname,
-			}
-		}
-		c.JSON(http.StatusOK, data)
+		c.JSON(http.StatusOK, &JsonResp{
+			Code: 0,
+			Msg:  "success",
+			Data: data,
+		})
 	} else {
-		// TODO: error process logic
-		resp := gin.H{"code": err.StatusCode(), "msg": err.Error()}
-		// xerr := &xerror.Error{}
-		// if errors.As(err, xerr) {
-		// 	resp["code"], resp["msg"] = xerr.Code(), xerr.Msg()
-		// 	details := xerr.Details()
-		// 	if len(details) > 0 {
-		// 		resp["details"] = details
-		// 	}
-		// }
-		c.JSON(http.StatusInternalServerError, resp)
+		c.JSON(http.StatusInternalServerError, &JsonResp{
+			Code: err.StatusCode(),
+			Msg:  err.Error(),
+		})
 	}
 }
