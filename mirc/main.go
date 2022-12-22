@@ -14,7 +14,7 @@ import (
 	_ "github.com/rocboss/paopao-ce/mirc/bot/v1"
 	_ "github.com/rocboss/paopao-ce/mirc/localoss/v1"
 	_ "github.com/rocboss/paopao-ce/mirc/space/v1"
-	_ "github.com/rocboss/paopao-ce/mirc/v1"
+	_ "github.com/rocboss/paopao-ce/mirc/web/v1"
 )
 
 //go:generate go run main.go
