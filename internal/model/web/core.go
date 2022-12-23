@@ -5,11 +5,11 @@
 package web
 
 type ChangeAvatarReq struct {
-	*BaseInfo
+	*BaseInfo `json:"-"`
 }
 
 type UserInfoReq struct {
-	*BaseInfo
+	*BaseInfo `json:"-"`
 }
 
 type UserInfoResp struct {

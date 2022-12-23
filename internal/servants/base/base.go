@@ -31,6 +31,10 @@ type JsonResp struct {
 	Data any    `json:",omitempty"`
 }
 
+type UserSetter interface {
+	SetUser(*core.User)
+}
+
 func UserFrom(c *gin.Context) (*core.User, bool) {
 	if u, exists := c.Get("USER"); exists {
 		user, ok := u.(*core.User)
@@ -44,6 +48,11 @@ func BindAny(c *gin.Context, obj any) mir.Error {
 	err := c.ShouldBind(obj)
 	if err != nil {
 		return mir.NewError(xerror.InvalidParams.Code(), xerror.InvalidParams.WithDetails(errs.Error()))
+	}
+	// setup *core.User if needed
+	if setter, ok := obj.(UserSetter); ok {
+		user, _ := UserFrom(c)
+		setter.SetUser(user)
 	}
 	return nil
 }

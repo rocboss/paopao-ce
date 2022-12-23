@@ -5,7 +5,7 @@
 package web
 
 type ListFollowersReq struct {
-	*BaseInfo
+	*BaseInfo `json:"-"`
 }
 
 type ListFollowersResp struct {

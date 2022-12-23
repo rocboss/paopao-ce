@@ -5,7 +5,7 @@
 package web
 
 type GetContactsReq struct {
-	*BaseInfo
+	*BaseInfo `json:"-"`
 }
 
 type GetContactsResp struct {

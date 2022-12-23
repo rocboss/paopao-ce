@@ -1,7 +1,7 @@
 package web
 
 type TimelineReq struct {
-	*BaseInfo
+	*BaseInfo `json:"-"`
 }
 
 type TimelineResp struct {

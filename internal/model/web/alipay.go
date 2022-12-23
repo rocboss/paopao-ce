@@ -1,7 +1,7 @@
 package web
 
 type UserWalletBillsReq struct {
-	*BaseInfo
+	*BaseInfo `json:"-"`
 }
 
 type UserWalletBillsResp struct {

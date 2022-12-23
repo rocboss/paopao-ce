@@ -1,7 +1,7 @@
 package web
 
 type CreateTweetReq struct {
-	*BaseInfo
+	*BaseInfo `json:"-"`
 }
 
 type CreateTweetResp struct {

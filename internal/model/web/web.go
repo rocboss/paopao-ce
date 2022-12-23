@@ -11,3 +11,7 @@ import (
 type BaseInfo struct {
 	User *core.User
 }
+
+func (b *BaseInfo) SetUser(user *core.User) {
+	b.User = user
+}
