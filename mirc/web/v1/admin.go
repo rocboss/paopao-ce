@@ -10,9 +10,6 @@ func init() {
 	AddEntry(new(WebAdmin))
 }
 
-// // 管理·禁言/解封用户
-// adminApi.POST("/admin/user/status", api.ChangeUserStatus)
-
 type WebAdmin struct {
 	Chain Chain `mir:"-"`
 	Group Group `mir:"v1"`

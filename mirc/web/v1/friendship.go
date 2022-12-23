@@ -10,24 +10,6 @@ func init() {
 	AddEntry(new(WebFriendship))
 }
 
-// // routeFriendship register Friendship feature releated routes
-// func routeFriendship(authApi gin.IRoutes) {
-// 	// 请求添加朋友
-// 	authApi.POST("/friend/requesting", api.RequestingFriend)
-
-// 	// 同意添加好友
-// 	authApi.POST("/friend/add", api.AddFriend)
-
-// 	// 拒绝添加好友
-// 	authApi.POST("/friend/reject", api.RejectFriend)
-
-// 	// 删除好友
-// 	authApi.POST("/friend/delete", api.DeleteFriend)
-
-// 	// 获取好友列表
-// 	authApi.GET("/user/contacts", api.GetContacts)
-// }
-
 type WebFriendship struct {
 	Chain Chain `mir:"-"`
 	Group Group `mir:"v1"`
