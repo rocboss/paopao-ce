@@ -12,4 +12,5 @@ import (
 // RouteWeb register web route
 func RouteWeb(e *gin.Engine) {
 	api.RegisterWebCoreServant(e, newWebCoreSrv(), newWebCoreBinding(), newWebCoreRender())
+	api.RegisterWebAdminServant(e, newWebAdminSrv(), newWebAdminBinding(), newWebAdminRender())
 }

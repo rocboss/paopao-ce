@@ -5,8 +5,10 @@
 package web
 
 import (
+	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
+	"github.com/rocboss/paopao-ce/internal/servants/chain"
 )
 
 var (
@@ -28,6 +30,10 @@ type webCoreBinding struct {
 type webCoreRender struct {
 	base.BaseRender
 	*api.UnimplementedWebCoreRender
+}
+
+func (s *webCoreSrv) Chain() gin.HandlersChain {
+	return gin.HandlersChain{chain.JWT()}
 }
 
 func newWebCoreSrv() api.WebCore {

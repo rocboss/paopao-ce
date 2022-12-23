@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/cfg v0.3.0
-	github.com/alimy/mir/v3 v3.0.0-alpha.8
+	github.com/alimy/mir/v3 v3.0.0-beta.2
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.2+incompatible
 	github.com/allegro/bigcache/v3 v3.0.2
 	github.com/bytedance/sonic v1.5.0
@@ -132,3 +132,5 @@ require (
 	modernc.org/strutil v1.1.1 // indirect
 	modernc.org/token v1.0.0 // indirect
 )
+
+replace github.com/alimy/mir/v3 => ../../alimy/mir

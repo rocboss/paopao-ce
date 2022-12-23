@@ -7,62 +7,58 @@ import (
 
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
+	"github.com/rocboss/paopao-ce/internal/model/web"
 )
-
-type LoginReq struct {
-	BaseInfo  `json:"-"`
-	AgentInfo AgentInfo `json:"agent_info"`
-	Name      string    `json:"name"`
-	Passwd    string    `json:"passwd"`
-}
-
-type AgentInfo struct {
-	Platform  string `json:"platform"`
-	UserAgent string `json:"user_agent"`
-}
-
-type BaseInfo struct {
-	User *dbr.User
-}
-
-type LoginResp struct {
-	UserInfo
-	ServerInfo ServerInfo `json:"server_info"`
-	JwtToken   string     `json:"jwt_token"`
-}
-
-type ServerInfo struct {
-	ApiVer string `json:"api_ver"`
-}
-
-type UserInfo struct {
-	Name string `json:"name"`
-}
 
 type WebCore interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
-	Logout() mir.Error
-	Login(*LoginReq) (*LoginResp, mir.Error)
-	Articles() mir.Error
-	Index() mir.Error
+	TweetCollectionStatus() mir.Error
+	TweetStarStatus() mir.Error
+	SuggestTags() mir.Error
+	SuggestUsers() mir.Error
+	ChangeAvatar(*web.ChangeAvatarReq) mir.Error
+	ChangeNickname() mir.Error
+	ChangePassword() mir.Error
+	UserPhoneBind() mir.Error
+	GetStars() mir.Error
+	GetCollections() mir.Error
+	SendUserWhisper() mir.Error
+	ReadMessage() mir.Error
+	GetMessages() mir.Error
+	GetUnreadMsgCount() mir.Error
+	GetUserInfo(*web.UserInfoReq) (*web.UserInfoResp, mir.Error)
+	SyncSearchIndex() mir.Error
 
 	mustEmbedUnimplementedWebCoreServant()
 }
 
 type WebCoreBinding interface {
-	BindLogin(*gin.Context) (*LoginReq, mir.Error)
+	BindChangeAvatar(*gin.Context) (*web.ChangeAvatarReq, mir.Error)
+
+	BindGetUserInfo(*gin.Context) (*web.UserInfoReq, mir.Error)
 
 	mustEmbedUnimplementedWebCoreBinding()
 }
 
 type WebCoreRender interface {
-	RenderLogout(*gin.Context, mir.Error)
-	RenderLogin(*gin.Context, *LoginResp, mir.Error)
-	RenderArticles(*gin.Context, mir.Error)
-	RenderIndex(*gin.Context, mir.Error)
+	RenderTweetCollectionStatus(*gin.Context, mir.Error)
+	RenderTweetStarStatus(*gin.Context, mir.Error)
+	RenderSuggestTags(*gin.Context, mir.Error)
+	RenderSuggestUsers(*gin.Context, mir.Error)
+	RenderChangeAvatar(*gin.Context, mir.Error)
+	RenderChangeNickname(*gin.Context, mir.Error)
+	RenderChangePassword(*gin.Context, mir.Error)
+	RenderUserPhoneBind(*gin.Context, mir.Error)
+	RenderGetStars(*gin.Context, mir.Error)
+	RenderGetCollections(*gin.Context, mir.Error)
+	RenderSendUserWhisper(*gin.Context, mir.Error)
+	RenderReadMessage(*gin.Context, mir.Error)
+	RenderGetMessages(*gin.Context, mir.Error)
+	RenderGetUnreadMsgCount(*gin.Context, mir.Error)
+	RenderGetUserInfo(*gin.Context, *web.UserInfoResp, mir.Error)
+	RenderSyncSearchIndex(*gin.Context, mir.Error)
 
 	mustEmbedUnimplementedWebCoreRender()
 }
@@ -75,54 +71,175 @@ func RegisterWebCoreServant(e *gin.Engine, s WebCore, b WebCoreBinding, r WebCor
 	router.Use(middlewares...)
 
 	// register routes info to router
-	router.Handle("POST", "/user/logout/", func(c *gin.Context) {
+	router.Handle("GET", "/post/collection", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
 			return
 		default:
 		}
 
-		r.RenderLogout(c, s.Logout())
+		r.RenderTweetCollectionStatus(c, s.TweetCollectionStatus())
 	})
 
-	router.Handle("POST", "/user/login/", func(c *gin.Context) {
+	router.Handle("GET", "/post/star", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
 			return
 		default:
 		}
 
-		req, err := b.BindLogin(c)
+		r.RenderTweetStarStatus(c, s.TweetStarStatus())
+	})
+
+	router.Handle("GET", "/suggest/tags", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		r.RenderSuggestTags(c, s.SuggestTags())
+	})
+
+	router.Handle("GET", "/suggest/users", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		r.RenderSuggestUsers(c, s.SuggestUsers())
+	})
+
+	router.Handle("POST", "/user/avatar", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		req, err := b.BindChangeAvatar(c)
 		if err != nil {
-			r.RenderLogin(c, nil, err)
+			r.RenderChangeAvatar(c, err)
 			return
 		}
-		resp, err := s.Login(req)
-		r.RenderLogin(c, resp, err)
+		r.RenderChangeAvatar(c, s.ChangeAvatar(req))
 	})
 
-	{
-		h := func(c *gin.Context) {
-			select {
-			case <-c.Request.Context().Done():
-				return
-			default:
-			}
-
-			r.RenderArticles(c, s.Articles())
-		}
-		router.Handle("GET", "/articles/:category/", h)
-		router.Handle("HEAD", "/articles/:category/", h)
-	}
-
-	router.Handle("GET", "/index/", func(c *gin.Context) {
+	router.Handle("POST", "/user/nickname", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
 			return
 		default:
 		}
 
-		r.RenderIndex(c, s.Index())
+		r.RenderChangeNickname(c, s.ChangeNickname())
+	})
+
+	router.Handle("POST", "/user/password", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		r.RenderChangePassword(c, s.ChangePassword())
+	})
+
+	router.Handle("POST", "/user/phone", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		r.RenderUserPhoneBind(c, s.UserPhoneBind())
+	})
+
+	router.Handle("GET", "/user/stars", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		r.RenderGetStars(c, s.GetStars())
+	})
+
+	router.Handle("GET", "/user/collections", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		r.RenderGetCollections(c, s.GetCollections())
+	})
+
+	router.Handle("POST", "/user/whisper", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		r.RenderSendUserWhisper(c, s.SendUserWhisper())
+	})
+
+	router.Handle("POST", "/user/message/read", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		r.RenderReadMessage(c, s.ReadMessage())
+	})
+
+	router.Handle("GET", "/user/messages", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		r.RenderGetMessages(c, s.GetMessages())
+	})
+
+	router.Handle("GET", "/user/msgcount/unread", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		r.RenderGetUnreadMsgCount(c, s.GetUnreadMsgCount())
+	})
+
+	router.Handle("GET", "/user/info", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		req, err := b.BindGetUserInfo(c)
+		if err != nil {
+			r.RenderGetUserInfo(c, nil, err)
+			return
+		}
+		resp, err := s.GetUserInfo(req)
+		r.RenderGetUserInfo(c, resp, err)
+	})
+
+	router.Handle("GET", "/sync/index", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		r.RenderSyncSearchIndex(c, s.SyncSearchIndex())
 	})
 
 }
@@ -135,19 +252,67 @@ func (UnimplementedWebCoreServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedWebCoreServant) Logout() mir.Error {
+func (UnimplementedWebCoreServant) TweetCollectionStatus() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) Login(req *LoginReq) (*LoginResp, mir.Error) {
+func (UnimplementedWebCoreServant) TweetStarStatus() mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedWebCoreServant) SuggestTags() mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedWebCoreServant) SuggestUsers() mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedWebCoreServant) ChangeAvatar(req *web.ChangeAvatarReq) mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedWebCoreServant) ChangeNickname() mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedWebCoreServant) ChangePassword() mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedWebCoreServant) UserPhoneBind() mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedWebCoreServant) GetStars() mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedWebCoreServant) GetCollections() mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedWebCoreServant) SendUserWhisper() mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedWebCoreServant) ReadMessage() mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedWebCoreServant) GetMessages() mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedWebCoreServant) GetUnreadMsgCount() mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedWebCoreServant) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) Articles() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
-}
-
-func (UnimplementedWebCoreServant) Index() mir.Error {
+func (UnimplementedWebCoreServant) SyncSearchIndex() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
@@ -158,19 +323,67 @@ type UnimplementedWebCoreRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
-func (r *UnimplementedWebCoreRender) RenderLogout(c *gin.Context, err mir.Error) {
+func (r *UnimplementedWebCoreRender) RenderTweetCollectionStatus(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderLogin(c *gin.Context, data *LoginResp, err mir.Error) {
+func (r *UnimplementedWebCoreRender) RenderTweetStarStatus(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedWebCoreRender) RenderSuggestTags(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedWebCoreRender) RenderSuggestUsers(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedWebCoreRender) RenderChangeAvatar(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedWebCoreRender) RenderChangeNickname(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedWebCoreRender) RenderChangePassword(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedWebCoreRender) RenderUserPhoneBind(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedWebCoreRender) RenderGetStars(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedWebCoreRender) RenderGetCollections(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedWebCoreRender) RenderSendUserWhisper(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedWebCoreRender) RenderReadMessage(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedWebCoreRender) RenderGetMessages(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedWebCoreRender) RenderGetUnreadMsgCount(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedWebCoreRender) RenderGetUserInfo(c *gin.Context, data *web.UserInfoResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderArticles(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
-}
-
-func (r *UnimplementedWebCoreRender) RenderIndex(c *gin.Context, err mir.Error) {
+func (r *UnimplementedWebCoreRender) RenderSyncSearchIndex(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
@@ -181,8 +394,14 @@ type UnimplementedWebCoreBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
 }
 
-func (b *UnimplementedWebCoreBinding) BindLogin(c *gin.Context) (*LoginReq, mir.Error) {
-	obj := new(LoginReq)
+func (b *UnimplementedWebCoreBinding) BindChangeAvatar(c *gin.Context) (*web.ChangeAvatarReq, mir.Error) {
+	obj := new(web.ChangeAvatarReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedWebCoreBinding) BindGetUserInfo(c *gin.Context) (*web.UserInfoReq, mir.Error) {
+	obj := new(web.UserInfoReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }

@@ -31,7 +31,7 @@ type JsonResp struct {
 	Data any    `json:",omitempty"`
 }
 
-func (BaseServant) UserFrom(c *gin.Context) (*core.User, bool) {
+func UserFrom(c *gin.Context) (*core.User, bool) {
 	if u, exists := c.Get("USER"); exists {
 		user, ok := u.(*core.User)
 		return user, ok
