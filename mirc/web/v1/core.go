@@ -7,10 +7,11 @@ import (
 )
 
 func init() {
-	AddEntry(new(WebCore))
+	AddEntry(new(Core))
 }
 
-type WebCore struct {
+// Core 核心服务，需要授权访问
+type Core struct {
 	Chain Chain `mir:"-"`
 	Group Group `mir:"v1"`
 

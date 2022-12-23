@@ -12,45 +12,45 @@ import (
 )
 
 var (
-	_ api.WebPriv        = (*webPrivSrv)(nil)
-	_ api.WebPrivBinding = (*webPrivBinding)(nil)
-	_ api.WebPrivRender  = (*webPrivRender)(nil)
+	_ api.Priv        = (*privSrv)(nil)
+	_ api.PrivBinding = (*privBinding)(nil)
+	_ api.PrivRender  = (*privRender)(nil)
 )
 
-type webPrivSrv struct {
+type privSrv struct {
 	base.BaseServant
-	api.UnimplementedWebPrivServant
+	api.UnimplementedPrivServant
 }
 
-type webPrivBinding struct {
+type privBinding struct {
 	base.BaseBinding
-	*api.UnimplementedWebPrivBinding
+	*api.UnimplementedPrivBinding
 }
 
-type webPrivRender struct {
+type privRender struct {
 	base.BaseRender
-	*api.UnimplementedWebPrivRender
+	*api.UnimplementedPrivRender
 }
 
-func (s *webPrivSrv) Chain() gin.HandlersChain {
+func (s *privSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT(), chain.Priv()}
 }
 
-func newWebPrivSrv() api.WebPriv {
-	return &webPrivSrv{}
+func newPrivSrv() api.Priv {
+	return &privSrv{}
 }
 
-func newWebPrivBinding() api.WebPrivBinding {
-	return &webPrivBinding{
-		UnimplementedWebPrivBinding: &api.UnimplementedWebPrivBinding{
+func newPrivBinding() api.PrivBinding {
+	return &privBinding{
+		UnimplementedPrivBinding: &api.UnimplementedPrivBinding{
 			BindAny: base.BindAny,
 		},
 	}
 }
 
-func newWebPrivRender() api.WebPrivRender {
-	return &webPrivRender{
-		UnimplementedWebPrivRender: &api.UnimplementedWebPrivRender{
+func newPrivRender() api.PrivRender {
+	return &privRender{
+		UnimplementedPrivRender: &api.UnimplementedPrivRender{
 			RenderAny: base.RenderAny,
 		},
 	}

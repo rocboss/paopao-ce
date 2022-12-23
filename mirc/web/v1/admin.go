@@ -7,10 +7,11 @@ import (
 )
 
 func init() {
-	AddEntry(new(WebAdmin))
+	AddEntry(new(Admin))
 }
 
-type WebAdmin struct {
+// Admin 运维相关服务
+type Admin struct {
 	Chain Chain `mir:"-"`
 	Group Group `mir:"v1"`
 

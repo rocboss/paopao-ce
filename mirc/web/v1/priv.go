@@ -7,10 +7,11 @@ import (
 )
 
 func init() {
-	AddEntry(new(WebPriv))
+	AddEntry(new(Priv))
 }
 
-type WebPriv struct {
+// Priv 私有授权的服务
+type Priv struct {
 	Chain Chain `mir:"-"`
 	Group Group `mir:"v1"`
 

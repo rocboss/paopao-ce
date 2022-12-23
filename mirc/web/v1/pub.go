@@ -7,10 +7,11 @@ import (
 )
 
 func init() {
-	AddEntry(new(WebPub))
+	AddEntry(new(Pub))
 }
 
-type WebPub struct {
+// Pub 不用授权的公开服务
+type Pub struct {
 	Group Group `mir:"v1"`
 
 	// Version 获取后台版本信息

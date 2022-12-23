@@ -10,7 +10,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
-type WebAlipayPriv interface {
+type AlipayPriv interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
@@ -18,25 +18,25 @@ type WebAlipayPriv interface {
 	UserRechargeResult() mir.Error
 	UserRechargeLink() mir.Error
 
-	mustEmbedUnimplementedWebAlipayPrivServant()
+	mustEmbedUnimplementedAlipayPrivServant()
 }
 
-type WebAlipayPrivBinding interface {
+type AlipayPrivBinding interface {
 	BindUserWalletBills(*gin.Context) (*web.UserWalletBillsReq, mir.Error)
 
-	mustEmbedUnimplementedWebAlipayPrivBinding()
+	mustEmbedUnimplementedAlipayPrivBinding()
 }
 
-type WebAlipayPrivRender interface {
+type AlipayPrivRender interface {
 	RenderUserWalletBills(*gin.Context, *web.UserWalletBillsResp, mir.Error)
 	RenderUserRechargeResult(*gin.Context, mir.Error)
 	RenderUserRechargeLink(*gin.Context, mir.Error)
 
-	mustEmbedUnimplementedWebAlipayPrivRender()
+	mustEmbedUnimplementedAlipayPrivRender()
 }
 
-// RegisterWebAlipayPrivServant register WebAlipayPriv servant to gin
-func RegisterWebAlipayPrivServant(e *gin.Engine, s WebAlipayPriv, b WebAlipayPrivBinding, r WebAlipayPrivRender) {
+// RegisterAlipayPrivServant register AlipayPriv servant to gin
+func RegisterAlipayPrivServant(e *gin.Engine, s AlipayPriv, b AlipayPrivBinding, r AlipayPrivRender) {
 	router := e.Group("v1")
 	// use chain for router
 	middlewares := s.Chain()
@@ -81,56 +81,56 @@ func RegisterWebAlipayPrivServant(e *gin.Engine, s WebAlipayPriv, b WebAlipayPri
 
 }
 
-// UnimplementedWebAlipayPrivServant can be embedded to have forward compatible implementations.
-type UnimplementedWebAlipayPrivServant struct {
+// UnimplementedAlipayPrivServant can be embedded to have forward compatible implementations.
+type UnimplementedAlipayPrivServant struct {
 }
 
-func (UnimplementedWebAlipayPrivServant) Chain() gin.HandlersChain {
+func (UnimplementedAlipayPrivServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedWebAlipayPrivServant) UserWalletBills(req *web.UserWalletBillsReq) (*web.UserWalletBillsResp, mir.Error) {
+func (UnimplementedAlipayPrivServant) UserWalletBills(req *web.UserWalletBillsReq) (*web.UserWalletBillsResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebAlipayPrivServant) UserRechargeResult() mir.Error {
+func (UnimplementedAlipayPrivServant) UserRechargeResult() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebAlipayPrivServant) UserRechargeLink() mir.Error {
+func (UnimplementedAlipayPrivServant) UserRechargeLink() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebAlipayPrivServant) mustEmbedUnimplementedWebAlipayPrivServant() {}
+func (UnimplementedAlipayPrivServant) mustEmbedUnimplementedAlipayPrivServant() {}
 
-// UnimplementedWebAlipayPrivRender can be embedded to have forward compatible implementations.
-type UnimplementedWebAlipayPrivRender struct {
+// UnimplementedAlipayPrivRender can be embedded to have forward compatible implementations.
+type UnimplementedAlipayPrivRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
-func (r *UnimplementedWebAlipayPrivRender) RenderUserWalletBills(c *gin.Context, data *web.UserWalletBillsResp, err mir.Error) {
+func (r *UnimplementedAlipayPrivRender) RenderUserWalletBills(c *gin.Context, data *web.UserWalletBillsResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedWebAlipayPrivRender) RenderUserRechargeResult(c *gin.Context, err mir.Error) {
+func (r *UnimplementedAlipayPrivRender) RenderUserRechargeResult(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebAlipayPrivRender) RenderUserRechargeLink(c *gin.Context, err mir.Error) {
+func (r *UnimplementedAlipayPrivRender) RenderUserRechargeLink(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebAlipayPrivRender) mustEmbedUnimplementedWebAlipayPrivRender() {}
+func (r *UnimplementedAlipayPrivRender) mustEmbedUnimplementedAlipayPrivRender() {}
 
-// UnimplementedWebAlipayPrivBinding can be embedded to have forward compatible implementations.
-type UnimplementedWebAlipayPrivBinding struct {
+// UnimplementedAlipayPrivBinding can be embedded to have forward compatible implementations.
+type UnimplementedAlipayPrivBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
 }
 
-func (b *UnimplementedWebAlipayPrivBinding) BindUserWalletBills(c *gin.Context) (*web.UserWalletBillsReq, mir.Error) {
+func (b *UnimplementedAlipayPrivBinding) BindUserWalletBills(c *gin.Context) (*web.UserWalletBillsReq, mir.Error) {
 	obj := new(web.UserWalletBillsReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }
 
-func (b *UnimplementedWebAlipayPrivBinding) mustEmbedUnimplementedWebAlipayPrivBinding() {}
+func (b *UnimplementedAlipayPrivBinding) mustEmbedUnimplementedAlipayPrivBinding() {}

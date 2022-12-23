@@ -12,83 +12,83 @@ import (
 )
 
 var (
-	_ api.WebAlipayPub         = (*webAlipayPubSrv)(nil)
-	_ api.WebAlipayPubBinding  = (*webAlipayPubBinding)(nil)
-	_ api.WebAlipayPubRender   = (*webAlipayPubRender)(nil)
-	_ api.WebAlipayPriv        = (*webAlipayPrivSrv)(nil)
-	_ api.WebAlipayPrivBinding = (*webAlipayPrivBinding)(nil)
-	_ api.WebAlipayPrivRender  = (*webAlipayPrivRender)(nil)
+	_ api.AlipayPub         = (*alipayPubSrv)(nil)
+	_ api.AlipayPubBinding  = (*alipayPubBinding)(nil)
+	_ api.AlipayPubRender   = (*alipayPubRender)(nil)
+	_ api.AlipayPriv        = (*alipayPrivSrv)(nil)
+	_ api.AlipayPrivBinding = (*alipayPrivBinding)(nil)
+	_ api.AlipayPrivRender  = (*alipayPrivRender)(nil)
 )
 
-type webAlipayPubSrv struct {
+type alipayPubSrv struct {
 	base.BaseServant
-	api.UnimplementedWebAlipayPubServant
+	api.UnimplementedAlipayPubServant
 }
 
-type webAlipayPubBinding struct {
+type alipayPubBinding struct {
 	base.BaseBinding
-	*api.UnimplementedWebAlipayPubBinding
+	*api.UnimplementedAlipayPubBinding
 }
 
-type webAlipayPubRender struct {
+type alipayPubRender struct {
 	base.BaseRender
-	*api.UnimplementedWebAlipayPubRender
+	*api.UnimplementedAlipayPubRender
 }
 
-type webAlipayPrivSrv struct {
+type alipayPrivSrv struct {
 	base.BaseServant
-	api.UnimplementedWebAlipayPrivServant
+	api.UnimplementedAlipayPrivServant
 }
 
-type webAlipayPrivBinding struct {
+type alipayPrivBinding struct {
 	base.BaseBinding
-	*api.UnimplementedWebAlipayPrivBinding
+	*api.UnimplementedAlipayPrivBinding
 }
 
-type webAlipayPrivRender struct {
+type alipayPrivRender struct {
 	base.BaseRender
-	*api.UnimplementedWebAlipayPrivRender
+	*api.UnimplementedAlipayPrivRender
 }
 
-func (s *webAlipayPrivSrv) Chain() gin.HandlersChain {
+func (s *alipayPrivSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT()}
 }
 
-func newWebAlipayPubSrv() api.WebAlipayPub {
-	return &webAlipayPubSrv{}
+func newAlipayPubSrv() api.AlipayPub {
+	return &alipayPubSrv{}
 }
 
-func newWebAlipayPubBinding() api.WebAlipayPubBinding {
-	return &webAlipayPubBinding{
-		UnimplementedWebAlipayPubBinding: &api.UnimplementedWebAlipayPubBinding{
+func newAlipayPubBinding() api.AlipayPubBinding {
+	return &alipayPubBinding{
+		UnimplementedAlipayPubBinding: &api.UnimplementedAlipayPubBinding{
 			BindAny: base.BindAny,
 		},
 	}
 }
 
-func newWebAlipayPubRender() api.WebAlipayPubRender {
-	return &webAlipayPubRender{
-		UnimplementedWebAlipayPubRender: &api.UnimplementedWebAlipayPubRender{
+func newAlipayPubRender() api.AlipayPubRender {
+	return &alipayPubRender{
+		UnimplementedAlipayPubRender: &api.UnimplementedAlipayPubRender{
 			RenderAny: base.RenderAny,
 		},
 	}
 }
 
-func newWebAlipayPrivSrv() api.WebAlipayPriv {
-	return &webAlipayPrivSrv{}
+func newAlipayPrivSrv() api.AlipayPriv {
+	return &alipayPrivSrv{}
 }
 
-func newWebAlipayPrivBinding() api.WebAlipayPrivBinding {
-	return &webAlipayPrivBinding{
-		UnimplementedWebAlipayPrivBinding: &api.UnimplementedWebAlipayPrivBinding{
+func newAlipayPrivBinding() api.AlipayPrivBinding {
+	return &alipayPrivBinding{
+		UnimplementedAlipayPrivBinding: &api.UnimplementedAlipayPrivBinding{
 			BindAny: base.BindAny,
 		},
 	}
 }
 
-func newWebAlipayPrivRender() api.WebAlipayPrivRender {
-	return &webAlipayPrivRender{
-		UnimplementedWebAlipayPrivRender: &api.UnimplementedWebAlipayPrivRender{
+func newAlipayPrivRender() api.AlipayPrivRender {
+	return &alipayPrivRender{
+		UnimplementedAlipayPrivRender: &api.UnimplementedAlipayPrivRender{
 			RenderAny: base.RenderAny,
 		},
 	}

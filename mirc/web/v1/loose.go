@@ -7,10 +7,11 @@ import (
 )
 
 func init() {
-	AddEntry(new(WebLoose))
+	AddEntry(new(Loose))
 }
 
-type WebLoose struct {
+// Loose 宽松授权的服务
+type Loose struct {
 	Chain Chain `mir:"-"`
 	Group Group `mir:"v1"`
 

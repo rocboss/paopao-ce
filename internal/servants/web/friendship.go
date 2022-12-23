@@ -12,45 +12,45 @@ import (
 )
 
 var (
-	_ api.WebFriendship        = (*webFriendshipSrv)(nil)
-	_ api.WebFriendshipBinding = (*webFriendshipBinding)(nil)
-	_ api.WebFriendshipRender  = (*webFriendshipRender)(nil)
+	_ api.Friendship        = (*friendshipSrv)(nil)
+	_ api.FriendshipBinding = (*friendshipBinding)(nil)
+	_ api.FriendshipRender  = (*friendshipRender)(nil)
 )
 
-type webFriendshipSrv struct {
+type friendshipSrv struct {
 	base.BaseServant
-	api.UnimplementedWebFriendshipServant
+	api.UnimplementedFriendshipServant
 }
 
-type webFriendshipBinding struct {
+type friendshipBinding struct {
 	base.BaseBinding
-	*api.UnimplementedWebFriendshipBinding
+	*api.UnimplementedFriendshipBinding
 }
 
-type webFriendshipRender struct {
+type friendshipRender struct {
 	base.BaseRender
-	*api.UnimplementedWebFriendshipRender
+	*api.UnimplementedFriendshipRender
 }
 
-func (s *webFriendshipSrv) Chain() gin.HandlersChain {
+func (s *friendshipSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT()}
 }
 
-func newWebFriendshipSrv() api.WebFriendship {
-	return &webFriendshipSrv{}
+func newFriendshipSrv() api.Friendship {
+	return &friendshipSrv{}
 }
 
-func newWebFriendshipBinding() api.WebFriendshipBinding {
-	return &webFriendshipBinding{
-		UnimplementedWebFriendshipBinding: &api.UnimplementedWebFriendshipBinding{
+func newFriendshipBinding() api.FriendshipBinding {
+	return &friendshipBinding{
+		UnimplementedFriendshipBinding: &api.UnimplementedFriendshipBinding{
 			BindAny: base.BindAny,
 		},
 	}
 }
 
-func newWebFriendshipRender() api.WebFriendshipRender {
-	return &webFriendshipRender{
-		UnimplementedWebFriendshipRender: &api.UnimplementedWebFriendshipRender{
+func newFriendshipRender() api.FriendshipRender {
+	return &friendshipRender{
+		UnimplementedFriendshipRender: &api.UnimplementedFriendshipRender{
 			RenderAny: base.RenderAny,
 		},
 	}

@@ -7,17 +7,19 @@ import (
 )
 
 func init() {
-	AddEntries(new(WebAlipayPub), new(WebAlipayPriv))
+	AddEntries(new(AlipayPub), new(AlipayPriv))
 }
 
-type WebAlipayPub struct {
+// AlipayPub 支付宝相关不用授权的服务
+type AlipayPub struct {
 	Group Group `mir:"v1"`
 
 	// AlipayNotify 支付宝回调
 	AlipayNotify func(Post, web.AlipayNotifyReq) `mir:"/alipay/notify"`
 }
 
-type WebAlipayPriv struct {
+// AlipayPub 支付宝相关授权的服务
+type AlipayPriv struct {
 	Chain Chain `mir:"-"`
 	Group Group `mir:"v1"`
 

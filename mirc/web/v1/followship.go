@@ -7,10 +7,11 @@ import (
 )
 
 func init() {
-	AddEntry(new(WebFollowship))
+	AddEntry(new(Followship))
 }
 
-type WebFollowship struct {
+// Followship 关注者模式 服务
+type Followship struct {
 	Chain Chain `mir:"-"`
 	Group Group `mir:"v1"`
 

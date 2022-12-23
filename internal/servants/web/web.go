@@ -12,22 +12,22 @@ import (
 
 // RouteWeb register web route
 func RouteWeb(e *gin.Engine) {
-	api.RegisterWebAdminServant(e, newWebAdminSrv(), newWebAdminBinding(), newWebAdminRender())
-	api.RegisterWebCoreServant(e, newWebCoreSrv(), newWebCoreBinding(), newWebCoreRender())
-	api.RegisterWebLooseServant(e, newWebLooseSrv(), newWebLooseBinding(), newWebLooseRender())
-	api.RegisterWebPrivServant(e, newWebPrivSrv(), newWebPrivBinding(), newWebPrivRender())
-	api.RegisterWebPubServant(e, newWebPubSrv(), newWebPubBinding(), newWebPubRender())
+	api.RegisterAdminServant(e, newAdminSrv(), newAdminBinding(), newAdminRender())
+	api.RegisterCoreServant(e, newCoreSrv(), newCoreBinding(), newCoreRender())
+	api.RegisterLooseServant(e, newLooseSrv(), newLooseBinding(), newLooseRender())
+	api.RegisterPrivServant(e, newPrivSrv(), newPrivBinding(), newPrivRender())
+	api.RegisterPubServant(e, newPubSrv(), newPubBinding(), newPubRender())
 
 	cfg.In(cfg.Actions{
 		"Alipay": func() {
-			api.RegisterWebAlipayPubServant(e, newWebAlipayPubSrv(), newWebAlipayPubBinding(), newWebAlipayPubRender())
-			api.RegisterWebAlipayPrivServant(e, newWebAlipayPrivSrv(), newWebAlipayPrivBinding(), newWebAlipayPrivRender())
+			api.RegisterAlipayPubServant(e, newAlipayPubSrv(), newAlipayPubBinding(), newAlipayPubRender())
+			api.RegisterAlipayPrivServant(e, newAlipayPrivSrv(), newAlipayPrivBinding(), newAlipayPrivRender())
 		},
 		"Followship": func() {
-			api.RegisterWebFollowshipServant(e, newWebFollowshipSrv(), newWebFollowshipBinding(), newWebFollowshipRender())
+			api.RegisterFollowshipServant(e, newFollowshipSrv(), newFollowshipBinding(), newFollowshipRender())
 		},
 		"Friendship": func() {
-			api.RegisterWebFriendshipServant(e, newWebFriendshipSrv(), newWebFriendshipBinding(), newWebFriendshipRender())
+			api.RegisterFriendshipServant(e, newFriendshipSrv(), newFriendshipBinding(), newFriendshipRender())
 		},
 	})
 }

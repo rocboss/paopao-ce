@@ -7,10 +7,11 @@ import (
 )
 
 func init() {
-	AddEntry(new(WebFriendship))
+	AddEntry(new(Friendship))
 }
 
-type WebFriendship struct {
+// Friendship 好友模式 服务
+type Friendship struct {
 	Chain Chain `mir:"-"`
 	Group Group `mir:"v1"`
 

@@ -12,45 +12,45 @@ import (
 )
 
 var (
-	_ api.WebCore        = (*webCoreSrv)(nil)
-	_ api.WebCoreBinding = (*webCoreBinding)(nil)
-	_ api.WebCoreRender  = (*webCoreRender)(nil)
+	_ api.Core        = (*coreSrv)(nil)
+	_ api.CoreBinding = (*coreBinding)(nil)
+	_ api.CoreRender  = (*coreRender)(nil)
 )
 
-type webCoreSrv struct {
+type coreSrv struct {
 	base.BaseServant
-	api.UnimplementedWebCoreServant
+	api.UnimplementedCoreServant
 }
 
-type webCoreBinding struct {
+type coreBinding struct {
 	base.BaseBinding
-	*api.UnimplementedWebCoreBinding
+	*api.UnimplementedCoreBinding
 }
 
-type webCoreRender struct {
+type coreRender struct {
 	base.BaseRender
-	*api.UnimplementedWebCoreRender
+	*api.UnimplementedCoreRender
 }
 
-func (s *webCoreSrv) Chain() gin.HandlersChain {
+func (s *coreSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT()}
 }
 
-func newWebCoreSrv() api.WebCore {
-	return &webCoreSrv{}
+func newCoreSrv() api.Core {
+	return &coreSrv{}
 }
 
-func newWebCoreBinding() api.WebCoreBinding {
-	return &webCoreBinding{
-		UnimplementedWebCoreBinding: &api.UnimplementedWebCoreBinding{
+func newCoreBinding() api.CoreBinding {
+	return &coreBinding{
+		UnimplementedCoreBinding: &api.UnimplementedCoreBinding{
 			BindAny: base.BindAny,
 		},
 	}
 }
 
-func newWebCoreRender() api.WebCoreRender {
-	return &webCoreRender{
-		UnimplementedWebCoreRender: &api.UnimplementedWebCoreRender{
+func newCoreRender() api.CoreRender {
+	return &coreRender{
+		UnimplementedCoreRender: &api.UnimplementedCoreRender{
 			RenderAny: base.RenderAny,
 		},
 	}

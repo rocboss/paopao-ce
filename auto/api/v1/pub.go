@@ -10,7 +10,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
-type WebPub interface {
+type Pub interface {
 	TopicList() mir.Error
 	TweetComments() mir.Error
 	TweetDetail(*web.TweetDetailReq) (*web.TweetDetailResp, mir.Error)
@@ -20,16 +20,16 @@ type WebPub interface {
 	Login() mir.Error
 	Version() mir.Error
 
-	mustEmbedUnimplementedWebPubServant()
+	mustEmbedUnimplementedPubServant()
 }
 
-type WebPubBinding interface {
+type PubBinding interface {
 	BindTweetDetail(*gin.Context) (*web.TweetDetailReq, mir.Error)
 
-	mustEmbedUnimplementedWebPubBinding()
+	mustEmbedUnimplementedPubBinding()
 }
 
-type WebPubRender interface {
+type PubRender interface {
 	RenderTopicList(*gin.Context, mir.Error)
 	RenderTweetComments(*gin.Context, mir.Error)
 	RenderTweetDetail(*gin.Context, *web.TweetDetailResp, mir.Error)
@@ -39,11 +39,11 @@ type WebPubRender interface {
 	RenderLogin(*gin.Context, mir.Error)
 	RenderVersion(*gin.Context, mir.Error)
 
-	mustEmbedUnimplementedWebPubRender()
+	mustEmbedUnimplementedPubRender()
 }
 
-// RegisterWebPubServant register WebPub servant to gin
-func RegisterWebPubServant(e *gin.Engine, s WebPub, b WebPubBinding, r WebPubRender) {
+// RegisterPubServant register Pub servant to gin
+func RegisterPubServant(e *gin.Engine, s Pub, b PubBinding, r PubRender) {
 	router := e.Group("v1")
 
 	// register routes info to router
@@ -135,92 +135,92 @@ func RegisterWebPubServant(e *gin.Engine, s WebPub, b WebPubBinding, r WebPubRen
 
 }
 
-// UnimplementedWebPubServant can be embedded to have forward compatible implementations.
-type UnimplementedWebPubServant struct {
+// UnimplementedPubServant can be embedded to have forward compatible implementations.
+type UnimplementedPubServant struct {
 }
 
-func (UnimplementedWebPubServant) TopicList() mir.Error {
+func (UnimplementedPubServant) TopicList() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPubServant) TweetComments() mir.Error {
+func (UnimplementedPubServant) TweetComments() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPubServant) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir.Error) {
+func (UnimplementedPubServant) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPubServant) SendCaptcha() mir.Error {
+func (UnimplementedPubServant) SendCaptcha() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPubServant) GetCaptcha() mir.Error {
+func (UnimplementedPubServant) GetCaptcha() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPubServant) Register() mir.Error {
+func (UnimplementedPubServant) Register() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPubServant) Login() mir.Error {
+func (UnimplementedPubServant) Login() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPubServant) Version() mir.Error {
+func (UnimplementedPubServant) Version() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPubServant) mustEmbedUnimplementedWebPubServant() {}
+func (UnimplementedPubServant) mustEmbedUnimplementedPubServant() {}
 
-// UnimplementedWebPubRender can be embedded to have forward compatible implementations.
-type UnimplementedWebPubRender struct {
+// UnimplementedPubRender can be embedded to have forward compatible implementations.
+type UnimplementedPubRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
-func (r *UnimplementedWebPubRender) RenderTopicList(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPubRender) RenderTopicList(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPubRender) RenderTweetComments(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPubRender) RenderTweetComments(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPubRender) RenderTweetDetail(c *gin.Context, data *web.TweetDetailResp, err mir.Error) {
+func (r *UnimplementedPubRender) RenderTweetDetail(c *gin.Context, data *web.TweetDetailResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedWebPubRender) RenderSendCaptcha(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPubRender) RenderSendCaptcha(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPubRender) RenderGetCaptcha(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPubRender) RenderGetCaptcha(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPubRender) RenderRegister(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPubRender) RenderRegister(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPubRender) RenderLogin(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPubRender) RenderLogin(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPubRender) RenderVersion(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPubRender) RenderVersion(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPubRender) mustEmbedUnimplementedWebPubRender() {}
+func (r *UnimplementedPubRender) mustEmbedUnimplementedPubRender() {}
 
-// UnimplementedWebPubBinding can be embedded to have forward compatible implementations.
-type UnimplementedWebPubBinding struct {
+// UnimplementedPubBinding can be embedded to have forward compatible implementations.
+type UnimplementedPubBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
 }
 
-func (b *UnimplementedWebPubBinding) BindTweetDetail(c *gin.Context) (*web.TweetDetailReq, mir.Error) {
+func (b *UnimplementedPubBinding) BindTweetDetail(c *gin.Context) (*web.TweetDetailReq, mir.Error) {
 	obj := new(web.TweetDetailReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }
 
-func (b *UnimplementedWebPubBinding) mustEmbedUnimplementedWebPubBinding() {}
+func (b *UnimplementedPubBinding) mustEmbedUnimplementedPubBinding() {}

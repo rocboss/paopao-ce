@@ -10,7 +10,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
-type WebLoose interface {
+type Loose interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
@@ -18,25 +18,25 @@ type WebLoose interface {
 	GetUserTweets() mir.Error
 	Timeline(*web.TimelineReq) (*web.TimelineResp, mir.Error)
 
-	mustEmbedUnimplementedWebLooseServant()
+	mustEmbedUnimplementedLooseServant()
 }
 
-type WebLooseBinding interface {
+type LooseBinding interface {
 	BindTimeline(*gin.Context) (*web.TimelineReq, mir.Error)
 
-	mustEmbedUnimplementedWebLooseBinding()
+	mustEmbedUnimplementedLooseBinding()
 }
 
-type WebLooseRender interface {
+type LooseRender interface {
 	RenderGetUserProfile(*gin.Context, mir.Error)
 	RenderGetUserTweets(*gin.Context, mir.Error)
 	RenderTimeline(*gin.Context, *web.TimelineResp, mir.Error)
 
-	mustEmbedUnimplementedWebLooseRender()
+	mustEmbedUnimplementedLooseRender()
 }
 
-// RegisterWebLooseServant register WebLoose servant to gin
-func RegisterWebLooseServant(e *gin.Engine, s WebLoose, b WebLooseBinding, r WebLooseRender) {
+// RegisterLooseServant register Loose servant to gin
+func RegisterLooseServant(e *gin.Engine, s Loose, b LooseBinding, r LooseRender) {
 	router := e.Group("v1")
 	// use chain for router
 	middlewares := s.Chain()
@@ -63,7 +63,7 @@ func RegisterWebLooseServant(e *gin.Engine, s WebLoose, b WebLooseBinding, r Web
 		r.RenderGetUserTweets(c, s.GetUserTweets())
 	})
 
-	router.Handle("GET", "/Posts", func(c *gin.Context) {
+	router.Handle("GET", "/posts", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
 			return
@@ -81,56 +81,56 @@ func RegisterWebLooseServant(e *gin.Engine, s WebLoose, b WebLooseBinding, r Web
 
 }
 
-// UnimplementedWebLooseServant can be embedded to have forward compatible implementations.
-type UnimplementedWebLooseServant struct {
+// UnimplementedLooseServant can be embedded to have forward compatible implementations.
+type UnimplementedLooseServant struct {
 }
 
-func (UnimplementedWebLooseServant) Chain() gin.HandlersChain {
+func (UnimplementedLooseServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedWebLooseServant) GetUserProfile() mir.Error {
+func (UnimplementedLooseServant) GetUserProfile() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebLooseServant) GetUserTweets() mir.Error {
+func (UnimplementedLooseServant) GetUserTweets() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebLooseServant) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error) {
+func (UnimplementedLooseServant) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebLooseServant) mustEmbedUnimplementedWebLooseServant() {}
+func (UnimplementedLooseServant) mustEmbedUnimplementedLooseServant() {}
 
-// UnimplementedWebLooseRender can be embedded to have forward compatible implementations.
-type UnimplementedWebLooseRender struct {
+// UnimplementedLooseRender can be embedded to have forward compatible implementations.
+type UnimplementedLooseRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
-func (r *UnimplementedWebLooseRender) RenderGetUserProfile(c *gin.Context, err mir.Error) {
+func (r *UnimplementedLooseRender) RenderGetUserProfile(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebLooseRender) RenderGetUserTweets(c *gin.Context, err mir.Error) {
+func (r *UnimplementedLooseRender) RenderGetUserTweets(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebLooseRender) RenderTimeline(c *gin.Context, data *web.TimelineResp, err mir.Error) {
+func (r *UnimplementedLooseRender) RenderTimeline(c *gin.Context, data *web.TimelineResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedWebLooseRender) mustEmbedUnimplementedWebLooseRender() {}
+func (r *UnimplementedLooseRender) mustEmbedUnimplementedLooseRender() {}
 
-// UnimplementedWebLooseBinding can be embedded to have forward compatible implementations.
-type UnimplementedWebLooseBinding struct {
+// UnimplementedLooseBinding can be embedded to have forward compatible implementations.
+type UnimplementedLooseBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
 }
 
-func (b *UnimplementedWebLooseBinding) BindTimeline(c *gin.Context) (*web.TimelineReq, mir.Error) {
+func (b *UnimplementedLooseBinding) BindTimeline(c *gin.Context) (*web.TimelineReq, mir.Error) {
 	obj := new(web.TimelineReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }
 
-func (b *UnimplementedWebLooseBinding) mustEmbedUnimplementedWebLooseBinding() {}
+func (b *UnimplementedLooseBinding) mustEmbedUnimplementedLooseBinding() {}

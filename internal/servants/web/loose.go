@@ -12,45 +12,45 @@ import (
 )
 
 var (
-	_ api.WebLoose        = (*webLooseSrv)(nil)
-	_ api.WebLooseBinding = (*webLooseBinding)(nil)
-	_ api.WebLooseRender  = (*webLooseRender)(nil)
+	_ api.Loose        = (*looseSrv)(nil)
+	_ api.LooseBinding = (*looseBinding)(nil)
+	_ api.LooseRender  = (*looseRender)(nil)
 )
 
-type webLooseSrv struct {
+type looseSrv struct {
 	base.BaseServant
-	api.UnimplementedWebLooseServant
+	api.UnimplementedLooseServant
 }
 
-type webLooseBinding struct {
+type looseBinding struct {
 	base.BaseBinding
-	*api.UnimplementedWebLooseBinding
+	*api.UnimplementedLooseBinding
 }
 
-type webLooseRender struct {
+type looseRender struct {
 	base.BaseRender
-	*api.UnimplementedWebLooseRender
+	*api.UnimplementedLooseRender
 }
 
-func (s *webLooseSrv) Chain() gin.HandlersChain {
+func (s *looseSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JwtLoose()}
 }
 
-func newWebLooseSrv() api.WebLoose {
-	return &webLooseSrv{}
+func newLooseSrv() api.Loose {
+	return &looseSrv{}
 }
 
-func newWebLooseBinding() api.WebLooseBinding {
-	return &webLooseBinding{
-		UnimplementedWebLooseBinding: &api.UnimplementedWebLooseBinding{
+func newLooseBinding() api.LooseBinding {
+	return &looseBinding{
+		UnimplementedLooseBinding: &api.UnimplementedLooseBinding{
 			BindAny: base.BindAny,
 		},
 	}
 }
 
-func newWebLooseRender() api.WebLooseRender {
-	return &webLooseRender{
-		UnimplementedWebLooseRender: &api.UnimplementedWebLooseRender{
+func newLooseRender() api.LooseRender {
+	return &looseRender{
+		UnimplementedLooseRender: &api.UnimplementedLooseRender{
 			RenderAny: base.RenderAny,
 		},
 	}

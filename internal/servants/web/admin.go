@@ -12,45 +12,45 @@ import (
 )
 
 var (
-	_ api.WebAdmin        = (*webAdminSrv)(nil)
-	_ api.WebAdminBinding = (*webAdminBinding)(nil)
-	_ api.WebAdminRender  = (*webAdminRender)(nil)
+	_ api.Admin        = (*adminSrv)(nil)
+	_ api.AdminBinding = (*adminBinding)(nil)
+	_ api.AdminRender  = (*adminRender)(nil)
 )
 
-type webAdminSrv struct {
+type adminSrv struct {
 	base.BaseServant
-	api.UnimplementedWebAdminServant
+	api.UnimplementedAdminServant
 }
 
-type webAdminBinding struct {
+type adminBinding struct {
 	base.BaseBinding
-	*api.UnimplementedWebAdminBinding
+	*api.UnimplementedAdminBinding
 }
 
-type webAdminRender struct {
+type adminRender struct {
 	base.BaseRender
-	*api.UnimplementedWebAdminRender
+	*api.UnimplementedAdminRender
 }
 
-func (s *webAdminSrv) Chain() gin.HandlersChain {
+func (s *adminSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT(), chain.Admin()}
 }
 
-func newWebAdminSrv() api.WebAdmin {
-	return &webAdminSrv{}
+func newAdminSrv() api.Admin {
+	return &adminSrv{}
 }
 
-func newWebAdminBinding() api.WebAdminBinding {
-	return &webAdminBinding{
-		UnimplementedWebAdminBinding: &api.UnimplementedWebAdminBinding{
+func newAdminBinding() api.AdminBinding {
+	return &adminBinding{
+		UnimplementedAdminBinding: &api.UnimplementedAdminBinding{
 			BindAny: base.BindAny,
 		},
 	}
 }
 
-func newWebAdminRender() api.WebAdminRender {
-	return &webAdminRender{
-		UnimplementedWebAdminRender: &api.UnimplementedWebAdminRender{
+func newAdminRender() api.AdminRender {
+	return &adminRender{
+		UnimplementedAdminRender: &api.UnimplementedAdminRender{
 			RenderAny: base.RenderAny,
 		},
 	}

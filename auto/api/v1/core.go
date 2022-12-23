@@ -10,7 +10,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
-type WebCore interface {
+type Core interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
@@ -31,18 +31,18 @@ type WebCore interface {
 	GetUserInfo(*web.UserInfoReq) (*web.UserInfoResp, mir.Error)
 	SyncSearchIndex() mir.Error
 
-	mustEmbedUnimplementedWebCoreServant()
+	mustEmbedUnimplementedCoreServant()
 }
 
-type WebCoreBinding interface {
+type CoreBinding interface {
 	BindChangeAvatar(*gin.Context) (*web.ChangeAvatarReq, mir.Error)
 
 	BindGetUserInfo(*gin.Context) (*web.UserInfoReq, mir.Error)
 
-	mustEmbedUnimplementedWebCoreBinding()
+	mustEmbedUnimplementedCoreBinding()
 }
 
-type WebCoreRender interface {
+type CoreRender interface {
 	RenderTweetCollectionStatus(*gin.Context, mir.Error)
 	RenderTweetStarStatus(*gin.Context, mir.Error)
 	RenderSuggestTags(*gin.Context, mir.Error)
@@ -60,11 +60,11 @@ type WebCoreRender interface {
 	RenderGetUserInfo(*gin.Context, *web.UserInfoResp, mir.Error)
 	RenderSyncSearchIndex(*gin.Context, mir.Error)
 
-	mustEmbedUnimplementedWebCoreRender()
+	mustEmbedUnimplementedCoreRender()
 }
 
-// RegisterWebCoreServant register WebCore servant to gin
-func RegisterWebCoreServant(e *gin.Engine, s WebCore, b WebCoreBinding, r WebCoreRender) {
+// RegisterCoreServant register Core servant to gin
+func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 	router := e.Group("v1")
 	// use chain for router
 	middlewares := s.Chain()
@@ -244,166 +244,166 @@ func RegisterWebCoreServant(e *gin.Engine, s WebCore, b WebCoreBinding, r WebCor
 
 }
 
-// UnimplementedWebCoreServant can be embedded to have forward compatible implementations.
-type UnimplementedWebCoreServant struct {
+// UnimplementedCoreServant can be embedded to have forward compatible implementations.
+type UnimplementedCoreServant struct {
 }
 
-func (UnimplementedWebCoreServant) Chain() gin.HandlersChain {
+func (UnimplementedCoreServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedWebCoreServant) TweetCollectionStatus() mir.Error {
+func (UnimplementedCoreServant) TweetCollectionStatus() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) TweetStarStatus() mir.Error {
+func (UnimplementedCoreServant) TweetStarStatus() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) SuggestTags() mir.Error {
+func (UnimplementedCoreServant) SuggestTags() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) SuggestUsers() mir.Error {
+func (UnimplementedCoreServant) SuggestUsers() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) ChangeAvatar(req *web.ChangeAvatarReq) mir.Error {
+func (UnimplementedCoreServant) ChangeAvatar(req *web.ChangeAvatarReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) ChangeNickname() mir.Error {
+func (UnimplementedCoreServant) ChangeNickname() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) ChangePassword() mir.Error {
+func (UnimplementedCoreServant) ChangePassword() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) UserPhoneBind() mir.Error {
+func (UnimplementedCoreServant) UserPhoneBind() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) GetStars() mir.Error {
+func (UnimplementedCoreServant) GetStars() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) GetCollections() mir.Error {
+func (UnimplementedCoreServant) GetCollections() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) SendUserWhisper() mir.Error {
+func (UnimplementedCoreServant) SendUserWhisper() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) ReadMessage() mir.Error {
+func (UnimplementedCoreServant) ReadMessage() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) GetMessages() mir.Error {
+func (UnimplementedCoreServant) GetMessages() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) GetUnreadMsgCount() mir.Error {
+func (UnimplementedCoreServant) GetUnreadMsgCount() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Error) {
+func (UnimplementedCoreServant) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) SyncSearchIndex() mir.Error {
+func (UnimplementedCoreServant) SyncSearchIndex() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebCoreServant) mustEmbedUnimplementedWebCoreServant() {}
+func (UnimplementedCoreServant) mustEmbedUnimplementedCoreServant() {}
 
-// UnimplementedWebCoreRender can be embedded to have forward compatible implementations.
-type UnimplementedWebCoreRender struct {
+// UnimplementedCoreRender can be embedded to have forward compatible implementations.
+type UnimplementedCoreRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
-func (r *UnimplementedWebCoreRender) RenderTweetCollectionStatus(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderTweetCollectionStatus(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderTweetStarStatus(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderTweetStarStatus(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderSuggestTags(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderSuggestTags(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderSuggestUsers(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderSuggestUsers(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderChangeAvatar(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderChangeAvatar(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderChangeNickname(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderChangeNickname(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderChangePassword(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderChangePassword(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderUserPhoneBind(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderUserPhoneBind(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderGetStars(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderGetStars(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderGetCollections(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderGetCollections(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderSendUserWhisper(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderSendUserWhisper(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderReadMessage(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderReadMessage(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderGetMessages(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderGetMessages(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderGetUnreadMsgCount(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderGetUnreadMsgCount(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderGetUserInfo(c *gin.Context, data *web.UserInfoResp, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderGetUserInfo(c *gin.Context, data *web.UserInfoResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedWebCoreRender) RenderSyncSearchIndex(c *gin.Context, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderSyncSearchIndex(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebCoreRender) mustEmbedUnimplementedWebCoreRender() {}
+func (r *UnimplementedCoreRender) mustEmbedUnimplementedCoreRender() {}
 
-// UnimplementedWebCoreBinding can be embedded to have forward compatible implementations.
-type UnimplementedWebCoreBinding struct {
+// UnimplementedCoreBinding can be embedded to have forward compatible implementations.
+type UnimplementedCoreBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
 }
 
-func (b *UnimplementedWebCoreBinding) BindChangeAvatar(c *gin.Context) (*web.ChangeAvatarReq, mir.Error) {
+func (b *UnimplementedCoreBinding) BindChangeAvatar(c *gin.Context) (*web.ChangeAvatarReq, mir.Error) {
 	obj := new(web.ChangeAvatarReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }
 
-func (b *UnimplementedWebCoreBinding) BindGetUserInfo(c *gin.Context) (*web.UserInfoReq, mir.Error) {
+func (b *UnimplementedCoreBinding) BindGetUserInfo(c *gin.Context) (*web.UserInfoReq, mir.Error) {
 	obj := new(web.UserInfoReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }
 
-func (b *UnimplementedWebCoreBinding) mustEmbedUnimplementedWebCoreBinding() {}
+func (b *UnimplementedCoreBinding) mustEmbedUnimplementedCoreBinding() {}

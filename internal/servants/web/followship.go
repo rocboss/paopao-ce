@@ -12,45 +12,45 @@ import (
 )
 
 var (
-	_ api.WebFollowship        = (*webFollowshipSrv)(nil)
-	_ api.WebFollowshipBinding = (*webFollowshipBinding)(nil)
-	_ api.WebFollowshipRender  = (*webFollowshipRender)(nil)
+	_ api.Followship        = (*followshipSrv)(nil)
+	_ api.FollowshipBinding = (*followshipBinding)(nil)
+	_ api.FollowshipRender  = (*followshipRender)(nil)
 )
 
-type webFollowshipSrv struct {
+type followshipSrv struct {
 	base.BaseServant
-	api.UnimplementedWebFollowshipServant
+	api.UnimplementedFollowshipServant
 }
 
-type webFollowshipBinding struct {
+type followshipBinding struct {
 	base.BaseBinding
-	*api.UnimplementedWebFollowshipBinding
+	*api.UnimplementedFollowshipBinding
 }
 
-type webFollowshipRender struct {
+type followshipRender struct {
 	base.BaseRender
-	*api.UnimplementedWebFollowshipRender
+	*api.UnimplementedFollowshipRender
 }
 
-func (s *webFollowshipSrv) Chain() gin.HandlersChain {
+func (s *followshipSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT()}
 }
 
-func newWebFollowshipSrv() api.WebFollowship {
-	return &webFollowshipSrv{}
+func newFollowshipSrv() api.Followship {
+	return &followshipSrv{}
 }
 
-func newWebFollowshipBinding() api.WebFollowshipBinding {
-	return &webFollowshipBinding{
-		UnimplementedWebFollowshipBinding: &api.UnimplementedWebFollowshipBinding{
+func newFollowshipBinding() api.FollowshipBinding {
+	return &followshipBinding{
+		UnimplementedFollowshipBinding: &api.UnimplementedFollowshipBinding{
 			BindAny: base.BindAny,
 		},
 	}
 }
 
-func newWebFollowshipRender() api.WebFollowshipRender {
-	return &webFollowshipRender{
-		UnimplementedWebFollowshipRender: &api.UnimplementedWebFollowshipRender{
+func newFollowshipRender() api.FollowshipRender {
+	return &followshipRender{
+		UnimplementedFollowshipRender: &api.UnimplementedFollowshipRender{
 			RenderAny: base.RenderAny,
 		},
 	}

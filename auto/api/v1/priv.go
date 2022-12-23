@@ -10,7 +10,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
-type WebPriv interface {
+type Priv interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
@@ -29,16 +29,16 @@ type WebPriv interface {
 	DownloadAttachmentPrecheck() mir.Error
 	UploadAttachment() mir.Error
 
-	mustEmbedUnimplementedWebPrivServant()
+	mustEmbedUnimplementedPrivServant()
 }
 
-type WebPrivBinding interface {
+type PrivBinding interface {
 	BindCreateTweet(*gin.Context) (*web.CreateTweetReq, mir.Error)
 
-	mustEmbedUnimplementedWebPrivBinding()
+	mustEmbedUnimplementedPrivBinding()
 }
 
-type WebPrivRender interface {
+type PrivRender interface {
 	RenderDeleteCommentReply(*gin.Context, mir.Error)
 	RenderCreateCommentReply(*gin.Context, mir.Error)
 	RenderDeleteComment(*gin.Context, mir.Error)
@@ -54,11 +54,11 @@ type WebPrivRender interface {
 	RenderDownloadAttachmentPrecheck(*gin.Context, mir.Error)
 	RenderUploadAttachment(*gin.Context, mir.Error)
 
-	mustEmbedUnimplementedWebPrivRender()
+	mustEmbedUnimplementedPrivRender()
 }
 
-// RegisterWebPrivServant register WebPriv servant to gin
-func RegisterWebPrivServant(e *gin.Engine, s WebPriv, b WebPrivBinding, r WebPrivRender) {
+// RegisterPrivServant register Priv servant to gin
+func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 	router := e.Group("v1")
 	// use chain for router
 	middlewares := s.Chain()
@@ -213,144 +213,144 @@ func RegisterWebPrivServant(e *gin.Engine, s WebPriv, b WebPrivBinding, r WebPri
 
 }
 
-// UnimplementedWebPrivServant can be embedded to have forward compatible implementations.
-type UnimplementedWebPrivServant struct {
+// UnimplementedPrivServant can be embedded to have forward compatible implementations.
+type UnimplementedPrivServant struct {
 }
 
-func (UnimplementedWebPrivServant) Chain() gin.HandlersChain {
+func (UnimplementedPrivServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedWebPrivServant) DeleteCommentReply() mir.Error {
+func (UnimplementedPrivServant) DeleteCommentReply() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) CreateCommentReply() mir.Error {
+func (UnimplementedPrivServant) CreateCommentReply() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) DeleteComment() mir.Error {
+func (UnimplementedPrivServant) DeleteComment() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) CreateComment() mir.Error {
+func (UnimplementedPrivServant) CreateComment() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) VisiblePost() mir.Error {
+func (UnimplementedPrivServant) VisiblePost() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) StickTweet() mir.Error {
+func (UnimplementedPrivServant) StickTweet() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) LockTweet() mir.Error {
+func (UnimplementedPrivServant) LockTweet() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) CollectionTweet() mir.Error {
+func (UnimplementedPrivServant) CollectionTweet() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) StarTweet() mir.Error {
+func (UnimplementedPrivServant) StarTweet() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) DeleteTweet() mir.Error {
+func (UnimplementedPrivServant) DeleteTweet() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) CreateTweet(req *web.CreateTweetReq) (*web.CreateTweetResp, mir.Error) {
+func (UnimplementedPrivServant) CreateTweet(req *web.CreateTweetReq) (*web.CreateTweetResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) DownloadAttachment() mir.Error {
+func (UnimplementedPrivServant) DownloadAttachment() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) DownloadAttachmentPrecheck() mir.Error {
+func (UnimplementedPrivServant) DownloadAttachmentPrecheck() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) UploadAttachment() mir.Error {
+func (UnimplementedPrivServant) UploadAttachment() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebPrivServant) mustEmbedUnimplementedWebPrivServant() {}
+func (UnimplementedPrivServant) mustEmbedUnimplementedPrivServant() {}
 
-// UnimplementedWebPrivRender can be embedded to have forward compatible implementations.
-type UnimplementedWebPrivRender struct {
+// UnimplementedPrivRender can be embedded to have forward compatible implementations.
+type UnimplementedPrivRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
-func (r *UnimplementedWebPrivRender) RenderDeleteCommentReply(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderDeleteCommentReply(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPrivRender) RenderCreateCommentReply(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderCreateCommentReply(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPrivRender) RenderDeleteComment(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderDeleteComment(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPrivRender) RenderCreateComment(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderCreateComment(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPrivRender) RenderVisiblePost(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderVisiblePost(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPrivRender) RenderStickTweet(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderStickTweet(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPrivRender) RenderLockTweet(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderLockTweet(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPrivRender) RenderCollectionTweet(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderCollectionTweet(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPrivRender) RenderStarTweet(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderStarTweet(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPrivRender) RenderDeleteTweet(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderDeleteTweet(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPrivRender) RenderCreateTweet(c *gin.Context, data *web.CreateTweetResp, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderCreateTweet(c *gin.Context, data *web.CreateTweetResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedWebPrivRender) RenderDownloadAttachment(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderDownloadAttachment(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPrivRender) RenderDownloadAttachmentPrecheck(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderDownloadAttachmentPrecheck(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPrivRender) RenderUploadAttachment(c *gin.Context, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderUploadAttachment(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebPrivRender) mustEmbedUnimplementedWebPrivRender() {}
+func (r *UnimplementedPrivRender) mustEmbedUnimplementedPrivRender() {}
 
-// UnimplementedWebPrivBinding can be embedded to have forward compatible implementations.
-type UnimplementedWebPrivBinding struct {
+// UnimplementedPrivBinding can be embedded to have forward compatible implementations.
+type UnimplementedPrivBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
 }
 
-func (b *UnimplementedWebPrivBinding) BindCreateTweet(c *gin.Context) (*web.CreateTweetReq, mir.Error) {
+func (b *UnimplementedPrivBinding) BindCreateTweet(c *gin.Context) (*web.CreateTweetReq, mir.Error) {
 	obj := new(web.CreateTweetReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }
 
-func (b *UnimplementedWebPrivBinding) mustEmbedUnimplementedWebPrivBinding() {}
+func (b *UnimplementedPrivBinding) mustEmbedUnimplementedPrivBinding() {}

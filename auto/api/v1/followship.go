@@ -10,7 +10,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
-type WebFollowship interface {
+type Followship interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
@@ -19,26 +19,26 @@ type WebFollowship interface {
 	DeleteFollowing() mir.Error
 	AddFollowing() mir.Error
 
-	mustEmbedUnimplementedWebFollowshipServant()
+	mustEmbedUnimplementedFollowshipServant()
 }
 
-type WebFollowshipBinding interface {
+type FollowshipBinding interface {
 	BindListFollowers(*gin.Context) (*web.ListFollowersReq, mir.Error)
 
-	mustEmbedUnimplementedWebFollowshipBinding()
+	mustEmbedUnimplementedFollowshipBinding()
 }
 
-type WebFollowshipRender interface {
+type FollowshipRender interface {
 	RenderListFollowers(*gin.Context, *web.ListFollowersResp, mir.Error)
 	RenderListFollowings(*gin.Context, mir.Error)
 	RenderDeleteFollowing(*gin.Context, mir.Error)
 	RenderAddFollowing(*gin.Context, mir.Error)
 
-	mustEmbedUnimplementedWebFollowshipRender()
+	mustEmbedUnimplementedFollowshipRender()
 }
 
-// RegisterWebFollowshipServant register WebFollowship servant to gin
-func RegisterWebFollowshipServant(e *gin.Engine, s WebFollowship, b WebFollowshipBinding, r WebFollowshipRender) {
+// RegisterFollowshipServant register Followship servant to gin
+func RegisterFollowshipServant(e *gin.Engine, s Followship, b FollowshipBinding, r FollowshipRender) {
 	router := e.Group("v1")
 	// use chain for router
 	middlewares := s.Chain()
@@ -93,64 +93,64 @@ func RegisterWebFollowshipServant(e *gin.Engine, s WebFollowship, b WebFollowshi
 
 }
 
-// UnimplementedWebFollowshipServant can be embedded to have forward compatible implementations.
-type UnimplementedWebFollowshipServant struct {
+// UnimplementedFollowshipServant can be embedded to have forward compatible implementations.
+type UnimplementedFollowshipServant struct {
 }
 
-func (UnimplementedWebFollowshipServant) Chain() gin.HandlersChain {
+func (UnimplementedFollowshipServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedWebFollowshipServant) ListFollowers(req *web.ListFollowersReq) (*web.ListFollowersResp, mir.Error) {
+func (UnimplementedFollowshipServant) ListFollowers(req *web.ListFollowersReq) (*web.ListFollowersResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebFollowshipServant) ListFollowings() mir.Error {
+func (UnimplementedFollowshipServant) ListFollowings() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebFollowshipServant) DeleteFollowing() mir.Error {
+func (UnimplementedFollowshipServant) DeleteFollowing() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebFollowshipServant) AddFollowing() mir.Error {
+func (UnimplementedFollowshipServant) AddFollowing() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebFollowshipServant) mustEmbedUnimplementedWebFollowshipServant() {}
+func (UnimplementedFollowshipServant) mustEmbedUnimplementedFollowshipServant() {}
 
-// UnimplementedWebFollowshipRender can be embedded to have forward compatible implementations.
-type UnimplementedWebFollowshipRender struct {
+// UnimplementedFollowshipRender can be embedded to have forward compatible implementations.
+type UnimplementedFollowshipRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
-func (r *UnimplementedWebFollowshipRender) RenderListFollowers(c *gin.Context, data *web.ListFollowersResp, err mir.Error) {
+func (r *UnimplementedFollowshipRender) RenderListFollowers(c *gin.Context, data *web.ListFollowersResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedWebFollowshipRender) RenderListFollowings(c *gin.Context, err mir.Error) {
+func (r *UnimplementedFollowshipRender) RenderListFollowings(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebFollowshipRender) RenderDeleteFollowing(c *gin.Context, err mir.Error) {
+func (r *UnimplementedFollowshipRender) RenderDeleteFollowing(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebFollowshipRender) RenderAddFollowing(c *gin.Context, err mir.Error) {
+func (r *UnimplementedFollowshipRender) RenderAddFollowing(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebFollowshipRender) mustEmbedUnimplementedWebFollowshipRender() {}
+func (r *UnimplementedFollowshipRender) mustEmbedUnimplementedFollowshipRender() {}
 
-// UnimplementedWebFollowshipBinding can be embedded to have forward compatible implementations.
-type UnimplementedWebFollowshipBinding struct {
+// UnimplementedFollowshipBinding can be embedded to have forward compatible implementations.
+type UnimplementedFollowshipBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
 }
 
-func (b *UnimplementedWebFollowshipBinding) BindListFollowers(c *gin.Context) (*web.ListFollowersReq, mir.Error) {
+func (b *UnimplementedFollowshipBinding) BindListFollowers(c *gin.Context) (*web.ListFollowersReq, mir.Error) {
 	obj := new(web.ListFollowersReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }
 
-func (b *UnimplementedWebFollowshipBinding) mustEmbedUnimplementedWebFollowshipBinding() {}
+func (b *UnimplementedFollowshipBinding) mustEmbedUnimplementedFollowshipBinding() {}

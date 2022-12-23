@@ -12,45 +12,45 @@ import (
 )
 
 var (
-	_ api.WebPub        = (*webPubSrv)(nil)
-	_ api.WebPubBinding = (*webPubBinding)(nil)
-	_ api.WebPubRender  = (*webPubRender)(nil)
+	_ api.Pub        = (*pubSrv)(nil)
+	_ api.PubBinding = (*pubBinding)(nil)
+	_ api.PubRender  = (*pubRender)(nil)
 )
 
-type webPubSrv struct {
+type pubSrv struct {
 	base.BaseServant
-	api.UnimplementedWebPubServant
+	api.UnimplementedPubServant
 }
 
-type webPubBinding struct {
+type pubBinding struct {
 	base.BaseBinding
-	*api.UnimplementedWebPubBinding
+	*api.UnimplementedPubBinding
 }
 
-type webPubRender struct {
+type pubRender struct {
 	base.BaseRender
-	*api.UnimplementedWebPubRender
+	*api.UnimplementedPubRender
 }
 
-func (s *webPubSrv) Chain() gin.HandlersChain {
+func (s *pubSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JwtLoose()}
 }
 
-func newWebPubSrv() api.WebPub {
-	return &webPubSrv{}
+func newPubSrv() api.Pub {
+	return &pubSrv{}
 }
 
-func newWebPubBinding() api.WebPubBinding {
-	return &webPubBinding{
-		UnimplementedWebPubBinding: &api.UnimplementedWebPubBinding{
+func newPubBinding() api.PubBinding {
+	return &pubBinding{
+		UnimplementedPubBinding: &api.UnimplementedPubBinding{
 			BindAny: base.BindAny,
 		},
 	}
 }
 
-func newWebPubRender() api.WebPubRender {
-	return &webPubRender{
-		UnimplementedWebPubRender: &api.UnimplementedWebPubRender{
+func newPubRender() api.PubRender {
+	return &pubRender{
+		UnimplementedPubRender: &api.UnimplementedPubRender{
 			RenderAny: base.RenderAny,
 		},
 	}

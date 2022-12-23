@@ -10,7 +10,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
-type WebFriendship interface {
+type Friendship interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
@@ -20,27 +20,27 @@ type WebFriendship interface {
 	AddFriend() mir.Error
 	RequestingFriend() mir.Error
 
-	mustEmbedUnimplementedWebFriendshipServant()
+	mustEmbedUnimplementedFriendshipServant()
 }
 
-type WebFriendshipBinding interface {
+type FriendshipBinding interface {
 	BindGetContacts(*gin.Context) (*web.GetContactsReq, mir.Error)
 
-	mustEmbedUnimplementedWebFriendshipBinding()
+	mustEmbedUnimplementedFriendshipBinding()
 }
 
-type WebFriendshipRender interface {
+type FriendshipRender interface {
 	RenderGetContacts(*gin.Context, *web.GetContactsResp, mir.Error)
 	RenderDeleteFriend(*gin.Context, mir.Error)
 	RenderRejectFriend(*gin.Context, mir.Error)
 	RenderAddFriend(*gin.Context, mir.Error)
 	RenderRequestingFriend(*gin.Context, mir.Error)
 
-	mustEmbedUnimplementedWebFriendshipRender()
+	mustEmbedUnimplementedFriendshipRender()
 }
 
-// RegisterWebFriendshipServant register WebFriendship servant to gin
-func RegisterWebFriendshipServant(e *gin.Engine, s WebFriendship, b WebFriendshipBinding, r WebFriendshipRender) {
+// RegisterFriendshipServant register Friendship servant to gin
+func RegisterFriendshipServant(e *gin.Engine, s Friendship, b FriendshipBinding, r FriendshipRender) {
 	router := e.Group("v1")
 	// use chain for router
 	middlewares := s.Chain()
@@ -105,72 +105,72 @@ func RegisterWebFriendshipServant(e *gin.Engine, s WebFriendship, b WebFriendshi
 
 }
 
-// UnimplementedWebFriendshipServant can be embedded to have forward compatible implementations.
-type UnimplementedWebFriendshipServant struct {
+// UnimplementedFriendshipServant can be embedded to have forward compatible implementations.
+type UnimplementedFriendshipServant struct {
 }
 
-func (UnimplementedWebFriendshipServant) Chain() gin.HandlersChain {
+func (UnimplementedFriendshipServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedWebFriendshipServant) GetContacts(req *web.GetContactsReq) (*web.GetContactsResp, mir.Error) {
+func (UnimplementedFriendshipServant) GetContacts(req *web.GetContactsReq) (*web.GetContactsResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebFriendshipServant) DeleteFriend() mir.Error {
+func (UnimplementedFriendshipServant) DeleteFriend() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebFriendshipServant) RejectFriend() mir.Error {
+func (UnimplementedFriendshipServant) RejectFriend() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebFriendshipServant) AddFriend() mir.Error {
+func (UnimplementedFriendshipServant) AddFriend() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebFriendshipServant) RequestingFriend() mir.Error {
+func (UnimplementedFriendshipServant) RequestingFriend() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedWebFriendshipServant) mustEmbedUnimplementedWebFriendshipServant() {}
+func (UnimplementedFriendshipServant) mustEmbedUnimplementedFriendshipServant() {}
 
-// UnimplementedWebFriendshipRender can be embedded to have forward compatible implementations.
-type UnimplementedWebFriendshipRender struct {
+// UnimplementedFriendshipRender can be embedded to have forward compatible implementations.
+type UnimplementedFriendshipRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
-func (r *UnimplementedWebFriendshipRender) RenderGetContacts(c *gin.Context, data *web.GetContactsResp, err mir.Error) {
+func (r *UnimplementedFriendshipRender) RenderGetContacts(c *gin.Context, data *web.GetContactsResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedWebFriendshipRender) RenderDeleteFriend(c *gin.Context, err mir.Error) {
+func (r *UnimplementedFriendshipRender) RenderDeleteFriend(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebFriendshipRender) RenderRejectFriend(c *gin.Context, err mir.Error) {
+func (r *UnimplementedFriendshipRender) RenderRejectFriend(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebFriendshipRender) RenderAddFriend(c *gin.Context, err mir.Error) {
+func (r *UnimplementedFriendshipRender) RenderAddFriend(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebFriendshipRender) RenderRequestingFriend(c *gin.Context, err mir.Error) {
+func (r *UnimplementedFriendshipRender) RenderRequestingFriend(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedWebFriendshipRender) mustEmbedUnimplementedWebFriendshipRender() {}
+func (r *UnimplementedFriendshipRender) mustEmbedUnimplementedFriendshipRender() {}
 
-// UnimplementedWebFriendshipBinding can be embedded to have forward compatible implementations.
-type UnimplementedWebFriendshipBinding struct {
+// UnimplementedFriendshipBinding can be embedded to have forward compatible implementations.
+type UnimplementedFriendshipBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
 }
 
-func (b *UnimplementedWebFriendshipBinding) BindGetContacts(c *gin.Context) (*web.GetContactsReq, mir.Error) {
+func (b *UnimplementedFriendshipBinding) BindGetContacts(c *gin.Context) (*web.GetContactsReq, mir.Error) {
 	obj := new(web.GetContactsReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }
 
-func (b *UnimplementedWebFriendshipBinding) mustEmbedUnimplementedWebFriendshipBinding() {}
+func (b *UnimplementedFriendshipBinding) mustEmbedUnimplementedFriendshipBinding() {}
