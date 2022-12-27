@@ -8,29 +8,32 @@ import (
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/model/web"
+	"github.com/rocboss/paopao-ce/internal/servants/base"
 )
 
 type AlipayPriv interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
-	UserWalletBills(*web.UserWalletBillsReq) (*web.UserWalletBillsResp, mir.Error)
-	UserRechargeResult() mir.Error
-	UserRechargeLink() mir.Error
+	UserWalletBills(*web.UserWalletBillsReq) (*base.PageResp, mir.Error)
+	UserRechargeResult(*web.UserRechargeResultReq) (*web.UserRechargeResultResp, mir.Error)
+	UserRechargeLink(*web.UserRechargeLinkReq) (*web.UserRechargeLinkResp, mir.Error)
 
 	mustEmbedUnimplementedAlipayPrivServant()
 }
 
 type AlipayPrivBinding interface {
 	BindUserWalletBills(*gin.Context) (*web.UserWalletBillsReq, mir.Error)
+	BindUserRechargeResult(*gin.Context) (*web.UserRechargeResultReq, mir.Error)
+	BindUserRechargeLink(*gin.Context) (*web.UserRechargeLinkReq, mir.Error)
 
 	mustEmbedUnimplementedAlipayPrivBinding()
 }
 
 type AlipayPrivRender interface {
-	RenderUserWalletBills(*gin.Context, *web.UserWalletBillsResp, mir.Error)
-	RenderUserRechargeResult(*gin.Context, mir.Error)
-	RenderUserRechargeLink(*gin.Context, mir.Error)
+	RenderUserWalletBills(*gin.Context, *base.PageResp, mir.Error)
+	RenderUserRechargeResult(*gin.Context, *web.UserRechargeResultResp, mir.Error)
+	RenderUserRechargeLink(*gin.Context, *web.UserRechargeLinkResp, mir.Error)
 
 	mustEmbedUnimplementedAlipayPrivRender()
 }
@@ -66,7 +69,13 @@ func RegisterAlipayPrivServant(e *gin.Engine, s AlipayPriv, b AlipayPrivBinding,
 		default:
 		}
 
-		r.RenderUserRechargeResult(c, s.UserRechargeResult())
+		req, err := b.BindUserRechargeResult(c)
+		if err != nil {
+			r.RenderUserRechargeResult(c, nil, err)
+			return
+		}
+		resp, err := s.UserRechargeResult(req)
+		r.RenderUserRechargeResult(c, resp, err)
 	})
 
 	router.Handle("POST", "/user/recharge", func(c *gin.Context) {
@@ -76,7 +85,13 @@ func RegisterAlipayPrivServant(e *gin.Engine, s AlipayPriv, b AlipayPrivBinding,
 		default:
 		}
 
-		r.RenderUserRechargeLink(c, s.UserRechargeLink())
+		req, err := b.BindUserRechargeLink(c)
+		if err != nil {
+			r.RenderUserRechargeLink(c, nil, err)
+			return
+		}
+		resp, err := s.UserRechargeLink(req)
+		r.RenderUserRechargeLink(c, resp, err)
 	})
 
 }
@@ -89,16 +104,16 @@ func (UnimplementedAlipayPrivServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedAlipayPrivServant) UserWalletBills(req *web.UserWalletBillsReq) (*web.UserWalletBillsResp, mir.Error) {
+func (UnimplementedAlipayPrivServant) UserWalletBills(req *web.UserWalletBillsReq) (*base.PageResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedAlipayPrivServant) UserRechargeResult() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedAlipayPrivServant) UserRechargeResult(req *web.UserRechargeResultReq) (*web.UserRechargeResultResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedAlipayPrivServant) UserRechargeLink() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedAlipayPrivServant) UserRechargeLink(req *web.UserRechargeLinkReq) (*web.UserRechargeLinkResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
 func (UnimplementedAlipayPrivServant) mustEmbedUnimplementedAlipayPrivServant() {}
@@ -108,16 +123,16 @@ type UnimplementedAlipayPrivRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
-func (r *UnimplementedAlipayPrivRender) RenderUserWalletBills(c *gin.Context, data *web.UserWalletBillsResp, err mir.Error) {
+func (r *UnimplementedAlipayPrivRender) RenderUserWalletBills(c *gin.Context, data *base.PageResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedAlipayPrivRender) RenderUserRechargeResult(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedAlipayPrivRender) RenderUserRechargeResult(c *gin.Context, data *web.UserRechargeResultResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedAlipayPrivRender) RenderUserRechargeLink(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedAlipayPrivRender) RenderUserRechargeLink(c *gin.Context, data *web.UserRechargeLinkResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
 func (r *UnimplementedAlipayPrivRender) mustEmbedUnimplementedAlipayPrivRender() {}
@@ -129,6 +144,18 @@ type UnimplementedAlipayPrivBinding struct {
 
 func (b *UnimplementedAlipayPrivBinding) BindUserWalletBills(c *gin.Context) (*web.UserWalletBillsReq, mir.Error) {
 	obj := new(web.UserWalletBillsReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedAlipayPrivBinding) BindUserRechargeResult(c *gin.Context) (*web.UserRechargeResultReq, mir.Error) {
+	obj := new(web.UserRechargeResultReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedAlipayPrivBinding) BindUserRechargeLink(c *gin.Context) (*web.UserRechargeLinkReq, mir.Error) {
+	obj := new(web.UserRechargeLinkReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }

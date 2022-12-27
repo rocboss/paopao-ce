@@ -36,7 +36,6 @@ type Core interface {
 
 type CoreBinding interface {
 	BindChangeAvatar(*gin.Context) (*web.ChangeAvatarReq, mir.Error)
-
 	BindGetUserInfo(*gin.Context) (*web.UserInfoReq, mir.Error)
 
 	mustEmbedUnimplementedCoreBinding()

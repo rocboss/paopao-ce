@@ -34,7 +34,7 @@ func RouteWeb(e *gin.Engine) {
 		"Alipay": func() {
 			client := mustAlipayClient()
 			api.RegisterAlipayPubServant(e, newAlipayPubSrv(ds), newAlipayPubBinding(client), newAlipayPubRender())
-			api.RegisterAlipayPrivServant(e, newAlipayPrivSrv(), newAlipayPrivBinding(), newAlipayPrivRender())
+			api.RegisterAlipayPrivServant(e, newAlipayPrivSrv(ds, client), newAlipayPrivBinding(), newAlipayPrivRender())
 		},
 		"Followship": func() {
 			api.RegisterFollowshipServant(e, newFollowshipSrv(), newFollowshipBinding(), newFollowshipRender())

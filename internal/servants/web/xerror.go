@@ -63,9 +63,10 @@ var (
 	_errGetCollectionsFailed = xerror.NewError(60001, "获取收藏列表失败")
 	_errGetStarsFailed       = xerror.NewError(60002, "获取点赞列表失败")
 
-	_errRechargeReqFail     = xerror.NewError(70001, "充值请求失败")
-	_errRechargeNotifyError = xerror.NewError(70002, "充值回调失败")
-	_errGetRechargeFailed   = xerror.NewError(70003, "充值详情获取失败")
+	_errRechargeReqFail       = xerror.NewError(70001, "充值请求失败")
+	_errRechargeNotifyError   = xerror.NewError(70002, "充值回调失败")
+	_errGetRechargeFailed     = xerror.NewError(70003, "充值详情获取失败")
+	_errUserWalletBillsFailed = xerror.NewError(70004, "用户钱包账单获取失败")
 
 	_errNoRequestingFriendToSelf   = xerror.NewError(80001, "不允许添加自己为好友")
 	_errNotExistFriendId           = xerror.NewError(80002, "好友id不存在")

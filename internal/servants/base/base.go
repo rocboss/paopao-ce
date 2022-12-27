@@ -49,6 +49,14 @@ func UserFrom(c *gin.Context) (*core.User, bool) {
 	return nil, false
 }
 
+func UserIdFrom(c *gin.Context) (int64, bool) {
+	if u, exists := c.Get("UID"); exists {
+		uid, ok := u.(int64)
+		return uid, ok
+	}
+	return -1, false
+}
+
 func BindAny(c *gin.Context, obj any) mir.Error {
 	var errs xerror.ValidErrors
 	err := c.ShouldBind(obj)
@@ -57,7 +65,10 @@ func BindAny(c *gin.Context, obj any) mir.Error {
 	}
 	// setup *core.User if needed
 	if setter, ok := obj.(UserSetter); ok {
-		user, _ := UserFrom(c)
+		user, exist := UserFrom(c)
+		if !exist {
+			return xerror.UnauthorizedTokenError
+		}
 		setter.SetUser(user)
 	}
 	return nil

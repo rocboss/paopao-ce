@@ -24,10 +24,10 @@ type AlipayPriv struct {
 	Group Group `mir:"v1"`
 
 	// 	UserRechargeLink 用户充值
-	UserRechargeLink func(Post) `mir:"/user/recharge"`
+	UserRechargeLink func(Post, web.UserRechargeLinkReq) web.UserRechargeLinkResp `mir:"/user/recharge"`
 
-	// UserRechargeResult 获取钱包余额
-	UserRechargeResult func(Get) `mir:"/user/recharge"`
+	// UserRechargeResult 获取充值结果
+	UserRechargeResult func(Get, web.UserRechargeResultReq) web.UserRechargeResultResp `mir:"/user/recharge"`
 
 	// UserWalletBills 获取用户账单
 	UserWalletBills func(Get, web.UserWalletBillsReq) web.UserWalletBillsResp `mir:"/user/wallet/bills"`
