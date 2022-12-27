@@ -8,9 +8,13 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/alimy/mir/v3"
 )
 
 var (
+	_ mir.Error = (*Error)(nil)
+
 	codes = map[int]string{}
 )
 
@@ -51,10 +55,10 @@ func NewError(code int, msg string) *Error {
 }
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("错误码: %d, 错误信息: %s", e.Code(), e.Msg())
+	return fmt.Sprintf("错误码: %d, 错误信息: %s", e.StatusCode(), e.Msg())
 }
 
-func (e *Error) Code() int {
+func (e *Error) StatusCode() int {
 	return e.code
 }
 
@@ -78,27 +82,26 @@ func (e *Error) WithDetails(details ...string) *Error {
 	return &newError
 }
 
-func (e *Error) StatusCode() int {
-	switch e.Code() {
-	case Success.Code():
+func HttpStatusCode(e mir.Error) int {
+	switch e.StatusCode() {
+	case Success.StatusCode():
 		return http.StatusOK
-	case ServerError.Code():
+	case ServerError.StatusCode():
 		return http.StatusInternalServerError
-	case InvalidParams.Code():
+	case InvalidParams.StatusCode():
 		return http.StatusBadRequest
-	case UnauthorizedAuthNotExist.Code():
+	case UnauthorizedAuthNotExist.StatusCode():
 		fallthrough
-	case UnauthorizedAuthFailed.Code():
+	case UnauthorizedAuthFailed.StatusCode():
 		fallthrough
-	case UnauthorizedTokenError.Code():
+	case UnauthorizedTokenError.StatusCode():
 		fallthrough
-	case UnauthorizedTokenGenerate.Code():
+	case UnauthorizedTokenGenerate.StatusCode():
 		fallthrough
-	case UnauthorizedTokenTimeout.Code():
+	case UnauthorizedTokenTimeout.StatusCode():
 		return http.StatusUnauthorized
-	case TooManyRequests.Code():
+	case TooManyRequests.StatusCode():
 		return http.StatusTooManyRequests
 	}
-
 	return http.StatusInternalServerError
 }

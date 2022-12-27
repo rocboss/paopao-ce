@@ -9,12 +9,18 @@ import (
 
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
 
 type BaseServant struct {
 	// TODO
+}
+
+type DaoServant struct {
+	Redis *redis.Client
+	Ds    core.DataService
 }
 
 type BaseBinding struct {
@@ -47,7 +53,7 @@ func BindAny(c *gin.Context, obj any) mir.Error {
 	var errs xerror.ValidErrors
 	err := c.ShouldBind(obj)
 	if err != nil {
-		return mir.NewError(xerror.InvalidParams.Code(), xerror.InvalidParams.WithDetails(errs.Error()))
+		return mir.NewError(xerror.InvalidParams.StatusCode(), xerror.InvalidParams.WithDetails(errs.Error()))
 	}
 	// setup *core.User if needed
 	if setter, ok := obj.(UserSetter); ok {
@@ -65,7 +71,7 @@ func RenderAny(c *gin.Context, data any, err mir.Error) {
 			Data: data,
 		})
 	} else {
-		c.JSON(http.StatusInternalServerError, &JsonResp{
+		c.JSON(xerror.HttpStatusCode(err), &JsonResp{
 			Code: err.StatusCode(),
 			Msg:  err.Error(),
 		})

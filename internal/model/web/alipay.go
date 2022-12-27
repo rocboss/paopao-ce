@@ -4,8 +4,14 @@
 
 package web
 
+import (
+	"context"
+
+	"github.com/smartwalle/alipay/v3"
+)
+
 type UserWalletBillsReq struct {
-	*BaseInfo `json:"-"`
+	*BaseInfo `json:"-" binding:"-"`
 }
 
 type UserWalletBillsResp struct {
@@ -13,5 +19,8 @@ type UserWalletBillsResp struct {
 }
 
 type AlipayNotifyReq struct {
-	// TODO
+	Ctx         context.Context
+	ID          int64
+	TradeNo     string
+	TradeStatus alipay.TradeStatus
 }
