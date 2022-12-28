@@ -41,6 +41,10 @@ type UserSetter interface {
 	SetUser(*core.User)
 }
 
+type UserIdSetter interface {
+	SetUserId(int64)
+}
+
 func UserFrom(c *gin.Context) (*core.User, bool) {
 	if u, exists := c.Get("USER"); exists {
 		user, ok := u.(*core.User)
@@ -50,11 +54,19 @@ func UserFrom(c *gin.Context) (*core.User, bool) {
 }
 
 func UserIdFrom(c *gin.Context) (int64, bool) {
-	if u, exists := c.Get("UID"); exists {
-		uid, ok := u.(int64)
-		return uid, ok
+	if uid, exists := c.Get("UID"); exists {
+		v, ok := uid.(int64)
+		return v, ok
 	}
 	return -1, false
+}
+
+func UserNameFrom(c *gin.Context) (string, bool) {
+	if username, exists := c.Get("USERNAME"); exists {
+		v, ok := username.(string)
+		return v, ok
+	}
+	return "", false
 }
 
 func BindAny(c *gin.Context, obj any) mir.Error {
@@ -65,11 +77,13 @@ func BindAny(c *gin.Context, obj any) mir.Error {
 	}
 	// setup *core.User if needed
 	if setter, ok := obj.(UserSetter); ok {
-		user, exist := UserFrom(c)
-		if !exist {
-			return xerror.UnauthorizedTokenError
-		}
+		user, _ := UserFrom(c)
 		setter.SetUser(user)
+	}
+	// setup UserId if needed
+	if setter, ok := obj.(UserIdSetter); ok {
+		uid, _ := UserIdFrom(c)
+		setter.SetUserId(uid)
 	}
 	return nil
 }
@@ -87,4 +101,30 @@ func RenderAny(c *gin.Context, data any, err mir.Error) {
 			Msg:  err.Error(),
 		})
 	}
+}
+
+func (s *DaoServant) GetTweetBy(id int64) (*core.PostFormated, error) {
+	post, err := s.Ds.GetPostByID(id)
+	if err != nil {
+		return nil, err
+	}
+	postContents, err := s.Ds.GetPostContentsByIDs([]int64{post.ID})
+	if err != nil {
+		return nil, err
+	}
+	users, err := s.Ds.GetUsersByIDs([]int64{post.UserID})
+	if err != nil {
+		return nil, err
+	}
+	// 数据整合
+	postFormated := post.Format()
+	for _, user := range users {
+		postFormated.User = user.Format()
+	}
+	for _, content := range postContents {
+		if content.PostID == post.ID {
+			postFormated.Contents = append(postFormated.Contents, content.Format())
+		}
+	}
+	return postFormated, nil
 }

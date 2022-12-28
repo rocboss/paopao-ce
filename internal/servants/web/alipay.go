@@ -136,7 +136,7 @@ func (s *alipayPrivSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT()}
 }
 
-func (s *alipayPrivSrv) UserWalletBills(req *web.UserWalletBillsReq) (*web.UserWalletBillsResp, mir.Error) {
+func (s *alipayPrivSrv) UserWalletBills(req *web.UserWalletBillsReq) (*base.PageResp, mir.Error) {
 	bills, err := s.Ds.GetUserWalletBills(req.UserId, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
 		logrus.Errorf("GetUserWalletBills err: %s", err)

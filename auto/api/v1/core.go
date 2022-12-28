@@ -8,6 +8,7 @@ import (
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/model/web"
+	"github.com/rocboss/paopao-ce/internal/servants/base"
 )
 
 type Core interface {
@@ -25,18 +26,22 @@ type Core interface {
 	GetStars() mir.Error
 	GetCollections() mir.Error
 	SendUserWhisper() mir.Error
-	ReadMessage() mir.Error
-	GetMessages() mir.Error
-	GetUnreadMsgCount() mir.Error
+	ReadMessage(*web.ReadMessageReq) mir.Error
+	GetMessages(*web.GetMessagesReq) (*base.PageResp, mir.Error)
+	GetUnreadMsgCount(*web.GetUnreadMsgCountReq) (*web.GetUnreadMsgCountResp, mir.Error)
 	GetUserInfo(*web.UserInfoReq) (*web.UserInfoResp, mir.Error)
-	SyncSearchIndex() mir.Error
+	SyncSearchIndex(*web.SyncSearchIndexReq) mir.Error
 
 	mustEmbedUnimplementedCoreServant()
 }
 
 type CoreBinding interface {
 	BindChangeAvatar(*gin.Context) (*web.ChangeAvatarReq, mir.Error)
+	BindReadMessage(*gin.Context) (*web.ReadMessageReq, mir.Error)
+	BindGetMessages(*gin.Context) (*web.GetMessagesReq, mir.Error)
+	BindGetUnreadMsgCount(*gin.Context) (*web.GetUnreadMsgCountReq, mir.Error)
 	BindGetUserInfo(*gin.Context) (*web.UserInfoReq, mir.Error)
+	BindSyncSearchIndex(*gin.Context) (*web.SyncSearchIndexReq, mir.Error)
 
 	mustEmbedUnimplementedCoreBinding()
 }
@@ -54,8 +59,8 @@ type CoreRender interface {
 	RenderGetCollections(*gin.Context, mir.Error)
 	RenderSendUserWhisper(*gin.Context, mir.Error)
 	RenderReadMessage(*gin.Context, mir.Error)
-	RenderGetMessages(*gin.Context, mir.Error)
-	RenderGetUnreadMsgCount(*gin.Context, mir.Error)
+	RenderGetMessages(*gin.Context, *base.PageResp, mir.Error)
+	RenderGetUnreadMsgCount(*gin.Context, *web.GetUnreadMsgCountResp, mir.Error)
 	RenderGetUserInfo(*gin.Context, *web.UserInfoResp, mir.Error)
 	RenderSyncSearchIndex(*gin.Context, mir.Error)
 
@@ -192,7 +197,12 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderReadMessage(c, s.ReadMessage())
+		req, err := b.BindReadMessage(c)
+		if err != nil {
+			r.RenderReadMessage(c, err)
+			return
+		}
+		r.RenderReadMessage(c, s.ReadMessage(req))
 	})
 
 	router.Handle("GET", "/user/messages", func(c *gin.Context) {
@@ -202,7 +212,13 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderGetMessages(c, s.GetMessages())
+		req, err := b.BindGetMessages(c)
+		if err != nil {
+			r.RenderGetMessages(c, nil, err)
+			return
+		}
+		resp, err := s.GetMessages(req)
+		r.RenderGetMessages(c, resp, err)
 	})
 
 	router.Handle("GET", "/user/msgcount/unread", func(c *gin.Context) {
@@ -212,7 +228,13 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderGetUnreadMsgCount(c, s.GetUnreadMsgCount())
+		req, err := b.BindGetUnreadMsgCount(c)
+		if err != nil {
+			r.RenderGetUnreadMsgCount(c, nil, err)
+			return
+		}
+		resp, err := s.GetUnreadMsgCount(req)
+		r.RenderGetUnreadMsgCount(c, resp, err)
 	})
 
 	router.Handle("GET", "/user/info", func(c *gin.Context) {
@@ -238,7 +260,12 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderSyncSearchIndex(c, s.SyncSearchIndex())
+		req, err := b.BindSyncSearchIndex(c)
+		if err != nil {
+			r.RenderSyncSearchIndex(c, err)
+			return
+		}
+		r.RenderSyncSearchIndex(c, s.SyncSearchIndex(req))
 	})
 
 }
@@ -295,23 +322,23 @@ func (UnimplementedCoreServant) SendUserWhisper() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) ReadMessage() mir.Error {
+func (UnimplementedCoreServant) ReadMessage(req *web.ReadMessageReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) GetMessages() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedCoreServant) GetMessages(req *web.GetMessagesReq) (*base.PageResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) GetUnreadMsgCount() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedCoreServant) GetUnreadMsgCount(req *web.GetUnreadMsgCountReq) (*web.GetUnreadMsgCountResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
 func (UnimplementedCoreServant) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) SyncSearchIndex() mir.Error {
+func (UnimplementedCoreServant) SyncSearchIndex(req *web.SyncSearchIndexReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
@@ -370,12 +397,12 @@ func (r *UnimplementedCoreRender) RenderReadMessage(c *gin.Context, err mir.Erro
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedCoreRender) RenderGetMessages(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedCoreRender) RenderGetMessages(c *gin.Context, data *base.PageResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedCoreRender) RenderGetUnreadMsgCount(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedCoreRender) RenderGetUnreadMsgCount(c *gin.Context, data *web.GetUnreadMsgCountResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
 func (r *UnimplementedCoreRender) RenderGetUserInfo(c *gin.Context, data *web.UserInfoResp, err mir.Error) {
@@ -399,8 +426,32 @@ func (b *UnimplementedCoreBinding) BindChangeAvatar(c *gin.Context) (*web.Change
 	return obj, err
 }
 
+func (b *UnimplementedCoreBinding) BindReadMessage(c *gin.Context) (*web.ReadMessageReq, mir.Error) {
+	obj := new(web.ReadMessageReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedCoreBinding) BindGetMessages(c *gin.Context) (*web.GetMessagesReq, mir.Error) {
+	obj := new(web.GetMessagesReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedCoreBinding) BindGetUnreadMsgCount(c *gin.Context) (*web.GetUnreadMsgCountReq, mir.Error) {
+	obj := new(web.GetUnreadMsgCountReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
 func (b *UnimplementedCoreBinding) BindGetUserInfo(c *gin.Context) (*web.UserInfoReq, mir.Error) {
 	obj := new(web.UserInfoReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedCoreBinding) BindSyncSearchIndex(c *gin.Context) (*web.SyncSearchIndexReq, mir.Error) {
+	obj := new(web.SyncSearchIndexReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }

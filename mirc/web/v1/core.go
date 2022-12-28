@@ -16,19 +16,19 @@ type Core struct {
 	Group Group `mir:"v1"`
 
 	// SyncSearchIndex 同步索引
-	SyncSearchIndex func(Get) `mir:"/sync/index"`
+	SyncSearchIndex func(Get, web.SyncSearchIndexReq) `mir:"/sync/index"`
 
 	// GetUserInfo 获取当前用户信息
 	GetUserInfo func(Get, web.UserInfoReq) web.UserInfoResp `mir:"/user/info"`
 
 	// GetUnreadMsgCount 获取当前用户未读消息数量
-	GetUnreadMsgCount func(Get) `mir:"/user/msgcount/unread"`
+	GetUnreadMsgCount func(Get, web.GetUnreadMsgCountReq) web.GetUnreadMsgCountResp `mir:"/user/msgcount/unread"`
 
 	// GetMessages 获取消息列表
-	GetMessages func(Get) `mir:"/user/messages"`
+	GetMessages func(Get, web.GetMessagesReq) web.GetMessagesResp `mir:"/user/messages"`
 
 	// ReadMessage 标记消息已读
-	ReadMessage func(Post) `mir:"/user/message/read"`
+	ReadMessage func(Post, web.ReadMessageReq) `mir:"/user/message/read"`
 
 	// SendUserWhisper 发送用户私信
 	SendUserWhisper func(Post) `mir:"/user/whisper"`

@@ -12,6 +12,14 @@ type BaseInfo struct {
 	User *core.User
 }
 
+type SimpleInfo struct {
+	Uid int64
+}
+
 func (b *BaseInfo) SetUser(user *core.User) {
 	b.User = user
+}
+
+func (s *SimpleInfo) SetUserId(id int64) {
+	s.Uid = id
 }
