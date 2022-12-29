@@ -17,17 +17,17 @@ import (
 
 // RouteWeb register web route
 func RouteWeb(e *gin.Engine) {
-	ts := dao.TweetSearchService()
 	oss := dao.ObjectStorageService()
 	ds := &base.DaoServant{
 		Redis: conf.Redis,
 		Ds:    dao.DataService(),
+		Ts:    dao.TweetSearchService(),
 	}
 	// aways register servants
 	api.RegisterAdminServant(e, newAdminSrv(ds), newAdminBinding(), newAdminRender())
-	api.RegisterCoreServant(e, newCoreSrv(ds, ts, oss), newCoreBinding(), newCoreRender())
+	api.RegisterCoreServant(e, newCoreSrv(ds, oss), newCoreBinding(), newCoreRender())
 	api.RegisterLooseServant(e, newLooseSrv(), newLooseBinding(), newLooseRender())
-	api.RegisterPrivServant(e, newPrivSrv(), newPrivBinding(), newPrivRender())
+	api.RegisterPrivServant(e, newPrivSrv(ds, oss), newPrivBinding(), newPrivRender())
 	api.RegisterPubServant(e, newPubSrv(), newPubBinding(), newPubRender())
 	// regster servants if needed by configure
 	cfg.In(cfg.Actions{

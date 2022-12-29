@@ -18,22 +18,31 @@ type Priv interface {
 	CreateCommentReply() mir.Error
 	DeleteComment() mir.Error
 	CreateComment() mir.Error
-	VisiblePost() mir.Error
-	StickTweet() mir.Error
-	LockTweet() mir.Error
-	CollectionTweet() mir.Error
-	StarTweet() mir.Error
-	DeleteTweet() mir.Error
+	VisiblePost(*web.VisiblePostReq) (*web.VisiblePostResp, mir.Error)
+	StickTweet(*web.StickTweetReq) (*web.StickTweetResp, mir.Error)
+	LockTweet(*web.LockTweetReq) (*web.LockTweetResp, mir.Error)
+	CollectionTweet(*web.CollectionTweetReq) (*web.CollectionTweetResp, mir.Error)
+	StarTweet(*web.StarTweetReq) (*web.StarTweetResp, mir.Error)
+	DeleteTweet(*web.DeleteTweetReq) mir.Error
 	CreateTweet(*web.CreateTweetReq) (*web.CreateTweetResp, mir.Error)
-	DownloadAttachment() mir.Error
-	DownloadAttachmentPrecheck() mir.Error
-	UploadAttachment() mir.Error
+	DownloadAttachment(*web.DownloadAttachmentReq) (*web.DownloadAttachmentResp, mir.Error)
+	DownloadAttachmentPrecheck(*web.DownloadAttachmentPrecheckReq) (*web.DownloadAttachmentPrecheckResp, mir.Error)
+	UploadAttachment(*web.UploadAttachmentReq) (*web.UploadAttachmentResp, mir.Error)
 
 	mustEmbedUnimplementedPrivServant()
 }
 
 type PrivBinding interface {
+	BindVisiblePost(*gin.Context) (*web.VisiblePostReq, mir.Error)
+	BindStickTweet(*gin.Context) (*web.StickTweetReq, mir.Error)
+	BindLockTweet(*gin.Context) (*web.LockTweetReq, mir.Error)
+	BindCollectionTweet(*gin.Context) (*web.CollectionTweetReq, mir.Error)
+	BindStarTweet(*gin.Context) (*web.StarTweetReq, mir.Error)
+	BindDeleteTweet(*gin.Context) (*web.DeleteTweetReq, mir.Error)
 	BindCreateTweet(*gin.Context) (*web.CreateTweetReq, mir.Error)
+	BindDownloadAttachment(*gin.Context) (*web.DownloadAttachmentReq, mir.Error)
+	BindDownloadAttachmentPrecheck(*gin.Context) (*web.DownloadAttachmentPrecheckReq, mir.Error)
+	BindUploadAttachment(*gin.Context) (*web.UploadAttachmentReq, mir.Error)
 
 	mustEmbedUnimplementedPrivBinding()
 }
@@ -43,16 +52,16 @@ type PrivRender interface {
 	RenderCreateCommentReply(*gin.Context, mir.Error)
 	RenderDeleteComment(*gin.Context, mir.Error)
 	RenderCreateComment(*gin.Context, mir.Error)
-	RenderVisiblePost(*gin.Context, mir.Error)
-	RenderStickTweet(*gin.Context, mir.Error)
-	RenderLockTweet(*gin.Context, mir.Error)
-	RenderCollectionTweet(*gin.Context, mir.Error)
-	RenderStarTweet(*gin.Context, mir.Error)
+	RenderVisiblePost(*gin.Context, *web.VisiblePostResp, mir.Error)
+	RenderStickTweet(*gin.Context, *web.StickTweetResp, mir.Error)
+	RenderLockTweet(*gin.Context, *web.LockTweetResp, mir.Error)
+	RenderCollectionTweet(*gin.Context, *web.CollectionTweetResp, mir.Error)
+	RenderStarTweet(*gin.Context, *web.StarTweetResp, mir.Error)
 	RenderDeleteTweet(*gin.Context, mir.Error)
 	RenderCreateTweet(*gin.Context, *web.CreateTweetResp, mir.Error)
-	RenderDownloadAttachment(*gin.Context, mir.Error)
-	RenderDownloadAttachmentPrecheck(*gin.Context, mir.Error)
-	RenderUploadAttachment(*gin.Context, mir.Error)
+	RenderDownloadAttachment(*gin.Context, *web.DownloadAttachmentResp, mir.Error)
+	RenderDownloadAttachmentPrecheck(*gin.Context, *web.DownloadAttachmentPrecheckResp, mir.Error)
+	RenderUploadAttachment(*gin.Context, *web.UploadAttachmentResp, mir.Error)
 
 	mustEmbedUnimplementedPrivRender()
 }
@@ -112,7 +121,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		r.RenderVisiblePost(c, s.VisiblePost())
+		req, err := b.BindVisiblePost(c)
+		if err != nil {
+			r.RenderVisiblePost(c, nil, err)
+			return
+		}
+		resp, err := s.VisiblePost(req)
+		r.RenderVisiblePost(c, resp, err)
 	})
 
 	router.Handle("POST", "/post/stick", func(c *gin.Context) {
@@ -122,7 +137,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		r.RenderStickTweet(c, s.StickTweet())
+		req, err := b.BindStickTweet(c)
+		if err != nil {
+			r.RenderStickTweet(c, nil, err)
+			return
+		}
+		resp, err := s.StickTweet(req)
+		r.RenderStickTweet(c, resp, err)
 	})
 
 	router.Handle("POST", "/post/lock", func(c *gin.Context) {
@@ -132,7 +153,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		r.RenderLockTweet(c, s.LockTweet())
+		req, err := b.BindLockTweet(c)
+		if err != nil {
+			r.RenderLockTweet(c, nil, err)
+			return
+		}
+		resp, err := s.LockTweet(req)
+		r.RenderLockTweet(c, resp, err)
 	})
 
 	router.Handle("POST", "/post/collection", func(c *gin.Context) {
@@ -142,7 +169,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		r.RenderCollectionTweet(c, s.CollectionTweet())
+		req, err := b.BindCollectionTweet(c)
+		if err != nil {
+			r.RenderCollectionTweet(c, nil, err)
+			return
+		}
+		resp, err := s.CollectionTweet(req)
+		r.RenderCollectionTweet(c, resp, err)
 	})
 
 	router.Handle("POST", "/post/start", func(c *gin.Context) {
@@ -152,7 +185,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		r.RenderStarTweet(c, s.StarTweet())
+		req, err := b.BindStarTweet(c)
+		if err != nil {
+			r.RenderStarTweet(c, nil, err)
+			return
+		}
+		resp, err := s.StarTweet(req)
+		r.RenderStarTweet(c, resp, err)
 	})
 
 	router.Handle("DELETE", "/post", func(c *gin.Context) {
@@ -162,7 +201,12 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		r.RenderDeleteTweet(c, s.DeleteTweet())
+		req, err := b.BindDeleteTweet(c)
+		if err != nil {
+			r.RenderDeleteTweet(c, err)
+			return
+		}
+		r.RenderDeleteTweet(c, s.DeleteTweet(req))
 	})
 
 	router.Handle("POST", "/post", func(c *gin.Context) {
@@ -188,7 +232,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		r.RenderDownloadAttachment(c, s.DownloadAttachment())
+		req, err := b.BindDownloadAttachment(c)
+		if err != nil {
+			r.RenderDownloadAttachment(c, nil, err)
+			return
+		}
+		resp, err := s.DownloadAttachment(req)
+		r.RenderDownloadAttachment(c, resp, err)
 	})
 
 	router.Handle("GET", "/attachment/precheck", func(c *gin.Context) {
@@ -198,7 +248,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		r.RenderDownloadAttachmentPrecheck(c, s.DownloadAttachmentPrecheck())
+		req, err := b.BindDownloadAttachmentPrecheck(c)
+		if err != nil {
+			r.RenderDownloadAttachmentPrecheck(c, nil, err)
+			return
+		}
+		resp, err := s.DownloadAttachmentPrecheck(req)
+		r.RenderDownloadAttachmentPrecheck(c, resp, err)
 	})
 
 	router.Handle("POST", "/attachment", func(c *gin.Context) {
@@ -208,7 +264,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		r.RenderUploadAttachment(c, s.UploadAttachment())
+		req, err := b.BindUploadAttachment(c)
+		if err != nil {
+			r.RenderUploadAttachment(c, nil, err)
+			return
+		}
+		resp, err := s.UploadAttachment(req)
+		r.RenderUploadAttachment(c, resp, err)
 	})
 
 }
@@ -237,27 +299,27 @@ func (UnimplementedPrivServant) CreateComment() mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedPrivServant) VisiblePost() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedPrivServant) VisiblePost(req *web.VisiblePostReq) (*web.VisiblePostResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedPrivServant) StickTweet() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedPrivServant) StickTweet(req *web.StickTweetReq) (*web.StickTweetResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedPrivServant) LockTweet() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedPrivServant) LockTweet(req *web.LockTweetReq) (*web.LockTweetResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedPrivServant) CollectionTweet() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedPrivServant) CollectionTweet(req *web.CollectionTweetReq) (*web.CollectionTweetResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedPrivServant) StarTweet() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedPrivServant) StarTweet(req *web.StarTweetReq) (*web.StarTweetResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedPrivServant) DeleteTweet() mir.Error {
+func (UnimplementedPrivServant) DeleteTweet(req *web.DeleteTweetReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
@@ -265,16 +327,16 @@ func (UnimplementedPrivServant) CreateTweet(req *web.CreateTweetReq) (*web.Creat
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedPrivServant) DownloadAttachment() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedPrivServant) DownloadAttachment(req *web.DownloadAttachmentReq) (*web.DownloadAttachmentResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedPrivServant) DownloadAttachmentPrecheck() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedPrivServant) DownloadAttachmentPrecheck(req *web.DownloadAttachmentPrecheckReq) (*web.DownloadAttachmentPrecheckResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedPrivServant) UploadAttachment() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedPrivServant) UploadAttachment(req *web.UploadAttachmentReq) (*web.UploadAttachmentResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
 func (UnimplementedPrivServant) mustEmbedUnimplementedPrivServant() {}
@@ -300,24 +362,24 @@ func (r *UnimplementedPrivRender) RenderCreateComment(c *gin.Context, err mir.Er
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedPrivRender) RenderVisiblePost(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedPrivRender) RenderVisiblePost(c *gin.Context, data *web.VisiblePostResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedPrivRender) RenderStickTweet(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedPrivRender) RenderStickTweet(c *gin.Context, data *web.StickTweetResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedPrivRender) RenderLockTweet(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedPrivRender) RenderLockTweet(c *gin.Context, data *web.LockTweetResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedPrivRender) RenderCollectionTweet(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedPrivRender) RenderCollectionTweet(c *gin.Context, data *web.CollectionTweetResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedPrivRender) RenderStarTweet(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedPrivRender) RenderStarTweet(c *gin.Context, data *web.StarTweetResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
 func (r *UnimplementedPrivRender) RenderDeleteTweet(c *gin.Context, err mir.Error) {
@@ -328,16 +390,16 @@ func (r *UnimplementedPrivRender) RenderCreateTweet(c *gin.Context, data *web.Cr
 	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedPrivRender) RenderDownloadAttachment(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedPrivRender) RenderDownloadAttachment(c *gin.Context, data *web.DownloadAttachmentResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedPrivRender) RenderDownloadAttachmentPrecheck(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedPrivRender) RenderDownloadAttachmentPrecheck(c *gin.Context, data *web.DownloadAttachmentPrecheckResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedPrivRender) RenderUploadAttachment(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedPrivRender) RenderUploadAttachment(c *gin.Context, data *web.UploadAttachmentResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
 func (r *UnimplementedPrivRender) mustEmbedUnimplementedPrivRender() {}
@@ -347,8 +409,62 @@ type UnimplementedPrivBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
 }
 
+func (b *UnimplementedPrivBinding) BindVisiblePost(c *gin.Context) (*web.VisiblePostReq, mir.Error) {
+	obj := new(web.VisiblePostReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindStickTweet(c *gin.Context) (*web.StickTweetReq, mir.Error) {
+	obj := new(web.StickTweetReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindLockTweet(c *gin.Context) (*web.LockTweetReq, mir.Error) {
+	obj := new(web.LockTweetReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindCollectionTweet(c *gin.Context) (*web.CollectionTweetReq, mir.Error) {
+	obj := new(web.CollectionTweetReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindStarTweet(c *gin.Context) (*web.StarTweetReq, mir.Error) {
+	obj := new(web.StarTweetReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindDeleteTweet(c *gin.Context) (*web.DeleteTweetReq, mir.Error) {
+	obj := new(web.DeleteTweetReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
 func (b *UnimplementedPrivBinding) BindCreateTweet(c *gin.Context) (*web.CreateTweetReq, mir.Error) {
 	obj := new(web.CreateTweetReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindDownloadAttachment(c *gin.Context) (*web.DownloadAttachmentReq, mir.Error) {
+	obj := new(web.DownloadAttachmentReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindDownloadAttachmentPrecheck(c *gin.Context) (*web.DownloadAttachmentPrecheckReq, mir.Error) {
+	obj := new(web.DownloadAttachmentPrecheckReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindUploadAttachment(c *gin.Context) (*web.UploadAttachmentReq, mir.Error) {
+	obj := new(web.UploadAttachmentReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }

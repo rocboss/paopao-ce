@@ -5,7 +5,11 @@
 package base
 
 import (
+	"context"
+	"fmt"
+	"math"
 	"net/http"
+	"time"
 
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
@@ -22,6 +26,7 @@ type BaseServant struct {
 type DaoServant struct {
 	Redis *redis.Client
 	Ds    core.DataService
+	Ts    core.TweetSearchService
 }
 
 type BaseBinding types.Empty
@@ -124,4 +129,73 @@ func (s *DaoServant) GetTweetBy(id int64) (*core.PostFormated, error) {
 		}
 	}
 	return postFormated, nil
+}
+
+func (s *DaoServant) PushPostsToSearch(c context.Context) {
+	if ok, _ := s.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
+		defer s.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
+
+		splitNum := 1000
+		totalRows, _ := s.Ds.GetPostCount(&core.ConditionsT{
+			"visibility IN ?": []core.PostVisibleT{core.PostVisitPublic, core.PostVisitFriend},
+		})
+		pages := math.Ceil(float64(totalRows) / float64(splitNum))
+		nums := int(pages)
+		for i := 0; i < nums; i++ {
+			posts, postsFormated, err := s.getTweetList(&core.ConditionsT{}, i*splitNum, splitNum)
+			if err != nil || len(posts) != len(postsFormated) {
+				continue
+			}
+			for i, pf := range postsFormated {
+				contentFormated := ""
+				for _, content := range pf.Contents {
+					if content.Type == core.ContentTypeText || content.Type == core.ContentTypeTitle {
+						contentFormated = contentFormated + content.Content + "\n"
+					}
+				}
+				docs := []core.TsDocItem{{
+					Post:    posts[i],
+					Content: contentFormated,
+				}}
+				s.Ts.AddDocuments(docs, fmt.Sprintf("%d", posts[i].ID))
+			}
+		}
+	}
+}
+
+func (s *DaoServant) PushPostToSearch(post *core.Post) {
+	postFormated := post.Format()
+	postFormated.User = &core.UserFormated{
+		ID: post.UserID,
+	}
+	contents, _ := s.Ds.GetPostContentsByIDs([]int64{post.ID})
+	for _, content := range contents {
+		postFormated.Contents = append(postFormated.Contents, content.Format())
+	}
+
+	contentFormated := ""
+	for _, content := range postFormated.Contents {
+		if content.Type == core.ContentTypeText || content.Type == core.ContentTypeTitle {
+			contentFormated = contentFormated + content.Content + "\n"
+		}
+	}
+
+	docs := []core.TsDocItem{{
+		Post:    post,
+		Content: contentFormated,
+	}}
+	s.Ts.AddDocuments(docs, fmt.Sprintf("%d", post.ID))
+}
+
+func (s *DaoServant) DeleteSearchPost(post *core.Post) error {
+	return s.Ts.DeleteDocuments([]string{fmt.Sprintf("%d", post.ID)})
+}
+
+func (s *DaoServant) getTweetList(conditions *core.ConditionsT, offset, limit int) ([]*core.Post, []*core.PostFormated, error) {
+	posts, err := s.Ds.GetPosts(conditions, offset, limit)
+	if err != nil {
+		return nil, nil, err
+	}
+	postFormated, err := s.Ds.MergePosts(posts)
+	return posts, postFormated, err
 }

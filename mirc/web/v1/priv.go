@@ -16,34 +16,34 @@ type Priv struct {
 	Group Group `mir:"v1"`
 
 	// UploadAttachment 上传资源
-	UploadAttachment func(Post) `mir:"/attachment"`
+	UploadAttachment func(Post, web.UploadAttachmentReq) web.UploadAttachmentResp `mir:"/attachment"`
 
 	// DownloadAttachmentPrecheck 下载资源预检
-	DownloadAttachmentPrecheck func(Get) `mir:"/attachment/precheck"`
+	DownloadAttachmentPrecheck func(Get, web.DownloadAttachmentPrecheckReq) web.DownloadAttachmentPrecheckResp `mir:"/attachment/precheck"`
 
 	// DownloadAttachment 下载资源
-	DownloadAttachment func(Get) `mir:"/attachment"`
+	DownloadAttachment func(Get, web.DownloadAttachmentReq) web.DownloadAttachmentResp `mir:"/attachment"`
 
 	// CreateTweet 发布动态
 	CreateTweet func(Post, web.CreateTweetReq) web.CreateTweetResp `mir:"/post"`
 
 	// DeleteTweet 删除动态
-	DeleteTweet func(Delete) `mir:"/post"`
+	DeleteTweet func(Delete, web.DeleteTweetReq) `mir:"/post"`
 
 	// StarTweet 动态点赞操作
-	StarTweet func(Post) `mir:"/post/start"`
+	StarTweet func(Post, web.StarTweetReq) web.StarTweetResp `mir:"/post/start"`
 
 	// CollectionTweet 动态收藏操作
-	CollectionTweet func(Post) `mir:"/post/collection"`
+	CollectionTweet func(Post, web.CollectionTweetReq) web.CollectionTweetResp `mir:"/post/collection"`
 
 	// LockTweet 锁定动态
-	LockTweet func(Post) `mir:"/post/lock"`
+	LockTweet func(Post, web.LockTweetReq) web.LockTweetResp `mir:"/post/lock"`
 
 	// StickTweet 置顶动态
-	StickTweet func(Post) `mir:"/post/stick"`
+	StickTweet func(Post, web.StickTweetReq) web.StickTweetResp `mir:"/post/stick"`
 
 	// VisiblePost 修改动态可见度
-	VisiblePost func(Post) `mir:"/post/visibility"`
+	VisiblePost func(Post, web.VisiblePostReq) web.VisiblePostResp `mir:"/post/visibility"`
 
 	// CreateTweetComment 发布动态评论
 	CreateComment func(Post) `mir:"/post/comment"`

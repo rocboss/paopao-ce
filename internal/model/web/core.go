@@ -5,8 +5,6 @@
 package web
 
 import (
-	"context"
-
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 )
 
@@ -17,7 +15,6 @@ type ChangeAvatarReq struct {
 
 type SyncSearchIndexReq struct {
 	BaseInfo `json:"-" binding:"-"`
-	Ctx      context.Context `json:"-" binding:"-"`
 }
 
 type UserInfoReq struct {

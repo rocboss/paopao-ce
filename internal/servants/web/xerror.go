@@ -76,4 +76,8 @@ var (
 	_errDeleteFriendFailed         = xerror.NewError(80006, "删除好友失败")
 	_errGetContactsFailed          = xerror.NewError(80007, "获取联系人列表失败")
 	_errNoActionToSelf             = xerror.NewError(80008, "不允许对自己操作")
+
+	_errFileUploadFailed = xerror.NewError(10200, "文件上传失败")
+	_errFileInvalidExt   = xerror.NewError(10201, "文件类型不合法")
+	_errFileInvalidSize  = xerror.NewError(10202, "文件大小超限")
 )
