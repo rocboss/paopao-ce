@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
 
@@ -23,13 +24,9 @@ type DaoServant struct {
 	Ds    core.DataService
 }
 
-type BaseBinding struct {
-	// TODO
-}
+type BaseBinding types.Empty
 
-type BaseRender struct {
-	// TODO
-}
+type BaseRender types.Empty
 
 type JsonResp struct {
 	Code int    `json:"code"`

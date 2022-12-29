@@ -17,12 +17,12 @@ type UserWalletBillsReq struct {
 	PageSize int
 }
 
-type UserWalletBillsResp = base.PageResp
+type UserWalletBillsResp base.PageResp
 
 type UserRechargeLinkReq struct {
-	*BaseInfo `json:"-" form:"-" binding:"-"`
-	Host      string `json:"-" form:"-" binding:"-"`
-	Amount    int64  `json:"amount" form:"amount" binding:"required"`
+	BaseInfo `json:"-" form:"-" binding:"-"`
+	Host     string `json:"-" form:"-" binding:"-"`
+	Amount   int64  `json:"amount" form:"amount" binding:"required"`
 }
 
 type UserRechargeLinkResp struct {

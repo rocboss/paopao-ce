@@ -8,26 +8,25 @@ import (
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/model/web"
-	"github.com/rocboss/paopao-ce/internal/servants/base"
 )
 
 type Core interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
-	TweetCollectionStatus() mir.Error
-	TweetStarStatus() mir.Error
-	SuggestTags() mir.Error
-	SuggestUsers() mir.Error
+	TweetCollectionStatus(*web.TweetCollectionStatusReq) (*web.TweetCollectionStatusResp, mir.Error)
+	TweetStarStatus(*web.TweetStarStatusReq) (*web.TweetStarStatusResp, mir.Error)
+	SuggestTags(*web.SuggestTagsReq) (*web.SuggestTagsResp, mir.Error)
+	SuggestUsers(*web.SuggestUsersReq) (*web.SuggestUsersResp, mir.Error)
 	ChangeAvatar(*web.ChangeAvatarReq) mir.Error
-	ChangeNickname() mir.Error
-	ChangePassword() mir.Error
-	UserPhoneBind() mir.Error
-	GetStars() mir.Error
-	GetCollections() mir.Error
-	SendUserWhisper() mir.Error
+	ChangeNickname(*web.ChangeNicknameReq) mir.Error
+	ChangePassword(*web.ChangePasswordReq) mir.Error
+	UserPhoneBind(*web.UserPhoneBindReq) mir.Error
+	GetStars(*web.GetStarsReq) (*web.GetStarsResp, mir.Error)
+	GetCollections(*web.GetCollectionsReq) (*web.GetCollectionsResp, mir.Error)
+	SendUserWhisper(*web.SendWhisperReq) mir.Error
 	ReadMessage(*web.ReadMessageReq) mir.Error
-	GetMessages(*web.GetMessagesReq) (*base.PageResp, mir.Error)
+	GetMessages(*web.GetMessagesReq) (*web.GetMessagesResp, mir.Error)
 	GetUnreadMsgCount(*web.GetUnreadMsgCountReq) (*web.GetUnreadMsgCountResp, mir.Error)
 	GetUserInfo(*web.UserInfoReq) (*web.UserInfoResp, mir.Error)
 	SyncSearchIndex(*web.SyncSearchIndexReq) mir.Error
@@ -36,7 +35,17 @@ type Core interface {
 }
 
 type CoreBinding interface {
+	BindTweetCollectionStatus(*gin.Context) (*web.TweetCollectionStatusReq, mir.Error)
+	BindTweetStarStatus(*gin.Context) (*web.TweetStarStatusReq, mir.Error)
+	BindSuggestTags(*gin.Context) (*web.SuggestTagsReq, mir.Error)
+	BindSuggestUsers(*gin.Context) (*web.SuggestUsersReq, mir.Error)
 	BindChangeAvatar(*gin.Context) (*web.ChangeAvatarReq, mir.Error)
+	BindChangeNickname(*gin.Context) (*web.ChangeNicknameReq, mir.Error)
+	BindChangePassword(*gin.Context) (*web.ChangePasswordReq, mir.Error)
+	BindUserPhoneBind(*gin.Context) (*web.UserPhoneBindReq, mir.Error)
+	BindGetStars(*gin.Context) (*web.GetStarsReq, mir.Error)
+	BindGetCollections(*gin.Context) (*web.GetCollectionsReq, mir.Error)
+	BindSendUserWhisper(*gin.Context) (*web.SendWhisperReq, mir.Error)
 	BindReadMessage(*gin.Context) (*web.ReadMessageReq, mir.Error)
 	BindGetMessages(*gin.Context) (*web.GetMessagesReq, mir.Error)
 	BindGetUnreadMsgCount(*gin.Context) (*web.GetUnreadMsgCountReq, mir.Error)
@@ -47,19 +56,19 @@ type CoreBinding interface {
 }
 
 type CoreRender interface {
-	RenderTweetCollectionStatus(*gin.Context, mir.Error)
-	RenderTweetStarStatus(*gin.Context, mir.Error)
-	RenderSuggestTags(*gin.Context, mir.Error)
-	RenderSuggestUsers(*gin.Context, mir.Error)
+	RenderTweetCollectionStatus(*gin.Context, *web.TweetCollectionStatusResp, mir.Error)
+	RenderTweetStarStatus(*gin.Context, *web.TweetStarStatusResp, mir.Error)
+	RenderSuggestTags(*gin.Context, *web.SuggestTagsResp, mir.Error)
+	RenderSuggestUsers(*gin.Context, *web.SuggestUsersResp, mir.Error)
 	RenderChangeAvatar(*gin.Context, mir.Error)
 	RenderChangeNickname(*gin.Context, mir.Error)
 	RenderChangePassword(*gin.Context, mir.Error)
 	RenderUserPhoneBind(*gin.Context, mir.Error)
-	RenderGetStars(*gin.Context, mir.Error)
-	RenderGetCollections(*gin.Context, mir.Error)
+	RenderGetStars(*gin.Context, *web.GetStarsResp, mir.Error)
+	RenderGetCollections(*gin.Context, *web.GetCollectionsResp, mir.Error)
 	RenderSendUserWhisper(*gin.Context, mir.Error)
 	RenderReadMessage(*gin.Context, mir.Error)
-	RenderGetMessages(*gin.Context, *base.PageResp, mir.Error)
+	RenderGetMessages(*gin.Context, *web.GetMessagesResp, mir.Error)
 	RenderGetUnreadMsgCount(*gin.Context, *web.GetUnreadMsgCountResp, mir.Error)
 	RenderGetUserInfo(*gin.Context, *web.UserInfoResp, mir.Error)
 	RenderSyncSearchIndex(*gin.Context, mir.Error)
@@ -82,7 +91,13 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderTweetCollectionStatus(c, s.TweetCollectionStatus())
+		req, err := b.BindTweetCollectionStatus(c)
+		if err != nil {
+			r.RenderTweetCollectionStatus(c, nil, err)
+			return
+		}
+		resp, err := s.TweetCollectionStatus(req)
+		r.RenderTweetCollectionStatus(c, resp, err)
 	})
 
 	router.Handle("GET", "/post/star", func(c *gin.Context) {
@@ -92,7 +107,13 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderTweetStarStatus(c, s.TweetStarStatus())
+		req, err := b.BindTweetStarStatus(c)
+		if err != nil {
+			r.RenderTweetStarStatus(c, nil, err)
+			return
+		}
+		resp, err := s.TweetStarStatus(req)
+		r.RenderTweetStarStatus(c, resp, err)
 	})
 
 	router.Handle("GET", "/suggest/tags", func(c *gin.Context) {
@@ -102,7 +123,13 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderSuggestTags(c, s.SuggestTags())
+		req, err := b.BindSuggestTags(c)
+		if err != nil {
+			r.RenderSuggestTags(c, nil, err)
+			return
+		}
+		resp, err := s.SuggestTags(req)
+		r.RenderSuggestTags(c, resp, err)
 	})
 
 	router.Handle("GET", "/suggest/users", func(c *gin.Context) {
@@ -112,7 +139,13 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderSuggestUsers(c, s.SuggestUsers())
+		req, err := b.BindSuggestUsers(c)
+		if err != nil {
+			r.RenderSuggestUsers(c, nil, err)
+			return
+		}
+		resp, err := s.SuggestUsers(req)
+		r.RenderSuggestUsers(c, resp, err)
 	})
 
 	router.Handle("POST", "/user/avatar", func(c *gin.Context) {
@@ -137,7 +170,12 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderChangeNickname(c, s.ChangeNickname())
+		req, err := b.BindChangeNickname(c)
+		if err != nil {
+			r.RenderChangeNickname(c, err)
+			return
+		}
+		r.RenderChangeNickname(c, s.ChangeNickname(req))
 	})
 
 	router.Handle("POST", "/user/password", func(c *gin.Context) {
@@ -147,7 +185,12 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderChangePassword(c, s.ChangePassword())
+		req, err := b.BindChangePassword(c)
+		if err != nil {
+			r.RenderChangePassword(c, err)
+			return
+		}
+		r.RenderChangePassword(c, s.ChangePassword(req))
 	})
 
 	router.Handle("POST", "/user/phone", func(c *gin.Context) {
@@ -157,7 +200,12 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderUserPhoneBind(c, s.UserPhoneBind())
+		req, err := b.BindUserPhoneBind(c)
+		if err != nil {
+			r.RenderUserPhoneBind(c, err)
+			return
+		}
+		r.RenderUserPhoneBind(c, s.UserPhoneBind(req))
 	})
 
 	router.Handle("GET", "/user/stars", func(c *gin.Context) {
@@ -167,7 +215,13 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderGetStars(c, s.GetStars())
+		req, err := b.BindGetStars(c)
+		if err != nil {
+			r.RenderGetStars(c, nil, err)
+			return
+		}
+		resp, err := s.GetStars(req)
+		r.RenderGetStars(c, resp, err)
 	})
 
 	router.Handle("GET", "/user/collections", func(c *gin.Context) {
@@ -177,7 +231,13 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderGetCollections(c, s.GetCollections())
+		req, err := b.BindGetCollections(c)
+		if err != nil {
+			r.RenderGetCollections(c, nil, err)
+			return
+		}
+		resp, err := s.GetCollections(req)
+		r.RenderGetCollections(c, resp, err)
 	})
 
 	router.Handle("POST", "/user/whisper", func(c *gin.Context) {
@@ -187,7 +247,12 @@ func RegisterCoreServant(e *gin.Engine, s Core, b CoreBinding, r CoreRender) {
 		default:
 		}
 
-		r.RenderSendUserWhisper(c, s.SendUserWhisper())
+		req, err := b.BindSendUserWhisper(c)
+		if err != nil {
+			r.RenderSendUserWhisper(c, err)
+			return
+		}
+		r.RenderSendUserWhisper(c, s.SendUserWhisper(req))
 	})
 
 	router.Handle("POST", "/user/message/read", func(c *gin.Context) {
@@ -278,47 +343,47 @@ func (UnimplementedCoreServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedCoreServant) TweetCollectionStatus() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedCoreServant) TweetCollectionStatus(req *web.TweetCollectionStatusReq) (*web.TweetCollectionStatusResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) TweetStarStatus() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedCoreServant) TweetStarStatus(req *web.TweetStarStatusReq) (*web.TweetStarStatusResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) SuggestTags() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedCoreServant) SuggestTags(req *web.SuggestTagsReq) (*web.SuggestTagsResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) SuggestUsers() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedCoreServant) SuggestUsers(req *web.SuggestUsersReq) (*web.SuggestUsersResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
 func (UnimplementedCoreServant) ChangeAvatar(req *web.ChangeAvatarReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) ChangeNickname() mir.Error {
+func (UnimplementedCoreServant) ChangeNickname(req *web.ChangeNicknameReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) ChangePassword() mir.Error {
+func (UnimplementedCoreServant) ChangePassword(req *web.ChangePasswordReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) UserPhoneBind() mir.Error {
+func (UnimplementedCoreServant) UserPhoneBind(req *web.UserPhoneBindReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) GetStars() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedCoreServant) GetStars(req *web.GetStarsReq) (*web.GetStarsResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) GetCollections() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedCoreServant) GetCollections(req *web.GetCollectionsReq) (*web.GetCollectionsResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) SendUserWhisper() mir.Error {
+func (UnimplementedCoreServant) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
@@ -326,7 +391,7 @@ func (UnimplementedCoreServant) ReadMessage(req *web.ReadMessageReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedCoreServant) GetMessages(req *web.GetMessagesReq) (*base.PageResp, mir.Error) {
+func (UnimplementedCoreServant) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
@@ -349,20 +414,20 @@ type UnimplementedCoreRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
-func (r *UnimplementedCoreRender) RenderTweetCollectionStatus(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedCoreRender) RenderTweetCollectionStatus(c *gin.Context, data *web.TweetCollectionStatusResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedCoreRender) RenderTweetStarStatus(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedCoreRender) RenderTweetStarStatus(c *gin.Context, data *web.TweetStarStatusResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedCoreRender) RenderSuggestTags(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedCoreRender) RenderSuggestTags(c *gin.Context, data *web.SuggestTagsResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedCoreRender) RenderSuggestUsers(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedCoreRender) RenderSuggestUsers(c *gin.Context, data *web.SuggestUsersResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
 func (r *UnimplementedCoreRender) RenderChangeAvatar(c *gin.Context, err mir.Error) {
@@ -381,12 +446,12 @@ func (r *UnimplementedCoreRender) RenderUserPhoneBind(c *gin.Context, err mir.Er
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedCoreRender) RenderGetStars(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedCoreRender) RenderGetStars(c *gin.Context, data *web.GetStarsResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedCoreRender) RenderGetCollections(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedCoreRender) RenderGetCollections(c *gin.Context, data *web.GetCollectionsResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
 func (r *UnimplementedCoreRender) RenderSendUserWhisper(c *gin.Context, err mir.Error) {
@@ -397,7 +462,7 @@ func (r *UnimplementedCoreRender) RenderReadMessage(c *gin.Context, err mir.Erro
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedCoreRender) RenderGetMessages(c *gin.Context, data *base.PageResp, err mir.Error) {
+func (r *UnimplementedCoreRender) RenderGetMessages(c *gin.Context, data *web.GetMessagesResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
 
@@ -420,8 +485,68 @@ type UnimplementedCoreBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
 }
 
+func (b *UnimplementedCoreBinding) BindTweetCollectionStatus(c *gin.Context) (*web.TweetCollectionStatusReq, mir.Error) {
+	obj := new(web.TweetCollectionStatusReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedCoreBinding) BindTweetStarStatus(c *gin.Context) (*web.TweetStarStatusReq, mir.Error) {
+	obj := new(web.TweetStarStatusReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedCoreBinding) BindSuggestTags(c *gin.Context) (*web.SuggestTagsReq, mir.Error) {
+	obj := new(web.SuggestTagsReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedCoreBinding) BindSuggestUsers(c *gin.Context) (*web.SuggestUsersReq, mir.Error) {
+	obj := new(web.SuggestUsersReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
 func (b *UnimplementedCoreBinding) BindChangeAvatar(c *gin.Context) (*web.ChangeAvatarReq, mir.Error) {
 	obj := new(web.ChangeAvatarReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedCoreBinding) BindChangeNickname(c *gin.Context) (*web.ChangeNicknameReq, mir.Error) {
+	obj := new(web.ChangeNicknameReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedCoreBinding) BindChangePassword(c *gin.Context) (*web.ChangePasswordReq, mir.Error) {
+	obj := new(web.ChangePasswordReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedCoreBinding) BindUserPhoneBind(c *gin.Context) (*web.UserPhoneBindReq, mir.Error) {
+	obj := new(web.UserPhoneBindReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedCoreBinding) BindGetStars(c *gin.Context) (*web.GetStarsReq, mir.Error) {
+	obj := new(web.GetStarsReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedCoreBinding) BindGetCollections(c *gin.Context) (*web.GetCollectionsReq, mir.Error) {
+	obj := new(web.GetCollectionsReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedCoreBinding) BindSendUserWhisper(c *gin.Context) (*web.SendWhisperReq, mir.Error) {
+	obj := new(web.SendWhisperReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }

@@ -31,35 +31,35 @@ type Core struct {
 	ReadMessage func(Post, web.ReadMessageReq) `mir:"/user/message/read"`
 
 	// SendUserWhisper 发送用户私信
-	SendUserWhisper func(Post) `mir:"/user/whisper"`
+	SendUserWhisper func(Post, web.SendWhisperReq) `mir:"/user/whisper"`
 
 	// GetCollections 获取用户收藏列表
-	GetCollections func(Get) `mir:"/user/collections"`
+	GetCollections func(Get, web.GetCollectionsReq) web.GetCollectionsResp `mir:"/user/collections"`
 
 	// GetStars 获取用户点赞列表
-	GetStars func(Get) `mir:"/user/stars"`
+	GetStars func(Get, web.GetStarsReq) web.GetStarsResp `mir:"/user/stars"`
 
 	// UserPhoneBind 绑定用户手机号
-	UserPhoneBind func(Post) `mir:"/user/phone"`
+	UserPhoneBind func(Post, web.UserPhoneBindReq) `mir:"/user/phone"`
 
 	// ChangePassword 修改密码
-	ChangePassword func(Post) `mir:"/user/password"`
+	ChangePassword func(Post, web.ChangePasswordReq) `mir:"/user/password"`
 
 	// ChangeNickname 修改昵称
-	ChangeNickname func(Post) `mir:"/user/nickname"`
+	ChangeNickname func(Post, web.ChangeNicknameReq) `mir:"/user/nickname"`
 
 	// ChangeAvatar 修改头像
 	ChangeAvatar func(Post, web.ChangeAvatarReq) `mir:"/user/avatar"`
 
 	// SuggestUsers 检索用户
-	SuggestUsers func(Get) `mir:"/suggest/users"`
+	SuggestUsers func(Get, web.SuggestUsersReq) web.SuggestUsersResp `mir:"/suggest/users"`
 
 	// SuggestTags 检索标签
-	SuggestTags func(Get) `mir:"/suggest/tags"`
+	SuggestTags func(Get, web.SuggestTagsReq) web.SuggestTagsResp `mir:"/suggest/tags"`
 
 	// TweetStarStatus 获取动态点赞状态
-	TweetStarStatus func(Get) `mir:"/post/star"`
+	TweetStarStatus func(Get, web.TweetStarStatusReq) web.TweetStarStatusResp `mir:"/post/star"`
 
 	// TweetCollectionStatus 获取动态收藏状态
-	TweetCollectionStatus func(Get) `mir:"/post/collection"`
+	TweetCollectionStatus func(Get, web.TweetCollectionStatusReq) web.TweetCollectionStatusResp `mir:"/post/collection"`
 }

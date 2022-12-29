@@ -8,14 +8,13 @@ import (
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/model/web"
-	"github.com/rocboss/paopao-ce/internal/servants/base"
 )
 
 type AlipayPriv interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
-	UserWalletBills(*web.UserWalletBillsReq) (*base.PageResp, mir.Error)
+	UserWalletBills(*web.UserWalletBillsReq) (*web.UserWalletBillsResp, mir.Error)
 	UserRechargeResult(*web.UserRechargeResultReq) (*web.UserRechargeResultResp, mir.Error)
 	UserRechargeLink(*web.UserRechargeLinkReq) (*web.UserRechargeLinkResp, mir.Error)
 
@@ -31,7 +30,7 @@ type AlipayPrivBinding interface {
 }
 
 type AlipayPrivRender interface {
-	RenderUserWalletBills(*gin.Context, *base.PageResp, mir.Error)
+	RenderUserWalletBills(*gin.Context, *web.UserWalletBillsResp, mir.Error)
 	RenderUserRechargeResult(*gin.Context, *web.UserRechargeResultResp, mir.Error)
 	RenderUserRechargeLink(*gin.Context, *web.UserRechargeLinkResp, mir.Error)
 
@@ -104,7 +103,7 @@ func (UnimplementedAlipayPrivServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedAlipayPrivServant) UserWalletBills(req *web.UserWalletBillsReq) (*base.PageResp, mir.Error) {
+func (UnimplementedAlipayPrivServant) UserWalletBills(req *web.UserWalletBillsReq) (*web.UserWalletBillsResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
@@ -123,7 +122,7 @@ type UnimplementedAlipayPrivRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
-func (r *UnimplementedAlipayPrivRender) RenderUserWalletBills(c *gin.Context, data *base.PageResp, err mir.Error) {
+func (r *UnimplementedAlipayPrivRender) RenderUserWalletBills(c *gin.Context, data *web.UserWalletBillsResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
 
