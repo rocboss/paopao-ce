@@ -7,12 +7,14 @@ package web
 import (
 	"image"
 	"strings"
+	"time"
 
 	"github.com/alimy/mir/v3"
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
@@ -34,6 +36,8 @@ var (
 		"public/video":  core.AttachmentTypeVideo,
 		"attachment":    core.AttachmentTypeOther,
 	}
+
+	_MaxCommentCount = conf.AppSetting.MaxCommentCount
 )
 
 type privSrv struct {
@@ -53,24 +57,33 @@ type privRender struct {
 	*api.UnimplementedPrivRender
 }
 
-func (b *privBinding) BindUploadAttachment(c *gin.Context) (*web.UploadAttachmentReq, mir.Error) {
+func (b *privBinding) BindUploadAttachment(c *gin.Context) (_ *web.UploadAttachmentReq, xerr mir.Error) {
 	UserId, exist := base.UserIdFrom(c)
 	if !exist {
 		return nil, xerror.UnauthorizedAuthNotExist
 	}
+
 	uploadType := c.Request.FormValue("type")
 	file, fileHeader, err := c.Request.FormFile("file")
 	if err != nil {
 		return nil, _errFileUploadFailed
 	}
+	defer func() {
+		if xerr != nil {
+			file.Close()
+		}
+	}()
+
 	if err := fileCheck(uploadType, fileHeader.Size); err != nil {
 		return nil, err
 	}
+
 	contentType := fileHeader.Header.Get("Content-Type")
 	fileExt, xerr := getFileExt(contentType)
 	if xerr != nil {
 		return nil, xerr
 	}
+
 	return &web.UploadAttachmentReq{
 		SimpleInfo: web.SimpleInfo{
 			Uid: UserId,
@@ -111,6 +124,20 @@ func (b *privBinding) BindDownloadAttachment(c *gin.Context) (*web.DownloadAttac
 
 func (s *privBinding) BindCreateTweet(c *gin.Context) (*web.CreateTweetReq, mir.Error) {
 	v := &web.CreateTweetReq{}
+	err := s.BindAny(c, v)
+	v.ClientIP = c.ClientIP()
+	return v, err
+}
+
+func (s *privBinding) BindCreateCommentReply(c *gin.Context) (*web.CreateCommentReplyReq, mir.Error) {
+	v := &web.CreateCommentReplyReq{}
+	err := s.BindAny(c, v)
+	v.ClientIP = c.ClientIP()
+	return v, err
+}
+
+func (s *privBinding) BindCreateComment(c *gin.Context) (*web.CreateCommentReq, mir.Error) {
+	v := &web.CreateCommentReq{}
 	err := s.BindAny(c, v)
 	v.ClientIP = c.ClientIP()
 	return v, err
@@ -168,7 +195,7 @@ func (s *privSrv) DownloadAttachmentPrecheck(req *web.DownloadAttachmentPrecheck
 		logrus.Errorf("Ds.GetPostContentByID err: %s", err)
 		return nil, _errInvalidDownloadReq
 	}
-	resp := &web.DownloadAttachmentPrecheckResp{true}
+	resp := &web.DownloadAttachmentPrecheckResp{Paid: true}
 	if content.Type == core.ContentTypeChargeAttachment {
 		tweet, err := s.GetTweetBy(content.PostID)
 		if err != nil {
@@ -310,8 +337,7 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 		}
 	}
 	// 推送Search
-	go s.PushPostToSearch(post)
-
+	s.PushPostToSearch(post)
 	formatedPosts, err := s.Ds.RevampPosts([]*core.PostFormated{post.Format()})
 	if err != nil {
 		logrus.Infof("Ds.RevampPosts err: %s", err)
@@ -346,6 +372,223 @@ func (s *privSrv) DeleteTweet(req *web.DeleteTweetReq) mir.Error {
 		return _errDeletePostFailed
 	}
 	return nil
+}
+
+func (s *privSrv) DeleteCommentReply(req *web.DeleteCommentReplyReq) mir.Error {
+	reply, err := s.Ds.GetCommentReplyByID(req.ID)
+	if err != nil {
+		logrus.Errorf("Ds.GetCommentReplyByID err: %s", err)
+		return _errGetReplyFailed
+	}
+	if req.User.ID != reply.UserID && !req.User.IsAdmin {
+		return _errNoPermission
+	}
+	// 执行删除
+	err = s.deletePostCommentReply(reply)
+	if err != nil {
+		logrus.Errorf("s.deletePostCommentReply err: %s", err)
+		return _errDeleteCommentFailed
+	}
+	return nil
+}
+
+func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.CreateCommentReplyResp, mir.Error) {
+	var (
+		post     *core.Post
+		comment  *core.Comment
+		atUserID int64
+		err      error
+	)
+
+	if post, comment, atUserID, err = s.createPostPreHandler(req.CommentID, req.Uid, req.AtUserID); err != nil {
+		return nil, _errCreateReplyFailed
+	}
+
+	// 创建评论
+	reply := &core.CommentReply{
+		CommentID: req.CommentID,
+		UserID:    req.Uid,
+		Content:   req.Content,
+		AtUserID:  atUserID,
+		IP:        req.ClientIP,
+		IPLoc:     util.GetIPLoc(req.ClientIP),
+	}
+
+	reply, err = s.Ds.CreateCommentReply(reply)
+	if err != nil {
+		return nil, _errCreateReplyFailed
+	}
+
+	// 更新Post回复数
+	post.CommentCount++
+	post.LatestRepliedOn = time.Now().Unix()
+	s.Ds.UpdatePost(post)
+
+	// 更新索引
+	s.PushPostToSearch(post)
+
+	// 创建用户消息提醒
+	commentMaster, err := s.Ds.GetUserByID(comment.UserID)
+	if err == nil && commentMaster.ID != req.Uid {
+		go s.Ds.CreateMessage(&core.Message{
+			SenderUserID:   req.Uid,
+			ReceiverUserID: commentMaster.ID,
+			Type:           core.MsgTypeReply,
+			Brief:          "在泡泡评论下回复了你",
+			PostID:         post.ID,
+			CommentID:      comment.ID,
+			ReplyID:        reply.ID,
+		})
+	}
+	postMaster, err := s.Ds.GetUserByID(post.UserID)
+	if err == nil && postMaster.ID != req.Uid && commentMaster.ID != postMaster.ID {
+		go s.Ds.CreateMessage(&core.Message{
+			SenderUserID:   req.Uid,
+			ReceiverUserID: postMaster.ID,
+			Type:           core.MsgTypeReply,
+			Brief:          "在泡泡评论下发布了新回复",
+			PostID:         post.ID,
+			CommentID:      comment.ID,
+			ReplyID:        reply.ID,
+		})
+	}
+	if atUserID > 0 {
+		user, err := s.Ds.GetUserByID(atUserID)
+		if err == nil && user.ID != req.Uid && commentMaster.ID != user.ID && postMaster.ID != user.ID {
+			// 创建消息提醒
+			go s.Ds.CreateMessage(&core.Message{
+				SenderUserID:   req.Uid,
+				ReceiverUserID: user.ID,
+				Type:           core.MsgTypeReply,
+				Brief:          "在泡泡评论的回复中@了你",
+				PostID:         post.ID,
+				CommentID:      comment.ID,
+				ReplyID:        reply.ID,
+			})
+		}
+	}
+	return (*web.CreateCommentReplyResp)(reply), nil
+}
+
+func (s *privSrv) DeleteComment(req *web.DeleteCommentReq) mir.Error {
+	comment, err := s.Ds.GetCommentByID(req.ID)
+	if err != nil {
+		logrus.Errorf("Ds.GetCommentByID err: %v\n", err)
+		return _errGetCommentFailed
+	}
+	if req.User.ID != comment.UserID && !req.User.IsAdmin {
+		return _errNoPermission
+	}
+	// 加载post
+	post, err := s.Ds.GetPostByID(comment.PostID)
+	if err != nil {
+		return _errDeleteCommentFailed
+	}
+	// 更新post回复数
+	post.CommentCount--
+	if err := s.Ds.UpdatePost(post); err != nil {
+		logrus.Errorf("Ds.UpdatePost err: %s", err)
+		return _errDeleteCommentFailed
+	}
+	// TODO: 优化删除逻辑，事务化删除comment
+	if err := s.Ds.DeleteComment(comment); err != nil {
+		logrus.Errorf("Ds.DeleteComment err: %s", err)
+		return _errDeleteCommentFailed
+	}
+	return nil
+}
+
+func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateCommentResp, xerr mir.Error) {
+	var (
+		mediaContents []string
+		err           error
+	)
+	defer func() {
+		if xerr != nil {
+			deleteOssObjects(s.oss, mediaContents)
+		}
+	}()
+
+	if mediaContents, err = persistMediaContents(s.oss, req.Contents); err != nil {
+		return nil, xerror.ServerError
+	}
+
+	// 加载Post
+	post, err := s.Ds.GetPostByID(req.PostID)
+	if err != nil {
+		logrus.Errorf("Ds.GetPostByID err:%s", err)
+		return nil, xerror.ServerError
+	}
+	if post.CommentCount >= _MaxCommentCount {
+		return nil, _errMaxCommentCount
+	}
+	comment := &core.Comment{
+		PostID: post.ID,
+		UserID: req.Uid,
+		IP:     req.ClientIP,
+		IPLoc:  util.GetIPLoc(req.ClientIP),
+	}
+	comment, err = s.Ds.CreateComment(comment)
+	if err != nil {
+		logrus.Errorf("Ds.CreateComment err:%s", err)
+		return nil, _errCreateCommentFailed
+	}
+
+	for _, item := range req.Contents {
+		// 检查附件是否是本站资源
+		if item.Type == core.ContentTypeImage || item.Type == core.ContentTypeVideo || item.Type == core.ContentTypeAttachment {
+			if err := s.Ds.CheckAttachment(item.Content); err != nil {
+				continue
+			}
+		}
+		postContent := &core.CommentContent{
+			CommentID: comment.ID,
+			UserID:    req.Uid,
+			Content:   item.Content,
+			Type:      item.Type,
+			Sort:      item.Sort,
+		}
+		s.Ds.CreateCommentContent(postContent)
+	}
+
+	// 更新Post回复数
+	post.CommentCount++
+	post.LatestRepliedOn = time.Now().Unix()
+	s.Ds.UpdatePost(post)
+
+	// 更新索引
+	s.PushPostToSearch(post)
+
+	// 创建用户消息提醒
+	postMaster, err := s.Ds.GetUserByID(post.UserID)
+	if err == nil && postMaster.ID != req.Uid {
+		go s.Ds.CreateMessage(&core.Message{
+			SenderUserID:   req.Uid,
+			ReceiverUserID: postMaster.ID,
+			Type:           core.MsgtypeComment,
+			Brief:          "在泡泡中评论了你",
+			PostID:         post.ID,
+			CommentID:      comment.ID,
+		})
+	}
+	for _, u := range req.Users {
+		user, err := s.Ds.GetUserByUsername(u)
+		if err != nil || user.ID == req.Uid || user.ID == postMaster.ID {
+			continue
+		}
+
+		// 创建消息提醒
+		go s.Ds.CreateMessage(&core.Message{
+			SenderUserID:   req.Uid,
+			ReceiverUserID: user.ID,
+			Type:           core.MsgtypeComment,
+			Brief:          "在泡泡评论中@了你",
+			PostID:         post.ID,
+			CommentID:      comment.ID,
+		})
+	}
+
+	return (*web.CreateCommentResp)(comment), nil
 }
 
 func (s *privSrv) CollectionTweet(req *web.CollectionTweetReq) (*web.CollectionTweetResp, mir.Error) {
@@ -406,7 +649,7 @@ func (s *privSrv) VisiblePost(req *web.VisiblePostReq) (*web.VisiblePostResp, mi
 
 	// 推送Search
 	post.Visibility = req.Visibility
-	go s.PushPostToSearch(post)
+	s.PushPostToSearch(post)
 
 	return &web.VisiblePostResp{
 		Visibility: req.Visibility,
@@ -447,6 +690,63 @@ func (s *privSrv) LockTweet(req *web.LockTweetReq) (*web.LockTweetResp, mir.Erro
 	return &web.LockTweetResp{
 		LockStatus: 1 - post.IsLock,
 	}, nil
+}
+
+func (s *privSrv) deletePostCommentReply(reply *core.CommentReply) error {
+	err := s.Ds.DeleteCommentReply(reply)
+	if err != nil {
+		return err
+	}
+	// 加载Comment
+	comment, err := s.Ds.GetCommentByID(reply.CommentID)
+	if err != nil {
+		return err
+	}
+	// 加载comment的post
+	post, err := s.Ds.GetPostByID(comment.PostID)
+	if err != nil {
+		return err
+	}
+	// 更新Post回复数
+	post.CommentCount--
+	post.LatestRepliedOn = time.Now().Unix()
+	s.Ds.UpdatePost(post)
+	// 更新索引
+	s.PushPostToSearch(post)
+	return nil
+}
+
+func (s *privSrv) createPostPreHandler(commentID int64, userID, atUserID int64) (*core.Post, *core.Comment, int64,
+	error) {
+	// 加载Comment
+	comment, err := s.Ds.GetCommentByID(commentID)
+	if err != nil {
+		return nil, nil, atUserID, err
+	}
+
+	// 加载comment的post
+	post, err := s.Ds.GetPostByID(comment.PostID)
+	if err != nil {
+		return nil, nil, atUserID, err
+	}
+
+	if post.CommentCount >= _MaxCommentCount {
+		return nil, nil, atUserID, _errMaxCommentCount
+	}
+
+	if userID == atUserID {
+		atUserID = 0
+	}
+
+	if atUserID > 0 {
+		// 检测目前用户是否存在
+		users, _ := s.Ds.GetUsersByIDs([]int64{atUserID})
+		if len(users) == 0 {
+			atUserID = 0
+		}
+	}
+
+	return post, comment, atUserID, nil
 }
 
 func (s *privSrv) createPostStar(postID, userID int64) (*core.PostStar, mir.Error) {

@@ -14,10 +14,10 @@ type Priv interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
-	DeleteCommentReply() mir.Error
-	CreateCommentReply() mir.Error
-	DeleteComment() mir.Error
-	CreateComment() mir.Error
+	DeleteCommentReply(*web.DeleteCommentReplyReq) mir.Error
+	CreateCommentReply(*web.CreateCommentReplyReq) (*web.CreateCommentReplyResp, mir.Error)
+	DeleteComment(*web.DeleteCommentReq) mir.Error
+	CreateComment(*web.CreateCommentReq) (*web.CreateCommentResp, mir.Error)
 	VisiblePost(*web.VisiblePostReq) (*web.VisiblePostResp, mir.Error)
 	StickTweet(*web.StickTweetReq) (*web.StickTweetResp, mir.Error)
 	LockTweet(*web.LockTweetReq) (*web.LockTweetResp, mir.Error)
@@ -33,6 +33,10 @@ type Priv interface {
 }
 
 type PrivBinding interface {
+	BindDeleteCommentReply(*gin.Context) (*web.DeleteCommentReplyReq, mir.Error)
+	BindCreateCommentReply(*gin.Context) (*web.CreateCommentReplyReq, mir.Error)
+	BindDeleteComment(*gin.Context) (*web.DeleteCommentReq, mir.Error)
+	BindCreateComment(*gin.Context) (*web.CreateCommentReq, mir.Error)
 	BindVisiblePost(*gin.Context) (*web.VisiblePostReq, mir.Error)
 	BindStickTweet(*gin.Context) (*web.StickTweetReq, mir.Error)
 	BindLockTweet(*gin.Context) (*web.LockTweetReq, mir.Error)
@@ -49,9 +53,9 @@ type PrivBinding interface {
 
 type PrivRender interface {
 	RenderDeleteCommentReply(*gin.Context, mir.Error)
-	RenderCreateCommentReply(*gin.Context, mir.Error)
+	RenderCreateCommentReply(*gin.Context, *web.CreateCommentReplyResp, mir.Error)
 	RenderDeleteComment(*gin.Context, mir.Error)
-	RenderCreateComment(*gin.Context, mir.Error)
+	RenderCreateComment(*gin.Context, *web.CreateCommentResp, mir.Error)
 	RenderVisiblePost(*gin.Context, *web.VisiblePostResp, mir.Error)
 	RenderStickTweet(*gin.Context, *web.StickTweetResp, mir.Error)
 	RenderLockTweet(*gin.Context, *web.LockTweetResp, mir.Error)
@@ -81,7 +85,12 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		r.RenderDeleteCommentReply(c, s.DeleteCommentReply())
+		req, err := b.BindDeleteCommentReply(c)
+		if err != nil {
+			r.RenderDeleteCommentReply(c, err)
+			return
+		}
+		r.RenderDeleteCommentReply(c, s.DeleteCommentReply(req))
 	})
 
 	router.Handle("POST", "/post/comment/reply", func(c *gin.Context) {
@@ -91,7 +100,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		r.RenderCreateCommentReply(c, s.CreateCommentReply())
+		req, err := b.BindCreateCommentReply(c)
+		if err != nil {
+			r.RenderCreateCommentReply(c, nil, err)
+			return
+		}
+		resp, err := s.CreateCommentReply(req)
+		r.RenderCreateCommentReply(c, resp, err)
 	})
 
 	router.Handle("DELETE", "/post/comment", func(c *gin.Context) {
@@ -101,7 +116,12 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		r.RenderDeleteComment(c, s.DeleteComment())
+		req, err := b.BindDeleteComment(c)
+		if err != nil {
+			r.RenderDeleteComment(c, err)
+			return
+		}
+		r.RenderDeleteComment(c, s.DeleteComment(req))
 	})
 
 	router.Handle("POST", "/post/comment", func(c *gin.Context) {
@@ -111,7 +131,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		r.RenderCreateComment(c, s.CreateComment())
+		req, err := b.BindCreateComment(c)
+		if err != nil {
+			r.RenderCreateComment(c, nil, err)
+			return
+		}
+		resp, err := s.CreateComment(req)
+		r.RenderCreateComment(c, resp, err)
 	})
 
 	router.Handle("POST", "/post/visibility", func(c *gin.Context) {
@@ -283,20 +309,20 @@ func (UnimplementedPrivServant) Chain() gin.HandlersChain {
 	return nil
 }
 
-func (UnimplementedPrivServant) DeleteCommentReply() mir.Error {
+func (UnimplementedPrivServant) DeleteCommentReply(req *web.DeleteCommentReplyReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedPrivServant) CreateCommentReply() mir.Error {
+func (UnimplementedPrivServant) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.CreateCommentReplyResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) DeleteComment(req *web.DeleteCommentReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedPrivServant) DeleteComment() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
-}
-
-func (UnimplementedPrivServant) CreateComment() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+func (UnimplementedPrivServant) CreateComment(req *web.CreateCommentReq) (*web.CreateCommentResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
 func (UnimplementedPrivServant) VisiblePost(req *web.VisiblePostReq) (*web.VisiblePostResp, mir.Error) {
@@ -350,16 +376,16 @@ func (r *UnimplementedPrivRender) RenderDeleteCommentReply(c *gin.Context, err m
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedPrivRender) RenderCreateCommentReply(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedPrivRender) RenderCreateCommentReply(c *gin.Context, data *web.CreateCommentReplyResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
 func (r *UnimplementedPrivRender) RenderDeleteComment(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
 
-func (r *UnimplementedPrivRender) RenderCreateComment(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedPrivRender) RenderCreateComment(c *gin.Context, data *web.CreateCommentResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
 func (r *UnimplementedPrivRender) RenderVisiblePost(c *gin.Context, data *web.VisiblePostResp, err mir.Error) {
@@ -407,6 +433,30 @@ func (r *UnimplementedPrivRender) mustEmbedUnimplementedPrivRender() {}
 // UnimplementedPrivBinding can be embedded to have forward compatible implementations.
 type UnimplementedPrivBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
+}
+
+func (b *UnimplementedPrivBinding) BindDeleteCommentReply(c *gin.Context) (*web.DeleteCommentReplyReq, mir.Error) {
+	obj := new(web.DeleteCommentReplyReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindCreateCommentReply(c *gin.Context) (*web.CreateCommentReplyReq, mir.Error) {
+	obj := new(web.CreateCommentReplyReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindDeleteComment(c *gin.Context) (*web.DeleteCommentReq, mir.Error) {
+	obj := new(web.DeleteCommentReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindCreateComment(c *gin.Context) (*web.CreateCommentReq, mir.Error) {
+	obj := new(web.CreateCommentReq)
+	err := b.BindAny(c, obj)
+	return obj, err
 }
 
 func (b *UnimplementedPrivBinding) BindVisiblePost(c *gin.Context) (*web.VisiblePostReq, mir.Error) {

@@ -46,14 +46,14 @@ type Priv struct {
 	VisiblePost func(Post, web.VisiblePostReq) web.VisiblePostResp `mir:"/post/visibility"`
 
 	// CreateTweetComment 发布动态评论
-	CreateComment func(Post) `mir:"/post/comment"`
+	CreateComment func(Post, web.CreateCommentReq) web.CreateCommentResp `mir:"/post/comment"`
 
 	// DeletePostComment 删除动态评论
-	DeleteComment func(Delete) `mir:"/post/comment"`
+	DeleteComment func(Delete, web.DeleteCommentReq) `mir:"/post/comment"`
 
 	// CreateCommentReply 发布评论回复
-	CreateCommentReply func(Post) `mir:"/post/comment/reply"`
+	CreateCommentReply func(Post, web.CreateCommentReplyReq) web.CreateCommentReplyResp `mir:"/post/comment/reply"`
 
 	// DeleteCommentReply 删除评论回复
-	DeleteCommentReply func(Delete) `mir:"/post/comment/reply"`
+	DeleteCommentReply func(Delete, web.DeleteCommentReplyReq) `mir:"/post/comment/reply"`
 }

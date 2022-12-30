@@ -81,6 +81,35 @@ type VisiblePostResp struct {
 	Visibility core.PostVisibleT `json:"visibility"`
 }
 
+type CreateCommentReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	PostID     int64              `json:"post_id" binding:"required"`
+	Contents   []*PostContentItem `json:"contents" binding:"required"`
+	Users      []string           `json:"users" binding:"required"`
+	ClientIP   string             `json:"-" binding:"-"`
+}
+
+type CreateCommentResp core.Comment
+
+type CreateCommentReplyReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	CommentID  int64  `json:"comment_id" binding:"required"`
+	Content    string `json:"content" binding:"required"`
+	AtUserID   int64  `json:"at_user_id"`
+	ClientIP   string `json:"-" binding:"-"`
+}
+
+type CreateCommentReplyResp core.CommentReply
+
+type DeleteCommentReq struct {
+	BaseInfo `json:"-" binding:"-"`
+	ID       int64 `json:"id" binding:"required"`
+}
+type DeleteCommentReplyReq struct {
+	BaseInfo `json:"-" binding:"-"`
+	ID       int64 `json:"id" binding:"required"`
+}
+
 type UploadAttachmentReq struct {
 	SimpleInfo  `json:"-" binding:"-"`
 	UploadType  string
