@@ -11,9 +11,9 @@ import (
 var version, commitID, buildDate string
 
 type BuildInfo struct {
-	Version   string
-	Sum       string
-	BuildDate string
+	Version   string `json:"version"`
+	Sum       string `json:"sum"`
+	BuildDate string `json:"build_date"`
 }
 
 func VersionInfo() string {
