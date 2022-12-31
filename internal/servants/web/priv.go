@@ -36,8 +36,6 @@ var (
 		"public/video":  core.AttachmentTypeVideo,
 		"attachment":    core.AttachmentTypeOther,
 	}
-
-	_MaxCommentCount = conf.AppSetting.MaxCommentCount
 )
 
 type privSrv struct {
@@ -517,7 +515,7 @@ func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateComment
 		logrus.Errorf("Ds.GetPostByID err:%s", err)
 		return nil, xerror.ServerError
 	}
-	if post.CommentCount >= _MaxCommentCount {
+	if post.CommentCount >= conf.AppSetting.MaxCommentCount {
 		return nil, _errMaxCommentCount
 	}
 	comment := &core.Comment{
@@ -728,7 +726,7 @@ func (s *privSrv) createPostPreHandler(commentID int64, userID, atUserID int64) 
 		return nil, nil, atUserID, err
 	}
 
-	if post.CommentCount >= _MaxCommentCount {
+	if post.CommentCount >= conf.AppSetting.MaxCommentCount {
 		return nil, nil, atUserID, _errMaxCommentCount
 	}
 

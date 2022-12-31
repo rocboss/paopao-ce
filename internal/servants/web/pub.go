@@ -37,8 +37,6 @@ var (
 	_ api.Pub        = (*pubSrv)(nil)
 	_ api.PubBinding = (*pubBinding)(nil)
 	_ api.PubRender  = (*pubRender)(nil)
-
-	_MaxPageSize = conf.AppSetting.MaxPageSize
 )
 
 const (
@@ -74,8 +72,8 @@ func (b *pubBinding) BindTweetComments(c *gin.Context) (*web.TweetCommentsReq, m
 func (s *pubSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error) {
 	// tags, err := broker.GetPostTags(&param)
 	num := req.Num
-	if num > _MaxPageSize {
-		num = _MaxPageSize
+	if num > conf.AppSetting.MaxPageSize {
+		num = conf.AppSetting.MaxPageSize
 	}
 
 	conditions := &core.ConditionsT{}
