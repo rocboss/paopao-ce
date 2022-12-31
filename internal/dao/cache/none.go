@@ -1,10 +1,12 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package cache
 
 import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/model"
-	"github.com/rocboss/paopao-ce/internal/model/rest"
 )
 
 var (
@@ -16,11 +18,11 @@ type noneCacheIndexServant struct {
 	ips core.IndexPostsService
 }
 
-func (s *noneCacheIndexServant) IndexPosts(user *model.User, offset int, limit int) (*rest.IndexTweetsResp, error) {
+func (s *noneCacheIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
 	return s.ips.IndexPosts(user, offset, limit)
 }
 
-func (s *noneCacheIndexServant) SendAction(_act core.IdxAct, _post *model.Post) {
+func (s *noneCacheIndexServant) SendAction(_act core.IdxAct, _post *core.Post) {
 	// empty
 }
 

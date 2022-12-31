@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 // Core service implement base gorm+mysql/postgresql/sqlite3.
 // Jinzhu is the primary developer of gorm so use his name as
 // package name as a saluter.
@@ -42,6 +46,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		v core.VersionInfo
 	)
 	db := conf.MustGormDB()
+	pvs := security.NewPhoneVerifyService()
 
 	i := newIndexPostsService(db)
 	if cfg.If("SimpleCacheIndex") {
@@ -67,7 +72,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		CommentManageService:   newCommentManageService(db),
 		UserManageService:      newUserManageService(db),
 		ContactManageService:   newContactManageService(db),
-		SecurityService:        newSecurityService(db),
+		SecurityService:        newSecurityService(db, pvs),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
 	}
 	return ds, ds

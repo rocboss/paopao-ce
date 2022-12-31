@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package conf
 
 import (
@@ -19,7 +23,15 @@ var (
 	MysqlSetting            *MySQLSettingS
 	PostgresSetting         *PostgresSettingS
 	Sqlite3Setting          *Sqlite3SettingS
-	ServerSetting           *ServerSettingS
+	ServerSetting           *HttpServerSettingS
+	WebServerSetting        *HttpServerSettingS
+	AdminServerSetting      *HttpServerSettingS
+	SpaceXServerSetting     *HttpServerSettingS
+	BotServerSetting        *HttpServerSettingS
+	LocalossServerSetting   *HttpServerSettingS
+	FrontendWebSetting      *HttpServerSettingS
+	DocsServerSetting       *HttpServerSettingS
+	MobileServerSetting     *GRPCServerSettingS
 	AppSetting              *AppSettingS
 	CacheIndexSetting       *CacheIndexSettingS
 	SimpleCacheIndexSetting *SimpleCacheIndexSettingS
@@ -54,41 +66,47 @@ func setupSetting(suite []string, noDefault bool) error {
 	}
 
 	objects := map[string]any{
-		"App":              &AppSetting,
-		"Server":           &ServerSetting,
-		"CacheIndex":       &CacheIndexSetting,
-		"SimpleCacheIndex": &SimpleCacheIndexSetting,
-		"BigCacheIndex":    &BigCacheIndexSetting,
-		"Alipay":           &AlipaySetting,
-		"SmsJuhe":          &SmsJuheSetting,
-		"Logger":           &loggerSetting,
-		"LoggerFile":       &loggerFileSetting,
-		"LoggerZinc":       &loggerZincSetting,
-		"LoggerMeili":      &loggerMeiliSetting,
-		"Database":         &DatabaseSetting,
-		"MySQL":            &MysqlSetting,
-		"Postgres":         &PostgresSetting,
-		"Sqlite3":          &Sqlite3Setting,
-		"TweetSearch":      &TweetSearchSetting,
-		"Zinc":             &ZincSetting,
-		"Meili":            &MeiliSetting,
-		"Redis":            &redisSetting,
-		"JWT":              &JWTSetting,
-		"ObjectStorage":    &ObjectStorage,
-		"AliOSS":           &AliOSSSetting,
-		"COS":              &COSSetting,
-		"HuaweiOBS":        &HuaweiOBSSetting,
-		"MinIO":            &MinIOSetting,
-		"LocalOSS":         &LocalOSSSetting,
-		"S3":               &S3Setting,
+		"App":               &AppSetting,
+		"Server":            &ServerSetting,
+		"WebServer":         &WebServerSetting,
+		"AdminServer":       &AdminServerSetting,
+		"SpaceXServer":      &SpaceXServerSetting,
+		"BotServer":         &BotServerSetting,
+		"LocalossServer":    &LocalossServerSetting,
+		"FrontendWebServer": &FrontendWebSetting,
+		"DocsServer":        &DocsServerSetting,
+		"MobileServer":      &MobileServerSetting,
+		"CacheIndex":        &CacheIndexSetting,
+		"SimpleCacheIndex":  &SimpleCacheIndexSetting,
+		"BigCacheIndex":     &BigCacheIndexSetting,
+		"Alipay":            &AlipaySetting,
+		"SmsJuhe":           &SmsJuheSetting,
+		"Logger":            &loggerSetting,
+		"LoggerFile":        &loggerFileSetting,
+		"LoggerZinc":        &loggerZincSetting,
+		"LoggerMeili":       &loggerMeiliSetting,
+		"Database":          &DatabaseSetting,
+		"MySQL":             &MysqlSetting,
+		"Postgres":          &PostgresSetting,
+		"Sqlite3":           &Sqlite3Setting,
+		"TweetSearch":       &TweetSearchSetting,
+		"Zinc":              &ZincSetting,
+		"Meili":             &MeiliSetting,
+		"Redis":             &redisSetting,
+		"JWT":               &JWTSetting,
+		"ObjectStorage":     &ObjectStorage,
+		"AliOSS":            &AliOSSSetting,
+		"COS":               &COSSetting,
+		"HuaweiOBS":         &HuaweiOBSSetting,
+		"MinIO":             &MinIOSetting,
+		"LocalOSS":          &LocalOSSSetting,
+		"S3":                &S3Setting,
 	}
 	if err = setting.Unmarshal(objects); err != nil {
 		return err
 	}
 
 	JWTSetting.Expire *= time.Second
-	ServerSetting.ReadTimeout *= time.Second
-	ServerSetting.WriteTimeout *= time.Second
 	SimpleCacheIndexSetting.CheckTickDuration *= time.Second
 	SimpleCacheIndexSetting.ExpireTickDuration *= time.Second
 	BigCacheIndexSetting.ExpireInSecond *= time.Second
@@ -133,4 +151,11 @@ func GetOssDomain() string {
 		return uri + LocalOSSSetting.Domain + "/oss/" + LocalOSSSetting.Bucket + "/"
 	}
 	return uri + AliOSSSetting.Domain + "/"
+}
+
+func RunMode() string {
+	if !cfg.If("Deprecated:OldWeb") {
+		return ServerSetting.RunMode
+	}
+	return AppSetting.RunMode
 }

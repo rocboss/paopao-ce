@@ -1,45 +1,92 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package service
 
 import (
+	"log"
+
+	"github.com/Masterminds/semver/v3"
 	"github.com/alimy/cfg"
-	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/dao"
-	"github.com/rocboss/paopao-ce/internal/model"
-	"github.com/sirupsen/logrus"
+	"github.com/rocboss/paopao-ce/pkg/types"
 )
 
-var (
-	ds                 core.DataService
-	ts                 core.TweetSearchService
-	oss                core.ObjectStorageService
-	DisablePhoneVerify bool
-)
-
-func Initialize() {
-	ds = dao.DataService()
-	ts = dao.TweetSearchService()
-	oss = dao.ObjectStorageService()
-	DisablePhoneVerify = !cfg.If("Sms")
+type Service interface {
+	Name() string
+	Version() *semver.Version
+	OnInit() error
+	OnStart() error
+	OnStop() error
 }
 
-// persistMediaContents 获取媒体内容并持久化
-func persistMediaContents(contents []*PostContentItem) (items []string, err error) {
-	items = make([]string, 0, len(contents))
-	for _, item := range contents {
-		switch item.Type {
-		case model.CONTENT_TYPE_IMAGE,
-			model.CONTENT_TYPE_VIDEO,
-			model.CONTENT_TYPE_AUDIO,
-			model.CONTENT_TYPE_ATTACHMENT,
-			model.CONTENT_TYPE_CHARGE_ATTACHMENT:
-			items = append(items, item.Content)
-			if err != nil {
-				continue
-			}
-			if err = oss.PersistObject(oss.ObjectKey(item.Content)); err != nil {
-				logrus.Errorf("service.persistMediaContents failed: %s", err)
-			}
+type baseService types.Empty
+
+func (baseService) Name() string {
+	return ""
+}
+
+func (baseService) Version() *semver.Version {
+	return semver.MustParse("v0.0.1")
+}
+
+func (baseService) String() string {
+	return ""
+}
+
+// InitService Initial service
+func InitService() []Service {
+	ss := newService()
+	for _, s := range ss {
+		if err := s.OnInit(); err != nil {
+			log.Fatalf("initial %s service error: %s", s.Name(), err)
 		}
 	}
+	return ss
+}
+
+// MaxSidSize max service id string length
+func MaxSidSize(ss []Service) int {
+	length := 0
+	for _, s := range ss {
+		size := len(s.Name() + "@" + s.Version().String())
+		if size > length {
+			length = size
+		}
+	}
+	return length
+}
+
+func newService() (ss []Service) {
+	// add all service if declared in features on config.yaml
+	cfg.In(cfg.Actions{
+		"Web": func() {
+			ss = append(ss, newWebService())
+		},
+		"Admin": func() {
+			ss = append(ss, newAdminService())
+		},
+		"SpaceX": func() {
+			ss = append(ss, newSpaceXService())
+		},
+		"Bot": func() {
+			ss = append(ss, newBotService())
+		},
+		"NativeOBS": func() {
+			ss = append(ss, newLocalossService())
+		},
+		"Mobile": func() {
+			ss = append(ss, newMobileService())
+		},
+		"Frontend:Web": func() {
+			ss = append(ss, newFrontendWebServiceService())
+		},
+		"Docs": func() {
+			ss = append(ss, newDocsService())
+		},
+		"Deprecated:OldWeb": func() {
+			ss = append(ss, newOldWebService())
+		},
+	})
 	return
 }

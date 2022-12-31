@@ -1,0 +1,178 @@
+App: # APP基础设置项
+  RunMode: debug
+  AttachmentIncomeRate: 0.8
+  MaxCommentCount: 10
+  DefaultContextTimeout: 60
+  DefaultPageSize: 10
+  MaxPageSize: 100
+Server: # 服务设置
+  RunMode: debug
+  HttpIp: 0.0.0.0
+  HttpPort: 8008
+  ReadTimeout: 60
+  WriteTimeout: 60
+Features:
+  Default: []
+WebServer: # Web服务
+  HttpIp: 0.0.0.0
+  HttpPort: 8010
+  ReadTimeout: 60
+  WriteTimeout: 60
+AdminServer: # Admin后台运维服务
+  HttpIp: 0.0.0.0
+  HttpPort: 8014
+  ReadTimeout: 60
+  WriteTimeout: 60
+SpaceXServer: # SpaceX服务
+  HttpIp: 0.0.0.0
+  HttpPort: 8012
+  ReadTimeout: 60
+  WriteTimeout: 60
+BotServer: # Bot服务
+  HttpIp: 0.0.0.0
+  HttpPort: 8016
+  ReadTimeout: 60
+  WriteTimeout: 60
+LocalossServer: # Localoss服务
+  HttpIp: 0.0.0.0
+  HttpPort: 8018
+  ReadTimeout: 60
+  WriteTimeout: 60
+FrontendWebServer: # Web前端静态资源服务
+  HttpIp: 0.0.0.0
+  HttpPort: 8006
+  ReadTimeout: 60
+  WriteTimeout: 60
+DocsServer: # 开发文档服务
+  HttpIp: 0.0.0.0
+  HttpPort: 8011
+  ReadTimeout: 60
+  WriteTimeout: 60
+MobileServer: # 移动端grpc api服务
+  Host: 0.0.0.0
+  Port: 8020
+SmsJuhe:
+  Gateway: https://v.juhe.cn/sms/send
+  Key:
+  TplID:
+  TplVal: "#code#=%s&#m#=%d"
+Alipay: 
+  AppID:
+  InProduction: True
+  RootCertFile: "custom/alipay/RootCert.crt"
+  PublicCertFile: "custom/alipay/CertPublicKey_RSA2.crt"
+  AppPublicCertFile: "custom/alipay/AppCertPublicKey.crt" 
+CacheIndex:
+  MaxUpdateQPS: 100             # 最大添加/删除/更新Post的QPS, 设置范围[10, 10000], 默认100
+SimpleCacheIndex: # 缓存泡泡广场消息流
+  MaxIndexSize: 200             # 最大缓存条数
+  CheckTickDuration: 60         # 循环自检查每多少秒一次
+  ExpireTickDuration: 300       # 每多少秒后强制过期缓存, 设置为0禁止强制使缓存过期
+BigCacheIndex: # 使用BigCache缓存泡泡广场消息流
+  MaxIndexPage: 1024            # 最大缓存页数，必须是2^n, 代表最大同时缓存多少页数据
+  Verbose: False                # 是否打印cache操作的log
+  ExpireInSecond: 300           # 多少秒(>0)后强制过期缓存
+Logger: # 日志通用配置
+  Level: debug # 日志级别 panic|fatal|error|warn|info|debug|trace
+LoggerFile: # 使用File写日志
+  SavePath: data/paopao-ce/logs
+  FileName: app
+  FileExt: .log
+LoggerZinc: # 使用Zinc写日志
+  Host: zinc:4080
+  Index: paopao-log
+  User: admin
+  Password: admin
+  Secure: False
+LoggerMeili: # 使用Meili写日志
+  Host: meili:7700
+  Index: paopao-log
+  ApiKey: paopao-meilisearch
+  Secure: False
+  MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
+  MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
+JWT: # 鉴权加密
+  Secret: 18a6413dc4fe394c66345ebe501b2f26
+  Issuer: paopao-api
+  Expire: 86400
+TweetSearch: # 推文关键字搜索相关配置
+  MaxUpdateQPS: 100            # 最大添加/删除/更新Post的QPS，设置范围[10, 10000], 默认100
+  MinWorker: 10                # 最小后台更新工作者, 设置范围[5, 1000], 默认10
+Zinc: # Zinc搜索配置
+  Host: zinc:4080
+  Index: paopao-data
+  User: admin
+  Password: admin
+  Secure: False
+Meili: # Meili搜索配置
+  Host: meili:7700
+  Index: paopao-data
+  ApiKey: paopao-meilisearch
+  Secure: False
+ObjectStorage: # 对象存储通用配置
+  RetainInDays: 2   # 临时对象过期时间多少天
+  TempDir: tmp      # 临时对象存放目录名
+AliOSS: # 阿里云OSS存储配置
+  Endpoint: 
+  AccessKeyID: 
+  AccessKeySecret: 
+  Bucket: 
+  Domain: 
+COS: # 腾讯云COS存储配置
+  SecretID: 
+  SecretKey: 
+  Region: ap-shanghai
+  Bucket: demo-1888888888
+  Domain: 
+HuaweiOBS: # 华为云OBS存储配置
+  AccessKey: 
+  SecretKey: 
+  Endpoint: 
+  Bucket: paopao
+  Domain: 
+MinIO: # MinIO 存储配置
+  AccessKey: Q3AM3UQ867SPQQA43P2F
+  SecretKey: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+  Secure: False
+  Endpoint: minio:9000
+  Bucket: paopao
+  Domain: 127.0.0.1:9000
+S3: # Amazon S3 存储配置
+  AccessKey: "YOUR-ACCESSKEYID"
+  SecretKey: "YOUR-SECRETACCESSKEY"
+  Secure: True
+  Endpoint: s3.amazonaws.com
+  Bucket: paopao
+  Domain: 
+LocalOSS: # 本地文件OSS存储配置
+  SavePath: data/paopao-ce/oss
+  Secure: False
+  Bucket: paopao
+  Domain: 127.0.0.1:8008
+Database: # Database通用配置
+  LogLevel: error   # 日志级别 silent|error|warn|info
+  TablePrefix: p_   # 表名前缀
+MySQL: # MySQL数据库
+  Username: paopao
+  Password: paopao
+  Host: db:3306
+  DBName: paopao
+  Charset: utf8mb4
+  ParseTime: True
+  MaxIdleConns: 10
+  MaxOpenConns: 30
+Postgres: # PostgreSQL数据库
+  User: paopao
+  Password: paopao
+  DBName: paopao
+  Host: localhost
+  Port: 5432
+  SSLMode: disable
+  TimeZone: Asia/Shanghai
+Sqlite3: # Sqlite3数据库
+  Path: data/sqlite3/paopao-ce.db
+Redis:
+  Host: redis:6379
+  Password: 
+  DB: 
+  
