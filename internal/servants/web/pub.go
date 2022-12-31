@@ -169,7 +169,7 @@ func (s *pubSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsRes
 
 	// 获取总量
 	totalRows, _ := s.Ds.GetCommentCount(conditions)
-	resp := base.PageRespFrom(contents, req.Page, req.PageSize, totalRows)
+	resp := base.PageRespFrom(commentsFormated, req.Page, req.PageSize, totalRows)
 	return (*web.TweetCommentsResp)(resp), nil
 }
 
