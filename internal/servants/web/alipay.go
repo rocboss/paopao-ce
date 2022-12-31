@@ -105,7 +105,7 @@ func (b *alipayPrivBinding) BindUserWalletBills(c *gin.Context) (*web.UserWallet
 	if !ok {
 		return nil, xerror.UnauthorizedTokenError
 	}
-	page, pageSize := app.GetPageOffset(c)
+	page, pageSize := app.GetPageInfo(c)
 	return &web.UserWalletBillsReq{
 		UserId:   uid,
 		Page:     page,

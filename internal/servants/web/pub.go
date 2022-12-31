@@ -53,18 +53,16 @@ type pubSrv struct {
 }
 
 type pubBinding struct {
-	base.BaseBinding
 	*api.UnimplementedPubBinding
 }
 
 type pubRender struct {
-	base.BaseRender
 	*api.UnimplementedPubRender
 }
 
 func (b *pubBinding) BindTweetComments(c *gin.Context) (*web.TweetCommentsReq, mir.Error) {
 	tweetId := convert.StrTo(c.Query("id")).MustInt64()
-	page, pageSize := app.GetPageOffset(c)
+	page, pageSize := app.GetPageInfo(c)
 	return &web.TweetCommentsReq{
 		TweetId:  tweetId,
 		Page:     page,

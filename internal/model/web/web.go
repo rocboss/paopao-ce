@@ -40,7 +40,7 @@ func BasePageReqFrom(c *gin.Context) (*BasePageReq, mir.Error) {
 	if !ok {
 		return nil, xerror.UnauthorizedTokenError
 	}
-	page, pageSize := app.GetPageOffset(c)
+	page, pageSize := app.GetPageInfo(c)
 	return &BasePageReq{
 		UserId:   uid,
 		Page:     page,

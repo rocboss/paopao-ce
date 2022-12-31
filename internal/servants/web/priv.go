@@ -48,12 +48,10 @@ type privSrv struct {
 }
 
 type privBinding struct {
-	base.BaseBinding
 	*api.UnimplementedPrivBinding
 }
 
 type privRender struct {
-	base.BaseRender
 	*api.UnimplementedPrivRender
 }
 

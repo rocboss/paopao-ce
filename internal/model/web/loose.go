@@ -4,10 +4,46 @@
 
 package web
 
+import (
+	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/servants/base"
+)
+
 type TimelineReq struct {
-	*BaseInfo `json:"-"`
+	BaseInfo   `form:"-"  binding:"-"`
+	Query      string              `form:"query"`
+	Visibility []core.PostVisibleT `form:"query"`
+	Type       string              `form:"type"`
+	Page       int                 `form:"-"  binding:"-"`
+	PageSize   int                 `form:"-"  binding:"-"`
 }
 
-type TimelineResp struct {
-	// TODO
+type TimelineResp base.PageResp
+
+type GetUserTweetsReq struct {
+	BaseInfo `form:"-" binding:"-"`
+	Username string `form:"username" binding:"required"`
+	Page     int    `form:"-" binding:"-"`
+	PageSize int    `form:"-" binding:"-"`
+}
+
+type GetUserTweetsResp base.PageResp
+
+type GetUserProfileReq struct {
+	BaseInfo `form:"-" binding:"-"`
+	Username string `form:"username" binding:"required"`
+}
+
+type GetUserProfileResp struct {
+	ID       int64  `json:"id"`
+	Nickname string `json:"nickname"`
+	Username string `json:"username"`
+	Status   int    `json:"status"`
+	Avatar   string `json:"avatar"`
+	IsAdmin  bool   `json:"is_admin"`
+	IsFriend bool   `json:"is_friend"`
+}
+
+func (r *GetUserTweetsReq) SetPageInfo(page int, pageSize int) {
+	r.Page, r.PageSize = page, pageSize
 }

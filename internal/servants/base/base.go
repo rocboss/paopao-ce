@@ -15,6 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
@@ -45,6 +46,10 @@ type UserSetter interface {
 
 type UserIdSetter interface {
 	SetUserId(int64)
+}
+
+type PageInfoSetter interface {
+	SetPageInfo(page, pageSize int)
 }
 
 func UserFrom(c *gin.Context) (*core.User, bool) {
@@ -86,6 +91,11 @@ func BindAny(c *gin.Context, obj any) mir.Error {
 	if setter, ok := obj.(UserIdSetter); ok {
 		uid, _ := UserIdFrom(c)
 		setter.SetUserId(uid)
+	}
+	// setup PageInfo if needed
+	if setter, ok := obj.(PageInfoSetter); ok {
+		page, pageSize := app.GetPageInfo(c)
+		setter.SetPageInfo(page, pageSize)
 	}
 	return nil
 }
@@ -142,7 +152,7 @@ func (s *DaoServant) PushPostsToSearch(c context.Context) {
 		pages := math.Ceil(float64(totalRows) / float64(splitNum))
 		nums := int(pages)
 		for i := 0; i < nums; i++ {
-			posts, postsFormated, err := s.getTweetList(&core.ConditionsT{}, i*splitNum, splitNum)
+			posts, postsFormated, err := s.GetTweetList(&core.ConditionsT{}, i*splitNum, splitNum)
 			if err != nil || len(posts) != len(postsFormated) {
 				continue
 			}
@@ -191,7 +201,7 @@ func (s *DaoServant) DeleteSearchPost(post *core.Post) error {
 	return s.Ts.DeleteDocuments([]string{fmt.Sprintf("%d", post.ID)})
 }
 
-func (s *DaoServant) getTweetList(conditions *core.ConditionsT, offset, limit int) ([]*core.Post, []*core.PostFormated, error) {
+func (s *DaoServant) GetTweetList(conditions *core.ConditionsT, offset, limit int) ([]*core.Post, []*core.PostFormated, error) {
 	posts, err := s.Ds.GetPosts(conditions, offset, limit)
 	if err != nil {
 		return nil, nil, err

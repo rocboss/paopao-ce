@@ -19,8 +19,8 @@ type Loose struct {
 	Timeline func(Get, web.TimelineReq) web.TimelineResp `mir:"/posts"`
 
 	// GetUserTweets 获取用户动态列表
-	GetUserTweets func(Get) `mir:"/user/posts"`
+	GetUserTweets func(Get, web.GetUserTweetsReq) web.GetUserTweetsResp `mir:"/user/posts"`
 
 	// GetUserProfile 获取用户基本信息
-	GetUserProfile func(Get) `mir:"/user/profile"`
+	GetUserProfile func(Get, web.GetUserProfileReq) web.GetUserProfileResp `mir:"/user/profile"`
 }

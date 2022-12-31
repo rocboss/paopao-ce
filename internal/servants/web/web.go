@@ -26,7 +26,7 @@ func RouteWeb(e *gin.Engine) {
 	// aways register servants
 	api.RegisterAdminServant(e, newAdminSrv(ds), newAdminBinding(), newAdminRender())
 	api.RegisterCoreServant(e, newCoreSrv(ds, oss), newCoreBinding(), newCoreRender())
-	api.RegisterLooseServant(e, newLooseSrv(), newLooseBinding(), newLooseRender())
+	api.RegisterLooseServant(e, newLooseSrv(ds), newLooseBinding(), newLooseRender())
 	api.RegisterPrivServant(e, newPrivSrv(ds, oss), newPrivBinding(), newPrivRender())
 	api.RegisterPubServant(e, newPubSrv(ds), newPubBinding(), newPubRender())
 	// regster servants if needed by configure

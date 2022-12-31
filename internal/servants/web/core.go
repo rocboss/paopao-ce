@@ -47,7 +47,6 @@ type coreSrv struct {
 
 type coreBinding struct {
 	*api.UnimplementedCoreBinding
-	base.BaseBinding
 }
 
 type coreRender struct {
