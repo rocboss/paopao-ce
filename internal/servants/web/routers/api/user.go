@@ -505,7 +505,9 @@ func GetSuggestUsers(c *gin.Context) {
 		return
 	}
 
-	response.ToResponse(usernames)
+	response.ToResponse(gin.H{
+		"suggest": usernames,
+	})
 }
 
 func GetSuggestTags(c *gin.Context) {
@@ -519,7 +521,9 @@ func GetSuggestTags(c *gin.Context) {
 		return
 	}
 
-	response.ToResponse(tags)
+	response.ToResponse(gin.H{
+		"suggest": tags,
+	})
 }
 
 func GetUserRechargeLink(c *gin.Context) {

@@ -5,18 +5,12 @@
 package jinzhu
 
 import (
-	"errors"
-	"fmt"
 	"math/rand"
-	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
-	"github.com/rocboss/paopao-ce/pkg/json"
-	"gopkg.in/resty.v1"
 	"gorm.io/gorm"
 )
 
@@ -25,71 +19,46 @@ var (
 )
 
 type securityServant struct {
-	db *gorm.DB
+	db          *gorm.DB
+	phoneVerify core.PhoneVerifyService
 }
 
-func newSecurityService(db *gorm.DB) core.SecurityService {
+func newSecurityService(db *gorm.DB, phoneVerify core.PhoneVerifyService) core.SecurityService {
 	return &securityServant{
-		db: db,
+		db:          db,
+		phoneVerify: phoneVerify,
 	}
 }
 
-type juhePhoneCaptchaRsp struct {
-	ErrorCode int    `json:"error_code"`
-	Reason    string `json:"reason"`
-}
-
-// 获取最新短信验证码
+// GetLatestPhoneCaptcha 获取最新短信验证码
 func (s *securityServant) GetLatestPhoneCaptcha(phone string) (*core.Captcha, error) {
 	return (&dbr.Captcha{
 		Phone: phone,
 	}).Get(s.db)
 }
 
-// 更新短信验证码
+// UsePhoneCaptcha 更新短信验证码
 func (s *securityServant) UsePhoneCaptcha(captcha *core.Captcha) error {
 	captcha.UseTimes++
 	return captcha.Update(s.db)
 }
 
-// 发送短信验证码
+// SendPhoneCaptcha 发送短信验证码
 func (s *securityServant) SendPhoneCaptcha(phone string) error {
+	expire := time.Duration(5)
+
+	// 发送验证码
 	rand.Seed(time.Now().UnixNano())
-	captcha := rand.Intn(900000) + 100000
-	m := 5
-
-	client := resty.New()
-	client.DisableWarn = true
-	resp, err := client.R().
-		SetFormData(map[string]string{
-			"mobile":    phone,
-			"tpl_id":    conf.SmsJuheSetting.TplID,
-			"tpl_value": fmt.Sprintf(conf.SmsJuheSetting.TplVal, captcha, m),
-			"key":       conf.SmsJuheSetting.Key,
-		}).Post(conf.SmsJuheSetting.Gateway)
-	if err != nil {
+	captcha := strconv.Itoa(rand.Intn(900000) + 100000)
+	if err := s.phoneVerify.SendPhoneCaptcha(phone, captcha, expire); err != nil {
 		return err
-	}
-
-	if resp.StatusCode() != http.StatusOK {
-		return errors.New(resp.Status())
-	}
-
-	result := &juhePhoneCaptchaRsp{}
-	err = json.Unmarshal(resp.Body(), result)
-	if err != nil {
-		return err
-	}
-
-	if result.ErrorCode != 0 {
-		return errors.New(result.Reason)
 	}
 
 	// 写入表
 	captchaModel := &dbr.Captcha{
 		Phone:     phone,
-		Captcha:   strconv.Itoa(captcha),
-		ExpiredOn: time.Now().Add(time.Minute * time.Duration(m)).Unix(),
+		Captcha:   captcha,
+		ExpiredOn: time.Now().Add(expire * time.Minute).Unix(),
 	}
 	captchaModel.Create(s.db)
 	return nil

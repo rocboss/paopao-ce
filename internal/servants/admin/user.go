@@ -5,7 +5,7 @@
 package admin
 
 import (
-	api "github.com/rocboss/paopao-ce/internal/mirc/auto/api/m/v1"
+	api "github.com/rocboss/paopao-ce/auto/api/m/v1"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 )
 

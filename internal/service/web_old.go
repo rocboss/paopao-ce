@@ -8,9 +8,14 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/fatih/color"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/servants/web/routers"
+)
+
+var (
+	_ Service = (*oldWebService)(nil)
 )
 
 type oldWebService struct {
@@ -21,7 +26,11 @@ func (s *oldWebService) Name() string {
 	return "OldWebService"
 }
 
-func (s *oldWebService) Init() error {
+func (s *oldWebService) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
+}
+
+func (s *oldWebService) OnInit() error {
 	s.registerRoute(routers.RegisterRoute)
 	return nil
 }
@@ -32,15 +41,16 @@ func (s *oldWebService) String() string {
 
 func newOldWebService() Service {
 	addr := conf.ServerSetting.HttpIp + ":" + conf.ServerSetting.HttpPort
-	server := httpServerFrom(addr, func() *httpServer {
+	server := httpServers.from(addr, func() *httpServer {
 		engine := newWebEngine()
 		return &httpServer{
-			e: engine,
+			baseServer: newBaseServe(),
+			e:          engine,
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
-				ReadTimeout:    conf.ServerSetting.ReadTimeout,
-				WriteTimeout:   conf.ServerSetting.WriteTimeout,
+				ReadTimeout:    conf.ServerSetting.GetReadTimeout(),
+				WriteTimeout:   conf.ServerSetting.GetWriteTimeout(),
 				MaxHeaderBytes: 1 << 20,
 			},
 		}

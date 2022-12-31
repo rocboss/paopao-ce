@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/fatih/color"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -15,15 +16,23 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants"
 )
 
+var (
+	_ Service = (*spaceXService)(nil)
+)
+
 type spaceXService struct {
 	*baseHttpService
 }
 
 func (s *spaceXService) Name() string {
-	return "WebService"
+	return "SpaceXService"
 }
 
-func (s *spaceXService) Init() error {
+func (s *spaceXService) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
+}
+
+func (s *spaceXService) OnInit() error {
 	s.registerRoute(servants.RegisterSpaceXServants)
 	return nil
 }
@@ -65,15 +74,16 @@ func newSpaceXEngine() *gin.Engine {
 
 func newSpaceXService() Service {
 	addr := conf.SpaceXServerSetting.HttpIp + ":" + conf.SpaceXServerSetting.HttpPort
-	server := httpServerFrom(addr, func() *httpServer {
+	server := httpServers.from(addr, func() *httpServer {
 		engine := newSpaceXEngine()
 		return &httpServer{
-			e: engine,
+			baseServer: newBaseServe(),
+			e:          engine,
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
-				ReadTimeout:    conf.SpaceXServerSetting.ReadTimeout,
-				WriteTimeout:   conf.SpaceXServerSetting.WriteTimeout,
+				ReadTimeout:    conf.SpaceXServerSetting.GetReadTimeout(),
+				WriteTimeout:   conf.SpaceXServerSetting.GetWriteTimeout(),
 				MaxHeaderBytes: 1 << 20,
 			},
 		}

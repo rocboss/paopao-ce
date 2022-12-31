@@ -8,11 +8,16 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/fatih/color"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/servants"
+)
+
+var (
+	_ Service = (*adminService)(nil)
 )
 
 type adminService struct {
@@ -23,7 +28,11 @@ func (s *adminService) Name() string {
 	return "AdminService"
 }
 
-func (s *adminService) Init() error {
+func (s *adminService) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
+}
+
+func (s *adminService) OnInit() error {
 	s.registerRoute(servants.RegisterAdminServants)
 	return nil
 }
@@ -65,15 +74,16 @@ func newAdminEngine() *gin.Engine {
 
 func newAdminService() Service {
 	addr := conf.AdminServerSetting.HttpIp + ":" + conf.AdminServerSetting.HttpPort
-	server := httpServerFrom(addr, func() *httpServer {
+	server := httpServers.from(addr, func() *httpServer {
 		engine := newAdminEngine()
 		return &httpServer{
-			e: engine,
+			baseServer: newBaseServe(),
+			e:          engine,
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
-				ReadTimeout:    conf.AdminServerSetting.ReadTimeout,
-				WriteTimeout:   conf.AdminServerSetting.WriteTimeout,
+				ReadTimeout:    conf.AdminServerSetting.GetReadTimeout(),
+				WriteTimeout:   conf.AdminServerSetting.GetWriteTimeout(),
 				MaxHeaderBytes: 1 << 20,
 			},
 		}

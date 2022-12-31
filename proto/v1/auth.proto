@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "github.com/rocboss/paopao-ce/auto/rpc/v1";
+
+message User {
+    string phoneNum = 1;
+}
+
+message UserVerify {
+    string phoneNum = 1;
+    string VerificationCode = 2;
+}
+
+message LoginReply {
+    int32 statuCode = 1;
+    string token = 2;
+}
+
+message ActionReply {
+    int32 statusCode = 1;
+}
+
+service Authenticate {
+    rpc preLogin(User) returns (ActionReply);
+    rpc login(User) returns (LoginReply);
+    rpc logout(User) returns (ActionReply);
+}

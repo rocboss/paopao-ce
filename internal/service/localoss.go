@@ -8,10 +8,15 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/servants"
+)
+
+var (
+	_ Service = (*localossService)(nil)
 )
 
 type localossService struct {
@@ -22,7 +27,11 @@ func (s *localossService) Name() string {
 	return "LocalossService"
 }
 
-func (s *localossService) Init() error {
+func (s *localossService) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
+}
+
+func (s *localossService) OnInit() error {
 	s.registerRoute(servants.RegisterLocalossServants)
 	return nil
 }
@@ -40,15 +49,16 @@ func newLocalossEngine() *gin.Engine {
 
 func newLocalossService() Service {
 	addr := conf.LocalossServerSetting.HttpIp + ":" + conf.LocalossServerSetting.HttpPort
-	server := httpServerFrom(addr, func() *httpServer {
+	server := httpServers.from(addr, func() *httpServer {
 		engine := newLocalossEngine()
 		return &httpServer{
-			e: engine,
+			baseServer: newBaseServe(),
+			e:          engine,
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
-				ReadTimeout:    conf.LocalossServerSetting.ReadTimeout,
-				WriteTimeout:   conf.LocalossServerSetting.WriteTimeout,
+				ReadTimeout:    conf.LocalossServerSetting.GetReadTimeout(),
+				WriteTimeout:   conf.LocalossServerSetting.GetWriteTimeout(),
 				MaxHeaderBytes: 1 << 20,
 			},
 		}

@@ -46,3 +46,17 @@ func GetPageOffset(c *gin.Context) (offset, limit int) {
 	offset = (page - 1) * limit
 	return
 }
+
+func GetPageInfo(c *gin.Context) (page, pageSize int) {
+	page = convert.StrTo(c.Query("page")).MustInt()
+	if page <= 0 {
+		page = 1
+	}
+	pageSize = convert.StrTo(c.Query("page_size")).MustInt()
+	if pageSize <= 0 {
+		pageSize = conf.AppSetting.DefaultPageSize
+	} else if pageSize > conf.AppSetting.MaxPageSize {
+		pageSize = conf.AppSetting.MaxPageSize
+	}
+	return
+}

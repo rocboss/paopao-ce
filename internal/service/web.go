@@ -8,11 +8,16 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/fatih/color"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/servants"
+)
+
+var (
+	_ Service = (*webService)(nil)
 )
 
 type webService struct {
@@ -23,7 +28,11 @@ func (s *webService) Name() string {
 	return "WebService"
 }
 
-func (s *webService) Init() error {
+func (s *webService) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
+}
+
+func (s *webService) OnInit() error {
 	s.registerRoute(servants.RegisterWebServants)
 	return nil
 }
@@ -65,19 +74,21 @@ func newWebEngine() *gin.Engine {
 
 func newWebService() Service {
 	addr := conf.WebServerSetting.HttpIp + ":" + conf.WebServerSetting.HttpPort
-	server := httpServerFrom(addr, func() *httpServer {
+	server := httpServers.from(addr, func() *httpServer {
 		engine := newWebEngine()
 		return &httpServer{
-			e: engine,
+			baseServer: newBaseServe(),
+			e:          engine,
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
-				ReadTimeout:    conf.WebServerSetting.ReadTimeout,
-				WriteTimeout:   conf.WebServerSetting.WriteTimeout,
+				ReadTimeout:    conf.WebServerSetting.GetReadTimeout(),
+				WriteTimeout:   conf.WebServerSetting.GetWriteTimeout(),
 				MaxHeaderBytes: 1 << 20,
 			},
 		}
 	})
+
 	return &webService{
 		baseHttpService: &baseHttpService{
 			server: server,

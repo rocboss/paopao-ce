@@ -8,11 +8,16 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/fatih/color"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/servants"
+)
+
+var (
+	_ Service = (*botService)(nil)
 )
 
 type botService struct {
@@ -23,7 +28,11 @@ func (s *botService) Name() string {
 	return "BotService"
 }
 
-func (s *botService) Init() error {
+func (s *botService) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
+}
+
+func (s *botService) OnInit() error {
 	s.registerRoute(servants.RegisterBotServants)
 	return nil
 }
@@ -65,15 +74,16 @@ func newBotEngine() *gin.Engine {
 
 func newBotService() Service {
 	addr := conf.BotServerSetting.HttpIp + ":" + conf.BotServerSetting.HttpPort
-	server := httpServerFrom(addr, func() *httpServer {
+	server := httpServers.from(addr, func() *httpServer {
 		engine := newBotEngine()
 		return &httpServer{
-			e: engine,
+			baseServer: newBaseServe(),
+			e:          engine,
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
-				ReadTimeout:    conf.BotServerSetting.ReadTimeout,
-				WriteTimeout:   conf.BotServerSetting.WriteTimeout,
+				ReadTimeout:    conf.BotServerSetting.GetReadTimeout(),
+				WriteTimeout:   conf.BotServerSetting.GetWriteTimeout(),
 				MaxHeaderBytes: 1 << 20,
 			},
 		}

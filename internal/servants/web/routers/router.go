@@ -119,15 +119,15 @@ func NewRouter() *gin.Engine {
 }
 
 func RegisterRoute(e *gin.Engine) {
-	// 按需注册 docs、静态资源、LocalOSS 路由
-	{
-		registerDocs(e)
+	// 按需注册 Web前端静态资源
+	cfg.Be("Frontend:EmbedWeb", func() {
 		registerStatick(e)
+	})
 
-		cfg.Be("LocalOSS", func() {
-			routeLocalOSS(e)
-		})
-	}
+	// 按需注册 LocalOSS 路由
+	cfg.Be("LocalOSS", func() {
+		routeLocalOSS(e)
+	})
 
 	// v1 group api
 	r := e.Group("/v1")

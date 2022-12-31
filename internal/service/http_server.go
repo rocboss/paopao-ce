@@ -7,44 +7,29 @@ package service
 import (
 	"context"
 	"net/http"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 )
 
 var (
-	httpServers = make(map[string]*httpServer)
-)
-
-const (
-	httpServerInitilized uint8 = iota + 1
-	httpServerStarted
-	httpServerStoped
+	_ server = (*httpServer)(nil)
 )
 
 // httpServer wraper for gin.engine and http.Server
 type httpServer struct {
-	sync.RWMutex
+	*baseServer
 
-	e            *gin.Engine
-	server       *http.Server
-	serverStatus uint8
-}
-
-func (s *httpServer) status() uint8 {
-	s.RLock()
-	defer s.RUnlock()
-
-	return s.serverStatus
+	e      *gin.Engine
+	server *http.Server
 }
 
 func (s *httpServer) start() error {
 	s.Lock()
-	if s.serverStatus == httpServerStarted || s.serverStatus == httpServerStoped {
+	if s.serverStatus == _statusServerStarted || s.serverStatus == _statusServerStoped {
 		return nil
 	}
 	oldStatus := s.serverStatus
-	s.serverStatus = httpServerStarted
+	s.serverStatus = _statusServerStarted
 	s.Unlock()
 
 	if err := s.server.ListenAndServe(); err != nil {
@@ -61,23 +46,12 @@ func (s *httpServer) stop() error {
 	s.Lock()
 	defer s.Unlock()
 
-	if s.serverStatus == httpServerStoped || s.serverStatus == httpServerInitilized {
+	if s.serverStatus == _statusServerStoped || s.serverStatus == _statusServerInitilized {
 		return nil
 	}
 	if err := s.server.Shutdown(context.Background()); err != nil {
 		return err
 	}
-	s.serverStatus = httpServerStoped
+	s.serverStatus = _statusServerStoped
 	return nil
-}
-
-func httpServerFrom(addr string, newServer func() *httpServer) *httpServer {
-	s, exist := httpServers[addr]
-	if exist {
-		return s
-	}
-	s = newServer()
-	s.serverStatus = httpServerInitilized
-	httpServers[addr] = s
-	return s
 }

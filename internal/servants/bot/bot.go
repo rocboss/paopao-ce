@@ -6,7 +6,7 @@ package bot
 
 import (
 	"github.com/gin-gonic/gin"
-	api "github.com/rocboss/paopao-ce/internal/mirc/auto/api/r/v1"
+	api "github.com/rocboss/paopao-ce/auto/api/r/v1"
 )
 
 // RouteBot register Bot route

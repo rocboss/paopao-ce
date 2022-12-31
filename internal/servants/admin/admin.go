@@ -6,7 +6,7 @@ package admin
 
 import (
 	"github.com/gin-gonic/gin"
-	api "github.com/rocboss/paopao-ce/internal/mirc/auto/api/m/v1"
+	api "github.com/rocboss/paopao-ce/auto/api/m/v1"
 )
 
 // RouteWeb register Manager route

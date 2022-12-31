@@ -73,12 +73,22 @@ generate: gen-mir gen-grpc
 
 .PHONY: gen-mir
 gen-mir:
-	@go generate internal/mirc/main.go
-	@go fmt ./internal/mirc/...
+	@go generate mirc/main.go
+	@go fmt ./auto/api/...
 
 .PHONY: gen-grpc
 gen-grpc:
-	@go fmt ./internal/proto/...
+	@rm -rf auto/rpc
+	@buf generate proto
+	@go fmt ./auto/rpc/...
+
+.PHONY: proto-mod
+proto-mod:
+	@cd proto/ && buf mod update
+
+.PHONY: proto-lint
+proto-lint:
+	@cd proto/ && buf lint
 
 clean:
 	@go clean
@@ -95,7 +105,15 @@ test:
 	@go test ./...
 
 pre-commit: fmt
-	go mod tidy
+	@go mod tidy
+
+.PHONY: install-protobuf-plugins
+install-protobuf-plugins:
+	@go install github.com/bufbuild/buf/cmd/buf@v1.11.0
+	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking@v1.11.0
+	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-lint@v1.11.0
+	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 help:
 	@echo "make: make"

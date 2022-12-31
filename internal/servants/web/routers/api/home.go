@@ -6,7 +6,6 @@ package api
 
 import (
 	"bytes"
-	_ "embed"
 	"encoding/base64"
 	"image/color"
 	"image/png"
@@ -17,6 +16,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/servants/web/assets"
 	"github.com/rocboss/paopao-ce/internal/servants/web/broker"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/convert"
@@ -25,9 +25,6 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/util"
 	"github.com/sirupsen/logrus"
 )
-
-//go:embed assets/comic.ttf
-var comic []byte
 
 const MAX_PHONE_CAPTCHA = 10
 
@@ -53,7 +50,7 @@ func SyncSearchIndex(c *gin.Context) {
 func GetCaptcha(c *gin.Context) {
 	cap := captcha.New()
 
-	if err := cap.AddFontFromBytes(comic); err != nil {
+	if err := cap.AddFontFromBytes(assets.ComicBytes); err != nil {
 		panic(err.Error())
 	}
 
