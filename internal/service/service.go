@@ -60,9 +60,6 @@ func MaxSidSize(ss []Service) int {
 func newService() (ss []Service) {
 	// add all service if declared in features on config.yaml
 	cfg.In(cfg.Actions{
-		"Deprecated:OldWeb": func() {
-			ss = append(ss, newOldWebService())
-		},
 		"Web": func() {
 			ss = append(ss, newWebService())
 		},
@@ -80,6 +77,15 @@ func newService() (ss []Service) {
 		},
 		"Mobile": func() {
 			ss = append(ss, newMobileService())
+		},
+		"Frontend:Web": func() {
+			ss = append(ss, newFrontendWebServiceService())
+		},
+		"Docs": func() {
+			ss = append(ss, newDocsService())
+		},
+		"Deprecated:OldWeb": func() {
+			ss = append(ss, newOldWebService())
 		},
 	})
 	return

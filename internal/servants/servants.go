@@ -20,13 +20,12 @@ import (
 
 // RegisterWebServants register all the servants to gin.Engine
 func RegisterWebServants(e *gin.Engine) {
-	docs.RegisterDocs(e)
-	statick.RegisterStatick(e)
-
+	cfg.Be("Frontend:EmbedWeb", func() {
+		statick.RegisterWebStatick(e)
+	})
 	cfg.Be("LocalOSS", func() {
 		localoss.RouteLocalOSS(e)
 	})
-
 	web.RouteWeb(e)
 }
 
@@ -48,6 +47,16 @@ func RegisterBotServants(e *gin.Engine) {
 // RegisterLocalossServants register all the servants to gin.Engine
 func RegisterLocalossServants(e *gin.Engine) {
 	localoss.RouteLocaloss(e)
+}
+
+// RegisterDocsServants register all the servants to gin.Engine
+func RegisterDocsServants(e *gin.Engine) {
+	docs.RegisterDocs(e)
+}
+
+// RegisterFrontendWebServants register all the servants to gin.Engine
+func RegisterFrontendWebServants(e *gin.Engine) {
+	statick.RegisterWebStatick(e)
 }
 
 // RegisterMobileServants register all the servants to grpc.Server

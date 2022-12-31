@@ -19,7 +19,7 @@ Features:
   Base: ["Redis", "PhoneBind"]
   Docs: ["Docs:OpenAPI"]
   Deprecated: ["Deprecated:OldWeb"]
-  Service: ["Web", "Admin", "SpaceX", "Bot", "LocalOSS", "Mobile"]
+  Service: ["Web", "Admin", "SpaceX", "Bot", "LocalOSS", "Mobile", "Frontend:Web", "Fronetend:EmbedWeb", "Docs"]
   Option: ["SimpleCacheIndex"]
   Sms: "SmsJuhe"
 WebServer: # Web服务
@@ -45,6 +45,11 @@ BotServer: # Bot服务
 LocalossServer: # Localoss服务
   HttpIp: 0.0.0.0
   HttpPort: 8018
+  ReadTimeout: 60
+  WriteTimeout: 60
+FrontendWebServer: # Web前端服务
+  HttpIp: 0.0.0.0
+  HttpPort: 8006
   ReadTimeout: 60
   WriteTimeout: 60
 DocsServer: # 开发文档服务

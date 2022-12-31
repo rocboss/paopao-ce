@@ -14,12 +14,12 @@ import (
 	"github.com/rocboss/paopao-ce/web"
 )
 
-// RegisterStatick register static assets route
-func RegisterStatick(e *gin.Engine) {
-	routeStatic(e, "/", "/index.html", "/favicon.ico", "/assets/*filepath")
+// RegisterWebStatick register web static assets route
+func RegisterWebStatick(e *gin.Engine) {
+	routeWebStatic(e, "/", "/index.html", "/favicon.ico", "/assets/*filepath")
 }
 
-func routeStatic(e *gin.Engine, paths ...string) {
+func routeWebStatic(e *gin.Engine, paths ...string) {
 	staticHandler := http.FileServer(web.NewFileSystem())
 	handler := func(c *gin.Context) {
 		staticHandler.ServeHTTP(c.Writer, c.Request)

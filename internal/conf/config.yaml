@@ -38,6 +38,11 @@ LocalossServer: # Localoss服务
   HttpPort: 8018
   ReadTimeout: 60
   WriteTimeout: 60
+FrontendWebServer: # Web前端静态资源服务
+  HttpIp: 0.0.0.0
+  HttpPort: 8006
+  ReadTimeout: 60
+  WriteTimeout: 60
 DocsServer: # 开发文档服务
   HttpIp: 0.0.0.0
   HttpPort: 8011

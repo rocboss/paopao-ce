@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterStatick stub function for register static asset route
-func RegisterStatick(e *gin.Engine) {
+// RegisterWebStatick stub function for register static asset route
+func RegisterWebStatick(e *gin.Engine) {
 	// empty
 }
