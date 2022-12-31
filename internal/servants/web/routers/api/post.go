@@ -329,5 +329,7 @@ func GetPostTags(c *gin.Context) {
 
 	}
 
-	response.ToResponse(tags)
+	response.ToResponse(gin.H{
+		"topics": tags,
+	})
 }

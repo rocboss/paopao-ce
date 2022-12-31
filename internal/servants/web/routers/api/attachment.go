@@ -250,5 +250,7 @@ func DownloadAttachment(c *gin.Context) {
 		response.ToErrorResponse(errcode.DownloadReqError)
 		return
 	}
-	response.ToResponse(signedURL)
+	response.ToResponse(gin.H{
+		"signed_url": signedURL,
+	})
 }

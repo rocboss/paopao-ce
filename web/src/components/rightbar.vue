@@ -84,7 +84,7 @@ const loadTags = () => {
         num: 12,
     })
         .then((res) => {
-            tags.value = res;
+            tags.value = res.topics;
             loading.value = false;
         })
         .catch((err) => {
