@@ -82,12 +82,13 @@ func newWebService() Service {
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
-				ReadTimeout:    conf.WebServerSetting.ReadTimeout,
-				WriteTimeout:   conf.WebServerSetting.WriteTimeout,
+				ReadTimeout:    conf.WebServerSetting.GetReadTimeout(),
+				WriteTimeout:   conf.WebServerSetting.GetWriteTimeout(),
 				MaxHeaderBytes: 1 << 20,
 			},
 		}
 	})
+
 	return &webService{
 		baseHttpService: &baseHttpService{
 			server: server,

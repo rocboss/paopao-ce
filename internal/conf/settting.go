@@ -270,6 +270,14 @@ func (s *Setting) featuresInfoFrom(k string) (map[string][]string, map[string]st
 	return suites, kv
 }
 
+func (s *HttpServerSettingS) GetReadTimeout() time.Duration {
+	return s.ReadTimeout * time.Second
+}
+
+func (s *HttpServerSettingS) GetWriteTimeout() time.Duration {
+	return s.WriteTimeout * time.Second
+}
+
 func (s *MySQLSettingS) Dsn() string {
 	return fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local",
 		s.UserName,

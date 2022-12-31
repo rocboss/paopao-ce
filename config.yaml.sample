@@ -12,14 +12,14 @@ Server: # 服务设置
   ReadTimeout: 60
   WriteTimeout: 60
 Features:
-  Default: ["Base", "MySQL", "Option", "Zinc", "LocalOSS", "LoggerFile", "Friendship"]
+  Default: ["Base", "MySQL", "Option", "Zinc", "LocalOSS", "LoggerFile", "Friendship", "Deprecated"]
   Develop: ["Base", "MySQL", "BigCacheIndex", "Meili", "Sms", "AliOSS", "LoggerMeili", "OSS:Retention"]
   Demo: ["Base", "MySQL", "Option", "Zinc", "Sms", "MinIO", "LoggerZinc", "Migration"]
   Slim: ["Base", "Sqlite3", "LocalOSS", "LoggerFile", "OSS:TempDir"]
   Base: ["Redis", "PhoneBind"]
   Docs: ["Docs:OpenAPI"]
   Deprecated: ["Deprecated:OldWeb"]
-  Service: ["Admin", "SpaceX", "Bot", "LocalOSS", "Mobile"]
+  Service: ["Web", "Admin", "SpaceX", "Bot", "LocalOSS", "Mobile"]
   Option: ["SimpleCacheIndex"]
   Sms: "SmsJuhe"
 WebServer: # Web服务

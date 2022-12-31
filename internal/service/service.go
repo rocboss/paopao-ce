@@ -58,12 +58,11 @@ func MaxSidSize(ss []Service) int {
 }
 
 func newService() (ss []Service) {
-	// add oldWebService if not depredcated OldWebService
-	cfg.Not("Deprecated:OldWeb", func() {
-		ss = append(ss, newOldWebService())
-	})
 	// add all service if declared in features on config.yaml
 	cfg.In(cfg.Actions{
+		"Deprecated:OldWeb": func() {
+			ss = append(ss, newOldWebService())
+		},
 		"Web": func() {
 			ss = append(ss, newWebService())
 		},

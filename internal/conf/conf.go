@@ -105,8 +105,6 @@ func setupSetting(suite []string, noDefault bool) error {
 	}
 
 	JWTSetting.Expire *= time.Second
-	ServerSetting.ReadTimeout *= time.Second
-	ServerSetting.WriteTimeout *= time.Second
 	SimpleCacheIndexSetting.CheckTickDuration *= time.Second
 	SimpleCacheIndexSetting.ExpireTickDuration *= time.Second
 	BigCacheIndexSetting.ExpireInSecond *= time.Second

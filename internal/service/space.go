@@ -82,8 +82,8 @@ func newSpaceXService() Service {
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
-				ReadTimeout:    conf.SpaceXServerSetting.ReadTimeout,
-				WriteTimeout:   conf.SpaceXServerSetting.WriteTimeout,
+				ReadTimeout:    conf.SpaceXServerSetting.GetReadTimeout(),
+				WriteTimeout:   conf.SpaceXServerSetting.GetWriteTimeout(),
 				MaxHeaderBytes: 1 << 20,
 			},
 		}

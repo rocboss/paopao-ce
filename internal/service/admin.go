@@ -82,8 +82,8 @@ func newAdminService() Service {
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
-				ReadTimeout:    conf.AdminServerSetting.ReadTimeout,
-				WriteTimeout:   conf.AdminServerSetting.WriteTimeout,
+				ReadTimeout:    conf.AdminServerSetting.GetReadTimeout(),
+				WriteTimeout:   conf.AdminServerSetting.GetWriteTimeout(),
 				MaxHeaderBytes: 1 << 20,
 			},
 		}

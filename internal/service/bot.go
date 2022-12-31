@@ -82,8 +82,8 @@ func newBotService() Service {
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
-				ReadTimeout:    conf.BotServerSetting.ReadTimeout,
-				WriteTimeout:   conf.BotServerSetting.WriteTimeout,
+				ReadTimeout:    conf.BotServerSetting.GetReadTimeout(),
+				WriteTimeout:   conf.BotServerSetting.GetWriteTimeout(),
 				MaxHeaderBytes: 1 << 20,
 			},
 		}

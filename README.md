@@ -316,13 +316,12 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 目前支持的功能集合:
 | 功能项 | 类别 | 状态 | 备注 |
 | ----- | ----- | ----- | ----- |
-|`OldWeb` | 子服务 | 稳定(默认) | 开启旧的Web服务 |
 |`Web` | 子服务 | WIP | 开启Web服务|
 |`Admin` | 子服务 | WIP | 开启Admin后台运维服务|
 |`SpaceX` | 子服务 | WIP | 开启SpaceX服务|
 |`Bot` | 子服务 | WIP | 开启Bot服务|
 |`NativeOBS` | 子服务 | WIP | 开启NativeOBS服务|
-|`Deprecated:Web` | 子服务 | 稳定 | Deprecated(关闭) OldWeb服务|
+|`Deprecated:Web` | 子服务 | 稳定 | 开启旧的Web服务|
 |`Gorm` | 数据库 | 稳定(默认) | 使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Gorm` + `MySQL`组合|
 |`Sqlx`| 数据库 | WIP | 使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM|
 |`MySQL`| 数据库 | 稳定(默认) | 使用MySQL作为数据库|

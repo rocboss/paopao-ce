@@ -35,7 +35,7 @@ type looseRender struct {
 	*api.UnimplementedLooseRender
 }
 
-func (s *looseSrv) BindTimeline(c *gin.Context) (*web.TimelineReq, mir.Error) {
+func (s *looseBinding) BindTimeline(c *gin.Context) (*web.TimelineReq, mir.Error) {
 	user, _ := base.UserFrom(c)
 	page, pageSize := app.GetPageInfo(c)
 	v := &web.TimelineReq{

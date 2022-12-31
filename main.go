@@ -99,6 +99,6 @@ func main() {
 
 		wg.Wait()
 	} else {
-		fmt.Fprintf(color.Output, "no service need start so just exit")
+		fmt.Fprintln(color.Output, "no service need start so just exit")
 	}
 }

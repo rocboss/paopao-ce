@@ -49,8 +49,8 @@ func newOldWebService() Service {
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
-				ReadTimeout:    conf.ServerSetting.ReadTimeout,
-				WriteTimeout:   conf.ServerSetting.WriteTimeout,
+				ReadTimeout:    conf.ServerSetting.GetReadTimeout(),
+				WriteTimeout:   conf.ServerSetting.GetWriteTimeout(),
 				MaxHeaderBytes: 1 << 20,
 			},
 		}

@@ -57,8 +57,8 @@ func newLocalossService() Service {
 			server: &http.Server{
 				Addr:           addr,
 				Handler:        engine,
-				ReadTimeout:    conf.LocalossServerSetting.ReadTimeout,
-				WriteTimeout:   conf.LocalossServerSetting.WriteTimeout,
+				ReadTimeout:    conf.LocalossServerSetting.GetReadTimeout(),
+				WriteTimeout:   conf.LocalossServerSetting.GetWriteTimeout(),
 				MaxHeaderBytes: 1 << 20,
 			},
 		}
