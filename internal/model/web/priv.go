@@ -129,7 +129,7 @@ type UploadAttachmentResp struct {
 }
 
 type DownloadAttachmentPrecheckReq struct {
-	BaseInfo  `json:"-" binding:"-"`
+	BaseInfo  `form:"-" binding:"-"`
 	ContentID int64 `form:"id"`
 }
 
@@ -138,7 +138,7 @@ type DownloadAttachmentPrecheckResp struct {
 }
 
 type DownloadAttachmentReq struct {
-	BaseInfo  `json:"-" binding:"-"`
+	BaseInfo  `form:"-" binding:"-"`
 	ContentID int64 `form:"id"`
 }
 

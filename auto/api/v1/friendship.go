@@ -15,16 +15,20 @@ type Friendship interface {
 	Chain() gin.HandlersChain
 
 	GetContacts(*web.GetContactsReq) (*web.GetContactsResp, mir.Error)
-	DeleteFriend() mir.Error
-	RejectFriend() mir.Error
-	AddFriend() mir.Error
-	RequestingFriend() mir.Error
+	DeleteFriend(*web.DeleteFriendReq) mir.Error
+	RejectFriend(*web.RejectFriendReq) mir.Error
+	AddFriend(*web.AddFriendReq) mir.Error
+	RequestingFriend(*web.RequestingFriendReq) mir.Error
 
 	mustEmbedUnimplementedFriendshipServant()
 }
 
 type FriendshipBinding interface {
 	BindGetContacts(*gin.Context) (*web.GetContactsReq, mir.Error)
+	BindDeleteFriend(*gin.Context) (*web.DeleteFriendReq, mir.Error)
+	BindRejectFriend(*gin.Context) (*web.RejectFriendReq, mir.Error)
+	BindAddFriend(*gin.Context) (*web.AddFriendReq, mir.Error)
+	BindRequestingFriend(*gin.Context) (*web.RequestingFriendReq, mir.Error)
 
 	mustEmbedUnimplementedFriendshipBinding()
 }
@@ -70,7 +74,12 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship, b FriendshipBinding,
 		default:
 		}
 
-		r.RenderDeleteFriend(c, s.DeleteFriend())
+		req, err := b.BindDeleteFriend(c)
+		if err != nil {
+			r.RenderDeleteFriend(c, err)
+			return
+		}
+		r.RenderDeleteFriend(c, s.DeleteFriend(req))
 	})
 
 	router.Handle("POST", "/friend/reject", func(c *gin.Context) {
@@ -80,7 +89,12 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship, b FriendshipBinding,
 		default:
 		}
 
-		r.RenderRejectFriend(c, s.RejectFriend())
+		req, err := b.BindRejectFriend(c)
+		if err != nil {
+			r.RenderRejectFriend(c, err)
+			return
+		}
+		r.RenderRejectFriend(c, s.RejectFriend(req))
 	})
 
 	router.Handle("POST", "/friend/add", func(c *gin.Context) {
@@ -90,7 +104,12 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship, b FriendshipBinding,
 		default:
 		}
 
-		r.RenderAddFriend(c, s.AddFriend())
+		req, err := b.BindAddFriend(c)
+		if err != nil {
+			r.RenderAddFriend(c, err)
+			return
+		}
+		r.RenderAddFriend(c, s.AddFriend(req))
 	})
 
 	router.Handle("POST", "/friend/requesting", func(c *gin.Context) {
@@ -100,7 +119,12 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship, b FriendshipBinding,
 		default:
 		}
 
-		r.RenderRequestingFriend(c, s.RequestingFriend())
+		req, err := b.BindRequestingFriend(c)
+		if err != nil {
+			r.RenderRequestingFriend(c, err)
+			return
+		}
+		r.RenderRequestingFriend(c, s.RequestingFriend(req))
 	})
 
 }
@@ -117,19 +141,19 @@ func (UnimplementedFriendshipServant) GetContacts(req *web.GetContactsReq) (*web
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedFriendshipServant) DeleteFriend() mir.Error {
+func (UnimplementedFriendshipServant) DeleteFriend(req *web.DeleteFriendReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedFriendshipServant) RejectFriend() mir.Error {
+func (UnimplementedFriendshipServant) RejectFriend(req *web.RejectFriendReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedFriendshipServant) AddFriend() mir.Error {
+func (UnimplementedFriendshipServant) AddFriend(req *web.AddFriendReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedFriendshipServant) RequestingFriend() mir.Error {
+func (UnimplementedFriendshipServant) RequestingFriend(req *web.RequestingFriendReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
@@ -169,6 +193,30 @@ type UnimplementedFriendshipBinding struct {
 
 func (b *UnimplementedFriendshipBinding) BindGetContacts(c *gin.Context) (*web.GetContactsReq, mir.Error) {
 	obj := new(web.GetContactsReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedFriendshipBinding) BindDeleteFriend(c *gin.Context) (*web.DeleteFriendReq, mir.Error) {
+	obj := new(web.DeleteFriendReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedFriendshipBinding) BindRejectFriend(c *gin.Context) (*web.RejectFriendReq, mir.Error) {
+	obj := new(web.RejectFriendReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedFriendshipBinding) BindAddFriend(c *gin.Context) (*web.AddFriendReq, mir.Error) {
+	obj := new(web.AddFriendReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedFriendshipBinding) BindRequestingFriend(c *gin.Context) (*web.RequestingFriendReq, mir.Error) {
+	obj := new(web.RequestingFriendReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }

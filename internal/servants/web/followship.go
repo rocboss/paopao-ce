@@ -18,17 +18,15 @@ var (
 )
 
 type followshipSrv struct {
-	base.BaseServant
 	api.UnimplementedFollowshipServant
+	*base.DaoServant
 }
 
 type followshipBinding struct {
-	base.BaseBinding
 	*api.UnimplementedFollowshipBinding
 }
 
 type followshipRender struct {
-	base.BaseRender
 	*api.UnimplementedFollowshipRender
 }
 
@@ -36,7 +34,7 @@ func (s *followshipSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT()}
 }
 
-func newFollowshipSrv() api.Followship {
+func newFollowshipSrv(s *base.DaoServant) api.Followship {
 	return &followshipSrv{}
 }
 

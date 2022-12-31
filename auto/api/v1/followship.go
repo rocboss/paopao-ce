@@ -15,22 +15,25 @@ type Followship interface {
 	Chain() gin.HandlersChain
 
 	ListFollowers(*web.ListFollowersReq) (*web.ListFollowersResp, mir.Error)
-	ListFollowings() mir.Error
-	DeleteFollowing() mir.Error
-	AddFollowing() mir.Error
+	ListFollowings(*web.ListFollowingsReq) (*web.ListFollowingsResp, mir.Error)
+	DeleteFollowing(*web.DeleteFollowingReq) mir.Error
+	AddFollowing(*web.AddFollowingReq) mir.Error
 
 	mustEmbedUnimplementedFollowshipServant()
 }
 
 type FollowshipBinding interface {
 	BindListFollowers(*gin.Context) (*web.ListFollowersReq, mir.Error)
+	BindListFollowings(*gin.Context) (*web.ListFollowingsReq, mir.Error)
+	BindDeleteFollowing(*gin.Context) (*web.DeleteFollowingReq, mir.Error)
+	BindAddFollowing(*gin.Context) (*web.AddFollowingReq, mir.Error)
 
 	mustEmbedUnimplementedFollowshipBinding()
 }
 
 type FollowshipRender interface {
 	RenderListFollowers(*gin.Context, *web.ListFollowersResp, mir.Error)
-	RenderListFollowings(*gin.Context, mir.Error)
+	RenderListFollowings(*gin.Context, *web.ListFollowingsResp, mir.Error)
 	RenderDeleteFollowing(*gin.Context, mir.Error)
 	RenderAddFollowing(*gin.Context, mir.Error)
 
@@ -68,7 +71,13 @@ func RegisterFollowshipServant(e *gin.Engine, s Followship, b FollowshipBinding,
 		default:
 		}
 
-		r.RenderListFollowings(c, s.ListFollowings())
+		req, err := b.BindListFollowings(c)
+		if err != nil {
+			r.RenderListFollowings(c, nil, err)
+			return
+		}
+		resp, err := s.ListFollowings(req)
+		r.RenderListFollowings(c, resp, err)
 	})
 
 	router.Handle("POST", "/following/delete", func(c *gin.Context) {
@@ -78,7 +87,12 @@ func RegisterFollowshipServant(e *gin.Engine, s Followship, b FollowshipBinding,
 		default:
 		}
 
-		r.RenderDeleteFollowing(c, s.DeleteFollowing())
+		req, err := b.BindDeleteFollowing(c)
+		if err != nil {
+			r.RenderDeleteFollowing(c, err)
+			return
+		}
+		r.RenderDeleteFollowing(c, s.DeleteFollowing(req))
 	})
 
 	router.Handle("POST", "/following/add", func(c *gin.Context) {
@@ -88,7 +102,12 @@ func RegisterFollowshipServant(e *gin.Engine, s Followship, b FollowshipBinding,
 		default:
 		}
 
-		r.RenderAddFollowing(c, s.AddFollowing())
+		req, err := b.BindAddFollowing(c)
+		if err != nil {
+			r.RenderAddFollowing(c, err)
+			return
+		}
+		r.RenderAddFollowing(c, s.AddFollowing(req))
 	})
 
 }
@@ -105,15 +124,15 @@ func (UnimplementedFollowshipServant) ListFollowers(req *web.ListFollowersReq) (
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedFollowshipServant) ListFollowings() mir.Error {
+func (UnimplementedFollowshipServant) ListFollowings(req *web.ListFollowingsReq) (*web.ListFollowingsResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedFollowshipServant) DeleteFollowing(req *web.DeleteFollowingReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedFollowshipServant) DeleteFollowing() mir.Error {
-	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
-}
-
-func (UnimplementedFollowshipServant) AddFollowing() mir.Error {
+func (UnimplementedFollowshipServant) AddFollowing(req *web.AddFollowingReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
@@ -128,8 +147,8 @@ func (r *UnimplementedFollowshipRender) RenderListFollowers(c *gin.Context, data
 	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedFollowshipRender) RenderListFollowings(c *gin.Context, err mir.Error) {
-	r.RenderAny(c, nil, err)
+func (r *UnimplementedFollowshipRender) RenderListFollowings(c *gin.Context, data *web.ListFollowingsResp, err mir.Error) {
+	r.RenderAny(c, data, err)
 }
 
 func (r *UnimplementedFollowshipRender) RenderDeleteFollowing(c *gin.Context, err mir.Error) {
@@ -149,6 +168,24 @@ type UnimplementedFollowshipBinding struct {
 
 func (b *UnimplementedFollowshipBinding) BindListFollowers(c *gin.Context) (*web.ListFollowersReq, mir.Error) {
 	obj := new(web.ListFollowersReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedFollowshipBinding) BindListFollowings(c *gin.Context) (*web.ListFollowingsReq, mir.Error) {
+	obj := new(web.ListFollowingsReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedFollowshipBinding) BindDeleteFollowing(c *gin.Context) (*web.DeleteFollowingReq, mir.Error) {
+	obj := new(web.DeleteFollowingReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedFollowshipBinding) BindAddFollowing(c *gin.Context) (*web.AddFollowingReq, mir.Error) {
+	obj := new(web.AddFollowingReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }

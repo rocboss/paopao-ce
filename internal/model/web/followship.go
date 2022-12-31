@@ -4,10 +4,24 @@
 
 package web
 
-type ListFollowersReq struct {
-	*BaseInfo `json:"-"`
+import "github.com/rocboss/paopao-ce/internal/servants/base"
+
+type AddFollowingReq struct {
+	BaseInfo `json:"-" binding:"-"`
 }
 
-type ListFollowersResp struct {
-	// TODO
+type DeleteFollowingReq struct {
+	BaseInfo `json:"-" binding:"-"`
 }
+
+type ListFollowingsReq struct {
+	BaseInfo `json:"-" binding:"-"`
+}
+
+type ListFollowingsResp base.PageResp
+
+type ListFollowersReq struct {
+	BaseInfo `form:"-" binding:"-"`
+}
+
+type ListFollowersResp base.PageResp

@@ -37,10 +37,10 @@ func RouteWeb(e *gin.Engine) {
 			api.RegisterAlipayPrivServant(e, newAlipayPrivSrv(ds, client), newAlipayPrivBinding(), newAlipayPrivRender())
 		},
 		"Followship": func() {
-			api.RegisterFollowshipServant(e, newFollowshipSrv(), newFollowshipBinding(), newFollowshipRender())
+			api.RegisterFollowshipServant(e, newFollowshipSrv(ds), newFollowshipBinding(), newFollowshipRender())
 		},
 		"Friendship": func() {
-			api.RegisterFriendshipServant(e, newFriendshipSrv(), newFriendshipBinding(), newFriendshipRender())
+			api.RegisterFriendshipServant(e, newFriendshipSrv(ds), newFriendshipBinding(), newFriendshipRender())
 		},
 	})
 }
