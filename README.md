@@ -45,14 +45,20 @@ Web端：
 
 ## 🛠 技术栈
 
-PaoPao主要由以下优秀的开源项目/工具构建
+PaoPao主要由以下优秀的开源项目/工具构建  
+#### 后端:
+* [Go](https://go.dev/ 'go')
+* [Gin](https://gin-gonic.com/ 'gin')
+* [Mir](https://github.com/alimy/mir 'go-mir')
+* [Buf](https://github.com/bufbuild/buf 'buf')
+* [gRPC](https://github.com/grpc/grpc-go 'grpc-go')
+* [Zinc](https://zinclabs.io/ 'zinc')
 
-* [Go](https://go.dev/)
-* [Gin](https://gin-gonic.com/)
-* [Zinc](https://zinclabs.io/)
+#### 前端: 
 * [Naive UI](https://www.naiveui.com/)
 * [Vue.js](https://vuejs.org/)
 * [Vite.js](https://vitejs.dev/)
+* [tauri](https://github.com/tauri-apps/tauri 'tauri')
 
 <!-- GETTING STARTED -->
 ## 🏗 快速开始
