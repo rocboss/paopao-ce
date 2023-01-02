@@ -5,7 +5,7 @@ paopao-ce roadmap.
 * [x] add `Friendship` feature
 * [ ] add `Lightship` feature
 * [ ] add `Sqlx` feature
-* [ ] add new `Web` service
+* [x] add new `Web` service
 * [x] add `Deprecated:OldWeb` feature
 * [x] support run multiple service in single paopao-ce instance
 * [x] use [go-mir](https://github.com/alimy/mir) optimize paopao-ce source code architecture

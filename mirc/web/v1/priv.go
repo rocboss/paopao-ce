@@ -42,8 +42,8 @@ type Priv struct {
 	// StickTweet 置顶动态
 	StickTweet func(Post, web.StickTweetReq) web.StickTweetResp `mir:"/post/stick"`
 
-	// VisiblePost 修改动态可见度
-	VisiblePost func(Post, web.VisiblePostReq) web.VisiblePostResp `mir:"/post/visibility"`
+	// VisibleTweet 修改动态可见度
+	VisibleTweet func(Post, web.VisibleTweetReq) web.VisibleTweetResp `mir:"/post/visibility"`
 
 	// CreateTweetComment 发布动态评论
 	CreateComment func(Post, web.CreateCommentReq) web.CreateCommentResp `mir:"/post/comment"`

@@ -71,13 +71,13 @@ type StickTweetResp struct {
 	StickStatus int `json:"top_status"`
 }
 
-type VisiblePostReq struct {
+type VisibleTweetReq struct {
 	BaseInfo   `json:"-" binding:"-"`
-	ID         int64             `json:"id" binding:"required"`
-	Visibility core.PostVisibleT `json:"visibility" binding:"required"`
+	ID         int64             `json:"id"`
+	Visibility core.PostVisibleT `json:"visibility"`
 }
 
-type VisiblePostResp struct {
+type VisibleTweetResp struct {
 	Visibility core.PostVisibleT `json:"visibility"`
 }
 

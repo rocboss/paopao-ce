@@ -83,7 +83,7 @@ type SuggestUsersReq struct {
 }
 
 type SuggestUsersResp struct {
-	Suggests []string `json:"suggests"`
+	Suggests []string `json:"suggest"`
 }
 
 type SuggestTagsReq struct {
@@ -91,7 +91,7 @@ type SuggestTagsReq struct {
 }
 
 type SuggestTagsResp struct {
-	Suggests []string `json:"suggests"`
+	Suggests []string `json:"suggest"`
 }
 
 type TweetStarStatusReq struct {

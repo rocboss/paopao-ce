@@ -627,11 +627,11 @@ func (s *privSrv) StarTweet(req *web.StarTweetReq) (*web.StarTweetResp, mir.Erro
 	}, nil
 }
 
-func (s *privSrv) VisiblePost(req *web.VisiblePostReq) (*web.VisiblePostResp, mir.Error) {
+func (s *privSrv) VisibleTweet(req *web.VisibleTweetReq) (*web.VisibleTweetResp, mir.Error) {
 	if req.Visibility >= core.PostVisitInvalid {
 		return nil, xerror.InvalidParams
 	}
-	post, err := s.Ds.GetPostByID(req.User.ID)
+	post, err := s.Ds.GetPostByID(req.ID)
 	if err != nil {
 		return nil, _errVisblePostFailed
 	}
@@ -639,7 +639,7 @@ func (s *privSrv) VisiblePost(req *web.VisiblePostReq) (*web.VisiblePostResp, mi
 		return nil, xerr
 	}
 	if err = s.Ds.VisiblePost(post, req.Visibility); err != nil {
-		logrus.Warnf("update post failure: %v", err)
+		logrus.Warnf("s.Ds.VisiblePost: %s", err)
 		return nil, _errVisblePostFailed
 	}
 
@@ -647,7 +647,7 @@ func (s *privSrv) VisiblePost(req *web.VisiblePostReq) (*web.VisiblePostResp, mi
 	post.Visibility = req.Visibility
 	s.PushPostToSearch(post)
 
-	return &web.VisiblePostResp{
+	return &web.VisibleTweetResp{
 		Visibility: req.Visibility,
 	}, nil
 }
@@ -658,15 +658,15 @@ func (s *privSrv) StickTweet(req *web.StickTweetReq) (*web.StickTweetResp, mir.E
 		logrus.Errorf("Ds.GetPostByID err: %v\n", err)
 		return nil, _errStickPostFailed
 	}
-
 	if !req.User.IsAdmin {
 		return nil, _errNoPermission
 	}
+	newStatus := 1 - post.IsTop
 	if err = s.Ds.StickPost(post); err != nil {
 		return nil, _errStickPostFailed
 	}
 	return &web.StickTweetResp{
-		StickStatus: 1 - post.IsTop,
+		StickStatus: newStatus,
 	}, nil
 }
 
@@ -675,16 +675,15 @@ func (s *privSrv) LockTweet(req *web.LockTweetReq) (*web.LockTweetResp, mir.Erro
 	if err != nil {
 		return nil, _errLockPostFailed
 	}
-
 	if post.UserID != req.User.ID && !req.User.IsAdmin {
 		return nil, _errNoPermission
 	}
-
+	newStatus := 1 - post.IsLock
 	if err := s.Ds.LockPost(post); err != nil {
 		return nil, _errLockPostFailed
 	}
 	return &web.LockTweetResp{
-		LockStatus: 1 - post.IsLock,
+		LockStatus: newStatus,
 	}, nil
 }
 
