@@ -82,6 +82,12 @@ gen-grpc:
 	@buf generate proto
 	@go fmt ./auto/rpc/...
 
+.PHONY: gen-sqlc
+gen-sqlc:
+	@find internal/dao/slonik/ce/mysql internal/dao/slonik/ce/postgres internal/dao/slonik/ce/sqlite -name '*.go' -exec rm -f {} +
+	@go generate internal/dao/slonik/ce/ce.go
+	@go fmt ./internal/dao/slonik/ce/...
+
 .PHONY: proto-mod
 proto-mod:
 	@cd proto/ && buf mod update
@@ -114,6 +120,7 @@ install-protobuf-plugins:
 	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-lint@v1.11.0
 	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	@go install github.com/kyleconroy/sqlc/cmd/sqlc@latest
 
 help:
 	@echo "make: make"
