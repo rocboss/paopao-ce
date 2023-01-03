@@ -56,7 +56,7 @@ tree -L 2
 ### 疑问
 
 1. 为什么要引入[go-mir](https://github.com/alimy/mir)?       
-工欲善其事，必先利其器。为了RESTFul API的后端开发体验可以媲美gRPC，本人特意打造[go-mir](https://github.com/alimy/mir) v3版本来满足需求。[go-mir](https://github.com/alimy/mir)是一套使用golang自身语言生态实现的RESTFul API从接口定义到代码自动生成的脚手架辅助工具集，便捷的实现快速后端开发体验，颇有“程咬金的三板斧，简单抡着就完事”的韵味。而从[go-mir](https://github.com/alimy/mir)的官方文档参考也可以看出，其生成的代码也确实就将一个HTTP的请求/响应简单分成 `请求绑定`->`业务逻辑`->`结果渲染`三个步骤去完成，生成的代码结构简单清晰，与gRPC的生成代码有点类似。
+**工欲善其事，必先利其器**。为了RESTFul API的后端开发体验可以媲美gRPC，本人特意打造[go-mir](https://github.com/alimy/mir) v3版本来满足需求。[go-mir](https://github.com/alimy/mir)是一套使用golang自身语言生态实现的RESTFul API从接口定义到代码自动生成的脚手架辅助工具集，便捷的实现快速后端开发体验，颇有 *“程咬金的三板斧，简单抡着就完事”* 的韵味。而从[go-mir](https://github.com/alimy/mir)的官方文档参考也可以看出，其生成的代码也确实就将一个HTTP的请求/响应简单分成 `请求绑定`->`业务逻辑`->`结果渲染`三个步骤去完成，生成的代码结构简单清晰，与gRPC的生成代码有点类似。
 1. 为什么要兼容RESTful服务与gRPC服务？         
 RESTful服务与gRPC服务各自有擅长的场景，在合适的场景使用最适合的技术去做相应的适配，这是paopao-ce秉持的代码开发原则之一。 
 
