@@ -33,7 +33,7 @@ func (s *adminService) Version() *semver.Version {
 }
 
 func (s *adminService) OnInit() error {
-	s.registerRoute(servants.RegisterAdminServants)
+	s.registerRoute(s, servants.RegisterAdminServants)
 	return nil
 }
 

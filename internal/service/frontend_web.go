@@ -31,7 +31,7 @@ func (s *frontendWebService) Version() *semver.Version {
 }
 
 func (s *frontendWebService) OnInit() error {
-	s.registerRoute(servants.RegisterFrontendWebServants)
+	s.registerRoute(s, servants.RegisterFrontendWebServants)
 	return nil
 }
 
