@@ -14,6 +14,8 @@ import (
 
 func NewDataService() (core.DataService, core.VersionInfo) {
 	logrus.Fatal("not support now")
+	_ = newIndexPostsService(sqlxDB())
+	_ = newSimpleIndexPostsService(sqlxDB())
 	return nil, nil
 }
 

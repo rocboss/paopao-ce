@@ -20,19 +20,20 @@ import (
 )
 
 var (
-	db    *gorm.DB
 	Redis *redis.Client
-	once  sync.Once
+
+	_gormdb   *gorm.DB
+	_onceGorm sync.Once
 )
 
 func MustGormDB() *gorm.DB {
-	once.Do(func() {
+	_onceGorm.Do(func() {
 		var err error
-		if db, err = newDBEngine(); err != nil {
+		if _gormdb, err = newDBEngine(); err != nil {
 			logrus.Fatalf("new gorm db failed: %s", err)
 		}
 	})
-	return db
+	return _gormdb
 }
 
 func newDBEngine() (*gorm.DB, error) {
