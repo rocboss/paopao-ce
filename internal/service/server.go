@@ -151,13 +151,13 @@ func colorPrint(act byte, err error, l int, ss ...Service) {
 	case actStart:
 		if err != nil {
 			for _, s = range ss {
-				fmt.Fprintf(color.Output, "%s [start] - starting server occurs error:: %s\n", util.SidStr(s.Name(), s.Version(), l), err)
+				fmt.Fprintf(color.Output, "%s [start] - starting server occurs error: %s\n", util.SidStr(s.Name(), s.Version(), l), err)
 			}
 		}
 	case actStop:
 		if err != nil {
 			for _, s = range ss {
-				fmt.Fprintf(color.Output, "%s [stop] - stopping server occurs error:: %s\n", util.SidStr(s.Name(), s.Version(), l), err)
+				fmt.Fprintf(color.Output, "%s [stop] - stopping server occurs error: %s\n", util.SidStr(s.Name(), s.Version(), l), err)
 			}
 		}
 	}
