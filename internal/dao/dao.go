@@ -95,7 +95,7 @@ func newAuthorizationManageService() (s core.AuthorizationManageService) {
 		s = jinzhu.NewAuthorizationManageService()
 	} else if cfg.If("Sqlx") && cfg.If("MySQL") {
 		s = sakila.NewAuthorizationManageService()
-	} else if cfg.If("Sqlx") && (cfg.If("Postgres") || cfg.If("PostgreSQL")) {
+	} else if cfg.If("Sqlc") && (cfg.If("Postgres") || cfg.If("PostgreSQL")) {
 		s = slonik.NewAuthorizationManageService()
 	} else {
 		s = jinzhu.NewAuthorizationManageService()
