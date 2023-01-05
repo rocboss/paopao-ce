@@ -93,7 +93,7 @@ func TweetSearchService() core.TweetSearchService {
 func newAuthorizationManageService() (s core.AuthorizationManageService) {
 	if cfg.If("Gorm") {
 		s = jinzhu.NewAuthorizationManageService()
-	} else if cfg.If("Sqlx") && cfg.If("MySQL") {
+	} else if cfg.If("Sqlx") {
 		s = sakila.NewAuthorizationManageService()
 	} else if cfg.If("Sqlc") && (cfg.If("Postgres") || cfg.If("PostgreSQL")) {
 		s = slonik.NewAuthorizationManageService()
