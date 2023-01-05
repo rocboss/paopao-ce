@@ -6,6 +6,7 @@ package api
 
 import (
 	"github.com/alimy/cfg"
+	"github.com/go-redis/redis/v8"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao"
@@ -14,11 +15,13 @@ import (
 )
 
 var (
+	redisClient   *redis.Client
 	alipayClient  *alipay.Client
 	objectStorage core.ObjectStorageService
 )
 
 func Initialize() {
+	redisClient = conf.MustRedis()
 	objectStorage = dao.ObjectStorageService()
 
 	if cfg.If("Alipay") {

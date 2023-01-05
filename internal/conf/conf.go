@@ -122,7 +122,6 @@ func Initialize(suite []string, noDefault bool) {
 	}
 
 	setupLogger()
-	setupDBEngine()
 }
 
 func GetOssDomain() string {

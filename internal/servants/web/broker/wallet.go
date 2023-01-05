@@ -5,11 +5,11 @@
 package broker
 
 import (
-	"github.com/rocboss/paopao-ce/internal/core"
 	"time"
 
+	"github.com/rocboss/paopao-ce/internal/core"
+
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 )
 
@@ -26,7 +26,7 @@ func CreateRecharge(userID, amount int64) (*core.WalletRecharge, error) {
 }
 
 func FinishRecharge(ctx *gin.Context, id int64, tradeNo string) error {
-	if ok, _ := conf.Redis.SetNX(ctx, "PaoPaoRecharge:"+tradeNo, 1, time.Second*5).Result(); ok {
+	if ok, _ := redisClient.SetNX(ctx, "PaoPaoRecharge:"+tradeNo, 1, time.Second*5).Result(); ok {
 		recharge, err := ds.GetRechargeByID(id)
 		if err != nil {
 			return err
@@ -36,7 +36,7 @@ func FinishRecharge(ctx *gin.Context, id int64, tradeNo string) error {
 
 			// 标记为已付款
 			err := ds.HandleRechargeSuccess(recharge, tradeNo)
-			defer conf.Redis.Del(ctx, "PaoPaoRecharge:"+tradeNo)
+			defer redisClient.Del(ctx, "PaoPaoRecharge:"+tradeNo)
 
 			if err != nil {
 				return err

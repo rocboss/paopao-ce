@@ -13,7 +13,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
@@ -102,7 +101,7 @@ func DoLogin(ctx *gin.Context, param *AuthRequest) (*core.User, error) {
 	}
 
 	if user.Model != nil && user.ID > 0 {
-		if errTimes, err := conf.Redis.Get(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID)).Result(); err == nil {
+		if errTimes, err := redisClient.Get(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID)).Result(); err == nil {
 			if convert.StrTo(errTimes).MustInt() >= _MaxLoginErrTimes {
 				return nil, errcode.TooManyLoginError
 			}
@@ -116,14 +115,14 @@ func DoLogin(ctx *gin.Context, param *AuthRequest) (*core.User, error) {
 			}
 
 			// 清空登录计数
-			conf.Redis.Del(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID))
+			redisClient.Del(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID))
 			return user, nil
 		}
 
 		// 登录错误计数
-		_, err = conf.Redis.Incr(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID)).Result()
+		_, err = redisClient.Incr(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID)).Result()
 		if err == nil {
-			conf.Redis.Expire(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID), time.Hour).Result()
+			redisClient.Expire(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID), time.Hour).Result()
 		}
 
 		return nil, errcode.UnauthorizedAuthFailed
@@ -435,12 +434,12 @@ func SendPhoneCaptcha(ctx *gin.Context, phone string) error {
 	}
 
 	// 写入计数缓存
-	conf.Redis.Incr(ctx, "PaoPaoSmsCaptcha:"+phone).Result()
+	redisClient.Incr(ctx, "PaoPaoSmsCaptcha:"+phone).Result()
 
 	currentTime := time.Now()
 	endTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
 
-	conf.Redis.Expire(ctx, "PaoPaoSmsCaptcha:"+phone, endTime.Sub(currentTime))
+	redisClient.Expire(ctx, "PaoPaoSmsCaptcha:"+phone, endTime.Sub(currentTime))
 
 	return nil
 }

@@ -44,7 +44,7 @@ func Run() {
 		dbName = (*conf.PostgresSetting)["DBName"]
 		db, err = sql.Open("postgres", conf.PostgresSetting.Dsn())
 	} else if cfg.If("Sqlite3") {
-		db, err = conf.OpenSqlite3()
+		_, db, err = conf.OpenSqlite3()
 	} else {
 		dbName = conf.MysqlSetting.DBName
 		db, err = sql.Open("mysql", conf.MysqlSetting.Dsn())
