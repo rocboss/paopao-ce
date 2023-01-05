@@ -44,7 +44,7 @@ func (t *Tag) Get(db *gorm.DB) (*Tag, error) {
 
 	err := db.First(&tag).Error
 	if err != nil {
-		return &tag, err
+		return nil, err
 	}
 
 	return &tag, nil
@@ -84,7 +84,7 @@ func (t *Tag) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]*
 		}
 	}
 
-	if err = db.Where("is_del = ?", 0).Find(&tags).Error; err != nil {
+	if err = db.Where("is_del = 0 and quote_num > 0").Find(&tags).Error; err != nil {
 		return nil, err
 	}
 
