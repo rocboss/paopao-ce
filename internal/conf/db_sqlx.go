@@ -11,9 +11,6 @@ import (
 	"github.com/alimy/cfg"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
-
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 var (

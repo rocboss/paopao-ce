@@ -42,7 +42,7 @@ func Run() {
 		db, err = sql.Open("mysql", conf.MysqlSetting.Dsn()+"&multiStatements=true")
 	} else if cfg.If("PostgreSQL") || cfg.If("Postgres") {
 		dbName = (*conf.PostgresSetting)["DBName"]
-		db, err = sql.Open("postgres", conf.PostgresSetting.Dsn())
+		db, err = sql.Open("pgx", conf.PostgresSetting.Dsn())
 	} else if cfg.If("Sqlite3") {
 		_, db, err = conf.OpenSqlite3()
 	} else {
