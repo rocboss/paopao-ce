@@ -11,6 +11,9 @@ import (
 	"github.com/alimy/cfg"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
+
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 var (
@@ -32,7 +35,7 @@ func newSqlxDB() (db *sqlx.DB, err error) {
 	if cfg.If("MySQL") {
 		db, err = sqlx.Open("mysql", MysqlSetting.Dsn())
 	} else if cfg.If("PostgreSQL") || cfg.If("Postgres") {
-		db, err = sqlx.Open("postgres", PostgresSetting.Dsn())
+		db, err = sqlx.Open("pgx", PostgresSetting.Dsn())
 	} else if cfg.If("Sqlite3") {
 		var (
 			driver string

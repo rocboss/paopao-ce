@@ -7,6 +7,7 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
 var (
@@ -27,29 +28,27 @@ type simpleIndexPostsServant struct {
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
 func (s *indexPostsServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
 	// TODO
+	debug.NotImplemented()
 	return nil, nil
 }
 
 // simpleCacheIndexGetPosts simpleCacheIndex 专属获取广场推文列表函数
 func (s *simpleIndexPostsServant) IndexPosts(_user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
 	// TODO
+	debug.NotImplemented()
 	return nil, nil
 }
 
 func newIndexPostsService(db *sqlx.DB) core.IndexPostsService {
 	return &indexPostsServant{
-		db: db,
-		stmtIndex: c(`
-			SELECT * FROM @person WHERE first_name=?
-		`),
+		db:        db,
+		stmtIndex: c(`SELECT * FROM @person WHERE first_name=?`),
 	}
 }
 
 func newSimpleIndexPostsService(db *sqlx.DB) core.IndexPostsService {
 	return &simpleIndexPostsServant{
-		db: db,
-		stmtIndex: c(`
-			SELECT * FROM @person WHERE first_name=?
-		`),
+		db:        db,
+		stmtIndex: c(`SELECT * FROM @person WHERE first_name=?`),
 	}
 }
