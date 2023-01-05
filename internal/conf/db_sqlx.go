@@ -5,10 +5,8 @@
 package conf
 
 import (
-	"database/sql"
 	"sync"
 
-	"github.com/alimy/cfg"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 )
@@ -20,28 +18,11 @@ var (
 
 func MustSqlxDB() *sqlx.DB {
 	_onceSqlx.Do(func() {
-		var err error
-		if _sqlxdb, err = newSqlxDB(); err != nil {
+		driver, db, err := newSqlDB()
+		if err != nil {
 			logrus.Fatalf("new sqlx db failed: %s", err)
 		}
+		_sqlxdb = sqlx.NewDb(db, driver)
 	})
 	return _sqlxdb
-}
-
-func newSqlxDB() (db *sqlx.DB, err error) {
-	if cfg.If("MySQL") {
-		db, err = sqlx.Open("mysql", MysqlSetting.Dsn())
-	} else if cfg.If("PostgreSQL") || cfg.If("Postgres") {
-		db, err = sqlx.Open("pgx", PostgresSetting.Dsn())
-	} else if cfg.If("Sqlite3") {
-		var (
-			driver string
-			sqldb  *sql.DB
-		)
-		driver, sqldb, err = OpenSqlite3()
-		db = sqlx.NewDb(sqldb, driver)
-	} else {
-		db, err = sqlx.Open("mysql", MysqlSetting.Dsn())
-	}
-	return
 }
