@@ -10,21 +10,3 @@ sql:
         sql_package: 'pgx/v5'
         emit_prepared_queries: true
         emit_interface: true
-  - schema: mysql/schema
-    queries: mysql/query
-    engine: mysql
-    gen:
-      go:
-        package: dbr
-        out: mysql
-        emit_prepared_queries: true
-        emit_interface: true
-  - schema: sqlite/schema
-    queries: sqlite/query
-    engine: sqlite
-    gen:
-      go:
-        package: dbr
-        out: sqlite
-        emit_prepared_queries: true
-        emit_interface: true

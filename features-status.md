@@ -47,13 +47,18 @@
     * [x] 服务初始化逻辑
 
 #### 数据库:
-* `Gorm` + `MySQL`/`Sqlite3`/`PostgreSQL`
-使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Grom` + `MySQL`组合(目前状态：稳定，默认，推荐使用)； 
+* `Gorm` + `MySQL`/`Sqlite3`/`PostgreSQL`   
+使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Grom` + `MySQL`组合(目前状态：稳定，默认，推荐使用)  
     * [ ] 提按文档
     * [x] 接口定义
     * [x] 业务逻辑实现  
-* `Sqlx` + `MySQL`/`PostgreSQL`
-使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM(目前状态：WIP)；
+* `Sqlx` + `MySQL`/`Sqlite3`/`PostgreSQL`   
+使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM(目前状态：WIP)  
+    * [ ] 提按文档
+    * [ ] 接口定义
+    * [ ] 业务逻辑实现  
+* `Sqlc` + `PostgreSQL`   
+使用[sqlc](https://github.com/kyleconroy/sqlc)自动生成ORM代码(目前状态：WIP)  
     * [ ] 提按文档
     * [ ] 接口定义
     * [ ] 业务逻辑实现  
