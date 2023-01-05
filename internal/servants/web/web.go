@@ -19,7 +19,7 @@ import (
 func RouteWeb(e *gin.Engine) {
 	oss := dao.ObjectStorageService()
 	ds := &base.DaoServant{
-		Redis: conf.Redis,
+		Redis: conf.MustRedis(),
 		Ds:    dao.DataService(),
 		Ts:    dao.TweetSearchService(),
 	}

@@ -23,32 +23,10 @@ type grpcServer struct {
 }
 
 func (s *grpcServer) start() error {
-	s.Lock()
-	if s.serverStatus == _statusServerStarted || s.serverStatus == _statusServerStoped {
-		return nil
-	}
-	oldStatus := s.serverStatus
-	s.serverStatus = _statusServerStarted
-	s.Unlock()
-
-	if err := s.server.Serve(s.listener); err != nil {
-		s.Lock()
-		s.serverStatus = oldStatus
-		s.Unlock()
-
-		return err
-	}
-	return nil
+	return s.server.Serve(s.listener)
 }
 
 func (s *grpcServer) stop() error {
-	s.Lock()
-	defer s.Unlock()
-
-	if s.serverStatus == _statusServerStoped || s.serverStatus == _statusServerInitilized {
-		return nil
-	}
 	s.server.Stop()
-	s.serverStatus = _statusServerStoped
 	return nil
 }

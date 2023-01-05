@@ -33,7 +33,7 @@ func (s *mobileService) Version() *semver.Version {
 }
 
 func (s *mobileService) OnInit() error {
-	s.registerServer(servants.RegisterMobileServants)
+	s.registerServer(s, servants.RegisterMobileServants)
 	return nil
 }
 

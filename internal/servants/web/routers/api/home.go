@@ -14,7 +14,6 @@ import (
 	"github.com/afocus/captcha"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/servants/web/assets"
 	"github.com/rocboss/paopao-ce/internal/servants/web/broker"
@@ -65,7 +64,7 @@ func GetCaptcha(c *gin.Context) {
 	key := util.EncodeMD5(uuid.Must(uuid.NewV4()).String())
 
 	// 五分钟有效期
-	conf.Redis.SetEX(c, "PaoPaoCaptcha:"+key, password, time.Minute*5)
+	redisClient.SetEX(c, "PaoPaoCaptcha:"+key, password, time.Minute*5)
 
 	response := app.NewResponse(c)
 	response.ToResponse(gin.H{
@@ -85,14 +84,14 @@ func PostCaptcha(c *gin.Context) {
 	}
 
 	// 验证图片验证码
-	if res, err := conf.Redis.Get(c.Request.Context(), "PaoPaoCaptcha:"+param.ImgCaptchaID).Result(); err != nil || res != param.ImgCaptcha {
+	if res, err := redisClient.Get(c.Request.Context(), "PaoPaoCaptcha:"+param.ImgCaptchaID).Result(); err != nil || res != param.ImgCaptcha {
 		response.ToErrorResponse(errcode.ErrorCaptchaPassword)
 		return
 	}
-	conf.Redis.Del(c.Request.Context(), "PaoPaoCaptcha:"+param.ImgCaptchaID).Result()
+	redisClient.Del(c.Request.Context(), "PaoPaoCaptcha:"+param.ImgCaptchaID).Result()
 
 	// 今日频次限制
-	if res, _ := conf.Redis.Get(c.Request.Context(), "PaoPaoSmsCaptcha:"+param.Phone).Result(); convert.StrTo(res).MustInt() >= MAX_PHONE_CAPTCHA {
+	if res, _ := redisClient.Get(c.Request.Context(), "PaoPaoSmsCaptcha:"+param.Phone).Result(); convert.StrTo(res).MustInt() >= MAX_PHONE_CAPTCHA {
 		response.ToErrorResponse(errcode.TooManyPhoneCaptchaSend)
 		return
 	}

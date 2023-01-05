@@ -24,32 +24,32 @@ func newMessageService(db *gorm.DB) core.MessageService {
 	}
 }
 
-func (d *messageServant) CreateMessage(msg *core.Message) (*core.Message, error) {
-	return msg.Create(d.db)
+func (s *messageServant) CreateMessage(msg *core.Message) (*core.Message, error) {
+	return msg.Create(s.db)
 }
 
-func (d *messageServant) GetUnreadCount(userID int64) (int64, error) {
-	return (&dbr.Message{}).Count(d.db, &dbr.ConditionsT{
+func (s *messageServant) GetUnreadCount(userID int64) (int64, error) {
+	return (&dbr.Message{}).Count(s.db, &dbr.ConditionsT{
 		"receiver_user_id": userID,
 		"is_read":          dbr.MsgStatusUnread,
 	})
 }
 
-func (d *messageServant) GetMessageByID(id int64) (*core.Message, error) {
+func (s *messageServant) GetMessageByID(id int64) (*core.Message, error) {
 	return (&dbr.Message{
 		Model: &dbr.Model{
 			ID: id,
 		},
-	}).Get(d.db)
+	}).Get(s.db)
 }
 
-func (d *messageServant) ReadMessage(message *core.Message) error {
+func (s *messageServant) ReadMessage(message *core.Message) error {
 	message.IsRead = 1
-	return message.Update(d.db)
+	return message.Update(s.db)
 }
 
-func (d *messageServant) GetMessages(conditions *core.ConditionsT, offset, limit int) ([]*core.MessageFormated, error) {
-	messages, err := (&dbr.Message{}).List(d.db, conditions, offset, limit)
+func (s *messageServant) GetMessages(conditions *core.ConditionsT, offset, limit int) ([]*core.MessageFormated, error) {
+	messages, err := (&dbr.Message{}).List(s.db, conditions, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -63,6 +63,6 @@ func (d *messageServant) GetMessages(conditions *core.ConditionsT, offset, limit
 	return mfs, nil
 }
 
-func (d *messageServant) GetMessageCount(conditions *core.ConditionsT) (int64, error) {
-	return (&dbr.Message{}).Count(d.db, conditions)
+func (s *messageServant) GetMessageCount(conditions *core.ConditionsT) (int64, error) {
+	return (&dbr.Message{}).Count(s.db, conditions)
 }

@@ -30,9 +30,9 @@ func DataService() core.DataService {
 		var v core.VersionInfo
 		if cfg.If("Gorm") {
 			ds, v = jinzhu.NewDataService()
-		} else if cfg.If("Sqlx") && cfg.If("MySQL") {
+		} else if cfg.If("Sqlx") {
 			ds, v = sakila.NewDataService()
-		} else if cfg.If("Sqlx") && (cfg.If("Postgres") || cfg.If("PostgreSQL")) {
+		} else if cfg.If("Sqlc") && (cfg.If("Postgres") || cfg.If("PostgreSQL")) {
 			ds, v = slonik.NewDataService()
 		} else {
 			// default use gorm as orm for sql database

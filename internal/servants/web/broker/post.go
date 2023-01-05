@@ -501,8 +501,8 @@ func DeleteSearchPost(post *core.Post) error {
 }
 
 func PushPostsToSearch(c *gin.Context) {
-	if ok, _ := conf.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
-		defer conf.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
+	if ok, _ := redisClient.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
+		defer redisClient.Del(c, "JOB_PUSH_TO_SEARCH")
 
 		splitNum := 1000
 		totalRows, _ := GetPostCount(&core.ConditionsT{

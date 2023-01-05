@@ -1,94 +1,57 @@
-// Copyright 2022 ROC. All rights reserved.
+// Copyright 2023 ROC. All rights reserved.
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
 package conf
 
 import (
+	"database/sql"
 	"sync"
-	"time"
 
 	"github.com/alimy/cfg"
 	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
-	"gorm.io/driver/mysql"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
-	"gorm.io/gorm/schema"
-	"gorm.io/plugin/dbresolver"
 )
 
 var (
-	db    *gorm.DB
-	Redis *redis.Client
-	once  sync.Once
+	_sqldb               *sql.DB
+	_redisClient         *redis.Client
+	_onceSql, _onceRedis sync.Once
 )
 
-func MustGormDB() *gorm.DB {
-	once.Do(func() {
+func MustSqlDB() *sql.DB {
+	_onceSql.Do(func() {
 		var err error
-		if db, err = newDBEngine(); err != nil {
-			logrus.Fatalf("new gorm db failed: %s", err)
+		if _, _sqldb, err = newSqlDB(); err != nil {
+			logrus.Fatalf("new sql db failed: %s", err)
 		}
 	})
-	return db
+	return _sqldb
 }
 
-func newDBEngine() (*gorm.DB, error) {
-	newLogger := logger.New(
-		logrus.StandardLogger(), // io writer（日志输出的目标，前缀和日志包含的内容）
-		logger.Config{
-			SlowThreshold:             time.Second,                // 慢 SQL 阈值
-			LogLevel:                  DatabaseSetting.logLevel(), // 日志级别
-			IgnoreRecordNotFoundError: true,                       // 忽略ErrRecordNotFound（记录未找到）错误
-			Colorful:                  false,                      // 禁用彩色打印
-		},
-	)
+func MustRedis() *redis.Client {
+	_onceRedis.Do(func() {
+		_redisClient = redis.NewClient(&redis.Options{
+			Addr:     redisSetting.Host,
+			Password: redisSetting.Password,
+			DB:       redisSetting.DB,
+		})
+	})
+	return _redisClient
+}
 
-	config := &gorm.Config{
-		Logger: newLogger,
-		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   DatabaseSetting.TablePrefix,
-			SingularTable: true,
-		},
-	}
-
-	plugin := dbresolver.Register(dbresolver.Config{}).
-		SetConnMaxIdleTime(time.Hour).
-		SetConnMaxLifetime(24 * time.Hour).
-		SetMaxIdleConns(MysqlSetting.MaxIdleConns).
-		SetMaxOpenConns(MysqlSetting.MaxOpenConns)
-
-	var (
-		db  *gorm.DB
-		err error
-	)
+func newSqlDB() (driver string, db *sql.DB, err error) {
 	if cfg.If("MySQL") {
-		logrus.Debugln("use MySQL as db")
-		if db, err = gorm.Open(mysql.Open(MysqlSetting.Dsn()), config); err == nil {
-			db.Use(plugin)
-		}
-	} else if cfg.If("Postgres") {
-		logrus.Debugln("use PostgreSQL as db")
-		db, err = gorm.Open(postgres.Open(PostgresSetting.Dsn()), config)
+		driver = "mysql"
+		db, err = sql.Open(driver, MysqlSetting.Dsn())
+	} else if cfg.If("PostgreSQL") || cfg.If("Postgres") {
+		driver = "pgx"
+		db, err = sql.Open(driver, PostgresSetting.Dsn())
 	} else if cfg.If("Sqlite3") {
-		logrus.Debugf("use Sqlite3 as db path:%s sqlite3InCgoEnabled:%t", Sqlite3Setting.Path, sqlite3InCgoEnabled)
-		db, err = gormOpenSqlite3(config)
+		driver, db, err = OpenSqlite3()
 	} else {
-		logrus.Debugln("use default of MySQL as db")
-		if db, err = gorm.Open(mysql.Open(MysqlSetting.Dsn()), config); err == nil {
-			db.Use(plugin)
-		}
+		driver = "mysql"
+		db, err = sql.Open(driver, MysqlSetting.Dsn())
 	}
-
-	return db, err
-}
-
-func setupDBEngine() {
-	Redis = redis.NewClient(&redis.Options{
-		Addr:     redisSetting.Host,
-		Password: redisSetting.Password,
-		DB:       redisSetting.DB,
-	})
+	return
 }

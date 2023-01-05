@@ -6,6 +6,8 @@ package broker
 
 import (
 	"github.com/alimy/cfg"
+	"github.com/go-redis/redis/v8"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/sirupsen/logrus"
@@ -15,6 +17,7 @@ var (
 	ds                 core.DataService
 	ts                 core.TweetSearchService
 	oss                core.ObjectStorageService
+	redisClient        *redis.Client
 	DisablePhoneVerify bool
 )
 
@@ -22,6 +25,7 @@ func Initialize() {
 	ds = dao.DataService()
 	ts = dao.TweetSearchService()
 	oss = dao.ObjectStorageService()
+	redisClient = conf.MustRedis()
 	DisablePhoneVerify = !cfg.If("Sms")
 }
 
