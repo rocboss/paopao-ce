@@ -14,7 +14,6 @@ import (
 	"syscall"
 
 	"github.com/fatih/color"
-	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/service"
@@ -53,52 +52,29 @@ func flagParse() {
 	flag.Parse()
 }
 
-func runService(wg *sync.WaitGroup, ss []service.Service) {
-	gin.SetMode(conf.RunMode())
-
-	fmt.Fprintf(color.Output, "\nstarting run service...\n\n")
-	l := service.MaxSidSize(ss)
-	for _, s := range ss {
-		go func(s service.Service) {
-			fmt.Fprintf(color.Output, "%s [start] - %s", util.SidStr(s.Name(), s.Version(), l), s)
-			if err := s.OnStart(); err != nil {
-				fmt.Fprintf(color.Output, "%s [start] - occurs on error: %s\n", util.SidStr(s.Name(), s.Version(), l), err)
-			}
-			wg.Done()
-		}(s)
-	}
-}
-
-func runManage(wg *sync.WaitGroup, ss []service.Service) {
-	quit := make(chan os.Signal, 1)
-	// kill (no param) default send syscall.SIGTERM
-	// kill -2 is syscall.SIGINT
-	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	fmt.Fprintf(color.Output, "\nshutting down server...\n\n")
-	l := service.MaxSidSize(ss)
-	for _, s := range ss {
-		if err := s.OnStop(); err != nil {
-			fmt.Fprintf(color.Output, "%s [stop]  - occurs on error: %s\n", util.SidStr(s.Name(), s.Version(), l), err)
-		}
-		fmt.Fprintf(color.Output, "%s [stop]  - finish...\n", util.SidStr(s.Name(), s.Version(), l))
-	}
-	wg.Done()
-}
-
 func main() {
 	util.PrintHelloBanner(debug.VersionInfo())
-
-	if ss := service.InitService(); len(ss) > 0 {
-		wg := &sync.WaitGroup{}
-		wg.Add(len(ss) + 1)
-
-		runService(wg, ss)
-		go runManage(wg, ss)
-
-		wg.Wait()
-	} else {
+	ss := service.MustInitService()
+	if len(ss) < 1 {
 		fmt.Fprintln(color.Output, "no service need start so just exit")
+		return
 	}
+	wg := &sync.WaitGroup{}
+	// start services
+	fmt.Fprintf(color.Output, "\nstarting run service...\n\n")
+	service.Start(wg)
+	// graceful stop services
+	wg.Add(1)
+	go func() {
+		quit := make(chan os.Signal, 1)
+		// kill (no param) default send syscall.SIGTERM
+		// kill -2 is syscall.SIGINT
+		// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+		fmt.Fprintf(color.Output, "\nshutting down server...\n\n")
+		service.Stop()
+		wg.Done()
+	}()
+	wg.Wait()
 }

@@ -20,9 +20,7 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
 
-type BaseServant struct {
-	// TODO
-}
+type BaseServant types.Empty
 
 type DaoServant struct {
 	Redis *redis.Client

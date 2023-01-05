@@ -14,19 +14,17 @@ type baseHttpService struct {
 	server *httpServer
 }
 
-func (s *baseHttpService) registerRoute(h func(e *gin.Engine)) {
-	if s.server.status() != _statusServerStarted {
-		h(s.server.e)
-	}
+func (s *baseHttpService) registerRoute(srv Service, h func(e *gin.Engine)) {
+	h(s.server.e)
+	s.server.addService(srv)
 }
 
 func (s *baseHttpService) OnStart() error {
-	if err := s.server.start(); err != nil {
-		return err
-	}
+	// do nothing default
 	return nil
 }
 
 func (s *baseHttpService) OnStop() error {
-	return s.server.stop()
+	// do nothing default
+	return nil
 }

@@ -31,7 +31,7 @@ func (s *oldWebService) Version() *semver.Version {
 }
 
 func (s *oldWebService) OnInit() error {
-	s.registerRoute(routers.RegisterRoute)
+	s.registerRoute(s, routers.RegisterRoute)
 	return nil
 }
 

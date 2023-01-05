@@ -31,7 +31,7 @@ func (s *docsService) Version() *semver.Version {
 }
 
 func (s *docsService) OnInit() error {
-	s.registerRoute(servants.RegisterDocsServants)
+	s.registerRoute(s, servants.RegisterDocsServants)
 	return nil
 }
 
