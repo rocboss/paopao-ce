@@ -7,7 +7,6 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
-	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/ce/postgres"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -16,8 +15,7 @@ var (
 )
 
 type authorizationManageServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 func (s *authorizationManageServant) IsAllow(user *core.User, action *core.Action) bool {
@@ -52,7 +50,6 @@ func (s *authorizationManageServant) isFriend(userId int64, friendId int64) bool
 
 func newAuthorizationManageService(db *pgx.Conn) core.AuthorizationManageService {
 	return &authorizationManageServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }

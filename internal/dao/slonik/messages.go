@@ -7,7 +7,6 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
-	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/ce/postgres"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -16,8 +15,7 @@ var (
 )
 
 type messageServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 func (s *messageServant) CreateMessage(msg *core.Message) (*core.Message, error) {
@@ -58,7 +56,6 @@ func (s *messageServant) GetMessageCount(conditions *core.ConditionsT) (int64, e
 
 func newMessageService(db *pgx.Conn) core.MessageService {
 	return &messageServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }

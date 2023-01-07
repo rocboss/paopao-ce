@@ -7,7 +7,6 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
-	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/ce/postgres"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 	"gorm.io/gorm"
 )
@@ -19,18 +18,15 @@ var (
 )
 
 type tweetServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 type tweetManageServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 type tweetHelpServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 // MergePosts post数据整合
@@ -223,21 +219,18 @@ func (s *tweetServant) GetPostContentByID(id int64) (*core.PostContent, error) {
 
 func newTweetService(db *pgx.Conn) core.TweetService {
 	return &tweetServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }
 
 func newTweetManageService(db *pgx.Conn, cacheIndex core.CacheIndexService) core.TweetManageService {
 	return &tweetManageServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }
 
 func newTweetHelpService(db *pgx.Conn) core.TweetHelpService {
 	return &tweetHelpServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }

@@ -7,7 +7,6 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
-	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/ce/postgres"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -16,8 +15,7 @@ var (
 )
 
 type userManageServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 func (s *userManageServant) GetUserByID(id int64) (*core.User, error) {
@@ -70,7 +68,6 @@ func (s *userManageServant) UpdateUser(user *core.User) error {
 
 func newUserManageService(db *pgx.Conn) core.UserManageService {
 	return &userManageServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }

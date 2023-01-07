@@ -7,7 +7,6 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
-	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/ce/postgres"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -17,13 +16,11 @@ var (
 )
 
 type indexPostsServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 type simpleIndexPostsServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
@@ -42,14 +39,12 @@ func (s *simpleIndexPostsServant) IndexPosts(_user *core.User, offset int, limit
 
 func newIndexPostsService(db *pgx.Conn) core.IndexPostsService {
 	return &indexPostsServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }
 
 func newSimpleIndexPostsService(db *pgx.Conn) core.IndexPostsService {
 	return &simpleIndexPostsServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }

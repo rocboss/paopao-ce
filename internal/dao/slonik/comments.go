@@ -7,7 +7,6 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
-	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/ce/postgres"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -17,13 +16,11 @@ var (
 )
 
 type commentServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 type commentManageServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 func (s *commentServant) GetComments(conditions *core.ConditionsT, offset, limit int) ([]*core.Comment, error) {
@@ -94,14 +91,12 @@ func (s *commentManageServant) CreateCommentContent(content *core.CommentContent
 
 func newCommentService(db *pgx.Conn) core.CommentService {
 	return &commentServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }
 
 func newCommentManageService(db *pgx.Conn) core.CommentManageService {
 	return &commentManageServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }

@@ -7,7 +7,6 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
-	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/ce/postgres"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -16,8 +15,7 @@ var (
 )
 
 type walletServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 func (s *walletServant) GetRechargeByID(id int64) (*core.WalletRecharge, error) {
@@ -57,7 +55,6 @@ func (s *walletServant) HandlePostAttachmentBought(post *core.Post, user *core.U
 
 func newWalletService(db *pgx.Conn) core.WalletService {
 	return &walletServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }

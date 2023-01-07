@@ -7,7 +7,6 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
-	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/ce/postgres"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -16,8 +15,7 @@ var (
 )
 
 type securityServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 // GetLatestPhoneCaptcha 获取最新短信验证码
@@ -43,7 +41,6 @@ func (s *securityServant) SendPhoneCaptcha(phone string) error {
 
 func newSecurityService(db *pgx.Conn, phoneVerify core.PhoneVerifyService) core.SecurityService {
 	return &securityServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }

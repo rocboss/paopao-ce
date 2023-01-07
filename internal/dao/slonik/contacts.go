@@ -7,7 +7,6 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
-	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/ce/postgres"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -16,8 +15,7 @@ var (
 )
 
 type contactManageServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 func (s *contactManageServant) RequestingFriend(userId int64, friendId int64, greetings string) (err error) {
@@ -58,7 +56,6 @@ func (s *contactManageServant) IsFriend(userId int64, friendId int64) bool {
 
 func newContactManageService(db *pgx.Conn) core.ContactManageService {
 	return &contactManageServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }

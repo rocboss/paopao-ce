@@ -7,7 +7,6 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
-	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/ce/postgres"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -16,8 +15,7 @@ var (
 )
 
 type topicServant struct {
-	db *pgx.Conn
-	q  dbr.Querier
+	*pgxServant
 }
 
 func (s *topicServant) CreateTag(tag *core.Tag) (*core.Tag, error) {
@@ -46,7 +44,6 @@ func (s *topicServant) GetTagsByKeyword(keyword string) ([]*core.Tag, error) {
 
 func newTopicService(db *pgx.Conn) core.TopicService {
 	return &topicServant{
-		db: db,
-		q:  dbr.New(db),
+		pgxServant: newPgxServant(db),
 	}
 }
