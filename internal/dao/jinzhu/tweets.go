@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package jinzhu
 
 import (
@@ -5,7 +9,7 @@ import (
 	"time"
 
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
 )
 
@@ -48,7 +52,7 @@ func newTweetHelpService(db *gorm.DB) core.TweetHelpService {
 }
 
 // MergePosts post数据整合
-func (s *tweetHelpServant) MergePosts(posts []*model.Post) ([]*model.PostFormated, error) {
+func (s *tweetHelpServant) MergePosts(posts []*core.Post) ([]*core.PostFormated, error) {
 	postIds := make([]int64, 0, len(posts))
 	userIds := make([]int64, 0, len(posts))
 	for _, post := range posts {
@@ -66,18 +70,18 @@ func (s *tweetHelpServant) MergePosts(posts []*model.Post) ([]*model.PostFormate
 		return nil, err
 	}
 
-	userMap := make(map[int64]*model.UserFormated, len(users))
+	userMap := make(map[int64]*dbr.UserFormated, len(users))
 	for _, user := range users {
 		userMap[user.ID] = user.Format()
 	}
 
-	contentMap := make(map[int64][]*model.PostContentFormated, len(postContents))
+	contentMap := make(map[int64][]*dbr.PostContentFormated, len(postContents))
 	for _, content := range postContents {
 		contentMap[content.PostID] = append(contentMap[content.PostID], content.Format())
 	}
 
 	// 数据整合
-	postsFormated := make([]*model.PostFormated, 0, len(posts))
+	postsFormated := make([]*dbr.PostFormated, 0, len(posts))
 	for _, post := range posts {
 		postFormated := post.Format()
 		postFormated.User = userMap[post.UserID]
@@ -88,7 +92,7 @@ func (s *tweetHelpServant) MergePosts(posts []*model.Post) ([]*model.PostFormate
 }
 
 // RevampPosts post数据整形修复
-func (s *tweetHelpServant) RevampPosts(posts []*model.PostFormated) ([]*model.PostFormated, error) {
+func (s *tweetHelpServant) RevampPosts(posts []*core.PostFormated) ([]*core.PostFormated, error) {
 	postIds := make([]int64, 0, len(posts))
 	userIds := make([]int64, 0, len(posts))
 	for _, post := range posts {
@@ -106,12 +110,12 @@ func (s *tweetHelpServant) RevampPosts(posts []*model.PostFormated) ([]*model.Po
 		return nil, err
 	}
 
-	userMap := make(map[int64]*model.UserFormated, len(users))
+	userMap := make(map[int64]*dbr.UserFormated, len(users))
 	for _, user := range users {
 		userMap[user.ID] = user.Format()
 	}
 
-	contentMap := make(map[int64][]*model.PostContentFormated, len(postContents))
+	contentMap := make(map[int64][]*dbr.PostContentFormated, len(postContents))
 	for _, content := range postContents {
 		contentMap[content.PostID] = append(contentMap[content.PostID], content.Format())
 	}
@@ -124,23 +128,23 @@ func (s *tweetHelpServant) RevampPosts(posts []*model.PostFormated) ([]*model.Po
 	return posts, nil
 }
 
-func (s *tweetHelpServant) getPostContentsByIDs(ids []int64) ([]*model.PostContent, error) {
-	return (&model.PostContent{}).List(s.db, &model.ConditionsT{
+func (s *tweetHelpServant) getPostContentsByIDs(ids []int64) ([]*dbr.PostContent, error) {
+	return (&dbr.PostContent{}).List(s.db, &dbr.ConditionsT{
 		"post_id IN ?": ids,
 		"ORDER":        "sort ASC",
 	}, 0, 0)
 }
 
-func (s *tweetHelpServant) getUsersByIDs(ids []int64) ([]*model.User, error) {
-	user := &model.User{}
+func (s *tweetHelpServant) getUsersByIDs(ids []int64) ([]*dbr.User, error) {
+	user := &dbr.User{}
 
-	return user.List(s.db, &model.ConditionsT{
+	return user.List(s.db, &dbr.ConditionsT{
 		"id IN ?": ids,
 	}, 0, 0)
 }
 
-func (s *tweetManageServant) CreatePostCollection(postID, userID int64) (*model.PostCollection, error) {
-	collection := &model.PostCollection{
+func (s *tweetManageServant) CreatePostCollection(postID, userID int64) (*core.PostCollection, error) {
+	collection := &dbr.PostCollection{
 		PostID: postID,
 		UserID: userID,
 	}
@@ -148,19 +152,19 @@ func (s *tweetManageServant) CreatePostCollection(postID, userID int64) (*model.
 	return collection.Create(s.db)
 }
 
-func (s *tweetManageServant) DeletePostCollection(p *model.PostCollection) error {
+func (s *tweetManageServant) DeletePostCollection(p *core.PostCollection) error {
 	return p.Delete(s.db)
 }
 
-func (s *tweetManageServant) CreatePostContent(content *model.PostContent) (*model.PostContent, error) {
+func (s *tweetManageServant) CreatePostContent(content *core.PostContent) (*core.PostContent, error) {
 	return content.Create(s.db)
 }
 
-func (s *tweetManageServant) CreateAttachment(attachment *model.Attachment) (*model.Attachment, error) {
+func (s *tweetManageServant) CreateAttachment(attachment *core.Attachment) (*core.Attachment, error) {
 	return attachment.Create(s.db)
 }
 
-func (s *tweetManageServant) CreatePost(post *model.Post) (*model.Post, error) {
+func (s *tweetManageServant) CreatePost(post *core.Post) (*core.Post, error) {
 	post.LatestRepliedOn = time.Now().Unix()
 	p, err := post.Create(s.db)
 	if err != nil {
@@ -170,11 +174,11 @@ func (s *tweetManageServant) CreatePost(post *model.Post) (*model.Post, error) {
 	return p, nil
 }
 
-func (s *tweetManageServant) DeletePost(post *model.Post) ([]string, error) {
+func (s *tweetManageServant) DeletePost(post *core.Post) ([]string, error) {
 	var mediaContents []string
 
 	postId := post.ID
-	postContent := &model.PostContent{}
+	postContent := &dbr.PostContent{}
 	err := s.db.Transaction(
 		func(tx *gorm.DB) error {
 			if contents, err := postContent.MediaContentsByPostId(tx, postId); err == nil {
@@ -218,8 +222,8 @@ func (s *tweetManageServant) DeletePost(post *model.Post) ([]string, error) {
 }
 
 func (s *tweetManageServant) deleteCommentByPostId(db *gorm.DB, postId int64) ([]string, error) {
-	comment := &model.Comment{}
-	commentContent := &model.CommentContent{}
+	comment := &dbr.Comment{}
+	commentContent := &dbr.CommentContent{}
 
 	// 获取推文的所有评论id
 	commentIds, err := comment.CommentIdsByPostId(db, postId)
@@ -244,19 +248,19 @@ func (s *tweetManageServant) deleteCommentByPostId(db *gorm.DB, postId int64) ([
 	}
 
 	// 删评论的评论
-	if err = (&model.CommentReply{}).DeleteByCommentIds(db, commentIds); err != nil {
+	if err = (&dbr.CommentReply{}).DeleteByCommentIds(db, commentIds); err != nil {
 		return nil, err
 	}
 
 	return mediaContents, nil
 }
 
-func (s *tweetManageServant) LockPost(post *model.Post) error {
+func (s *tweetManageServant) LockPost(post *core.Post) error {
 	post.IsLock = 1 - post.IsLock
 	return post.Update(s.db)
 }
 
-func (s *tweetManageServant) StickPost(post *model.Post) error {
+func (s *tweetManageServant) StickPost(post *core.Post) error {
 	post.IsTop = 1 - post.IsTop
 	if err := post.Update(s.db); err != nil {
 		return err
@@ -265,7 +269,7 @@ func (s *tweetManageServant) StickPost(post *model.Post) error {
 	return nil
 }
 
-func (s *tweetManageServant) VisiblePost(post *model.Post, visibility model.PostVisibleT) error {
+func (s *tweetManageServant) VisiblePost(post *core.Post, visibility core.PostVisibleT) error {
 	oldVisibility := post.Visibility
 	post.Visibility = visibility
 	// TODO: 这个判断是否可以不要呢
@@ -273,7 +277,7 @@ func (s *tweetManageServant) VisiblePost(post *model.Post, visibility model.Post
 		return nil
 	}
 	// 私密推文 特殊处理
-	if visibility == model.PostVisitPrivate {
+	if visibility == dbr.PostVisitPrivate {
 		// 强制取消置顶
 		// TODO: 置顶推文用户是否有权设置成私密？ 后续完善
 		post.IsTop = 0
@@ -288,14 +292,14 @@ func (s *tweetManageServant) VisiblePost(post *model.Post, visibility model.Post
 	// tag处理
 	tags := strings.Split(post.Tags, ",")
 	for _, t := range tags {
-		tag := &model.Tag{
+		tag := &dbr.Tag{
 			Tag: t,
 		}
 		// TODO: 暂时宽松不处理错误，这里或许可以有优化，后续完善
-		if oldVisibility == model.PostVisitPrivate {
+		if oldVisibility == dbr.PostVisitPrivate {
 			// 从私密转为非私密才需要重新创建tag
 			createTag(db, tag)
-		} else if visibility == model.PostVisitPrivate {
+		} else if visibility == dbr.PostVisitPrivate {
 			// 从非私密转为私密才需要删除tag
 			deleteTag(db, tag)
 		}
@@ -305,7 +309,7 @@ func (s *tweetManageServant) VisiblePost(post *model.Post, visibility model.Post
 	return nil
 }
 
-func (s *tweetManageServant) UpdatePost(post *model.Post) error {
+func (s *tweetManageServant) UpdatePost(post *core.Post) error {
 	if err := post.Update(s.db); err != nil {
 		return err
 	}
@@ -313,104 +317,104 @@ func (s *tweetManageServant) UpdatePost(post *model.Post) error {
 	return nil
 }
 
-func (s *tweetManageServant) CreatePostStar(postID, userID int64) (*model.PostStar, error) {
-	star := &model.PostStar{
+func (s *tweetManageServant) CreatePostStar(postID, userID int64) (*core.PostStar, error) {
+	star := &dbr.PostStar{
 		PostID: postID,
 		UserID: userID,
 	}
 	return star.Create(s.db)
 }
 
-func (s *tweetManageServant) DeletePostStar(p *model.PostStar) error {
+func (s *tweetManageServant) DeletePostStar(p *core.PostStar) error {
 	return p.Delete(s.db)
 }
 
-func (s *tweetServant) GetPostByID(id int64) (*model.Post, error) {
-	post := &model.Post{
-		Model: &model.Model{
+func (s *tweetServant) GetPostByID(id int64) (*core.Post, error) {
+	post := &dbr.Post{
+		Model: &dbr.Model{
 			ID: id,
 		},
 	}
 	return post.Get(s.db)
 }
 
-func (s *tweetServant) GetPosts(conditions *model.ConditionsT, offset, limit int) ([]*model.Post, error) {
-	return (&model.Post{}).List(s.db, conditions, offset, limit)
+func (s *tweetServant) GetPosts(conditions *core.ConditionsT, offset, limit int) ([]*core.Post, error) {
+	return (&dbr.Post{}).List(s.db, conditions, offset, limit)
 }
 
-func (s *tweetServant) GetPostCount(conditions *model.ConditionsT) (int64, error) {
-	return (&model.Post{}).Count(s.db, conditions)
+func (s *tweetServant) GetPostCount(conditions *core.ConditionsT) (int64, error) {
+	return (&dbr.Post{}).Count(s.db, conditions)
 }
 
-func (s *tweetServant) GetUserPostStar(postID, userID int64) (*model.PostStar, error) {
-	star := &model.PostStar{
+func (s *tweetServant) GetUserPostStar(postID, userID int64) (*core.PostStar, error) {
+	star := &dbr.PostStar{
 		PostID: postID,
 		UserID: userID,
 	}
 	return star.Get(s.db)
 }
 
-func (s *tweetServant) GetUserPostStars(userID int64, offset, limit int) ([]*model.PostStar, error) {
-	star := &model.PostStar{
+func (s *tweetServant) GetUserPostStars(userID int64, offset, limit int) ([]*core.PostStar, error) {
+	star := &dbr.PostStar{
 		UserID: userID,
 	}
 
-	return star.List(s.db, &model.ConditionsT{
+	return star.List(s.db, &dbr.ConditionsT{
 		"ORDER": s.db.NamingStrategy.TableName("PostStar") + ".id DESC",
 	}, offset, limit)
 }
 
 func (s *tweetServant) GetUserPostStarCount(userID int64) (int64, error) {
-	star := &model.PostStar{
+	star := &dbr.PostStar{
 		UserID: userID,
 	}
-	return star.Count(s.db, &model.ConditionsT{})
+	return star.Count(s.db, &dbr.ConditionsT{})
 }
 
-func (s *tweetServant) GetUserPostCollection(postID, userID int64) (*model.PostCollection, error) {
-	star := &model.PostCollection{
+func (s *tweetServant) GetUserPostCollection(postID, userID int64) (*core.PostCollection, error) {
+	star := &dbr.PostCollection{
 		PostID: postID,
 		UserID: userID,
 	}
 	return star.Get(s.db)
 }
 
-func (s *tweetServant) GetUserPostCollections(userID int64, offset, limit int) ([]*model.PostCollection, error) {
-	collection := &model.PostCollection{
+func (s *tweetServant) GetUserPostCollections(userID int64, offset, limit int) ([]*core.PostCollection, error) {
+	collection := &dbr.PostCollection{
 		UserID: userID,
 	}
 
-	return collection.List(s.db, &model.ConditionsT{
+	return collection.List(s.db, &dbr.ConditionsT{
 		"ORDER": s.db.NamingStrategy.TableName("PostCollection") + ".id DESC",
 	}, offset, limit)
 }
 
 func (s *tweetServant) GetUserPostCollectionCount(userID int64) (int64, error) {
-	collection := &model.PostCollection{
+	collection := &dbr.PostCollection{
 		UserID: userID,
 	}
-	return collection.Count(s.db, &model.ConditionsT{})
+	return collection.Count(s.db, &dbr.ConditionsT{})
 }
 
-func (s *tweetServant) GetUserWalletBills(userID int64, offset, limit int) ([]*model.WalletStatement, error) {
-	statement := &model.WalletStatement{
+func (s *tweetServant) GetUserWalletBills(userID int64, offset, limit int) ([]*core.WalletStatement, error) {
+	statement := &dbr.WalletStatement{
 		UserID: userID,
 	}
 
-	return statement.List(s.db, &model.ConditionsT{
+	return statement.List(s.db, &dbr.ConditionsT{
 		"ORDER": "id DESC",
 	}, offset, limit)
 }
 
 func (s *tweetServant) GetUserWalletBillCount(userID int64) (int64, error) {
-	statement := &model.WalletStatement{
+	statement := &dbr.WalletStatement{
 		UserID: userID,
 	}
-	return statement.Count(s.db, &model.ConditionsT{})
+	return statement.Count(s.db, &dbr.ConditionsT{})
 }
 
-func (s *tweetServant) GetPostAttatchmentBill(postID, userID int64) (*model.PostAttachmentBill, error) {
-	bill := &model.PostAttachmentBill{
+func (s *tweetServant) GetPostAttatchmentBill(postID, userID int64) (*core.PostAttachmentBill, error) {
+	bill := &dbr.PostAttachmentBill{
 		PostID: postID,
 		UserID: userID,
 	}
@@ -418,16 +422,16 @@ func (s *tweetServant) GetPostAttatchmentBill(postID, userID int64) (*model.Post
 	return bill.Get(s.db)
 }
 
-func (s *tweetServant) GetPostContentsByIDs(ids []int64) ([]*model.PostContent, error) {
-	return (&model.PostContent{}).List(s.db, &model.ConditionsT{
+func (s *tweetServant) GetPostContentsByIDs(ids []int64) ([]*core.PostContent, error) {
+	return (&dbr.PostContent{}).List(s.db, &dbr.ConditionsT{
 		"post_id IN ?": ids,
 		"ORDER":        "sort ASC",
 	}, 0, 0)
 }
 
-func (s *tweetServant) GetPostContentByID(id int64) (*model.PostContent, error) {
-	return (&model.PostContent{
-		Model: &model.Model{
+func (s *tweetServant) GetPostContentByID(id int64) (*core.PostContent, error) {
+	return (&dbr.PostContent{
+		Model: &dbr.Model{
 			ID: id,
 		},
 	}).Get(s.db)

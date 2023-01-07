@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package conf
 
 import (
@@ -45,7 +49,7 @@ type LoggerMeiliSettingS struct {
 	MinWorker    int
 }
 
-type ServerSettingS struct {
+type HttpServerSettingS struct {
 	RunMode      string
 	HttpIp       string
 	HttpPort     string
@@ -53,7 +57,13 @@ type ServerSettingS struct {
 	WriteTimeout time.Duration
 }
 
+type GRPCServerSettingS struct {
+	Host string
+	Port string
+}
+
 type AppSettingS struct {
+	RunMode               string
 	MaxCommentCount       int64
 	AttachmentIncomeRate  float64
 	DefaultContextTimeout time.Duration
@@ -258,6 +268,14 @@ func (s *Setting) featuresInfoFrom(k string) (map[string][]string, map[string]st
 		}
 	}
 	return suites, kv
+}
+
+func (s *HttpServerSettingS) GetReadTimeout() time.Duration {
+	return s.ReadTimeout * time.Second
+}
+
+func (s *HttpServerSettingS) GetWriteTimeout() time.Duration {
+	return s.WriteTimeout * time.Second
 }
 
 func (s *MySQLSettingS) Dsn() string {

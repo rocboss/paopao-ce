@@ -45,14 +45,20 @@ Web端：
 
 ## 🛠 技术栈
 
-PaoPao主要由以下优秀的开源项目/工具构建
+PaoPao主要由以下优秀的开源项目/工具构建  
+#### 后端:
+* [Go](https://go.dev/ 'go')
+* [Gin](https://gin-gonic.com/ 'gin')
+* [Mir](https://github.com/alimy/mir 'go-mir')
+* [Buf](https://github.com/bufbuild/buf 'buf')
+* [gRPC](https://github.com/grpc/grpc-go 'grpc-go')
+* [Zinc](https://zinclabs.io/ 'zinc')
 
-* [Go](https://go.dev/)
-* [Gin](https://gin-gonic.com/)
-* [Zinc](https://zinclabs.io/)
+#### 前端: 
 * [Naive UI](https://www.naiveui.com/)
 * [Vue.js](https://vuejs.org/)
 * [Vite.js](https://vitejs.dev/)
+* [tauri](https://github.com/tauri-apps/tauri 'tauri')
 
 <!-- GETTING STARTED -->
 ## 🏗 快速开始
@@ -316,13 +322,15 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 目前支持的功能集合:
 | 功能项 | 类别 | 状态 | 备注 |
 | ----- | ----- | ----- | ----- |
-|`OldWeb` | 子服务 | 稳定(默认) | 开启旧的Web服务 |
-|`Web` | 子服务 | WIP | 开启Web服务|
+|`Web` | 子服务 | 内测 | 开启Web服务|
 |`Admin` | 子服务 | WIP | 开启Admin后台运维服务|
 |`SpaceX` | 子服务 | WIP | 开启SpaceX服务|
 |`Bot` | 子服务 | WIP | 开启Bot服务|
 |`NativeOBS` | 子服务 | WIP | 开启NativeOBS服务|
-|`Deprecated:Web` | 子服务 | 稳定 | Deprecated(关闭) OldWeb服务|
+|`Docs` | 子服务 | WIP | 开启开发者文档服务|
+|`Frontend:Web` | 子服务 | 内测 | 开启独立前端服务|
+|`Frontend:EmbedWeb` | 子服务 | 内测 | 开启内嵌于后端Web API服务中的前端服务|
+|`Deprecated:Web` | 子服务 | 稳定 | 开启旧的Web服务|
 |`Gorm` | 数据库 | 稳定(默认) | 使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Gorm` + `MySQL`组合|
 |`Sqlx`| 数据库 | WIP | 使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM|
 |`MySQL`| 数据库 | 稳定(默认) | 使用MySQL作为数据库|
