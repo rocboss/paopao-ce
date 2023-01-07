@@ -54,7 +54,7 @@ const loadTags = () => {
         num: 50,
     })
         .then((res) => {
-            tags.value = res;
+            tags.value = res.topics;
             loading.value = false;
         })
         .catch((err) => {

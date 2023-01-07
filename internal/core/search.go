@@ -1,7 +1,11 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package core
 
 import (
-	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 )
 
 const (
@@ -9,28 +13,39 @@ const (
 	SearchTypeTag     SearchType = "tag"
 )
 
-type SearchType string
+const (
+	PostVisitPublic  = dbr.PostVisitPublic
+	PostVisitPrivate = dbr.PostVisitPrivate
+	PostVisitFriend  = dbr.PostVisitFriend
+	PostVisitInvalid = dbr.PostVisitInvalid
+)
 
-type QueryReq struct {
-	Query      string
-	Visibility []model.PostVisibleT
-	Type       SearchType
-}
+type (
+	PostVisibleT = dbr.PostVisibleT
 
-type QueryResp struct {
-	Items []*model.PostFormated
-	Total int64
-}
+	SearchType string
 
-type TsDocItem struct {
-	Post    *model.Post
-	Content string
-}
+	QueryReq struct {
+		Query      string
+		Visibility []PostVisibleT
+		Type       SearchType
+	}
+
+	QueryResp struct {
+		Items []*PostFormated
+		Total int64
+	}
+
+	TsDocItem struct {
+		Post    *Post
+		Content string
+	}
+)
 
 // TweetSearchService tweet search service interface
 type TweetSearchService interface {
 	IndexName() string
 	AddDocuments(data []TsDocItem, primaryKey ...string) (bool, error)
 	DeleteDocuments(identifiers []string) error
-	Search(user *model.User, q *QueryReq, offset, limit int) (*QueryResp, error)
+	Search(user *User, q *QueryReq, offset, limit int) (*QueryResp, error)
 }

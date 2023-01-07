@@ -340,7 +340,7 @@ const loadSuggestionUsers = debounce((k) => {
     })
         .then((res) => {
             let options: MentionOption[] = [];
-            res.map((i) => {
+            res.suggest.map((i) => {
                 options.push({
                     label: i,
                     value: i,
@@ -361,7 +361,7 @@ const loadSuggestionTags = debounce((k) => {
     })
         .then((res) => {
             let options: MentionOption[] = [];
-            res.map((i) => {
+            res.suggest.map((i) => {
                 options.push({
                     label: i,
                     value: i,

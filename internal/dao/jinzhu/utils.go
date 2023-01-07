@@ -1,11 +1,15 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package jinzhu
 
 import (
-	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
 )
 
-func createTag(db *gorm.DB, tag *model.Tag) (*model.Tag, error) {
+func createTag(db *gorm.DB, tag *dbr.Tag) (*dbr.Tag, error) {
 	t, err := tag.Get(db)
 	if err != nil {
 		tag.QuoteNum = 1
@@ -23,7 +27,7 @@ func createTag(db *gorm.DB, tag *model.Tag) (*model.Tag, error) {
 	return t, nil
 }
 
-func deleteTag(db *gorm.DB, tag *model.Tag) error {
+func deleteTag(db *gorm.DB, tag *dbr.Tag) error {
 	tag, err := tag.Get(db)
 	if err != nil {
 		return err
@@ -33,7 +37,7 @@ func deleteTag(db *gorm.DB, tag *model.Tag) error {
 }
 
 func deleteTags(db *gorm.DB, tags []string) error {
-	allTags, err := (&model.Tag{}).TagsFrom(db, tags)
+	allTags, err := (&dbr.Tag{}).TagsFrom(db, tags)
 	if err != nil {
 		return err
 	}
@@ -51,9 +55,9 @@ func deleteTags(db *gorm.DB, tags []string) error {
 }
 
 // 根据IDs获取用户列表
-func getUsersByIDs(db *gorm.DB, ids []int64) ([]*model.User, error) {
-	user := &model.User{}
-	return user.List(db, &model.ConditionsT{
+func getUsersByIDs(db *gorm.DB, ids []int64) ([]*dbr.User, error) {
+	user := &dbr.User{}
+	return user.List(db, &dbr.ConditionsT{
 		"id IN ?": ids,
 	}, 0, 0)
 }

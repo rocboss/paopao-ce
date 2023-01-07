@@ -1,6 +1,11 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package conf
 
 import (
+	"embed"
 	"fmt"
 	"strings"
 	"time"
@@ -9,6 +14,9 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/gorm/logger"
 )
+
+//go:embed config.yaml
+var files embed.FS
 
 type Setting struct {
 	vp *viper.Viper
@@ -41,7 +49,7 @@ type LoggerMeiliSettingS struct {
 	MinWorker    int
 }
 
-type ServerSettingS struct {
+type HttpServerSettingS struct {
 	RunMode      string
 	HttpIp       string
 	HttpPort     string
@@ -49,7 +57,13 @@ type ServerSettingS struct {
 	WriteTimeout time.Duration
 }
 
+type GRPCServerSettingS struct {
+	Host string
+	Port string
+}
+
 type AppSettingS struct {
+	RunMode               string
 	MaxCommentCount       int64
 	AttachmentIncomeRate  float64
 	DefaultContextTimeout time.Duration
@@ -199,13 +213,21 @@ type JWTSettingS struct {
 }
 
 func NewSetting() (*Setting, error) {
+	cfgFile, err := files.Open("config.yaml")
+	if err != nil {
+		return nil, err
+	}
+	defer cfgFile.Close()
+
 	vp := viper.New()
 	vp.SetConfigName("config")
 	vp.AddConfigPath(".")
 	vp.AddConfigPath("custom/")
 	vp.SetConfigType("yaml")
-	err := vp.ReadInConfig()
-	if err != nil {
+	if err = vp.ReadConfig(cfgFile); err != nil {
+		return nil, err
+	}
+	if err = vp.MergeInConfig(); err != nil {
 		return nil, err
 	}
 
@@ -217,7 +239,6 @@ func (s *Setting) ReadSection(k string, v any) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -247,6 +268,14 @@ func (s *Setting) featuresInfoFrom(k string) (map[string][]string, map[string]st
 		}
 	}
 	return suites, kv
+}
+
+func (s *HttpServerSettingS) GetReadTimeout() time.Duration {
+	return s.ReadTimeout * time.Second
+}
+
+func (s *HttpServerSettingS) GetWriteTimeout() time.Duration {
+	return s.WriteTimeout * time.Second
 }
 
 func (s *MySQLSettingS) Dsn() string {

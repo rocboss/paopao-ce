@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package app
 
 import (
@@ -40,5 +44,19 @@ func GetPageOffset(c *gin.Context) (offset, limit int) {
 		limit = conf.AppSetting.MaxPageSize
 	}
 	offset = (page - 1) * limit
+	return
+}
+
+func GetPageInfo(c *gin.Context) (page, pageSize int) {
+	page = convert.StrTo(c.Query("page")).MustInt()
+	if page <= 0 {
+		page = 1
+	}
+	pageSize = convert.StrTo(c.Query("page_size")).MustInt()
+	if pageSize <= 0 {
+		pageSize = conf.AppSetting.DefaultPageSize
+	} else if pageSize > conf.AppSetting.MaxPageSize {
+		pageSize = conf.AppSetting.MaxPageSize
+	}
 	return
 }

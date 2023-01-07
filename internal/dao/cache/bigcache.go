@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package cache
 
 import (
@@ -11,8 +15,6 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/allegro/bigcache/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/model"
-	"github.com/rocboss/paopao-ce/internal/model/rest"
 	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/sirupsen/logrus"
 )
@@ -24,7 +26,7 @@ var (
 
 type postsEntry struct {
 	key    string
-	tweets *rest.IndexTweetsResp
+	tweets *core.IndexTweetList
 }
 
 type bigCacheIndexServant struct {
@@ -38,7 +40,7 @@ type bigCacheIndexServant struct {
 	preventDuration    time.Duration
 }
 
-func (s *bigCacheIndexServant) IndexPosts(user *model.User, offset int, limit int) (*rest.IndexTweetsResp, error) {
+func (s *bigCacheIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
 	key := s.keyFrom(user, offset, limit)
 	posts, err := s.getPosts(key)
 	if err == nil {
@@ -54,7 +56,7 @@ func (s *bigCacheIndexServant) IndexPosts(user *model.User, offset int, limit in
 	return posts, nil
 }
 
-func (s *bigCacheIndexServant) getPosts(key string) (*rest.IndexTweetsResp, error) {
+func (s *bigCacheIndexServant) getPosts(key string) (*core.IndexTweetList, error) {
 	data, err := s.cache.Get(key)
 	if err != nil {
 		logrus.Debugf("bigCacheIndexServant.getPosts get posts by key: %s from cache err: %v", key, err)
@@ -62,7 +64,7 @@ func (s *bigCacheIndexServant) getPosts(key string) (*rest.IndexTweetsResp, erro
 	}
 	buf := bytes.NewBuffer(data)
 	dec := gob.NewDecoder(buf)
-	var resp rest.IndexTweetsResp
+	var resp core.IndexTweetList
 	if err := dec.Decode(&resp); err != nil {
 		logrus.Debugf("bigCacheIndexServant.getPosts get posts from cache in decode err: %v", err)
 		return nil, err
@@ -70,7 +72,7 @@ func (s *bigCacheIndexServant) getPosts(key string) (*rest.IndexTweetsResp, erro
 	return &resp, nil
 }
 
-func (s *bigCacheIndexServant) cachePosts(key string, tweets *rest.IndexTweetsResp) {
+func (s *bigCacheIndexServant) cachePosts(key string, tweets *core.IndexTweetList) {
 	entry := &postsEntry{key: key, tweets: tweets}
 	select {
 	case s.cachePostsCh <- entry:
@@ -96,7 +98,7 @@ func (s *bigCacheIndexServant) setPosts(entry *postsEntry) {
 	logrus.Debugf("bigCacheIndexServant.setPosts setPosts set cache by key: %s", entry.key)
 }
 
-func (s *bigCacheIndexServant) keyFrom(user *model.User, offset int, limit int) string {
+func (s *bigCacheIndexServant) keyFrom(user *core.User, offset int, limit int) string {
 	var userId int64 = -1
 	if user != nil {
 		userId = user.ID
@@ -104,7 +106,7 @@ func (s *bigCacheIndexServant) keyFrom(user *model.User, offset int, limit int) 
 	return fmt.Sprintf("index:%d:%d:%d", userId, offset, limit)
 }
 
-func (s *bigCacheIndexServant) SendAction(act core.IdxAct, post *model.Post) {
+func (s *bigCacheIndexServant) SendAction(act core.IdxAct, post *core.Post) {
 	action := core.NewIndexAction(act, post)
 	select {
 	case s.indexActionCh <- action:
@@ -134,7 +136,7 @@ func (s *bigCacheIndexServant) handleIndexAction(action *core.IndexAction) {
 	// 创建/删除 私密推文特殊处理
 	switch act {
 	case core.IdxActCreatePost, core.IdxActDeletePost:
-		if post.Visibility == model.PostVisitPrivate {
+		if post.Visibility == core.PostVisitPrivate {
 			s.deleteCacheByUserId(post.UserID, true)
 			return
 		}

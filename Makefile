@@ -68,6 +68,28 @@ windows-x64:
 	@echo Build paopao-ce [windows-x64] CGO_ENABLED=$(CGO_ENABLED)
 	@CGO_ENABLED=$(CGO_ENABLED) GOOS=windows GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_WINDOWS_AMD64)/$(basename $(TARGET)).exe
 
+.PHONY: generate
+generate: gen-mir gen-grpc
+
+.PHONY: gen-mir
+gen-mir:
+	@go generate mirc/main.go
+	@go fmt ./auto/api/...
+
+.PHONY: gen-grpc
+gen-grpc:
+	@rm -rf auto/rpc
+	@buf generate proto
+	@go fmt ./auto/rpc/...
+
+.PHONY: proto-mod
+proto-mod:
+	@cd proto/ && buf mod update
+
+.PHONY: proto-lint
+proto-lint:
+	@cd proto/ && buf lint
+
 clean:
 	@go clean
 	@find ./release -type f -exec rm -r {} +
@@ -83,7 +105,15 @@ test:
 	@go test ./...
 
 pre-commit: fmt
-	go mod tidy
+	@go mod tidy
+
+.PHONY: install-protobuf-plugins
+install-protobuf-plugins:
+	@go install github.com/bufbuild/buf/cmd/buf@v1.11.0
+	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking@v1.11.0
+	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-lint@v1.11.0
+	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 help:
 	@echo "make: make"

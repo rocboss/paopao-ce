@@ -24,14 +24,21 @@ declare module NetReq {
         pager: Item.PagerProps
     }
 
-    type UserGetSuggestUsers = string[]
-    type UserGetSuggestTags = string[]
+    interface UserGetSuggestUsers {
+        suggest: string[]
+    }
+
+    interface UserGetSuggestTags {
+        suggest: string[]
+    }
 
     interface UserPrecheckAttachment {
         paid: number
     }
 
-    type UserGetAttachment = string
+    interface UserGetAttachment {
+        signed_url: string
+    } 
 
     interface UserGetUnreadMsgCount {
         count: number
@@ -151,7 +158,9 @@ declare module NetReq {
         status: boolean
     }
 
-    type PostGetTags = Item.TagProps[]
+    interface PostGetTags {
+        topics: Item.TagProps[]
+    }
 
     interface PostGetPostComments {
         /** 评论列表 */
