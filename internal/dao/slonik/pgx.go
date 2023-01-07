@@ -63,6 +63,28 @@ func (s *pgxServant) withTx(txOptions pgx.TxOptions, handle func(dbr.Querier) er
 	return tx.Rollback(ctx)
 }
 
+func (s *pgxServant) withCtx(ctx context.Context, handle func(dbr.Querier) error) error {
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	if err = handle(dbr.New(tx)); err == nil {
+		return tx.Commit(ctx)
+	}
+	return tx.Rollback(ctx)
+}
+
+func (s *pgxServant) withTxCtx(ctx context.Context, txOptions pgx.TxOptions, handle func(dbr.Querier) error) error {
+	tx, err := s.db.BeginTx(ctx, txOptions)
+	if err != nil {
+		return err
+	}
+	if err = handle(dbr.New(tx)); err == nil {
+		return tx.Commit(ctx)
+	}
+	return tx.Rollback(ctx)
+}
+
 func newPgxServant(db *pgx.Conn) *pgxServant {
 	return &pgxServant{
 		db: db,
