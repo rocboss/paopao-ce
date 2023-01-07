@@ -33,7 +33,7 @@ func (s *webService) Version() *semver.Version {
 }
 
 func (s *webService) OnInit() error {
-	s.registerRoute(servants.RegisterWebServants)
+	s.registerRoute(s, servants.RegisterWebServants)
 	return nil
 }
 
@@ -88,7 +88,6 @@ func newWebService() Service {
 			},
 		}
 	})
-
 	return &webService{
 		baseHttpService: &baseHttpService{
 			server: server,

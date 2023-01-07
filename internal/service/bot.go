@@ -33,7 +33,7 @@ func (s *botService) Version() *semver.Version {
 }
 
 func (s *botService) OnInit() error {
-	s.registerRoute(servants.RegisterBotServants)
+	s.registerRoute(s, servants.RegisterBotServants)
 	return nil
 }
 

@@ -33,7 +33,7 @@ func (s *spaceXService) Version() *semver.Version {
 }
 
 func (s *spaceXService) OnInit() error {
-	s.registerRoute(servants.RegisterSpaceXServants)
+	s.registerRoute(s, servants.RegisterSpaceXServants)
 	return nil
 }
 

@@ -32,7 +32,7 @@ func (s *localossService) Version() *semver.Version {
 }
 
 func (s *localossService) OnInit() error {
-	s.registerRoute(servants.RegisterLocalossServants)
+	s.registerRoute(s, servants.RegisterLocalossServants)
 	return nil
 }
 

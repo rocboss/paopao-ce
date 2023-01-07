@@ -34,8 +34,8 @@ func (baseService) String() string {
 	return ""
 }
 
-// InitService Initial service
-func InitService() []Service {
+// MustInitService Initial service
+func MustInitService() []Service {
 	ss := newService()
 	for _, s := range ss {
 		if err := s.OnInit(); err != nil {
@@ -43,18 +43,6 @@ func InitService() []Service {
 		}
 	}
 	return ss
-}
-
-// MaxSidSize max service id string length
-func MaxSidSize(ss []Service) int {
-	length := 0
-	for _, s := range ss {
-		size := len(s.Name() + "@" + s.Version().String())
-		if size > length {
-			length = size
-		}
-	}
-	return length
 }
 
 func newService() (ss []Service) {

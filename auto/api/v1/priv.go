@@ -18,7 +18,7 @@ type Priv interface {
 	CreateCommentReply(*web.CreateCommentReplyReq) (*web.CreateCommentReplyResp, mir.Error)
 	DeleteComment(*web.DeleteCommentReq) mir.Error
 	CreateComment(*web.CreateCommentReq) (*web.CreateCommentResp, mir.Error)
-	VisiblePost(*web.VisiblePostReq) (*web.VisiblePostResp, mir.Error)
+	VisibleTweet(*web.VisibleTweetReq) (*web.VisibleTweetResp, mir.Error)
 	StickTweet(*web.StickTweetReq) (*web.StickTweetResp, mir.Error)
 	LockTweet(*web.LockTweetReq) (*web.LockTweetResp, mir.Error)
 	CollectionTweet(*web.CollectionTweetReq) (*web.CollectionTweetResp, mir.Error)
@@ -37,7 +37,7 @@ type PrivBinding interface {
 	BindCreateCommentReply(*gin.Context) (*web.CreateCommentReplyReq, mir.Error)
 	BindDeleteComment(*gin.Context) (*web.DeleteCommentReq, mir.Error)
 	BindCreateComment(*gin.Context) (*web.CreateCommentReq, mir.Error)
-	BindVisiblePost(*gin.Context) (*web.VisiblePostReq, mir.Error)
+	BindVisibleTweet(*gin.Context) (*web.VisibleTweetReq, mir.Error)
 	BindStickTweet(*gin.Context) (*web.StickTweetReq, mir.Error)
 	BindLockTweet(*gin.Context) (*web.LockTweetReq, mir.Error)
 	BindCollectionTweet(*gin.Context) (*web.CollectionTweetReq, mir.Error)
@@ -56,7 +56,7 @@ type PrivRender interface {
 	RenderCreateCommentReply(*gin.Context, *web.CreateCommentReplyResp, mir.Error)
 	RenderDeleteComment(*gin.Context, mir.Error)
 	RenderCreateComment(*gin.Context, *web.CreateCommentResp, mir.Error)
-	RenderVisiblePost(*gin.Context, *web.VisiblePostResp, mir.Error)
+	RenderVisibleTweet(*gin.Context, *web.VisibleTweetResp, mir.Error)
 	RenderStickTweet(*gin.Context, *web.StickTweetResp, mir.Error)
 	RenderLockTweet(*gin.Context, *web.LockTweetResp, mir.Error)
 	RenderCollectionTweet(*gin.Context, *web.CollectionTweetResp, mir.Error)
@@ -147,13 +147,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		default:
 		}
 
-		req, err := b.BindVisiblePost(c)
+		req, err := b.BindVisibleTweet(c)
 		if err != nil {
-			r.RenderVisiblePost(c, nil, err)
+			r.RenderVisibleTweet(c, nil, err)
 			return
 		}
-		resp, err := s.VisiblePost(req)
-		r.RenderVisiblePost(c, resp, err)
+		resp, err := s.VisibleTweet(req)
+		r.RenderVisibleTweet(c, resp, err)
 	})
 
 	router.Handle("POST", "/post/stick", func(c *gin.Context) {
@@ -325,7 +325,7 @@ func (UnimplementedPrivServant) CreateComment(req *web.CreateCommentReq) (*web.C
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedPrivServant) VisiblePost(req *web.VisiblePostReq) (*web.VisiblePostResp, mir.Error) {
+func (UnimplementedPrivServant) VisibleTweet(req *web.VisibleTweetReq) (*web.VisibleTweetResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
@@ -388,7 +388,7 @@ func (r *UnimplementedPrivRender) RenderCreateComment(c *gin.Context, data *web.
 	r.RenderAny(c, data, err)
 }
 
-func (r *UnimplementedPrivRender) RenderVisiblePost(c *gin.Context, data *web.VisiblePostResp, err mir.Error) {
+func (r *UnimplementedPrivRender) RenderVisibleTweet(c *gin.Context, data *web.VisibleTweetResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
 
@@ -459,8 +459,8 @@ func (b *UnimplementedPrivBinding) BindCreateComment(c *gin.Context) (*web.Creat
 	return obj, err
 }
 
-func (b *UnimplementedPrivBinding) BindVisiblePost(c *gin.Context) (*web.VisiblePostReq, mir.Error) {
-	obj := new(web.VisiblePostReq)
+func (b *UnimplementedPrivBinding) BindVisibleTweet(c *gin.Context) (*web.VisibleTweetReq, mir.Error) {
+	obj := new(web.VisibleTweetReq)
 	err := b.BindAny(c, obj)
 	return obj, err
 }

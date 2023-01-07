@@ -24,34 +24,9 @@ type httpServer struct {
 }
 
 func (s *httpServer) start() error {
-	s.Lock()
-	if s.serverStatus == _statusServerStarted || s.serverStatus == _statusServerStoped {
-		return nil
-	}
-	oldStatus := s.serverStatus
-	s.serverStatus = _statusServerStarted
-	s.Unlock()
-
-	if err := s.server.ListenAndServe(); err != nil {
-		s.Lock()
-		s.serverStatus = oldStatus
-		s.Unlock()
-
-		return err
-	}
-	return nil
+	return s.server.ListenAndServe()
 }
 
 func (s *httpServer) stop() error {
-	s.Lock()
-	defer s.Unlock()
-
-	if s.serverStatus == _statusServerStoped || s.serverStatus == _statusServerInitilized {
-		return nil
-	}
-	if err := s.server.Shutdown(context.Background()); err != nil {
-		return err
-	}
-	s.serverStatus = _statusServerStoped
-	return nil
+	return s.server.Shutdown(context.Background())
 }

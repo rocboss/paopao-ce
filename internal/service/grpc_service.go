@@ -14,19 +14,17 @@ type baseGRPCService struct {
 	server *grpcServer
 }
 
-func (s *baseGRPCService) registerServer(h func(s *grpc.Server)) {
-	if s.server.status() != _statusServerStarted {
-		h(s.server.server)
-	}
+func (s *baseGRPCService) registerServer(srv Service, h func(s *grpc.Server)) {
+	h(s.server.server)
+	s.server.addService(srv)
 }
 
 func (s *baseGRPCService) OnStart() error {
-	if err := s.server.start(); err != nil {
-		return err
-	}
+	// do nothing default
 	return nil
 }
 
 func (s *baseGRPCService) OnStop() error {
-	return s.server.stop()
+	// do nothing default
+	return nil
 }
