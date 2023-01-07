@@ -16,13 +16,13 @@ var (
 )
 
 type commentServant struct {
-	db              *sqlx.DB
+	*sqlxServant
 	stmtGetComments *sqlx.Stmt
 	stmtGetReply    *sqlx.Stmt
 }
 
 type commentManageServant struct {
-	db              *sqlx.DB
+	*sqlxServant
 	stmtDelComments *sqlx.Stmt
 	stmtAddComents  *sqlx.Stmt
 }
@@ -95,7 +95,7 @@ func (s *commentManageServant) CreateCommentContent(content *core.CommentContent
 
 func newCommentService(db *sqlx.DB) core.CommentService {
 	return &commentServant{
-		db:              db,
+		sqlxServant:     newSqlxServant(db),
 		stmtGetComments: c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtGetReply:    c(`SELECT * FROM @person WHERE first_name=?`),
 	}
@@ -103,7 +103,7 @@ func newCommentService(db *sqlx.DB) core.CommentService {
 
 func newCommentManageService(db *sqlx.DB) core.CommentManageService {
 	return &commentManageServant{
-		db:              db,
+		sqlxServant:     newSqlxServant(db),
 		stmtAddComents:  c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtDelComments: c(`SELECT * FROM @person WHERE first_name=?`),
 	}

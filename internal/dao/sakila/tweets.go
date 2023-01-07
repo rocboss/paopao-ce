@@ -19,14 +19,14 @@ var (
 )
 
 type tweetServant struct {
-	db            *sqlx.DB
+	*sqlxServant
 	stmtGetTweet  *sqlx.Stmt
 	stmtListTweet *sqlx.Stmt
 	stmtListStar  *sqlx.Stmt
 }
 
 type tweetManageServant struct {
-	db             *sqlx.DB
+	*sqlxServant
 	cacheIndex     core.CacheIndexService
 	stmtAddTweet   *sqlx.Stmt
 	stmtDelTweet   *sqlx.Stmt
@@ -34,7 +34,7 @@ type tweetManageServant struct {
 }
 
 type tweetHelpServant struct {
-	db          *sqlx.DB
+	*sqlxServant
 	stmtAddTag  *sqlx.Stmt
 	stmtDelTag  *sqlx.Stmt
 	stmtListTag *sqlx.Stmt
@@ -230,7 +230,7 @@ func (s *tweetServant) GetPostContentByID(id int64) (*core.PostContent, error) {
 
 func newTweetService(db *sqlx.DB) core.TweetService {
 	return &tweetServant{
-		db:            db,
+		sqlxServant:   newSqlxServant(db),
 		stmtGetTweet:  c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtListTweet: c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtListStar:  c(`SELECT * FROM @person WHERE first_name=?`),
@@ -239,7 +239,7 @@ func newTweetService(db *sqlx.DB) core.TweetService {
 
 func newTweetManageService(db *sqlx.DB, cacheIndex core.CacheIndexService) core.TweetManageService {
 	return &tweetManageServant{
-		db:             db,
+		sqlxServant:    newSqlxServant(db),
 		cacheIndex:     cacheIndex,
 		stmtAddTweet:   c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtDelTweet:   c(`SELECT * FROM @person WHERE first_name=?`),
@@ -249,7 +249,7 @@ func newTweetManageService(db *sqlx.DB, cacheIndex core.CacheIndexService) core.
 
 func newTweetHelpService(db *sqlx.DB) core.TweetHelpService {
 	return &tweetHelpServant{
-		db:          db,
+		sqlxServant: newSqlxServant(db),
 		stmtAddTag:  c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtDelTag:  c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtListTag: c(`SELECT * FROM @person WHERE first_name=?`),

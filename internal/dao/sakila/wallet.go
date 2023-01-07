@@ -15,7 +15,7 @@ var (
 )
 
 type walletServant struct {
-	db              *sqlx.DB
+	*sqlxServant
 	stmtAddRecharge *sqlx.Stmt
 	stmtGetRecharge *sqlx.Stmt
 	stmtGetBills    *sqlx.Stmt
@@ -58,7 +58,7 @@ func (s *walletServant) HandlePostAttachmentBought(post *core.Post, user *core.U
 
 func newWalletService(db *sqlx.DB) core.WalletService {
 	return &walletServant{
-		db:              db,
+		sqlxServant:     newSqlxServant(db),
 		stmtAddRecharge: c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtGetRecharge: c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtGetBills:    c(`SELECT * FROM @person WHERE first_name=?`),

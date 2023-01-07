@@ -15,7 +15,7 @@ var (
 )
 
 type messageServant struct {
-	db          *sqlx.DB
+	*sqlxServant
 	stmtAddMsg  *sqlx.Stmt
 	stmtGetMsg  *sqlx.Stmt
 	stmtReadMsg *sqlx.Stmt
@@ -59,7 +59,7 @@ func (s *messageServant) GetMessageCount(conditions *core.ConditionsT) (int64, e
 
 func newMessageService(db *sqlx.DB) core.MessageService {
 	return &messageServant{
-		db:          db,
+		sqlxServant: newSqlxServant(db),
 		stmtAddMsg:  c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtGetMsg:  c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtReadMsg: c(`SELECT * FROM @person WHERE first_name=?`),

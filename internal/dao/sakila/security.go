@@ -15,7 +15,7 @@ var (
 )
 
 type securityServant struct {
-	db             *sqlx.DB
+	*sqlxServant
 	phoneVerify    core.PhoneVerifyService
 	stmtAddCaptcha *sqlx.Stmt
 	stmtGetCaptcha *sqlx.Stmt
@@ -44,7 +44,7 @@ func (s *securityServant) SendPhoneCaptcha(phone string) error {
 
 func newSecurityService(db *sqlx.DB, phoneVerify core.PhoneVerifyService) core.SecurityService {
 	return &securityServant{
-		db:             db,
+		sqlxServant:    newSqlxServant(db),
 		phoneVerify:    phoneVerify,
 		stmtAddCaptcha: c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtGetCaptcha: c(`SELECT * FROM @person WHERE first_name=?`),

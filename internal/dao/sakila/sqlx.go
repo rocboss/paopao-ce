@@ -8,6 +8,8 @@
 package sakila
 
 import (
+	"context"
+	"database/sql"
 	"strings"
 	"sync"
 
@@ -20,6 +22,39 @@ var (
 	_db   *sqlx.DB
 	_once sync.Once
 )
+
+type sqlxServant struct {
+	db *sqlx.DB
+}
+
+func (s *sqlxServant) with(handle func(*sqlx.Tx) error) error {
+	tx, err := s.db.Beginx()
+	if err != nil {
+		return err
+	}
+	if err = handle(tx); err == nil {
+		return tx.Commit()
+	}
+	return tx.Rollback()
+}
+
+func (s *sqlxServant) withTx(ctx context.Context, opts *sql.TxOptions, handle func(*sqlx.Tx) error) error {
+	tx, err := s.db.BeginTxx(ctx, opts)
+	if err != nil {
+		return err
+
+	}
+	if err = handle(tx); err == nil {
+		return tx.Commit()
+	}
+	return tx.Rollback()
+}
+
+func newSqlxServant(db *sqlx.DB) *sqlxServant {
+	return &sqlxServant{
+		db: db,
+	}
+}
 
 func sqlxDB() *sqlx.DB {
 	_once.Do(func() {
