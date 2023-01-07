@@ -15,7 +15,7 @@ var (
 )
 
 type contactManageServant struct {
-	db            *sqlx.DB
+	*sqlxServant
 	stmtAddFriend *sqlx.Stmt
 	stmtDelFriend *sqlx.Stmt
 }
@@ -58,7 +58,7 @@ func (s *contactManageServant) IsFriend(userId int64, friendId int64) bool {
 
 func newContactManageService(db *sqlx.DB) core.ContactManageService {
 	return &contactManageServant{
-		db:            db,
+		sqlxServant:   newSqlxServant(db),
 		stmtAddFriend: c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtDelFriend: c(`SELECT * FROM @person WHERE first_name=?`),
 	}

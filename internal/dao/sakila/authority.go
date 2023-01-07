@@ -15,7 +15,7 @@ var (
 )
 
 type authorizationManageServant struct {
-	db               *sqlx.DB
+	*sqlxServant
 	stmtIdx          *sqlx.Stmt
 	stmtUpdateFriend *sqlx.Stmt
 }
@@ -52,7 +52,7 @@ func (s *authorizationManageServant) isFriend(userId int64, friendId int64) bool
 
 func newAuthorizationManageService(db *sqlx.DB) core.AuthorizationManageService {
 	return &authorizationManageServant{
-		db:               db,
+		sqlxServant:      newSqlxServant(db),
 		stmtIdx:          c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtUpdateFriend: c(`SELECT * FROM @person WHERE first_name=?`),
 	}

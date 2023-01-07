@@ -16,12 +16,12 @@ var (
 )
 
 type indexPostsServant struct {
-	db        *sqlx.DB
+	*sqlxServant
 	stmtIndex *sqlx.Stmt
 }
 
 type simpleIndexPostsServant struct {
-	db        *sqlx.DB
+	*sqlxServant
 	stmtIndex *sqlx.Stmt
 }
 
@@ -41,14 +41,14 @@ func (s *simpleIndexPostsServant) IndexPosts(_user *core.User, offset int, limit
 
 func newIndexPostsService(db *sqlx.DB) core.IndexPostsService {
 	return &indexPostsServant{
-		db:        db,
-		stmtIndex: c(`SELECT * FROM @person WHERE first_name=?`),
+		sqlxServant: newSqlxServant(db),
+		stmtIndex:   c(`SELECT * FROM @person WHERE first_name=?`),
 	}
 }
 
 func newSimpleIndexPostsService(db *sqlx.DB) core.IndexPostsService {
 	return &simpleIndexPostsServant{
-		db:        db,
-		stmtIndex: c(`SELECT * FROM @person WHERE first_name=?`),
+		sqlxServant: newSqlxServant(db),
+		stmtIndex:   c(`SELECT * FROM @person WHERE first_name=?`),
 	}
 }

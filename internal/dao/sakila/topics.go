@@ -15,7 +15,7 @@ var (
 )
 
 type topicServant struct {
-	db          *sqlx.DB
+	*sqlxServant
 	stmtAddTag  *sqlx.Stmt
 	stmtDelTag  *sqlx.Stmt
 	stmtListTag *sqlx.Stmt
@@ -47,7 +47,7 @@ func (s *topicServant) GetTagsByKeyword(keyword string) ([]*core.Tag, error) {
 
 func newTopicService(db *sqlx.DB) core.TopicService {
 	return &topicServant{
-		db:          db,
+		sqlxServant: newSqlxServant(db),
 		stmtAddTag:  c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtDelTag:  c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtListTag: c(`SELECT * FROM @person WHERE first_name=?`),

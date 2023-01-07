@@ -15,7 +15,7 @@ var (
 )
 
 type userManageServant struct {
-	db             *sqlx.DB
+	*sqlxServant
 	stmtAddUser    *sqlx.Stmt
 	stmtUpdateUser *sqlx.Stmt
 	stmtGetUser    *sqlx.Stmt
@@ -71,7 +71,7 @@ func (s *userManageServant) UpdateUser(user *core.User) error {
 
 func newUserManageService(db *sqlx.DB) core.UserManageService {
 	return &userManageServant{
-		db:             db,
+		sqlxServant:    newSqlxServant(db),
 		stmtAddUser:    c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtUpdateUser: c(`SELECT * FROM @person WHERE first_name=?`),
 		stmtGetUser:    c(`SELECT * FROM @person WHERE first_name=?`),
