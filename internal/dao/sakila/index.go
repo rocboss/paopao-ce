@@ -11,43 +11,88 @@ import (
 )
 
 var (
-	_ core.IndexPostsService = (*indexPostsServant)(nil)
+	_ core.IndexPostsService = (*friendIndexServant)(nil)
+	_ core.IndexPostsService = (*followIndexServant)(nil)
+	_ core.IndexPostsService = (*lightIndexServant)(nil)
 	_ core.IndexPostsService = (*simpleIndexPostsServant)(nil)
 )
 
-type indexPostsServant struct {
+type friendIndexServant struct {
 	*sqlxServant
+	ams       core.AuthorizationManageService
+	ths       core.TweetHelpService
+	stmtIndex *sqlx.Stmt
+}
+
+type followIndexServant struct {
+	*sqlxServant
+	ths       core.TweetHelpService
+	stmtIndex *sqlx.Stmt
+}
+
+type lightIndexServant struct {
+	*sqlxServant
+	ths       core.TweetHelpService
 	stmtIndex *sqlx.Stmt
 }
 
 type simpleIndexPostsServant struct {
 	*sqlxServant
+	ths       core.TweetHelpService
 	stmtIndex *sqlx.Stmt
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *indexPostsServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *friendIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
 	// TODO
-	debug.NotImplemented()
-	return nil, nil
+	return nil, debug.ErrNotImplemented
+}
+
+// IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
+func (s *followIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+// IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
+func (s *lightIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
 }
 
 // simpleCacheIndexGetPosts simpleCacheIndex 专属获取广场推文列表函数
 func (s *simpleIndexPostsServant) IndexPosts(_user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
 	// TODO
-	debug.NotImplemented()
-	return nil, nil
+	return nil, debug.ErrNotImplemented
 }
 
-func newIndexPostsService(db *sqlx.DB) core.IndexPostsService {
-	return &indexPostsServant{
+func newFriendIndexService(db *sqlx.DB, ams core.AuthorizationManageService, ths core.TweetHelpService) core.IndexPostsService {
+	return &friendIndexServant{
+		ams:         ams,
 		sqlxServant: newSqlxServant(db),
 		stmtIndex:   c(`SELECT * FROM @person WHERE first_name=?`),
 	}
 }
 
-func newSimpleIndexPostsService(db *sqlx.DB) core.IndexPostsService {
+func newFollowIndexService(db *sqlx.DB, ths core.TweetHelpService) core.IndexPostsService {
+	return &followIndexServant{
+		ths:         ths,
+		sqlxServant: newSqlxServant(db),
+		stmtIndex:   c(`SELECT * FROM @person WHERE first_name=?`),
+	}
+}
+
+func newLightIndexService(db *sqlx.DB, ths core.TweetHelpService) core.IndexPostsService {
+	return &lightIndexServant{
+		ths:         ths,
+		sqlxServant: newSqlxServant(db),
+		stmtIndex:   c(`SELECT * FROM @person WHERE first_name=?`),
+	}
+}
+
+func newSimpleIndexPostsService(db *sqlx.DB, ths core.TweetHelpService) core.IndexPostsService {
 	return &simpleIndexPostsServant{
+		ths:         ths,
 		sqlxServant: newSqlxServant(db),
 		stmtIndex:   c(`SELECT * FROM @person WHERE first_name=?`),
 	}
