@@ -328,8 +328,8 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`Bot` | 子服务 | WIP | 开启Bot服务|
 |`NativeOBS` | 子服务 | WIP | 开启NativeOBS服务|
 |`Docs` | 子服务 | WIP | 开启开发者文档服务|
-|`Frontend:Web` | 子服务 | 内测 | 开启独立前端服务|
-|`Frontend:EmbedWeb` | 子服务 | 内测 | 开启内嵌于后端Web API服务中的前端服务|
+|`Frontend:Web` | 子服务 | 稳定 | 开启独立前端服务|
+|`Frontend:EmbedWeb` | 子服务 | 稳定 | 开启内嵌于后端Web API服务中的前端服务|
 |`Deprecated:Web` | 子服务 | 稳定 | 开启旧的Web服务|
 |`Gorm` | 数据库 | 稳定(默认) | 使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Gorm` + `MySQL`组合|
 |`Sqlx`| 数据库 | WIP | 使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM|
@@ -346,7 +346,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`OSS:Retention` | 对象存储 | 内测 |基于对象存储系统的对象过期自动删除特性实现 先创建临时对象再持久化的功能|
 |`OSS:TempDir` | 对象存储 | 内测 |基于对象存储系统的对象拷贝/移动特性实现 先创建临时对象再持久化的功能|
 |`Redis` | 缓存 | 稳定 | Redis缓存功能 |
-|`SimpleCacheIndex` | 缓存 | 稳定 | 提供简单的 广场推文列表 的缓存功能 |
+|`SimpleCacheIndex` | 缓存 | Deprecated | 提供简单的 广场推文列表 的缓存功能 |
 |`BigCacheIndex` | 缓存 | 稳定(推荐) | 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面 |
 |`Zinc` | 搜索 | 稳定(推荐) | 基于[Zinc](https://github.com/zinclabs/zinc)搜索引擎提供推文搜索服务 |
 |`Meili` | 搜索 | 稳定(推荐) | 基于[Meilisearch](https://github.com/meilisearch/meilisearch)搜索引擎提供推文搜索服务 |
@@ -356,6 +356,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`LoggerMeili` | 日志 | 内测 | 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志 |
 |`Friendship` | 关系模式 | 内测(默认) | 弱关系好友模式，类似微信朋友圈 |
 |`Followship` | 关系模式 | WIP | 关注者模式，类似Twitter的Follow模式 |
+|`Lightship` | 关系模式 | 内测 | 开放模式，所有推文都公开可见 |
 |`Alipay` | 支付 | 稳定 | 开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能 |
 |`Sms` | 短信验证 | 稳定 | 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机 |
 |`Docs:OpenAPI` | 开发文档 | 稳定 | 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi) |
