@@ -3,7 +3,7 @@ paopao-ce roadmap.
 
 ### v0.2.0
 * [x] add `Friendship` feature
-* [ ] add `Lightship` feature
+* [x] add `Lightship` feature
 * [ ] add `Sqlx` feature
 * [x] add new `Web` service
 * [x] add `Frontend:Web` feature
