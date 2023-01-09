@@ -10,14 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 )
 
 func JWT() gin.HandlerFunc {
-	// TODO: optimize get user from a simple service that provide fetch a user info interface.
-	db := conf.MustGormDB()
+	ums := userManageService()
 	return func(c *gin.Context) {
 		var (
 			token string
@@ -55,13 +53,12 @@ func JWT() gin.HandlerFunc {
 				c.Set("USERNAME", claims.Username)
 
 				// 加载用户信息
-				user := &core.User{
-					Model: &core.Model{
-						ID: claims.UID,
-					},
+				user, err := ums.GetUserByID(claims.UID)
+				if err == nil {
+					c.Set("USER", user)
+				} else {
+					ecode = errcode.UnauthorizedAuthNotExist
 				}
-				user, _ = user.Get(db)
-				c.Set("USER", user)
 
 				// 强制下线机制
 				if (conf.JWTSetting.Issuer + ":" + user.Salt) != claims.Issuer {
@@ -82,8 +79,7 @@ func JWT() gin.HandlerFunc {
 }
 
 func JwtLoose() gin.HandlerFunc {
-	// TODO: optimize get user from a simple service that provide fetch a user info interface.
-	db := conf.MustGormDB()
+	ums := userManageService()
 	return func(c *gin.Context) {
 		token, exist := c.GetQuery("token")
 		if !exist {
@@ -101,12 +97,7 @@ func JwtLoose() gin.HandlerFunc {
 				c.Set("UID", claims.UID)
 				c.Set("USERNAME", claims.Username)
 				// 加载用户信息
-				user := &core.User{
-					Model: &core.Model{
-						ID: claims.UID,
-					},
-				}
-				user, err := user.Get(db)
+				user, err := ums.GetUserByID(claims.UID)
 				if err == nil && (conf.JWTSetting.Issuer+":"+user.Salt) == claims.Issuer {
 					c.Set("USER", user)
 				}
