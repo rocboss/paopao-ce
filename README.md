@@ -246,8 +246,18 @@ docker compose up --build
 
 > 注意：默认提供的 docker-compose.yaml 初衷是搭建本机开发调试环境，如果需要产品部署供外网访问，请自行调优配置参数或使用其他方式部署。
 
-### API 文档
-* `config.yaml` 添加 `Docs:OpenAPI` 功能项:
+### 开发文档
+#### Docs文档说明
+`docs`目录提供了各种开发文档，包括：  
+* [deploy](docs/deploy/)     - paopao-ce部署文档
+* [discuss](docs/discuss/)   - 开发相关的问题交流论述文档
+* [openapi](docs/openapi/)   - paopao-ce后端导出API文档
+* [proposal](docs/proposal/) - paopao-ce功能特性提按文档
+> 比如，关于paopao-ce的设计定位，可以参考[docs/proposal/001-关于paopao-ce的设计定位](docs/proposal/001-关于paopao-ce的设计定位.md)，简要阐述了paopao-ce是如何定位自身的。
+
+#### API文档
+开发者可以在本地开启`Docs`服务，浏览后端导出的API服务接口文档。  
+* `config.yaml` 添加 `Docs` 功能项:
 ```yaml
 ...
 Features:
@@ -260,7 +270,7 @@ Features:
 ```sh
 make run TAGS='docs'
 
-# visit http://127.0.0.1:8008/docs/openapi
+# visit http://127.0.0.1:8011/docs/openapi
 ```
 
 ### 配置说明
