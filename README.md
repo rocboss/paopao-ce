@@ -363,9 +363,9 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`LoggerFile` | 日志 | 稳定 | 使用文件写日志 |
 |`LoggerZinc` | 日志 | 稳定(推荐) | 使用[Zinc](https://github.com/zinclabs/zinc)写日志 |
 |`LoggerMeili` | 日志 | 内测 | 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志 |
-|`Friendship` | 关系模式 | 内测 | 弱关系好友模式，类似微信朋友圈 |
-|`Followship` | 关系模式 | WIP | 关注者模式，类似Twitter的Follow模式 |
-|`Lightship` | 关系模式 | 内测(默认) | 开放模式，所有推文都公开可见 |
+|[`Friendship`](docs/proposal/002-关于Friendship功能项的设计.md) | 关系模式 | 内测 | 弱关系好友模式，类似微信朋友圈 |
+|[`Followship`](docs/proposal/003-关于Followship功能项的设计.md) | 关系模式 | WIP | 关注者模式，类似Twitter的Follow模式 |
+|[`Lightship`](docs/proposal/011-关于Lightship功能项的设计.md) | 关系模式 | 内测(默认) | 开放模式，所有推文都公开可见 |
 |`Alipay` | 支付 | 稳定 | 开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能 |
 |`Sms` | 短信验证 | 稳定 | 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机 |
 |`Docs:OpenAPI` | 开发文档 | 稳定 | 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi) |
