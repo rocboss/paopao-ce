@@ -2,6 +2,9 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
+//go:build generate
+// +build generate
+
 package main
 
 import (
@@ -17,7 +20,7 @@ import (
 	_ "github.com/rocboss/paopao-ce/mirc/web/v1"
 )
 
-//go:generate go run main.go
+//go:generate go run $GOFILE
 func main() {
 	log.Println("generate code start")
 	opts := Options{
