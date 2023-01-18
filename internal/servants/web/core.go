@@ -11,7 +11,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/alimy/cfg"
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
@@ -34,8 +33,6 @@ var (
 	_ api.Core        = (*coreSrv)(nil)
 	_ api.CoreBinding = (*coreBinding)(nil)
 	_ api.CoreRender  = (*coreRender)(nil)
-
-	_EnablePhoneVerify = cfg.If("Sms")
 )
 
 type coreSrv struct {
