@@ -139,16 +139,16 @@
     * [x] 业务逻辑实现 
 
 #### 关系模式:    
-* `Friendship` 弱关系好友模式，类似微信朋友圈(目前状态: 开发阶段); 
-    * [x] 提按文档
+* `Friendship` 弱关系好友模式，类似微信朋友圈(目前状态: 内测); 
+    * [x] [提按文档](docs/proposal/002-关于Friendship功能项的设计.md)
     * [x] 接口定义
     * [x] 业务逻辑实现     
 * `Followship` 关注者模式，类似Twitter的Follow模式(目前状态: WIP);  
-    * [ ] 提按文档
+    * [ ] [提按文档](docs/proposal/003-关于Followship功能项的设计.md)
     * [ ] 接口定义
     * [ ] 业务逻辑实现   
-* `Lightship` 开放模式，所有推文都公开可见(目前状态: WIP);  
-    * [x] 提按文档
+* `Lightship` 开放模式，所有推文都公开可见(目前状态: 内测、默认);  
+    * [x] [提按文档](docs/proposal/011-关于Lightship功能项的设计.md)
     * [x] 接口定义
     * [x] 业务逻辑实现 
 

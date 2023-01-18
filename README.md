@@ -246,8 +246,18 @@ docker compose up --build
 
 > 注意：默认提供的 docker-compose.yaml 初衷是搭建本机开发调试环境，如果需要产品部署供外网访问，请自行调优配置参数或使用其他方式部署。
 
-### API 文档
-* `config.yaml` 添加 `Docs:OpenAPI` 功能项:
+### 开发文档
+#### Docs文档说明
+`docs`目录提供了各种开发文档，包括：  
+* [deploy](docs/deploy/)     - paopao-ce部署文档
+* [discuss](docs/discuss/)   - 开发相关的问题交流论述文档
+* [openapi](docs/openapi/)   - paopao-ce后端导出API文档
+* [proposal](docs/proposal/) - paopao-ce功能特性提按文档
+> 比如，关于paopao-ce的设计定位，可以参考[docs/proposal/001-关于paopao-ce的设计定位](docs/proposal/001-关于paopao-ce的设计定位.md)，简要阐述了paopao-ce是如何定位自身的。
+
+#### API文档
+开发者可以在本地开启`Docs`服务，浏览后端导出的API服务接口文档。  
+* `config.yaml` 添加 `Docs` 功能项:
 ```yaml
 ...
 Features:
@@ -260,7 +270,7 @@ Features:
 ```sh
 make run TAGS='docs'
 
-# visit http://127.0.0.1:8008/docs/openapi
+# visit http://127.0.0.1:8011/docs/openapi
 ```
 
 ### 配置说明
@@ -354,9 +364,9 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`LoggerFile` | 日志 | 稳定 | 使用文件写日志 |
 |`LoggerZinc` | 日志 | 稳定(推荐) | 使用[Zinc](https://github.com/zinclabs/zinc)写日志 |
 |`LoggerMeili` | 日志 | 内测 | 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志 |
-|`Friendship` | 关系模式 | 内测(默认) | 弱关系好友模式，类似微信朋友圈 |
-|`Followship` | 关系模式 | WIP | 关注者模式，类似Twitter的Follow模式 |
-|`Lightship` | 关系模式 | 内测 | 开放模式，所有推文都公开可见 |
+|[`Friendship`](docs/proposal/002-关于Friendship功能项的设计.md) | 关系模式 | 内测 | 弱关系好友模式，类似微信朋友圈 |
+|[`Followship`](docs/proposal/003-关于Followship功能项的设计.md) | 关系模式 | WIP | 关注者模式，类似Twitter的Follow模式 |
+|[`Lightship`](docs/proposal/011-关于Lightship功能项的设计.md) | 关系模式 | 内测(默认) | 开放模式，所有推文都公开可见 |
 |`Alipay` | 支付 | 稳定 | 开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能 |
 |`Sms` | 短信验证 | 稳定 | 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机 |
 |`Docs:OpenAPI` | 开发文档 | 稳定 | 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi) |

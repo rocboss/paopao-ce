@@ -73,7 +73,7 @@ generate: gen-mir gen-grpc
 
 .PHONY: gen-mir
 gen-mir:
-	@go generate mirc/main.go
+	@go generate mirc/gen.go
 	@go fmt ./auto/api/...
 
 .PHONY: gen-grpc
