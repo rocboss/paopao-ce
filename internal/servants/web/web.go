@@ -24,7 +24,7 @@ var (
 
 // RouteWeb register web route
 func RouteWeb(e *gin.Engine) {
-	initial()
+	lazyInitial()
 	oss := dao.ObjectStorageService()
 	ds := &base.DaoServant{
 		Redis: conf.Redis,
@@ -75,8 +75,8 @@ func mustAlipayClient() *alipay.Client {
 	return client
 }
 
-// initial do some package lazy initialize for performance
-func initial() {
+// lazyInitial do some package lazy initialize for performance
+func lazyInitial() {
 	_onceInitial.Do(func() {
 		_EnablePhoneVerify = cfg.If("Sms")
 	})
