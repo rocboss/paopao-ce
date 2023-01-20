@@ -532,6 +532,17 @@ paopao-ce 是一个利用 *业余时间* 本着 **"Just for fun just do it."** �
 
 [![Star History Chart](https://api.star-history.com/svg?repos=rocboss/paopao-ce&type=Date)](https://star-history.com/#rocboss/paopao-ce&Date)
 
+## 部署站点
+* [官方 paopao.info](https://www.paopao.info)  
+> 具体部署站点信息请查阅 [deployed-sites](./deployed-sites.md 'deployed sites'). 欢迎站长将已部署PaoPao实例的站点信息添加到 [deployed-sites](./deployed-sites.md 'deployed sites') 列表中。
+
+#### Collaborator's paopao account
+| 昵称 | [@GitHub](https://github.com 'github.com') | [@PaoPao](https://www.paopao.info 'paopao.info') |
+| ----- | ----- | ----- | 
+| ROC | [ROC](https://github.com/rocboss 'ROC')|[ROC](https://www.paopao.info/#/user?username=roc 'ROC @roc')|
+| 北野 | [Michael Li](https://github.com/alimy 'Michael Li') | [alimy](https://www.paopao.info/#/user?username=alimy '北野 @alimy')|
+| orzi!| [orzi!](https://github.com/orziz 'orzi!')||
+
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
