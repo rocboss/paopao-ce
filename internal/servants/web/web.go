@@ -5,6 +5,8 @@
 package web
 
 import (
+	"sync"
+
 	"github.com/alimy/cfg"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
@@ -15,8 +17,14 @@ import (
 	"github.com/smartwalle/alipay/v3"
 )
 
+var (
+	_EnablePhoneVerify bool
+	_onceInitial       sync.Once
+)
+
 // RouteWeb register web route
 func RouteWeb(e *gin.Engine) {
+	lazyInitial()
 	oss := dao.ObjectStorageService()
 	ds := &base.DaoServant{
 		Redis: conf.MustRedis(),
@@ -65,4 +73,11 @@ func mustAlipayClient() *alipay.Client {
 		logrus.Fatalf("client.LoadAliPayPublicCertFromFile err: %s\n", err)
 	}
 	return client
+}
+
+// lazyInitial do some package lazy initialize for performance
+func lazyInitial() {
+	_onceInitial.Do(func() {
+		_EnablePhoneVerify = cfg.If("Sms")
+	})
 }
