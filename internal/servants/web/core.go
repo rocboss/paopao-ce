@@ -11,7 +11,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/alimy/cfg"
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
@@ -34,8 +33,6 @@ var (
 	_ api.Core        = (*coreSrv)(nil)
 	_ api.CoreBinding = (*coreBinding)(nil)
 	_ api.CoreRender  = (*coreRender)(nil)
-
-	_EnablePhoneVerify = cfg.If("Sms")
 )
 
 type coreSrv struct {
@@ -284,19 +281,12 @@ func (s *coreSrv) GetCollections(req *web.GetCollectionsReq) (*web.GetCollection
 func (s *coreSrv) UserPhoneBind(req *web.UserPhoneBindReq) mir.Error {
 	// 手机重复性检查
 	u, err := s.Ds.GetUserByPhone(req.Phone)
-	if err != nil {
-		logrus.Errorf("Ds.GetUserByPhone err: %v", err)
-		return _errExistedUserPhone
-	}
-	if u.Model == nil || u.ID == 0 {
-		return _errExistedUserPhone
-	}
-	if u.ID == req.User.ID {
+	if err == nil && u.Model != nil && u.ID != 0 && u.ID != req.User.ID {
 		return _errExistedUserPhone
 	}
 
 	// 如果禁止phone verify 则允许通过任意验证码
-	if !_EnablePhoneVerify {
+	if _EnablePhoneVerify {
 		c, err := s.Ds.GetLatestPhoneCaptcha(req.Phone)
 		if err != nil {
 			return _errErrorPhoneCaptcha

@@ -204,6 +204,7 @@ func (s *pubSrv) SendCaptcha(req *web.SendCaptchaReq) mir.Error {
 
 	// 验证图片验证码
 	if res, err := s.Redis.Get(ctx, "PaoPaoCaptcha:"+req.ImgCaptchaID).Result(); err != nil || res != req.ImgCaptcha {
+		logrus.Debugf("get captcha err:%s expect:%s got:%s", err, res, req.ImgCaptcha)
 		return _errErrorCaptchaPassword
 	}
 	s.Redis.Del(ctx, "PaoPaoCaptcha:"+req.ImgCaptchaID).Result()
