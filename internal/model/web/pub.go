@@ -10,12 +10,7 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
-const (
-	TagTypeHot TagType = "hot"
-	TagTypeNew TagType = "new"
-)
-
-type TagType string
+type TagType = core.TagCategory
 
 type TweetDetailReq struct {
 	TweetId int64 `form:"id"`

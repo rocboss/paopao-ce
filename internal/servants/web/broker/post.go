@@ -19,10 +19,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type TagType string
-
-const TagTypeHot TagType = "hot"
-const TagTypeNew TagType = "new"
+type TagType = core.TagCategory
 
 type PostListReq struct {
 	Conditions *core.ConditionsT
@@ -157,13 +154,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (_ *core.Po
 	// 私密推文不创建标签与用户提醒
 	if post.Visibility != core.PostVisitPrivate {
 		// 创建标签
-		for _, t := range tags {
-			tag := &core.Tag{
-				UserID: userID,
-				Tag:    t,
-			}
-			ds.CreateTag(tag)
-		}
+		ds.UpsertTags(userID, tags)
 
 		// 创建用户消息提醒
 		for _, u := range param.Users {
@@ -543,22 +534,7 @@ func GetPostTags(param *PostTagsReq) ([]*core.TagFormated, error) {
 	if num > conf.AppSetting.MaxPageSize {
 		num = conf.AppSetting.MaxPageSize
 	}
-
-	conditions := &core.ConditionsT{}
-	if param.Type == TagTypeHot {
-		// 热门标签
-		conditions = &core.ConditionsT{
-			"ORDER": "quote_num DESC",
-		}
-	}
-	if param.Type == TagTypeNew {
-		// 热门标签
-		conditions = &core.ConditionsT{
-			"ORDER": "id DESC",
-		}
-	}
-
-	tags, err := ds.GetTags(conditions, 0, num)
+	tags, err := ds.GetTags(core.TagCategory(param.Type), 0, num)
 	if err != nil {
 		return nil, err
 	}

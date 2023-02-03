@@ -70,19 +70,31 @@ func (s *userManageServant) GetUsersByKeyword(keyword string) ([]*core.User, err
 	}
 }
 
-func (s *userManageServant) GetTagsByKeyword(keyword string) ([]*core.Tag, error) {
+func (s *userManageServant) GetTagsByKeyword(keyword string) (res []*core.Tag, err error) {
 	tag := &dbr.Tag{}
 	keyword = "%" + strings.Trim(keyword, " ") + "%"
+	var tags []*dbr.Tag
 	if keyword == "%%" {
-		return tag.List(s.db, &dbr.ConditionsT{
+		tags, err = tag.List(s.db, &dbr.ConditionsT{
 			"ORDER": "quote_num DESC",
 		}, 0, 6)
 	} else {
-		return tag.List(s.db, &dbr.ConditionsT{
+		tags, err = tag.List(s.db, &dbr.ConditionsT{
 			"tag LIKE ?": keyword,
 			"ORDER":      "quote_num DESC",
 		}, 0, 6)
 	}
+	if err == nil {
+		for _, tag := range tags {
+			res = append(res, &core.Tag{
+				ID:       tag.ID,
+				UserID:   tag.UserID,
+				Tag:      tag.Tag,
+				QuoteNum: tag.QuoteNum,
+			})
+		}
+	}
+	return
 }
 
 func (s *userManageServant) CreateUser(user *dbr.User) (*core.User, error) {

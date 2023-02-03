@@ -288,21 +288,15 @@ func (s *tweetManageServant) VisiblePost(post *core.Post, visibility core.PostVi
 		db.Rollback()
 		return err
 	}
-
 	// tag处理
 	tags := strings.Split(post.Tags, ",")
-	for _, t := range tags {
-		tag := &dbr.Tag{
-			Tag: t,
-		}
-		// TODO: 暂时宽松不处理错误，这里或许可以有优化，后续完善
-		if oldVisibility == dbr.PostVisitPrivate {
-			// 从私密转为非私密才需要重新创建tag
-			createTag(db, tag)
-		} else if visibility == dbr.PostVisitPrivate {
-			// 从非私密转为私密才需要删除tag
-			deleteTag(db, tag)
-		}
+	// TODO: 暂时宽松不处理错误，这里或许可以有优化，后续完善
+	if oldVisibility == dbr.PostVisitPrivate {
+		// 从私密转为非私密才需要重新创建tag
+		createTags(db, post.UserID, tags)
+	} else if visibility == dbr.PostVisitPrivate {
+		// 从非私密转为私密才需要删除tag
+		deleteTags(db, tags)
 	}
 	db.Commit()
 	s.cacheIndex.SendAction(core.IdxActVisiblePost, post)

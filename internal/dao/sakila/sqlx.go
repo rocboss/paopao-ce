@@ -24,7 +24,7 @@ type sqlxServant struct {
 	db *sqlx.DB
 }
 
-func (s *sqlxServant) with(handle func(*sqlx.Tx) error) error {
+func (s *sqlxServant) with(handle func(tx *sqlx.Tx) error) error {
 	tx, err := s.db.Beginx()
 	if err != nil {
 		return err
@@ -58,6 +58,19 @@ func sqlxDB() *sqlx.DB {
 		_db = conf.MustSqlxDB()
 	})
 	return _db
+}
+
+func in(db *sqlx.DB, query string, args ...interface{}) (string, []interface{}, error) {
+	q, params, err := sqlx.In(query, args...)
+	if err != nil {
+		return "", nil, err
+	}
+	return db.Rebind(q), params, nil
+}
+
+func r(query string) string {
+	db := sqlxDB()
+	return db.Rebind(t(query))
 }
 
 func c(query string) *sqlx.Stmt {
