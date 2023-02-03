@@ -140,7 +140,7 @@ func newTopicService(db *sqlx.DB) core.TopicService {
 		stmtHotTags:        c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND quote_num > 0 ORDER BY quote_num DESC OFFSET ? LIMIT ?`),
 		stmtTagsByKeywordA: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 ORDER BY quote_num DESC OFFSET 0 LIMIT 6`),
 		stmtTagsByKeywordB: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND tag LIKE ? ORDER BY quote_num DESC OFFSET 0 LIMIT 6`),
-		stmtInsertTag:      c(`INSERT INFO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1)`),
+		stmtInsertTag:      c(`INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1)`),
 		stmtTagsByIdA:      r(`SELECT id FROM @tag WHERE id IN (?) AND is_del = 0 AND quote_num >= 0`),
 		stmtTagsByIdB:      r(`SELECT id, user_id, tag, quote_num FROM @tag WHERE id IN (?)`),
 		stmtDecrTagsById:   r(`UPDATE @tag SET quote_num=quote_num-1, modified_on=? WHERE id IN (?)`),
