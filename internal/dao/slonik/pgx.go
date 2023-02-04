@@ -45,10 +45,11 @@ func (s *pgxServant) with(handle func(dbr.Querier) error) error {
 	if err != nil {
 		return err
 	}
-	if err = handle(dbr.New(tx)); err == nil {
-		return tx.Commit(ctx)
+	defer tx.Rollback(ctx)
+	if err = handle(dbr.New(tx)); err != nil {
+		return err
 	}
-	return tx.Rollback(ctx)
+	return tx.Commit(ctx)
 }
 
 func (s *pgxServant) withTx(txOptions pgx.TxOptions, handle func(dbr.Querier) error) error {
@@ -57,10 +58,11 @@ func (s *pgxServant) withTx(txOptions pgx.TxOptions, handle func(dbr.Querier) er
 	if err != nil {
 		return err
 	}
-	if err = handle(dbr.New(tx)); err == nil {
-		return tx.Commit(ctx)
+	defer tx.Rollback(ctx)
+	if err = handle(dbr.New(tx)); err != nil {
+		return err
 	}
-	return tx.Rollback(ctx)
+	return tx.Commit(ctx)
 }
 
 func (s *pgxServant) withCtx(ctx context.Context, handle func(dbr.Querier) error) error {
@@ -68,10 +70,11 @@ func (s *pgxServant) withCtx(ctx context.Context, handle func(dbr.Querier) error
 	if err != nil {
 		return err
 	}
-	if err = handle(dbr.New(tx)); err == nil {
-		return tx.Commit(ctx)
+	defer tx.Rollback(ctx)
+	if err = handle(dbr.New(tx)); err != nil {
+		return err
 	}
-	return tx.Rollback(ctx)
+	return tx.Commit(ctx)
 }
 
 func (s *pgxServant) withTxCtx(ctx context.Context, txOptions pgx.TxOptions, handle func(dbr.Querier) error) error {
@@ -79,10 +82,11 @@ func (s *pgxServant) withTxCtx(ctx context.Context, txOptions pgx.TxOptions, han
 	if err != nil {
 		return err
 	}
-	if err = handle(dbr.New(tx)); err == nil {
-		return tx.Commit(ctx)
+	defer tx.Rollback(ctx)
+	if err = handle(dbr.New(tx)); err != nil {
+		return err
 	}
-	return tx.Rollback(ctx)
+	return tx.Commit(ctx)
 }
 
 func newPgxServant(db *pgx.Conn) *pgxServant {
