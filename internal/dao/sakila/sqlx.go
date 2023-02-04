@@ -29,22 +29,23 @@ func (s *sqlxServant) with(handle func(tx *sqlx.Tx) error) error {
 	if err != nil {
 		return err
 	}
-	if err = handle(tx); err == nil {
-		return tx.Commit()
+	defer tx.Rollback()
+	if err = handle(tx); err != nil {
+		return err
 	}
-	return tx.Rollback()
+	return tx.Commit()
 }
 
 func (s *sqlxServant) withTx(ctx context.Context, opts *sql.TxOptions, handle func(*sqlx.Tx) error) error {
 	tx, err := s.db.BeginTxx(ctx, opts)
 	if err != nil {
 		return err
-
 	}
+	defer tx.Rollback()
 	if err = handle(tx); err == nil {
-		return tx.Commit()
+		return err
 	}
-	return tx.Rollback()
+	return tx.Commit()
 }
 
 func newSqlxServant(db *sqlx.DB) *sqlxServant {
