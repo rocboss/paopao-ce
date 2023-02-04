@@ -19,6 +19,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/source"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/internal/dao/slonik/ce"
 	"github.com/rocboss/paopao-ce/scripts/migration"
 	"github.com/sirupsen/logrus"
 )
@@ -55,18 +56,25 @@ func Run() {
 	}
 
 	migrationsTable := conf.DatabaseSetting.TablePrefix + "schema_migrations"
-	if cfg.If("MySQL") {
-		srcDriver, err = iofs.New(migration.Files, "mysql")
-		dbDriver, err2 = mysql.WithInstance(db, &mysql.Config{MigrationsTable: migrationsTable})
-	} else if cfg.If("PostgreSQL") || cfg.If("Postgres") {
-		srcDriver, err = iofs.New(migration.Files, "postgres")
-		dbDriver, err2 = postgres.WithInstance(db, &postgres.Config{MigrationsTable: migrationsTable})
-	} else if cfg.If("Sqlite3") {
-		srcDriver, err = iofs.New(migration.Files, "sqlite3")
-		dbDriver, err2 = sqlite3.WithInstance(db, &sqlite3.Config{MigrationsTable: migrationsTable})
-	} else {
-		srcDriver, err = iofs.New(migration.Files, "mysql")
-		dbDriver, err2 = mysql.WithInstance(db, &mysql.Config{MigrationsTable: migrationsTable})
+	if cfg.If("Gorm") || cfg.If("Sqlx") {
+		if cfg.If("MySQL") {
+			srcDriver, err = iofs.New(migration.Files, "mysql")
+			dbDriver, err2 = mysql.WithInstance(db, &mysql.Config{MigrationsTable: migrationsTable})
+		} else if cfg.If("PostgreSQL") || cfg.If("Postgres") {
+			srcDriver, err = iofs.New(migration.Files, "postgres")
+			dbDriver, err2 = postgres.WithInstance(db, &postgres.Config{MigrationsTable: migrationsTable})
+		} else if cfg.If("Sqlite3") {
+			srcDriver, err = iofs.New(migration.Files, "sqlite3")
+			dbDriver, err2 = sqlite3.WithInstance(db, &sqlite3.Config{MigrationsTable: migrationsTable})
+		} else {
+			srcDriver, err = iofs.New(migration.Files, "mysql")
+			dbDriver, err2 = mysql.WithInstance(db, &mysql.Config{MigrationsTable: migrationsTable})
+		}
+	} else if cfg.If("Sqlc") {
+		if cfg.If("PostgreSQL") || cfg.If("Postgres") {
+			srcDriver, err = iofs.New(ce.Files, "postgres/schema")
+			dbDriver, err2 = postgres.WithInstance(db, &postgres.Config{MigrationsTable: migrationsTable})
+		}
 	}
 
 	if err2 != nil {

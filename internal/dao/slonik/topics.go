@@ -18,19 +18,19 @@ type topicServant struct {
 	*pgxServant
 }
 
-func (s *topicServant) CreateTag(tag *core.Tag) (*core.Tag, error) {
+func (s *topicServant) UpsertTags(userId int64, tags []string) ([]*core.Tag, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *topicServant) DeleteTag(tag *core.Tag) error {
+func (s *topicServant) DecrTagsById(ids []int64) error {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *topicServant) GetTags(conditions *core.ConditionsT, offset, limit int) ([]*core.Tag, error) {
+func (s *topicServant) GetTags(category core.TagCategory, offset int, limit int) ([]*core.Tag, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
