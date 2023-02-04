@@ -39,27 +39,27 @@ func (s *pgxServant) beingTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.
 	return tx, dbr.New(tx), nil
 }
 
-func (s *pgxServant) with(handle func(dbr.Querier) error) error {
+func (s *pgxServant) with(handle func(c context.Context, q dbr.Querier) error) error {
 	ctx := context.Background()
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
-	if err = handle(dbr.New(tx)); err != nil {
+	if err = handle(ctx, dbr.New(tx)); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)
 }
 
-func (s *pgxServant) withTx(txOptions pgx.TxOptions, handle func(dbr.Querier) error) error {
+func (s *pgxServant) withTx(txOptions pgx.TxOptions, handle func(ctx context.Context, q dbr.Querier) error) error {
 	ctx := context.Background()
 	tx, err := s.db.BeginTx(ctx, txOptions)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
-	if err = handle(dbr.New(tx)); err != nil {
+	if err = handle(ctx, dbr.New(tx)); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)

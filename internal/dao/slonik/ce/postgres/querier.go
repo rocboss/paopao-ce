@@ -6,22 +6,21 @@ package dbr
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
-	// Create a new city. The slug must be unique.
-	// This is the second line of the comment
-	// This is the third line
-	CreateCity(ctx context.Context, arg CreateCityParams) (City, error)
-	CreateVenue(ctx context.Context, arg CreateVenueParams) (int32, error)
-	DeleteVenue(ctx context.Context, slug string) error
-	GetCity(ctx context.Context, slug string) (City, error)
-	GetVenue(ctx context.Context, arg GetVenueParams) (Venue, error)
-	ListCities(ctx context.Context) ([]City, error)
-	ListVenues(ctx context.Context, city string) ([]Venue, error)
-	UpdateCityName(ctx context.Context, arg UpdateCityNameParams) error
-	UpdateVenueName(ctx context.Context, arg UpdateVenueNameParams) (int32, error)
-	VenueCountByCity(ctx context.Context) ([]VenueCountByCityRow, error)
+	DecrTagsById(ctx context.Context, arg *DecrTagsByIdParams) error
+	HotTags(ctx context.Context, arg *HotTagsParams) ([]*HotTagsRow, error)
+	IncrTagsById(ctx context.Context, arg *IncrTagsByIdParams) error
+	InsertTags(ctx context.Context, arg *InsertTagsParams) (*InsertTagsRow, error)
+	NewestTags(ctx context.Context, arg *NewestTagsParams) ([]*NewestTagsRow, error)
+	TagsByIdA(ctx context.Context, ids pgtype.Array[int64]) ([]int64, error)
+	TagsByIdB(ctx context.Context, ids pgtype.Array[int64]) ([]*TagsByIdBRow, error)
+	TagsByKeywordA(ctx context.Context) ([]*TagsByKeywordARow, error)
+	TagsByKeywordB(ctx context.Context, tag string) ([]*TagsByKeywordBRow, error)
+	TagsByName(ctx context.Context, tags pgtype.Array[string]) ([]*TagsByNameRow, error)
 }
 
 var _ Querier = (*Queries)(nil)
