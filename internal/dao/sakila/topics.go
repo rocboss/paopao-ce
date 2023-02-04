@@ -40,24 +40,24 @@ func (s *topicServant) UpsertTags(userId int64, tags []string) (res []*core.Tag,
 		if err = tx.Select(&ts, query, args...); err != nil {
 			return err
 		}
-		var upTags []string
+		now := time.Now().Unix()
 		if len(ts) > 0 {
 			var ids []int64
 			for _, t := range ts {
 				ids = append(ids, t.ID)
-				upTags = append(upTags, t.Tag)
 				t.QuoteNum++
 				// prepare remain tags just delete updated tag
+				// notice ensure tags slice is distinct elements
 				for i, name := range tags {
 					if name == t.Tag {
-						size := len(tags)
-						tags[i] = tags[size-1]
-						tags = tags[:size-1]
+						lastIdx := len(tags) - 1
+						tags[i] = tags[lastIdx]
+						tags = tags[:lastIdx]
 						break
 					}
 				}
 			}
-			if query, args, err = in(s.db, s.stmtIncrTagsById, ids); err != nil {
+			if query, args, err = in(s.db, s.stmtIncrTagsById, now, ids); err != nil {
 				return err
 			}
 			if _, err = tx.Exec(query, args...); err != nil {
@@ -65,12 +65,11 @@ func (s *topicServant) UpsertTags(userId int64, tags []string) (res []*core.Tag,
 			}
 			res = append(res, ts...)
 		}
-		// process remain tags
+		// process remain tags if tags is not empty
 		if len(tags) == 0 {
 			return nil
 		}
 		var ids []int64
-		now := time.Now().Unix()
 		for _, tag := range tags {
 			res, err := s.stmtInsertTag.Exec(userId, tag, now, now)
 			if err != nil {
@@ -87,7 +86,6 @@ func (s *topicServant) UpsertTags(userId int64, tags []string) (res []*core.Tag,
 		if err != nil {
 			return err
 		}
-
 		if err = tx.Select(&newTags, query, args...); err != nil {
 			return err
 		}
@@ -145,6 +143,6 @@ func newTopicService(db *sqlx.DB) core.TopicService {
 		stmtTagsByIdB:      r(`SELECT id, user_id, tag, quote_num FROM @tag WHERE id IN (?)`),
 		stmtDecrTagsById:   r(`UPDATE @tag SET quote_num=quote_num-1, modified_on=? WHERE id IN (?)`),
 		stmtTagsByName:     r(`SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?) AND is_del = 0 AND quote_num >= 0`),
-		stmtIncrTagsById:   r(`UPDATE @tag SET quote_num=quote_num+1 WHERE id IN (?)`),
+		stmtIncrTagsById:   r(`UPDATE @tag SET quote_num=quote_num+1, modified_on=? WHERE id IN (?)`),
 	}
 }
