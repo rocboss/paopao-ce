@@ -42,7 +42,7 @@ func (s *sqlxServant) withTx(ctx context.Context, opts *sql.TxOptions, handle fu
 		return err
 	}
 	defer tx.Rollback()
-	if err = handle(tx); err == nil {
+	if err = handle(tx); err != nil {
 		return err
 	}
 	return tx.Commit()
