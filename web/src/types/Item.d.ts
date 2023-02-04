@@ -282,15 +282,7 @@ declare module Item {
         /** 标签名 */
         tag: string,
         /** 引用数 */
-        quote_num: number,
-        /** 创建时间 */
-        created_on: number,
-        /** 修改时间 */
-        modified_on?: number,
-        /** 删除时间 */
-        deleted_on?: number,
-        /** 是否删除：0为未删除，1为已删除 */
-        is_del?: 0 | 1
+        quote_num: number
     }
 
     interface PagerProps {

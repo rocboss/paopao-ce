@@ -71,9 +71,7 @@ func (t *Tag) Delete(db *gorm.DB) error {
 	}).Error
 }
 
-func (t *Tag) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]*Tag, error) {
-	var tags []*Tag
-	var err error
+func (t *Tag) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) (tags []*Tag, err error) {
 	if offset >= 0 && limit > 0 {
 		db = db.Offset(offset).Limit(limit)
 	}
@@ -87,12 +85,8 @@ func (t *Tag) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]*
 			db = db.Where(k, v)
 		}
 	}
-
-	if err = db.Where("is_del = 0 and quote_num > 0").Find(&tags).Error; err != nil {
-		return nil, err
-	}
-
-	return tags, nil
+	err = db.Where("is_del = 0 and quote_num > 0").Find(&tags).Error
+	return
 }
 
 func (t *Tag) TagsFrom(db *gorm.DB, tags []string) (res []*Tag, err error) {

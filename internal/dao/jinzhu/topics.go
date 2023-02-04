@@ -26,30 +26,82 @@ func newTopicService(db *gorm.DB) core.TopicService {
 	}
 }
 
-func (s *topicServant) CreateTag(tag *core.Tag) (*core.Tag, error) {
-	return createTag(s.db, tag)
+func (s *topicServant) UpsertTags(userId int64, tags []string) (_ []*core.Tag, err error) {
+	db := s.db.Begin()
+	defer func() {
+		if err == nil {
+			db.Commit()
+		} else {
+			db.Rollback()
+		}
+	}()
+	return createTags(db, userId, tags)
 }
 
-func (s *topicServant) DeleteTag(tag *core.Tag) error {
-	return deleteTag(s.db, tag)
+func (s *topicServant) DecrTagsById(ids []int64) (err error) {
+	db := s.db.Begin()
+	defer func() {
+		if err == nil {
+			db.Commit()
+		} else {
+			db.Rollback()
+		}
+	}()
+	return decrTagsByIds(db, ids)
 }
 
-func (s *topicServant) GetTags(conditions *core.ConditionsT, offset, limit int) ([]*core.Tag, error) {
-	return (&dbr.Tag{}).List(s.db, conditions, offset, limit)
+func (s *topicServant) GetTags(category core.TagCategory, offset, limit int) (res []*core.Tag, err error) {
+	conditions := &core.ConditionsT{}
+	switch category {
+	case core.TagCategoryHot:
+		// 热门标签
+		conditions = &core.ConditionsT{
+			"ORDER": "quote_num DESC",
+		}
+	case core.TagCategoryNew:
+		// 最新标签
+		conditions = &core.ConditionsT{
+			"ORDER": "id DESC",
+		}
+	}
+	// TODO: 优化查询方式，直接返回[]*core.Tag, 目前保持先转换一下
+	var tags []*dbr.Tag
+	if tags, err = (&dbr.Tag{}).List(s.db, conditions, offset, limit); err == nil {
+		for _, tag := range tags {
+			res = append(res, &core.Tag{
+				ID:       tag.ID,
+				UserID:   tag.UserID,
+				Tag:      tag.Tag,
+				QuoteNum: tag.QuoteNum,
+			})
+		}
+	}
+	return
 }
 
-func (s *topicServant) GetTagsByKeyword(keyword string) ([]*core.Tag, error) {
-	tag := &dbr.Tag{}
-
+func (s *topicServant) GetTagsByKeyword(keyword string) (res []*core.Tag, err error) {
 	keyword = "%" + strings.Trim(keyword, " ") + "%"
+	tag := &dbr.Tag{}
+	var tags []*dbr.Tag
 	if keyword == "%%" {
-		return tag.List(s.db, &dbr.ConditionsT{
+		tags, err = tag.List(s.db, &dbr.ConditionsT{
 			"ORDER": "quote_num DESC",
 		}, 0, 6)
 	} else {
-		return tag.List(s.db, &dbr.ConditionsT{
+		tags, err = tag.List(s.db, &dbr.ConditionsT{
 			"tag LIKE ?": keyword,
 			"ORDER":      "quote_num DESC",
 		}, 0, 6)
 	}
+	if err == nil {
+		for _, tag := range tags {
+			res = append(res, &core.Tag{
+				ID:       tag.ID,
+				UserID:   tag.UserID,
+				Tag:      tag.Tag,
+				QuoteNum: tag.QuoteNum,
+			})
+		}
+	}
+	return
 }

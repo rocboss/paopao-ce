@@ -306,13 +306,7 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 	// 私密推文不创建标签与用户提醒
 	if post.Visibility != core.PostVisitPrivate {
 		// 创建标签
-		for _, t := range tags {
-			tag := &core.Tag{
-				UserID: req.User.ID,
-				Tag:    t,
-			}
-			s.Ds.CreateTag(tag)
-		}
+		s.Ds.UpsertTags(req.User.ID, tags)
 
 		// 创建用户消息提醒
 		for _, u := range req.Users {

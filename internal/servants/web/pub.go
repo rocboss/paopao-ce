@@ -75,20 +75,7 @@ func (s *pubSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error
 	if num > conf.AppSetting.MaxPageSize {
 		num = conf.AppSetting.MaxPageSize
 	}
-
-	conditions := &core.ConditionsT{}
-	if req.Type == web.TagTypeHot {
-		// 热门标签
-		conditions = &core.ConditionsT{
-			"ORDER": "quote_num DESC",
-		}
-	} else if req.Type == web.TagTypeNew {
-		// 热门标签
-		conditions = &core.ConditionsT{
-			"ORDER": "id DESC",
-		}
-	}
-	tags, err := s.Ds.GetTags(conditions, 0, num)
+	tags, err := s.Ds.GetTags(req.Type, 0, num)
 	if err != nil {
 		return nil, _errGetPostTagsFailed
 	}
