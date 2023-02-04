@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/rocboss/paopao-ce/pkg/naming"
 	"github.com/sirupsen/logrus"
 )
 
@@ -23,6 +24,7 @@ func MustSqlxDB() *sqlx.DB {
 			logrus.Fatalf("new sqlx db failed: %s", err)
 		}
 		_sqlxdb = sqlx.NewDb(db, driver)
+		_sqlxdb.MapperFunc(naming.NewSnakeNamingStrategy().Naming)
 	})
 	return _sqlxdb
 }
