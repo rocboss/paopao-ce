@@ -116,7 +116,7 @@ func (s *topicServant) GetTags(category core.TagCategory, offset int, limit int)
 	case core.TagCategoryHot:
 		err = s.stmtHotTags.Select(&res, offset, limit)
 	case core.TagCategoryNew:
-		err = s.stmtHotTags.Select(&res, offset, limit)
+		err = s.stmtNewestTags.Select(&res, offset, limit)
 	}
 	return
 }
