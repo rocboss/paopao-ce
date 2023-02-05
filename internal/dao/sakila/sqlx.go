@@ -48,6 +48,38 @@ func (s *sqlxServant) withTx(ctx context.Context, opts *sql.TxOptions, handle fu
 	return tx.Commit()
 }
 
+func (s *sqlxServant) in(query string, args ...any) (string, []any, error) {
+	q, params, err := sqlx.In(query, args...)
+	if err != nil {
+		return "", nil, err
+	}
+	return s.db.Rebind(q), params, nil
+}
+
+func (s *sqlxServant) inExec(execer sqlx.Execer, query string, args ...any) (sql.Result, error) {
+	q, params, err := sqlx.In(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	return execer.Exec(s.db.Rebind(q), params...)
+}
+
+func (s *sqlxServant) inSelect(queryer sqlx.Queryer, dest any, query string, args ...any) error {
+	q, params, err := sqlx.In(query, args...)
+	if err != nil {
+		return err
+	}
+	return sqlx.Select(queryer, dest, s.db.Rebind(q), params...)
+}
+
+func (s *sqlxServant) inGet(queryer sqlx.Queryer, dest any, query string, args ...any) error {
+	q, params, err := sqlx.In(query, args...)
+	if err != nil {
+		return err
+	}
+	return sqlx.Get(queryer, dest, s.db.Rebind(q), params...)
+}
+
 func newSqlxServant(db *sqlx.DB) *sqlxServant {
 	return &sqlxServant{
 		db: db,
@@ -59,14 +91,6 @@ func sqlxDB() *sqlx.DB {
 		_db = conf.MustSqlxDB()
 	})
 	return _db
-}
-
-func in(db *sqlx.DB, query string, args ...interface{}) (string, []interface{}, error) {
-	q, params, err := sqlx.In(query, args...)
-	if err != nil {
-		return "", nil, err
-	}
-	return db.Rebind(q), params, nil
 }
 
 func r(query string) string {
