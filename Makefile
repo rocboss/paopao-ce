@@ -69,7 +69,7 @@ windows-x64:
 	@CGO_ENABLED=$(CGO_ENABLED) GOOS=windows GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_WINDOWS_AMD64)/$(basename $(TARGET)).exe
 
 .PHONY: generate
-generate: gen-mir gen-grpc
+generate: gen-mir gen-grpc gen-sqlc
 
 .PHONY: gen-mir
 gen-mir:
