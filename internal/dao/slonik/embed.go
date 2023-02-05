@@ -5,11 +5,11 @@
 //go:build migration
 // +build migration
 
-package main
+package slonik
 
 import (
 	"embed"
 )
 
-//go:embed postgres/schema
+//go:embed ce/postgres/schema
 var Files embed.FS

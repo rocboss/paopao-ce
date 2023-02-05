@@ -19,7 +19,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/source"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/internal/dao/slonik/ce"
+	"github.com/rocboss/paopao-ce/internal/dao/slonik"
 	"github.com/rocboss/paopao-ce/scripts/migration"
 	"github.com/sirupsen/logrus"
 )
@@ -72,7 +72,7 @@ func Run() {
 		}
 	} else if cfg.If("Sqlc") {
 		if cfg.If("PostgreSQL") || cfg.If("Postgres") {
-			srcDriver, err = iofs.New(ce.Files, "postgres/schema")
+			srcDriver, err = iofs.New(slonik.Files, "ce/postgres/schema")
 			dbDriver, err2 = postgres.WithInstance(db, &postgres.Config{MigrationsTable: migrationsTable})
 		}
 	}
