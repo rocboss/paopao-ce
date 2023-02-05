@@ -115,7 +115,7 @@ pre-commit: fmt
 
 
 .PHONY: install-plugins
-install-plugins: install-protobuf-plugins install-sqlc-plugins
+install-plugins: install-protobuf-plugins
 
 .PHONY: install-protobuf-plugins
 install-protobuf-plugins:
