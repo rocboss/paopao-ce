@@ -85,7 +85,7 @@ gen-grpc:
 .PHONY: gen-sqlc
 gen-sqlc:
 	@find internal/dao/slonik/ce/postgres -name '*.go' -exec rm -f {} +
-	@go generate internal/dao/slonik/ce/ce.go
+	@go generate internal/dao/slonik/ce/gen.go
 	@go fmt ./internal/dao/slonik/ce/...
 
 .PHONY: proto-mod

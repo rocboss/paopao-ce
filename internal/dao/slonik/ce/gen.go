@@ -1,15 +1,15 @@
 // Copyright 2023 ROC. All rights reserved.
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
-
-//go:build migration
-// +build migration
-
 package main
 
 import (
-	"embed"
+	"os"
+
+	sqlc "github.com/kyleconroy/sqlc/pkg/cli"
 )
 
-//go:embed postgres/schema
-var Files embed.FS
+//go:generate go run $GOFILE generate -x
+func main() {
+	os.Exit(sqlc.Run(os.Args[1:]))
+}
