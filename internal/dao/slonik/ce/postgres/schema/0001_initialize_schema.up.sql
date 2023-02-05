@@ -3,9 +3,9 @@ CREATE TABLE p_tag (
   user_id bigserial NOT NULL DEFAULT 0,
   tag varchar(255) NOT NULL,
   quote_num bigint NOT NULL DEFAULT 0,
-  created_on int NOT NULL DEFAULT 0,
-  modified_on int NOT NULL DEFAULT 0,
-  deleted_on int NOT NULL DEFAULT 0,
+  created_on bigint NOT NULL DEFAULT 0,
+  modified_on bigint NOT NULL DEFAULT 0,
+  deleted_on bigint NOT NULL DEFAULT 0,
   is_del boolean NOT NULL DEFAULT false,
   UNIQUE (tag)
 );

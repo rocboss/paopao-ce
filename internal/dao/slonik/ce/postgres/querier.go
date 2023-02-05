@@ -6,21 +6,16 @@ package dbr
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
 	DecrTagsById(ctx context.Context, arg *DecrTagsByIdParams) error
 	HotTags(ctx context.Context, arg *HotTagsParams) ([]*HotTagsRow, error)
-	IncrTagsById(ctx context.Context, arg *IncrTagsByIdParams) error
-	InsertTags(ctx context.Context, arg *InsertTagsParams) (*InsertTagsRow, error)
+	IncrTags(ctx context.Context, arg *IncrTagsParams) ([]*IncrTagsRow, error)
+	InsertTags(ctx context.Context, arg *InsertTagsParams) (int64, error)
 	NewestTags(ctx context.Context, arg *NewestTagsParams) ([]*NewestTagsRow, error)
-	TagsByIdA(ctx context.Context, ids pgtype.Array[int64]) ([]int64, error)
-	TagsByIdB(ctx context.Context, ids pgtype.Array[int64]) ([]*TagsByIdBRow, error)
 	TagsByKeywordA(ctx context.Context) ([]*TagsByKeywordARow, error)
 	TagsByKeywordB(ctx context.Context, tag string) ([]*TagsByKeywordBRow, error)
-	TagsByName(ctx context.Context, tags pgtype.Array[string]) ([]*TagsByNameRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

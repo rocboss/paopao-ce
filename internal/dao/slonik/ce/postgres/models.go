@@ -12,9 +12,9 @@ type PTag struct {
 	UserID     int64
 	Tag        string
 	QuoteNum   int64
-	CreatedOn  int32
-	ModifiedOn int32
-	DeletedOn  int32
+	CreatedOn  int64
+	ModifiedOn int64
+	DeletedOn  int64
 	// 是否删除
 	IsDel bool
 }

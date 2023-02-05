@@ -15,11 +15,15 @@ const decrTagsById = `-- name: DecrTagsById :exec
 UPDATE p_tag
 SET quote_num = quote_num-1,
 	modified_on=$1
-WHERE id = ANY($2::bigserial[])
+WHERE id IN (
+	SELECT id
+	FROM p_tag
+	WHERE id = ANY($2::bigserial[]) AND is_del = false AND quote_num >= 1
+)
 `
 
 type DecrTagsByIdParams struct {
-	ModifiedOn int32
+	ModifiedOn int64
 	Ids        pgtype.Array[int64]
 }
 
@@ -73,51 +77,73 @@ func (q *Queries) HotTags(ctx context.Context, arg *HotTagsParams) ([]*HotTagsRo
 	return items, nil
 }
 
-const incrTagsById = `-- name: IncrTagsById :exec
+const incrTags = `-- name: IncrTags :many
 UPDATE p_tag
-SET quote_num = quote_num+1, modified_on = $1
-WHERE id = ANY($2::bigserial[])
-`
-
-type IncrTagsByIdParams struct {
-	ModifiedOn int32
-	Ids        pgtype.Array[int64]
-}
-
-func (q *Queries) IncrTagsById(ctx context.Context, arg *IncrTagsByIdParams) error {
-	_, err := q.db.Exec(ctx, incrTagsById, arg.ModifiedOn, arg.Ids)
-	return err
-}
-
-const insertTags = `-- name: InsertTags :one
-INSERT INTO p_tag (user_id, tag, created_on, modified_on, quote_num)
-VALUES ($1, $2, $3, $3, 1)
+SET quote_num = quote_num+1, 
+	modified_on = $1,
+	id_del = false
+WHERE id IN (
+	SELECT id
+	FROM p_tag
+	WHERE tag = ANY($2::varchar[])
+)
 RETURNING id, user_id, tag, quote_num
 `
 
-type InsertTagsParams struct {
-	UserID    int64
-	Tag       string
-	CreatedOn int32
+type IncrTagsParams struct {
+	ModifiedOn int64
+	Tags       pgtype.Array[string]
 }
 
-type InsertTagsRow struct {
+type IncrTagsRow struct {
 	ID       int64
 	UserID   int64
 	Tag      string
 	QuoteNum int64
 }
 
-func (q *Queries) InsertTags(ctx context.Context, arg *InsertTagsParams) (*InsertTagsRow, error) {
+func (q *Queries) IncrTags(ctx context.Context, arg *IncrTagsParams) ([]*IncrTagsRow, error) {
+	rows, err := q.db.Query(ctx, incrTags, arg.ModifiedOn, arg.Tags)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*IncrTagsRow
+	for rows.Next() {
+		var i IncrTagsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Tag,
+			&i.QuoteNum,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const insertTags = `-- name: InsertTags :one
+INSERT INTO p_tag (user_id, tag, created_on, modified_on, quote_num)
+VALUES ($1, $2, $3, $3, 1)
+RETURNING id
+`
+
+type InsertTagsParams struct {
+	UserID    int64
+	Tag       string
+	CreatedOn int64
+}
+
+func (q *Queries) InsertTags(ctx context.Context, arg *InsertTagsParams) (int64, error) {
 	row := q.db.QueryRow(ctx, insertTags, arg.UserID, arg.Tag, arg.CreatedOn)
-	var i InsertTagsRow
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Tag,
-		&i.QuoteNum,
-	)
-	return &i, err
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }
 
 const newestTags = `-- name: NewestTags :many
@@ -149,70 +175,6 @@ func (q *Queries) NewestTags(ctx context.Context, arg *NewestTagsParams) ([]*New
 	var items []*NewestTagsRow
 	for rows.Next() {
 		var i NewestTagsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.UserID,
-			&i.Tag,
-			&i.QuoteNum,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const tagsByIdA = `-- name: TagsByIdA :many
-SELECT id
-FROM p_tag
-WHERE id = ANY($1::bigserial[]) AND is_del = false AND quote_num >= 0
-`
-
-func (q *Queries) TagsByIdA(ctx context.Context, ids pgtype.Array[int64]) ([]int64, error) {
-	rows, err := q.db.Query(ctx, tagsByIdA, ids)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []int64
-	for rows.Next() {
-		var id int64
-		if err := rows.Scan(&id); err != nil {
-			return nil, err
-		}
-		items = append(items, id)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const tagsByIdB = `-- name: TagsByIdB :many
-SELECT id, user_id, tag, quote_num
-FROM p_tag
-WHERE id = ANY($1::bigserial[])
-`
-
-type TagsByIdBRow struct {
-	ID       int64
-	UserID   int64
-	Tag      string
-	QuoteNum int64
-}
-
-func (q *Queries) TagsByIdB(ctx context.Context, ids pgtype.Array[int64]) ([]*TagsByIdBRow, error) {
-	rows, err := q.db.Query(ctx, tagsByIdB, ids)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []*TagsByIdBRow
-	for rows.Next() {
-		var i TagsByIdBRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
@@ -293,44 +255,6 @@ func (q *Queries) TagsByKeywordB(ctx context.Context, tag string) ([]*TagsByKeyw
 	var items []*TagsByKeywordBRow
 	for rows.Next() {
 		var i TagsByKeywordBRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.UserID,
-			&i.Tag,
-			&i.QuoteNum,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const tagsByName = `-- name: TagsByName :many
-SELECT id, user_id, tag, quote_num
-FROM p_tag
-WHERE tag = ANY($1::varchar[]) AND is_del = false AND quote_num >= 0
-`
-
-type TagsByNameRow struct {
-	ID       int64
-	UserID   int64
-	Tag      string
-	QuoteNum int64
-}
-
-func (q *Queries) TagsByName(ctx context.Context, tags pgtype.Array[string]) ([]*TagsByNameRow, error) {
-	rows, err := q.db.Query(ctx, tagsByName, tags)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []*TagsByNameRow
-	for rows.Next() {
-		var i TagsByNameRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
