@@ -23,11 +23,11 @@ type topicServant struct {
 	stmtTagsByKeywordA *sqlx.Stmt
 	stmtTagsByKeywordB *sqlx.Stmt
 	stmtInsertTag      *sqlx.Stmt
-	stmtTagsByIdA      string
-	stmtTagsByIdB      string
-	stmtDecrTagsById   string
-	stmtTagsForIncr    string
-	stmtIncrTagsById   string
+	sqlTagsByIdA       string
+	sqlTagsByIdB       string
+	sqlDecrTagsById    string
+	sqlTagsForIncr     string
+	sqlIncrTagsById    string
 }
 
 func (s *topicServant) UpsertTags(userId int64, tags []string) (res []*core.Tag, xerr error) {
@@ -36,7 +36,7 @@ func (s *topicServant) UpsertTags(userId int64, tags []string) (res []*core.Tag,
 	}
 	xerr = s.with(func(tx *sqlx.Tx) error {
 		var upTags []*core.Tag
-		if err := s.inSelect(tx, &upTags, s.stmtTagsForIncr, tags); err != nil {
+		if err := s.inSelect(tx, &upTags, s.sqlTagsForIncr, tags); err != nil {
 			return err
 		}
 		now := time.Now().Unix()
@@ -56,7 +56,7 @@ func (s *topicServant) UpsertTags(userId int64, tags []string) (res []*core.Tag,
 					}
 				}
 			}
-			if _, err := s.inExec(tx, s.stmtIncrTagsById, now, ids); err != nil {
+			if _, err := s.inExec(tx, s.sqlIncrTagsById, now, ids); err != nil {
 				return err
 			}
 			res = append(res, upTags...)
@@ -78,7 +78,7 @@ func (s *topicServant) UpsertTags(userId int64, tags []string) (res []*core.Tag,
 			ids = append(ids, id)
 		}
 		var newTags []*core.Tag
-		if err := s.inSelect(tx, &newTags, s.stmtTagsByIdB, ids); err != nil {
+		if err := s.inSelect(tx, &newTags, s.sqlTagsByIdB, ids); err != nil {
 			return err
 		}
 		res = append(res, newTags...)
@@ -90,11 +90,11 @@ func (s *topicServant) UpsertTags(userId int64, tags []string) (res []*core.Tag,
 func (s *topicServant) DecrTagsById(ids []int64) error {
 	return s.with(func(tx *sqlx.Tx) error {
 		var ids []int64
-		err := s.inSelect(tx, &ids, s.stmtTagsByIdA, ids)
+		err := s.inSelect(tx, &ids, s.sqlTagsByIdA, ids)
 		if err != nil {
 			return err
 		}
-		_, err = s.inExec(tx, s.stmtDecrTagsById, time.Now().Unix(), ids)
+		_, err = s.inExec(tx, s.sqlDecrTagsById, time.Now().Unix(), ids)
 		return err
 	})
 }
@@ -127,10 +127,10 @@ func newTopicService(db *sqlx.DB) core.TopicService {
 		stmtTagsByKeywordA: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 ORDER BY quote_num DESC OFFSET 0 LIMIT 6`),
 		stmtTagsByKeywordB: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND tag LIKE ? ORDER BY quote_num DESC OFFSET 0 LIMIT 6`),
 		stmtInsertTag:      c(`INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1)`),
-		stmtTagsByIdA:      r(`SELECT id FROM @tag WHERE id IN (?) AND is_del = 0 AND quote_num > 0`),
-		stmtTagsByIdB:      r(`SELECT id, user_id, tag, quote_num FROM @tag WHERE id IN (?)`),
-		stmtDecrTagsById:   r(`UPDATE @tag SET quote_num=quote_num-1, modified_on=? WHERE id IN (?)`),
-		stmtTagsForIncr:    r(`SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?)`),
-		stmtIncrTagsById:   r(`UPDATE @tag SET quote_num=quote_num+1, is_del=0, modified_on=? WHERE id IN (?)`),
+		sqlTagsByIdA:       r(`SELECT id FROM @tag WHERE id IN (?) AND is_del = 0 AND quote_num > 0`),
+		sqlTagsByIdB:       r(`SELECT id, user_id, tag, quote_num FROM @tag WHERE id IN (?)`),
+		sqlDecrTagsById:    r(`UPDATE @tag SET quote_num=quote_num-1, modified_on=? WHERE id IN (?)`),
+		sqlTagsForIncr:     r(`SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?)`),
+		sqlIncrTagsById:    r(`UPDATE @tag SET quote_num=quote_num+1, is_del=0, modified_on=? WHERE id IN (?)`),
 	}
 }
