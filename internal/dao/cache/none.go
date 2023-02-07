@@ -7,6 +7,8 @@ package cache
 import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
 var (
@@ -20,6 +22,11 @@ type noneCacheIndexServant struct {
 
 func (s *noneCacheIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
 	return s.ips.IndexPosts(user, offset, limit)
+}
+
+func (s *noneCacheIndexServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
 }
 
 func (s *noneCacheIndexServant) SendAction(_act core.IdxAct, _post *core.Post) {

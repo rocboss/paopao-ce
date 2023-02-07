@@ -16,6 +16,7 @@ import (
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
@@ -30,11 +31,11 @@ var (
 	_ api.PrivBinding = (*privBinding)(nil)
 	_ api.PrivRender  = (*privRender)(nil)
 
-	_uploadAttachmentTypeMap = map[string]core.AttachmentType{
-		"public/image":  core.AttachmentTypeImage,
-		"public/avatar": core.AttachmentTypeImage,
-		"public/video":  core.AttachmentTypeVideo,
-		"attachment":    core.AttachmentTypeOther,
+	_uploadAttachmentTypeMap = map[string]cs.AttachmentType{
+		"public/image":  cs.AttachmentTypeImage,
+		"public/avatar": cs.AttachmentTypeImage,
+		"public/video":  cs.AttachmentTypeVideo,
+		"attachment":    cs.AttachmentTypeOther,
 	}
 )
 
@@ -156,20 +157,20 @@ func (s *privSrv) UploadAttachment(req *web.UploadAttachmentReq) (*web.UploadAtt
 	}
 
 	// 构造附件Model
-	attachment := &core.Attachment{
+	attachment := &cs.Attachment{
 		UserID:   req.Uid,
 		FileSize: req.FileSize,
 		Content:  objectUrl,
 		Type:     _uploadAttachmentTypeMap[req.UploadType],
 	}
-	if attachment.Type == core.AttachmentTypeImage {
+	if attachment.Type == cs.AttachmentTypeImage {
 		var src image.Image
 		src, err = imaging.Decode(req.File)
 		if err == nil {
 			attachment.ImgWidth, attachment.ImgHeight = getImageSize(src.Bounds())
 		}
 	}
-	attachment, err = s.Ds.CreateAttachment(attachment)
+	attachment.ID, err = s.Ds.CreateAttachment(attachment)
 	if err != nil {
 		logrus.Errorf("Ds.CreateAttachment err: %s", err)
 		return nil, _errFileUploadFailed

@@ -14,12 +14,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 	"github.com/rocboss/paopao-ce/pkg/util"
 	"github.com/sirupsen/logrus"
 )
 
-type TagType = core.TagCategory
+type TagType = cs.TagType
 
 type PostListReq struct {
 	Conditions *core.ConditionsT
@@ -529,36 +530,16 @@ func PushPostsToSearch(c *gin.Context) {
 	}
 }
 
-func GetPostTags(param *PostTagsReq) ([]*core.TagFormated, error) {
+func GetPostTags(param *PostTagsReq) (cs.TagList, error) {
 	num := param.Num
 	if num > conf.AppSetting.MaxPageSize {
 		num = conf.AppSetting.MaxPageSize
 	}
-	tags, err := ds.GetTags(core.TagCategory(param.Type), 0, num)
+	tags, err := ds.ListTags(param.Type, 0, num)
 	if err != nil {
 		return nil, err
 	}
-
-	// 获取创建者User IDs
-	userIds := []int64{}
-	for _, tag := range tags {
-		userIds = append(userIds, tag.UserID)
-	}
-
-	users, _ := ds.GetUsersByIDs(userIds)
-
-	tagsFormated := []*core.TagFormated{}
-	for _, tag := range tags {
-		tagFormated := tag.Format()
-		for _, user := range users {
-			if user.ID == tagFormated.UserID {
-				tagFormated.User = user.Format()
-			}
-		}
-		tagsFormated = append(tagsFormated, tagFormated)
-	}
-
-	return tagsFormated, nil
+	return tags, nil
 }
 
 func CheckPostAttachmentIsPaid(postID, userID int64) bool {

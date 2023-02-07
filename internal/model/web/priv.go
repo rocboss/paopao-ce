@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 )
 
 type PostContentItem struct {
@@ -120,12 +121,12 @@ type UploadAttachmentReq struct {
 }
 
 type UploadAttachmentResp struct {
-	UserID    int64               `json:"user_id"`
-	FileSize  int64               `json:"file_size"`
-	ImgWidth  int                 `json:"img_width"`
-	ImgHeight int                 `json:"img_height"`
-	Type      core.AttachmentType `json:"type"`
-	Content   string              `json:"content"`
+	UserID    int64             `json:"user_id"`
+	FileSize  int64             `json:"file_size"`
+	ImgWidth  int               `json:"img_width"`
+	ImgHeight int               `json:"img_height"`
+	Type      cs.AttachmentType `json:"type"`
+	Content   string            `json:"content"`
 }
 
 type DownloadAttachmentPrecheckReq struct {

@@ -75,28 +75,12 @@ func (s *pubSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error
 	if num > conf.AppSetting.MaxPageSize {
 		num = conf.AppSetting.MaxPageSize
 	}
-	tags, err := s.Ds.GetTags(req.Type, 0, num)
+	tags, err := s.Ds.ListTags(req.Type, 0, num)
 	if err != nil {
 		return nil, _errGetPostTagsFailed
 	}
-	// 获取创建者User IDs
-	userIds := []int64{}
-	for _, tag := range tags {
-		userIds = append(userIds, tag.UserID)
-	}
-	users, _ := s.Ds.GetUsersByIDs(userIds)
-	tagsFormated := []*core.TagFormated{}
-	for _, tag := range tags {
-		tagFormated := tag.Format()
-		for _, user := range users {
-			if user.ID == tagFormated.UserID {
-				tagFormated.User = user.Format()
-			}
-		}
-		tagsFormated = append(tagsFormated, tagFormated)
-	}
 	return &web.TopicListResp{
-		Topics: tagsFormated,
+		Topics: tags,
 	}, nil
 }
 

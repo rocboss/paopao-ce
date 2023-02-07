@@ -461,7 +461,7 @@ func GetSuggestUsers(keyword string) ([]string, error) {
 
 // GetSuggestTags 根据关键词获取标签推荐
 func GetSuggestTags(keyword string) ([]string, error) {
-	tags, err := ds.GetTagsByKeyword(keyword)
+	tags, err := ds.TagsByKeyword(keyword)
 	if err != nil {
 		return nil, err
 	}

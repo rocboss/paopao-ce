@@ -10,6 +10,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 )
 
 var (
@@ -30,12 +31,12 @@ type topicServant struct {
 	sqlIncrTagsById    string
 }
 
-func (s *topicServant) UpsertTags(userId int64, tags []string) (res []*core.Tag, xerr error) {
+func (s *topicServant) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, xerr error) {
 	if len(tags) == 0 {
 		return nil, nil
 	}
 	xerr = s.with(func(tx *sqlx.Tx) error {
-		var upTags []*core.Tag
+		var upTags cs.TagInfoList
 		if err := s.inSelect(tx, &upTags, s.sqlTagsForIncr, tags); err != nil {
 			return err
 		}
@@ -77,7 +78,7 @@ func (s *topicServant) UpsertTags(userId int64, tags []string) (res []*core.Tag,
 			}
 			ids = append(ids, id)
 		}
-		var newTags []*core.Tag
+		var newTags cs.TagInfoList
 		if err := s.inSelect(tx, &newTags, s.sqlTagsByIdB, ids); err != nil {
 			return err
 		}
@@ -99,17 +100,17 @@ func (s *topicServant) DecrTagsById(ids []int64) error {
 	})
 }
 
-func (s *topicServant) GetTags(category core.TagCategory, offset int, limit int) (res []*core.Tag, err error) {
-	switch category {
-	case core.TagCategoryHot:
+func (s *topicServant) ListTags(typ cs.TagType, offset int, limit int) (res cs.TagList, err error) {
+	switch typ {
+	case cs.TagTypeHot:
 		err = s.stmtHotTags.Select(&res, offset, limit)
-	case core.TagCategoryNew:
+	case cs.TagTypeNew:
 		err = s.stmtNewestTags.Select(&res, offset, limit)
 	}
 	return
 }
 
-func (s *topicServant) GetTagsByKeyword(keyword string) (res []*core.Tag, err error) {
+func (s *topicServant) TagsByKeyword(keyword string) (res cs.TagInfoList, err error) {
 	keyword = "%" + strings.Trim(keyword, " ") + "%"
 	if keyword == "%%" {
 		err = s.stmtTagsByKeywordA.Select(&res)
@@ -122,8 +123,8 @@ func (s *topicServant) GetTagsByKeyword(keyword string) (res []*core.Tag, err er
 func newTopicService(db *sqlx.DB) core.TopicService {
 	return &topicServant{
 		sqlxServant:        newSqlxServant(db),
-		stmtNewestTags:     c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND quote_num > 0 ORDER BY id DESC OFFSET ? LIMIT ?`),
-		stmtHotTags:        c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND quote_num > 0 ORDER BY quote_num DESC OFFSET ? LIMIT ?`),
+		stmtNewestTags:     c(`SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.id DESC OFFSET ? LIMIT ?`),
+		stmtHotTags:        c(`SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.quote_num DESC OFFSET ? LIMIT ?`),
 		stmtTagsByKeywordA: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 ORDER BY quote_num DESC OFFSET 0 LIMIT 6`),
 		stmtTagsByKeywordB: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND tag LIKE ? ORDER BY quote_num DESC OFFSET 0 LIMIT 6`),
 		stmtInsertTag:      c(`INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1)`),

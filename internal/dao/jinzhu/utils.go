@@ -5,12 +5,12 @@
 package jinzhu
 
 import (
-	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
 )
 
-func createTags(db *gorm.DB, userId int64, tags []string) (res []*core.Tag, err error) {
+func createTags(db *gorm.DB, userId int64, tags []string) (res cs.TagInfoList, err error) {
 	for _, name := range tags {
 		tag := &dbr.Tag{Tag: name}
 		if tag, err = tag.Get(db); err == nil {
@@ -28,7 +28,7 @@ func createTags(db *gorm.DB, userId int64, tags []string) (res []*core.Tag, err 
 				return
 			}
 		}
-		res = append(res, &core.Tag{
+		res = append(res, &cs.TagInfo{
 			ID:       tag.ID,
 			UserID:   tag.UserID,
 			Tag:      tag.Tag,

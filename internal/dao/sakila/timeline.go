@@ -7,6 +7,7 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -48,8 +49,18 @@ func (s *friendIndexServant) IndexPosts(user *core.User, offset int, limit int) 
 	return nil, debug.ErrNotImplemented
 }
 
+func (s *friendIndexServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
 func (s *followIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *followIndexServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
@@ -60,8 +71,18 @@ func (s *lightIndexServant) IndexPosts(user *core.User, offset int, limit int) (
 	return nil, debug.ErrNotImplemented
 }
 
+func (s *lightIndexServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
 // simpleCacheIndexGetPosts simpleCacheIndex 专属获取广场推文列表函数
 func (s *simpleIndexPostsServant) IndexPosts(_user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *simpleIndexPostsServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }

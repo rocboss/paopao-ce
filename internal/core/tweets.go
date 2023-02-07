@@ -5,6 +5,7 @@
 package core
 
 import (
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 )
 
@@ -39,8 +40,7 @@ type (
 	}
 )
 
-// TweetService 推文检索服务
-type TweetService interface {
+type oldTweetService interface {
 	GetPostByID(id int64) (*Post, error)
 	GetPosts(conditions *ConditionsT, offset, limit int) ([]*Post, error)
 	GetPostCount(conditions *ConditionsT) (int64, error)
@@ -55,9 +55,21 @@ type TweetService interface {
 	GetPostContentByID(id int64) (*PostContent, error)
 }
 
-// TweetManageService 推文管理服务，包括创建/删除/更新推文
-type TweetManageService interface {
-	CreateAttachment(attachment *Attachment) (*Attachment, error)
+// TweetService 推文检索服务
+type TweetService interface {
+	oldTweetService
+
+	TweetInfoById(id int64) (*cs.TweetInfo, error)
+	TweetItemById(id int64) (*cs.TweetItem, error)
+	UserTweets(visitorId, userId int64) (cs.TweetList, error)
+	ReactionByTweetId(userId int64, tweetId int64) (*cs.ReactionItem, error)
+	UserReactions(userId int64, offset int, limit int) (cs.ReactionList, error)
+	FavoriteByTweetId(userId int64, tweetId int64) (*cs.FavoriteItem, error)
+	UserFavorites(userId int64, offset int, limit int) (cs.FavoriteList, error)
+	AttachmentByTweetId(userId int64, tweetId int64) (*cs.AttachmentBill, error)
+}
+
+type oldTweetManageService interface {
 	CreatePost(post *Post) (*Post, error)
 	DeletePost(post *Post) ([]string, error)
 	LockPost(post *Post) error
@@ -71,13 +83,41 @@ type TweetManageService interface {
 	CreatePostContent(content *PostContent) (*PostContent, error)
 }
 
-// TweetHelpService 推文辅助服务
-type TweetHelpService interface {
+// TweetManageService 推文管理服务，包括创建/删除/更新推文
+type TweetManageService interface {
+	oldTweetManageService
+
+	CreateAttachment(obj *cs.Attachment) (int64, error)
+	CreateTweet(userId int64, req *cs.NewTweetReq) (*cs.TweetItem, error)
+	DeleteTweet(userId int64, tweetId int64) ([]string, error)
+	LockTweet(userId int64, tweetId int64) error
+	StickTweet(userId int64, tweetId int64) error
+	VisibleTweet(userId int64, visibility cs.TweetVisibleType) error
+	CreateReaction(userId int64, tweetId int64) error
+	DeleteReaction(userId int64, reactionId int64) error
+	CreateFavorite(userId int64, tweetId int64) error
+	DeleteFavorite(userId int64, favoriteId int64) error
+}
+
+type oldTweetHelpService interface {
 	RevampPosts(posts []*PostFormated) ([]*PostFormated, error)
 	MergePosts(posts []*Post) ([]*PostFormated, error)
 }
 
+// TweetHelpService 推文辅助服务
+type TweetHelpService interface {
+	oldTweetHelpService
+
+	RevampTweets(tweets cs.TweetList) (cs.TweetList, error)
+	MergeTweets(tweets cs.TweetInfo) (cs.TweetList, error)
+}
+
+type oldIndexPostsService interface {
+	IndexPosts(user *User, offset int, limit int) (*IndexTweetList, error)
+}
+
 // IndexPostsService 广场首页推文列表服务
 type IndexPostsService interface {
-	IndexPosts(user *User, offset int, limit int) (*IndexTweetList, error)
+	oldIndexPostsService
+	TweetTimelineService
 }

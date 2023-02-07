@@ -51,12 +51,6 @@ func (s *userManageServant) GetUsersByKeyword(keyword string) ([]*core.User, err
 	return nil, nil
 }
 
-func (s *userManageServant) GetTagsByKeyword(keyword string) ([]*core.Tag, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
 func (s *userManageServant) CreateUser(user *core.User) (*core.User, error) {
 	// TODO
 	debug.NotImplemented()

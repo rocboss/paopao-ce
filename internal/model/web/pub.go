@@ -6,11 +6,12 @@ package web
 
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
-type TagType = core.TagCategory
+type TagType = cs.TagType
 
 type TweetDetailReq struct {
 	TweetId int64 `form:"id"`
@@ -34,7 +35,7 @@ type TopicListReq struct {
 // TopicListResp 主题返回值
 // TODO: 优化内容定义
 type TopicListResp struct {
-	Topics []*core.TagFormated `json:"topics"`
+	Topics cs.TagList `json:"topics"`
 }
 
 type GetCaptchaResp struct {

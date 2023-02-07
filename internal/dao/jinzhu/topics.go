@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
 )
@@ -26,7 +27,7 @@ func newTopicService(db *gorm.DB) core.TopicService {
 	}
 }
 
-func (s *topicServant) UpsertTags(userId int64, tags []string) (_ []*core.Tag, err error) {
+func (s *topicServant) UpsertTags(userId int64, tags []string) (_ cs.TagInfoList, err error) {
 	db := s.db.Begin()
 	defer func() {
 		if err == nil {
@@ -50,36 +51,55 @@ func (s *topicServant) DecrTagsById(ids []int64) (err error) {
 	return decrTagsByIds(db, ids)
 }
 
-func (s *topicServant) GetTags(category core.TagCategory, offset, limit int) (res []*core.Tag, err error) {
+func (s *topicServant) ListTags(typ cs.TagType, offset, limit int) (res cs.TagList, err error) {
 	conditions := &core.ConditionsT{}
-	switch category {
-	case core.TagCategoryHot:
+	switch typ {
+	case cs.TagTypeHot:
 		// 热门标签
 		conditions = &core.ConditionsT{
 			"ORDER": "quote_num DESC",
 		}
-	case core.TagCategoryNew:
+	case cs.TagTypeNew:
 		// 最新标签
 		conditions = &core.ConditionsT{
 			"ORDER": "id DESC",
 		}
 	}
 	// TODO: 优化查询方式，直接返回[]*core.Tag, 目前保持先转换一下
-	var tags []*dbr.Tag
+	var (
+		tags   []*dbr.Tag
+		tagMap map[int64]*cs.TagItem
+		item   *cs.TagItem
+	)
 	if tags, err = (&dbr.Tag{}).List(s.db, conditions, offset, limit); err == nil {
+		if len(tags) == 0 {
+			return
+		}
+		ids := make([]int64, 0, len(tags))
 		for _, tag := range tags {
-			res = append(res, &core.Tag{
+			item = &cs.TagItem{
 				ID:       tag.ID,
 				UserID:   tag.UserID,
 				Tag:      tag.Tag,
 				QuoteNum: tag.QuoteNum,
-			})
+			}
+			tagMap[item.UserID] = item
+			res = append(res, item)
+			ids = append(ids, tag.UserID)
+		}
+		userInfos, err := (&dbr.User{}).ListUserInfoById(s.db, ids)
+		if err != nil {
+			return nil, err
+		}
+		for _, userInfo := range userInfos {
+			item = tagMap[userInfo.ID]
+			item.User = userInfo
 		}
 	}
 	return
 }
 
-func (s *topicServant) GetTagsByKeyword(keyword string) (res []*core.Tag, err error) {
+func (s *topicServant) TagsByKeyword(keyword string) (res cs.TagInfoList, err error) {
 	keyword = "%" + strings.Trim(keyword, " ") + "%"
 	tag := &dbr.Tag{}
 	var tags []*dbr.Tag
@@ -95,7 +115,7 @@ func (s *topicServant) GetTagsByKeyword(keyword string) (res []*core.Tag, err er
 	}
 	if err == nil {
 		for _, tag := range tags {
-			res = append(res, &core.Tag{
+			res = append(res, &cs.TagInfo{
 				ID:       tag.ID,
 				UserID:   tag.UserID,
 				Tag:      tag.Tag,
