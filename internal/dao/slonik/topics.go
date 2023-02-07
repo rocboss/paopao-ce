@@ -11,6 +11,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/ce/postgres"
 	"github.com/rocboss/paopao-ce/pkg/types"
 )
@@ -25,7 +26,7 @@ type topicServant struct {
 
 // UpsertTags update/insert tags info.
 // Assume tags slice is distinct elements.
-func (s *topicServant) UpsertTags(userId int64, tags []string) (res []*core.Tag, err error) {
+func (s *topicServant) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, err error) {
 	err = s.with(func(c context.Context, q dbr.Querier) error {
 		now := time.Now().Unix()
 		upTags, err := q.IncrTags(c, &dbr.IncrTagsParams{
@@ -45,7 +46,7 @@ func (s *topicServant) UpsertTags(userId int64, tags []string) (res []*core.Tag,
 						break
 					}
 				}
-				res = append(res, &core.Tag{
+				res = append(res, &cs.TagInfo{
 					ID:       t.ID,
 					UserID:   t.UserID,
 					Tag:      t.Tag,
@@ -62,7 +63,7 @@ func (s *topicServant) UpsertTags(userId int64, tags []string) (res []*core.Tag,
 			if err != nil {
 				return err
 			}
-			res = append(res, &core.Tag{
+			res = append(res, &cs.TagInfo{
 				ID:       id,
 				UserID:   userId,
 				Tag:      tag,
@@ -81,40 +82,56 @@ func (s *topicServant) DecrTagsById(ids []int64) error {
 	})
 }
 
-func (s *topicServant) GetTags(category core.TagCategory, offset int, limit int) (res []*core.Tag, _ error) {
+func (s *topicServant) ListTags(typ cs.TagType, offset int, limit int) (res cs.TagList, _ error) {
 	ctx := context.Background()
-	switch category {
-	case core.TagCategoryHot:
+	switch typ {
+	case cs.TagTypeHot:
 		tags, err := s.q.HotTags(ctx, &dbr.HotTagsParams{Offset: int32(offset), Limit: int32(limit)})
 		if err != nil {
 			return nil, err
 		}
 		for _, tag := range tags {
-			res = append(res, &core.Tag{
+			res = append(res, &cs.TagItem{
 				ID:       tag.ID,
 				UserID:   tag.UserID,
 				Tag:      tag.Tag,
 				QuoteNum: tag.QuoteNum,
+				User: &cs.UserInfo{
+					ID:       tag.UserID,
+					Nickname: tag.Nickname,
+					Username: tag.Username,
+					Status:   int(tag.Status),
+					Avatar:   tag.Avatar,
+					IsAdmin:  tag.IsAdmin,
+				},
 			})
 		}
-	case core.TagCategoryNew:
+	case cs.TagTypeNew:
 		tags, err := s.q.NewestTags(ctx, &dbr.NewestTagsParams{Offset: int32(offset), Limit: int32(limit)})
 		if err != nil {
 			return nil, err
 		}
 		for _, tag := range tags {
-			res = append(res, &core.Tag{
+			res = append(res, &cs.TagItem{
 				ID:       tag.ID,
 				UserID:   tag.UserID,
 				Tag:      tag.Tag,
 				QuoteNum: tag.QuoteNum,
+				User: &cs.UserInfo{
+					ID:       tag.UserID,
+					Nickname: tag.Nickname,
+					Username: tag.Username,
+					Status:   int(tag.Status),
+					Avatar:   tag.Avatar,
+					IsAdmin:  tag.IsAdmin,
+				},
 			})
 		}
 	}
 	return
 }
 
-func (s *topicServant) GetTagsByKeyword(keyword string) (res []*core.Tag, _ error) {
+func (s *topicServant) TagsByKeyword(keyword string) (res cs.TagInfoList, _ error) {
 	ctx := context.Background()
 	keyword = "%" + strings.Trim(keyword, " ") + "%"
 	if keyword == "%%" {
@@ -123,7 +140,7 @@ func (s *topicServant) GetTagsByKeyword(keyword string) (res []*core.Tag, _ erro
 			return nil, err
 		}
 		for _, tag := range tags {
-			res = append(res, &core.Tag{
+			res = append(res, &cs.TagInfo{
 				ID:       tag.ID,
 				UserID:   tag.UserID,
 				Tag:      tag.Tag,
@@ -136,7 +153,7 @@ func (s *topicServant) GetTagsByKeyword(keyword string) (res []*core.Tag, _ erro
 			return nil, err
 		}
 		for _, tag := range tags {
-			res = append(res, &core.Tag{
+			res = append(res, &cs.TagInfo{
 				ID:       tag.ID,
 				UserID:   tag.UserID,
 				Tag:      tag.Tag,

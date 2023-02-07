@@ -1,14 +1,14 @@
 -- name: NewestTags :many
-SELECT id, user_id, tag, quote_num
-FROM p_tag
-WHERE is_del = false AND quote_num > 0
-ORDER BY id DESC
+SELECT t.id, t.tag, t.quote_num, u.id user_id, u.nickname, u.username, u.status, u.avatar, u.is_admin 
+FROM p_tag t JOIN p_user u ON t.user_id = u.id
+WHERE t.is_del = 0 AND t.quote_num > 0 
+ORDER BY t.id DESC
 OFFSET $1 LIMIT $2;
 
 -- name: HotTags :many
-SELECT id, user_id, tag, quote_num
-FROM p_tag
-WHERE  is_del = false AND quote_num > 0
+SELECT  t.id, t.tag, t.quote_num, u.id user_id, u.nickname, u.username, u.status, u.avatar, u.is_admin 
+FROM p_tag t JOIN p_user u ON t.user_id = u.id
+WHERE  t.is_del = false AND t.quote_num > 0
 ORDER BY quote_num DESC
 OFFSET $1 LIMIT $2;
 

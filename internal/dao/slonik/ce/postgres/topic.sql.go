@@ -33,9 +33,9 @@ func (q *Queries) DecrTagsById(ctx context.Context, arg *DecrTagsByIdParams) err
 }
 
 const hotTags = `-- name: HotTags :many
-SELECT id, user_id, tag, quote_num
-FROM p_tag
-WHERE  is_del = false AND quote_num > 0
+SELECT  t.id, t.tag, t.quote_num, u.id user_id, u.nickname, u.username, u.status, u.avatar, u.is_admin 
+FROM p_tag t JOIN p_user u ON t.user_id = u.id
+WHERE  t.is_del = false AND t.quote_num > 0
 ORDER BY quote_num DESC
 OFFSET $1 LIMIT $2
 `
@@ -47,9 +47,14 @@ type HotTagsParams struct {
 
 type HotTagsRow struct {
 	ID       int64
-	UserID   int64
 	Tag      string
 	QuoteNum int64
+	UserID   int64
+	Nickname string
+	Username string
+	Status   int16
+	Avatar   string
+	IsAdmin  bool
 }
 
 func (q *Queries) HotTags(ctx context.Context, arg *HotTagsParams) ([]*HotTagsRow, error) {
@@ -63,9 +68,14 @@ func (q *Queries) HotTags(ctx context.Context, arg *HotTagsParams) ([]*HotTagsRo
 		var i HotTagsRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserID,
 			&i.Tag,
 			&i.QuoteNum,
+			&i.UserID,
+			&i.Nickname,
+			&i.Username,
+			&i.Status,
+			&i.Avatar,
+			&i.IsAdmin,
 		); err != nil {
 			return nil, err
 		}
@@ -147,10 +157,10 @@ func (q *Queries) InsertTags(ctx context.Context, arg *InsertTagsParams) (int64,
 }
 
 const newestTags = `-- name: NewestTags :many
-SELECT id, user_id, tag, quote_num
-FROM p_tag
-WHERE is_del = false AND quote_num > 0
-ORDER BY id DESC
+SELECT t.id, t.tag, t.quote_num, u.id user_id, u.nickname, u.username, u.status, u.avatar, u.is_admin 
+FROM p_tag t JOIN p_user u ON t.user_id = u.id
+WHERE t.is_del = 0 AND t.quote_num > 0 
+ORDER BY t.id DESC
 OFFSET $1 LIMIT $2
 `
 
@@ -161,9 +171,14 @@ type NewestTagsParams struct {
 
 type NewestTagsRow struct {
 	ID       int64
-	UserID   int64
 	Tag      string
 	QuoteNum int64
+	UserID   int64
+	Nickname string
+	Username string
+	Status   int16
+	Avatar   string
+	IsAdmin  bool
 }
 
 func (q *Queries) NewestTags(ctx context.Context, arg *NewestTagsParams) ([]*NewestTagsRow, error) {
@@ -177,9 +192,14 @@ func (q *Queries) NewestTags(ctx context.Context, arg *NewestTagsParams) ([]*New
 		var i NewestTagsRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserID,
 			&i.Tag,
 			&i.QuoteNum,
+			&i.UserID,
+			&i.Nickname,
+			&i.Username,
+			&i.Status,
+			&i.Avatar,
+			&i.IsAdmin,
 		); err != nil {
 			return nil, err
 		}

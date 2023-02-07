@@ -7,6 +7,7 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 	"gorm.io/gorm"
 )
@@ -43,6 +44,16 @@ func (s *tweetHelpServant) RevampPosts(posts []*core.PostFormated) ([]*core.Post
 	return nil, nil
 }
 
+func (s *tweetHelpServant) RevampTweets(tweets cs.TweetList) (cs.TweetList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetHelpServant) MergeTweets(tweets cs.TweetInfo) (cs.TweetList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
 func (s *tweetHelpServant) getPostContentsByIDs(ids []int64) ([]*core.PostContent, error) {
 	// TODO
 	debug.NotImplemented()
@@ -68,12 +79,6 @@ func (s *tweetManageServant) DeletePostCollection(p *core.PostCollection) error 
 }
 
 func (s *tweetManageServant) CreatePostContent(content *core.PostContent) (*core.PostContent, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *tweetManageServant) CreateAttachment(attachment *core.Attachment) (*core.Attachment, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
@@ -131,6 +136,56 @@ func (s *tweetManageServant) DeletePostStar(p *core.PostStar) error {
 	// TODO
 	debug.NotImplemented()
 	return nil
+}
+
+func (s *tweetManageServant) CreateAttachment(obj *cs.Attachment) (int64, error) {
+	// TODO
+	return 0, debug.ErrNotImplemented
+}
+
+func (s *tweetManageServant) CreateTweet(userId int64, req *cs.NewTweetReq) (*cs.TweetItem, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetManageServant) DeleteTweet(userId int64, tweetId int64) ([]string, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetManageServant) LockTweet(userId int64, tweetId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *tweetManageServant) StickTweet(userId int64, tweetId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *tweetManageServant) VisibleTweet(userId int64, visibility cs.TweetVisibleType) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *tweetManageServant) CreateReaction(userId int64, tweetId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *tweetManageServant) DeleteReaction(userId int64, reactionId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *tweetManageServant) CreateFavorite(userId int64, tweetId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *tweetManageServant) DeleteFavorite(userId int64, favoriteId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
 }
 
 func (s *tweetServant) GetPostByID(id int64) (*core.Post, error) {
@@ -215,6 +270,46 @@ func (s *tweetServant) GetPostContentByID(id int64) (*core.PostContent, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
+}
+
+func (s *tweetServant) TweetInfoById(id int64) (*cs.TweetInfo, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetServant) TweetItemById(id int64) (*cs.TweetItem, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetServant) UserTweets(visitorId, userId int64) (cs.TweetList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetServant) ReactionByTweetId(userId int64, tweetId int64) (*cs.ReactionItem, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetServant) UserReactions(userId int64, offset int, limit int) (cs.ReactionList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetServant) FavoriteByTweetId(userId int64, tweetId int64) (*cs.FavoriteItem, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetServant) UserFavorites(userId int64, offset int, limit int) (cs.FavoriteList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetServant) AttachmentByTweetId(userId int64, tweetId int64) (*cs.AttachmentBill, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
 }
 
 func newTweetService(db *pgx.Conn) core.TweetService {
