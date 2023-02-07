@@ -21,6 +21,7 @@ const (
 )
 
 type (
+	// PostVisibleT 可访问类型，0公开，1私密，2好友
 	PostVisibleT = dbr.PostVisibleT
 
 	SearchType string

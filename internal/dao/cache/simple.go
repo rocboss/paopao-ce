@@ -10,6 +10,8 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/sirupsen/logrus"
 )
 
@@ -45,6 +47,11 @@ func (s *simpleCacheIndexServant) IndexPosts(user *core.User, offset int, limit 
 
 	logrus.Debugln("simpleCacheIndexServant.IndexPosts get index posts from database")
 	return s.ips.IndexPosts(user, offset, limit)
+}
+
+func (s *simpleCacheIndexServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
 }
 
 func (s *simpleCacheIndexServant) SendAction(act core.IdxAct, _post *core.Post) {

@@ -4,7 +4,10 @@
 
 package dbr
 
-import "gorm.io/gorm"
+import (
+	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"gorm.io/gorm"
+)
 
 const (
 	UserStatusNormal int = iota + 1
@@ -85,6 +88,11 @@ func (u *User) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]
 	}
 
 	return users, nil
+}
+
+func (u *User) ListUserInfoById(db *gorm.DB, ids []int64) (res cs.UserInfoList, err error) {
+	err = db.Model(u).Where("id IN ?", ids).Find(&res).Error
+	return
 }
 
 func (u *User) Create(db *gorm.DB) (*User, error) {

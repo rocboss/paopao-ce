@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/servants/web/broker"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/convert"
@@ -18,11 +19,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var uploadAttachmentTypeMap = map[string]core.AttachmentType{
-	"public/image":  core.AttachmentTypeImage,
-	"public/avatar": core.AttachmentTypeImage,
-	"public/video":  core.AttachmentTypeVideo,
-	"attachment":    core.AttachmentTypeOther,
+var uploadAttachmentTypeMap = map[string]cs.AttachmentType{
+	"public/image":  cs.AttachmentTypeImage,
+	"public/avatar": cs.AttachmentTypeImage,
+	"public/video":  cs.AttachmentTypeVideo,
+	"attachment":    cs.AttachmentTypeOther,
 }
 
 func GeneratePath(s string) string {
@@ -114,7 +115,7 @@ func UploadAttachment(c *gin.Context) {
 	}
 
 	// 构造附件Model
-	attachment := &core.Attachment{
+	attachment := &cs.Attachment{
 		FileSize: fileHeader.Size,
 		Content:  objectUrl,
 	}
@@ -124,7 +125,7 @@ func UploadAttachment(c *gin.Context) {
 	}
 
 	attachment.Type = uploadAttachmentTypeMap[uploadType]
-	if attachment.Type == core.AttachmentTypeImage {
+	if attachment.Type == cs.AttachmentTypeImage {
 		var src image.Image
 		src, err = imaging.Decode(file)
 		if err == nil {
@@ -132,7 +133,7 @@ func UploadAttachment(c *gin.Context) {
 		}
 	}
 
-	attachment, err = broker.CreateAttachment(attachment)
+	attachment.ID, err = broker.CreateAttachment(attachment)
 	if err != nil {
 		logrus.Errorf("service.CreateAttachment err: %v", err)
 		response.ToErrorResponse(errcode.FileUploadFailed)

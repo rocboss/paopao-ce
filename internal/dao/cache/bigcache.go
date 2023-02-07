@@ -15,6 +15,8 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/allegro/bigcache/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/sirupsen/logrus"
 )
@@ -54,6 +56,11 @@ func (s *bigCacheIndexServant) IndexPosts(user *core.User, offset int, limit int
 	logrus.Debugf("bigCacheIndexServant.IndexPosts get index posts from database by key: %s", key)
 	s.cachePosts(key, posts)
 	return posts, nil
+}
+
+func (s *bigCacheIndexServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
 }
 
 func (s *bigCacheIndexServant) getPosts(key string) (*core.IndexTweetList, error) {

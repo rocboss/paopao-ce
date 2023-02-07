@@ -361,7 +361,7 @@ func (s *coreSrv) ChangePassword(req *web.ChangePasswordReq) mir.Error {
 }
 
 func (s *coreSrv) SuggestTags(req *web.SuggestTagsReq) (*web.SuggestTagsResp, mir.Error) {
-	tags, err := s.Ds.GetTagsByKeyword(req.Keyword)
+	tags, err := s.Ds.TagsByKeyword(req.Keyword)
 	if err != nil {
 		logrus.Errorf("Ds.GetTagsByKeyword err: %s", err)
 		return nil, xerror.ServerError

@@ -4,42 +4,14 @@
 
 package core
 
-const (
-	TagCategoryHot TagCategory = "hot"
-	TagCategoryNew TagCategory = "new"
+import (
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 )
-
-type TagCategory string
-
-type Tag struct {
-	ID       int64  `json:"id" db:"id"`
-	UserID   int64  `json:"user_id" db:"user_id"`
-	Tag      string `json:"tag"`
-	QuoteNum int64  `json:"quote_num" db:"quote_num"`
-}
-
-type TagFormated struct {
-	ID       int64         `json:"id"`
-	UserID   int64         `json:"user_id"`
-	User     *UserFormated `json:"user"`
-	Tag      string        `json:"tag"`
-	QuoteNum int64         `json:"quote_num"`
-}
 
 // TopicService 话题服务
 type TopicService interface {
-	UpsertTags(userId int64, tags []string) ([]*Tag, error)
+	UpsertTags(userId int64, tags []string) (cs.TagInfoList, error)
 	DecrTagsById(ids []int64) error
-	GetTags(category TagCategory, offset int, limit int) ([]*Tag, error)
-	GetTagsByKeyword(keyword string) ([]*Tag, error)
-}
-
-func (t *Tag) Format() *TagFormated {
-	return &TagFormated{
-		ID:       t.ID,
-		UserID:   t.UserID,
-		User:     &UserFormated{},
-		Tag:      t.Tag,
-		QuoteNum: t.QuoteNum,
-	}
+	ListTags(typ cs.TagType, offset int, limit int) (cs.TagList, error)
+	TagsByKeyword(keyword string) (cs.TagInfoList, error)
 }

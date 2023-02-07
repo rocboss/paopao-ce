@@ -5,9 +5,9 @@
 package broker
 
 import (
-	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 )
 
-func CreateAttachment(attachment *core.Attachment) (*core.Attachment, error) {
-	return ds.CreateAttachment(attachment)
+func CreateAttachment(obj *cs.Attachment) (int64, error) {
+	return ds.CreateAttachment(obj)
 }
