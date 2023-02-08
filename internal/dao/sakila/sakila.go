@@ -5,6 +5,8 @@
 package sakila
 
 import (
+	"sync"
+
 	"github.com/Masterminds/semver/v3"
 	"github.com/alimy/cfg"
 	"github.com/rocboss/paopao-ce/internal/core"
@@ -16,6 +18,8 @@ import (
 var (
 	_ core.DataService = (*dataServant)(nil)
 	_ core.VersionInfo = (*dataServant)(nil)
+
+	_onceInitial sync.Once
 )
 
 type dataServant struct {
@@ -35,32 +39,33 @@ type dataServant struct {
 }
 
 func NewDataService() (core.DataService, core.VersionInfo) {
+	lazyInitial()
+
 	var (
 		v   core.VersionInfo
 		cis core.CacheIndexService
 		ips core.IndexPostsService
 	)
-	db := sqlxDB()
 	pvs := security.NewPhoneVerifyService()
 	ams := NewAuthorizationManageService()
-	ths := newTweetHelpService(db)
+	ths := newTweetHelpService(_db)
 
 	// initialize core.IndexPostsService
 	if cfg.If("Friendship") {
-		ips = newFriendIndexService(db, ams, ths)
+		ips = newFriendIndexService(_db, ams, ths)
 	} else if cfg.If("Followship") {
-		ips = newFollowIndexService(db, ths)
+		ips = newFollowIndexService(_db, ths)
 	} else if cfg.If("Lightship") {
-		ips = newLightIndexService(db, ths)
+		ips = newLightIndexService(_db, ths)
 	} else {
 		// default use lightship post index service
-		ips = newLightIndexService(db, ths)
+		ips = newLightIndexService(_db, ths)
 	}
 
 	// initialize core.CacheIndexService
 	if cfg.If("SimpleCacheIndex") {
 		// simpleCache use special post index service
-		ips = newSimpleIndexPostsService(db, ths)
+		ips = newSimpleIndexPostsService(_db, ths)
 		cis, v = cache.NewSimpleCacheIndexService(ips)
 	} else if cfg.If("BigCacheIndex") {
 		// TODO: make cache index post in different scence like friendship/followship/lightship
@@ -72,24 +77,25 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 
 	ds := &dataServant{
 		IndexPostsService:      cis,
-		WalletService:          newWalletService(db),
-		MessageService:         newMessageService(db),
-		TopicService:           newTopicService(db),
-		TweetService:           newTweetService(db),
-		TweetManageService:     newTweetManageService(db, cis),
-		TweetHelpService:       newTweetHelpService(db),
-		CommentService:         newCommentService(db),
-		CommentManageService:   newCommentManageService(db),
-		UserManageService:      newUserManageService(db),
-		ContactManageService:   newContactManageService(db),
-		SecurityService:        newSecurityService(db, pvs),
+		WalletService:          newWalletService(_db),
+		MessageService:         newMessageService(_db),
+		TopicService:           newTopicService(_db),
+		TweetService:           newTweetService(_db),
+		TweetManageService:     newTweetManageService(_db, cis),
+		TweetHelpService:       newTweetHelpService(_db),
+		CommentService:         newCommentService(_db),
+		CommentManageService:   newCommentManageService(_db),
+		UserManageService:      newUserManageService(_db),
+		ContactManageService:   newContactManageService(_db),
+		SecurityService:        newSecurityService(_db, pvs),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
 	}
 	return ds, ds
 }
 
 func NewAuthorizationManageService() core.AuthorizationManageService {
-	return newAuthorizationManageService(sqlxDB())
+	lazyInitial()
+	return newAuthorizationManageService(_db)
 }
 
 func (s *dataServant) Name() string {
@@ -98,4 +104,11 @@ func (s *dataServant) Name() string {
 
 func (s *dataServant) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
+}
+
+// lazyInitial do some package lazy initialize for performance
+func lazyInitial() {
+	_onceInitial.Do(func() {
+		initSqlxDB()
+	})
 }

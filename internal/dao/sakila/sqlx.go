@@ -8,7 +8,6 @@ import (
 	"context"
 	"database/sql"
 	"strings"
-	"sync"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/conf"
@@ -16,8 +15,7 @@ import (
 )
 
 var (
-	_db   *sqlx.DB
-	_once sync.Once
+	_db *sqlx.DB
 )
 
 type sqlxServant struct {
@@ -86,21 +84,12 @@ func newSqlxServant(db *sqlx.DB) *sqlxServant {
 	}
 }
 
-func sqlxDB() *sqlx.DB {
-	_once.Do(func() {
-		_db = conf.MustSqlxDB()
-	})
-	return _db
-}
-
 func r(query string) string {
-	db := sqlxDB()
-	return db.Rebind(t(query))
+	return _db.Rebind(t(query))
 }
 
 func c(query string) *sqlx.Stmt {
-	db := sqlxDB()
-	stmt, err := db.Preparex(db.Rebind(t(query)))
+	stmt, err := _db.Preparex(_db.Rebind(t(query)))
 	if err != nil {
 		logrus.Fatalf("prepare query(%s) error: %s", query, err)
 	}
@@ -108,8 +97,7 @@ func c(query string) *sqlx.Stmt {
 }
 
 func n(query string) *sqlx.NamedStmt {
-	db := sqlxDB()
-	stmt, err := db.PrepareNamed(t(query))
+	stmt, err := _db.PrepareNamed(t(query))
 	if err != nil {
 		logrus.Fatalf("prepare named query(%s) error: %s", query, err)
 	}
@@ -119,4 +107,8 @@ func n(query string) *sqlx.NamedStmt {
 // t repace table prefix for query
 func t(query string) string {
 	return strings.Replace(query, "@", conf.DatabaseSetting.TablePrefix, -1)
+}
+
+func initSqlxDB() {
+	_db = conf.MustSqlxDB()
 }

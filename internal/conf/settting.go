@@ -381,6 +381,35 @@ func (s *MeiliSettingS) Endpoint() string {
 	return endpoint(s.Host, s.Secure)
 }
 
+func (s *DatabaseSetingS) TableNames() (res TableNameMap) {
+	tableNames := []string{
+		TableAnouncement,
+		TableAnouncementContent,
+		TableAttachment,
+		TableCaptcha,
+		TableComment,
+		TableCommentContent,
+		TableCommentReply,
+		TableContact,
+		TableContactGroup,
+		TableMessage,
+		TablePost,
+		TablePostAttachmentBill,
+		TablePostCollection,
+		TablePostContent,
+		TablePostStar,
+		TableTag,
+		TableUser,
+		TableWalletRecharge,
+		TableWalletStatement,
+	}
+	res = make(TableNameMap, len(tableNames))
+	for _, name := range tableNames {
+		res[name] = s.TablePrefix + name
+	}
+	return
+}
+
 func endpoint(host string, secure bool) string {
 	schema := "http"
 	if secure {
