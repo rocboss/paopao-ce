@@ -19,6 +19,30 @@ var (
 	_onceSql, _onceRedis sync.Once
 )
 
+const (
+	TableAnouncement        = "user"
+	TableAnouncementContent = "anouncement_content"
+	TableAttachment         = "attachment"
+	TableCaptcha            = "captcha"
+	TableComment            = "comment"
+	TableCommentContent     = "comment_content"
+	TableCommentReply       = "comment_reply"
+	TableContact            = "contact"
+	TableContactGroup       = "contact_group"
+	TableMessage            = "message"
+	TablePost               = "post"
+	TablePostAttachmentBill = "post_attachment_bill"
+	TablePostCollection     = "post_collection"
+	TablePostContent        = "post_content"
+	TablePostStar           = "post_star"
+	TableTag                = "tag"
+	TableUser               = "user"
+	TableWalletRecharge     = "wallet_recharge"
+	TableWalletStatement    = "wallet_statement"
+)
+
+type TableNameMap map[string]string
+
 func MustSqlDB() *sql.DB {
 	_onceSql.Do(func() {
 		var err error

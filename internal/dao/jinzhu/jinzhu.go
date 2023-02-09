@@ -9,6 +9,8 @@
 package jinzhu
 
 import (
+	"sync"
+
 	"github.com/Masterminds/semver/v3"
 	"github.com/alimy/cfg"
 	"github.com/rocboss/paopao-ce/internal/conf"
@@ -21,6 +23,8 @@ import (
 var (
 	_ core.DataService = (*dataServant)(nil)
 	_ core.VersionInfo = (*dataServant)(nil)
+
+	_onceInitial sync.Once
 )
 
 type dataServant struct {
@@ -40,6 +44,8 @@ type dataServant struct {
 }
 
 func NewDataService() (core.DataService, core.VersionInfo) {
+	lazyInitial()
+
 	var (
 		v   core.VersionInfo
 		cis core.CacheIndexService
@@ -103,4 +109,11 @@ func (s *dataServant) Name() string {
 
 func (s *dataServant) Version() *semver.Version {
 	return semver.MustParse("v0.2.0")
+}
+
+// lazyInitial do some package lazy initialize for performance
+func lazyInitial() {
+	_onceInitial.Do(func() {
+		initTableName()
+	})
 }
