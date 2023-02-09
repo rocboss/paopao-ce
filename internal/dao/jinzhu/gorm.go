@@ -9,46 +9,46 @@ import (
 )
 
 var (
-	tableAnouncement        string
-	tableAnouncementContent string
-	tableAttachment         string
-	tableCaptcha            string
-	tableComment            string
-	tableCommentContent     string
-	tableCommentReply       string
-	tableContact            string
-	tableContactGroup       string
-	tableMessage            string
-	tablePost               string
-	tablePostAttachmentBill string
-	tablePostCollection     string
-	tablePostContent        string
-	tablePostStar           string
-	tableTag                string
-	tableUser               string
-	tableWalletRecharge     string
-	tableWalletStatement    string
+	_anouncement        string
+	_anouncementContent string
+	_attachment         string
+	_captcha            string
+	_comment            string
+	_commentContent     string
+	_commentReply       string
+	_contact            string
+	_contactGroup       string
+	_message            string
+	_post               string
+	_postAttachmentBill string
+	_postCollection     string
+	_postContent        string
+	_postStar           string
+	_tag                string
+	_user               string
+	_walletRecharge     string
+	_walletStatement    string
 )
 
 func initTableName() {
 	m := conf.DatabaseSetting.TableNames()
-	tableAnouncement = m[conf.TableAnouncement]
-	tableAnouncementContent = m[conf.TableAnouncementContent]
-	tableAttachment = m[conf.TableAttachment]
-	tableCaptcha = m[conf.TableCaptcha]
-	tableComment = m[conf.TableComment]
-	tableCommentContent = m[conf.TableCommentContent]
-	tableCommentReply = m[conf.TableCommentReply]
-	tableContact = m[conf.TableContact]
-	tableContactGroup = m[conf.TableContactGroup]
-	tableMessage = m[conf.TableMessage]
-	tablePost = m[conf.TablePost]
-	tablePostAttachmentBill = m[conf.TablePostAttachmentBill]
-	tablePostCollection = m[conf.TablePostCollection]
-	tablePostContent = m[conf.TablePostContent]
-	tablePostStar = m[conf.TablePostStar]
-	tableTag = m[conf.TableTag]
-	tableUser = m[conf.TableUser]
-	tableWalletRecharge = m[conf.TableWalletRecharge]
-	tableWalletStatement = m[conf.TableWalletStatement]
+	_anouncement = m[conf.TableAnouncement]
+	_anouncementContent = m[conf.TableAnouncementContent]
+	_attachment = m[conf.TableAttachment]
+	_captcha = m[conf.TableCaptcha]
+	_comment = m[conf.TableComment]
+	_commentContent = m[conf.TableCommentContent]
+	_commentReply = m[conf.TableCommentReply]
+	_contact = m[conf.TableContact]
+	_contactGroup = m[conf.TableContactGroup]
+	_message = m[conf.TableMessage]
+	_post = m[conf.TablePost]
+	_postAttachmentBill = m[conf.TablePostAttachmentBill]
+	_postCollection = m[conf.TablePostCollection]
+	_postContent = m[conf.TablePostContent]
+	_postStar = m[conf.TablePostStar]
+	_tag = m[conf.TableTag]
+	_user = m[conf.TableUser]
+	_walletRecharge = m[conf.TableWalletRecharge]
+	_walletStatement = m[conf.TableWalletStatement]
 }
