@@ -18,6 +18,7 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
+	"github.com/sirupsen/logrus"
 )
 
 type BaseServant types.Empty
@@ -140,7 +141,7 @@ func (s *DaoServant) GetTweetBy(id int64) (*core.PostFormated, error) {
 }
 
 func (s *DaoServant) PushPostsToSearch(c context.Context) {
-	if ok, _ := s.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
+	if ok, err := s.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
 		defer s.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
 
 		splitNum := 1000
@@ -168,6 +169,8 @@ func (s *DaoServant) PushPostsToSearch(c context.Context) {
 				s.Ts.AddDocuments(docs, fmt.Sprintf("%d", posts[i].ID))
 			}
 		}
+	} else {
+		logrus.Warnf("set cache by key JOB_PUSH_TO_SEARCH failed: %s", err)
 	}
 }
 

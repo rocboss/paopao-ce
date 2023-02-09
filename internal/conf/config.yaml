@@ -172,7 +172,7 @@ Postgres: # PostgreSQL数据库
 Sqlite3: # Sqlite3数据库
   Path: data/sqlite3/paopao-ce.db
 Redis:
-  Host: redis:6379
+  Host: 127.0.0.1:6379
   Password: 
   DB: 
   

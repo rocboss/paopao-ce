@@ -52,7 +52,7 @@ func (s *meiliTweetSearchServant) Name() string {
 }
 
 func (s *meiliTweetSearchServant) Version() *semver.Version {
-	return semver.MustParse("v0.2.1")
+	return semver.MustParse("v0.2.2")
 }
 
 func (s *meiliTweetSearchServant) IndexName() string {
@@ -65,7 +65,7 @@ func (s *meiliTweetSearchServant) AddDocuments(data []core.TsDocItem, primaryKey
 		return true, nil
 	}
 	if _, err := s.index.AddDocuments(docs, primaryKey...); err != nil {
-		logrus.Errorf("meiliTweetSearchServant.AddDocuments error: %v", err)
+		logrus.Errorf("meiliTweetSearchServant.AddDocuments error: %s", err)
 		return false, err
 	}
 	return true, nil
@@ -77,7 +77,7 @@ func (s *meiliTweetSearchServant) DeleteDocuments(identifiers []string) error {
 		logrus.Errorf("meiliTweetSearchServant.DeleteDocuments error: %v", err)
 		return err
 	}
-	logrus.Debugf("meiliTweetSearchServant.DeleteDocuments task: %+v", task.Details)
+	logrus.Debugf("meiliTweetSearchServant.DeleteDocuments task: (taskUID:%d, indexUID:%s, status:%s)", task.TaskUID, task.IndexUID, task.Status)
 	return nil
 }
 
