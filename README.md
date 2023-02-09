@@ -343,6 +343,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`Deprecated:Web` | 子服务 | 稳定 | 开启旧的Web服务|
 |`Gorm` | 数据库 | 稳定(默认) | 使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Gorm` + `MySQL`组合|
 |`Sqlx`| 数据库 | WIP | 使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM|
+|`Sqlc`| 数据库 | WIP | 使用[sqlc](https://github.com/kyleconroy/sqlc)自动生成ORM代码|
 |`MySQL`| 数据库 | 稳定(默认) | 使用MySQL作为数据库|
 |`Postgres`| 数据库 | 稳定 | 使用PostgreSQL作为数据库|
 |`Sqlite3`| 数据库 | 稳定 | 使用Sqlite3作为数据库|
@@ -512,8 +513,8 @@ x/sqlx
 | 名称 | 说明 | 备注|
 | ----- | ----- | ----- |       
 | [`main`](https://github.com/rocboss/paopao-ce) | 主分支 |分支`main`是主分支，也是paopao-ce的稳定版本发布分支，只有经过内部测试，没有重大bug出现的稳定代码才会推进到这个分支；该分支主要由`beta`分支代码演进而来，原则上**只接受bug修复PR**。`rc版本/稳定版本` 发布都应该在`main`主分支中进行。|
-| [`beta`](https://github.com/rocboss/paopao-ce/tree/beta) | 公测分支 |分支`beta`是公测分支，代码推进到`main`主分支的候选分支；该分支主要由`dev`分支代码演进而来，**接受bug修复以及新功能优化的PR**，原则上不接受新功能PR。`alpha/beta版本` 发布都应该在`beta`公测分支下进行。｜
-| [`dev`](https://github.com/rocboss/paopao-ce/tree/dev) | 开发分支 | 分支`dev`是开发分支，**不定期频繁更新**，接受 *新功能PR、代码优化PR、bug修复PR*；**新功能PR** 都应该首先提交给`dev`分支进行合并，bug修复/代码优化 后 **冻结新功能** 将代码演进合并到`beta`分支。
+| [`beta`](https://github.com/rocboss/paopao-ce/tree/beta) | 公测分支 |分支`beta`是公测分支，代码推进到`main`主分支的候选分支；该分支主要由`dev`分支代码演进而来，**接受bug修复以及新功能优化的PR**，原则上不接受新功能PR。`alpha/beta版本` 发布都应该在`beta`公测分支下进行。|
+| [`dev`](https://github.com/rocboss/paopao-ce/tree/dev) | 开发分支 | 分支`dev`是开发分支，**不定期频繁更新**，接受 *新功能PR、代码优化PR、bug修复PR*；**新功能PR** 都应该首先提交给`dev`分支进行合并，bug修复/代码优化 后 **冻结新功能** 将代码演进合并到`beta`分支。|
 | `feature/*` | 子功能分支 |`feature/*`是新功能子分支，一般新功能子分支都是 *从`dev`开发分支fork出来的*；子功能分支 **只专注于该新功能** 代码的开发/优化，待开发接近内测阶段 *提交新功能PR给`dev`分支进行review/merge*，待新功能代码演进到`beta`分支后，原则上是可以删除该分支，但也可以保留到稳定版本发布。**该分支专注于新功能的开发，只接受新功能的bug修复/优化PR**。|
 | `jc/*` |维护者的开发分支|`jc/*`是代码库维护者的开发分支，一般包含一些局部优化或者bug修复代码，有时可以直接将代码merge到`dev/beta`分支，原则上不允许直接merge代码到`main`主分支。|
 | `x/*` |实验分支|`x/*`是技术实验分支，某些技术的引入需要经过具体的代码实现与真实场景的测评，考量评估后如果某项技术适合引入到paopao-ce，就fork出一个`feature/*`分支，作为新功能引入到paopao-ce。一般一些比较激进的技术，从`dev`分支fork出一个新的`x/*`分支，各种尝试、考量、评估后，或丢弃、或引入到paopao-ce。|   
