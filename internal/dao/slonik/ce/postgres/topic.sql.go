@@ -159,7 +159,7 @@ func (q *Queries) InsertTags(ctx context.Context, arg *InsertTagsParams) (int64,
 const newestTags = `-- name: NewestTags :many
 SELECT t.id, t.tag, t.quote_num, u.id user_id, u.nickname, u.username, u.status, u.avatar, u.is_admin 
 FROM p_tag t JOIN p_user u ON t.user_id = u.id
-WHERE t.is_del = 0 AND t.quote_num > 0 
+WHERE t.is_del = false AND t.quote_num > 0 
 ORDER BY t.id DESC
 OFFSET $1 LIMIT $2
 `
