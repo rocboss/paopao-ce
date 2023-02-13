@@ -1,11 +1,14 @@
 ## Roadmap for paopao-ce
-[paopao-ce](https://github.com/rocboss/paopao-ce/tree/dev)/[paopao-plus](https://github.com/rocboss/paopao-ce/tree/r/paopao-plus)/[paopao-pro](https://github.com/rocboss/paopao-ce/tree/r/paopao-pro) features develop or optimize and bug fix  roadmap.
+[paopao-ce](https://github.com/rocboss/paopao-ce/tree/dev)/[paopao-ce-plus](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-plus)/[paopao-ce-pro](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-pro) features develop or optimize and bug fix  roadmap.
 
-### paopao-ce roadmap
+## paopao-ce roadmap
 #### v0.3.0
 * [ ] add `Followship` feature
+* [ ] add `Auth:Bcrypt` feature
+* [ ] add `Auth:MD5` feature (just for compatible)
 * [ ] optimize media tweet submit logic
 * [ ] optimize search logic service
+* [ ] remove `Deprecated:OldWeb` feature
 
 #### v0.2.0
 * [x] add `Friendship` feature
@@ -37,10 +40,16 @@
 * [ ] optimize topics service
 * [ ] optimize backend data logic service(optimize database CRUD operate)
 
-### paopao-plus roadmap
-#### v0.3.0
+## paopao-ce-plus roadmap
+#### paopao-ce-plus/v0.2.0
+* [ ] adapt for paopao-ce v0.2.0
+
+#### paopao-ce-plus/v0.3.0
 * [ ] adapt for paopao-ce v0.3.0
 
-### paopao-pro roadmap
-#### v0.3.0
+## paopao-ce-pro roadmap
+#### paopao-ce-pro/v0.2.0
+* [ ] adapt for paopao-ce v0.2.0
+
+#### paopao-ce-pro/v0.3.0
 * [ ] adapt for paopao-ce v0.3.0
