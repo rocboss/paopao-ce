@@ -12,6 +12,6 @@ import (
 type TopicService interface {
 	UpsertTags(userId int64, tags []string) (cs.TagInfoList, error)
 	DecrTagsById(ids []int64) error
-	ListTags(typ cs.TagType, offset int, limit int) (cs.TagList, error)
+	ListTags(typ cs.TagType, limit int, offset int) (cs.TagList, error)
 	TagsByKeyword(keyword string) (cs.TagInfoList, error)
 }

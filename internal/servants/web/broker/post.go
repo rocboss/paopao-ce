@@ -535,7 +535,7 @@ func GetPostTags(param *PostTagsReq) (cs.TagList, error) {
 	if num > conf.AppSetting.MaxPageSize {
 		num = conf.AppSetting.MaxPageSize
 	}
-	tags, err := ds.ListTags(param.Type, 0, num)
+	tags, err := ds.ListTags(param.Type, num, 0)
 	if err != nil {
 		return nil, err
 	}
