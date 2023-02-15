@@ -13,6 +13,7 @@
 #### v0.2.0
 * [x] add `Friendship` feature
 * [x] add `Lightship` feature
+* [x] add `Pyroscope` feature
 * [ ] add extend base ORM code for implement data logic base sqlx/sqlc
 * [x] add new `Web` service
 * [x] add `Frontend:Web` feature
@@ -41,15 +42,15 @@
 * [ ] optimize backend data logic service(optimize database CRUD operate)
 
 ## paopao-ce-plus roadmap
-#### paopao-ce-plus/v0.2.0
-* [ ] adapt for paopao-ce v0.2.0
-
 #### paopao-ce-plus/v0.3.0
 * [ ] adapt for paopao-ce v0.3.0
 
-## paopao-ce-pro roadmap
-#### paopao-ce-pro/v0.2.0
+#### paopao-ce-plus/v0.2.0
 * [ ] adapt for paopao-ce v0.2.0
 
+## paopao-ce-pro roadmap
 #### paopao-ce-pro/v0.3.0
 * [ ] adapt for paopao-ce v0.3.0
+
+#### paopao-ce-pro/v0.2.0
+* [ ] adapt for paopao-ce v0.2.0

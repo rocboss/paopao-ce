@@ -76,6 +76,16 @@ services:
   #   networks:
   #     - paopao-network
 
+  pyroscope:
+    image: pyroscope/pyroscope:latest
+    restart: always
+    ports:
+      - 4040:4040
+    command:
+      - 'server'
+    networks:
+      - paopao-network
+
   phpmyadmin:
     image: phpmyadmin:5.2
     depends_on:

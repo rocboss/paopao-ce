@@ -72,6 +72,11 @@ BigCacheIndex: # 使用BigCache缓存泡泡广场消息流
   MaxIndexPage: 1024            # 最大缓存页数，必须是2^n, 代表最大同时缓存多少页数据
   Verbose: False                # 是否打印cache操作的log
   ExpireInSecond: 300           # 多少秒(>0)后强制过期缓存
+Pyroscope: # Pyroscope配置
+  AppName: "paopao-ce"                # application name
+  Endpoint: "http://localhost:4040"   # Pyroscope server address
+  AuthToken:                          # Pyroscope authentication token
+  Logger:  none                       # Pyroscope logger (standard | logrus | none)
 Logger: # 日志通用配置
   Level: debug # 日志级别 panic|fatal|error|warn|info|debug|trace
 LoggerFile: # 使用File写日志

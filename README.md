@@ -370,6 +370,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`Alipay` | 支付 | 稳定 | 开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能 |
 |`Sms` | 短信验证 | 稳定 | 开启短信验证码功能，用于手机绑定验证手机是否注册者的；功能如果没有开启，手机绑定时任意短信验证码都可以绑定手机 |
 |`Docs:OpenAPI` | 开发文档 | 稳定 | 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi) |
+|[`Pyroscope`](docs/proposal/016-关于使用pyroscope用于性能调试的设计.md)| 性能优化 | 内测 | 开启Pyroscope功能用于性能调试 |   
 |`PhoneBind` | 其他 | 稳定 | 手机绑定功能 |   
 
 > 功能项状态详情参考 [features-status](features-status.md).
@@ -489,6 +490,32 @@ MinIO: # MinIO 存储配置
   Endpoint: 127.0.0.1:9000             # 根据部署的minio主机修改对应地址
   Bucket: paopao                       # 如上，需要在管理界面创建bucket并赋予外部可读写权限
   Domain: 127.0.0.1:9000               # minio外网访问的地址(如果想让外网访问，这里需要设置为外网可访问到的minio主机地址)
+...
+```
+
+#### [Pyroscope](https://github.com/pyroscope-io/pyroscope) 性能剖析
+* Pyroscope运行
+```sh
+mkdir -p data/minio/data
+
+# 使用Docker运行
+docker run -it -p 4040:4040 pyroscope/pyroscope:latest server
+# 使用docker compose运行， 需要删除docker-compose.yaml中关于pyroscope的注释
+docker compose up -d pyroscope
+# visit http://loclahost:4040
+```
+
+* 修改Pyroscope配置
+```yaml
+# features中加上 MinIO
+Features:
+  Default: ["Meili", "LoggerMeili", "Base", "Sqlite3", "BigCacheIndex", "Pyroscope"]
+...
+Pyroscope: # Pyroscope配置
+  AppName: "paopao-ce"
+  Endpoint: "http://localhost:4040"   # Pyroscope server address
+  AuthToken:                          # Pyroscope authentication token
+  Logger:  none                       # Pyroscope logger (standard | logrus | none)
 ...
 ```
 

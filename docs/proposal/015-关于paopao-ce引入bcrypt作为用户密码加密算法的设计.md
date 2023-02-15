@@ -17,8 +17,8 @@ TODO；
 TODO；
 
 ### 参考文档
-[bcrypt](https://github.com/golang/crypto/blob/master/bcrypt/bcrypt.go)
-[bcrypt module](https://pkg.go.dev/golang.org/x/crypto@v0.6.0/bcrypt)
+* [bcrypt](https://github.com/golang/crypto/blob/master/bcrypt/bcrypt.go)
+* [bcrypt module](https://pkg.go.dev/golang.org/x/crypto@v0.6.0/bcrypt)
 
 ### 更新记录
 #### v0.0(2023-02-13) - 北野
