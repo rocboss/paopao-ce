@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	AddEntries(new(AlipayPub), new(AlipayPriv))
+	AddEntry(new(AlipayPub), new(AlipayPriv))
 }
 
 // AlipayPub 支付宝相关不用授权的服务
