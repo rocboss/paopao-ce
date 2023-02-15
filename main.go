@@ -59,10 +59,15 @@ func main() {
 		fmt.Fprintln(color.Output, "no service need start so just exit")
 		return
 	}
-	wg := &sync.WaitGroup{}
+
+	// start pyroscope if need
+	debug.StartPyroscope()
+
 	// start services
+	wg := &sync.WaitGroup{}
 	fmt.Fprintf(color.Output, "\nstarting run service...\n\n")
 	service.Start(wg)
+
 	// graceful stop services
 	wg.Add(1)
 	go func() {

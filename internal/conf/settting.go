@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pyroscope-io/client/pyroscope"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/gorm/logger"
@@ -20,6 +21,13 @@ var files embed.FS
 
 type Setting struct {
 	vp *viper.Viper
+}
+
+type PyroscopeSettingS struct {
+	AppName   string
+	Endpoint  string
+	AuthToken string
+	Logger    string
 }
 
 type LoggerSettingS struct {
@@ -379,6 +387,16 @@ func (s *ZincSettingS) Endpoint() string {
 
 func (s *MeiliSettingS) Endpoint() string {
 	return endpoint(s.Host, s.Secure)
+}
+
+func (s *PyroscopeSettingS) GetLogger() (logger pyroscope.Logger) {
+	switch strings.ToLower(s.Logger) {
+	case "standard":
+		logger = pyroscope.StandardLogger
+	case "logrus":
+		logger = logrus.StandardLogger()
+	}
+	return
 }
 
 func endpoint(host string, secure bool) string {
