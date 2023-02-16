@@ -91,9 +91,10 @@ type SimpleCacheIndexSettingS struct {
 }
 
 type BigCacheIndexSettingS struct {
-	MaxIndexPage   int
-	ExpireInSecond time.Duration
-	Verbose        bool
+	MaxIndexPage     int
+	HardMaxCacheSize int
+	ExpireInSecond   time.Duration
+	Verbose          bool
 }
 
 type AlipaySettingS struct {
