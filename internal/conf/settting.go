@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pyroscope-io/client/pyroscope"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/gorm/logger"
@@ -20,6 +21,13 @@ var files embed.FS
 
 type Setting struct {
 	vp *viper.Viper
+}
+
+type PyroscopeSettingS struct {
+	AppName   string
+	Endpoint  string
+	AuthToken string
+	Logger    string
 }
 
 type LoggerSettingS struct {
@@ -83,9 +91,10 @@ type SimpleCacheIndexSettingS struct {
 }
 
 type BigCacheIndexSettingS struct {
-	MaxIndexPage   int
-	ExpireInSecond time.Duration
-	Verbose        bool
+	MaxIndexPage     int
+	HardMaxCacheSize int
+	ExpireInSecond   time.Duration
+	Verbose          bool
 }
 
 type AlipaySettingS struct {
@@ -406,6 +415,16 @@ func (s *DatabaseSetingS) TableNames() (res TableNameMap) {
 	res = make(TableNameMap, len(tableNames))
 	for _, name := range tableNames {
 		res[name] = s.TablePrefix + name
+	}
+	return
+}
+
+func (s *PyroscopeSettingS) GetLogger() (logger pyroscope.Logger) {
+	switch strings.ToLower(s.Logger) {
+	case "standard":
+		logger = pyroscope.StandardLogger
+	case "logrus":
+		logger = logrus.StandardLogger()
 	}
 	return
 }

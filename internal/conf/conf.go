@@ -19,6 +19,7 @@ var (
 	loggerMeiliSetting *LoggerMeiliSettingS
 	redisSetting       *RedisSettingS
 
+	PyroscopeSetting        *PyroscopeSettingS
 	DatabaseSetting         *DatabaseSetingS
 	MysqlSetting            *MySQLSettingS
 	PostgresSetting         *PostgresSettingS
@@ -81,6 +82,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"BigCacheIndex":     &BigCacheIndexSetting,
 		"Alipay":            &AlipaySetting,
 		"SmsJuhe":           &SmsJuheSetting,
+		"Pyroscope":         &PyroscopeSetting,
 		"Logger":            &loggerSetting,
 		"LoggerFile":        &loggerFileSetting,
 		"LoggerZinc":        &loggerZincSetting,

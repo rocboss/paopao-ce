@@ -75,7 +75,7 @@ func (s *pubSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error
 	if num > conf.AppSetting.MaxPageSize {
 		num = conf.AppSetting.MaxPageSize
 	}
-	tags, err := s.Ds.ListTags(req.Type, 0, num)
+	tags, err := s.Ds.ListTags(req.Type, num, 0)
 	if err != nil {
 		return nil, _errGetPostTagsFailed
 	}

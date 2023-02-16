@@ -100,12 +100,12 @@ func (s *topicServant) DecrTagsById(ids []int64) error {
 	})
 }
 
-func (s *topicServant) ListTags(typ cs.TagType, offset int, limit int) (res cs.TagList, err error) {
+func (s *topicServant) ListTags(typ cs.TagType, limit int, offset int) (res cs.TagList, err error) {
 	switch typ {
 	case cs.TagTypeHot:
-		err = s.stmtHotTags.Select(&res, offset, limit)
+		err = s.stmtHotTags.Select(&res, limit, offset)
 	case cs.TagTypeNew:
-		err = s.stmtNewestTags.Select(&res, offset, limit)
+		err = s.stmtNewestTags.Select(&res, limit, offset)
 	}
 	return
 }
@@ -123,10 +123,10 @@ func (s *topicServant) TagsByKeyword(keyword string) (res cs.TagInfoList, err er
 func newTopicService(db *sqlx.DB) core.TopicService {
 	return &topicServant{
 		sqlxServant:        newSqlxServant(db),
-		stmtNewestTags:     c(`SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.id DESC OFFSET ? LIMIT ?`),
-		stmtHotTags:        c(`SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.quote_num DESC OFFSET ? LIMIT ?`),
-		stmtTagsByKeywordA: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 ORDER BY quote_num DESC OFFSET 0 LIMIT 6`),
-		stmtTagsByKeywordB: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND tag LIKE ? ORDER BY quote_num DESC OFFSET 0 LIMIT 6`),
+		stmtNewestTags:     c(`SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.id DESC LIMIT ? OFFSET ?`),
+		stmtHotTags:        c(`SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.quote_num DESC LIMIT ? OFFSET ?`),
+		stmtTagsByKeywordA: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 ORDER BY quote_num DESC LIMIT 6`),
+		stmtTagsByKeywordB: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND tag LIKE ? ORDER BY quote_num DESC LIMIT 6`),
 		stmtInsertTag:      c(`INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1)`),
 		sqlTagsByIdA:       r(`SELECT id FROM @tag WHERE id IN (?) AND is_del = 0 AND quote_num > 0`),
 		sqlTagsByIdB:       r(`SELECT id, user_id, tag, quote_num FROM @tag WHERE id IN (?)`),

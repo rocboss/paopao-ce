@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/cfg v0.3.0
-	github.com/alimy/mir/v3 v3.0.1
+	github.com/alimy/mir/v3 v3.1.1
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.2+incompatible
 	github.com/allegro/bigcache/v3 v3.0.2
 	github.com/bytedance/sonic v1.5.0
@@ -29,6 +29,7 @@ require (
 	github.com/kyleconroy/sqlc v1.16.1-0.20230203175717-382035814184
 	github.com/meilisearch/meilisearch-go v0.21.0
 	github.com/minio/minio-go/v7 v7.0.45
+	github.com/pyroscope-io/client v0.6.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/smartwalle/alipay/v3 v3.1.7
 	github.com/spf13/viper v1.14.0
@@ -104,6 +105,7 @@ require (
 	github.com/pingcap/log v0.0.0-20210906054005-afc726e70354 // indirect
 	github.com/pingcap/tidb/parser v0.0.0-20220725134311-c80026e61f00 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pyroscope-io/godeltaprof v0.1.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/smartwalle/crypto4go v1.0.2 // indirect

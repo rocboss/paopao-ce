@@ -169,10 +169,15 @@
     * [x] 业务逻辑实现 
 
 ### 开发文档:  
-* `Docs:OpenAPI` 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi)；  
+* `Docs:OpenAPI` 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi);  
     * [ ] 提按文档  
     * [x] 接口定义
-    * [x] 业务逻辑实现      
+    * [x] 业务逻辑实现   
+
+### 性能优化
+* [`Pyroscope`](docs/proposal/016-关于使用pyroscope用于性能调试的设计.md) 开启Pyroscope功能用于性能调试(目前状态: 内测);  
+    * [x] 提按文档  
+    * [x] 业务逻辑实现  
  
 ### 其他:    
 * `PhoneBind` 手机绑定功能； 
