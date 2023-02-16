@@ -70,6 +70,7 @@ SimpleCacheIndex: # 缓存泡泡广场消息流
   ExpireTickDuration: 300       # 每多少秒后强制过期缓存, 设置为0禁止强制使缓存过期
 BigCacheIndex: # 使用BigCache缓存泡泡广场消息流
   MaxIndexPage: 1024            # 最大缓存页数，必须是2^n, 代表最大同时缓存多少页数据
+  HardMaxCacheSize: 256         # 最大缓存大小(MB)，0表示无限制
   Verbose: False                # 是否打印cache操作的log
   ExpireInSecond: 300           # 多少秒(>0)后强制过期缓存
 Pyroscope: # Pyroscope配置
