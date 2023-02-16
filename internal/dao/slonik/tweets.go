@@ -194,7 +194,7 @@ func (s *tweetServant) GetPostByID(id int64) (*core.Post, error) {
 	return nil, nil
 }
 
-func (s *tweetServant) GetPosts(conditions *core.ConditionsT, offset, limit int) ([]*core.Post, error) {
+func (s *tweetServant) GetPosts(conditions *core.ConditionsT, limit int, offset int) ([]*core.Post, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
@@ -212,7 +212,7 @@ func (s *tweetServant) GetUserPostStar(postID, userID int64) (*core.PostStar, er
 	return nil, nil
 }
 
-func (s *tweetServant) GetUserPostStars(userID int64, offset, limit int) ([]*core.PostStar, error) {
+func (s *tweetServant) GetUserPostStars(userID int64, limit int, offset int) ([]*core.PostStar, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
@@ -230,7 +230,7 @@ func (s *tweetServant) GetUserPostCollection(postID, userID int64) (*core.PostCo
 	return nil, nil
 }
 
-func (s *tweetServant) GetUserPostCollections(userID int64, offset, limit int) ([]*core.PostCollection, error) {
+func (s *tweetServant) GetUserPostCollections(userID int64, limit int, offset int) ([]*core.PostCollection, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
@@ -242,7 +242,7 @@ func (s *tweetServant) GetUserPostCollectionCount(userID int64) (int64, error) {
 	return 0, nil
 }
 
-func (s *tweetServant) GetUserWalletBills(userID int64, offset, limit int) ([]*core.WalletStatement, error) {
+func (s *tweetServant) GetUserWalletBills(userID int64, limit int, offset int) ([]*core.WalletStatement, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
@@ -292,7 +292,7 @@ func (s *tweetServant) ReactionByTweetId(userId int64, tweetId int64) (*cs.React
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *tweetServant) UserReactions(userId int64, offset int, limit int) (cs.ReactionList, error) {
+func (s *tweetServant) UserReactions(userId int64, limit int, offset int) (cs.ReactionList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
@@ -302,7 +302,7 @@ func (s *tweetServant) FavoriteByTweetId(userId int64, tweetId int64) (*cs.Favor
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *tweetServant) UserFavorites(userId int64, offset int, limit int) (cs.FavoriteList, error) {
+func (s *tweetServant) UserFavorites(userId int64, limit int, offset int) (cs.FavoriteList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }

@@ -82,11 +82,11 @@ func (s *topicServant) DecrTagsById(ids []int64) error {
 	})
 }
 
-func (s *topicServant) ListTags(typ cs.TagType, offset int, limit int) (res cs.TagList, _ error) {
+func (s *topicServant) ListTags(typ cs.TagType, limit int, offset int) (res cs.TagList, _ error) {
 	ctx := context.Background()
 	switch typ {
 	case cs.TagTypeHot:
-		tags, err := s.q.HotTags(ctx, &dbr.HotTagsParams{Offset: int32(offset), Limit: int32(limit)})
+		tags, err := s.q.HotTags(ctx, &dbr.HotTagsParams{Limit: int32(limit), Offset: int32(offset)})
 		if err != nil {
 			return nil, err
 		}
@@ -107,7 +107,7 @@ func (s *topicServant) ListTags(typ cs.TagType, offset int, limit int) (res cs.T
 			})
 		}
 	case cs.TagTypeNew:
-		tags, err := s.q.NewestTags(ctx, &dbr.NewestTagsParams{Offset: int32(offset), Limit: int32(limit)})
+		tags, err := s.q.NewestTags(ctx, &dbr.NewestTagsParams{Limit: int32(limit), Offset: int32(offset)})
 		if err != nil {
 			return nil, err
 		}
