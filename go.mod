@@ -1,6 +1,6 @@
 module github.com/rocboss/paopao-ce
 
-go 1.18
+go 1.19
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
@@ -101,6 +101,7 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/smartwalle/crypto4go v1.0.2 // indirect
+	github.com/sourcegraph/conc v0.2.0
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
