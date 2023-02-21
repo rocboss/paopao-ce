@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/signal"
 	"strings"
-	"sync"
 	"syscall"
 
 	"github.com/fatih/color"
@@ -19,6 +18,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/sourcegraph/conc"
 )
 
 var (
@@ -64,13 +64,12 @@ func main() {
 	debug.StartPyroscope()
 
 	// start services
-	wg := &sync.WaitGroup{}
+	wg := &conc.WaitGroup{}
 	fmt.Fprintf(color.Output, "\nstarting run service...\n\n")
 	service.Start(wg)
 
 	// graceful stop services
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		quit := make(chan os.Signal, 1)
 		// kill (no param) default send syscall.SIGTERM
 		// kill -2 is syscall.SIGINT
@@ -79,7 +78,6 @@ func main() {
 		<-quit
 		fmt.Fprintf(color.Output, "\nshutting down server...\n\n")
 		service.Stop()
-		wg.Done()
-	}()
+	})
 	wg.Wait()
 }
