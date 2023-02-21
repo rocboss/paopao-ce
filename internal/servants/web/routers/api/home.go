@@ -65,7 +65,7 @@ func GetCaptcha(c *gin.Context) {
 	key := util.EncodeMD5(uuid.Must(uuid.NewV4()).String())
 
 	// 五分钟有效期
-	conf.Redis.SetEX(c, "PaoPaoCaptcha:"+key, password, time.Minute*5)
+	conf.Redis.SetEx(c, "PaoPaoCaptcha:"+key, password, time.Minute*5)
 
 	response := app.NewResponse(c)
 	response.ToResponse(gin.H{

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/alimy/cfg"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
