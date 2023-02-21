@@ -64,7 +64,7 @@ func main() {
 	debug.StartPyroscope()
 
 	// start services
-	wg := &conc.WaitGroup{}
+	wg := conc.NewWaitGroup()
 	fmt.Fprintf(color.Output, "\nstarting run service...\n\n")
 	service.Start(wg)
 
