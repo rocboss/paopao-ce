@@ -36,6 +36,71 @@ export const sendUserWhisper = (data: NetParams.UserWhisper): Promise<NetParams.
 };
 
 /**
+ * 添加朋友申请
+ * @param {Object} data
+ * @returns Promise
+ */
+ export const requestingFriend = (data: NetParams.RequestingFriend): Promise<NetReq.RequestingFriend> => {
+    return request({
+        method: 'post',
+        url: '/v1/friend/requesting',
+        data
+    });
+};
+
+/**
+ * 添加好友
+ * @param {Object} data
+ * @returns Promise
+ */
+ export const addFriend = (data: NetParams.AddFriend): Promise<NetReq.AddFriend> => {
+    return request({
+        method: 'post',
+        url: '/v1/friend/add',
+        data
+    });
+};
+
+/**
+ * 拒绝朋友申请
+ * @param {Object} data
+ * @returns Promise
+ */
+ export const rejectFriend = (data: NetParams.RejectFriend): Promise<NetReq.RejectFriend> => {
+    return request({
+        method: 'post',
+        url: '/v1/friend/reject',
+        data
+    });
+};
+
+/**
+ * 删除好友
+ * @param {Object} data
+ * @returns Promise
+ */
+ export const deleteFriend = (data: NetParams.DeleteFriend): Promise<NetReq.DeleteFriend> => {
+    return request({
+        method: 'post',
+        url: '/v1/friend/delete',
+        data
+    });
+};
+
+/**
+ * 获取联系人列表
+ * @param {Object} data
+ * @returns Promise
+ */
+ export const getContacts = (data: NetParams.GetContacts): Promise<NetReq.GetContacts> => {
+    return request({
+        method: 'post',
+        url: '/v1/user/contacts',
+        data
+    });
+};
+
+/**
  * 绑定用户手机
  * @param {Object} data
  * @returns Promise
@@ -44,6 +109,19 @@ export const bindUserPhone = (data: NetParams.UserBindUserPhone): Promise<NetPar
     return request({
         method: 'post',
         url: '/v1/user/phone',
+        data
+    });
+};
+
+/**
+ * 激活码激活
+ * @param {Object} data
+ * @returns Promise
+ */
+ export const activateUser = (data: NetParams.UserActivation): Promise<NetParams.UserActivation> => {
+    return request({
+        method: 'post',
+        url: '/v1/user/activate',
         data
     });
 };
@@ -115,15 +193,6 @@ export const getCollections = (params: NetParams.UserGetCollections): Promise<Ne
     return request({
         method: 'get',
         url: '/v1/user/collections',
-        params
-    });
-};
-
-/** 获取点赞列表 */
-export const getStars = (params: NetParams.UserGetStars): Promise<NetReq.UserGetStars> => {
-    return request({
-        method: 'get',
-        url: '/v1/user/stars',
         params
     });
 };

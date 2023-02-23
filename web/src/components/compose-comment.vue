@@ -160,9 +160,6 @@ import { useStore } from 'vuex';
 import { debounce } from 'lodash';
 import {
     ImageOutline,
-    VideocamOutline,
-    AttachOutline,
-    CompassOutline,
 } from '@vicons/ionicons5';
 import { createComment } from '@/api/post';
 import { getSuggestUsers } from '@/api/user';
@@ -205,7 +202,7 @@ const loadSuggestionUsers = debounce((k) => {
     })
         .then((res) => {
             let options: MentionOption[] = [];
-            res.map((i) => {
+            res.suggest.map((i) => {
                 options.push({
                     label: i,
                     value: i,

@@ -74,8 +74,8 @@
                         </n-upload-trigger>
 
                         <n-upload-trigger
-                            v-if="allowTweetVideo"
-                            #="{ handleClick }" abstract>
+                          v-if="allowTweetVideo"
+                          #="{ handleClick }" abstract>
                             <n-button
                                 :disabled="
                                     (fileQueue.length > 0 &&
@@ -104,8 +104,8 @@
                         </n-upload-trigger>
 
                         <n-upload-trigger
-                            v-if="allowTweetAttachment"
-                            #="{ handleClick }" abstract>
+                          v-if="allowTweetAttachment"
+                          #="{ handleClick }" abstract>
                             <n-button
                                 :disabled="
                                     (fileQueue.length > 0 &&
@@ -209,18 +209,7 @@
                 </div>
             </n-upload>
 
-            <div class="link-wrap" v-if="showLinkSet">
-                <n-dynamic-input
-                    v-model:value="links"
-                    placeholder="请输入以http(s)://开头的链接"
-                    :min="0"
-                    :max="3"
-                >
-                    <template #create-button-default> 创建链接 </template>
-                </n-dynamic-input>
-            </div>
-
-             <div class="eye-wrap" v-if="showEyeSet">
+            <div class="eye-wrap" v-if="showEyeSet">
                 <n-radio-group v-model:value="visitType" name="radiogroup">
                     <n-space>
                         <n-radio
@@ -231,6 +220,17 @@
                         />
                     </n-space>
                 </n-radio-group>
+            </div>
+
+            <div class="link-wrap" v-if="showLinkSet">
+                <n-dynamic-input
+                    v-model:value="links"
+                    placeholder="请输入以http(s)://开头的链接"
+                    :min="0"
+                    :max="3"
+                >
+                    <template #create-button-default> 创建链接 </template>
+                </n-dynamic-input>
             </div>
         </div>
 
@@ -304,7 +304,7 @@ const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
 const videoContents = ref<Item.CommentItemProps[]>([]);
 const attachmentContents = ref<Item.AttachmentProps[]>([]);
-const visitType = ref<VisibilityEnum>(VisibilityEnum.PUBLIC);
+const visitType = ref<VisibilityEnum>(VisibilityEnum.FRIEND);
 const defaultVisitType = ref<VisibilityEnum>(VisibilityEnum.FRIEND)
 const visibilities = [
     {value: VisibilityEnum.PUBLIC, label: "公开"}
@@ -340,7 +340,7 @@ const loadSuggestionUsers = debounce((k) => {
     })
         .then((res) => {
             let options: MentionOption[] = [];
-            res.map((i) => {
+            res.suggest.map((i) => {
                 options.push({
                     label: i,
                     value: i,
@@ -361,7 +361,7 @@ const loadSuggestionTags = debounce((k) => {
     })
         .then((res) => {
             let options: MentionOption[] = [];
-            res.map((i) => {
+            res.suggest.map((i) => {
                 options.push({
                     label: i,
                     value: i,
@@ -586,7 +586,7 @@ const submitPost = () => {
             imageContents.value = [];
             videoContents.value = [];
             attachmentContents.value = [];
-            visitType.value = defaultVisitType.value;;
+            visitType.value = defaultVisitType.value;
         })
         .catch((err) => {
             submitting.value = false;

@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package core
 
 // DataService 数据服务集成
@@ -19,16 +23,15 @@ type DataService interface {
 	TweetManageService
 	TweetHelpService
 
-	// 附件检测服务
-	AttachmentCheckService
-
 	// 评论服务
 	CommentService
 	CommentManageService
 
 	// 用户服务
 	UserManageService
+	ContactManageService
 
 	// 安全服务
 	SecurityService
+	AttachmentCheckService
 }

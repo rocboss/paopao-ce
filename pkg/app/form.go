@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package app
 
 import (
@@ -29,7 +33,7 @@ func (v ValidErrors) Errors() []string {
 	return errs
 }
 
-func BindAndValid(c *gin.Context, v interface{}) (bool, ValidErrors) {
+func BindAndValid(c *gin.Context, v any) (bool, ValidErrors) {
 	var errs ValidErrors
 	err := c.ShouldBind(v)
 	if err != nil {

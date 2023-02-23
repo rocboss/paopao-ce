@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package search
 
 import (
@@ -6,7 +10,6 @@ import (
 	"github.com/meilisearch/meilisearch-go"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
 	"github.com/sirupsen/logrus"
 )
@@ -40,9 +43,9 @@ func NewMeiliTweetSearchService(ams core.AuthorizationManageService) (core.Tweet
 		},
 		client:        client,
 		index:         client.Index(s.Index),
-		publicFilter:  fmt.Sprintf("visibility=%d", model.PostVisitPublic),
-		privateFilter: fmt.Sprintf("visibility=%d AND user_id=", model.PostVisitPrivate),
-		friendFilter:  fmt.Sprintf("visibility=%d", model.PostVisitFriend),
+		publicFilter:  fmt.Sprintf("visibility=%d", core.PostVisitPublic),
+		privateFilter: fmt.Sprintf("visibility=%d AND user_id=", core.PostVisitPrivate),
+		friendFilter:  fmt.Sprintf("visibility=%d", core.PostVisitFriend),
 	}
 	return mts, mts
 }
@@ -55,9 +58,9 @@ func NewZincTweetSearchService(ams core.AuthorizationManageService) (core.TweetS
 		},
 		indexName:     s.Index,
 		client:        zinc.NewClient(s),
-		publicFilter:  fmt.Sprintf("visibility:%d", model.PostVisitPublic),
-		privateFilter: fmt.Sprintf("visibility:%d AND user_id:%%d", model.PostVisitPrivate),
-		friendFilter:  fmt.Sprintf("visibility:%d", model.PostVisitFriend),
+		publicFilter:  fmt.Sprintf("visibility:%d", core.PostVisitPublic),
+		privateFilter: fmt.Sprintf("visibility:%d AND user_id:%%d", core.PostVisitPrivate),
+		friendFilter:  fmt.Sprintf("visibility:%d", core.PostVisitFriend),
 	}
 	zts.createIndex()
 
@@ -72,8 +75,9 @@ func NewBridgeTweetSearchService(ts core.TweetSearchService) core.TweetSearchSer
 		capacity = 10000
 	}
 	bts := &bridgeTweetSearchServant{
-		ts:           ts,
-		updateDocsCh: make(chan *documents, capacity),
+		ts:               ts,
+		updateDocsCh:     make(chan *documents, capacity),
+		updateDocsTempCh: make(chan *documents, 100),
 	}
 
 	numWorker := conf.TweetSearchSetting.MinWorker

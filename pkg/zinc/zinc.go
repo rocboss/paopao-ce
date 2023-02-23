@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package zinc
 
 import (
@@ -62,12 +66,12 @@ type HitsResultTotalT struct {
 }
 
 type HitItem struct {
-	Index     string      `json:"_index"`
-	Type      string      `json:"_type"`
-	ID        string      `json:"_id"`
-	Score     float64     `json:"_score"`
-	Timestamp time.Time   `json:"@timestamp"`
-	Source    interface{} `json:"_source"`
+	Index     string    `json:"_index"`
+	Type      string    `json:"_type"`
+	ID        string    `json:"_id"`
+	Score     float64   `json:"_score"`
+	Timestamp time.Time `json:"@timestamp"`
+	Source    any       `json:"_source"`
 }
 
 // NewClient 获取ZincClient新实例
@@ -107,7 +111,7 @@ func (c *ZincClient) ExistIndex(name string) bool {
 		return false
 	}
 
-	retData := &map[string]interface{}{}
+	retData := &map[string]any{}
 	err = json.Unmarshal([]byte(resp.String()), retData)
 	if err != nil {
 		return false
@@ -121,7 +125,7 @@ func (c *ZincClient) ExistIndex(name string) bool {
 }
 
 // 新增/更新文档
-func (c *ZincClient) PutDoc(name string, id int64, doc interface{}) (bool, error) {
+func (c *ZincClient) PutDoc(name string, id int64, doc any) (bool, error) {
 	resp, err := c.request().SetBody(doc).Put(fmt.Sprintf("/api/%s/_doc/%d", name, id))
 
 	if err != nil {
@@ -136,7 +140,7 @@ func (c *ZincClient) PutDoc(name string, id int64, doc interface{}) (bool, error
 }
 
 // 批量新增文档
-func (c *ZincClient) BulkPushDoc(docs []map[string]interface{}) (bool, error) {
+func (c *ZincClient) BulkPushDoc(docs []map[string]any) (bool, error) {
 	dataStr := ""
 	for _, doc := range docs {
 		str, err := json.Marshal(doc)
@@ -157,7 +161,7 @@ func (c *ZincClient) BulkPushDoc(docs []map[string]interface{}) (bool, error) {
 	return true, nil
 }
 
-func (c *ZincClient) EsQuery(indexName string, q interface{}) (*QueryResultT, error) {
+func (c *ZincClient) EsQuery(indexName string, q any) (*QueryResultT, error) {
 	resp, err := c.request().SetBody(q).Post(fmt.Sprintf("/es/%s/_search", indexName))
 	if err != nil {
 		return nil, err
@@ -176,7 +180,7 @@ func (c *ZincClient) EsQuery(indexName string, q interface{}) (*QueryResultT, er
 	return result, nil
 }
 
-func (c *ZincClient) ApiQuery(indexName string, q interface{}) (*QueryResultT, error) {
+func (c *ZincClient) ApiQuery(indexName string, q any) (*QueryResultT, error) {
 	resp, err := c.request().SetBody(q).Post(fmt.Sprintf("/api/%s/_search", indexName))
 	if err != nil {
 		return nil, err

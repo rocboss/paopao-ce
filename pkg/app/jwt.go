@@ -1,31 +1,34 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package app
 
 import (
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/internal/model"
+	"github.com/rocboss/paopao-ce/internal/core"
 )
 
 type Claims struct {
 	UID      int64  `json:"uid"`
 	Username string `json:"username"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 func GetJWTSecret() []byte {
 	return []byte(conf.JWTSetting.Secret)
 }
 
-func GenerateToken(User *model.User) (string, error) {
-	nowTime := time.Now()
-	expireTime := nowTime.Add(conf.JWTSetting.Expire)
+func GenerateToken(User *core.User) (string, error) {
+	expireTime := time.Now().Add(conf.JWTSetting.Expire)
 	claims := Claims{
 		UID:      User.ID,
 		Username: User.Username,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expireTime.Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expireTime),
 			Issuer:    conf.JWTSetting.Issuer + ":" + User.Salt,
 		},
 	}
@@ -36,7 +39,7 @@ func GenerateToken(User *model.User) (string, error) {
 }
 
 func ParseToken(token string) (*Claims, error) {
-	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (any, error) {
 		return GetJWTSecret(), nil
 	})
 	if err != nil {

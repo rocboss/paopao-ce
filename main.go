@@ -1,17 +1,22 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package main
 
 import (
 	"flag"
 	"fmt"
-	"log"
-	"net/http"
+	"os"
+	"os/signal"
 	"strings"
+	"sync"
+	"syscall"
 
 	"github.com/fatih/color"
-	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/internal/routers"
+	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/rocboss/paopao-ce/pkg/util"
 )
@@ -42,29 +47,39 @@ func init() {
 }
 
 func flagParse() {
-	flag.BoolVar(&noDefaultFeatures, "no-default-features", false, "whether use default features")
+	flag.BoolVar(&noDefaultFeatures, "no-default-features", false, "whether not use default features")
 	flag.Var(&features, "features", "use special features")
 	flag.Parse()
 }
 
 func main() {
-	gin.SetMode(conf.ServerSetting.RunMode)
-
-	router := routers.NewRouter()
-	s := &http.Server{
-		Addr:           conf.ServerSetting.HttpIp + ":" + conf.ServerSetting.HttpPort,
-		Handler:        router,
-		ReadTimeout:    conf.ServerSetting.ReadTimeout,
-		WriteTimeout:   conf.ServerSetting.WriteTimeout,
-		MaxHeaderBytes: 1 << 20,
-	}
-
 	util.PrintHelloBanner(debug.VersionInfo())
-	fmt.Fprintf(color.Output, "PaoPao service listen on %s\n",
-		color.GreenString(fmt.Sprintf("http://%s:%s", conf.ServerSetting.HttpIp, conf.ServerSetting.HttpPort)),
-	)
-
-	if err := s.ListenAndServe(); err != nil {
-		log.Fatalf("run app failed: %s", err)
+	ss := service.MustInitService()
+	if len(ss) < 1 {
+		fmt.Fprintln(color.Output, "no service need start so just exit")
+		return
 	}
+
+	// start pyroscope if need
+	debug.StartPyroscope()
+
+	// start services
+	wg := &sync.WaitGroup{}
+	fmt.Fprintf(color.Output, "\nstarting run service...\n\n")
+	service.Start(wg)
+
+	// graceful stop services
+	wg.Add(1)
+	go func() {
+		quit := make(chan os.Signal, 1)
+		// kill (no param) default send syscall.SIGTERM
+		// kill -2 is syscall.SIGINT
+		// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+		fmt.Fprintf(color.Output, "\nshutting down server...\n\n")
+		service.Stop()
+		wg.Done()
+	}()
+	wg.Wait()
 }

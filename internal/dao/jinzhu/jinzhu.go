@@ -1,11 +1,16 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 // Core service implement base gorm+mysql/postgresql/sqlite3.
 // Jinzhu is the primary developer of gorm so use his name as
-// pakcage name as a saluter.
+// package name as a saluter.
 
 package jinzhu
 
 import (
 	"github.com/Masterminds/semver/v3"
+	"github.com/alimy/cfg"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
@@ -29,50 +34,67 @@ type dataServant struct {
 	core.CommentService
 	core.CommentManageService
 	core.UserManageService
+	core.ContactManageService
 	core.SecurityService
 	core.AttachmentCheckService
 }
 
 func NewDataService() (core.DataService, core.VersionInfo) {
-	// initialize CacheIndex if needed
 	var (
-		c core.CacheIndexService
-		v core.VersionInfo
+		v   core.VersionInfo
+		cis core.CacheIndexService
+		ips core.IndexPostsService
 	)
 	db := conf.MustGormDB()
+	pvs := security.NewPhoneVerifyService()
+	ams := NewAuthorizationManageService()
+	ths := newTweetHelpService(db)
 
-	i := newIndexPostsService(db)
-	if conf.CfgIf("SimpleCacheIndex") {
-		i = newSimpleIndexPostsService(db)
-		c, v = cache.NewSimpleCacheIndexService(i)
-	} else if conf.CfgIf("BigCacheIndex") {
-		c, v = cache.NewBigCacheIndexService(i)
+	// initialize core.IndexPostsService
+	if cfg.If("Friendship") {
+		ips = newFriendIndexService(db, ams, ths)
+	} else if cfg.If("Followship") {
+		ips = newFollowIndexService(db, ths)
+	} else if cfg.If("Lightship") {
+		ips = newLightIndexService(db, ths)
 	} else {
-		c, v = cache.NewNoneCacheIndexService(i)
+		// default use lightship post index service
+		ips = newLightIndexService(db, ths)
+	}
+
+	// initialize core.CacheIndexService
+	if cfg.If("SimpleCacheIndex") {
+		// simpleCache use special post index service
+		ips = newSimpleIndexPostsService(db, ths)
+		cis, v = cache.NewSimpleCacheIndexService(ips)
+	} else if cfg.If("BigCacheIndex") {
+		// TODO: make cache index post in different scence like friendship/followship/lightship
+		cis, v = cache.NewBigCacheIndexService(ips, ams)
+	} else {
+		cis, v = cache.NewNoneCacheIndexService(ips)
 	}
 	logrus.Infof("use %s as cache index service by version: %s", v.Name(), v.Version())
 
 	ds := &dataServant{
-		IndexPostsService:      c,
+		IndexPostsService:      cis,
 		WalletService:          newWalletService(db),
 		MessageService:         newMessageService(db),
 		TopicService:           newTopicService(db),
 		TweetService:           newTweetService(db),
-		TweetManageService:     newTweetManageService(db, c),
+		TweetManageService:     newTweetManageService(db, cis),
 		TweetHelpService:       newTweetHelpService(db),
 		CommentService:         newCommentService(db),
 		CommentManageService:   newCommentManageService(db),
 		UserManageService:      newUserManageService(db),
-		SecurityService:        newSecurityService(db),
+		ContactManageService:   newContactManageService(db),
+		SecurityService:        newSecurityService(db, pvs),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
 	}
 	return ds, ds
 }
 
 func NewAuthorizationManageService() core.AuthorizationManageService {
-	return &authorizationManageServant{
-		db: conf.MustGormDB(),
-	}
+	return newAuthorizationManageService(conf.MustGormDB())
 }
 
 func (s *dataServant) Name() string {
@@ -80,5 +102,5 @@ func (s *dataServant) Name() string {
 }
 
 func (s *dataServant) Version() *semver.Version {
-	return semver.MustParse("v0.1.0")
+	return semver.MustParse("v0.2.0")
 }

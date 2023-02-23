@@ -1,11 +1,15 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package search
 
 import (
+	"strings"
+
 	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/model"
 	"github.com/rocboss/paopao-ce/pkg/json"
-	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/zinc"
 	"github.com/sirupsen/logrus"
 )
@@ -37,23 +41,29 @@ func (s *zincTweetSearchServant) IndexName() string {
 	return s.indexName
 }
 
-func (s *zincTweetSearchServant) AddDocuments(data core.DocItems, primaryKey ...string) (bool, error) {
-	buf := make(core.DocItems, 0, len(data)+1)
+func (s *zincTweetSearchServant) AddDocuments(data []core.TsDocItem, primaryKey ...string) (bool, error) {
+	if len(data) == 0 {
+		return true, nil
+	}
+
+	buf := make([]map[string]any, 0, len(data)+1)
 	if len(primaryKey) > 0 {
-		buf = append(buf, map[string]types.Any{
-			"index": map[string]types.Any{
+		buf = append(buf, map[string]any{
+			"index": map[string]any{
 				"_index": s.indexName,
 				"_id":    primaryKey[0],
 			},
 		})
 	} else {
-		buf = append(buf, map[string]types.Any{
-			"index": map[string]types.Any{
+		buf = append(buf, map[string]any{
+			"index": map[string]any{
 				"_index": s.indexName,
 			},
 		})
 	}
-	buf = append(buf, data...)
+	docs := s.toDocs(data)
+	buf = append(buf, docs...)
+
 	return s.client.BulkPushDoc(buf)
 }
 
@@ -66,7 +76,7 @@ func (s *zincTweetSearchServant) DeleteDocuments(identifiers []string) error {
 	return nil
 }
 
-func (s *zincTweetSearchServant) Search(user *model.User, q *core.QueryReq, offset, limit int) (resp *core.QueryResp, err error) {
+func (s *zincTweetSearchServant) Search(user *core.User, q *core.QueryReq, offset, limit int) (resp *core.QueryResp, err error) {
 	if q.Type == core.SearchTypeDefault && q.Query != "" {
 		resp, err = s.queryByContent(user, q, offset, limit)
 	} else if q.Type == core.SearchTypeTag && q.Query != "" {
@@ -84,10 +94,10 @@ func (s *zincTweetSearchServant) Search(user *model.User, q *core.QueryReq, offs
 	return
 }
 
-func (s *zincTweetSearchServant) queryByContent(user *model.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
-	resp, err := s.client.EsQuery(s.indexName, map[string]types.Any{
-		"query": map[string]types.Any{
-			"match_phrase": map[string]types.Any{
+func (s *zincTweetSearchServant) queryByContent(user *core.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
+	resp, err := s.client.EsQuery(s.indexName, map[string]any{
+		"query": map[string]any{
+			"match_phrase": map[string]any{
 				"content": q.Query,
 			},
 		},
@@ -101,10 +111,10 @@ func (s *zincTweetSearchServant) queryByContent(user *model.User, q *core.QueryR
 	return s.postsFrom(resp)
 }
 
-func (s *zincTweetSearchServant) queryByTag(user *model.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
-	resp, err := s.client.ApiQuery(s.indexName, map[string]types.Any{
+func (s *zincTweetSearchServant) queryByTag(user *core.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
+	resp, err := s.client.ApiQuery(s.indexName, map[string]any{
 		"search_type": "querystring",
-		"query": map[string]types.Any{
+		"query": map[string]any{
 			"term": "tags." + q.Query + ":1",
 		},
 		"sort_fields": []string{"-is_top", "-latest_replied_on"},
@@ -117,9 +127,9 @@ func (s *zincTweetSearchServant) queryByTag(user *model.User, q *core.QueryReq, 
 	return s.postsFrom(resp)
 }
 
-func (s *zincTweetSearchServant) queryAny(user *model.User, offset, limit int) (*core.QueryResp, error) {
-	queryMap := map[string]types.Any{
-		"query": map[string]types.Any{
+func (s *zincTweetSearchServant) queryAny(user *core.User, offset, limit int) (*core.QueryResp, error) {
+	queryMap := map[string]any{
+		"query": map[string]any{
 			"match_all": map[string]string{},
 		},
 		"sort": []string{"-is_top", "-latest_replied_on"},
@@ -134,9 +144,9 @@ func (s *zincTweetSearchServant) queryAny(user *model.User, offset, limit int) (
 }
 
 func (s *zincTweetSearchServant) postsFrom(resp *zinc.QueryResultT) (*core.QueryResp, error) {
-	posts := make([]*model.PostFormated, 0, len(resp.Hits.Hits))
+	posts := make([]*core.PostFormated, 0, len(resp.Hits.Hits))
 	for _, hit := range resp.Hits.Hits {
-		item := &model.PostFormated{}
+		item := &core.PostFormated{}
 		raw, err := json.Marshal(hit.Source)
 		if err != nil {
 			return nil, err
@@ -246,4 +256,32 @@ func (s *zincTweetSearchServant) createIndex() {
 			Store:    true,
 		},
 	})
+}
+
+func (s *zincTweetSearchServant) toDocs(data []core.TsDocItem) []map[string]any {
+	docs := make([]map[string]any, 0, len(data))
+	for _, d := range data {
+		tagMaps := map[string]int8{}
+		for _, tag := range strings.Split(d.Post.Tags, ",") {
+			tagMaps[tag] = 1
+		}
+		docs = append(docs, map[string]any{
+			"id":                d.Post.ID,
+			"user_id":           d.Post.UserID,
+			"comment_count":     d.Post.CommentCount,
+			"collection_count":  d.Post.CollectionCount,
+			"upvote_count":      d.Post.UpvoteCount,
+			"visibility":        d.Post.Visibility,
+			"is_top":            d.Post.IsTop,
+			"is_essence":        d.Post.IsEssence,
+			"content":           d.Content,
+			"tags":              tagMaps,
+			"ip_loc":            d.Post.IPLoc,
+			"latest_replied_on": d.Post.LatestRepliedOn,
+			"attachment_price":  d.Post.AttachmentPrice,
+			"created_on":        d.Post.CreatedOn,
+			"modified_on":       d.Post.ModifiedOn,
+		})
+	}
+	return docs
 }

@@ -27,6 +27,14 @@ const routes = [
         component: () => import('@/views/Topic.vue'),
     },
     {
+        path: '/anouncement',
+        name: 'anouncement',
+        meta: {
+            title: '公告',
+        },
+        component: () => import('@/views/Anouncement.vue'),
+    },
+    {
         path: '/profile',
         name: 'profile',
         meta: {
@@ -43,12 +51,12 @@ const routes = [
         component: () => import('@/views/User.vue'),
     },
     {
-        path: '/notification',
-        name: 'notification',
+        path: '/messages',
+        name: 'messages',
         meta: {
-            title: '提醒',
+            title: '消息',
         },
-        component: () => import('@/views/Notification.vue'),
+        component: () => import('@/views/Messages.vue'),
     },
     {
         path: '/collection',
@@ -59,12 +67,12 @@ const routes = [
         component: () => import('@/views/Collection.vue'),
     },
     {
-        path: '/star',
-        name: 'star',
+        path: '/contacts',
+        name: 'contacts',
         meta: {
-            title: '点赞',
+            title: '好友',
         },
-        component: () => import('@/views/Star.vue'),
+        component: () => import('@/views/Contacts.vue'),
     },
     {
         path: '/wallet',

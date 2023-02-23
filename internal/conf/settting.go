@@ -1,17 +1,33 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package conf
 
 import (
+	"embed"
 	"fmt"
 	"strings"
 	"time"
 
+	"github.com/pyroscope-io/client/pyroscope"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/gorm/logger"
 )
 
+//go:embed config.yaml
+var files embed.FS
+
 type Setting struct {
 	vp *viper.Viper
+}
+
+type PyroscopeSettingS struct {
+	AppName   string
+	Endpoint  string
+	AuthToken string
+	Logger    string
 }
 
 type LoggerSettingS struct {
@@ -41,7 +57,7 @@ type LoggerMeiliSettingS struct {
 	MinWorker    int
 }
 
-type ServerSettingS struct {
+type HttpServerSettingS struct {
 	RunMode      string
 	HttpIp       string
 	HttpPort     string
@@ -49,7 +65,13 @@ type ServerSettingS struct {
 	WriteTimeout time.Duration
 }
 
+type GRPCServerSettingS struct {
+	Host string
+	Port string
+}
+
 type AppSettingS struct {
+	RunMode               string
 	MaxCommentCount       int64
 	AttachmentIncomeRate  float64
 	DefaultContextTimeout time.Duration
@@ -69,14 +91,19 @@ type SimpleCacheIndexSettingS struct {
 }
 
 type BigCacheIndexSettingS struct {
-	MaxIndexPage   int
-	ExpireInSecond time.Duration
-	Verbose        bool
+	MaxIndexPage     int
+	HardMaxCacheSize int
+	ExpireInSecond   time.Duration
+	Verbose          bool
 }
 
 type AlipaySettingS struct {
-	AppID      string
-	PrivateKey string
+	AppID             string
+	PrivateKey        string
+	RootCertFile      string
+	PublicCertFile    string
+	AppPublicCertFile string
+	InProduction      bool
 }
 
 type SmsJuheSettings struct {
@@ -84,12 +111,6 @@ type SmsJuheSettings struct {
 	Key     string
 	TplID   string
 	TplVal  string
-}
-
-type FeaturesSettingS struct {
-	kv       map[string]string
-	suites   map[string][]string
-	features map[string]string
 }
 
 type TweetSearchS struct {
@@ -201,29 +222,36 @@ type JWTSettingS struct {
 }
 
 func NewSetting() (*Setting, error) {
+	cfgFile, err := files.Open("config.yaml")
+	if err != nil {
+		return nil, err
+	}
+	defer cfgFile.Close()
+
 	vp := viper.New()
 	vp.SetConfigName("config")
 	vp.AddConfigPath(".")
-	vp.AddConfigPath("configs/")
+	vp.AddConfigPath("custom/")
 	vp.SetConfigType("yaml")
-	err := vp.ReadInConfig()
-	if err != nil {
+	if err = vp.ReadConfig(cfgFile); err != nil {
+		return nil, err
+	}
+	if err = vp.MergeInConfig(); err != nil {
 		return nil, err
 	}
 
 	return &Setting{vp}, nil
 }
 
-func (s *Setting) ReadSection(k string, v interface{}) error {
+func (s *Setting) ReadSection(k string, v any) error {
 	err := s.vp.UnmarshalKey(k, v)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
-func (s *Setting) Unmarshal(objects map[string]interface{}) error {
+func (s *Setting) Unmarshal(objects map[string]any) error {
 	for k, v := range objects {
 		err := s.vp.UnmarshalKey(k, v)
 		if err != nil {
@@ -233,7 +261,7 @@ func (s *Setting) Unmarshal(objects map[string]interface{}) error {
 	return nil
 }
 
-func (s *Setting) FeaturesFrom(k string) *FeaturesSettingS {
+func (s *Setting) featuresInfoFrom(k string) (map[string][]string, map[string]string) {
 	sub := s.vp.Sub(k)
 	keys := sub.AllKeys()
 
@@ -244,77 +272,19 @@ func (s *Setting) FeaturesFrom(k string) *FeaturesSettingS {
 		switch v := val.(type) {
 		case string:
 			kv[key] = v
-		case []interface{}:
+		case []any:
 			suites[key] = sub.GetStringSlice(key)
 		}
 	}
-	return newFeatures(suites, kv)
+	return suites, kv
 }
 
-func newFeatures(suites map[string][]string, kv map[string]string) *FeaturesSettingS {
-	features := &FeaturesSettingS{
-		suites:   suites,
-		kv:       kv,
-		features: make(map[string]string),
-	}
-	features.UseDefault()
-	return features
+func (s *HttpServerSettingS) GetReadTimeout() time.Duration {
+	return s.ReadTimeout * time.Second
 }
 
-func (f *FeaturesSettingS) UseDefault() {
-	f.Use([]string{"default"}, true)
-}
-
-func (f *FeaturesSettingS) Use(suite []string, noDefault bool) error {
-	if noDefault && len(f.features) != 0 {
-		f.features = make(map[string]string)
-	}
-	features := f.flatFeatures(suite)
-	for _, feature := range features {
-		if len(feature) == 0 {
-			continue
-		}
-		f.features[feature] = f.kv[feature]
-	}
-	return nil
-}
-
-func (f *FeaturesSettingS) flatFeatures(suite []string) []string {
-	features := make([]string, 0, len(suite)+10)
-	for s := suite[:]; len(s) > 0; s = s[:len(s)-1] {
-		item := strings.TrimSpace(strings.ToLower(s[0]))
-		if len(item) > 0 {
-			if items, exist := f.suites[item]; exist {
-				s = append(s, items...)
-			}
-			features = append(features, item)
-		}
-		s[0] = s[len(s)-1]
-	}
-	return features
-}
-
-// Cfg get value by key if exist
-func (f *FeaturesSettingS) Cfg(key string) (string, bool) {
-	key = strings.ToLower(key)
-	value, exist := f.features[key]
-	return value, exist
-}
-
-// CfgIf check expression is true. if expression just have a string like
-// `Sms` is mean `Sms` whether define in suite feature settings. expression like
-// `Sms = SmsJuhe` is mean whether `Sms` define in suite feature settings and value
-// is `SmsJuhe``
-func (f *FeaturesSettingS) CfgIf(expression string) bool {
-	kv := strings.Split(expression, "=")
-	key := strings.Trim(strings.ToLower(kv[0]), " ")
-	v, ok := f.features[key]
-	if len(kv) == 2 && ok && strings.Trim(kv[1], " ") == v {
-		return true
-	} else if len(kv) == 1 && ok {
-		return true
-	}
-	return false
+func (s *HttpServerSettingS) GetWriteTimeout() time.Duration {
+	return s.WriteTimeout * time.Second
 }
 
 func (s *MySQLSettingS) Dsn() string {
@@ -418,6 +388,16 @@ func (s *ZincSettingS) Endpoint() string {
 
 func (s *MeiliSettingS) Endpoint() string {
 	return endpoint(s.Host, s.Secure)
+}
+
+func (s *PyroscopeSettingS) GetLogger() (logger pyroscope.Logger) {
+	switch strings.ToLower(s.Logger) {
+	case "standard":
+		logger = pyroscope.StandardLogger
+	case "logrus":
+		logger = logrus.StandardLogger()
+	}
+	return
 }
 
 func endpoint(host string, secure bool) string {

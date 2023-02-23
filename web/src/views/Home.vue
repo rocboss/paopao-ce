@@ -4,7 +4,7 @@
 
         <n-list class="main-content-wrap" bordered>
             <template #footer>
-                <div class="pagination-wrap" v-if="totalPage > 0">
+                <div class="pagination-wrap" v-if="totalPage > 1">
                     <n-pagination
                         :page="page"
                         @update:page="updatePage"
@@ -96,24 +96,24 @@ const onPostSuccess = (post: Item.PostProps) => {
     }
     
     // 如果实在第一页，就地插入新推文到文章列表中
-    let items = [];
-    let length = list.value.length;
-    if (length == pageSize.value) {
+   let items = [];
+   let length = list.value.length;
+   if (length == pageSize.value) {
         length--;
-    }
-    var i = 0;
-    for (;i < length; i++) {
+   }
+   var i = 0;
+   for (;i < length; i++) {
         let item: Item.PostProps = list.value[i];
         if (!item.is_top) {
             break;
         }
         items.push(item);  
-    }
-    items.push(post);
-    for (;i < length; i++) {
+   }
+   items.push(post);
+   for (;i < length; i++) {
         items.push(list.value[i]);
-    }
-    list.value = items;
+   }
+   list.value = items;
 };
 
 const updatePage = (p: number) => {
@@ -145,7 +145,6 @@ watch(
         }
         if (from.path !== '/post' && to.path === '/') {
             page.value = +(route.query.p as string) || 1;
-
             setTimeout(() => {
                 loadPosts();
             }, 0);

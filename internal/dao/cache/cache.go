@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package cache
 
 import (
@@ -9,21 +13,22 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func NewBigCacheIndexService(indexPosts core.IndexPostsService) (core.CacheIndexService, core.VersionInfo) {
+func NewBigCacheIndexService(ips core.IndexPostsService, ams core.AuthorizationManageService) (core.CacheIndexService, core.VersionInfo) {
 	s := conf.BigCacheIndexSetting
-
-	config := bigcache.DefaultConfig(s.ExpireInSecond)
-	config.Shards = s.MaxIndexPage
-	config.Verbose = s.Verbose
-	config.MaxEntrySize = 10000
-	config.Logger = logrus.StandardLogger()
-	cache, err := bigcache.NewBigCache(config)
+	c := bigcache.DefaultConfig(s.ExpireInSecond)
+	c.Shards = s.MaxIndexPage
+	c.HardMaxCacheSize = s.HardMaxCacheSize
+	c.Verbose = s.Verbose
+	c.MaxEntrySize = 10000
+	c.Logger = logrus.StandardLogger()
+	cache, err := bigcache.NewBigCache(c)
 	if err != nil {
 		logrus.Fatalf("initial bigCahceIndex failure by err: %v", err)
 	}
 
 	cacheIndex := &bigCacheIndexServant{
-		ips:             indexPosts,
+		ips:             ips,
+		ams:             ams,
 		cache:           cache,
 		preventDuration: 10 * time.Second,
 	}

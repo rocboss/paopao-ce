@@ -36,7 +36,25 @@
             </n-spin>
         </n-card>
         <n-card class="copyright-wrap" embedded :bordered="false" size="small">
-            <div class="copyright">&copy; 2022 PaoPao.Info</div>
+            <div class="copyright">&copy; {{ copyrightTop }}</div>
+            <div>
+                <n-space>
+                    <a
+                        :href="copyrightLeftLink"
+                        target="_blank"
+                        class="hash-link"
+                    >
+                        {{ copyrightLeft }}
+                    </a>
+                    <a
+                        :href="copyrightRightLink"
+                        target="_blank"
+                        class="hash-link"
+                    >
+                        {{ copyrightRight }}
+                    </a>
+                </n-space>
+            </div>
         </n-card>
     </div>
 </template>
@@ -53,6 +71,11 @@ const loading = ref(false);
 const keyword = ref('');
 const store = useStore();
 const router = useRouter();
+const copyrightTop = import.meta.env.VITE_COPYRIGHT_TOP
+const copyrightLeft = import.meta.env.VITE_COPYRIGHT_LEFT
+const copyrightLeftLink = import.meta.env.VITE_COPYRIGHT_LEFT_LINK
+const copyrightRight = import.meta.env.VITE_COPYRIGHT_RIGHT
+const copyrightRightLink = import.meta.env.VITE_COPYRIGHT_RIGHT_LINK
 
 const loadTags = () => {
     loading.value = true;
@@ -61,7 +84,7 @@ const loadTags = () => {
         num: 12,
     })
         .then((res) => {
-            tags.value = res;
+            tags.value = res.topics;
             loading.value = false;
         })
         .catch((err) => {

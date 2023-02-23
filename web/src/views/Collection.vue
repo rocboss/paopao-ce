@@ -4,7 +4,7 @@
 
         <n-list class="main-content-wrap" bordered>
             <template #footer>
-                <div class="pagination-wrap" v-if="totalPage > 0">
+                <div class="pagination-wrap" v-if="totalPage > 1">
                     <n-pagination
                         :page="page"
                         @update:page="updatePage"

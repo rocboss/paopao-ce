@@ -25,8 +25,8 @@ WORKDIR /paopao-ce
 COPY . .
 COPY --from=frontend /web/dist ./web/dist
 ENV GOPROXY=https://goproxy.cn
-RUN [ $EMBED_UI != yes ] || make build TAGS='embed jsoniter'
-RUN [ $EMBED_UI = yes ] || make build TAGS='jsoniter'
+RUN [ $EMBED_UI != yes ] || make build TAGS='embed go_json'
+RUN [ $EMBED_UI = yes ] || make build TAGS='go_json'
 
 FROM alpine:3.16
 ARG API_HOST
@@ -38,9 +38,8 @@ RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
 
 WORKDIR /app/paopao-ce
 COPY --from=backend /paopao-ce/release/paopao-ce .
-COPY configs ./configs
 
-VOLUME ["/app/paopao-ce/configs"]
+VOLUME ["/app/paopao-ce/custom"]
 EXPOSE 8008
 HEALTHCHECK --interval=5s --timeout=3s  --retries=3  CMD ps -ef | grep paopao-ce || exit 1
 ENTRYPOINT ["/app/paopao-ce/paopao-ce"]

@@ -24,14 +24,21 @@ declare module NetReq {
         pager: Item.PagerProps
     }
 
-    type UserGetSuggestUsers = string[]
-    type UserGetSuggestTags = string[]
+    interface UserGetSuggestUsers {
+        suggest: string[]
+    }
+
+    interface UserGetSuggestTags {
+        suggest: string[]
+    }
 
     interface UserPrecheckAttachment {
         paid: number
     }
 
-    type UserGetAttachment = string
+    interface UserGetAttachment {
+        signed_url: string
+    } 
 
     interface UserGetUnreadMsgCount {
         count: number
@@ -45,13 +52,6 @@ declare module NetReq {
     }
 
     interface UserGetUserPosts {
-        /** 帖子列表 */
-        list: Item.PostProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
-
-    interface UserGetStars {
         /** 帖子列表 */
         list: Item.PostProps[],
         /** 页码信息 */
@@ -97,6 +97,27 @@ declare module NetReq {
 
     }
 
+    interface AddFriend {
+
+    }
+
+    interface DeleteFriend {
+
+    }
+
+    interface GetContacts {
+        contacts: Item.ContactsItemProps,
+        total: number
+    }
+
+    interface RejectFriend {
+
+    }
+
+    interface RequestingFriend {
+
+    }
+
     type PostGetPost = Item.PostProps
 
     interface PostGetPosts {
@@ -137,7 +158,9 @@ declare module NetReq {
         status: boolean
     }
 
-    type PostGetTags = Item.TagProps[]
+    interface PostGetTags {
+        topics: Item.TagProps[]
+    }
 
     interface PostGetPostComments {
         /** 评论列表 */
@@ -162,6 +185,13 @@ declare module NetReq {
 
     interface PostDeleteCommentReply {
 
+    }
+
+    interface GetContacts {
+        /** 评论列表 */
+        list: Item.ContactItemProps[],
+        /** 页码信息 */
+        pager: Item.PagerProps
     }
 
 }

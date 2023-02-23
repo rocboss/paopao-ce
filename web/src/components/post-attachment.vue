@@ -96,7 +96,7 @@ const execDownloadAction = () => {
         id: attachmentID.value,
     })
         .then((res) => {
-            window.open(res.replace('http://', 'https://'), '_blank');
+            window.open(res.signed_url.replace('http://', 'https://'), '_blank');
         })
         .catch((err) => {
             console.log(err);

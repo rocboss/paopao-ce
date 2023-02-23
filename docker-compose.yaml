@@ -56,7 +56,7 @@ services:
       - paopao-network
 
   # meili:
-  #   image: getmeili/meilisearch:v0.27.0
+  #   image: getmeili/meilisearch:v0.29.0
   #   restart: always
   #   ports:
   #     - 7700:7700
@@ -75,6 +75,16 @@ services:
   #     - 7701:3000
   #   networks:
   #     - paopao-network
+
+  pyroscope:
+    image: pyroscope/pyroscope:latest
+    restart: always
+    ports:
+      - 4040:4040
+    command:
+      - 'server'
+    networks:
+      - paopao-network
 
   phpmyadmin:
     image: phpmyadmin:5.2

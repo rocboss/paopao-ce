@@ -1,8 +1,9 @@
 .idea
 .vscode
 !*.example
-config.yaml
+/config.yaml
 *.log
 paopao-ce*
-release
-data
+/release
+/data
+/custom

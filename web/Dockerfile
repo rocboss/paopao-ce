@@ -4,7 +4,7 @@ ARG API_HOST
 ARG USE_DIST=no
 WORKDIR /web
 COPY . .
-RUN [ empty$API_HOST = empty ] || echo "VITE_HOST=$API_HOST" >.env
+RUN [ empty$API_HOST = empty ] || echo "VITE_HOST=$API_HOST" >.env.local
 RUN [ $USE_DIST != no ] || (yarn && yarn build)
 
 FROM library/nginx

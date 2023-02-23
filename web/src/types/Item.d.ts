@@ -11,8 +11,12 @@ declare module Item {
         avatar: string,
         /** 用户手机号 */
         phone?: string,
+        /** 激活码 */
+        activation?: string,
         /** 是否为管理员 */
         is_admin: boolean,
+        /** 是否好友 */
+        is_friend: boolean,
         /** 用户余额（分） */
         balance?: number,
         /** 用户状态 */
@@ -106,6 +110,15 @@ declare module Item {
         is_del?: 0 | 1
     }
 
+    /** 联系人数据 */
+    interface ContactItemProps {        
+        user_id: number,
+        username: string,
+        nickname: string,
+        avatar: string,
+        phone?: string,
+    }
+
     /** 帖子内容 */
     interface PostItemProps {
         /** 内容ID */
@@ -191,7 +204,7 @@ declare module Item {
 
     interface MessageProps {
         id: number,
-        /** 类型：1为动态，2为评论，3为回复，4为私信，99为系统通知 */
+        /** 类型：1为动态，2为评论，3为回复，4为私信，5为好友申请， 99为系统通知 */
         type: import('@/utils/IEnum').MessageTypeEnum,
         /** 摘要说明 */
         brief: string,
@@ -225,6 +238,13 @@ declare module Item {
         deleted_on?: number,
         /** 是否删除：0为未删除，1为已删除 */
         is_del?: 0 | 1
+    }
+
+    interface ContactsItemProps {
+        user_id: number,
+        name: string,
+        nickname: string,
+        avatar: string
     }
 
     interface AttachmentProps {

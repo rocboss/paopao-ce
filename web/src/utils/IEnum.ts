@@ -54,8 +54,21 @@ export enum MessageTypeEnum {
     REPLY = 3,
     /** 私信 */
     PRIVATELETTER = 4,
+    /** 添加好友申请 */
+    REQUESTINGFRIEND = 5,
     /** 系统通知 */
     SYSTEMNOTICE = 99
+}
+
+export enum RequestingFriendStatusEnum {
+    /** 请求好友 */
+    REQUESTING = 1,
+    /** 已同意好友 */
+    AGREE = 2,
+    /** 已拒绝 */
+    REJECT = 3,
+    /** 已删除 */
+    DELETED= 4
 }
 
 /** 动态可见度枚举 */

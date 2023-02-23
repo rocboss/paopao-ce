@@ -1,9 +1,15 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package conf
 
 import (
 	"log"
 	"sync"
 	"time"
+
+	"github.com/alimy/cfg"
 )
 
 var (
@@ -12,13 +18,21 @@ var (
 	loggerZincSetting  *LoggerZincSettingS
 	loggerMeiliSetting *LoggerMeiliSettingS
 	redisSetting       *RedisSettingS
-	features           *FeaturesSettingS
 
+	PyroscopeSetting        *PyroscopeSettingS
 	DatabaseSetting         *DatabaseSetingS
 	MysqlSetting            *MySQLSettingS
 	PostgresSetting         *PostgresSettingS
 	Sqlite3Setting          *Sqlite3SettingS
-	ServerSetting           *ServerSettingS
+	ServerSetting           *HttpServerSettingS
+	WebServerSetting        *HttpServerSettingS
+	AdminServerSetting      *HttpServerSettingS
+	SpaceXServerSetting     *HttpServerSettingS
+	BotServerSetting        *HttpServerSettingS
+	LocalossServerSetting   *HttpServerSettingS
+	FrontendWebSetting      *HttpServerSettingS
+	DocsServerSetting       *HttpServerSettingS
+	MobileServerSetting     *GRPCServerSettingS
 	AppSetting              *AppSettingS
 	CacheIndexSetting       *CacheIndexSettingS
 	SimpleCacheIndexSetting *SimpleCacheIndexSettingS
@@ -45,49 +59,56 @@ func setupSetting(suite []string, noDefault bool) error {
 		return err
 	}
 
-	features = setting.FeaturesFrom("Features")
+	// initialize features configure
+	ss, kv := setting.featuresInfoFrom("Features")
+	cfg.Initial(ss, kv)
 	if len(suite) > 0 {
-		if err = features.Use(suite, noDefault); err != nil {
-			return err
-		}
+		cfg.Use(suite, noDefault)
 	}
 
-	objects := map[string]interface{}{
-		"App":              &AppSetting,
-		"Server":           &ServerSetting,
-		"CacheIndex":       &CacheIndexSetting,
-		"SimpleCacheIndex": &SimpleCacheIndexSetting,
-		"BigCacheIndex":    &BigCacheIndexSetting,
-		"Alipay":           &AlipaySetting,
-		"SmsJuhe":          &SmsJuheSetting,
-		"Logger":           &loggerSetting,
-		"LoggerFile":       &loggerFileSetting,
-		"LoggerZinc":       &loggerZincSetting,
-		"LoggerMeili":      &loggerMeiliSetting,
-		"Database":         &DatabaseSetting,
-		"MySQL":            &MysqlSetting,
-		"Postgres":         &PostgresSetting,
-		"Sqlite3":          &Sqlite3Setting,
-		"TweetSearch":      &TweetSearchSetting,
-		"Zinc":             &ZincSetting,
-		"Meili":            &MeiliSetting,
-		"Redis":            &redisSetting,
-		"JWT":              &JWTSetting,
-		"ObjectStorage":    &ObjectStorage,
-		"AliOSS":           &AliOSSSetting,
-		"COS":              &COSSetting,
-		"HuaweiOBS":        &HuaweiOBSSetting,
-		"MinIO":            &MinIOSetting,
-		"LocalOSS":         &LocalOSSSetting,
-		"S3":               &S3Setting,
+	objects := map[string]any{
+		"App":               &AppSetting,
+		"Server":            &ServerSetting,
+		"WebServer":         &WebServerSetting,
+		"AdminServer":       &AdminServerSetting,
+		"SpaceXServer":      &SpaceXServerSetting,
+		"BotServer":         &BotServerSetting,
+		"LocalossServer":    &LocalossServerSetting,
+		"FrontendWebServer": &FrontendWebSetting,
+		"DocsServer":        &DocsServerSetting,
+		"MobileServer":      &MobileServerSetting,
+		"CacheIndex":        &CacheIndexSetting,
+		"SimpleCacheIndex":  &SimpleCacheIndexSetting,
+		"BigCacheIndex":     &BigCacheIndexSetting,
+		"Alipay":            &AlipaySetting,
+		"SmsJuhe":           &SmsJuheSetting,
+		"Pyroscope":         &PyroscopeSetting,
+		"Logger":            &loggerSetting,
+		"LoggerFile":        &loggerFileSetting,
+		"LoggerZinc":        &loggerZincSetting,
+		"LoggerMeili":       &loggerMeiliSetting,
+		"Database":          &DatabaseSetting,
+		"MySQL":             &MysqlSetting,
+		"Postgres":          &PostgresSetting,
+		"Sqlite3":           &Sqlite3Setting,
+		"TweetSearch":       &TweetSearchSetting,
+		"Zinc":              &ZincSetting,
+		"Meili":             &MeiliSetting,
+		"Redis":             &redisSetting,
+		"JWT":               &JWTSetting,
+		"ObjectStorage":     &ObjectStorage,
+		"AliOSS":            &AliOSSSetting,
+		"COS":               &COSSetting,
+		"HuaweiOBS":         &HuaweiOBSSetting,
+		"MinIO":             &MinIOSetting,
+		"LocalOSS":          &LocalOSSSetting,
+		"S3":                &S3Setting,
 	}
 	if err = setting.Unmarshal(objects); err != nil {
 		return err
 	}
 
 	JWTSetting.Expire *= time.Second
-	ServerSetting.ReadTimeout *= time.Second
-	ServerSetting.WriteTimeout *= time.Second
 	SimpleCacheIndexSetting.CheckTickDuration *= time.Second
 	SimpleCacheIndexSetting.ExpireTickDuration *= time.Second
 	BigCacheIndexSetting.ExpireInSecond *= time.Second
@@ -106,43 +127,37 @@ func Initialize(suite []string, noDefault bool) {
 	setupDBEngine()
 }
 
-// Cfg get value by key if exist
-func Cfg(key string) (string, bool) {
-	return features.Cfg(key)
-}
-
-// CfgIf check expression is true. if expression just have a string like
-// `Sms` is mean `Sms` whether define in suite feature settings. expression like
-// `Sms = SmsJuhe` is mean whether `Sms` define in suite feature settings and value
-// is `SmsJuhe``
-func CfgIf(expression string) bool {
-	return features.CfgIf(expression)
-}
-
 func GetOssDomain() string {
 	uri := "https://"
-	if CfgIf("AliOSS") {
+	if cfg.If("AliOSS") {
 		return uri + AliOSSSetting.Domain + "/"
-	} else if CfgIf("COS") {
+	} else if cfg.If("COS") {
 		return uri + COSSetting.Domain + "/"
-	} else if CfgIf("HuaweiOBS") {
+	} else if cfg.If("HuaweiOBS") {
 		return uri + HuaweiOBSSetting.Domain + "/"
-	} else if CfgIf("MinIO") {
+	} else if cfg.If("MinIO") {
 		if !MinIOSetting.Secure {
 			uri = "http://"
 		}
 		return uri + MinIOSetting.Domain + "/" + MinIOSetting.Bucket + "/"
-	} else if CfgIf("S3") {
+	} else if cfg.If("S3") {
 		if !S3Setting.Secure {
 			uri = "http://"
 		}
 		// TODO: will not work well need test in real world
 		return uri + S3Setting.Domain + "/" + S3Setting.Bucket + "/"
-	} else if CfgIf("LocalOSS") {
+	} else if cfg.If("LocalOSS") {
 		if !LocalOSSSetting.Secure {
 			uri = "http://"
 		}
 		return uri + LocalOSSSetting.Domain + "/oss/" + LocalOSSSetting.Bucket + "/"
 	}
 	return uri + AliOSSSetting.Domain + "/"
+}
+
+func RunMode() string {
+	if !cfg.If("Deprecated:OldWeb") {
+		return ServerSetting.RunMode
+	}
+	return AppSetting.RunMode
 }

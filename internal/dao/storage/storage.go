@@ -1,3 +1,7 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package storage
 
 import (
@@ -8,6 +12,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/alimy/cfg"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/huaweicloud/huaweicloud-sdk-go-obs/obs"
 	"github.com/minio/minio-go/v7"
@@ -31,14 +36,14 @@ func MustAliossService() (core.ObjectStorageService, core.VersionInfo) {
 
 	domain := conf.GetOssDomain()
 	var cs core.OssCreateService
-	if conf.CfgIf("OSS:TempDir") {
+	if cfg.If("OSS:TempDir") {
 		cs = &aliossCreateTempDirServant{
 			bucket:  bucket,
 			domain:  domain,
 			tempDir: conf.ObjectStorage.TempDirSlash(),
 		}
 		logrus.Debugln("use OSS:TempDir feature")
-	} else if conf.CfgIf("OSS:Retention") {
+	} else if cfg.If("OSS:Retention") {
 		cs = &aliossCreateRetentionServant{
 			bucket:          bucket,
 			domain:          domain,
@@ -75,7 +80,7 @@ func NewCosService() (core.ObjectStorageService, core.VersionInfo) {
 
 	domain := conf.GetOssDomain()
 	var cs core.OssCreateService
-	if conf.CfgIf("OSS:TempDir") {
+	if cfg.If("OSS:TempDir") {
 		cs = &cosCreateTempDirServant{
 			client:    client,
 			domain:    domain,
@@ -108,7 +113,7 @@ func MustHuaweiobsService() (core.ObjectStorageService, core.VersionInfo) {
 
 	domain := conf.GetOssDomain()
 	var cs core.OssCreateService
-	if conf.CfgIf("OSS:TempDir") {
+	if cfg.If("OSS:TempDir") {
 		cs = &hwobsCreateTempDirServant{
 			client:  client,
 			bucket:  s.Bucket,
@@ -116,7 +121,7 @@ func MustHuaweiobsService() (core.ObjectStorageService, core.VersionInfo) {
 			tempDir: conf.ObjectStorage.TempDirSlash(),
 		}
 		logrus.Debugln("use OSS:TempDir feature")
-	} else if conf.CfgIf("OSS:Retention") {
+	} else if cfg.If("OSS:Retention") {
 		retainUntilDays := time.Until(time.Date(2049, time.December, 1, 12, 0, 0, 0, time.UTC)) / (24 * time.Hour)
 		cs = &hwobsCreateRetentionServant{
 			client:          client,
@@ -153,7 +158,7 @@ func MustLocalossService() (core.ObjectStorageService, core.VersionInfo) {
 	domain := conf.GetOssDomain()
 	savePath = savePath + "/" + conf.LocalOSSSetting.Bucket + "/"
 	var cs core.OssCreateService
-	if conf.CfgIf("OSS:TempDir") {
+	if cfg.If("OSS:TempDir") {
 		cs = &localossCreateTempDirServant{
 			savePath: savePath,
 			domain:   domain,
@@ -188,7 +193,7 @@ func MustMinioService() (core.ObjectStorageService, core.VersionInfo) {
 
 	domain := conf.GetOssDomain()
 	var cs core.OssCreateService
-	if conf.CfgIf("OSS:TempDir") {
+	if cfg.If("OSS:TempDir") {
 		cs = &minioCreateTempDirServant{
 			client:  client,
 			bucket:  conf.MinIOSetting.Bucket,
@@ -196,7 +201,7 @@ func MustMinioService() (core.ObjectStorageService, core.VersionInfo) {
 			tempDir: conf.ObjectStorage.TempDirSlash(),
 		}
 		logrus.Debugln("use OSS:TempDir feature")
-	} else if conf.CfgIf("OSS:Retention") {
+	} else if cfg.If("OSS:Retention") {
 		cs = &minioCreateRetentionServant{
 			client:          client,
 			bucket:          conf.MinIOSetting.Bucket,
@@ -235,7 +240,7 @@ func MustS3Service() (core.ObjectStorageService, core.VersionInfo) {
 
 	domain := conf.GetOssDomain()
 	var cs core.OssCreateService
-	if conf.CfgIf("OSS:TempDir") {
+	if cfg.If("OSS:TempDir") {
 		cs = &minioCreateTempDirServant{
 			client:  client,
 			bucket:  conf.S3Setting.Bucket,
@@ -243,7 +248,7 @@ func MustS3Service() (core.ObjectStorageService, core.VersionInfo) {
 			tempDir: conf.ObjectStorage.TempDirSlash(),
 		}
 		logrus.Debugln("use OSS:TempDir feature")
-	} else if conf.CfgIf("OSS:Retention") {
+	} else if cfg.If("OSS:Retention") {
 		cs = &minioCreateRetentionServant{
 			client:          client,
 			bucket:          conf.S3Setting.Bucket,

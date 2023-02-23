@@ -1,9 +1,14 @@
+// Copyright 2022 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package conf
 
 import (
 	"sync"
 	"time"
 
+	"github.com/alimy/cfg"
 	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
@@ -59,15 +64,15 @@ func newDBEngine() (*gorm.DB, error) {
 		db  *gorm.DB
 		err error
 	)
-	if CfgIf("MySQL") {
+	if cfg.If("MySQL") {
 		logrus.Debugln("use MySQL as db")
 		if db, err = gorm.Open(mysql.Open(MysqlSetting.Dsn()), config); err == nil {
 			db.Use(plugin)
 		}
-	} else if CfgIf("Postgres") {
+	} else if cfg.If("Postgres") {
 		logrus.Debugln("use PostgreSQL as db")
 		db, err = gorm.Open(postgres.Open(PostgresSetting.Dsn()), config)
-	} else if CfgIf("Sqlite3") {
+	} else if cfg.If("Sqlite3") {
 		logrus.Debugf("use Sqlite3 as db path:%s sqlite3InCgoEnabled:%t", Sqlite3Setting.Path, sqlite3InCgoEnabled)
 		db, err = gormOpenSqlite3(config)
 	} else {
