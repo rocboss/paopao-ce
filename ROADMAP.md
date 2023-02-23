@@ -6,15 +6,16 @@
 * [ ] add `Followship` feature
 * [ ] add `Auth:Bcrypt` feature
 * [ ] add `Auth:MD5` feature (just for compatible)
+* [ ] add extend base ORM code for implement data logic base sqlx/sqlc
 * [ ] optimize media tweet submit logic
 * [ ] optimize search logic service
 * [ ] remove `Deprecated:OldWeb` feature
+
 
 #### v0.2.0
 * [x] add `Friendship` feature
 * [x] add `Lightship` feature
 * [x] add `Pyroscope` feature
-* [ ] add extend base ORM code for implement data logic base sqlx/sqlc
 * [x] add new `Web` service
 * [x] add `Frontend:Web` feature
 * [x] add `Deprecated:OldWeb` feature

@@ -1,47 +1,44 @@
-// Copyright 2022 ROC. All rights reserved.
+// Copyright 2023 ROC. All rights reserved.
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-package util
+package util_test
 
-import "testing"
+import (
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 
-func TestEncodeMD5(t *testing.T) {
-	type args struct {
+	"github.com/rocboss/paopao-ce/pkg/util"
+)
+
+var _ = Describe("Md5", Ordered, func() {
+	type md5Cases []struct {
 		value string
+		md5   string
 	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			name: "test1",
-			args: args{
+	var samples md5Cases
+
+	BeforeAll(func() {
+		samples = md5Cases{
+			{
 				value: "123456",
+				md5:   "e10adc3949ba59abbe56e057f20f883e",
 			},
-			want: "e10adc3949ba59abbe56e057f20f883e",
-		},
-		{
-			name: "test2",
-			args: args{
+			{
 				value: "",
+				md5:   "d41d8cd98f00b204e9800998ecf8427e", // really odd, why?
 			},
-			want: "d41d8cd98f00b204e9800998ecf8427e", // really odd, why?
-		},
-		{
-			name: "test3",
-			args: args{
+			{
 				value: "paopaocestr",
+				md5:   "8a5033dda1a8919224c66e68d846a289",
 			},
-			want: "8a5033dda1a8919224c66e68d846a289",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := EncodeMD5(tt.args.value); got != tt.want {
-				t.Errorf("EncodeMD5() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
+		}
+	})
+
+	It("encode md5", func() {
+		for _, t := range samples {
+			Expect(util.EncodeMD5(t.value)).To(Equal(t.md5))
+		}
+	})
+
+})

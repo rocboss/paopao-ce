@@ -215,7 +215,7 @@ func (s *pubSrv) GetCaptcha() (*web.GetCaptchaResp, mir.Error) {
 	}
 	key := util.EncodeMD5(uuid.Must(uuid.NewV4()).String())
 	// 五分钟有效期
-	s.Redis.SetEX(context.Background(), "PaoPaoCaptcha:"+key, password, time.Minute*5)
+	s.Redis.SetEx(context.Background(), "PaoPaoCaptcha:"+key, password, time.Minute*5)
 	return &web.GetCaptchaResp{
 		Id:      key,
 		Content: "data:image/png;base64," + base64.StdEncoding.EncodeToString(emptyBuff.Bytes()),
