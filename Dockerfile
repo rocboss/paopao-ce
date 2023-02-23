@@ -38,9 +38,8 @@ RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
 
 WORKDIR /app/paopao-ce
 COPY --from=backend /paopao-ce/release/paopao-ce .
-COPY configs ./configs
 
-VOLUME ["/app/paopao-ce/configs"]
+VOLUME ["/app/paopao-ce/custom"]
 EXPOSE 8008
 HEALTHCHECK --interval=5s --timeout=3s  --retries=3  CMD ps -ef | grep paopao-ce || exit 1
 ENTRYPOINT ["/app/paopao-ce/paopao-ce"]
