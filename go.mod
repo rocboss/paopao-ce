@@ -12,7 +12,7 @@ require (
 	github.com/bytedance/sonic v1.5.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/ethereum/go-ethereum v1.10.16
-	github.com/fatih/color v1.13.0
+	github.com/fatih/color v1.14.1
 	github.com/fbsobreira/gotron-sdk v0.0.0-20211102183839-58a64f4da5f4
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.8.1
@@ -85,8 +85,8 @@ require (
 	github.com/lib/pq v1.10.2 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
-	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mattn/go-sqlite3 v1.14.12 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
@@ -116,7 +116,7 @@ require (
 	golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
-	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
+	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	golang.org/x/tools v0.1.12 // indirect
