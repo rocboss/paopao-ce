@@ -7,7 +7,7 @@ require (
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/cfg v0.3.0
 	github.com/alimy/mir/v3 v3.1.1
-	github.com/aliyun/aliyun-oss-go-sdk v2.2.2+incompatible
+	github.com/aliyun/aliyun-oss-go-sdk v2.2.6+incompatible
 	github.com/allegro/bigcache/v3 v3.0.2
 	github.com/bytedance/sonic v1.8.1
 	github.com/disintegration/imaging v1.6.2
@@ -50,7 +50,6 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/btcsuite/btcd v0.22.0-beta // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
