@@ -38,6 +38,7 @@ RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
 
 WORKDIR /app/paopao-ce
 COPY --from=backend /paopao-ce/release/paopao-ce .
+COPY --from=backend /paopao-ce/config.yaml.sample config.yaml
 
 VOLUME ["/app/paopao-ce/custom"]
 EXPOSE 8008
