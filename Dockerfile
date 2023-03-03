@@ -1,5 +1,5 @@
 # build frontend
-FROM node:18-alpine as frontend
+FROM node:19-alpine as frontend
 ARG API_HOST
 ARG USE_API_HOST=yes
 ARG EMBED_UI=yes
@@ -11,7 +11,7 @@ RUN [ $EMBED_UI != yes ] || [ $USE_DIST != no ] || (yarn && yarn build)
 RUN [ $EMBED_UI = yes ] || mkdir dist || echo ""
 
 # build backend
-FROM golang:1.18-alpine AS backend
+FROM golang:1.20-alpine AS backend
 ARG API_HOST
 ARG USE_API_HOST=yes
 ARG EMBED_UI=yes
@@ -28,7 +28,7 @@ ENV GOPROXY=https://goproxy.cn
 RUN [ $EMBED_UI != yes ] || make build TAGS='embed go_json'
 RUN [ $EMBED_UI = yes ] || make build TAGS='go_json'
 
-FROM alpine:3.16
+FROM alpine:3.17
 ARG API_HOST
 ARG USE_API_HOST=yes
 ARG EMBED_UI=yes
