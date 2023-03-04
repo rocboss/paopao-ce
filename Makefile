@@ -10,7 +10,7 @@ CGO_ENABLED := 1
 endif
 
 RELEASE_ROOT = release
-RELEASE_FILES = LICENSE README.md config.yaml.sample scripts
+RELEASE_FILES = LICENSE README.md config.yaml.sample scripts docs
 RELEASE_LINUX_AMD64 = $(RELEASE_ROOT)/linux-amd64/$(TARGET)
 RELEASE_DARWIN_AMD64 = $(RELEASE_ROOT)/darwin-amd64/$(TARGET)
 RELEASE_DARWIN_ARM64 = $(RELEASE_ROOT)/darwin-arm64/$(TARGET)
@@ -24,7 +24,7 @@ TAGS = ""
 MOD_NAME = github.com/rocboss/paopao-ce
 LDFLAGS = -X "${MOD_NAME}/pkg/debug.version=${BUILD_VERSION}" \
           -X "${MOD_NAME}/pkg/debug.buildDate=${BUILD_DATE}" \
-		  -X "${MOD_NAME}/pkg/debug.commitID=${SHA_SHORT}" -w -s
+          -X "${MOD_NAME}/pkg/debug.commitID=${SHA_SHORT}" -w -s
 
 all: fmt build
 
