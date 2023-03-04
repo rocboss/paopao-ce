@@ -194,7 +194,10 @@ PaoPao主要由以下优秀的开源项目/工具构建
   docker build -t your/paopao-ce:tag --build-arg EMBED_UI=no .
 
   # 运行
-  docker run -d -p 8008:8008 -v ${PWD}/config.yaml.sample:/app/paopao-ce/config.yaml your/paopao-ce:tag
+  mkdir custom && docker run -d -p 8008:8008 -v ${PWD}/custom:/app/paopao-ce/custom -v ${PWD}/config.yaml.sample:/app/paopao-ce/config.yaml your/paopao-ce:tag
+
+  # 或者直接运行构建好的docker image
+  mkdir custom && docker run -d -p 8008:8008 -v ${PWD}/custom:/app/paopao-ce/custom -v ${PWD}/config.yaml.sample:/app/paopao-ce/config.yaml bitbus/paopao-ce:latest
   ```
 
   * 前端:
@@ -227,8 +230,7 @@ docker compose up --build
 # file: docker-compose.yaml
 ...
   backend:
-    build:
-      context: .
+    image: bitbus/paopao-ce:latest
     restart: always
     depends_on:
       - db
