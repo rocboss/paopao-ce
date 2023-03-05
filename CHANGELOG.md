@@ -4,6 +4,12 @@ All notable changes to paopao-ce are documented in this file.
 
 ## 0.3.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
 
+## 0.2.2
+
+### Fixed
+
+- fixed add star to tweet error [#222](https://github.com/rocboss/paopao-ce/pull/222)
+
 ## 0.2.1
 
 ### Changed
