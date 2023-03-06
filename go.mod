@@ -33,7 +33,7 @@ require (
 	github.com/smartwalle/alipay/v3 v3.1.8
 	github.com/sourcegraph/conc v0.2.0
 	github.com/spf13/viper v1.15.0
-	github.com/tencentyun/cos-go-sdk-v5 v0.7.35
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.41
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.1
