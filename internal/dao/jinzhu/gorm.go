@@ -8,47 +8,48 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 )
 
+// 数据库表名，统一使用 _<table name>_ 的形式命名， 比如tag表 => _tag_
 var (
-	_anouncement        string
-	_anouncementContent string
-	_attachment         string
-	_captcha            string
-	_comment            string
-	_commentContent     string
-	_commentReply       string
-	_contact            string
-	_contactGroup       string
-	_message            string
-	_post               string
-	_postAttachmentBill string
-	_postCollection     string
-	_postContent        string
-	_postStar           string
-	_tag                string
-	_user               string
-	_walletRecharge     string
-	_walletStatement    string
+	_anouncement_        string
+	_anouncementContent_ string
+	_attachment_         string
+	_captcha_            string
+	_comment_            string
+	_commentContent_     string
+	_commentReply_       string
+	_contact_            string
+	_contactGroup_       string
+	_message_            string
+	_post_               string
+	_postAttachmentBill_ string
+	_postCollection_     string
+	_postContent_        string
+	_postStar_           string
+	_tag_                string
+	_user_               string
+	_walletRecharge_     string
+	_walletStatement_    string
 )
 
 func initTableName() {
 	m := conf.DatabaseSetting.TableNames()
-	_anouncement = m[conf.TableAnouncement]
-	_anouncementContent = m[conf.TableAnouncementContent]
-	_attachment = m[conf.TableAttachment]
-	_captcha = m[conf.TableCaptcha]
-	_comment = m[conf.TableComment]
-	_commentContent = m[conf.TableCommentContent]
-	_commentReply = m[conf.TableCommentReply]
-	_contact = m[conf.TableContact]
-	_contactGroup = m[conf.TableContactGroup]
-	_message = m[conf.TableMessage]
-	_post = m[conf.TablePost]
-	_postAttachmentBill = m[conf.TablePostAttachmentBill]
-	_postCollection = m[conf.TablePostCollection]
-	_postContent = m[conf.TablePostContent]
-	_postStar = m[conf.TablePostStar]
-	_tag = m[conf.TableTag]
-	_user = m[conf.TableUser]
-	_walletRecharge = m[conf.TableWalletRecharge]
-	_walletStatement = m[conf.TableWalletStatement]
+	_anouncement_ = m[conf.TableAnouncement]
+	_anouncementContent_ = m[conf.TableAnouncementContent]
+	_attachment_ = m[conf.TableAttachment]
+	_captcha_ = m[conf.TableCaptcha]
+	_comment_ = m[conf.TableComment]
+	_commentContent_ = m[conf.TableCommentContent]
+	_commentReply_ = m[conf.TableCommentReply]
+	_contact_ = m[conf.TableContact]
+	_contactGroup_ = m[conf.TableContactGroup]
+	_message_ = m[conf.TableMessage]
+	_post_ = m[conf.TablePost]
+	_postAttachmentBill_ = m[conf.TablePostAttachmentBill]
+	_postCollection_ = m[conf.TablePostCollection]
+	_postContent_ = m[conf.TablePostContent]
+	_postStar_ = m[conf.TablePostStar]
+	_tag_ = m[conf.TableTag]
+	_user_ = m[conf.TableUser]
+	_walletRecharge_ = m[conf.TableWalletRecharge]
+	_walletStatement_ = m[conf.TableWalletStatement]
 }
