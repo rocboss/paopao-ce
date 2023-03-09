@@ -27,19 +27,19 @@ type JsonBox[T any] struct {
 	data T
 }
 
-func (j *JsonBox[T]) MarshalJSON() ([]byte, error) {
-	if j == nil {
-		return []byte(`null`), nil
-	}
-	return json.Marshal(j.data)
-}
-
 func (j *JsonBox[T]) Box(t T) {
 	j.data = t
 }
 
 func (j *JsonBox[T]) Unbox() T {
 	return j.data
+}
+
+func (j *JsonBox[T]) MarshalJSON() ([]byte, error) {
+	if j == nil {
+		return []byte(`null`), nil
+	}
+	return json.Marshal(j.data)
 }
 
 func (j *JsonBox[T]) UnmarshalJSON(data []byte) error {
