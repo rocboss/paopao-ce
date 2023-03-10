@@ -10,7 +10,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/pkg/util"
+	util "github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/sourcegraph/conc"
 )
 

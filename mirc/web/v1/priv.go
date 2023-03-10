@@ -31,7 +31,7 @@ type Priv struct {
 	DeleteTweet func(Delete, web.DeleteTweetReq) `mir:"/post"`
 
 	// StarTweet 动态点赞操作
-	StarTweet func(Post, web.StarTweetReq) web.StarTweetResp `mir:"/post/start"`
+	StarTweet func(Post, web.StarTweetReq) web.StarTweetResp `mir:"/post/star"`
 
 	// CollectionTweet 动态收藏操作
 	CollectionTweet func(Post, web.CollectionTweetReq) web.CollectionTweetResp `mir:"/post/collection"`

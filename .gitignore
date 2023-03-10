@@ -1,3 +1,4 @@
+.DS_Store
 .idea
 .vscode
 !*.example
@@ -7,3 +8,4 @@ paopao-ce*
 /release
 /data
 /custom
+/.custom

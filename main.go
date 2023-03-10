@@ -17,7 +17,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/debug"
-	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/sourcegraph/conc"
 )
 
@@ -53,7 +53,7 @@ func flagParse() {
 }
 
 func main() {
-	util.PrintHelloBanner(debug.VersionInfo())
+	utils.PrintHelloBanner(debug.VersionInfo())
 	ss := service.MustInitService()
 	if len(ss) < 1 {
 		fmt.Fprintln(color.Output, "no service need start so just exit")

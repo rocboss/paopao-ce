@@ -206,7 +206,7 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 		r.RenderCollectionTweet(c, resp, err)
 	})
 
-	router.Handle("POST", "/post/start", func(c *gin.Context) {
+	router.Handle("POST", "/post/star", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
 			return

@@ -21,7 +21,7 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
-	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -61,7 +61,7 @@ func GetCaptcha(c *gin.Context) {
 	emptyBuff := bytes.NewBuffer(nil)
 	_ = png.Encode(emptyBuff, img)
 
-	key := util.EncodeMD5(uuid.Must(uuid.NewV4()).String())
+	key := utils.EncodeMD5(uuid.Must(uuid.NewV4()).String())
 
 	// 五分钟有效期
 	redisClient.SetEx(c, "PaoPaoCaptcha:"+key, password, time.Minute*5)

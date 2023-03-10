@@ -5,13 +5,14 @@
 package broker
 
 import (
-	"github.com/rocboss/paopao-ce/internal/core"
 	"time"
+
+	"github.com/rocboss/paopao-ce/internal/core"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
-	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/rocboss/paopao-ce/pkg/utils"
 )
 
 type CommentCreationReq struct {
@@ -121,7 +122,7 @@ func CreatePostComment(ctx *gin.Context, userID int64, param CommentCreationReq)
 		PostID: post.ID,
 		UserID: userID,
 		IP:     ip,
-		IPLoc:  util.GetIPLoc(ip),
+		IPLoc:  utils.GetIPLoc(ip),
 	}
 	comment, err = ds.CreateComment(comment)
 	if err != nil {
@@ -253,7 +254,7 @@ func CreatePostCommentReply(ctx *gin.Context, commentID int64, content string, u
 		Content:   content,
 		AtUserID:  atUserID,
 		IP:        ip,
-		IPLoc:     util.GetIPLoc(ip),
+		IPLoc:     utils.GetIPLoc(ip),
 	}
 
 	reply, err = ds.CreateCommentReply(reply)

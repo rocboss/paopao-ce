@@ -2,13 +2,13 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-package util_test
+package utils_test
 
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/rocboss/paopao-ce/pkg/utils"
 )
 
 var _ = Describe("Md5", Ordered, func() {
@@ -37,7 +37,7 @@ var _ = Describe("Md5", Ordered, func() {
 
 	It("encode md5", func() {
 		for _, t := range samples {
-			Expect(util.EncodeMD5(t.value)).To(Equal(t.md5))
+			Expect(utils.EncodeMD5(t.value)).To(Equal(t.md5))
 		}
 	})
 })
