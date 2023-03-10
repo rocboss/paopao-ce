@@ -14,7 +14,7 @@ require (
 	github.com/ethereum/go-ethereum v1.11.2
 	github.com/fatih/color v1.14.1
 	github.com/fbsobreira/gotron-sdk v0.0.0-20211102183839-58a64f4da5f4
-	github.com/gin-contrib/cors v1.3.1
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/goccy/go-json v0.10.0
