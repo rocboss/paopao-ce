@@ -15,7 +15,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
-	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -122,7 +122,7 @@ func CreatePost(c *gin.Context, userID int64, param PostCreationReq) (_ *core.Po
 		UserID:          userID,
 		Tags:            strings.Join(tags, ","),
 		IP:              ip,
-		IPLoc:           util.GetIPLoc(ip),
+		IPLoc:           utils.GetIPLoc(ip),
 		AttachmentPrice: param.AttachmentPrice,
 		Visibility:      param.Visibility,
 	}

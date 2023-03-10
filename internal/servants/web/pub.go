@@ -28,7 +28,7 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/debug"
-	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
 )
@@ -242,7 +242,7 @@ func (s *pubSrv) GetCaptcha() (*web.GetCaptchaResp, mir.Error) {
 		logrus.Errorf("png.Encode err:%s", err)
 		return nil, xerror.ServerError
 	}
-	key := util.EncodeMD5(uuid.Must(uuid.NewV4()).String())
+	key := utils.EncodeMD5(uuid.Must(uuid.NewV4()).String())
 	// 五分钟有效期
 	s.Redis.SetEx(context.Background(), "PaoPaoCaptcha:"+key, password, time.Minute*5)
 	return &web.GetCaptchaResp{

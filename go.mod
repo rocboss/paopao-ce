@@ -3,7 +3,7 @@ module github.com/rocboss/paopao-ce
 go 1.19
 
 require (
-	github.com/Masterminds/semver/v3 v3.1.1
+	github.com/Masterminds/semver/v3 v3.2.0
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/cfg v0.3.0
 	github.com/alimy/mir/v3 v3.1.1
@@ -11,10 +11,8 @@ require (
 	github.com/allegro/bigcache/v3 v3.0.2
 	github.com/bytedance/sonic v1.8.1
 	github.com/disintegration/imaging v1.6.2
-	github.com/ethereum/go-ethereum v1.11.2
 	github.com/fatih/color v1.14.1
-	github.com/fbsobreira/gotron-sdk v0.0.0-20211102183839-58a64f4da5f4
-	github.com/gin-contrib/cors v1.3.1
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/goccy/go-json v0.10.0
@@ -50,11 +48,9 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/clbanning/mxj v1.8.4 // indirect
-	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
@@ -83,6 +79,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/compress v1.15.15 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.3 // indirect
+	github.com/kr/pretty v0.3.1 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lib/pq v1.10.2 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect

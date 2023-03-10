@@ -9,7 +9,7 @@ import (
 	"sort"
 
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -31,9 +31,9 @@ func GetParamSign(param map[string]any, secretKey string) string {
 	if conf.ServerSetting.RunMode == "debug" {
 		logrus.Info(map[string]string{
 			"signRaw": signRaw,
-			"sysSign": util.EncodeMD5(signRaw + secretKey),
+			"sysSign": utils.EncodeMD5(signRaw + secretKey),
 		})
 	}
 
-	return util.EncodeMD5(signRaw + secretKey)
+	return utils.EncodeMD5(signRaw + secretKey)
 }
