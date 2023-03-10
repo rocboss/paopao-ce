@@ -9,7 +9,7 @@
 * [ ] add extend base ORM code for implement data logic base sqlx/sqlc
 * [ ] optimize media tweet submit logic
 * [ ] optimize search logic service
-* [ ] remove `Deprecated:OldWeb` feature
+* [x] remove `Deprecated:OldWeb` feature
 
 
 #### v0.2.0

@@ -24,7 +24,6 @@ var (
 	MysqlSetting            *MySQLSettingS
 	PostgresSetting         *PostgresSettingS
 	Sqlite3Setting          *Sqlite3SettingS
-	ServerSetting           *HttpServerSettingS
 	WebServerSetting        *HttpServerSettingS
 	AdminServerSetting      *HttpServerSettingS
 	SpaceXServerSetting     *HttpServerSettingS
@@ -68,7 +67,6 @@ func setupSetting(suite []string, noDefault bool) error {
 
 	objects := map[string]any{
 		"App":               &AppSetting,
-		"Server":            &ServerSetting,
 		"WebServer":         &WebServerSetting,
 		"AdminServer":       &AdminServerSetting,
 		"SpaceXServer":      &SpaceXServerSetting,
@@ -156,8 +154,5 @@ func GetOssDomain() string {
 }
 
 func RunMode() string {
-	if !cfg.If("Deprecated:OldWeb") {
-		return ServerSetting.RunMode
-	}
 	return AppSetting.RunMode
 }
