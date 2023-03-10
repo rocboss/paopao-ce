@@ -9,3 +9,9 @@ type Empty = struct{}
 
 // Fn empty argument func alias type
 type Fn = func()
+
+// Boxes Box/Unbox interface
+type Boxes[T any] interface {
+	Box(t T)
+	Unbox() T
+}
