@@ -4,6 +4,17 @@ All notable changes to paopao-ce are documented in this file.
 
 ## 0.3.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
 
+## 0.2.3
+
+### Added
+
+-  add PostgreSQL DDL file [#229](https://github.com/rocboss/paopao-ce/pull/229)
+
+### Changed
+
+- optimize MySQL DDL file [#229](https://github.com/rocboss/paopao-ce/pull/229)
+- optimize Sqlite3 DDL file [#229](https://github.com/rocboss/paopao-ce/pull/229)
+
 ## 0.2.2
 
 ### Fixed
