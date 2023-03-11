@@ -7,6 +7,7 @@ package dbr
 import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const (
@@ -73,7 +74,7 @@ func (c *Contact) List(db *gorm.DB, conditions ConditionsT, offset, limit int) (
 		}
 	}
 
-	db.Joins("User").Order("`User`.`nickname` ASC")
+	db.Joins("User").Order(clause.OrderByColumn{Column: clause.Column{Name: "nickname"}, Desc: false})
 	if err = db.Find(&contacts).Error; err != nil {
 		return nil, err
 	}

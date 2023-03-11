@@ -1,10 +1,3 @@
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = off;
-SET check_function_bodies = false;
-SET client_min_messages = warning;
-SET escape_string_warning = off;
-
-DROP TABLE IF EXISTS p_attachment;
 CREATE TABLE p_attachment (
 	id BIGSERIAL PRIMARY KEY,
 	user_id BIGINT NOT NULL DEFAULT 0,
@@ -20,7 +13,6 @@ CREATE TABLE p_attachment (
 );
 CREATE INDEX idx_attachment_user_id ON p_attachment USING btree (id);
 
-DROP TABLE IF EXISTS p_captcha;
 CREATE TABLE p_captcha (
 	id BIGSERIAL PRIMARY KEY,
 	phone VARCHAR(16),
@@ -36,7 +28,6 @@ CREATE INDEX idx_captcha_phone ON p_captcha USING btree (phone);
 CREATE INDEX idx_captcha_expired_on ON p_captcha USING btree (expired_on);
 CREATE INDEX idx_captcha_use_times ON p_captcha USING btree (use_times);
 
-DROP TABLE IF EXISTS p_comment;
 CREATE TABLE p_comment (
 	id BIGSERIAL PRIMARY KEY,
 	post_id BIGINT NOT NULL DEFAULT 0,
@@ -51,7 +42,6 @@ CREATE TABLE p_comment (
 CREATE INDEX idx_comment_post_id ON p_comment USING btree (post_id);
 CREATE INDEX idx_comment_user_id ON p_comment USING btree (user_id);
 
-DROP TABLE IF EXISTS p_comment_content;
 CREATE TABLE p_comment_content (
 	id BIGSERIAL PRIMARY KEY,
 	comment_id BIGINT NOT NULL DEFAULT 0,
@@ -69,7 +59,6 @@ CREATE INDEX idx_comment_content_user_id ON p_comment_content USING btree (user_
 CREATE INDEX idx_comment_content_type ON p_comment_content USING btree ("type");
 CREATE INDEX idx_comment_content_sort ON p_comment_content USING btree (sort);
 
-DROP TABLE IF EXISTS p_comment_reply;
 CREATE TABLE p_comment_reply (
 	id BIGSERIAL PRIMARY KEY,
 	comment_id BIGINT NOT NULL DEFAULT 0,
@@ -85,7 +74,6 @@ CREATE TABLE p_comment_reply (
 );
 CREATE INDEX idx_comment_reply_comment_id ON p_comment_reply USING btree (comment_id);
 
-DROP TABLE IF EXISTS p_message;
 CREATE TABLE p_message (
 	id BIGSERIAL PRIMARY KEY,
 	sender_user_id BIGINT NOT NULL DEFAULT 0,
@@ -107,14 +95,12 @@ CREATE INDEX idx_message_is_read ON p_message USING btree (is_read);
 CREATE INDEX idx_message_type ON p_message USING btree ("type");
 
 CREATE SEQUENCE IF NOT EXISTS post_id_seq AS BIGINT MINVALUE 1080017989 NO MAXVALUE;
-DROP TABLE IF EXISTS p_post;
 CREATE TABLE p_post (
 	id BIGINT NOT NULL DEFAULT nextval('post_id_seq'::regclass),
 	user_id BIGINT NOT NULL DEFAULT 0,
 	comment_count BIGINT NOT NULL DEFAULT 0,
 	collection_count BIGINT NOT NULL DEFAULT 0,
 	upvote_count BIGINT NOT NULL DEFAULT 0,
-	visibility SMALLINT NOT NULL DEFAULT 0, -- 可见性 0公开 1私密 2好友可见
 	is_top SMALLINT NOT NULL DEFAULT 0, -- 是否置顶
 	is_essence SMALLINT NOT NULL DEFAULT 0, -- 是否精华
 	is_lock SMALLINT NOT NULL DEFAULT 0, -- 是否锁定
@@ -130,9 +116,7 @@ CREATE TABLE p_post (
 	PRIMARY KEY (id)
 );
 CREATE INDEX idx_post_user_id ON p_post USING btree (user_id);
-CREATE INDEX idx_post_visibility ON p_post USING btree (visibility);
 
-DROP TABLE IF EXISTS p_post_attachment_bill;
 CREATE TABLE p_post_attachment_bill (
 	id BIGSERIAL PRIMARY KEY,
 	post_id BIGINT NOT NULL DEFAULT 0,
@@ -146,7 +130,6 @@ CREATE TABLE p_post_attachment_bill (
 CREATE INDEX idx_post_attachment_bill_post_id ON p_post_attachment_bill USING btree (post_id);
 CREATE INDEX idx_post_attachment_bill_user_id ON p_post_attachment_bill USING btree (user_id);
 
-DROP TABLE IF EXISTS p_post_collection;
 CREATE TABLE p_post_collection (
 	id BIGSERIAL PRIMARY KEY,
 	post_id BIGINT NOT NULL DEFAULT 0,
@@ -159,7 +142,6 @@ CREATE TABLE p_post_collection (
 CREATE INDEX idx_post_collection_post_id ON p_post_collection USING btree (post_id);
 CREATE INDEX idx_post_collection_user_id ON p_post_collection USING btree (user_id);
 
-DROP TABLE IF EXISTS p_post_content;
 CREATE TABLE p_post_content (
 	id BIGSERIAL PRIMARY KEY,
 	post_id BIGINT NOT NULL DEFAULT 0,
@@ -175,7 +157,6 @@ CREATE TABLE p_post_content (
 CREATE INDEX idx_post_content_post_id ON p_post_content USING btree (post_id);
 CREATE INDEX idx_post_content_user_id ON p_post_content USING btree (user_id);
 
-DROP TABLE IF EXISTS p_post_star;
 CREATE TABLE p_post_star (
 	id BIGSERIAL PRIMARY KEY,
 	post_id BIGINT NOT NULL DEFAULT 0,
@@ -188,7 +169,6 @@ CREATE TABLE p_post_star (
 CREATE INDEX idx_post_star_post_id ON p_post_star USING btree (post_id);
 CREATE INDEX idx_post_star_user_id ON p_post_star USING btree (user_id);
 
-DROP TABLE IF EXISTS p_tag;
 CREATE TABLE p_tag (
 	id BIGSERIAL PRIMARY KEY,
 	user_id BIGINT NOT NULL DEFAULT 0,
@@ -203,7 +183,6 @@ CREATE UNIQUE INDEX idx_tag_tag ON p_tag USING btree (tag);
 CREATE INDEX idx_tag_user_id ON p_tag USING btree (user_id);
 CREATE INDEX idx_tag_quote_num ON p_tag USING btree (quote_num);
 
-DROP TABLE IF EXISTS p_user;
 CREATE TABLE p_user (
 	id BIGSERIAL PRIMARY KEY,
 	nickname VARCHAR(32) NOT NULL DEFAULT '',
@@ -223,37 +202,6 @@ CREATE TABLE p_user (
 CREATE UNIQUE INDEX idx_user_username ON p_user USING btree (username);
 CREATE INDEX idx_user_phone ON p_user USING btree (phone);
 
-DROP TABLE IF EXISTS p_contact;
-CREATE TABLE p_contact (
-	id BIGSERIAL PRIMARY KEY,
-	user_id BIGINT NOT NULL,
-	friend_id BIGINT NOT NULL,
-	group_id BIGINT NOT NULL DEFAULT 0, -- 好友分组ID:默认为0无分组
-	remark VARCHAR(32) NOT NULL DEFAULT '', -- 好友备注
-	status SMALLINT NOT NULL DEFAULT 0, -- 好友状态: 1请求好友, 2已好友, 3拒绝好友, 4已删好友
-	is_top SMALLINT NOT NULL DEFAULT 0, -- 是否置顶, 0否, 1是
-	is_black SMALLINT NOT NULL DEFAULT 0, -- 是否为黑名单, 0否, 1是
-	is_del SMALLINT NOT NULL DEFAULT 0, -- 否删除好友, 0否, 1是
-	notice_enable SMALLINT NOT NULL DEFAULT 0, -- 是否有消息提醒, 0否, 1是
-	created_on BIGINT NOT NULL DEFAULT 0,
-	modified_on BIGINT NOT NULL DEFAULT 0,
-	deleted_on BIGINT NOT NULL DEFAULT 0
-);
-CREATE UNIQUE INDEX idx_contact_user_friend ON p_contact USING btree (user_id,friend_id);
-CREATE INDEX idx_contact_user_friend_status ON p_contact USING btree (user_id, friend_id, status);
-
-DROP TABLE IF EXISTS p_contact_group;
-CREATE TABLE p_contact_group (
-	id BIGSERIAL PRIMARY KEY,
-	user_id int NOT NULL DEFAULT 0,
-	name VARCHAR(32) NOT NULL DEFAULT '', -- 分组名称
-	is_del SMALLINT NOT NULL DEFAULT 1, -- 是否删除, 0否, 1是
-	created_on BIGINT NOT NULL DEFAULT 0,
-	modified_on BIGINT NOT NULL DEFAULT 0,
-	deleted_on BIGINT NOT NULL DEFAULT 0
-);
-
-DROP TABLE IF EXISTS p_wallet_recharge;
 CREATE TABLE p_wallet_recharge (
 	id BIGSERIAL PRIMARY KEY,
 	user_id BIGINT NOT NULL DEFAULT 0,
@@ -269,7 +217,6 @@ CREATE INDEX idx_wallet_recharge_user_id ON p_wallet_recharge USING btree (user_
 CREATE INDEX idx_wallet_recharge_trade_no ON p_wallet_recharge USING btree (trade_no);
 CREATE INDEX idx_wallet_recharge_trade_status ON p_wallet_recharge USING btree (trade_status);
 
-DROP TABLE IF EXISTS p_wallet_statement;
 CREATE TABLE p_wallet_statement (
 	id BIGSERIAL PRIMARY KEY,
 	user_id BIGINT NOT NULL DEFAULT 0,
