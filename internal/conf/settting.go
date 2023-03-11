@@ -301,8 +301,18 @@ func (s *MySQLSettingS) Dsn() string {
 func (s PostgresSettingS) Dsn() string {
 	var params []string
 	for k, v := range s {
-		if len(v) > 0 {
-			params = append(params, strings.ToLower(k)+"="+v)
+		if len(v) == 0 {
+			continue
+		}
+		lk := strings.ToLower(k)
+		tv := strings.Trim(v, " ")
+		switch lk {
+		case "schema":
+			params = append(params, "search_path="+tv)
+		case "applicationname":
+			params = append(params, "application_name="+tv)
+		default:
+			params = append(params, lk+"="+tv)
 		}
 	}
 	return strings.Join(params, " ")

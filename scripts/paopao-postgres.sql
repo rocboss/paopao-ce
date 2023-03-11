@@ -106,9 +106,10 @@ CREATE INDEX idx_message_receiver_user_id ON p_message USING btree (receiver_use
 CREATE INDEX idx_message_is_read ON p_message USING btree (is_read);
 CREATE INDEX idx_message_type ON p_message USING btree ("type");
 
+CREATE SEQUENCE IF NOT EXISTS post_id_seq AS BIGINT MINVALUE 1080017989 NO MAXVALUE;
 DROP TABLE IF EXISTS p_post;
 CREATE TABLE p_post (
-	id BIGSERIAL PRIMARY KEY,
+	id BIGINT NOT NULL DEFAULT nextval('post_id_seq'::regclass),
 	user_id BIGINT NOT NULL DEFAULT 0,
 	comment_count BIGINT NOT NULL DEFAULT 0,
 	collection_count BIGINT NOT NULL DEFAULT 0,
@@ -125,7 +126,8 @@ CREATE TABLE p_post (
 	created_on BIGINT NOT NULL DEFAULT 0,
 	modified_on BIGINT NOT NULL DEFAULT 0,
 	deleted_on BIGINT NOT NULL DEFAULT 0,
-	is_del SMALLINT NOT NULL DEFAULT 0
+	is_del SMALLINT NOT NULL DEFAULT 0,
+	PRIMARY KEY (id)
 );
 CREATE INDEX idx_post_user_id ON p_post USING btree (user_id);
 CREATE INDEX idx_post_visibility ON p_post USING btree (visibility);
@@ -212,7 +214,7 @@ CREATE TABLE p_user (
 	status SMALLINT NOT NULL DEFAULT 1, -- 状态，1正常，2停用
 	avatar VARCHAR(255) NOT NULL DEFAULT '',
 	balance BIGINT NOT NULL, -- 用户余额（分）
-	is_admin SMALLINT NOT NULL DEFAULT 0, -- 是否管理员
+	is_admin BOOLEAN NOT NULL DEFAULT false, -- 是否管理员
 	created_on BIGINT NOT NULL DEFAULT 0,
 	modified_on BIGINT NOT NULL DEFAULT 0,
 	deleted_on BIGINT NOT NULL DEFAULT 0,
@@ -231,7 +233,7 @@ CREATE TABLE p_contact (
 	status SMALLINT NOT NULL DEFAULT 0, -- 好友状态: 1请求好友, 2已好友, 3拒绝好友, 4已删好友
 	is_top SMALLINT NOT NULL DEFAULT 0, -- 是否置顶, 0否, 1是
 	is_black SMALLINT NOT NULL DEFAULT 0, -- 是否为黑名单, 0否, 1是
-	is_delete SMALLINT NOT NULL DEFAULT 0, -- 否删除好友, 0否, 1是
+	is_del SMALLINT NOT NULL DEFAULT 0, -- 否删除好友, 0否, 1是
 	notice_enable SMALLINT NOT NULL DEFAULT 0, -- 是否有消息提醒, 0否, 1是
 	created_on BIGINT NOT NULL DEFAULT 0,
 	modified_on BIGINT NOT NULL DEFAULT 0,
@@ -245,7 +247,7 @@ CREATE TABLE p_contact_group (
 	id BIGSERIAL PRIMARY KEY,
 	user_id int NOT NULL DEFAULT 0,
 	name VARCHAR(32) NOT NULL DEFAULT '', -- 分组名称
-	is_delete SMALLINT NOT NULL DEFAULT 1, -- 是否删除, 0否, 1是
+	is_del SMALLINT NOT NULL DEFAULT 1, -- 是否删除, 0否, 1是
 	created_on BIGINT NOT NULL DEFAULT 0,
 	modified_on BIGINT NOT NULL DEFAULT 0,
 	deleted_on BIGINT NOT NULL DEFAULT 0

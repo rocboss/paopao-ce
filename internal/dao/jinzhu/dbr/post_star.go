@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type PostStar struct {
@@ -31,7 +32,7 @@ func (p *PostStar) Get(db *gorm.DB) (*PostStar, error) {
 		db = db.Where(tn+"user_id = ?", p.UserID)
 	}
 
-	db = db.Joins("Post").Where("Post.visibility <> ?", PostVisitPrivate).Order("Post.id DESC")
+	db = db.Joins("Post").Where("visibility <> ?", PostVisitPrivate).Order(clause.OrderByColumn{Column: clause.Column{Table: "Post", Name: "id"}, Desc: true})
 	if err := db.First(&star).Error; err != nil {
 		return nil, err
 	}
@@ -71,7 +72,7 @@ func (p *PostStar) List(db *gorm.DB, conditions *ConditionsT, offset, limit int)
 		}
 	}
 
-	db = db.Joins("Post").Where("Post.visibility <> ?", PostVisitPrivate).Order("Post.id DESC")
+	db = db.Joins("Post").Where("visibility <> ?", PostVisitPrivate).Order(clause.OrderByColumn{Column: clause.Column{Table: "Post", Name: "id"}, Desc: true})
 	if err = db.Find(&stars).Error; err != nil {
 		return nil, err
 	}
@@ -94,7 +95,7 @@ func (p *PostStar) Count(db *gorm.DB, conditions *ConditionsT) (int64, error) {
 		}
 	}
 
-	db = db.Joins("Post").Where("Post.visibility <> ?", PostVisitPrivate)
+	db = db.Joins("Post").Where("visibility <> ?", PostVisitPrivate)
 	if err := db.Model(p).Count(&count).Error; err != nil {
 		return 0, err
 	}
