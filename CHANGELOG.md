@@ -8,7 +8,12 @@ All notable changes to paopao-ce are documented in this file.
 
 ### Added
 
--  add PostgreSQL DDL file in scripts [#229](https://github.com/rocboss/paopao-ce/pull/229)
+-  add PostgreSQL DDL file [#229](https://github.com/rocboss/paopao-ce/pull/229)
+
+### Changed
+
+- optimize MySQL DDL file [#229](https://github.com/rocboss/paopao-ce/pull/229)
+- optimize Sqlite3 DDL file [#229](https://github.com/rocboss/paopao-ce/pull/229)
 
 ## 0.2.2
 
