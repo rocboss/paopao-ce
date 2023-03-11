@@ -171,10 +171,11 @@ Postgres: # PostgreSQL数据库
   User: paopao
   Password: paopao
   DBName: paopao
+  Schema: public
   Host: localhost
   Port: 5432
   SSLMode: disable
-  TimeZone: Asia/Shanghai
+  ApplicationName:
 Sqlite3: # Sqlite3数据库
   Path: custom/data/sqlite3/paopao-ce.db
 Redis:
