@@ -16,7 +16,7 @@ SET quote_num = quote_num-1,
 WHERE id IN (
 	SELECT id
 	FROM p_tag
-	WHERE id = ANY($2::bigserial[]) AND is_del = false AND quote_num >= 1
+	WHERE id = ANY($2::BIGINT[]) AND is_del = false AND quote_num >= 1
 )
 `
 
@@ -93,7 +93,7 @@ SET quote_num = quote_num+1,
 WHERE id IN (
 	SELECT id
 	FROM p_tag
-	WHERE tag = ANY($2::varchar[])
+	WHERE tag = ANY($2::VARCHAR[])
 )
 RETURNING id, user_id, tag, quote_num
 `

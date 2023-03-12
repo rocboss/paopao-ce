@@ -38,7 +38,7 @@ SET quote_num = quote_num-1,
 WHERE id IN (
 	SELECT id
 	FROM p_tag
-	WHERE id = ANY(@ids::bigserial[]) AND is_del = false AND quote_num >= 1
+	WHERE id = ANY(@ids::BIGINT[]) AND is_del = false AND quote_num >= 1
 );
 
 -- name: IncrTags :many
@@ -49,6 +49,6 @@ SET quote_num = quote_num+1,
 WHERE id IN (
 	SELECT id
 	FROM p_tag
-	WHERE tag = ANY(@tags::varchar[])
+	WHERE tag = ANY(@tags::VARCHAR[])
 )
 RETURNING id, user_id, tag, quote_num;

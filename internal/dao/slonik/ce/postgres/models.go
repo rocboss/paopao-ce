@@ -4,9 +4,183 @@
 
 package dbr
 
-import ()
+import (
+	"github.com/jackc/pgx/v5/pgtype"
+)
 
-// 主题标签
+type PAttachment struct {
+	ID         int64
+	UserID     int64
+	FileSize   int64
+	ImgWidth   int64
+	ImgHeight  int64
+	Type       int16
+	Content    string
+	CreatedOn  int64
+	ModifiedOn int64
+	DeletedOn  int64
+	IsDel      int16
+}
+
+type PCaptcha struct {
+	ID         int64
+	Phone      pgtype.Text
+	Captcha    pgtype.Text
+	UseTimes   int32
+	ExpiredOn  int64
+	CreatedOn  int64
+	ModifiedOn int64
+	DeletedOn  int64
+	IsDel      int16
+}
+
+type PComment struct {
+	ID         int64
+	PostID     int64
+	UserID     int64
+	Ip         string
+	IpLoc      string
+	CreatedOn  int64
+	ModifiedOn int64
+	DeletedOn  int64
+	IsDel      int16
+}
+
+type PCommentContent struct {
+	ID         int64
+	CommentID  int64
+	UserID     int64
+	Content    string
+	Type       int16
+	Sort       int64
+	CreatedOn  int64
+	ModifiedOn int64
+	DeletedOn  int64
+	IsDel      int16
+}
+
+type PCommentReply struct {
+	ID         int64
+	CommentID  int64
+	UserID     int64
+	AtUserID   int64
+	Content    string
+	Ip         string
+	IpLoc      string
+	CreatedOn  int64
+	ModifiedOn int64
+	DeletedOn  int64
+	IsDel      int16
+}
+
+type PContact struct {
+	ID           int64
+	UserID       int64
+	FriendID     int64
+	GroupID      int64
+	Remark       string
+	Status       int16
+	IsTop        int16
+	IsBlack      int16
+	IsDel        int16
+	NoticeEnable int16
+	CreatedOn    int64
+	ModifiedOn   int64
+	DeletedOn    int64
+}
+
+type PContactGroup struct {
+	ID         int64
+	UserID     int32
+	Name       string
+	IsDel      int16
+	CreatedOn  int64
+	ModifiedOn int64
+	DeletedOn  int64
+}
+
+type PMessage struct {
+	ID             int64
+	SenderUserID   int64
+	ReceiverUserID int64
+	Type           int16
+	Brief          string
+	Content        string
+	PostID         int64
+	CommentID      int64
+	ReplyID        int64
+	IsRead         int16
+	CreatedOn      int64
+	ModifiedOn     int64
+	DeletedOn      int64
+	IsDel          int16
+}
+
+type PPost struct {
+	ID              int64
+	UserID          int64
+	CommentCount    int64
+	CollectionCount int64
+	UpvoteCount     int64
+	IsTop           int16
+	IsEssence       int16
+	IsLock          int16
+	LatestRepliedOn int64
+	Tags            string
+	AttachmentPrice int64
+	Ip              string
+	IpLoc           string
+	CreatedOn       int64
+	ModifiedOn      int64
+	DeletedOn       int64
+	IsDel           int16
+	Visibility      int16
+}
+
+type PPostAttachmentBill struct {
+	ID         int64
+	PostID     int64
+	UserID     int64
+	PaidAmount int64
+	CreatedOn  int64
+	ModifiedOn int64
+	DeletedOn  int64
+	IsDel      int16
+}
+
+type PPostCollection struct {
+	ID         int64
+	PostID     int64
+	UserID     int64
+	CreatedOn  int64
+	ModifiedOn int64
+	DeletedOn  int64
+	IsDel      int16
+}
+
+type PPostContent struct {
+	ID         int64
+	PostID     int64
+	UserID     int64
+	Content    string
+	Type       int16
+	Sort       int16
+	CreatedOn  int64
+	ModifiedOn int64
+	DeletedOn  int64
+	IsDel      int16
+}
+
+type PPostStar struct {
+	ID         int64
+	PostID     int64
+	UserID     int64
+	CreatedOn  int64
+	ModifiedOn int64
+	DeletedOn  int64
+	IsDel      int16
+}
+
 type PTag struct {
 	ID         int64
 	UserID     int64
@@ -15,8 +189,7 @@ type PTag struct {
 	CreatedOn  int64
 	ModifiedOn int64
 	DeletedOn  int64
-	// 是否删除
-	IsDel bool
+	IsDel      int16
 }
 
 // 用户
@@ -37,5 +210,30 @@ type PUser struct {
 	CreatedOn  int64
 	ModifiedOn int64
 	DeletedOn  int64
-	IsDel      bool
+	IsDel      int16
+}
+
+type PWalletRecharge struct {
+	ID          int64
+	UserID      int64
+	Amount      int64
+	TradeNo     string
+	TradeStatus string
+	CreatedOn   int64
+	ModifiedOn  int64
+	DeletedOn   int64
+	IsDel       int16
+}
+
+type PWalletStatement struct {
+	ID              int64
+	UserID          int64
+	ChangeAmount    int64
+	BalanceSnapshot int64
+	Reason          string
+	PostID          int64
+	CreatedOn       int64
+	ModifiedOn      int64
+	DeletedOn       int64
+	IsDel           int16
 }

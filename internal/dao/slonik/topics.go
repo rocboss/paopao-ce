@@ -13,7 +13,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/ce/postgres"
-	"github.com/rocboss/paopao-ce/pkg/types"
 )
 
 var (
@@ -30,7 +29,7 @@ func (s *topicServant) UpsertTags(userId int64, tags []string) (res cs.TagInfoLi
 	err = s.with(func(c context.Context, q dbr.Querier) error {
 		now := time.Now().Unix()
 		upTags, err := q.IncrTags(c, &dbr.IncrTagsParams{
-			Tags:       types.PgxArray(tags),
+			Tags:       tags,
 			ModifiedOn: now,
 		})
 		if err != nil {
@@ -77,7 +76,7 @@ func (s *topicServant) UpsertTags(userId int64, tags []string) (res cs.TagInfoLi
 
 func (s *topicServant) DecrTagsById(ids []int64) error {
 	return s.q.DecrTagsById(context.Background(), &dbr.DecrTagsByIdParams{
-		Ids:        types.PgxArray(ids),
+		Ids:        ids,
 		ModifiedOn: time.Now().Unix(),
 	})
 }
