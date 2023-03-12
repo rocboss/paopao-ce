@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rocboss/paopao-ce/pkg/util/iploc"
+	"github.com/rocboss/paopao-ce/pkg/utils/iploc"
 )
 
 var _ = Describe("Iploc", Ordered, func() {

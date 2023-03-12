@@ -2,13 +2,13 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-package util_test
+package utils_test
 
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/rocboss/paopao-ce/pkg/utils"
 )
 
 var _ = Describe("Ip", Ordered, func() {
@@ -33,7 +33,7 @@ var _ = Describe("Ip", Ordered, func() {
 
 	It("get ip location", func() {
 		for _, t := range samples {
-			Expect(util.GetIPLoc(t.ip)).To(Equal(t.location))
+			Expect(utils.GetIPLoc(t.ip)).To(Equal(t.location))
 		}
 	})
 })

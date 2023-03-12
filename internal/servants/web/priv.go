@@ -21,7 +21,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
 	"github.com/rocboss/paopao-ce/pkg/convert"
-	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
 )
@@ -271,7 +271,7 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 		UserID:          req.User.ID,
 		Tags:            strings.Join(tags, ","),
 		IP:              req.ClientIP,
-		IPLoc:           util.GetIPLoc(req.ClientIP),
+		IPLoc:           utils.GetIPLoc(req.ClientIP),
 		AttachmentPrice: req.AttachmentPrice,
 		Visibility:      req.Visibility,
 	}
@@ -402,7 +402,7 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.Creat
 		Content:   req.Content,
 		AtUserID:  atUserID,
 		IP:        req.ClientIP,
-		IPLoc:     util.GetIPLoc(req.ClientIP),
+		IPLoc:     utils.GetIPLoc(req.ClientIP),
 	}
 
 	reply, err = s.Ds.CreateCommentReply(reply)
@@ -517,7 +517,7 @@ func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateComment
 		PostID: post.ID,
 		UserID: req.Uid,
 		IP:     req.ClientIP,
-		IPLoc:  util.GetIPLoc(req.ClientIP),
+		IPLoc:  utils.GetIPLoc(req.ClientIP),
 	}
 	comment, err = s.Ds.CreateComment(comment)
 	if err != nil {

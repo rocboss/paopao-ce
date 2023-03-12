@@ -81,7 +81,7 @@ Pyroscope: # Pyroscope配置
 Logger: # 日志通用配置
   Level: debug # 日志级别 panic|fatal|error|warn|info|debug|trace
 LoggerFile: # 使用File写日志
-  SavePath: data/paopao-ce/logs
+  SavePath: custom/data/paopao-ce/logs
   FileName: app
   FileExt: .log
 LoggerZinc: # 使用Zinc写日志
@@ -151,7 +151,7 @@ S3: # Amazon S3 存储配置
   Bucket: paopao
   Domain: 
 LocalOSS: # 本地文件OSS存储配置
-  SavePath: data/paopao-ce/oss
+  SavePath: custom/data/paopao-ce/oss
   Secure: False
   Bucket: paopao
   Domain: 127.0.0.1:8008
@@ -171,12 +171,13 @@ Postgres: # PostgreSQL数据库
   User: paopao
   Password: paopao
   DBName: paopao
+  Schema: public
   Host: localhost
   Port: 5432
   SSLMode: disable
-  TimeZone: Asia/Shanghai
+  ApplicationName:
 Sqlite3: # Sqlite3数据库
-  Path: data/sqlite3/paopao-ce.db
+  Path: custom/data/sqlite3/paopao-ce.db
 Redis:
   Host: redis:6379
   Password: 

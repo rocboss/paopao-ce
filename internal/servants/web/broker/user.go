@@ -16,7 +16,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
-	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -133,7 +133,7 @@ func DoLogin(ctx *gin.Context, param *AuthRequest) (*core.User, error) {
 
 // ValidPassword 检查密码是否一致
 func ValidPassword(dbPassword, password, salt string) bool {
-	return strings.Compare(dbPassword, util.EncodeMD5(util.EncodeMD5(password)+salt)) == 0
+	return strings.Compare(dbPassword, utils.EncodeMD5(utils.EncodeMD5(password)+salt)) == 0
 }
 
 // CheckStatus 检测用户权限
@@ -223,7 +223,7 @@ func CheckPhoneExist(uid int64, phone string) bool {
 // EncryptPasswordAndSalt 密码加密&生成salt
 func EncryptPasswordAndSalt(password string) (string, string) {
 	salt := uuid.Must(uuid.NewV4()).String()[:8]
-	password = util.EncodeMD5(util.EncodeMD5(password) + salt)
+	password = utils.EncodeMD5(utils.EncodeMD5(password) + salt)
 
 	return password, salt
 }

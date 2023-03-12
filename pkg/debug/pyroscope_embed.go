@@ -44,5 +44,4 @@ func StartPyroscope() {
 		c.AuthToken = s.AuthToken
 	}
 	pyroscope.Start(c)
-
 }
