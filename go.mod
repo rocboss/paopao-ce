@@ -28,7 +28,7 @@ require (
 	github.com/pyroscope-io/client v0.6.0
 	github.com/redis/go-redis/v9 v9.0.2
 	github.com/sirupsen/logrus v1.9.0
-	github.com/smartwalle/alipay/v3 v3.1.8
+	github.com/smartwalle/alipay/v3 v3.2.0
 	github.com/sourcegraph/conc v0.2.0
 	github.com/spf13/viper v1.15.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.41
