@@ -33,6 +33,7 @@ require (
 	github.com/spf13/viper v1.15.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.41
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
+	go.uber.org/automaxprocs v1.5.1
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
