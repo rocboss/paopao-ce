@@ -19,6 +19,7 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/sourcegraph/conc"
+	_ "go.uber.org/automaxprocs"
 )
 
 var (
