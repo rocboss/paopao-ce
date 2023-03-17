@@ -67,15 +67,14 @@ func (s *topicServant) ListTags(typ cs.TagType, offset, limit int) (res cs.TagLi
 	}
 	// TODO: 优化查询方式，直接返回[]*core.Tag, 目前保持先转换一下
 	var (
-		tags   []*dbr.Tag
-		tagMap map[int64]*cs.TagItem
-		item   *cs.TagItem
+		tags []*dbr.Tag
+		item *cs.TagItem
 	)
 	if tags, err = (&dbr.Tag{}).List(s.db, conditions, offset, limit); err == nil {
 		if len(tags) == 0 {
 			return
 		}
-		ids := make([]int64, 0, len(tags))
+		tagMap := make(map[int64][]*cs.TagItem, len(tags))
 		for _, tag := range tags {
 			item = &cs.TagItem{
 				ID:       tag.ID,
@@ -83,17 +82,21 @@ func (s *topicServant) ListTags(typ cs.TagType, offset, limit int) (res cs.TagLi
 				Tag:      tag.Tag,
 				QuoteNum: tag.QuoteNum,
 			}
-			tagMap[item.UserID] = item
+			tagMap[item.UserID] = append(tagMap[item.UserID], item)
 			res = append(res, item)
-			ids = append(ids, tag.UserID)
+		}
+		ids := make([]int64, len(tagMap))
+		for userId := range tagMap {
+			ids = append(ids, userId)
 		}
 		userInfos, err := (&dbr.User{}).ListUserInfoById(s.db, ids)
 		if err != nil {
 			return nil, err
 		}
 		for _, userInfo := range userInfos {
-			item = tagMap[userInfo.ID]
-			item.User = userInfo
+			for _, item = range tagMap[userInfo.ID] {
+				item.User = userInfo
+			}
 		}
 	}
 	return
