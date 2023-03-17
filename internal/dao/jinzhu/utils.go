@@ -20,10 +20,10 @@ func createTags(db *gorm.DB, userId int64, tags []string) (res cs.TagInfoList, e
 				return
 			}
 		} else {
-			tag.UserID, tag.QuoteNum = userId, 1
 			if tag, err = (&dbr.Tag{
 				UserID:   userId,
 				QuoteNum: 1,
+				Tag:      name,
 			}).Create(db); err != nil {
 				return
 			}
