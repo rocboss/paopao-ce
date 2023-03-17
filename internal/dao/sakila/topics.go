@@ -128,10 +128,10 @@ func newTopicService(db *sqlx.DB) core.TopicService {
 		stmtTagsByKeywordA: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 ORDER BY quote_num DESC LIMIT 6`),
 		stmtTagsByKeywordB: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND tag LIKE ? ORDER BY quote_num DESC LIMIT 6`),
 		stmtInsertTag:      c(`INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1)`),
-		sqlTagsByIdA:       r(`SELECT id FROM @tag WHERE id IN (?) AND is_del = 0 AND quote_num > 0`),
-		sqlTagsByIdB:       r(`SELECT id, user_id, tag, quote_num FROM @tag WHERE id IN (?)`),
-		sqlDecrTagsById:    r(`UPDATE @tag SET quote_num=quote_num-1, modified_on=? WHERE id IN (?)`),
-		sqlTagsForIncr:     r(`SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?)`),
-		sqlIncrTagsById:    r(`UPDATE @tag SET quote_num=quote_num+1, is_del=0, modified_on=? WHERE id IN (?)`),
+		sqlTagsByIdA:       t(`SELECT id FROM @tag WHERE id IN (?) AND is_del = 0 AND quote_num > 0`),
+		sqlTagsByIdB:       t(`SELECT id, user_id, tag, quote_num FROM @tag WHERE id IN (?)`),
+		sqlDecrTagsById:    t(`UPDATE @tag SET quote_num=quote_num-1, modified_on=? WHERE id IN (?)`),
+		sqlTagsForIncr:     t(`SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?)`),
+		sqlIncrTagsById:    t(`UPDATE @tag SET quote_num=quote_num+1, is_del=0, modified_on=? WHERE id IN (?)`),
 	}
 }
