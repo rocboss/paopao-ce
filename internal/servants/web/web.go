@@ -26,11 +26,7 @@ var (
 func RouteWeb(e *gin.Engine) {
 	lazyInitial()
 	oss := dao.ObjectStorageService()
-	ds := &base.DaoServant{
-		Redis: conf.MustRedis(),
-		Ds:    dao.DataService(),
-		Ts:    dao.TweetSearchService(),
-	}
+	ds := base.NewDaoServant()
 	// aways register servants
 	api.RegisterAdminServant(e, newAdminSrv(ds), newAdminBinding(), newAdminRender())
 	api.RegisterCoreServant(e, newCoreSrv(ds, oss), newCoreBinding(), newCoreRender())

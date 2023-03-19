@@ -17,6 +17,11 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	return nil, nil
 }
 
+func NewDataServantA() (core.DataServantA, core.VersionInfo) {
+	logrus.Fatal("not support now")
+	return nil, nil
+}
+
 func NewAuthorizationManageService() core.AuthorizationManageService {
 	logrus.Fatal("not support now")
 	return nil

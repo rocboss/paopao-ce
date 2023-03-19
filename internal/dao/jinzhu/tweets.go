@@ -43,8 +43,7 @@ type tweetSrvA struct {
 }
 
 type tweetManageSrvA struct {
-	cacheIndex core.CacheIndexService
-	db         *gorm.DB
+	db *gorm.DB
 }
 
 type tweetHelpSrvA struct {
@@ -66,6 +65,24 @@ func newTweetManageService(db *gorm.DB, cacheIndex core.CacheIndexService) core.
 
 func newTweetHelpService(db *gorm.DB) core.TweetHelpService {
 	return &tweetHelpSrv{
+		db: db,
+	}
+}
+
+func newTweetServantA(db *gorm.DB) core.TweetServantA {
+	return &tweetSrvA{
+		db: db,
+	}
+}
+
+func newTweetManageServantA(db *gorm.DB) core.TweetManageServantA {
+	return &tweetManageSrvA{
+		db: db,
+	}
+}
+
+func newTweetHelpServantA(db *gorm.DB) core.TweetHelpServantA {
+	return &tweetHelpSrvA{
 		db: db,
 	}
 }
