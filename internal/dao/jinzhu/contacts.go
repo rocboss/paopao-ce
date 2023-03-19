@@ -14,20 +14,20 @@ import (
 )
 
 var (
-	_ core.ContactManageService = (*contactManageServant)(nil)
+	_ core.ContactManageService = (*contactManageSrv)(nil)
 )
 
-type contactManageServant struct {
+type contactManageSrv struct {
 	db *gorm.DB
 }
 
 func newContactManageService(db *gorm.DB) core.ContactManageService {
-	return &contactManageServant{
+	return &contactManageSrv{
 		db: db,
 	}
 }
 
-func (s *contactManageServant) fetchOrNewContact(db *gorm.DB, userId int64, friendId int64, status int8) (*dbr.Contact, error) {
+func (s *contactManageSrv) fetchOrNewContact(db *gorm.DB, userId int64, friendId int64, status int8) (*dbr.Contact, error) {
 	contact := &dbr.Contact{
 		UserId:   userId,
 		FriendId: friendId,
@@ -40,14 +40,14 @@ func (s *contactManageServant) fetchOrNewContact(db *gorm.DB, userId int64, frie
 			Status:   status,
 		}
 		if contact, err = contact.Create(db); err != nil {
-			logrus.Errorf("contactManageServant.fetchOrNewContact create new contact err:%s", err)
+			logrus.Errorf("contactManageSrv.fetchOrNewContact create new contact err:%s", err)
 			return nil, err
 		}
 	}
 	return contact, nil
 }
 
-func (s *contactManageServant) RequestingFriend(userId int64, friendId int64, greetings string) (err error) {
+func (s *contactManageSrv) RequestingFriend(userId int64, friendId int64, greetings string) (err error) {
 	db := s.db.Begin()
 	defer func() {
 		if err == nil {
@@ -70,7 +70,7 @@ func (s *contactManageServant) RequestingFriend(userId int64, friendId int64, gr
 		contact.Status = dbr.ContactStatusRequesting
 		contact.IsDel = 0 // remove deleted flag if needed
 		if err = contact.UpdateInUnscoped(db); err != nil {
-			logrus.Errorf("contactManageServant.RequestingFriend update exsit contact err:%s", err)
+			logrus.Errorf("contactManageSrv.RequestingFriend update exsit contact err:%s", err)
 			return
 		}
 	}
@@ -84,13 +84,13 @@ func (s *contactManageServant) RequestingFriend(userId int64, friendId int64, gr
 		ReplyID:        int64(dbr.ContactStatusRequesting),
 	}
 	if _, err = msg.Create(db); err != nil {
-		logrus.Errorf("contactManageServant.RequestingFriend create message err:%s", err)
+		logrus.Errorf("contactManageSrv.RequestingFriend create message err:%s", err)
 		return
 	}
 	return nil
 }
 
-func (s *contactManageServant) AddFriend(userId int64, friendId int64) (err error) {
+func (s *contactManageSrv) AddFriend(userId int64, friendId int64) (err error) {
 	db := s.db.Begin()
 	defer func() {
 		if err == nil {
@@ -109,7 +109,7 @@ func (s *contactManageServant) AddFriend(userId int64, friendId int64) (err erro
 	}
 	// 如果还不是请求好友，啥也不干
 	if contact.Status != dbr.ContactStatusRequesting {
-		logrus.Debugf("contactManageServant.AddFriend not reuesting status now so skip")
+		logrus.Debugf("contactManageSrv.AddFriend not reuesting status now so skip")
 		return nil
 	}
 	contact.Status = dbr.ContactStatusAgree
@@ -127,7 +127,7 @@ func (s *contactManageServant) AddFriend(userId int64, friendId int64) (err erro
 		contact.Status = dbr.ContactStatusAgree
 		contact.IsDel = 0 // remove deleted flag
 		if err = contact.UpdateInUnscoped(db); err != nil {
-			logrus.Errorf("contactManageServant.AddFriend update contact err:%s", err)
+			logrus.Errorf("contactManageSrv.AddFriend update contact err:%s", err)
 			return
 		}
 	}
@@ -149,7 +149,7 @@ func (s *contactManageServant) AddFriend(userId int64, friendId int64) (err erro
 	return nil
 }
 
-func (s *contactManageServant) RejectFriend(userId int64, friendId int64) (err error) {
+func (s *contactManageSrv) RejectFriend(userId int64, friendId int64) (err error) {
 	db := s.db.Begin()
 	defer func() {
 		if err == nil {
@@ -192,7 +192,7 @@ func (s *contactManageServant) RejectFriend(userId int64, friendId int64) (err e
 	return nil
 }
 
-func (s *contactManageServant) DeleteFriend(userId int64, friendId int64) (err error) {
+func (s *contactManageSrv) DeleteFriend(userId int64, friendId int64) (err error) {
 	db := s.db.Begin()
 	defer func() {
 		if err == nil {
@@ -226,7 +226,7 @@ func (s *contactManageServant) DeleteFriend(userId int64, friendId int64) (err e
 	return nil
 }
 
-func (s *contactManageServant) GetContacts(userId int64, offset int, limit int) (*core.ContactList, error) {
+func (s *contactManageSrv) GetContacts(userId int64, offset int, limit int) (*core.ContactList, error) {
 	contact := &dbr.Contact{}
 	condition := dbr.ConditionsT{
 		"user_id": userId,
@@ -258,7 +258,7 @@ func (s *contactManageServant) GetContacts(userId int64, offset int, limit int) 
 	return resp, nil
 }
 
-func (s *contactManageServant) IsFriend(userId int64, friendId int64) bool {
+func (s *contactManageSrv) IsFriend(userId int64, friendId int64) bool {
 	contact := &dbr.Contact{
 		UserId:   friendId,
 		FriendId: userId,

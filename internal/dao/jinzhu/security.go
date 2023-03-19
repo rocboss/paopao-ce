@@ -15,36 +15,36 @@ import (
 )
 
 var (
-	_ core.SecurityService = (*securityServant)(nil)
+	_ core.SecurityService = (*securitySrv)(nil)
 )
 
-type securityServant struct {
+type securitySrv struct {
 	db          *gorm.DB
 	phoneVerify core.PhoneVerifyService
 }
 
 func newSecurityService(db *gorm.DB, phoneVerify core.PhoneVerifyService) core.SecurityService {
-	return &securityServant{
+	return &securitySrv{
 		db:          db,
 		phoneVerify: phoneVerify,
 	}
 }
 
 // GetLatestPhoneCaptcha 获取最新短信验证码
-func (s *securityServant) GetLatestPhoneCaptcha(phone string) (*core.Captcha, error) {
+func (s *securitySrv) GetLatestPhoneCaptcha(phone string) (*core.Captcha, error) {
 	return (&dbr.Captcha{
 		Phone: phone,
 	}).Get(s.db)
 }
 
 // UsePhoneCaptcha 更新短信验证码
-func (s *securityServant) UsePhoneCaptcha(captcha *core.Captcha) error {
+func (s *securitySrv) UsePhoneCaptcha(captcha *core.Captcha) error {
 	captcha.UseTimes++
 	return captcha.Update(s.db)
 }
 
 // SendPhoneCaptcha 发送短信验证码
-func (s *securityServant) SendPhoneCaptcha(phone string) error {
+func (s *securitySrv) SendPhoneCaptcha(phone string) error {
 	expire := time.Duration(5)
 
 	// 发送验证码

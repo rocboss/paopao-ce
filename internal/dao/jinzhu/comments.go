@@ -11,35 +11,35 @@ import (
 )
 
 var (
-	_ core.CommentService       = (*commentServant)(nil)
-	_ core.CommentManageService = (*commentManageServant)(nil)
+	_ core.CommentService       = (*commentSrv)(nil)
+	_ core.CommentManageService = (*commentManageSrv)(nil)
 )
 
-type commentServant struct {
+type commentSrv struct {
 	db *gorm.DB
 }
 
-type commentManageServant struct {
+type commentManageSrv struct {
 	db *gorm.DB
 }
 
 func newCommentService(db *gorm.DB) core.CommentService {
-	return &commentServant{
+	return &commentSrv{
 		db: db,
 	}
 }
 
 func newCommentManageService(db *gorm.DB) core.CommentManageService {
-	return &commentManageServant{
+	return &commentManageSrv{
 		db: db,
 	}
 }
 
-func (s *commentServant) GetComments(conditions *core.ConditionsT, offset, limit int) ([]*core.Comment, error) {
+func (s *commentSrv) GetComments(conditions *core.ConditionsT, offset, limit int) ([]*core.Comment, error) {
 	return (&dbr.Comment{}).List(s.db, conditions, offset, limit)
 }
 
-func (s *commentServant) GetCommentByID(id int64) (*core.Comment, error) {
+func (s *commentSrv) GetCommentByID(id int64) (*core.Comment, error) {
 	comment := &dbr.Comment{
 		Model: &dbr.Model{
 			ID: id,
@@ -48,7 +48,7 @@ func (s *commentServant) GetCommentByID(id int64) (*core.Comment, error) {
 	return comment.Get(s.db)
 }
 
-func (s *commentServant) GetCommentReplyByID(id int64) (*core.CommentReply, error) {
+func (s *commentSrv) GetCommentReplyByID(id int64) (*core.CommentReply, error) {
 	reply := &dbr.CommentReply{
 		Model: &dbr.Model{
 			ID: id,
@@ -57,18 +57,18 @@ func (s *commentServant) GetCommentReplyByID(id int64) (*core.CommentReply, erro
 	return reply.Get(s.db)
 }
 
-func (s *commentServant) GetCommentCount(conditions *core.ConditionsT) (int64, error) {
+func (s *commentSrv) GetCommentCount(conditions *core.ConditionsT) (int64, error) {
 	return (&dbr.Comment{}).Count(s.db, conditions)
 }
 
-func (s *commentServant) GetCommentContentsByIDs(ids []int64) ([]*core.CommentContent, error) {
+func (s *commentSrv) GetCommentContentsByIDs(ids []int64) ([]*core.CommentContent, error) {
 	commentContent := &dbr.CommentContent{}
 	return commentContent.List(s.db, &dbr.ConditionsT{
 		"comment_id IN ?": ids,
 	}, 0, 0)
 }
 
-func (s *commentServant) GetCommentRepliesByID(ids []int64) ([]*core.CommentReplyFormated, error) {
+func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*core.CommentReplyFormated, error) {
 	CommentReply := &dbr.CommentReply{}
 	replies, err := CommentReply.List(s.db, &dbr.ConditionsT{
 		"comment_id IN ?": ids,
@@ -105,22 +105,22 @@ func (s *commentServant) GetCommentRepliesByID(ids []int64) ([]*core.CommentRepl
 	return repliesFormated, nil
 }
 
-func (s *commentManageServant) DeleteComment(comment *core.Comment) error {
+func (s *commentManageSrv) DeleteComment(comment *core.Comment) error {
 	return comment.Delete(s.db)
 }
 
-func (s *commentManageServant) CreateComment(comment *core.Comment) (*core.Comment, error) {
+func (s *commentManageSrv) CreateComment(comment *core.Comment) (*core.Comment, error) {
 	return comment.Create(s.db)
 }
 
-func (s *commentManageServant) CreateCommentReply(reply *core.CommentReply) (*core.CommentReply, error) {
+func (s *commentManageSrv) CreateCommentReply(reply *core.CommentReply) (*core.CommentReply, error) {
 	return reply.Create(s.db)
 }
 
-func (s *commentManageServant) DeleteCommentReply(reply *core.CommentReply) error {
+func (s *commentManageSrv) DeleteCommentReply(reply *core.CommentReply) error {
 	return reply.Delete(s.db)
 }
 
-func (s *commentManageServant) CreateCommentContent(content *core.CommentContent) (*core.CommentContent, error) {
+func (s *commentManageSrv) CreateCommentContent(content *core.CommentContent) (*core.CommentContent, error) {
 	return content.Create(s.db)
 }

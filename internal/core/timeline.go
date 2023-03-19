@@ -12,3 +12,8 @@ import (
 type TweetTimelineService interface {
 	TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error)
 }
+
+// TweetTimelineServantA 广场首页推文时间线服务(版本A)
+type TweetTimelineServantA interface {
+	TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error)
+}

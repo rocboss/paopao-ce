@@ -40,7 +40,8 @@ type (
 	}
 )
 
-type oldTweetService interface {
+// TweetService 推文检索服务
+type TweetService interface {
 	GetPostByID(id int64) (*Post, error)
 	GetPosts(conditions *ConditionsT, offset, limit int) ([]*Post, error)
 	GetPostCount(conditions *ConditionsT) (int64, error)
@@ -55,21 +56,8 @@ type oldTweetService interface {
 	GetPostContentByID(id int64) (*PostContent, error)
 }
 
-// TweetService 推文检索服务
-type TweetService interface {
-	oldTweetService
-
-	TweetInfoById(id int64) (*cs.TweetInfo, error)
-	TweetItemById(id int64) (*cs.TweetItem, error)
-	UserTweets(visitorId, userId int64) (cs.TweetList, error)
-	ReactionByTweetId(userId int64, tweetId int64) (*cs.ReactionItem, error)
-	UserReactions(userId int64, offset int, limit int) (cs.ReactionList, error)
-	FavoriteByTweetId(userId int64, tweetId int64) (*cs.FavoriteItem, error)
-	UserFavorites(userId int64, offset int, limit int) (cs.FavoriteList, error)
-	AttachmentByTweetId(userId int64, tweetId int64) (*cs.AttachmentBill, error)
-}
-
-type oldTweetManageService interface {
+// TweetManageService 推文管理服务，包括创建/删除/更新推文
+type TweetManageService interface {
 	CreatePost(post *Post) (*Post, error)
 	DeletePost(post *Post) ([]string, error)
 	LockPost(post *Post) error
@@ -81,12 +69,34 @@ type oldTweetManageService interface {
 	CreatePostCollection(postID, userID int64) (*PostCollection, error)
 	DeletePostCollection(p *PostCollection) error
 	CreatePostContent(content *PostContent) (*PostContent, error)
+	CreateAttachment(obj *cs.Attachment) (int64, error)
 }
 
-// TweetManageService 推文管理服务，包括创建/删除/更新推文
-type TweetManageService interface {
-	oldTweetManageService
+// TweetHelpService 推文辅助服务
+type TweetHelpService interface {
+	RevampPosts(posts []*PostFormated) ([]*PostFormated, error)
+	MergePosts(posts []*Post) ([]*PostFormated, error)
+}
 
+// IndexPostsService 广场首页推文列表服务
+type IndexPostsService interface {
+	IndexPosts(user *User, offset int, limit int) (*IndexTweetList, error)
+}
+
+// TweetServantA 推文检索服务(版本A)
+type TweetServantA interface {
+	TweetInfoById(id int64) (*cs.TweetInfo, error)
+	TweetItemById(id int64) (*cs.TweetItem, error)
+	UserTweets(visitorId, userId int64) (cs.TweetList, error)
+	ReactionByTweetId(userId int64, tweetId int64) (*cs.ReactionItem, error)
+	UserReactions(userId int64, offset int, limit int) (cs.ReactionList, error)
+	FavoriteByTweetId(userId int64, tweetId int64) (*cs.FavoriteItem, error)
+	UserFavorites(userId int64, offset int, limit int) (cs.FavoriteList, error)
+	AttachmentByTweetId(userId int64, tweetId int64) (*cs.AttachmentBill, error)
+}
+
+// TweetManageServantA 推文管理服务，包括创建/删除/更新推文(版本A)
+type TweetManageServantA interface {
 	CreateAttachment(obj *cs.Attachment) (int64, error)
 	CreateTweet(userId int64, req *cs.NewTweetReq) (*cs.TweetItem, error)
 	DeleteTweet(userId int64, tweetId int64) ([]string, error)
@@ -99,25 +109,8 @@ type TweetManageService interface {
 	DeleteFavorite(userId int64, favoriteId int64) error
 }
 
-type oldTweetHelpService interface {
-	RevampPosts(posts []*PostFormated) ([]*PostFormated, error)
-	MergePosts(posts []*Post) ([]*PostFormated, error)
-}
-
-// TweetHelpService 推文辅助服务
-type TweetHelpService interface {
-	oldTweetHelpService
-
+// TweetHelpServantA 推文辅助服务(版本A)
+type TweetHelpServantA interface {
 	RevampTweets(tweets cs.TweetList) (cs.TweetList, error)
 	MergeTweets(tweets cs.TweetInfo) (cs.TweetList, error)
-}
-
-type oldIndexPostsService interface {
-	IndexPosts(user *User, offset int, limit int) (*IndexTweetList, error)
-}
-
-// IndexPostsService 广场首页推文列表服务
-type IndexPostsService interface {
-	oldIndexPostsService
-	TweetTimelineService
 }

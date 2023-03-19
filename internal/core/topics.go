@@ -15,3 +15,11 @@ type TopicService interface {
 	ListTags(typ cs.TagType, limit int, offset int) (cs.TagList, error)
 	TagsByKeyword(keyword string) (cs.TagInfoList, error)
 }
+
+// TopicServantA 话题服务(版本A)
+type TopicServantA interface {
+	UpsertTags(userId int64, tags []string) (cs.TagInfoList, error)
+	DecrTagsById(ids []int64) error
+	ListTags(typ cs.TagType, limit int, offset int) (cs.TagList, error)
+	TagsByKeyword(keyword string) (cs.TagInfoList, error)
+}
