@@ -13,20 +13,20 @@ import (
 )
 
 var (
-	_ core.UserManageService = (*userManageServant)(nil)
+	_ core.UserManageService = (*userManageSrv)(nil)
 )
 
-type userManageServant struct {
+type userManageSrv struct {
 	db *gorm.DB
 }
 
 func newUserManageService(db *gorm.DB) core.UserManageService {
-	return &userManageServant{
+	return &userManageSrv{
 		db: db,
 	}
 }
 
-func (s *userManageServant) GetUserByID(id int64) (*core.User, error) {
+func (s *userManageSrv) GetUserByID(id int64) (*core.User, error) {
 	user := &dbr.User{
 		Model: &dbr.Model{
 			ID: id,
@@ -35,28 +35,28 @@ func (s *userManageServant) GetUserByID(id int64) (*core.User, error) {
 	return user.Get(s.db)
 }
 
-func (s *userManageServant) GetUserByUsername(username string) (*core.User, error) {
+func (s *userManageSrv) GetUserByUsername(username string) (*core.User, error) {
 	user := &dbr.User{
 		Username: username,
 	}
 	return user.Get(s.db)
 }
 
-func (s *userManageServant) GetUserByPhone(phone string) (*core.User, error) {
+func (s *userManageSrv) GetUserByPhone(phone string) (*core.User, error) {
 	user := &dbr.User{
 		Phone: phone,
 	}
 	return user.Get(s.db)
 }
 
-func (s *userManageServant) GetUsersByIDs(ids []int64) ([]*core.User, error) {
+func (s *userManageSrv) GetUsersByIDs(ids []int64) ([]*core.User, error) {
 	user := &dbr.User{}
 	return user.List(s.db, &dbr.ConditionsT{
 		"id IN ?": ids,
 	}, 0, 0)
 }
 
-func (s *userManageServant) GetUsersByKeyword(keyword string) ([]*core.User, error) {
+func (s *userManageSrv) GetUsersByKeyword(keyword string) ([]*core.User, error) {
 	user := &dbr.User{}
 	keyword = strings.Trim(keyword, " ") + "%"
 	if keyword == "%" {
@@ -70,10 +70,10 @@ func (s *userManageServant) GetUsersByKeyword(keyword string) ([]*core.User, err
 	}
 }
 
-func (s *userManageServant) CreateUser(user *dbr.User) (*core.User, error) {
+func (s *userManageSrv) CreateUser(user *dbr.User) (*core.User, error) {
 	return user.Create(s.db)
 }
 
-func (s *userManageServant) UpdateUser(user *core.User) error {
+func (s *userManageSrv) UpdateUser(user *core.User) error {
 	return user.Update(s.db)
 }

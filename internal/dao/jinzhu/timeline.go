@@ -14,35 +14,35 @@ import (
 )
 
 var (
-	_ core.IndexPostsService = (*friendIndexServant)(nil)
-	_ core.IndexPostsService = (*followIndexServant)(nil)
-	_ core.IndexPostsService = (*lightIndexServant)(nil)
-	_ core.IndexPostsService = (*simpleIndexPostsServant)(nil)
+	_ core.IndexPostsService = (*friendIndexSrv)(nil)
+	_ core.IndexPostsService = (*followIndexSrv)(nil)
+	_ core.IndexPostsService = (*lightIndexSrv)(nil)
+	_ core.IndexPostsService = (*simpleIndexPostsSrv)(nil)
 )
 
-type friendIndexServant struct {
+type friendIndexSrv struct {
 	ams core.AuthorizationManageService
 	ths core.TweetHelpService
 	db  *gorm.DB
 }
 
-type followIndexServant struct {
+type followIndexSrv struct {
 	ths core.TweetHelpService
 	db  *gorm.DB
 }
 
-type lightIndexServant struct {
+type lightIndexSrv struct {
 	ths core.TweetHelpService
 	db  *gorm.DB
 }
 
-type simpleIndexPostsServant struct {
+type simpleIndexPostsSrv struct {
 	ths core.TweetHelpService
 	db  *gorm.DB
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *friendIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *friendIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
 	predicates := dbr.Predicates{
 		"ORDER": []any{"is_top DESC, latest_replied_on DESC"},
 	}
@@ -57,7 +57,7 @@ func (s *friendIndexServant) IndexPosts(user *core.User, offset int, limit int) 
 
 	posts, err := (&dbr.Post{}).Fetch(s.db, predicates, offset, limit)
 	if err != nil {
-		logrus.Debugf("gormIndexPostsServant.IndexPosts err: %v", err)
+		logrus.Debugf("gormIndexPostsSrv.IndexPosts err: %v", err)
 		return nil, err
 	}
 	formatPosts, err := s.ths.MergePosts(posts)
@@ -76,24 +76,24 @@ func (s *friendIndexServant) IndexPosts(user *core.User, offset int, limit int) 
 	}, nil
 }
 
-func (s *friendIndexServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
+func (s *friendIndexSrv) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
 // IndexPosts 根据userId查询广场推文列表
-func (s *followIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *followIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *followIndexServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
+func (s *followIndexSrv) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
 // IndexPosts 根据userId查询广场推文列表，获取公开可见Tweet或者所属用户的私有Tweet
-func (s *lightIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *lightIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
 	predicates := dbr.Predicates{
 		"ORDER": []any{"is_top DESC, latest_replied_on DESC"},
 	}
@@ -106,7 +106,7 @@ func (s *lightIndexServant) IndexPosts(user *core.User, offset int, limit int) (
 
 	posts, err := (&dbr.Post{}).Fetch(s.db, predicates, offset, limit)
 	if err != nil {
-		logrus.Debugf("gormIndexPostsServant.IndexPosts err: %v", err)
+		logrus.Debugf("gormIndexPostsSrv.IndexPosts err: %v", err)
 		return nil, err
 	}
 	formatPosts, err := s.ths.MergePosts(posts)
@@ -125,13 +125,13 @@ func (s *lightIndexServant) IndexPosts(user *core.User, offset int, limit int) (
 	}, nil
 }
 
-func (s *lightIndexServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
+func (s *lightIndexSrv) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
 // simpleCacheIndexGetPosts simpleCacheIndex 专属获取广场推文列表函数
-func (s *simpleIndexPostsServant) IndexPosts(_user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *simpleIndexPostsSrv) IndexPosts(_user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
 	predicates := dbr.Predicates{
 		"visibility = ?": []any{dbr.PostVisitPublic},
 		"ORDER":          []any{"is_top DESC, latest_replied_on DESC"},
@@ -139,7 +139,7 @@ func (s *simpleIndexPostsServant) IndexPosts(_user *core.User, offset int, limit
 
 	posts, err := (&dbr.Post{}).Fetch(s.db, predicates, offset, limit)
 	if err != nil {
-		logrus.Debugf("gormSimpleIndexPostsServant.IndexPosts err: %v", err)
+		logrus.Debugf("gormSimpleIndexPostsSrv.IndexPosts err: %v", err)
 		return nil, err
 	}
 
@@ -159,13 +159,13 @@ func (s *simpleIndexPostsServant) IndexPosts(_user *core.User, offset int, limit
 	}, nil
 }
 
-func (s *simpleIndexPostsServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
+func (s *simpleIndexPostsSrv) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
 func newFriendIndexService(db *gorm.DB, ams core.AuthorizationManageService, ths core.TweetHelpService) core.IndexPostsService {
-	return &friendIndexServant{
+	return &friendIndexSrv{
 		ams: ams,
 		ths: ths,
 		db:  db,
@@ -173,21 +173,21 @@ func newFriendIndexService(db *gorm.DB, ams core.AuthorizationManageService, ths
 }
 
 func newFollowIndexService(db *gorm.DB, ths core.TweetHelpService) core.IndexPostsService {
-	return &followIndexServant{
+	return &followIndexSrv{
 		ths: ths,
 		db:  db,
 	}
 }
 
 func newLightIndexService(db *gorm.DB, ths core.TweetHelpService) core.IndexPostsService {
-	return &lightIndexServant{
+	return &lightIndexSrv{
 		ths: ths,
 		db:  db,
 	}
 }
 
 func newSimpleIndexPostsService(db *gorm.DB, ths core.TweetHelpService) core.IndexPostsService {
-	return &simpleIndexPostsServant{
+	return &simpleIndexPostsSrv{
 		ths: ths,
 		db:  db,
 	}

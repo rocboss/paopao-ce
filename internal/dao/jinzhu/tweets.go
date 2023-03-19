@@ -16,45 +16,62 @@ import (
 )
 
 var (
-	_ core.TweetService       = (*tweetServant)(nil)
-	_ core.TweetManageService = (*tweetManageServant)(nil)
-	_ core.TweetHelpService   = (*tweetHelpServant)(nil)
+	_ core.TweetService       = (*tweetSrv)(nil)
+	_ core.TweetManageService = (*tweetManageSrv)(nil)
+	_ core.TweetHelpService   = (*tweetHelpSrv)(nil)
+
+	_ core.TweetServantA       = (*tweetSrvA)(nil)
+	_ core.TweetManageServantA = (*tweetManageSrvA)(nil)
+	_ core.TweetHelpServantA   = (*tweetHelpSrvA)(nil)
 )
 
-type tweetServant struct {
+type tweetSrv struct {
 	db *gorm.DB
 }
 
-type tweetManageServant struct {
+type tweetManageSrv struct {
 	cacheIndex core.CacheIndexService
 	db         *gorm.DB
 }
 
-type tweetHelpServant struct {
+type tweetHelpSrv struct {
+	db *gorm.DB
+}
+
+type tweetSrvA struct {
+	db *gorm.DB
+}
+
+type tweetManageSrvA struct {
+	cacheIndex core.CacheIndexService
+	db         *gorm.DB
+}
+
+type tweetHelpSrvA struct {
 	db *gorm.DB
 }
 
 func newTweetService(db *gorm.DB) core.TweetService {
-	return &tweetServant{
+	return &tweetSrv{
 		db: db,
 	}
 }
 
 func newTweetManageService(db *gorm.DB, cacheIndex core.CacheIndexService) core.TweetManageService {
-	return &tweetManageServant{
+	return &tweetManageSrv{
 		cacheIndex: cacheIndex,
 		db:         db,
 	}
 }
 
 func newTweetHelpService(db *gorm.DB) core.TweetHelpService {
-	return &tweetHelpServant{
+	return &tweetHelpSrv{
 		db: db,
 	}
 }
 
 // MergePosts post数据整合
-func (s *tweetHelpServant) MergePosts(posts []*core.Post) ([]*core.PostFormated, error) {
+func (s *tweetHelpSrv) MergePosts(posts []*core.Post) ([]*core.PostFormated, error) {
 	postIds := make([]int64, 0, len(posts))
 	userIds := make([]int64, 0, len(posts))
 	for _, post := range posts {
@@ -94,7 +111,7 @@ func (s *tweetHelpServant) MergePosts(posts []*core.Post) ([]*core.PostFormated,
 }
 
 // RevampPosts post数据整形修复
-func (s *tweetHelpServant) RevampPosts(posts []*core.PostFormated) ([]*core.PostFormated, error) {
+func (s *tweetHelpSrv) RevampPosts(posts []*core.PostFormated) ([]*core.PostFormated, error) {
 	postIds := make([]int64, 0, len(posts))
 	userIds := make([]int64, 0, len(posts))
 	for _, post := range posts {
@@ -130,24 +147,14 @@ func (s *tweetHelpServant) RevampPosts(posts []*core.PostFormated) ([]*core.Post
 	return posts, nil
 }
 
-func (s *tweetHelpServant) RevampTweets(tweets cs.TweetList) (cs.TweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetHelpServant) MergeTweets(tweets cs.TweetInfo) (cs.TweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetHelpServant) getPostContentsByIDs(ids []int64) ([]*dbr.PostContent, error) {
+func (s *tweetHelpSrv) getPostContentsByIDs(ids []int64) ([]*dbr.PostContent, error) {
 	return (&dbr.PostContent{}).List(s.db, &dbr.ConditionsT{
 		"post_id IN ?": ids,
 		"ORDER":        "sort ASC",
 	}, 0, 0)
 }
 
-func (s *tweetHelpServant) getUsersByIDs(ids []int64) ([]*dbr.User, error) {
+func (s *tweetHelpSrv) getUsersByIDs(ids []int64) ([]*dbr.User, error) {
 	user := &dbr.User{}
 
 	return user.List(s.db, &dbr.ConditionsT{
@@ -155,7 +162,7 @@ func (s *tweetHelpServant) getUsersByIDs(ids []int64) ([]*dbr.User, error) {
 	}, 0, 0)
 }
 
-func (s *tweetManageServant) CreatePostCollection(postID, userID int64) (*core.PostCollection, error) {
+func (s *tweetManageSrv) CreatePostCollection(postID, userID int64) (*core.PostCollection, error) {
 	collection := &dbr.PostCollection{
 		PostID: postID,
 		UserID: userID,
@@ -164,20 +171,20 @@ func (s *tweetManageServant) CreatePostCollection(postID, userID int64) (*core.P
 	return collection.Create(s.db)
 }
 
-func (s *tweetManageServant) DeletePostCollection(p *core.PostCollection) error {
+func (s *tweetManageSrv) DeletePostCollection(p *core.PostCollection) error {
 	return p.Delete(s.db)
 }
 
-func (s *tweetManageServant) CreatePostContent(content *core.PostContent) (*core.PostContent, error) {
+func (s *tweetManageSrv) CreatePostContent(content *core.PostContent) (*core.PostContent, error) {
 	return content.Create(s.db)
 }
 
-func (s *tweetManageServant) CreateAttachment(obj *cs.Attachment) (int64, error) {
+func (s *tweetManageSrv) CreateAttachment(obj *cs.Attachment) (int64, error) {
 	// TODO
 	return 0, debug.ErrNotImplemented
 }
 
-func (s *tweetManageServant) CreatePost(post *core.Post) (*core.Post, error) {
+func (s *tweetManageSrv) CreatePost(post *core.Post) (*core.Post, error) {
 	post.LatestRepliedOn = time.Now().Unix()
 	p, err := post.Create(s.db)
 	if err != nil {
@@ -187,7 +194,7 @@ func (s *tweetManageServant) CreatePost(post *core.Post) (*core.Post, error) {
 	return p, nil
 }
 
-func (s *tweetManageServant) DeletePost(post *core.Post) ([]string, error) {
+func (s *tweetManageSrv) DeletePost(post *core.Post) ([]string, error) {
 	var mediaContents []string
 
 	postId := post.ID
@@ -234,7 +241,7 @@ func (s *tweetManageServant) DeletePost(post *core.Post) ([]string, error) {
 	return mediaContents, nil
 }
 
-func (s *tweetManageServant) deleteCommentByPostId(db *gorm.DB, postId int64) ([]string, error) {
+func (s *tweetManageSrv) deleteCommentByPostId(db *gorm.DB, postId int64) ([]string, error) {
 	comment := &dbr.Comment{}
 	commentContent := &dbr.CommentContent{}
 
@@ -268,12 +275,12 @@ func (s *tweetManageServant) deleteCommentByPostId(db *gorm.DB, postId int64) ([
 	return mediaContents, nil
 }
 
-func (s *tweetManageServant) LockPost(post *core.Post) error {
+func (s *tweetManageSrv) LockPost(post *core.Post) error {
 	post.IsLock = 1 - post.IsLock
 	return post.Update(s.db)
 }
 
-func (s *tweetManageServant) StickPost(post *core.Post) error {
+func (s *tweetManageSrv) StickPost(post *core.Post) error {
 	post.IsTop = 1 - post.IsTop
 	if err := post.Update(s.db); err != nil {
 		return err
@@ -282,7 +289,7 @@ func (s *tweetManageServant) StickPost(post *core.Post) error {
 	return nil
 }
 
-func (s *tweetManageServant) VisiblePost(post *core.Post, visibility core.PostVisibleT) error {
+func (s *tweetManageSrv) VisiblePost(post *core.Post, visibility core.PostVisibleT) error {
 	oldVisibility := post.Visibility
 	post.Visibility = visibility
 	// TODO: 这个判断是否可以不要呢
@@ -316,7 +323,7 @@ func (s *tweetManageServant) VisiblePost(post *core.Post, visibility core.PostVi
 	return nil
 }
 
-func (s *tweetManageServant) UpdatePost(post *core.Post) error {
+func (s *tweetManageSrv) UpdatePost(post *core.Post) error {
 	if err := post.Update(s.db); err != nil {
 		return err
 	}
@@ -324,7 +331,7 @@ func (s *tweetManageServant) UpdatePost(post *core.Post) error {
 	return nil
 }
 
-func (s *tweetManageServant) CreatePostStar(postID, userID int64) (*core.PostStar, error) {
+func (s *tweetManageSrv) CreatePostStar(postID, userID int64) (*core.PostStar, error) {
 	star := &dbr.PostStar{
 		PostID: postID,
 		UserID: userID,
@@ -332,56 +339,11 @@ func (s *tweetManageServant) CreatePostStar(postID, userID int64) (*core.PostSta
 	return star.Create(s.db)
 }
 
-func (s *tweetManageServant) DeletePostStar(p *core.PostStar) error {
+func (s *tweetManageSrv) DeletePostStar(p *core.PostStar) error {
 	return p.Delete(s.db)
 }
 
-func (s *tweetManageServant) CreateTweet(userId int64, req *cs.NewTweetReq) (*cs.TweetItem, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetManageServant) DeleteTweet(userId int64, tweetId int64) ([]string, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetManageServant) LockTweet(userId int64, tweetId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetManageServant) StickTweet(userId int64, tweetId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetManageServant) VisibleTweet(userId int64, visibility cs.TweetVisibleType) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetManageServant) CreateReaction(userId int64, tweetId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetManageServant) DeleteReaction(userId int64, reactionId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetManageServant) CreateFavorite(userId int64, tweetId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetManageServant) DeleteFavorite(userId int64, favoriteId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetServant) GetPostByID(id int64) (*core.Post, error) {
+func (s *tweetSrv) GetPostByID(id int64) (*core.Post, error) {
 	post := &dbr.Post{
 		Model: &dbr.Model{
 			ID: id,
@@ -390,15 +352,15 @@ func (s *tweetServant) GetPostByID(id int64) (*core.Post, error) {
 	return post.Get(s.db)
 }
 
-func (s *tweetServant) GetPosts(conditions *core.ConditionsT, offset, limit int) ([]*core.Post, error) {
+func (s *tweetSrv) GetPosts(conditions *core.ConditionsT, offset, limit int) ([]*core.Post, error) {
 	return (&dbr.Post{}).List(s.db, conditions, offset, limit)
 }
 
-func (s *tweetServant) GetPostCount(conditions *core.ConditionsT) (int64, error) {
+func (s *tweetSrv) GetPostCount(conditions *core.ConditionsT) (int64, error) {
 	return (&dbr.Post{}).Count(s.db, conditions)
 }
 
-func (s *tweetServant) GetUserPostStar(postID, userID int64) (*core.PostStar, error) {
+func (s *tweetSrv) GetUserPostStar(postID, userID int64) (*core.PostStar, error) {
 	star := &dbr.PostStar{
 		PostID: postID,
 		UserID: userID,
@@ -406,7 +368,7 @@ func (s *tweetServant) GetUserPostStar(postID, userID int64) (*core.PostStar, er
 	return star.Get(s.db)
 }
 
-func (s *tweetServant) GetUserPostStars(userID int64, offset, limit int) ([]*core.PostStar, error) {
+func (s *tweetSrv) GetUserPostStars(userID int64, offset, limit int) ([]*core.PostStar, error) {
 	star := &dbr.PostStar{
 		UserID: userID,
 	}
@@ -416,14 +378,14 @@ func (s *tweetServant) GetUserPostStars(userID int64, offset, limit int) ([]*cor
 	}, offset, limit)
 }
 
-func (s *tweetServant) GetUserPostStarCount(userID int64) (int64, error) {
+func (s *tweetSrv) GetUserPostStarCount(userID int64) (int64, error) {
 	star := &dbr.PostStar{
 		UserID: userID,
 	}
 	return star.Count(s.db, &dbr.ConditionsT{})
 }
 
-func (s *tweetServant) GetUserPostCollection(postID, userID int64) (*core.PostCollection, error) {
+func (s *tweetSrv) GetUserPostCollection(postID, userID int64) (*core.PostCollection, error) {
 	star := &dbr.PostCollection{
 		PostID: postID,
 		UserID: userID,
@@ -431,7 +393,7 @@ func (s *tweetServant) GetUserPostCollection(postID, userID int64) (*core.PostCo
 	return star.Get(s.db)
 }
 
-func (s *tweetServant) GetUserPostCollections(userID int64, offset, limit int) ([]*core.PostCollection, error) {
+func (s *tweetSrv) GetUserPostCollections(userID int64, offset, limit int) ([]*core.PostCollection, error) {
 	collection := &dbr.PostCollection{
 		UserID: userID,
 	}
@@ -441,14 +403,14 @@ func (s *tweetServant) GetUserPostCollections(userID int64, offset, limit int) (
 	}, offset, limit)
 }
 
-func (s *tweetServant) GetUserPostCollectionCount(userID int64) (int64, error) {
+func (s *tweetSrv) GetUserPostCollectionCount(userID int64) (int64, error) {
 	collection := &dbr.PostCollection{
 		UserID: userID,
 	}
 	return collection.Count(s.db, &dbr.ConditionsT{})
 }
 
-func (s *tweetServant) GetUserWalletBills(userID int64, offset, limit int) ([]*core.WalletStatement, error) {
+func (s *tweetSrv) GetUserWalletBills(userID int64, offset, limit int) ([]*core.WalletStatement, error) {
 	statement := &dbr.WalletStatement{
 		UserID: userID,
 	}
@@ -458,14 +420,14 @@ func (s *tweetServant) GetUserWalletBills(userID int64, offset, limit int) ([]*c
 	}, offset, limit)
 }
 
-func (s *tweetServant) GetUserWalletBillCount(userID int64) (int64, error) {
+func (s *tweetSrv) GetUserWalletBillCount(userID int64) (int64, error) {
 	statement := &dbr.WalletStatement{
 		UserID: userID,
 	}
 	return statement.Count(s.db, &dbr.ConditionsT{})
 }
 
-func (s *tweetServant) GetPostAttatchmentBill(postID, userID int64) (*core.PostAttachmentBill, error) {
+func (s *tweetSrv) GetPostAttatchmentBill(postID, userID int64) (*core.PostAttachmentBill, error) {
 	bill := &dbr.PostAttachmentBill{
 		PostID: postID,
 		UserID: userID,
@@ -474,14 +436,14 @@ func (s *tweetServant) GetPostAttatchmentBill(postID, userID int64) (*core.PostA
 	return bill.Get(s.db)
 }
 
-func (s *tweetServant) GetPostContentsByIDs(ids []int64) ([]*core.PostContent, error) {
+func (s *tweetSrv) GetPostContentsByIDs(ids []int64) ([]*core.PostContent, error) {
 	return (&dbr.PostContent{}).List(s.db, &dbr.ConditionsT{
 		"post_id IN ?": ids,
 		"ORDER":        "sort ASC",
 	}, 0, 0)
 }
 
-func (s *tweetServant) GetPostContentByID(id int64) (*core.PostContent, error) {
+func (s *tweetSrv) GetPostContentByID(id int64) (*core.PostContent, error) {
 	return (&dbr.PostContent{
 		Model: &dbr.Model{
 			ID: id,
@@ -489,42 +451,102 @@ func (s *tweetServant) GetPostContentByID(id int64) (*core.PostContent, error) {
 	}).Get(s.db)
 }
 
-func (s *tweetServant) TweetInfoById(id int64) (*cs.TweetInfo, error) {
+func (s *tweetSrvA) TweetInfoById(id int64) (*cs.TweetInfo, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *tweetServant) TweetItemById(id int64) (*cs.TweetItem, error) {
+func (s *tweetSrvA) TweetItemById(id int64) (*cs.TweetItem, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *tweetServant) UserTweets(visitorId, userId int64) (cs.TweetList, error) {
+func (s *tweetSrvA) UserTweets(visitorId, userId int64) (cs.TweetList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *tweetServant) ReactionByTweetId(userId int64, tweetId int64) (*cs.ReactionItem, error) {
+func (s *tweetSrvA) ReactionByTweetId(userId int64, tweetId int64) (*cs.ReactionItem, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *tweetServant) UserReactions(userId int64, offset int, limit int) (cs.ReactionList, error) {
+func (s *tweetSrvA) UserReactions(userId int64, offset int, limit int) (cs.ReactionList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *tweetServant) FavoriteByTweetId(userId int64, tweetId int64) (*cs.FavoriteItem, error) {
+func (s *tweetSrvA) FavoriteByTweetId(userId int64, tweetId int64) (*cs.FavoriteItem, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *tweetServant) UserFavorites(userId int64, offset int, limit int) (cs.FavoriteList, error) {
+func (s *tweetSrvA) UserFavorites(userId int64, offset int, limit int) (cs.FavoriteList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *tweetServant) AttachmentByTweetId(userId int64, tweetId int64) (*cs.AttachmentBill, error) {
+func (s *tweetSrvA) AttachmentByTweetId(userId int64, tweetId int64) (*cs.AttachmentBill, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetManageSrvA) CreateAttachment(obj *cs.Attachment) (int64, error) {
+	// TODO
+	return 0, debug.ErrNotImplemented
+}
+
+func (s *tweetManageSrvA) CreateTweet(userId int64, req *cs.NewTweetReq) (*cs.TweetItem, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetManageSrvA) DeleteTweet(userId int64, tweetId int64) ([]string, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetManageSrvA) LockTweet(userId int64, tweetId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *tweetManageSrvA) StickTweet(userId int64, tweetId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *tweetManageSrvA) VisibleTweet(userId int64, visibility cs.TweetVisibleType) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *tweetManageSrvA) CreateReaction(userId int64, tweetId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *tweetManageSrvA) DeleteReaction(userId int64, reactionId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *tweetManageSrvA) CreateFavorite(userId int64, tweetId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *tweetManageSrvA) DeleteFavorite(userId int64, favoriteId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *tweetHelpSrvA) RevampTweets(tweets cs.TweetList) (cs.TweetList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetHelpSrvA) MergeTweets(tweets cs.TweetInfo) (cs.TweetList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
