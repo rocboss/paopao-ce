@@ -36,8 +36,8 @@ type DataService interface {
 	AttachmentCheckService
 }
 
-// DataServantA 数据服务集成(版本A)
-type DataServantA interface {
+// WebDataServantA Web数据服务集成(版本A)
+type WebDataServantA interface {
 	// 话题服务
 	TopicServantA
 
