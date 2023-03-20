@@ -3,16 +3,26 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" href="/favicon.ico" />
+	<!-- <link rel="icon" href="/favicon.ico" /> -->
+  <link rel="icon" href="/logo.png" type="image/png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
+  <link rel="manifest" href="/manifest.json" />
   <title>泡泡</title>
-  <script type="module" crossorigin src="/assets/index.d4f5aad2.js"></script>
+  <script type="module" crossorigin src="/assets/index.083ec6de.js"></script>
   <link rel="stylesheet" href="/assets/index.cd3e5166.css">
 </head>
 
 <body>
   <div id="app"></div>
   
+  <script>
+    var global = global || window;
+    window.addEventListener("load", () => {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js");
+      }
+    });
+  </script>
 </body>
 
 </html>
