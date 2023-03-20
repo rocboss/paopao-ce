@@ -342,7 +342,6 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`Docs` | 子服务 | WIP | 开启开发者文档服务|
 |`Frontend:Web` | 子服务 | 稳定 | 开启独立前端服务|
 |`Frontend:EmbedWeb` | 子服务 | 稳定 | 开启内嵌于后端Web API服务中的前端服务|
-|`Deprecated:Web` | 子服务 | 稳定 | 开启旧的Web服务|
 |`Gorm` | 数据库 | 稳定(默认) | 使用[gorm](https://github.com/go-gorm/gorm)作为数据库的ORM，默认使用 `Gorm` + `MySQL`组合|
 |`Sqlx`| 数据库 | WIP | 使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM|
 |`Sqlc`| 数据库 | WIP | 使用[sqlc](https://github.com/kyleconroy/sqlc)自动生成ORM代码|

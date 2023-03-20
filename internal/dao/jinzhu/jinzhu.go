@@ -21,13 +21,16 @@ import (
 )
 
 var (
-	_ core.DataService = (*dataServant)(nil)
-	_ core.VersionInfo = (*dataServant)(nil)
+	_ core.DataService = (*dataSrv)(nil)
+	_ core.VersionInfo = (*dataSrv)(nil)
+
+	_ core.DataServantA = (*dataSrvA)(nil)
+	_ core.VersionInfo  = (*dataSrvA)(nil)
 
 	_onceInitial sync.Once
 )
 
-type dataServant struct {
+type dataSrv struct {
 	core.IndexPostsService
 	core.WalletService
 	core.MessageService
@@ -41,6 +44,13 @@ type dataServant struct {
 	core.ContactManageService
 	core.SecurityService
 	core.AttachmentCheckService
+}
+
+type dataSrvA struct {
+	core.TopicServantA
+	core.TweetServantA
+	core.TweetManageServantA
+	core.TweetHelpServantA
 }
 
 func NewDataService() (core.DataService, core.VersionInfo) {
@@ -81,7 +91,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	}
 	logrus.Infof("use %s as cache index service by version: %s", v.Name(), v.Version())
 
-	ds := &dataServant{
+	ds := &dataSrv{
 		IndexPostsService:      cis,
 		WalletService:          newWalletService(db),
 		MessageService:         newMessageService(db),
@@ -99,16 +109,38 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	return ds, ds
 }
 
+func NewDataServantA() (core.DataServantA, core.VersionInfo) {
+	lazyInitial()
+
+	db := conf.MustGormDB()
+
+	ds := &dataSrvA{
+		TopicServantA:       newTopicServantA(db),
+		TweetServantA:       newTweetServantA(db),
+		TweetManageServantA: newTweetManageServantA(db),
+		TweetHelpServantA:   newTweetHelpServantA(db),
+	}
+	return ds, ds
+}
+
 func NewAuthorizationManageService() core.AuthorizationManageService {
 	return newAuthorizationManageService(conf.MustGormDB())
 }
 
-func (s *dataServant) Name() string {
+func (s *dataSrv) Name() string {
 	return "Gorm"
 }
 
-func (s *dataServant) Version() *semver.Version {
+func (s *dataSrv) Version() *semver.Version {
 	return semver.MustParse("v0.2.0")
+}
+
+func (s *dataSrvA) Name() string {
+	return "Gorm"
+}
+
+func (s *dataSrvA) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
 }
 
 // lazyInitial do some package lazy initialize for performance

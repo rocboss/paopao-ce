@@ -14,7 +14,9 @@ import (
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
@@ -24,6 +26,7 @@ type BaseServant types.Empty
 
 type DaoServant struct {
 	Redis *redis.Client
+	Dsa   core.DataServantA
 	Ds    core.DataService
 	Ts    core.TweetSearchService
 }
@@ -110,6 +113,15 @@ func RenderAny(c *gin.Context, data any, err mir.Error) {
 			Code: err.StatusCode(),
 			Msg:  err.Error(),
 		})
+	}
+}
+
+func NewDaoServant() *DaoServant {
+	return &DaoServant{
+		Redis: conf.MustRedis(),
+		Dsa:   dao.DataServantA(),
+		Ds:    dao.DataService(),
+		Ts:    dao.TweetSearchService(),
 	}
 }
 
