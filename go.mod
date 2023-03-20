@@ -21,7 +21,6 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.22.11+incompatible
 	github.com/jackc/pgx/v5 v5.3.1
-	github.com/jmoiron/sqlx v1.3.5
 	github.com/json-iterator/go v1.1.12
 	github.com/kyleconroy/sqlc v1.17.2
 	github.com/meilisearch/meilisearch-go v0.21.0
