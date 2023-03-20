@@ -18,10 +18,10 @@ import (
 )
 
 var (
-	ts  core.TweetSearchService
-	ds  core.DataService
-	dsa core.DataServantA
-	oss core.ObjectStorageService
+	ts     core.TweetSearchService
+	ds     core.DataService
+	oss    core.ObjectStorageService
+	webDsa core.WebDataServantA
 
 	_onceInitial sync.Once
 )
@@ -31,9 +31,9 @@ func DataService() core.DataService {
 	return ds
 }
 
-func DataServantA() core.DataServantA {
+func WebDataServantA() core.WebDataServantA {
 	lazyInitial()
-	return dsa
+	return webDsa
 }
 
 func ObjectStorageService() core.ObjectStorageService {
@@ -72,17 +72,17 @@ func initDsX() {
 	var dsVer, dsaVer core.VersionInfo
 	if cfg.If("Gorm") {
 		ds, dsVer = jinzhu.NewDataService()
-		dsa, dsaVer = jinzhu.NewDataServantA()
+		webDsa, dsaVer = jinzhu.NewWebDataServantA()
 	} else if cfg.If("Sqlx") {
 		ds, dsVer = sakila.NewDataService()
-		dsa, dsaVer = sakila.NewDataServantA()
+		webDsa, dsaVer = sakila.NewWebDataServantA()
 	} else if cfg.If("Sqlc") && (cfg.If("Postgres") || cfg.If("PostgreSQL")) {
 		ds, dsVer = slonik.NewDataService()
-		dsa, dsaVer = slonik.NewDataServantA()
+		webDsa, dsaVer = slonik.NewWebDataServantA()
 	} else {
 		// default use gorm as orm for sql database
 		ds, dsVer = jinzhu.NewDataService()
-		dsa, dsaVer = jinzhu.NewDataServantA()
+		webDsa, dsaVer = jinzhu.NewWebDataServantA()
 	}
 	logrus.Infof("use %s as core.DataService with version %s", dsVer.Name(), dsVer.Version())
 	logrus.Infof("use %s as core.ServantA with version %s", dsaVer.Name(), dsaVer.Version())

@@ -26,7 +26,7 @@ type BaseServant types.Empty
 
 type DaoServant struct {
 	Redis *redis.Client
-	Dsa   core.DataServantA
+	Dsa   core.WebDataServantA
 	Ds    core.DataService
 	Ts    core.TweetSearchService
 }
@@ -119,7 +119,7 @@ func RenderAny(c *gin.Context, data any, err mir.Error) {
 func NewDaoServant() *DaoServant {
 	return &DaoServant{
 		Redis: conf.MustRedis(),
-		Dsa:   dao.DataServantA(),
+		Dsa:   dao.WebDataServantA(),
 		Ds:    dao.DataService(),
 		Ts:    dao.TweetSearchService(),
 	}
