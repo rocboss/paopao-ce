@@ -17,8 +17,8 @@ var (
 	_ core.DataService = (*dataSrv)(nil)
 	_ core.VersionInfo = (*dataSrv)(nil)
 
-	_ core.DataServantA = (*dataSrvA)(nil)
-	_ core.VersionInfo  = (*dataSrvA)(nil)
+	_ core.WebDataServantA = (*webDataSrvA)(nil)
+	_ core.VersionInfo     = (*webDataSrvA)(nil)
 )
 
 type dataSrv struct {
@@ -37,7 +37,7 @@ type dataSrv struct {
 	core.AttachmentCheckService
 }
 
-type dataSrvA struct {
+type webDataSrvA struct {
 	core.TopicServantA
 	core.TweetServantA
 	core.TweetManageServantA
@@ -115,10 +115,10 @@ func (s *dataSrv) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 
-func (s *dataSrvA) Name() string {
+func (s *webDataSrvA) Name() string {
 	return "sqlc/pgx"
 }
 
-func (s *dataSrvA) Version() *semver.Version {
+func (s *webDataSrvA) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
