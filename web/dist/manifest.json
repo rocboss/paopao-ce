@@ -1,0 +1,15 @@
+{
+  "short_name": "泡泡",
+  "name": "泡泡",
+  "description": "一个清新文艺的微社区",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "600x600"
+    }
+  ],
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone"
+}
