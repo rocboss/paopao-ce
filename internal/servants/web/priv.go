@@ -170,9 +170,9 @@ func (s *privSrv) UploadAttachment(req *web.UploadAttachmentReq) (*web.UploadAtt
 			attachment.ImgWidth, attachment.ImgHeight = getImageSize(src.Bounds())
 		}
 	}
-	attachment.ID, err = s.Ds.CreateAttachment(attachment)
+	attachment.ID, err = s.Dsa.CreateAttachment(attachment)
 	if err != nil {
-		logrus.Errorf("Ds.CreateAttachment err: %s", err)
+		logrus.Errorf("Dsa.CreateAttachment err: %s", err)
 		return nil, _errFileUploadFailed
 	}
 

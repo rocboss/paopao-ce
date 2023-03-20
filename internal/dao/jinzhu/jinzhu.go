@@ -24,8 +24,8 @@ var (
 	_ core.DataService = (*dataSrv)(nil)
 	_ core.VersionInfo = (*dataSrv)(nil)
 
-	_ core.DataServantA = (*dataSrvA)(nil)
-	_ core.VersionInfo  = (*dataSrvA)(nil)
+	_ core.WebDataServantA = (*webDataSrvA)(nil)
+	_ core.VersionInfo     = (*webDataSrvA)(nil)
 
 	_onceInitial sync.Once
 )
@@ -46,7 +46,7 @@ type dataSrv struct {
 	core.AttachmentCheckService
 }
 
-type dataSrvA struct {
+type webDataSrvA struct {
 	core.TopicServantA
 	core.TweetServantA
 	core.TweetManageServantA
@@ -109,12 +109,10 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	return ds, ds
 }
 
-func NewDataServantA() (core.DataServantA, core.VersionInfo) {
+func NewWebDataServantA() (core.WebDataServantA, core.VersionInfo) {
 	lazyInitial()
-
 	db := conf.MustGormDB()
-
-	ds := &dataSrvA{
+	ds := &webDataSrvA{
 		TopicServantA:       newTopicServantA(db),
 		TweetServantA:       newTweetServantA(db),
 		TweetManageServantA: newTweetManageServantA(db),
@@ -135,11 +133,11 @@ func (s *dataSrv) Version() *semver.Version {
 	return semver.MustParse("v0.2.0")
 }
 
-func (s *dataSrvA) Name() string {
+func (s *webDataSrvA) Name() string {
 	return "Gorm"
 }
 
-func (s *dataSrvA) Version() *semver.Version {
+func (s *webDataSrvA) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
 }
 

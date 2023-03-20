@@ -17,7 +17,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	return nil, nil
 }
 
-func NewDataServantA() (core.DataServantA, core.VersionInfo) {
+func NewWebDataServantA() (core.WebDataServantA, core.VersionInfo) {
 	logrus.Fatal("not support now")
 	return nil, nil
 }
