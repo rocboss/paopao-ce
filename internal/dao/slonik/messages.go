@@ -11,51 +11,51 @@ import (
 )
 
 var (
-	_ core.MessageService = (*messageServant)(nil)
+	_ core.MessageService = (*messageSrv)(nil)
 )
 
-type messageServant struct {
-	*pgxServant
+type messageSrv struct {
+	*pgxSrv
 }
 
-func (s *messageServant) CreateMessage(msg *core.Message) (*core.Message, error) {
+func (s *messageSrv) CreateMessage(msg *core.Message) (*core.Message, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *messageServant) GetUnreadCount(userID int64) (int64, error) {
+func (s *messageSrv) GetUnreadCount(userID int64) (int64, error) {
 	// TODO
 	debug.NotImplemented()
 	return 0, nil
 }
 
-func (s *messageServant) GetMessageByID(id int64) (*core.Message, error) {
+func (s *messageSrv) GetMessageByID(id int64) (*core.Message, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *messageServant) ReadMessage(message *core.Message) error {
+func (s *messageSrv) ReadMessage(message *core.Message) error {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *messageServant) GetMessages(conditions *core.ConditionsT, offset, limit int) ([]*core.MessageFormated, error) {
+func (s *messageSrv) GetMessages(conditions *core.ConditionsT, offset, limit int) ([]*core.MessageFormated, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *messageServant) GetMessageCount(conditions *core.ConditionsT) (int64, error) {
+func (s *messageSrv) GetMessageCount(conditions *core.ConditionsT) (int64, error) {
 	// TODO
 	debug.NotImplemented()
 	return 0, nil
 }
 
 func newMessageService(db *pgx.Conn) core.MessageService {
-	return &messageServant{
-		pgxServant: newPgxServant(db),
+	return &messageSrv{
+		pgxSrv: newPgxSrv(db),
 	}
 }

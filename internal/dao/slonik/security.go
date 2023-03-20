@@ -11,36 +11,36 @@ import (
 )
 
 var (
-	_ core.SecurityService = (*securityServant)(nil)
+	_ core.SecurityService = (*securitySrv)(nil)
 )
 
-type securityServant struct {
-	*pgxServant
+type securitySrv struct {
+	*pgxSrv
 }
 
 // GetLatestPhoneCaptcha 获取最新短信验证码
-func (s *securityServant) GetLatestPhoneCaptcha(phone string) (*core.Captcha, error) {
+func (s *securitySrv) GetLatestPhoneCaptcha(phone string) (*core.Captcha, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
 // UsePhoneCaptcha 更新短信验证码
-func (s *securityServant) UsePhoneCaptcha(captcha *core.Captcha) error {
+func (s *securitySrv) UsePhoneCaptcha(captcha *core.Captcha) error {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
 // SendPhoneCaptcha 发送短信验证码
-func (s *securityServant) SendPhoneCaptcha(phone string) error {
+func (s *securitySrv) SendPhoneCaptcha(phone string) error {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
 func newSecurityService(db *pgx.Conn, phoneVerify core.PhoneVerifyService) core.SecurityService {
-	return &securityServant{
-		pgxServant: newPgxServant(db),
+	return &securitySrv{
+		pgxSrv: newPgxSrv(db),
 	}
 }

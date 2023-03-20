@@ -11,51 +11,51 @@ import (
 )
 
 var (
-	_ core.ContactManageService = (*contactManageServant)(nil)
+	_ core.ContactManageService = (*contactManageSrv)(nil)
 )
 
-type contactManageServant struct {
-	*pgxServant
+type contactManageSrv struct {
+	*pgxSrv
 }
 
-func (s *contactManageServant) RequestingFriend(userId int64, friendId int64, greetings string) (err error) {
+func (s *contactManageSrv) RequestingFriend(userId int64, friendId int64, greetings string) (err error) {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *contactManageServant) AddFriend(userId int64, friendId int64) (err error) {
+func (s *contactManageSrv) AddFriend(userId int64, friendId int64) (err error) {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *contactManageServant) RejectFriend(userId int64, friendId int64) (err error) {
+func (s *contactManageSrv) RejectFriend(userId int64, friendId int64) (err error) {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *contactManageServant) DeleteFriend(userId int64, friendId int64) (err error) {
+func (s *contactManageSrv) DeleteFriend(userId int64, friendId int64) (err error) {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *contactManageServant) GetContacts(userId int64, offset int, limit int) (*core.ContactList, error) {
+func (s *contactManageSrv) GetContacts(userId int64, offset int, limit int) (*core.ContactList, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *contactManageServant) IsFriend(userId int64, friendId int64) bool {
+func (s *contactManageSrv) IsFriend(userId int64, friendId int64) bool {
 	// TODO
 	debug.NotImplemented()
 	return false
 }
 
 func newContactManageService(db *pgx.Conn) core.ContactManageService {
-	return &contactManageServant{
-		pgxServant: newPgxServant(db),
+	return &contactManageSrv{
+		pgxSrv: newPgxSrv(db),
 	}
 }

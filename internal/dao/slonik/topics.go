@@ -16,16 +16,16 @@ import (
 )
 
 var (
-	_ core.TopicService = (*topicServant)(nil)
+	_ core.TopicService = (*topicSrv)(nil)
 )
 
-type topicServant struct {
-	*pgxServant
+type topicSrv struct {
+	*pgxSrv
 }
 
 // UpsertTags update/insert tags info.
 // Assume tags slice is distinct elements.
-func (s *topicServant) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, err error) {
+func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, err error) {
 	err = s.with(func(c context.Context, q dbr.Querier) error {
 		now := time.Now().Unix()
 		upTags, err := q.IncrTags(c, &dbr.IncrTagsParams{
@@ -74,14 +74,14 @@ func (s *topicServant) UpsertTags(userId int64, tags []string) (res cs.TagInfoLi
 	return
 }
 
-func (s *topicServant) DecrTagsById(ids []int64) error {
+func (s *topicSrv) DecrTagsById(ids []int64) error {
 	return s.q.DecrTagsById(context.Background(), &dbr.DecrTagsByIdParams{
 		Ids:        ids,
 		ModifiedOn: time.Now().Unix(),
 	})
 }
 
-func (s *topicServant) ListTags(typ cs.TagType, limit int, offset int) (res cs.TagList, _ error) {
+func (s *topicSrv) ListTags(typ cs.TagType, limit int, offset int) (res cs.TagList, _ error) {
 	ctx := context.Background()
 	switch typ {
 	case cs.TagTypeHot:
@@ -130,7 +130,7 @@ func (s *topicServant) ListTags(typ cs.TagType, limit int, offset int) (res cs.T
 	return
 }
 
-func (s *topicServant) TagsByKeyword(keyword string) (res cs.TagInfoList, _ error) {
+func (s *topicSrv) TagsByKeyword(keyword string) (res cs.TagInfoList, _ error) {
 	ctx := context.Background()
 	keyword = "%" + strings.Trim(keyword, " ") + "%"
 	if keyword == "%%" {
@@ -164,7 +164,7 @@ func (s *topicServant) TagsByKeyword(keyword string) (res cs.TagInfoList, _ erro
 }
 
 func newTopicService(db *pgx.Conn) core.TopicService {
-	return &topicServant{
-		pgxServant: newPgxServant(db),
+	return &topicSrv{
+		pgxSrv: newPgxSrv(db),
 	}
 }

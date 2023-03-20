@@ -11,50 +11,50 @@ import (
 )
 
 var (
-	_ core.WalletService = (*walletServant)(nil)
+	_ core.WalletService = (*walletSrv)(nil)
 )
 
-type walletServant struct {
-	*pgxServant
+type walletSrv struct {
+	*pgxSrv
 }
 
-func (s *walletServant) GetRechargeByID(id int64) (*core.WalletRecharge, error) {
+func (s *walletSrv) GetRechargeByID(id int64) (*core.WalletRecharge, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
-func (s *walletServant) CreateRecharge(userId, amount int64) (*core.WalletRecharge, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *walletServant) GetUserWalletBills(userID int64, offset, limit int) ([]*core.WalletStatement, error) {
+func (s *walletSrv) CreateRecharge(userId, amount int64) (*core.WalletRecharge, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *walletServant) GetUserWalletBillCount(userID int64) (int64, error) {
+func (s *walletSrv) GetUserWalletBills(userID int64, offset, limit int) ([]*core.WalletStatement, error) {
+	// TODO
+	debug.NotImplemented()
+	return nil, nil
+}
+
+func (s *walletSrv) GetUserWalletBillCount(userID int64) (int64, error) {
 	// TODO
 	debug.NotImplemented()
 	return 0, nil
 }
 
-func (s *walletServant) HandleRechargeSuccess(recharge *core.WalletRecharge, tradeNo string) error {
+func (s *walletSrv) HandleRechargeSuccess(recharge *core.WalletRecharge, tradeNo string) error {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *walletServant) HandlePostAttachmentBought(post *core.Post, user *core.User) error {
+func (s *walletSrv) HandlePostAttachmentBought(post *core.Post, user *core.User) error {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
 func newWalletService(db *pgx.Conn) core.WalletService {
-	return &walletServant{
-		pgxServant: newPgxServant(db),
+	return &walletSrv{
+		pgxSrv: newPgxSrv(db),
 	}
 }

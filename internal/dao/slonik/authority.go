@@ -11,45 +11,45 @@ import (
 )
 
 var (
-	_ core.AuthorizationManageService = (*authorizationManageServant)(nil)
+	_ core.AuthorizationManageService = (*authorizationManageSrv)(nil)
 )
 
-type authorizationManageServant struct {
-	*pgxServant
+type authorizationManageSrv struct {
+	*pgxSrv
 }
 
-func (s *authorizationManageServant) IsAllow(user *core.User, action *core.Action) bool {
+func (s *authorizationManageSrv) IsAllow(user *core.User, action *core.Action) bool {
 	// TODO
 	debug.NotImplemented()
 	return false
 }
 
-func (s *authorizationManageServant) MyFriendSet(userId int64) core.FriendSet {
+func (s *authorizationManageSrv) MyFriendSet(userId int64) core.FriendSet {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *authorizationManageServant) BeFriendFilter(userId int64) core.FriendFilter {
+func (s *authorizationManageSrv) BeFriendFilter(userId int64) core.FriendFilter {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *authorizationManageServant) BeFriendIds(userId int64) ([]int64, error) {
+func (s *authorizationManageSrv) BeFriendIds(userId int64) ([]int64, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *authorizationManageServant) isFriend(userId int64, friendId int64) bool {
+func (s *authorizationManageSrv) isFriend(userId int64, friendId int64) bool {
 	// TODO
 	debug.NotImplemented()
 	return false
 }
 
 func newAuthorizationManageService(db *pgx.Conn) core.AuthorizationManageService {
-	return &authorizationManageServant{
-		pgxServant: newPgxServant(db),
+	return &authorizationManageSrv{
+		pgxSrv: newPgxSrv(db),
 	}
 }

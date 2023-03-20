@@ -18,12 +18,12 @@ var (
 	_oncePgx sync.Once
 )
 
-type pgxServant struct {
+type pgxSrv struct {
 	db *pgx.Conn
 	q  dbr.Querier
 }
 
-func (s *pgxServant) begin(ctx context.Context) (pgx.Tx, dbr.Querier, error) {
+func (s *pgxSrv) begin(ctx context.Context) (pgx.Tx, dbr.Querier, error) {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -31,7 +31,7 @@ func (s *pgxServant) begin(ctx context.Context) (pgx.Tx, dbr.Querier, error) {
 	return tx, dbr.New(tx), nil
 }
 
-func (s *pgxServant) beingTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, dbr.Querier, error) {
+func (s *pgxSrv) beingTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, dbr.Querier, error) {
 	tx, err := s.db.BeginTx(ctx, txOptions)
 	if err != nil {
 		return nil, nil, err
@@ -39,7 +39,7 @@ func (s *pgxServant) beingTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.
 	return tx, dbr.New(tx), nil
 }
 
-func (s *pgxServant) with(handle func(c context.Context, q dbr.Querier) error) error {
+func (s *pgxSrv) with(handle func(c context.Context, q dbr.Querier) error) error {
 	ctx := context.Background()
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
@@ -52,7 +52,7 @@ func (s *pgxServant) with(handle func(c context.Context, q dbr.Querier) error) e
 	return tx.Commit(ctx)
 }
 
-func (s *pgxServant) withTx(txOptions pgx.TxOptions, handle func(ctx context.Context, q dbr.Querier) error) error {
+func (s *pgxSrv) withTx(txOptions pgx.TxOptions, handle func(ctx context.Context, q dbr.Querier) error) error {
 	ctx := context.Background()
 	tx, err := s.db.BeginTx(ctx, txOptions)
 	if err != nil {
@@ -65,7 +65,7 @@ func (s *pgxServant) withTx(txOptions pgx.TxOptions, handle func(ctx context.Con
 	return tx.Commit(ctx)
 }
 
-func (s *pgxServant) withCtx(ctx context.Context, handle func(dbr.Querier) error) error {
+func (s *pgxSrv) withCtx(ctx context.Context, handle func(dbr.Querier) error) error {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return err
@@ -77,7 +77,7 @@ func (s *pgxServant) withCtx(ctx context.Context, handle func(dbr.Querier) error
 	return tx.Commit(ctx)
 }
 
-func (s *pgxServant) withTxCtx(ctx context.Context, txOptions pgx.TxOptions, handle func(dbr.Querier) error) error {
+func (s *pgxSrv) withTxCtx(ctx context.Context, txOptions pgx.TxOptions, handle func(dbr.Querier) error) error {
 	tx, err := s.db.BeginTx(ctx, txOptions)
 	if err != nil {
 		return err
@@ -89,8 +89,8 @@ func (s *pgxServant) withTxCtx(ctx context.Context, txOptions pgx.TxOptions, han
 	return tx.Commit(ctx)
 }
 
-func newPgxServant(db *pgx.Conn) *pgxServant {
-	return &pgxServant{
+func newPgxSrv(db *pgx.Conn) *pgxSrv {
+	return &pgxSrv{
 		db: db,
 		q:  dbr.New(db),
 	}
