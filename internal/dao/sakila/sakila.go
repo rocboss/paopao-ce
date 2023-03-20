@@ -93,6 +93,11 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	return ds, ds
 }
 
+func NewDataServantA() (core.DataServantA, core.VersionInfo) {
+	logrus.Fatal("not support now")
+	return nil, nil
+}
+
 func NewAuthorizationManageService() core.AuthorizationManageService {
 	lazyInitial()
 	return newAuthorizationManageService(_db)
