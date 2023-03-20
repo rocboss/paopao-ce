@@ -11,7 +11,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/pkg/app"
-	"github.com/rocboss/paopao-ce/pkg/errcode"
+	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
 
 func JWT() gin.HandlerFunc {
@@ -19,7 +19,7 @@ func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			token string
-			ecode = errcode.Success
+			ecode = xerror.Success
 		)
 		if s, exist := c.GetQuery("token"); exist {
 			token = s
@@ -29,7 +29,7 @@ func JWT() gin.HandlerFunc {
 			// 验证前端传过来的token格式，不为空，开头为Bearer
 			if token == "" || !strings.HasPrefix(token, "Bearer ") {
 				response := app.NewResponse(c)
-				response.ToErrorResponse(errcode.UnauthorizedTokenError)
+				response.ToErrorResponse(xerror.UnauthorizedTokenError)
 				c.Abort()
 				return
 			}
@@ -38,15 +38,15 @@ func JWT() gin.HandlerFunc {
 			token = token[7:]
 		}
 		if token == "" {
-			ecode = errcode.InvalidParams
+			ecode = xerror.InvalidParams
 		} else {
 			claims, err := app.ParseToken(token)
 			if err != nil {
 				switch err.(*jwt.ValidationError).Errors {
 				case jwt.ValidationErrorExpired:
-					ecode = errcode.UnauthorizedTokenTimeout
+					ecode = xerror.UnauthorizedTokenTimeout
 				default:
-					ecode = errcode.UnauthorizedTokenError
+					ecode = xerror.UnauthorizedTokenError
 				}
 			} else {
 				c.Set("UID", claims.UID)
@@ -57,17 +57,17 @@ func JWT() gin.HandlerFunc {
 				if err == nil {
 					c.Set("USER", user)
 				} else {
-					ecode = errcode.UnauthorizedAuthNotExist
+					ecode = xerror.UnauthorizedAuthNotExist
 				}
 
 				// 强制下线机制
 				if (conf.JWTSetting.Issuer + ":" + user.Salt) != claims.Issuer {
-					ecode = errcode.UnauthorizedTokenTimeout
+					ecode = xerror.UnauthorizedTokenTimeout
 				}
 			}
 		}
 
-		if ecode != errcode.Success {
+		if ecode != xerror.Success {
 			response := app.NewResponse(c)
 			response.ToErrorResponse(ecode)
 			c.Abort()

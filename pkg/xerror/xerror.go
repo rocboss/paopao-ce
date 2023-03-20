@@ -15,7 +15,7 @@ import (
 var (
 	_ mir.Error = (*Error)(nil)
 
-	codes = map[int]string{}
+	// codes = map[int]string{}
 )
 
 type Error struct {
@@ -47,10 +47,10 @@ func (v ValidErrors) Errors() []string {
 }
 
 func NewError(code int, msg string) *Error {
-	if _, ok := codes[code]; ok {
-		panic(fmt.Sprintf("错误码 %d 已经存在，请更换一个", code))
-	}
-	codes[code] = msg
+	// if _, ok := codes[code]; ok {
+	// 	panic(fmt.Sprintf("错误码 %d 已经存在，请更换一个", code))
+	// }
+	// codes[code] = msg
 	return &Error{code: code, msg: msg}
 }
 

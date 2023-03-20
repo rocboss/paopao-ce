@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/app"
-	"github.com/rocboss/paopao-ce/pkg/errcode"
 )
 
 func Admin() gin.HandlerFunc {
@@ -23,7 +22,7 @@ func Admin() gin.HandlerFunc {
 		}
 
 		response := app.NewResponse(c)
-		response.ToErrorResponse(errcode.NoAdminPermission)
+		response.ToErrorResponse(_errNoAdminPermission)
 		c.Abort()
 	}
 }

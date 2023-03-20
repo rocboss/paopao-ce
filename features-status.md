@@ -42,7 +42,7 @@
 * `Frontend:EmbedWeb` 开启内嵌于后端Web API服务中的前端服务(目前状态: 内测)
     * [ ] 提按文档
     * [x] 服务初始化逻辑
-* `Deprecated:OldWeb`  开启旧的Web服务(目前状态: 内测)
+* `Deprecated:OldWeb`  开启旧的Web服务(目前状态: 已弃，不可用)
     * [ ] 提按文档
     * [x] 服务初始化逻辑
 
