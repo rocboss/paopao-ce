@@ -4,6 +4,12 @@ All notable changes to paopao-ce are documented in this file.
 
 ## 0.3.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
 
+## 0.2.4
+
+### Added
+
+-  add PWA support for web frontend [#242](https://github.com/rocboss/paopao-ce/pull/242)
+
 ## 0.2.3
 
 ### Added
