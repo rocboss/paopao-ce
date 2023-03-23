@@ -13,6 +13,19 @@
                     </div>
                 </n-spin>
             </n-list-item>
+            <div class="comment-opts-wrap" v-if="post.id > 0">
+            <n-space justify="space-between">
+                <div class="comment-title-item">
+                    <span comment-title-item>评论</span>
+                </div>
+                <div class="comment-opt-item ">
+                    <n-tabs type="bar" size="small" animated @update:value="commentTab">
+                        <n-tab-pane name="default" tab="默认" />
+                        <n-tab-pane name="newest" tab="最新" />
+                    </n-tabs>
+                </div>
+            </n-space>
+            </div>
             <n-list-item v-if="post.id > 0">
                 <compose-comment
                     :lock="post.is_lock"
@@ -56,6 +69,12 @@ const loading = ref(false);
 const commentLoading = ref(false);
 const comments = ref<Item.CommentProps[]>([]);
 const postId = computed(() => +(route.query.id as string));
+const sortStrategy = ref<"default" | "newest">('default');
+
+const commentTab = (tab: "default" | "newest") => {
+    sortStrategy.value = tab;
+    loadComments();
+};
 
 const loadPost = () => {
     post.value = {
@@ -82,6 +101,7 @@ const loadComments = (scrollToBottom: boolean = false) => {
     }
     getPostComments({
         id: post.value.id as number,
+        sort_strategy: sortStrategy.value,
     })
         .then((res) => {
             comments.value = res.list;
@@ -110,5 +130,23 @@ watch(postId, () => {
 <style lang="less" scoped>
 .detail-wrap {
     min-height: 100px;
+}
+
+.comment-opts-wrap {
+    margin-top: 8px;
+    .comment-opt-item {
+        display: flex;
+        padding-left: 16px;
+        padding-right: 16px;
+        align-items: center;
+        opacity: 0.75;
+    }
+    .comment-title-item {
+        padding-left: 16px;
+        padding-top: 5px;
+        font-size: 16px;
+        text-align: center;
+        opacity: 0.85;
+    }
 }
 </style>

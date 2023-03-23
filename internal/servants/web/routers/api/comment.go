@@ -17,8 +17,11 @@ import (
 func GetPostComments(c *gin.Context) {
 	postID := convert.StrTo(c.Query("id")).MustInt64()
 	response := app.NewResponse(c)
-
-	contents, totalRows, err := broker.GetPostComments(postID, "id ASC", 0, 0)
+	sort := "id ASC"
+	if c.Query("sort_strategy") == "newest" {
+		sort = "id DESC"
+	}
+	contents, totalRows, err := broker.GetPostComments(postID, sort, 0, 0)
 
 	if err != nil {
 		logrus.Errorf("service.GetPostComments err: %v\n", err)

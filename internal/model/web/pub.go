@@ -24,9 +24,10 @@ type TweetDetailReq struct {
 type TweetDetailResp core.PostFormated
 
 type TweetCommentsReq struct {
-	TweetId  int64 `form:"id"`
-	Page     int   `form:"-"`
-	PageSize int   `form:"-"`
+	TweetId      int64  `form:"id"`
+	SortStrategy string `form:"sort_strategy"`
+	Page         int    `form:"-"`
+	PageSize     int    `form:"-"`
 }
 
 type TweetCommentsResp base.PageResp
