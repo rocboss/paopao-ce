@@ -147,14 +147,14 @@
                 <post-video :videos="post.videos" :full="true" />
                 <post-link :links="post.links" />
                 <div class="timestamp">
-                    发布于 {{ formatRelativeTime(post.created_on) }}
+                    发布于 {{ formatPrettyTime(post.created_on) }}
                     <span v-if="post.ip_loc">
                         <n-divider vertical />
                         {{ post.ip_loc }}
                     </span>
                     <span v-if="post.created_on != post.latest_replied_on">
                         <n-divider vertical /> 最后回复
-                        {{ formatRelativeTime(post.latest_replied_on) }}
+                        {{ formatPrettyTime(post.latest_replied_on) }}
                     </span>
                 </div>
             </template>
@@ -198,7 +198,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { formatRelativeTime } from '@/utils/formatTime';
+import { formatPrettyTime } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
 import {
     Heart,

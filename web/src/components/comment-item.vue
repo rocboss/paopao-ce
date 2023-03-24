@@ -29,7 +29,7 @@
                                 ? comment.ip_loc + ' · '
                                 : comment.ip_loc
                         }}
-                        {{ formatRelativeTime(comment.created_on) }}
+                        {{ formatPrettyTime(comment.created_on) }}
                     </span>
 
                     <n-popconfirm
@@ -103,7 +103,7 @@
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { formatRelativeTime } from '@/utils/formatTime';
+import { formatPrettyTime } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
 import { Trash } from '@vicons/tabler';
 import { deleteComment } from '@/api/post';
