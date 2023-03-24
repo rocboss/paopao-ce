@@ -62,11 +62,11 @@ func (b *pubBinding) BindTweetComments(c *gin.Context) (*web.TweetCommentsReq, m
 	tweetId := convert.StrTo(c.Query("id")).MustInt64()
 	page, pageSize := app.GetPageInfo(c)
 	return &web.TweetCommentsReq{
-		TweetId:  tweetId,
-		Page:     page,
-		PageSize: pageSize,
+		TweetId:      tweetId,
+		SortStrategy: c.Query("sort_strategy"),
+		Page:         page,
+		PageSize:     pageSize,
 	}, nil
-
 }
 
 func (s *pubSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error) {
@@ -85,9 +85,13 @@ func (s *pubSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error
 }
 
 func (s *pubSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsResp, mir.Error) {
+	sort := "id ASC"
+	if req.SortStrategy == "newest" {
+		sort = "id DESC"
+	}
 	conditions := &core.ConditionsT{
 		"post_id": req.TweetId,
-		"ORDER":   "id ASC",
+		"ORDER":   sort,
 	}
 
 	comments, err := s.Ds.GetComments(conditions, (req.Page-1)*req.PageSize, req.PageSize)

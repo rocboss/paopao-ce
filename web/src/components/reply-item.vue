@@ -32,7 +32,7 @@
                         ? props.reply.ip_loc + ' · '
                         : props.reply.ip_loc
                 }}
-                {{ formatRelativeTime(props.reply.created_on) }}
+                {{ formatPrettyTime(props.reply.created_on) }}
                 <n-popconfirm
                     v-if="
                         store.state.userInfo.is_admin ||
@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { useStore } from 'vuex';
 import { Trash } from '@vicons/tabler';
-import { formatRelativeTime } from '@/utils/formatTime';
+import { formatPrettyTime } from '@/utils/formatTime';
 import { deleteCommentReply } from '@/api/post';
 
 const props = withDefaults(defineProps<{
