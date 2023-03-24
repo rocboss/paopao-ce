@@ -133,7 +133,7 @@ watch(postId, () => {
 }
 
 .comment-opts-wrap {
-    margin-top: 8px;
+    margin-top: 6px;
     .comment-opt-item {
         display: flex;
         padding-left: 16px;
@@ -143,10 +143,10 @@ watch(postId, () => {
     }
     .comment-title-item {
         padding-left: 16px;
-        padding-top: 5px;
+        padding-top: 4px;
         font-size: 16px;
         text-align: center;
-        opacity: 0.85;
+        opacity: 0.75;
     }
 }
 </style>
