@@ -1,227 +1,221 @@
 declare module NetParams {
+  interface AuthUserLogin {
+    /** 用户名 */
+    username: string;
+    /** 密码 */
+    password: string;
+  }
 
-    interface AuthUserLogin {
-        /** 用户名 */
-        username: string,
-        /** 密码 */
-        password: string
-    }
+  interface AuthUserRegister {
+    /** 用户名 */
+    username: string;
+    /** 密码 */
+    password: string;
+  }
 
-    interface AuthUserRegister {
-        /** 用户名 */
-        username: string,
-        /** 密码 */
-        password: string
-    }
+  type AuthUserInfo = string;
 
-    type AuthUserInfo = string
+  interface AuthUpdateUserPassword {
+    /** 新密码 */
+    password: string;
+    /** 旧密码 */
+    old_password: string;
+  }
 
-    interface AuthUpdateUserPassword {
-        /** 新密码 */
-        password: string,
-        /** 旧密码 */
-        old_password: string
-    }
+  interface UserGetCollections {
+    page: number;
+    page_size: number;
+  }
 
-    interface UserGetCollections {
-        page: number,
-        page_size: number
-    }
+  interface UserPrecheckAttachment {
+    id: number;
+  }
 
-    interface UserPrecheckAttachment {
-        id: number
-    }
+  interface UserGetAttachment {
+    id: number;
+  }
 
-    interface UserGetAttachment {
-        id: number
-    }
+  interface UserGetUnreadMsgCount {}
 
-    interface UserGetUnreadMsgCount {
+  interface UserGetMessages {
+    page: number;
+    page_size: number;
+  }
 
-    }
+  interface UserGetUserPosts {
+    /** 用户名 */
+    username: string;
+    page: number;
+    page_size: number;
+  }
 
-    interface UserGetMessages {
-        page: number,
-        page_size: number
-    }
+  interface UserGetUserProfile {
+    username: string;
+  }
 
-    interface UserGetUserPosts {
-        /** 用户名 */
-        username: string,
-        page: number,
-        page_size: number
-    }
+  interface UserGetBills {
+    page: number;
+    page_size: number;
+  }
 
-    interface UserGetUserProfile {
-        username: string
-    }
+  interface UserStatusReq {
+    id: number;
+    status: number;
+  }
 
-    interface UserGetBills {
-        page: number,
-        page_size: number
-    }
+  interface UserReqRecharge {
+    amount: number;
+  }
 
-    interface UserStatusReq {
-        id: number,
-        status: number
-    }
+  interface UserGetRecharge {
+    id: number;
+  }
 
-    interface UserReqRecharge {
-        amount: number
-    }
+  interface UserBindUserPhone {
+    phone: string;
+    captcha: string;
+  }
 
-    interface UserGetRecharge {
-        id: number
-    }
+  interface UserActivation {
+    activate_code: string;
+    captcha_id: string;
+    imgCaptcha: string;
+  }
 
-    interface UserBindUserPhone {
-        phone: string,
-        captcha: string
-    }
+  interface UserGetCaptcha {}
 
-    interface UserActivation {
-        activate_code: string,
-        captcha_id: string,
-        imgCaptcha: string
-    }
+  interface UserWhisper {
+    user_id: number;
+    content: string;
+  }
 
-    interface UserGetCaptcha {
+  interface RequestingFriend {
+    user_id: number;
+    greetings: string;
+  }
 
-    }
+  interface AddFriend {
+    user_id: number;
+  }
 
-    interface UserWhisper {
-        user_id: number,
-        content: string
-    }
+  interface RejectFriend {
+    user_id: number;
+  }
 
-    interface RequestingFriend {
-        user_id: number,
-        greetings: string
-    }
+  interface DeleteFriend {
+    user_id: number;
+  }
 
-    interface AddFriend {
-        user_id: number
-    }
+  interface GetContacts {
+    page: number;
+    page_size: number;
+  }
 
-    interface RejectFriend {
-        user_id: number
-    }
+  interface UserChangePassword {
+    /** 新密码 */
+    password: string;
+    /** 旧密码 */
+    old_password: string;
+  }
 
-    interface DeleteFriend {
-        user_id: number
-    }
+  interface UserChangeNickname {
+    /** 昵称 */
+    nickname: string;
+  }
 
-    interface GetContacts {
-        page: number,
-        page_size: number
-    }
+  interface PostGetPost {
+    id: number;
+  }
 
-    interface UserChangePassword {
-        /** 新密码 */
-        password: string,
-        /** 旧密码 */
-        old_password: string
-    }
+  interface PostGetPosts {
+    query: string | null;
+    type: string;
+    page: number;
+    page_size: number;
+  }
 
-    interface UserChangeNickname {
-        /** 昵称 */
-        nickname: string
-    }
+  interface PostLockPost {
+    id: number;
+  }
 
-    interface PostGetPost {
-        id: number
-    }
+  interface PostStickPost {
+    id: number;
+  }
 
-    interface PostGetPosts {
-        query: string | null,
-        type: string,
-        page: number,
-        page_size: number
-    }
+  interface PostVisibilityPost {
+    id: number;
+    /** 可见性：0为公开，1为私密，2为好友可见 */
+    visibility: import("@/utils/IEnum").VisibilityEnum;
+  }
 
-    interface PostLockPost {
-        id: number
-    }
+  interface PostGetPostStar {
+    id: number;
+  }
 
-    interface PostStickPost {
-        id: number
-    }
+  interface PostPostStar {
+    id: number;
+  }
 
-    interface PostVisibilityPost {
-        id: number,
-        /** 可见性：0为公开，1为私密，2为好友可见 */
-        visibility: import('@/utils/IEnum').VisibilityEnum
-    }
+  interface PostGetPostCollection {
+    id: number;
+  }
 
-    interface PostGetPostStar {
-        id: number
-    }
+  interface PostPostCollection {
+    id: number;
+  }
 
-    interface PostPostStar {
-        id: number
-    }
+  interface PostGetTags {
+    type: "hot" | "new";
+    num: number;
+  }
 
-    interface PostGetPostCollection {
-        id: number
-    }
+  interface PostGetPostComments {
+    id: number;
+    sort_strategy: "default" | "newest";
+  }
 
-    interface PostPostCollection {
-        id: number
-    }
+  interface GetContacts {}
 
-    interface PostGetTags {
-        type: 'hot' | 'new',
-        num: number
-    }
+  interface PostCreatePost {
+    /** 帖子内容列表 */
+    contents: Partial<Item.PostItemProps>[];
+    /** 标签列表 */
+    tags: string[];
+    /** 艾特用户列表 */
+    users: string[];
+    /** 附件价格 */
+    attachment_price: number;
+    /** 可见性：0为公开，1为私密，2为好友可见 */
+    visibility: import("@/utils/IEnum").VisibilityEnum;
+  }
 
-    interface PostGetPostComments {
-        id: number
-    }
+  interface PostDeletePost {
+    id: number;
+  }
 
-    interface GetContacts {
-    }
+  interface PostCreateComment {
+    /** 内容ID */
+    post_id: number;
+    /** 帖子内容列表 */
+    contents: Partial<Item.CommentItemProps>[];
+    /** 艾特用户列表 */
+    users: string[];
+  }
 
-    interface PostCreatePost {
-        /** 帖子内容列表 */
-        contents: Partial<Item.PostItemProps>[],
-        /** 标签列表 */
-        tags: string[],
-        /** 艾特用户列表 */
-        users: string[],
-        /** 附件价格 */
-        attachment_price: number,
-        /** 可见性：0为公开，1为私密，2为好友可见 */
-        visibility: import('@/utils/IEnum').VisibilityEnum
-    }
+  interface PostDeleteComment {
+    id: number;
+  }
 
-    interface PostDeletePost {
-        id: number
-    }
+  interface PostCreateCommentReply {
+    /** 艾特的用户UID */
+    at_user_id: number;
+    /** 回复的评论ID */
+    comment_id: number;
+    /** 回复内容 */
+    content: string;
+  }
 
-    interface PostCreateComment {
-        /** 内容ID */
-        post_id: number,
-        /** 帖子内容列表 */
-        contents: Partial<Item.CommentItemProps>[],
-        /** 艾特用户列表 */
-        users: string[]
-    }
-
-    interface PostDeleteComment {
-        id: number
-    }
-
-    interface PostCreateCommentReply {
-        /** 艾特的用户UID */
-        at_user_id: number,
-        /** 回复的评论ID */
-        comment_id: number,
-        /** 回复内容 */
-        content: string
-    }
-
-    interface PostDeleteCommentReply {
-        id: number
-    }
-
+  interface PostDeleteCommentReply {
+    id: number;
+  }
 }
