@@ -60,8 +60,8 @@ func (s *messageSrv) GetMessageCount(conditions *core.ConditionsT) (int64, error
 func newMessageService(db *sqlx.DB) core.MessageService {
 	return &messageSrv{
 		sqlxSrv:     newSqlxSrv(db),
-		stmtAddMsg:  c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtGetMsg:  c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtReadMsg: c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtAddMsg:  c(`SELECT * FROM @user WHERE username=?`),
+		stmtGetMsg:  c(`SELECT * FROM @user WHERE username=?`),
+		stmtReadMsg: c(`SELECT * FROM @user WHERE username=?`),
 	}
 }

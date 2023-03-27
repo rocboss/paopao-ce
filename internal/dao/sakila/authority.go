@@ -53,7 +53,7 @@ func (s *authorizationManageSrv) isFriend(userId int64, friendId int64) bool {
 func newAuthorizationManageService(db *sqlx.DB) core.AuthorizationManageService {
 	return &authorizationManageSrv{
 		sqlxSrv:          newSqlxSrv(db),
-		stmtIdx:          c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtUpdateFriend: c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtIdx:          c(`SELECT * FROM @user WHERE username=?`),
+		stmtUpdateFriend: c(`SELECT * FROM @user WHERE username=?`),
 	}
 }

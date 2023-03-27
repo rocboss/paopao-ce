@@ -8,9 +8,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimy/yesql"
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -19,16 +21,17 @@ var (
 
 type topicSrv struct {
 	*sqlxSrv
-	stmtNewestTags     *sqlx.Stmt
-	stmtHotTags        *sqlx.Stmt
-	stmtTagsByKeywordA *sqlx.Stmt
-	stmtTagsByKeywordB *sqlx.Stmt
-	stmtInsertTag      *sqlx.Stmt
-	sqlTagsByIdA       string
-	sqlTagsByIdB       string
-	sqlDecrTagsById    string
-	sqlTagsForIncr     string
-	sqlIncrTagsById    string
+	Scope              yesql.Scope `yesql:"topic"`
+	StmtNewestTags     *sqlx.Stmt  `yesql:"newest_tags"`
+	StmtHotTags        *sqlx.Stmt  `yesql:"hot_tags"`
+	StmtTagsByKeywordA *sqlx.Stmt  `yesql:"tags_by_keyword_a"`
+	StmtTagsByKeywordB *sqlx.Stmt  `yesql:"tags_by_keyword_b"`
+	StmtInsertTag      *sqlx.Stmt  `yesql:"insert_tag"`
+	SqlTagsByIdA       string      `yesql:"tags_by_id_a"`
+	SqlTagsByIdB       string      `yesql:"tags_by_id_b"`
+	SqlDecrTagsById    string      `yesql:"decr_tags_by_id"`
+	SqlTagsForIncr     string      `yesql:"tags_for_incr"`
+	SqlIncrTagsById    string      `yesql:"incr_tags_by_id"`
 }
 
 func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, xerr error) {
@@ -37,7 +40,7 @@ func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, 
 	}
 	xerr = s.with(func(tx *sqlx.Tx) error {
 		var upTags cs.TagInfoList
-		if err := s.inSelect(tx, &upTags, s.sqlTagsForIncr, tags); err != nil {
+		if err := s.inSelect(tx, &upTags, s.SqlTagsForIncr, tags); err != nil {
 			return err
 		}
 		now := time.Now().Unix()
@@ -57,7 +60,7 @@ func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, 
 					}
 				}
 			}
-			if _, err := s.inExec(tx, s.sqlIncrTagsById, now, ids); err != nil {
+			if _, err := s.inExec(tx, s.SqlIncrTagsById, now, ids); err != nil {
 				return err
 			}
 			res = append(res, upTags...)
@@ -68,7 +71,7 @@ func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, 
 		}
 		var ids []int64
 		for _, tag := range tags {
-			res, err := s.stmtInsertTag.Exec(userId, tag, now, now)
+			res, err := s.StmtInsertTag.Exec(userId, tag, now, now)
 			if err != nil {
 				return err
 			}
@@ -79,7 +82,7 @@ func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, 
 			ids = append(ids, id)
 		}
 		var newTags cs.TagInfoList
-		if err := s.inSelect(tx, &newTags, s.sqlTagsByIdB, ids); err != nil {
+		if err := s.inSelect(tx, &newTags, s.SqlTagsByIdB, ids); err != nil {
 			return err
 		}
 		res = append(res, newTags...)
@@ -91,11 +94,11 @@ func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, 
 func (s *topicSrv) DecrTagsById(ids []int64) error {
 	return s.with(func(tx *sqlx.Tx) error {
 		var ids []int64
-		err := s.inSelect(tx, &ids, s.sqlTagsByIdA, ids)
+		err := s.inSelect(tx, &ids, s.SqlTagsByIdA, ids)
 		if err != nil {
 			return err
 		}
-		_, err = s.inExec(tx, s.sqlDecrTagsById, time.Now().Unix(), ids)
+		_, err = s.inExec(tx, s.SqlDecrTagsById, time.Now().Unix(), ids)
 		return err
 	})
 }
@@ -103,9 +106,9 @@ func (s *topicSrv) DecrTagsById(ids []int64) error {
 func (s *topicSrv) ListTags(typ cs.TagType, limit int, offset int) (res cs.TagList, err error) {
 	switch typ {
 	case cs.TagTypeHot:
-		err = s.stmtHotTags.Select(&res, limit, offset)
+		err = s.StmtHotTags.Select(&res, limit, offset)
 	case cs.TagTypeNew:
-		err = s.stmtNewestTags.Select(&res, limit, offset)
+		err = s.StmtNewestTags.Select(&res, limit, offset)
 	}
 	return
 }
@@ -113,25 +116,19 @@ func (s *topicSrv) ListTags(typ cs.TagType, limit int, offset int) (res cs.TagLi
 func (s *topicSrv) TagsByKeyword(keyword string) (res cs.TagInfoList, err error) {
 	keyword = "%" + strings.Trim(keyword, " ") + "%"
 	if keyword == "%%" {
-		err = s.stmtTagsByKeywordA.Select(&res)
+		err = s.StmtTagsByKeywordA.Select(&res)
 	} else {
-		err = s.stmtTagsByKeywordB.Select(&res)
+		err = s.StmtTagsByKeywordB.Select(&res)
 	}
 	return
 }
 
-func newTopicService(db *sqlx.DB) core.TopicService {
-	return &topicSrv{
-		sqlxSrv:            newSqlxSrv(db),
-		stmtNewestTags:     c(`SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.id DESC LIMIT ? OFFSET ?`),
-		stmtHotTags:        c(`SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.quote_num DESC LIMIT ? OFFSET ?`),
-		stmtTagsByKeywordA: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 ORDER BY quote_num DESC LIMIT 6`),
-		stmtTagsByKeywordB: c(`SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND tag LIKE ? ORDER BY quote_num DESC LIMIT 6`),
-		stmtInsertTag:      c(`INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1)`),
-		sqlTagsByIdA:       t(`SELECT id FROM @tag WHERE id IN (?) AND is_del = 0 AND quote_num > 0`),
-		sqlTagsByIdB:       t(`SELECT id, user_id, tag, quote_num FROM @tag WHERE id IN (?)`),
-		sqlDecrTagsById:    t(`UPDATE @tag SET quote_num=quote_num-1, modified_on=? WHERE id IN (?)`),
-		sqlTagsForIncr:     t(`SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?)`),
-		sqlIncrTagsById:    t(`UPDATE @tag SET quote_num=quote_num+1, is_del=0, modified_on=? WHERE id IN (?)`),
+func newTopicService(db *sqlx.DB, query yesql.SQLQuery) core.TopicService {
+	obj := &topicSrv{
+		sqlxSrv: newSqlxSrv(db),
 	}
+	if err := yesql.Scan(obj, query); err != nil {
+		logrus.Fatal(err)
+	}
+	return obj
 }

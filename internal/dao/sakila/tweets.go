@@ -326,9 +326,9 @@ func (s *tweetSrv) AttachmentByTweetId(userId int64, tweetId int64) (*cs.Attachm
 func newTweetService(db *sqlx.DB) core.TweetService {
 	return &tweetSrv{
 		sqlxSrv:       newSqlxSrv(db),
-		stmtGetTweet:  c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtListTweet: c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtListStar:  c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtGetTweet:  c(`SELECT * FROM @user WHERE username=?`),
+		stmtListTweet: c(`SELECT * FROM @user WHERE username=?`),
+		stmtListStar:  c(`SELECT * FROM @user WHERE username=?`),
 	}
 }
 
@@ -336,17 +336,17 @@ func newTweetManageService(db *sqlx.DB, cacheIndex core.CacheIndexService) core.
 	return &tweetManageSrv{
 		sqlxSrv:        newSqlxSrv(db),
 		cacheIndex:     cacheIndex,
-		stmtAddTweet:   c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtDelTweet:   c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtStickTweet: c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtAddTweet:   c(`SELECT * FROM @user WHERE username=?`),
+		stmtDelTweet:   c(`SELECT * FROM @user WHERE username=?`),
+		stmtStickTweet: c(`SELECT * FROM @user WHERE username=?`),
 	}
 }
 
 func newTweetHelpService(db *sqlx.DB) core.TweetHelpService {
 	return &tweetHelpSrv{
 		sqlxSrv:     newSqlxSrv(db),
-		stmtAddTag:  c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtDelTag:  c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtListTag: c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtAddTag:  c(`SELECT * FROM @user WHERE username=?`),
+		stmtDelTag:  c(`SELECT * FROM @user WHERE username=?`),
+		stmtListTag: c(`SELECT * FROM @user WHERE username=?`),
 	}
 }

@@ -66,8 +66,8 @@ func (s *userManageSrv) UpdateUser(user *core.User) error {
 func newUserManageService(db *sqlx.DB) core.UserManageService {
 	return &userManageSrv{
 		sqlxSrv:        newSqlxSrv(db),
-		stmtAddUser:    c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtUpdateUser: c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtGetUser:    c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtAddUser:    c(`SELECT * FROM @user WHERE username=?`),
+		stmtUpdateUser: c(`SELECT * FROM @user WHERE username=?`),
+		stmtGetUser:    c(`SELECT * FROM @user WHERE username=?`),
 	}
 }

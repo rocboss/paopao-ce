@@ -9,6 +9,7 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/alimy/cfg"
+	"github.com/alimy/yesql"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/dao/security"
@@ -18,6 +19,9 @@ import (
 var (
 	_ core.DataService = (*dataSrv)(nil)
 	_ core.VersionInfo = (*dataSrv)(nil)
+
+	_ core.WebDataServantA = (*webDataSrvA)(nil)
+	_ core.VersionInfo     = (*webDataSrvA)(nil)
 
 	_onceInitial sync.Once
 )
@@ -36,6 +40,13 @@ type dataSrv struct {
 	core.ContactManageService
 	core.SecurityService
 	core.AttachmentCheckService
+}
+
+type webDataSrvA struct {
+	core.TopicServantA
+	core.TweetServantA
+	core.TweetManageServantA
+	core.TweetHelpServantA
 }
 
 func NewDataService() (core.DataService, core.VersionInfo) {
@@ -75,11 +86,12 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	}
 	logrus.Infof("use %s as cache index service by version: %s", v.Name(), v.Version())
 
+	query := yesql.MustParseBytes(yesqlBytes)
 	ds := &dataSrv{
 		IndexPostsService:      cis,
 		WalletService:          newWalletService(_db),
 		MessageService:         newMessageService(_db),
-		TopicService:           newTopicService(_db),
+		TopicService:           newTopicService(_db, query),
 		TweetService:           newTweetService(_db),
 		TweetManageService:     newTweetManageService(_db, cis),
 		TweetHelpService:       newTweetHelpService(_db),
@@ -94,8 +106,10 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 }
 
 func NewWebDataServantA() (core.WebDataServantA, core.VersionInfo) {
-	logrus.Fatal("not support now")
-	return nil, nil
+	lazyInitial()
+	// db := conf.MustSqlxDB()
+	ds := &webDataSrvA{}
+	return ds, ds
 }
 
 func NewAuthorizationManageService() core.AuthorizationManageService {
@@ -109,6 +123,14 @@ func (s *dataSrv) Name() string {
 
 func (s *dataSrv) Version() *semver.Version {
 	return semver.MustParse("v0.1.0")
+}
+
+func (s *webDataSrvA) Name() string {
+	return "Sqlx"
+}
+
+func (s *webDataSrvA) Version() *semver.Version {
+	return semver.MustParse("v0.0.0")
 }
 
 // lazyInitial do some package lazy initialize for performance

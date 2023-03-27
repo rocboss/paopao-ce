@@ -96,15 +96,15 @@ func (s *commentManageSrv) CreateCommentContent(content *core.CommentContent) (*
 func newCommentService(db *sqlx.DB) core.CommentService {
 	return &commentSrv{
 		sqlxSrv:         newSqlxSrv(db),
-		stmtGetComments: c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtGetReply:    c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtGetComments: c(`SELECT * FROM @user WHERE username=?`),
+		stmtGetReply:    c(`SELECT * FROM @user WHERE username=?`),
 	}
 }
 
 func newCommentManageService(db *sqlx.DB) core.CommentManageService {
 	return &commentManageSrv{
 		sqlxSrv:         newSqlxSrv(db),
-		stmtAddComents:  c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtDelComments: c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtAddComents:  c(`SELECT * FROM @user WHERE username=?`),
+		stmtDelComments: c(`SELECT * FROM @user WHERE username=?`),
 	}
 }

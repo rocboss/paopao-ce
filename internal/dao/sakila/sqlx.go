@@ -7,12 +7,17 @@ package sakila
 import (
 	"context"
 	"database/sql"
+	_ "embed"
 	"strings"
 
+	"github.com/alimy/yesql"
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/sirupsen/logrus"
 )
+
+//go:embed yesql.sql
+var yesqlBytes []byte
 
 var (
 	_db *sqlx.DB
@@ -89,7 +94,8 @@ func r(query string) string {
 }
 
 func c(query string) *sqlx.Stmt {
-	stmt, err := _db.Preparex(_db.Rebind(t(query)))
+	query = _db.Rebind(t(query))
+	stmt, err := _db.Preparex(query)
 	if err != nil {
 		logrus.Fatalf("prepare query(%s) error: %s", query, err)
 	}
@@ -97,7 +103,8 @@ func c(query string) *sqlx.Stmt {
 }
 
 func n(query string) *sqlx.NamedStmt {
-	stmt, err := _db.PrepareNamed(t(query))
+	query = t(query)
+	stmt, err := _db.PrepareNamed(query)
 	if err != nil {
 		logrus.Fatalf("prepare named query(%s) error: %s", query, err)
 	}
@@ -111,4 +118,16 @@ func t(query string) string {
 
 func initSqlxDB() {
 	_db = conf.MustSqlxDB()
+	yesql.UseSqlx(_db)
+	yesql.SetDefaultQueryHooks(func(query *yesql.Query) (*yesql.Query, error) {
+		qstr := strings.TrimRight(query.Query, ";")
+		// table name fixed
+		qstr = strings.Replace(qstr, "@", conf.DatabaseSetting.TablePrefix, -1)
+		// rebind query
+		if clause, exist := query.Tags["clause"]; !exist || clause != "in" {
+			qstr = _db.Rebind(qstr)
+		}
+		query.Query = qstr
+		return query, nil
+	})
 }

@@ -59,8 +59,8 @@ func (s *walletSrv) HandlePostAttachmentBought(post *core.Post, user *core.User)
 func newWalletService(db *sqlx.DB) core.WalletService {
 	return &walletSrv{
 		sqlxSrv:         newSqlxSrv(db),
-		stmtAddRecharge: c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtGetRecharge: c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtGetBills:    c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtAddRecharge: c(`SELECT * FROM @user WHERE username=?`),
+		stmtGetRecharge: c(`SELECT * FROM @user WHERE username=?`),
+		stmtGetBills:    c(`SELECT * FROM @user WHERE username=?`),
 	}
 }

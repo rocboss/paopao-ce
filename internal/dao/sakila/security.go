@@ -46,7 +46,7 @@ func newSecurityService(db *sqlx.DB, phoneVerify core.PhoneVerifyService) core.S
 	return &securitySrv{
 		sqlxSrv:        newSqlxSrv(db),
 		phoneVerify:    phoneVerify,
-		stmtAddCaptcha: c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtGetCaptcha: c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtAddCaptcha: c(`SELECT * FROM @user WHERE username=?`),
+		stmtGetCaptcha: c(`SELECT * FROM @user WHERE username=?`),
 	}
 }

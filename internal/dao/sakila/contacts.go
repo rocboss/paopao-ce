@@ -59,7 +59,7 @@ func (s *contactManageSrv) IsFriend(userId int64, friendId int64) bool {
 func newContactManageService(db *sqlx.DB) core.ContactManageService {
 	return &contactManageSrv{
 		sqlxSrv:       newSqlxSrv(db),
-		stmtAddFriend: c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtDelFriend: c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtAddFriend: c(`SELECT * FROM @user WHERE username=?`),
+		stmtDelFriend: c(`SELECT * FROM @user WHERE username=?`),
 	}
 }

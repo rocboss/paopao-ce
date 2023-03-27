@@ -91,7 +91,7 @@ func newFriendIndexService(db *sqlx.DB, ams core.AuthorizationManageService, ths
 	return &friendIndexSrv{
 		ams:       ams,
 		sqlxSrv:   newSqlxSrv(db),
-		stmtIndex: c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtIndex: c(`SELECT * FROM @user WHERE username=?`),
 	}
 }
 
@@ -99,7 +99,7 @@ func newFollowIndexService(db *sqlx.DB, ths core.TweetHelpService) core.IndexPos
 	return &followIndexSrv{
 		ths:       ths,
 		sqlxSrv:   newSqlxSrv(db),
-		stmtIndex: c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtIndex: c(`SELECT * FROM @user WHERE username=?`),
 	}
 }
 
@@ -107,7 +107,7 @@ func newLightIndexService(db *sqlx.DB, ths core.TweetHelpService) core.IndexPost
 	return &lightIndexSrv{
 		ths:       ths,
 		sqlxSrv:   newSqlxSrv(db),
-		stmtIndex: c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtIndex: c(`SELECT * FROM @user WHERE username=?`),
 	}
 }
 
@@ -115,6 +115,6 @@ func newSimpleIndexPostsService(db *sqlx.DB, ths core.TweetHelpService) core.Ind
 	return &simpleIndexPostsSrv{
 		ths:       ths,
 		sqlxSrv:   newSqlxSrv(db),
-		stmtIndex: c(`SELECT * FROM @person WHERE first_name=?`),
+		stmtIndex: c(`SELECT * FROM @user WHERE username=?`),
 	}
 }
