@@ -12,8 +12,8 @@ func init() {
 
 // Core 核心服务，需要授权访问
 type Core struct {
-	Chain Chain `mir:"-"`
-	Group Group `mir:"v1"`
+	Chain `mir:"-"`
+	Group `mir:"v1"`
 
 	// SyncSearchIndex 同步索引
 	SyncSearchIndex func(Get, web.SyncSearchIndexReq) `mir:"/sync/index"`

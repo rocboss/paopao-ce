@@ -35,7 +35,7 @@ type LoginResp struct {
 }
 
 type User struct {
-	Group  Group                          `mir:"s/v1"`
+	Group  `mir:"s/v1"`
 	Index  func(Get)                      `mir:"/index/"`
 	Login  func(Post, LoginReq) LoginResp `mir:"/user/login/"`
 	Logout func(Post)                     `mir:"/user/logout/"`

@@ -12,8 +12,8 @@ func init() {
 
 // Friendship 好友模式 服务
 type Friendship struct {
-	Chain Chain `mir:"-"`
-	Group Group `mir:"v1"`
+	Chain `mir:"-"`
+	Group `mir:"v1"`
 
 	// 	RequestingFriend 请求添加朋友
 	RequestingFriend func(Post, web.RequestingFriendReq) `mir:"/friend/requesting"`
