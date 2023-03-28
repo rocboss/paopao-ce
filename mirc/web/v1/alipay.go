@@ -12,7 +12,7 @@ func init() {
 
 // AlipayPub 支付宝相关不用授权的服务
 type AlipayPub struct {
-	Group Group `mir:"v1"`
+	Group `mir:"v1"`
 
 	// AlipayNotify 支付宝回调
 	AlipayNotify func(Post, web.AlipayNotifyReq) `mir:"/alipay/notify"`

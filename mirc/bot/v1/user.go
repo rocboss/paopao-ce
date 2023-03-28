@@ -35,8 +35,8 @@ type LoginResp struct {
 }
 
 type User struct {
-	Chain  Chain                          `mir:"-"`
-	Group  Group                          `mir:"r/v1"`
+	Chain  `mir:"-"`
+	Group  `mir:"r/v1"`
 	Login  func(Post, LoginReq) LoginResp `mir:"/user/login/"`
 	Logout func(Post)                     `mir:"/user/logout/"`
 }
