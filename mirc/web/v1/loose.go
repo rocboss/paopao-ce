@@ -12,8 +12,8 @@ func init() {
 
 // Loose 宽松授权的服务
 type Loose struct {
-	Chain Chain `mir:"-"`
-	Group Group `mir:"v1"`
+	Chain `mir:"-"`
+	Group `mir:"v1"`
 
 	// Timeline 获取广场流
 	Timeline func(Get, web.TimelineReq) web.TimelineResp `mir:"/posts"`

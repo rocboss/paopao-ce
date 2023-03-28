@@ -12,7 +12,7 @@ func init() {
 
 // Pub 不用授权的公开服务
 type Pub struct {
-	Group Group `mir:"v1"`
+	Group `mir:"v1"`
 
 	// Version 获取后台版本信息
 	Version func(Get) web.VersionResp `mir:"/"`
