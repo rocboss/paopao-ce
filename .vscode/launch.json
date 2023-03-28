@@ -6,7 +6,7 @@
             "type": "go",
             "request": "launch",
             "mode": "exec",
-            "program": "${fileDirname}/__debug_bin",
+            "program": "${workspaceFolder}/.vscode/__debug_bin",
             "preLaunchTask": "go: build (debug)",
             "cwd": "${workspaceFolder}"
         }
