@@ -12,8 +12,8 @@ func init() {
 
 // Priv 私有授权的服务
 type Priv struct {
-	Chain Chain `mir:"-"`
-	Group Group `mir:"v1"`
+	Chain `mir:"-"`
+	Group `mir:"v1"`
 
 	// UploadAttachment 上传资源
 	UploadAttachment func(Post, web.UploadAttachmentReq) web.UploadAttachmentResp `mir:"/attachment"`

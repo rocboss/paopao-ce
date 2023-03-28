@@ -7,7 +7,7 @@ require (
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/cfg v0.3.0
 	github.com/alimy/mir/v3 v3.1.1
-	github.com/aliyun/aliyun-oss-go-sdk v2.2.6+incompatible
+	github.com/aliyun/aliyun-oss-go-sdk v2.2.7+incompatible
 	github.com/allegro/bigcache/v3 v3.0.2
 	github.com/bytedance/sonic v1.8.5
 	github.com/disintegration/imaging v1.6.2
@@ -23,25 +23,25 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/meilisearch/meilisearch-go v0.21.0
 	github.com/minio/minio-go/v7 v7.0.49
-	github.com/onsi/ginkgo/v2 v2.9.1
+	github.com/onsi/ginkgo/v2 v2.9.2
 	github.com/onsi/gomega v1.27.4
 	github.com/pyroscope-io/client v0.6.0
 	github.com/redis/go-redis/v9 v9.0.2
 	github.com/sirupsen/logrus v1.9.0
 	github.com/smartwalle/alipay/v3 v3.2.0
-	github.com/sourcegraph/conc v0.2.0
+	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.15.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.41
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
 	go.uber.org/automaxprocs v1.5.2
 	google.golang.org/grpc v1.53.0
-	google.golang.org/protobuf v1.28.1
+	google.golang.org/protobuf v1.30.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/resty.v1 v1.12.0
 	gorm.io/driver/mysql v1.4.7
-	gorm.io/driver/postgres v1.4.8
+	gorm.io/driver/postgres v1.5.0
 	gorm.io/driver/sqlite v1.4.4
-	gorm.io/gorm v1.24.6
+	gorm.io/gorm v1.24.7-0.20230306060331-85eaf9eeda11
 	gorm.io/plugin/dbresolver v1.4.1
 	gorm.io/plugin/soft_delete v1.2.0
 	modernc.org/sqlite v1.21.0
@@ -61,7 +61,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.11.2 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
-	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
+	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
