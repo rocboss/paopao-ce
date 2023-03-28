@@ -116,6 +116,14 @@ func t(query string) string {
 	return strings.Replace(query, "@", conf.DatabaseSetting.TablePrefix, -1)
 }
 
+// yesqlScan yesql.Scan help function
+func yesqlScan[T any](query yesql.SQLQuery, obj T) T {
+	if err := yesql.Scan(obj, query); err != nil {
+		logrus.Fatal(err)
+	}
+	return obj
+}
+
 func initSqlxDB() {
 	_db = conf.MustSqlxDB()
 	yesql.UseSqlx(_db)

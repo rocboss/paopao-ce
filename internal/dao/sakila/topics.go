@@ -12,7 +12,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -21,17 +20,17 @@ var (
 
 type topicSrv struct {
 	*sqlxSrv
-	Scope              yesql.Scope `yesql:"topic"`
-	StmtNewestTags     *sqlx.Stmt  `yesql:"newest_tags"`
-	StmtHotTags        *sqlx.Stmt  `yesql:"hot_tags"`
-	StmtTagsByKeywordA *sqlx.Stmt  `yesql:"tags_by_keyword_a"`
-	StmtTagsByKeywordB *sqlx.Stmt  `yesql:"tags_by_keyword_b"`
-	StmtInsertTag      *sqlx.Stmt  `yesql:"insert_tag"`
-	SqlTagsByIdA       string      `yesql:"tags_by_id_a"`
-	SqlTagsByIdB       string      `yesql:"tags_by_id_b"`
-	SqlDecrTagsById    string      `yesql:"decr_tags_by_id"`
-	SqlTagsForIncr     string      `yesql:"tags_for_incr"`
-	SqlIncrTagsById    string      `yesql:"incr_tags_by_id"`
+	yesql.Namespace    `yesql:"topic"`
+	StmtNewestTags     *sqlx.Stmt `yesql:"newest_tags"`
+	StmtHotTags        *sqlx.Stmt `yesql:"hot_tags"`
+	StmtTagsByKeywordA *sqlx.Stmt `yesql:"tags_by_keyword_a"`
+	StmtTagsByKeywordB *sqlx.Stmt `yesql:"tags_by_keyword_b"`
+	StmtInsertTag      *sqlx.Stmt `yesql:"insert_tag"`
+	SqlTagsByIdA       string     `yesql:"tags_by_id_a"`
+	SqlTagsByIdB       string     `yesql:"tags_by_id_b"`
+	SqlDecrTagsById    string     `yesql:"decr_tags_by_id"`
+	SqlTagsForIncr     string     `yesql:"tags_for_incr"`
+	SqlIncrTagsById    string     `yesql:"incr_tags_by_id"`
 }
 
 func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, xerr error) {
@@ -124,11 +123,7 @@ func (s *topicSrv) TagsByKeyword(keyword string) (res cs.TagInfoList, err error)
 }
 
 func newTopicService(db *sqlx.DB, query yesql.SQLQuery) core.TopicService {
-	obj := &topicSrv{
+	return yesqlScan(query, &topicSrv{
 		sqlxSrv: newSqlxSrv(db),
-	}
-	if err := yesql.Scan(obj, query); err != nil {
-		logrus.Fatal(err)
-	}
-	return obj
+	})
 }
