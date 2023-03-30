@@ -30,21 +30,26 @@ SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND tag LIKE ? ORD
 INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1);
 
 -- name: tags_by_id_a@topic
+-- prepare: raw
 -- clause: in
 SELECT id FROM @tag WHERE id IN (?) AND is_del = 0 AND quote_num > 0;
 
 -- name: tags_by_id_b@topic
+-- prepare: raw
 -- clause: in
 SELECT id, user_id, tag, quote_num FROM @tag WHERE id IN (?);
 
 -- name: decr_tags_by_id@topic
+-- prepare: raw
 -- clause: in
 UPDATE @tag SET quote_num=quote_num-1, modified_on=? WHERE id IN (?);
 
 -- name: tags_for_incr@topic
+-- prepare: raw
 -- clause: in
 SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?);
 
 -- name: incr_tags_by_id@topic
+-- prepare: raw
 -- clause: in
 UPDATE @tag SET quote_num=quote_num+1, is_del=0, modified_on=? WHERE id IN (?);

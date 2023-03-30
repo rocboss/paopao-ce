@@ -69,12 +69,17 @@ windows-x64:
 	@CGO_ENABLED=$(CGO_ENABLED) GOOS=windows GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_WINDOWS_AMD64)/$(basename $(TARGET)).exe
 
 .PHONY: generate
-generate: gen-mir gen-grpc
+generate: gen-mir gen-grpc gen-yesql
 
 .PHONY: gen-mir
 gen-mir:
 	@go generate mirc/gen.go
 	@go fmt ./auto/api/...
+
+.PHONY: gen-yesql
+gen-yesql:
+	@go generate internal/dao/sakila/yesql/gen.go
+	@go fmt ./internal/dao/sakila/yesql/...
 
 .PHONY: gen-grpc
 gen-grpc:

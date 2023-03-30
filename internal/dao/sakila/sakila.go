@@ -9,7 +9,6 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/alimy/cfg"
-	"github.com/alimy/yesql"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/dao/security"
@@ -86,12 +85,11 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	}
 	logrus.Infof("use %s as cache index service by version: %s", v.Name(), v.Version())
 
-	query := yesql.MustParseBytes(yesqlBytes)
 	ds := &dataSrv{
 		IndexPostsService:      cis,
 		WalletService:          newWalletService(_db),
 		MessageService:         newMessageService(_db),
-		TopicService:           newTopicService(_db, query),
+		TopicService:           newTopicService(_db),
 		TweetService:           newTweetService(_db),
 		TweetManageService:     newTweetManageService(_db, cis),
 		TweetHelpService:       newTweetHelpService(_db),

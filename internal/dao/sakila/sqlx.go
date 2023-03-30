@@ -16,15 +16,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//go:embed yesql.sql
-var yesqlBytes []byte
-
 var (
 	_db *sqlx.DB
 )
 
+type sqlxDB struct {
+	*sqlx.DB
+}
+
 type sqlxSrv struct {
 	db *sqlx.DB
+}
+
+// Rebind fixed table name in query and rebind the fixed query
+func (s *sqlxDB) Rebind(query string) string {
+	return s.DB.Rebind(query)
 }
 
 func (s *sqlxSrv) with(handle func(tx *sqlx.Tx) error) error {
@@ -124,18 +130,23 @@ func yesqlScan[T any](query yesql.SQLQuery, obj T) T {
 	return obj
 }
 
+func newSqlxDB(db *sqlx.DB) *sqlxDB {
+	return &sqlxDB{
+		DB: db,
+	}
+}
+
+func mustBuild[T any](db *sqlx.DB, fn func(yesql.PreparexBuilder, ...context.Context) (T, error)) T {
+	p := yesql.NewPreparexBuilder(db, func(query string) string {
+		return strings.Replace(query, "@", conf.DatabaseSetting.TablePrefix, -1)
+	})
+	obj, err := fn(p)
+	if err != nil {
+		logrus.Fatalf("build object failure: %s", err)
+	}
+	return obj
+}
+
 func initSqlxDB() {
 	_db = conf.MustSqlxDB()
-	yesql.UseSqlx(_db)
-	yesql.SetDefaultQueryHook(func(query *yesql.Query) (*yesql.Query, error) {
-		qstr := strings.TrimRight(query.Query, ";")
-		// table name fixed
-		qstr = strings.Replace(qstr, "@", conf.DatabaseSetting.TablePrefix, -1)
-		// rebind query
-		if clause, exist := query.Tags["clause"]; !exist || clause != "in" {
-			qstr = _db.Rebind(qstr)
-		}
-		query.Query = qstr
-		return query, nil
-	})
 }

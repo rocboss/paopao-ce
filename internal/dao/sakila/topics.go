@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimy/yesql"
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 )
 
 var (
@@ -20,17 +20,7 @@ var (
 
 type topicSrv struct {
 	*sqlxSrv
-	yesql.Namespace    `yesql:"topic"`
-	StmtNewestTags     *sqlx.Stmt `yesql:"newest_tags"`
-	StmtHotTags        *sqlx.Stmt `yesql:"hot_tags"`
-	StmtTagsByKeywordA *sqlx.Stmt `yesql:"tags_by_keyword_a"`
-	StmtTagsByKeywordB *sqlx.Stmt `yesql:"tags_by_keyword_b"`
-	StmtInsertTag      *sqlx.Stmt `yesql:"insert_tag"`
-	SqlTagsByIdA       string     `yesql:"tags_by_id_a"`
-	SqlTagsByIdB       string     `yesql:"tags_by_id_b"`
-	SqlDecrTagsById    string     `yesql:"decr_tags_by_id"`
-	SqlTagsForIncr     string     `yesql:"tags_for_incr"`
-	SqlIncrTagsById    string     `yesql:"incr_tags_by_id"`
+	q *cc.Topic
 }
 
 func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, xerr error) {
@@ -39,7 +29,7 @@ func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, 
 	}
 	xerr = s.with(func(tx *sqlx.Tx) error {
 		var upTags cs.TagInfoList
-		if err := s.inSelect(tx, &upTags, s.SqlTagsForIncr, tags); err != nil {
+		if err := s.inSelect(tx, &upTags, s.q.TagsForIncr, tags); err != nil {
 			return err
 		}
 		now := time.Now().Unix()
@@ -59,7 +49,7 @@ func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, 
 					}
 				}
 			}
-			if _, err := s.inExec(tx, s.SqlIncrTagsById, now, ids); err != nil {
+			if _, err := s.inExec(tx, s.q.IncrTagsById, now, ids); err != nil {
 				return err
 			}
 			res = append(res, upTags...)
@@ -70,7 +60,7 @@ func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, 
 		}
 		var ids []int64
 		for _, tag := range tags {
-			res, err := s.StmtInsertTag.Exec(userId, tag, now, now)
+			res, err := s.q.InsertTag.Exec(userId, tag, now, now)
 			if err != nil {
 				return err
 			}
@@ -81,7 +71,7 @@ func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, 
 			ids = append(ids, id)
 		}
 		var newTags cs.TagInfoList
-		if err := s.inSelect(tx, &newTags, s.SqlTagsByIdB, ids); err != nil {
+		if err := s.inSelect(tx, &newTags, s.q.TagsByIdB, ids); err != nil {
 			return err
 		}
 		res = append(res, newTags...)
@@ -93,11 +83,11 @@ func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, 
 func (s *topicSrv) DecrTagsById(ids []int64) error {
 	return s.with(func(tx *sqlx.Tx) error {
 		var ids []int64
-		err := s.inSelect(tx, &ids, s.SqlTagsByIdA, ids)
+		err := s.inSelect(tx, &ids, s.q.TagsByIdA, ids)
 		if err != nil {
 			return err
 		}
-		_, err = s.inExec(tx, s.SqlDecrTagsById, time.Now().Unix(), ids)
+		_, err = s.inExec(tx, s.q.DecrTagsById, time.Now().Unix(), ids)
 		return err
 	})
 }
@@ -105,9 +95,9 @@ func (s *topicSrv) DecrTagsById(ids []int64) error {
 func (s *topicSrv) ListTags(typ cs.TagType, limit int, offset int) (res cs.TagList, err error) {
 	switch typ {
 	case cs.TagTypeHot:
-		err = s.StmtHotTags.Select(&res, limit, offset)
+		err = s.q.HotTags.Select(&res, limit, offset)
 	case cs.TagTypeNew:
-		err = s.StmtNewestTags.Select(&res, limit, offset)
+		err = s.q.NewestTags.Select(&res, limit, offset)
 	}
 	return
 }
@@ -115,15 +105,16 @@ func (s *topicSrv) ListTags(typ cs.TagType, limit int, offset int) (res cs.TagLi
 func (s *topicSrv) TagsByKeyword(keyword string) (res cs.TagInfoList, err error) {
 	keyword = "%" + strings.Trim(keyword, " ") + "%"
 	if keyword == "%%" {
-		err = s.StmtTagsByKeywordA.Select(&res)
+		err = s.q.TagsByKeywordA.Select(&res)
 	} else {
-		err = s.StmtTagsByKeywordB.Select(&res)
+		err = s.q.TagsByKeywordB.Select(&res)
 	}
 	return
 }
 
-func newTopicService(db *sqlx.DB, query yesql.SQLQuery) core.TopicService {
-	return yesqlScan(query, &topicSrv{
+func newTopicService(db *sqlx.DB) core.TopicService {
+	return &topicSrv{
 		sqlxSrv: newSqlxSrv(db),
-	})
+		q:       mustBuild(db, cc.BuildTopic),
+	}
 }
