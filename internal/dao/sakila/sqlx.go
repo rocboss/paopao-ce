@@ -127,7 +127,7 @@ func yesqlScan[T any](query yesql.SQLQuery, obj T) T {
 func initSqlxDB() {
 	_db = conf.MustSqlxDB()
 	yesql.UseSqlx(_db)
-	yesql.SetDefaultQueryHooks(func(query *yesql.Query) (*yesql.Query, error) {
+	yesql.SetDefaultQueryHook(func(query *yesql.Query) (*yesql.Query, error) {
 		qstr := strings.TrimRight(query.Query, ";")
 		// table name fixed
 		qstr = strings.Replace(qstr, "@", conf.DatabaseSetting.TablePrefix, -1)
