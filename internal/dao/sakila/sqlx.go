@@ -20,17 +20,8 @@ var (
 	_db *sqlx.DB
 )
 
-type sqlxDB struct {
-	*sqlx.DB
-}
-
 type sqlxSrv struct {
 	db *sqlx.DB
-}
-
-// Rebind fixed table name in query and rebind the fixed query
-func (s *sqlxDB) Rebind(query string) string {
-	return s.DB.Rebind(query)
 }
 
 func (s *sqlxSrv) with(handle func(tx *sqlx.Tx) error) error {
@@ -128,12 +119,6 @@ func yesqlScan[T any](query yesql.SQLQuery, obj T) T {
 		logrus.Fatal(err)
 	}
 	return obj
-}
-
-func newSqlxDB(db *sqlx.DB) *sqlxDB {
-	return &sqlxDB{
-		DB: db,
-	}
 }
 
 func mustBuild[T any](db *sqlx.DB, fn func(yesql.PreparexBuilder, ...context.Context) (T, error)) T {

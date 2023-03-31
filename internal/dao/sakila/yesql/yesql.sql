@@ -1,3 +1,110 @@
+--------------------------------------------------------------------------------
+-- authorization_manage sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@authorization_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- comment sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@comment
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- comment_manage sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@comment_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- contact_manager sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@contact_manager
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- message sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@message
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- security sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@security
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- friend_index sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@friend_index
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- follow_index sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@follow_index
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- light_index sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@light_index
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- simple_index sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@simple_index
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- tweet sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@tweet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- tweet_manage sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@tweet_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- tweet_help sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@tweet_help
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- topic sql dml
+--------------------------------------------------------------------------------
 
 -- name: newest_tags@topic
 -- get newest tag information
@@ -53,3 +160,19 @@ SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?);
 -- prepare: raw
 -- clause: in
 UPDATE @tag SET quote_num=quote_num+1, is_del=0, modified_on=? WHERE id IN (?);
+
+--------------------------------------------------------------------------------
+-- user_manage sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@user_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+--------------------------------------------------------------------------------
+-- wallet sql dml
+--------------------------------------------------------------------------------
+
+-- name: user_info@wallet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?

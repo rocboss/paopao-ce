@@ -7,6 +7,7 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -16,9 +17,7 @@ var (
 
 type walletSrv struct {
 	*sqlxSrv
-	stmtAddRecharge *sqlx.Stmt
-	stmtGetRecharge *sqlx.Stmt
-	stmtGetBills    *sqlx.Stmt
+	q *cc.Wallet
 }
 
 func (s *walletSrv) GetRechargeByID(id int64) (*core.WalletRecharge, error) {
@@ -58,9 +57,7 @@ func (s *walletSrv) HandlePostAttachmentBought(post *core.Post, user *core.User)
 
 func newWalletService(db *sqlx.DB) core.WalletService {
 	return &walletSrv{
-		sqlxSrv:         newSqlxSrv(db),
-		stmtAddRecharge: c(`SELECT * FROM @user WHERE username=?`),
-		stmtGetRecharge: c(`SELECT * FROM @user WHERE username=?`),
-		stmtGetBills:    c(`SELECT * FROM @user WHERE username=?`),
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildWallet),
 	}
 }

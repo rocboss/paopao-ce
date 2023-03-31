@@ -9,6 +9,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 	"gorm.io/gorm"
 )
@@ -21,24 +22,18 @@ var (
 
 type tweetSrv struct {
 	*sqlxSrv
-	stmtGetTweet  *sqlx.Stmt
-	stmtListTweet *sqlx.Stmt
-	stmtListStar  *sqlx.Stmt
+	q *cc.Tweet
 }
 
 type tweetManageSrv struct {
 	*sqlxSrv
-	cacheIndex     core.CacheIndexService
-	stmtAddTweet   *sqlx.Stmt
-	stmtDelTweet   *sqlx.Stmt
-	stmtStickTweet *sqlx.Stmt
+	cacheIndex core.CacheIndexService
+	q          *cc.TweetManage
 }
 
 type tweetHelpSrv struct {
 	*sqlxSrv
-	stmtAddTag  *sqlx.Stmt
-	stmtDelTag  *sqlx.Stmt
-	stmtListTag *sqlx.Stmt
+	q *cc.TweetHelp
 }
 
 // MergePosts post数据整合
@@ -325,28 +320,22 @@ func (s *tweetSrv) AttachmentByTweetId(userId int64, tweetId int64) (*cs.Attachm
 
 func newTweetService(db *sqlx.DB) core.TweetService {
 	return &tweetSrv{
-		sqlxSrv:       newSqlxSrv(db),
-		stmtGetTweet:  c(`SELECT * FROM @user WHERE username=?`),
-		stmtListTweet: c(`SELECT * FROM @user WHERE username=?`),
-		stmtListStar:  c(`SELECT * FROM @user WHERE username=?`),
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildTweet),
 	}
 }
 
 func newTweetManageService(db *sqlx.DB, cacheIndex core.CacheIndexService) core.TweetManageService {
 	return &tweetManageSrv{
-		sqlxSrv:        newSqlxSrv(db),
-		cacheIndex:     cacheIndex,
-		stmtAddTweet:   c(`SELECT * FROM @user WHERE username=?`),
-		stmtDelTweet:   c(`SELECT * FROM @user WHERE username=?`),
-		stmtStickTweet: c(`SELECT * FROM @user WHERE username=?`),
+		sqlxSrv:    newSqlxSrv(db),
+		cacheIndex: cacheIndex,
+		q:          mustBuild(db, cc.BuildTweetManage),
 	}
 }
 
 func newTweetHelpService(db *sqlx.DB) core.TweetHelpService {
 	return &tweetHelpSrv{
-		sqlxSrv:     newSqlxSrv(db),
-		stmtAddTag:  c(`SELECT * FROM @user WHERE username=?`),
-		stmtDelTag:  c(`SELECT * FROM @user WHERE username=?`),
-		stmtListTag: c(`SELECT * FROM @user WHERE username=?`),
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildTweetHelp),
 	}
 }

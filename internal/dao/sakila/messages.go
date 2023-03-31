@@ -7,6 +7,7 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -16,9 +17,7 @@ var (
 
 type messageSrv struct {
 	*sqlxSrv
-	stmtAddMsg  *sqlx.Stmt
-	stmtGetMsg  *sqlx.Stmt
-	stmtReadMsg *sqlx.Stmt
+	q *cc.Message
 }
 
 func (s *messageSrv) CreateMessage(msg *core.Message) (*core.Message, error) {
@@ -59,9 +58,7 @@ func (s *messageSrv) GetMessageCount(conditions *core.ConditionsT) (int64, error
 
 func newMessageService(db *sqlx.DB) core.MessageService {
 	return &messageSrv{
-		sqlxSrv:     newSqlxSrv(db),
-		stmtAddMsg:  c(`SELECT * FROM @user WHERE username=?`),
-		stmtGetMsg:  c(`SELECT * FROM @user WHERE username=?`),
-		stmtReadMsg: c(`SELECT * FROM @user WHERE username=?`),
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildMessage),
 	}
 }

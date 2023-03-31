@@ -7,6 +7,7 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -16,9 +17,7 @@ var (
 
 type securitySrv struct {
 	*sqlxSrv
-	phoneVerify    core.PhoneVerifyService
-	stmtAddCaptcha *sqlx.Stmt
-	stmtGetCaptcha *sqlx.Stmt
+	q *cc.Security
 }
 
 // GetLatestPhoneCaptcha 获取最新短信验证码
@@ -44,9 +43,7 @@ func (s *securitySrv) SendPhoneCaptcha(phone string) error {
 
 func newSecurityService(db *sqlx.DB, phoneVerify core.PhoneVerifyService) core.SecurityService {
 	return &securitySrv{
-		sqlxSrv:        newSqlxSrv(db),
-		phoneVerify:    phoneVerify,
-		stmtAddCaptcha: c(`SELECT * FROM @user WHERE username=?`),
-		stmtGetCaptcha: c(`SELECT * FROM @user WHERE username=?`),
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildSecurity),
 	}
 }

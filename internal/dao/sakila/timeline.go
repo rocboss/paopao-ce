@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -20,27 +21,27 @@ var (
 
 type friendIndexSrv struct {
 	*sqlxSrv
-	ams       core.AuthorizationManageService
-	ths       core.TweetHelpService
-	stmtIndex *sqlx.Stmt
+	ams core.AuthorizationManageService
+	ths core.TweetHelpService
+	q   *cc.FriendIndex
 }
 
 type followIndexSrv struct {
 	*sqlxSrv
-	ths       core.TweetHelpService
-	stmtIndex *sqlx.Stmt
+	ths core.TweetHelpService
+	q   *cc.FollowIndex
 }
 
 type lightIndexSrv struct {
 	*sqlxSrv
-	ths       core.TweetHelpService
-	stmtIndex *sqlx.Stmt
+	ths core.TweetHelpService
+	q   *cc.LightIndex
 }
 
 type simpleIndexPostsSrv struct {
 	*sqlxSrv
-	ths       core.TweetHelpService
-	stmtIndex *sqlx.Stmt
+	ths core.TweetHelpService
+	q   *cc.SimpleIndex
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
@@ -89,32 +90,32 @@ func (s *simpleIndexPostsSrv) TweetTimeline(userId int64, offset int, limit int)
 
 func newFriendIndexService(db *sqlx.DB, ams core.AuthorizationManageService, ths core.TweetHelpService) core.IndexPostsService {
 	return &friendIndexSrv{
-		ams:       ams,
-		sqlxSrv:   newSqlxSrv(db),
-		stmtIndex: c(`SELECT * FROM @user WHERE username=?`),
+		ams:     ams,
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildFriendIndex),
 	}
 }
 
 func newFollowIndexService(db *sqlx.DB, ths core.TweetHelpService) core.IndexPostsService {
 	return &followIndexSrv{
-		ths:       ths,
-		sqlxSrv:   newSqlxSrv(db),
-		stmtIndex: c(`SELECT * FROM @user WHERE username=?`),
+		ths:     ths,
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildFollowIndex),
 	}
 }
 
 func newLightIndexService(db *sqlx.DB, ths core.TweetHelpService) core.IndexPostsService {
 	return &lightIndexSrv{
-		ths:       ths,
-		sqlxSrv:   newSqlxSrv(db),
-		stmtIndex: c(`SELECT * FROM @user WHERE username=?`),
+		ths:     ths,
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildLightIndex),
 	}
 }
 
 func newSimpleIndexPostsService(db *sqlx.DB, ths core.TweetHelpService) core.IndexPostsService {
 	return &simpleIndexPostsSrv{
-		ths:       ths,
-		sqlxSrv:   newSqlxSrv(db),
-		stmtIndex: c(`SELECT * FROM @user WHERE username=?`),
+		ths:     ths,
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildSimpleIndex),
 	}
 }

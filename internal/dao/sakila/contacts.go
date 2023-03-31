@@ -7,6 +7,7 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -16,8 +17,7 @@ var (
 
 type contactManageSrv struct {
 	*sqlxSrv
-	stmtAddFriend *sqlx.Stmt
-	stmtDelFriend *sqlx.Stmt
+	q *cc.ContactManager
 }
 
 func (s *contactManageSrv) RequestingFriend(userId int64, friendId int64, greetings string) (err error) {
@@ -58,8 +58,7 @@ func (s *contactManageSrv) IsFriend(userId int64, friendId int64) bool {
 
 func newContactManageService(db *sqlx.DB) core.ContactManageService {
 	return &contactManageSrv{
-		sqlxSrv:       newSqlxSrv(db),
-		stmtAddFriend: c(`SELECT * FROM @user WHERE username=?`),
-		stmtDelFriend: c(`SELECT * FROM @user WHERE username=?`),
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildContactManager),
 	}
 }

@@ -7,6 +7,7 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -17,14 +18,12 @@ var (
 
 type commentSrv struct {
 	*sqlxSrv
-	stmtGetComments *sqlx.Stmt
-	stmtGetReply    *sqlx.Stmt
+	q *cc.Comment
 }
 
 type commentManageSrv struct {
 	*sqlxSrv
-	stmtDelComments *sqlx.Stmt
-	stmtAddComents  *sqlx.Stmt
+	q *cc.CommentManage
 }
 
 func (s *commentSrv) GetComments(conditions *core.ConditionsT, offset, limit int) ([]*core.Comment, error) {
@@ -95,16 +94,14 @@ func (s *commentManageSrv) CreateCommentContent(content *core.CommentContent) (*
 
 func newCommentService(db *sqlx.DB) core.CommentService {
 	return &commentSrv{
-		sqlxSrv:         newSqlxSrv(db),
-		stmtGetComments: c(`SELECT * FROM @user WHERE username=?`),
-		stmtGetReply:    c(`SELECT * FROM @user WHERE username=?`),
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildComment),
 	}
 }
 
 func newCommentManageService(db *sqlx.DB) core.CommentManageService {
 	return &commentManageSrv{
-		sqlxSrv:         newSqlxSrv(db),
-		stmtAddComents:  c(`SELECT * FROM @user WHERE username=?`),
-		stmtDelComments: c(`SELECT * FROM @user WHERE username=?`),
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildCommentManage),
 	}
 }

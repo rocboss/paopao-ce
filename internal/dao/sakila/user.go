@@ -7,6 +7,7 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -16,9 +17,7 @@ var (
 
 type userManageSrv struct {
 	*sqlxSrv
-	stmtAddUser    *sqlx.Stmt
-	stmtUpdateUser *sqlx.Stmt
-	stmtGetUser    *sqlx.Stmt
+	q *cc.UserManage
 }
 
 func (s *userManageSrv) GetUserByID(id int64) (*core.User, error) {
@@ -65,9 +64,7 @@ func (s *userManageSrv) UpdateUser(user *core.User) error {
 
 func newUserManageService(db *sqlx.DB) core.UserManageService {
 	return &userManageSrv{
-		sqlxSrv:        newSqlxSrv(db),
-		stmtAddUser:    c(`SELECT * FROM @user WHERE username=?`),
-		stmtUpdateUser: c(`SELECT * FROM @user WHERE username=?`),
-		stmtGetUser:    c(`SELECT * FROM @user WHERE username=?`),
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildUserManage),
 	}
 }

@@ -7,6 +7,7 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -16,8 +17,7 @@ var (
 
 type authorizationManageSrv struct {
 	*sqlxSrv
-	stmtIdx          *sqlx.Stmt
-	stmtUpdateFriend *sqlx.Stmt
+	q *cc.AuthorizationManage
 }
 
 func (s *authorizationManageSrv) IsAllow(user *core.User, action *core.Action) bool {
@@ -52,8 +52,7 @@ func (s *authorizationManageSrv) isFriend(userId int64, friendId int64) bool {
 
 func newAuthorizationManageService(db *sqlx.DB) core.AuthorizationManageService {
 	return &authorizationManageSrv{
-		sqlxSrv:          newSqlxSrv(db),
-		stmtIdx:          c(`SELECT * FROM @user WHERE username=?`),
-		stmtUpdateFriend: c(`SELECT * FROM @user WHERE username=?`),
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildAuthorizationManage),
 	}
 }
