@@ -10,7 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/ce/postgres"
+	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/sqlc/postgres"
 )
 
 var (

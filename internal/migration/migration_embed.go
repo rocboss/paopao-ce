@@ -72,7 +72,7 @@ func Run() {
 		}
 	} else if cfg.If("Sqlc") {
 		if cfg.If("PostgreSQL") || cfg.If("Postgres") {
-			srcDriver, err = iofs.New(slonik.Files, "ce/postgres/schema")
+			srcDriver, err = iofs.New(slonik.Files, "sqlc/postgres/schema")
 			dbDriver, err2 = postgres.WithInstance(db, &postgres.Config{MigrationsTable: migrationsTable})
 		}
 	}

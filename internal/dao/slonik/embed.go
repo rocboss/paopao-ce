@@ -11,5 +11,5 @@ import (
 	"embed"
 )
 
-//go:embed ce/postgres/schema
+//go:embed sqlc/postgres/schema
 var Files embed.FS
