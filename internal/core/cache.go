@@ -5,6 +5,8 @@
 package core
 
 import (
+	"context"
+
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 )
 
@@ -55,4 +57,22 @@ type CacheIndexService interface {
 	IndexPostsService
 
 	SendAction(act IdxAct, post *dbr.Post)
+}
+
+// RedisCache memory cache by Redis
+type RedisCache interface {
+	SetPushToSearchJob(ctx context.Context) error
+	DelPushToSearchJob(ctx context.Context) error
+	SetImgCaptcha(ctx context.Context, id string, value string) error
+	GetImgCaptcha(ctx context.Context, id string) (string, error)
+	DelImgCaptcha(ctx context.Context, id string) error
+	GetCountSmsCaptcha(ctx context.Context, phone string) (int64, error)
+	IncrCountSmsCaptcha(ctx context.Context, phone string) error
+	GetCountLoginErr(ctx context.Context, id int64) (int64, error)
+	DelCountLoginErr(ctx context.Context, id int64) error
+	IncrCountLoginErr(ctx context.Context, id int64) error
+	GetCountWhisper(ctx context.Context, uid int64) (int64, error)
+	IncrCountWhisper(ctx context.Context, uid int64) error
+	SetRechargeStatus(ctx context.Context, tradeNo string) error
+	DelRechargeStatus(ctx context.Context, tradeNo string) error
 }

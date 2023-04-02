@@ -32,11 +32,22 @@ services:
   #   networks:
   #     - paopao-network
 
+  # redis:
+  #   image: redis:7.0-alpine
+  #   restart: always
+  #   ports:
+  #     - 6379:6379
+  #   networks:
+  #     - paopao-network
+
   redis:
-    image: redis:7.0-alpine
+    image: redis/redis-stack:7.0.6-RC8
     restart: always
     ports:
       - 6379:6379
+      - 8001:8001
+    environment:
+      REDISEARCH_ARGS: "MAXSEARCHRESULTS 5"
     networks:
       - paopao-network
   

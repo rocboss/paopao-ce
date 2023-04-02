@@ -13,6 +13,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func NewRedisCache() core.RedisCache {
+	return &redisCache{
+		c: conf.MustRedisClient(),
+	}
+}
+
 func NewBigCacheIndexService(ips core.IndexPostsService, ams core.AuthorizationManageService) (core.CacheIndexService, core.VersionInfo) {
 	s := conf.BigCacheIndexSetting
 	c := bigcache.DefaultConfig(s.ExpireInSecond)

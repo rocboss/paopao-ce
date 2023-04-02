@@ -8,11 +8,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"fmt"
 	"image/color"
 	"image/png"
 	"regexp"
-	"time"
 	"unicode/utf8"
 
 	"github.com/afocus/captcha"
@@ -40,7 +38,6 @@ var (
 )
 
 const (
-	_LoginErrKey      = "PaoPaoUserLoginErr"
 	_MaxLoginErrTimes = 10
 	_MaxPhoneCaptcha  = 10
 )
@@ -207,14 +204,14 @@ func (s *pubSrv) SendCaptcha(req *web.SendCaptchaReq) mir.Error {
 	ctx := context.Background()
 
 	// 验证图片验证码
-	if res, err := s.Redis.Get(ctx, "PaoPaoCaptcha:"+req.ImgCaptchaID).Result(); err != nil || res != req.ImgCaptcha {
-		logrus.Debugf("get captcha err:%s expect:%s got:%s", err, res, req.ImgCaptcha)
+	if captcha, err := s.Redis.GetImgCaptcha(ctx, req.ImgCaptchaID); err != nil || string(captcha) != req.ImgCaptcha {
+		logrus.Debugf("get captcha err:%s expect:%s got:%s", err, captcha, req.ImgCaptcha)
 		return _errErrorCaptchaPassword
 	}
-	s.Redis.Del(ctx, "PaoPaoCaptcha:"+req.ImgCaptchaID).Result()
+	s.Redis.DelImgCaptcha(ctx, req.ImgCaptchaID)
 
 	// 今日频次限制
-	if res, _ := s.Redis.Get(ctx, "PaoPaoSmsCaptcha:"+req.Phone).Result(); convert.StrTo(res).MustInt() >= _MaxPhoneCaptcha {
+	if count, _ := s.Redis.GetCountSmsCaptcha(ctx, req.Phone); count >= _MaxPhoneCaptcha {
 		return _errTooManyPhoneCaptchaSend
 	}
 
@@ -222,10 +219,7 @@ func (s *pubSrv) SendCaptcha(req *web.SendCaptchaReq) mir.Error {
 		return xerror.ServerError
 	}
 	// 写入计数缓存
-	s.Redis.Incr(ctx, "PaoPaoSmsCaptcha:"+req.Phone).Result()
-	currentTime := time.Now()
-	endTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
-	s.Redis.Expire(ctx, "PaoPaoSmsCaptcha:"+req.Phone, endTime.Sub(currentTime))
+	s.Redis.IncrCountSmsCaptcha(ctx, req.Phone)
 
 	return nil
 }
@@ -248,7 +242,7 @@ func (s *pubSrv) GetCaptcha() (*web.GetCaptchaResp, mir.Error) {
 	}
 	key := utils.EncodeMD5(uuid.Must(uuid.NewV4()).String())
 	// 五分钟有效期
-	s.Redis.SetEx(context.Background(), "PaoPaoCaptcha:"+key, password, time.Minute*5)
+	s.Redis.SetImgCaptcha(context.Background(), key, password)
 	return &web.GetCaptchaResp{
 		Id:      key,
 		Content: "data:image/png;base64," + base64.StdEncoding.EncodeToString(emptyBuff.Bytes()),
@@ -294,10 +288,8 @@ func (s *pubSrv) Login(req *web.LoginReq) (*web.LoginResp, mir.Error) {
 	}
 
 	if user.Model != nil && user.ID > 0 {
-		if errTimes, err := s.Redis.Get(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID)).Result(); err == nil {
-			if convert.StrTo(errTimes).MustInt() >= _MaxLoginErrTimes {
-				return nil, _errTooManyLoginError
-			}
+		if count, err := s.Redis.GetCountLoginErr(ctx, user.ID); err == nil && count >= _MaxLoginErrTimes {
+			return nil, _errTooManyLoginError
 		}
 		// 对比密码是否正确
 		if validPassword(user.Password, req.Password, user.Salt) {
@@ -305,13 +297,10 @@ func (s *pubSrv) Login(req *web.LoginReq) (*web.LoginResp, mir.Error) {
 				return nil, _errUserHasBeenBanned
 			}
 			// 清空登录计数
-			s.Redis.Del(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID))
+			s.Redis.DelCountLoginErr(ctx, user.ID)
 		} else {
 			// 登录错误计数
-			_, err = s.Redis.Incr(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID)).Result()
-			if err == nil {
-				s.Redis.Expire(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID), time.Hour).Result()
-			}
+			s.Redis.IncrCountLoginErr(ctx, user.ID)
 			return nil, xerror.UnauthorizedAuthFailed
 		}
 	} else {
