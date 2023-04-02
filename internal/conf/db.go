@@ -9,13 +9,11 @@ import (
 	"sync"
 
 	"github.com/alimy/cfg"
-	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 )
 
 var (
 	_sqldb               *sql.DB
-	_redisClient         *redis.Client
 	_onceSql, _onceRedis sync.Once
 )
 
@@ -51,17 +49,6 @@ func MustSqlDB() *sql.DB {
 		}
 	})
 	return _sqldb
-}
-
-func MustRedis() *redis.Client {
-	_onceRedis.Do(func() {
-		_redisClient = redis.NewClient(&redis.Options{
-			Addr:     redisSetting.Host,
-			Password: redisSetting.Password,
-			DB:       redisSetting.DB,
-		})
-	})
-	return _redisClient
 }
 
 func newSqlDB() (driver string, db *sql.DB, err error) {

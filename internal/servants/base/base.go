@@ -9,26 +9,25 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"time"
 
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao"
+	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
+	"github.com/sirupsen/logrus"
 )
 
 type BaseServant types.Empty
 
 type DaoServant struct {
-	Redis *redis.Client
 	Dsa   core.WebDataServantA
 	Ds    core.DataService
 	Ts    core.TweetSearchService
+	Redis core.RedisCache
 }
 
 type BaseBinding types.Empty
@@ -116,15 +115,6 @@ func RenderAny(c *gin.Context, data any, err mir.Error) {
 	}
 }
 
-func NewDaoServant() *DaoServant {
-	return &DaoServant{
-		Redis: conf.MustRedis(),
-		Dsa:   dao.WebDataServantA(),
-		Ds:    dao.DataService(),
-		Ts:    dao.TweetSearchService(),
-	}
-}
-
 func (s *DaoServant) GetTweetBy(id int64) (*core.PostFormated, error) {
 	post, err := s.Ds.GetPostByID(id)
 	if err != nil {
@@ -152,8 +142,8 @@ func (s *DaoServant) GetTweetBy(id int64) (*core.PostFormated, error) {
 }
 
 func (s *DaoServant) PushPostsToSearch(c context.Context) {
-	if ok, _ := s.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
-		defer s.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
+	if err := s.Redis.SetPushToSearchJob(c); err == nil {
+		defer s.Redis.DelPushToSearchJob(c)
 
 		splitNum := 1000
 		totalRows, _ := s.Ds.GetPostCount(&core.ConditionsT{
@@ -180,6 +170,8 @@ func (s *DaoServant) PushPostsToSearch(c context.Context) {
 				s.Ts.AddDocuments(docs, fmt.Sprintf("%d", posts[i].ID))
 			}
 		}
+	} else {
+		logrus.Errorf("redis: set JOB_PUSH_TO_SEARCH error: %s", err)
 	}
 }
 
@@ -218,4 +210,12 @@ func (s *DaoServant) GetTweetList(conditions *core.ConditionsT, offset, limit in
 	}
 	postFormated, err := s.Ds.MergePosts(posts)
 	return posts, postFormated, err
+}
+
+func NewDaoServant() *DaoServant {
+	return &DaoServant{
+		Redis: cache.NewRedisCache(),
+		Ds:    dao.DataService(),
+		Ts:    dao.TweetSearchService(),
+	}
 }
