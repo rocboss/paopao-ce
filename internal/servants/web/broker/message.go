@@ -5,13 +5,8 @@
 package broker
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 )
 
@@ -28,10 +23,8 @@ type WhisperReq struct {
 
 // CreateWhisper 创建私信
 func CreateWhisper(c *gin.Context, msg *core.Message) (*core.Message, error) {
-	whisperKey := fmt.Sprintf("WhisperTimes:%d", msg.SenderUserID)
-
 	// 今日频次限制
-	if res, _ := conf.Redis.Get(c, whisperKey).Result(); convert.StrTo(res).MustInt() >= MAX_WHISPER_NUM_DAILY {
+	if count, err := _redis.GetCountWhisper(c, msg.SenderUserID); err != nil || count >= MAX_WHISPER_NUM_DAILY {
 		return nil, errcode.TooManyWhisperNum
 	}
 
@@ -42,18 +35,14 @@ func CreateWhisper(c *gin.Context, msg *core.Message) (*core.Message, error) {
 	}
 
 	// 写入当日（自然日）计数缓存
-	conf.Redis.Incr(c, whisperKey).Result()
-
-	currentTime := time.Now()
-	endTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
-	conf.Redis.Expire(c, whisperKey, endTime.Sub(currentTime))
-
+	_redis.IncrCountWhisper(c, msg.SenderUserID)
 	return msg, err
 }
 
 func GetUnreadCount(userID int64) (int64, error) {
 	return ds.GetUnreadCount(userID)
 }
+
 func ReadMessage(id, userID int64) error {
 	// 获取message
 	message, err := ds.GetMessageByID(id)
