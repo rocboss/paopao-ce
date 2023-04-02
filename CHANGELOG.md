@@ -3,6 +3,10 @@
 All notable changes to paopao-ce are documented in this file.
 
 ## 0.3.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+
+### Added
+-  add `RedisCacheIndex` feature [#250](https://github.com/rocboss/paopao-ce/pull/250)
+
 ### Changed
 
 - use [github.com/rueian/rueidis](https://github.com/rueian/rueidis) as Redis client [#249](https://github.com/rocboss/paopao-ce/pull/249)   

@@ -10,25 +10,66 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rueian/rueidis"
 )
 
 var (
 	_ core.RedisCache = (*redisCache)(nil)
+	_ tweetsCache     = (*redisCacheTweetsCache)(nil)
 )
 
 const (
-	_pushToSearchJobKey = "JOB_PUSH_TO_SEARCH"
-	_countLoginErrKey   = "PaoPaoUserLoginErr:"
-	_imgCaptchaKey      = "PaoPaoCaptcha:"
-	_smsCaptchaKey      = "PaoPaoSmsCaptcha:"
-	_countWhisperKey    = "WhisperTimes:"
-	_rechargeStatusKey  = "PaoPaoRecharge:"
+	_cacheIndexKeyPattern = _cacheIndexKey + "*"
+	_pushToSearchJobKey   = "paopao_push_to_search_job"
+	_countLoginErrKey     = "paopao_count_login_err"
+	_imgCaptchaKey        = "paopao_img_captcha:"
+	_smsCaptchaKey        = "paopao_sms_captcha"
+	_countWhisperKey      = "paopao_whisper_key"
+	_rechargeStatusKey    = "paopao_recharge_status:"
 )
 
 type redisCache struct {
 	c rueidis.Client
+}
+
+type redisCacheTweetsCache struct {
+	expireDuration time.Duration
+	expireInSecond int64
+	c              rueidis.Client
+}
+
+func (s *redisCacheTweetsCache) getTweetsBytes(key string) ([]byte, error) {
+	res, err := rueidis.MGetCache(s.c, context.Background(), s.expireDuration, []string{key})
+	if err != nil {
+		return nil, err
+	}
+	message := res[key]
+	return message.AsBytes()
+}
+
+func (s *redisCacheTweetsCache) setTweetsBytes(key string, bs []byte) error {
+	cmd := s.c.B().Set().Key(key).Value(rueidis.BinaryString(bs)).ExSeconds(s.expireInSecond).Build()
+	return s.c.Do(context.Background(), cmd).Error()
+}
+
+func (s *redisCacheTweetsCache) delTweets(keys []string) error {
+	cmd := s.c.B().Del().Key(keys...).Build()
+	return s.c.Do(context.Background(), cmd).Error()
+}
+
+func (s *redisCacheTweetsCache) allKeys() ([]string, error) {
+	cmd := s.c.B().Keys().Pattern(_cacheIndexKeyPattern).Build()
+	return s.c.Do(context.Background(), cmd).AsStrSlice()
+}
+
+func (s *redisCacheTweetsCache) Name() string {
+	return "RedisCacheIndex"
+}
+
+func (s *redisCacheTweetsCache) Version() *semver.Version {
+	return semver.MustParse("v0.1.0")
 }
 
 func (r *redisCache) SetPushToSearchJob(ctx context.Context) error {
