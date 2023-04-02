@@ -6,7 +6,6 @@ package web
 
 import (
 	"context"
-	"fmt"
 
 	"time"
 	"unicode/utf8"
@@ -225,8 +224,7 @@ func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 
 	// 今日频次限制
 	ctx := context.Background()
-	whisperKey := fmt.Sprintf("WhisperTimes:%d", req.Uid)
-	if res, _ := s.Redis.Get(ctx, whisperKey).Result(); convert.StrTo(res).MustInt() >= _MaxWhisperNumDaily {
+	if count, _ := s.Redis.GetCountWhisper(ctx, req.Uid); count >= _MaxWhisperNumDaily {
 		return _errTooManyWhisperNum
 	}
 
@@ -244,10 +242,7 @@ func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 	}
 
 	// 写入当日（自然日）计数缓存
-	s.Redis.Incr(ctx, whisperKey).Result()
-	currentTime := time.Now()
-	endTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
-	s.Redis.Expire(ctx, whisperKey, endTime.Sub(currentTime))
+	s.Redis.IncrCountWhisper(ctx, req.Uid)
 
 	return nil
 }

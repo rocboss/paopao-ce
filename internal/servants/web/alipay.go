@@ -6,7 +6,6 @@ package web
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
@@ -80,7 +79,7 @@ func (b *alipayPubBinding) BindAlipayNotify(c *gin.Context) (*web.AlipayNotifyRe
 
 func (s *alipayPubSrv) AlipayNotify(req *web.AlipayNotifyReq) mir.Error {
 	if req.TradeStatus == alipay.TradeStatusSuccess {
-		if ok, _ := s.Redis.SetNX(req.Ctx, "PaoPaoRecharge:"+req.TradeNo, 1, time.Second*5).Result(); ok {
+		if err := s.Redis.SetRechargeStatus(req.Ctx, req.TradeNo); err == nil {
 			recharge, err := s.Ds.GetRechargeByID(req.ID)
 			if err != nil {
 				logrus.Errorf("GetRechargeByID id:%d err: %s", req.ID, err)
@@ -89,7 +88,7 @@ func (s *alipayPubSrv) AlipayNotify(req *web.AlipayNotifyReq) mir.Error {
 			if recharge.TradeStatus != "TRADE_SUCCESS" {
 				// 标记为已付款
 				err := s.Ds.HandleRechargeSuccess(recharge, req.TradeNo)
-				defer s.Redis.Del(req.Ctx, "PaoPaoRecharge:"+req.TradeNo)
+				defer s.Redis.DelRechargeStatus(req.Ctx, req.TradeNo)
 				if err != nil {
 					logrus.Errorf("HandleRechargeSuccess id:%d err: %s", req.ID, err)
 					return _errRechargeNotifyError
