@@ -97,6 +97,11 @@ type BigCacheIndexSettingS struct {
 	Verbose          bool
 }
 
+type RedisCacheIndexSettingS struct {
+	ExpireInSecond time.Duration
+	Verbose        bool
+}
+
 type AlipaySettingS struct {
 	AppID             string
 	PrivateKey        string
