@@ -9,12 +9,12 @@
 * [ ] add extend base ORM code for implement data logic base sqlx/sqlc
 * [ ] optimize media tweet submit logic
 * [ ] optimize search logic service
-* [ ] remove `Deprecated:OldWeb` feature
-
+* [x] remove `Deprecated:OldWeb` feature
 
 #### v0.2.0
 * [x] add `Friendship` feature
 * [x] add `Lightship` feature
+* [ ] add extend base ORM code for implement data logic base sqlx/sqlc
 * [x] add `Pyroscope` feature
 * [x] add new `Web` service
 * [x] add `Frontend:Web` feature
@@ -42,6 +42,15 @@
 * [ ] optimize topics service
 * [ ] optimize backend data logic service(optimize database CRUD operate)
 
+<<<<<<< HEAD
+### paopao-plus roadmap
+#### v0.3.0
+* [ ] adapt for paopao-ce v0.3.0
+
+### paopao-pro roadmap
+#### v0.3.0
+* [ ] adapt for paopao-ce v0.3.0
+=======
 ## paopao-ce-plus roadmap
 #### paopao-ce-plus/v0.3.0
 * [ ] adapt for paopao-ce v0.3.0
@@ -55,3 +64,4 @@
 
 #### paopao-ce-pro/v0.2.0
 * [ ] adapt for paopao-ce v0.2.0
+>>>>>>> x/sqlc

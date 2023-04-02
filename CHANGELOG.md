@@ -3,6 +3,28 @@
 All notable changes to paopao-ce are documented in this file.
 
 ## 0.3.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+### Changed
+
+- use [github.com/rueian/rueidis](https://github.com/rueian/rueidis) as Redis client [#249](https://github.com/rocboss/paopao-ce/pull/249)   
+    the **Old** redis client configure field
+    ```yaml
+    ...
+    Redis:
+      Host: redis:6379
+      Password: 
+      DB: 
+    ```
+    the **New** redis client configure field
+    ```yaml
+    ...
+    Redis:
+      InitAddress:
+      - redis:6379
+      Username:
+      Password:
+      SelectDB:
+      ConnWriteTimeout: 60   # 连接写超时时间 多少秒 默认 60秒
+    ```
 
 ## 0.2.3
 
