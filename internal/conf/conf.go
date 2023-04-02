@@ -110,6 +110,7 @@ func setupSetting(suite []string, noDefault bool) error {
 	SimpleCacheIndexSetting.CheckTickDuration *= time.Second
 	SimpleCacheIndexSetting.ExpireTickDuration *= time.Second
 	BigCacheIndexSetting.ExpireInSecond *= time.Second
+	redisSetting.ConnWriteTimeout *= time.Second
 
 	Mutex = &sync.Mutex{}
 	return nil
