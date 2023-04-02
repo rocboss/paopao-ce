@@ -37,6 +37,7 @@ var (
 	CacheIndexSetting       *CacheIndexSettingS
 	SimpleCacheIndexSetting *SimpleCacheIndexSettingS
 	BigCacheIndexSetting    *BigCacheIndexSettingS
+	RedisCacheIndexSetting  *RedisCacheIndexSettingS
 	SmsJuheSetting          *SmsJuheSettings
 	AlipaySetting           *AlipaySettingS
 	TweetSearchSetting      *TweetSearchS
@@ -80,6 +81,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"CacheIndex":        &CacheIndexSetting,
 		"SimpleCacheIndex":  &SimpleCacheIndexSetting,
 		"BigCacheIndex":     &BigCacheIndexSetting,
+		"RedisCacheIndex":   &RedisCacheIndexSetting,
 		"Alipay":            &AlipaySetting,
 		"SmsJuhe":           &SmsJuheSetting,
 		"Pyroscope":         &PyroscopeSetting,
@@ -112,6 +114,7 @@ func setupSetting(suite []string, noDefault bool) error {
 	SimpleCacheIndexSetting.CheckTickDuration *= time.Second
 	SimpleCacheIndexSetting.ExpireTickDuration *= time.Second
 	BigCacheIndexSetting.ExpireInSecond *= time.Second
+	RedisCacheIndexSetting.ExpireInSecond *= time.Second
 	redisSetting.ConnWriteTimeout *= time.Second
 
 	Mutex = &sync.Mutex{}
