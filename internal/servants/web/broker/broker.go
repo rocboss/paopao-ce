@@ -8,6 +8,7 @@ import (
 	"github.com/alimy/cfg"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao"
+	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/sirupsen/logrus"
 )
 
@@ -16,6 +17,8 @@ var (
 	ts                 core.TweetSearchService
 	oss                core.ObjectStorageService
 	DisablePhoneVerify bool
+
+	_redis core.RedisCache
 )
 
 func Initialize() {
@@ -23,6 +26,7 @@ func Initialize() {
 	ts = dao.TweetSearchService()
 	oss = dao.ObjectStorageService()
 	DisablePhoneVerify = !cfg.If("Sms")
+	_redis = cache.NewRedisCache()
 }
 
 // persistMediaContents 获取媒体内容并持久化

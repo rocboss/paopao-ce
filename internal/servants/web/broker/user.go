@@ -5,7 +5,6 @@
 package broker
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -13,9 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/errcode"
 	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/sirupsen/logrus"
@@ -102,10 +99,8 @@ func DoLogin(ctx *gin.Context, param *AuthRequest) (*core.User, error) {
 	}
 
 	if user.Model != nil && user.ID > 0 {
-		if errTimes, err := conf.Redis.Get(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID)).Result(); err == nil {
-			if convert.StrTo(errTimes).MustInt() >= _MaxLoginErrTimes {
-				return nil, errcode.TooManyLoginError
-			}
+		if count, err := _redis.GetCountLoginErr(ctx, user.ID); err == nil && count >= _MaxLoginErrTimes {
+			return nil, errcode.TooManyLoginError
 		}
 
 		// 对比密码是否正确
@@ -116,15 +111,12 @@ func DoLogin(ctx *gin.Context, param *AuthRequest) (*core.User, error) {
 			}
 
 			// 清空登录计数
-			conf.Redis.Del(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID))
+			_redis.DelCountLoginErr(ctx, user.ID)
 			return user, nil
 		}
 
 		// 登录错误计数
-		_, err = conf.Redis.Incr(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID)).Result()
-		if err == nil {
-			conf.Redis.Expire(ctx, fmt.Sprintf("%s:%d", _LoginErrKey, user.ID), time.Hour).Result()
-		}
+		_redis.IncrCountLoginErr(ctx, user.ID)
 
 		return nil, errcode.UnauthorizedAuthFailed
 	}
@@ -428,20 +420,12 @@ func GetUserWalletBills(userID int64, offset, limit int) ([]*core.WalletStatemen
 
 // SendPhoneCaptcha 发送短信验证码
 func SendPhoneCaptcha(ctx *gin.Context, phone string) error {
-
 	err := ds.SendPhoneCaptcha(phone)
 	if err != nil {
 		return err
 	}
-
 	// 写入计数缓存
-	conf.Redis.Incr(ctx, "PaoPaoSmsCaptcha:"+phone).Result()
-
-	currentTime := time.Now()
-	endTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
-
-	conf.Redis.Expire(ctx, "PaoPaoSmsCaptcha:"+phone, endTime.Sub(currentTime))
-
+	_redis.IncrCountSmsCaptcha(ctx, phone)
 	return nil
 }
 

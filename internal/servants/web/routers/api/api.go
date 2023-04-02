@@ -9,6 +9,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao"
+	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/sirupsen/logrus"
 	"github.com/smartwalle/alipay/v3"
 )
@@ -16,10 +17,12 @@ import (
 var (
 	alipayClient  *alipay.Client
 	objectStorage core.ObjectStorageService
+	_redis        core.RedisCache
 )
 
 func Initialize() {
 	objectStorage = dao.ObjectStorageService()
+	_redis = cache.NewRedisCache()
 
 	if cfg.If("Alipay") {
 		alipayClient = mustAlipayClient()

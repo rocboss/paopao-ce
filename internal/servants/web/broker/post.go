@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"math"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
@@ -501,8 +500,8 @@ func DeleteSearchPost(post *core.Post) error {
 }
 
 func PushPostsToSearch(c *gin.Context) {
-	if ok, _ := conf.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
-		defer conf.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
+	if err := _redis.SetPushToSearchJob(c); err == nil {
+		defer _redis.DelPushToSearchJob(c)
 
 		splitNum := 1000
 		totalRows, _ := GetPostCount(&core.ConditionsT{
@@ -535,6 +534,8 @@ func PushPostsToSearch(c *gin.Context) {
 				ts.AddDocuments(docs, fmt.Sprintf("%d", posts[i].ID))
 			}
 		}
+	} else {
+		logrus.Errorf("redis: set JOB_PUSH_TO_SEARCH error: %s", err)
 	}
 }
 

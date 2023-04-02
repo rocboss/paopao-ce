@@ -210,9 +210,11 @@ type LocalOSSSettingS struct {
 }
 
 type RedisSettingS struct {
-	Host     string
-	Password string
-	DB       int
+	InitAddress      []string
+	Username         string
+	Password         string
+	SelectDB         int
+	ConnWriteTimeout time.Duration
 }
 
 type JWTSettingS struct {
