@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/alimy/cfg"
-	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -20,9 +19,8 @@ import (
 )
 
 var (
-	db    *gorm.DB
-	Redis *redis.Client
-	once  sync.Once
+	db   *gorm.DB
+	once sync.Once
 )
 
 func MustGormDB() *gorm.DB {
@@ -83,12 +81,4 @@ func newDBEngine() (*gorm.DB, error) {
 	}
 
 	return db, err
-}
-
-func setupDBEngine() {
-	Redis = redis.NewClient(&redis.Options{
-		Addr:     redisSetting.Host,
-		Password: redisSetting.Password,
-		DB:       redisSetting.DB,
-	})
 }
