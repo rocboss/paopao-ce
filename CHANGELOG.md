@@ -30,6 +30,10 @@ All notable changes to paopao-ce are documented in this file.
       ConnWriteTimeout: 60   # 连接写超时时间 多少秒 默认 60秒
     ```
 
+### Removed
+
+- remove `Deprecated:OldWeb` feature  [#256](https://github.com/rocboss/paopao-ce/pull/256)   
+
 ## 0.2.3
 
 ### Added
