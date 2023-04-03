@@ -6,7 +6,7 @@ All notable changes to paopao-ce are documented in this file.
 
 ### Added
 
-- add custom comment sort strategy support [#243](https://github.com/rocboss/paopao-ce/pull/250)
+- add custom comment sort strategy support [#243](https://github.com/rocboss/paopao-ce/pull/243)
 - add `RedisCacheIndex` feature [#250](https://github.com/rocboss/paopao-ce/pull/250)
 
 ### Changed
