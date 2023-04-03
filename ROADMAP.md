@@ -43,15 +43,6 @@
 * [ ] optimize topics service
 * [ ] optimize backend data logic service(optimize database CRUD operate)
 
-<<<<<<< HEAD
-### paopao-plus roadmap
-#### v0.3.0
-* [ ] adapt for paopao-ce v0.3.0
-
-### paopao-pro roadmap
-#### v0.3.0
-* [ ] adapt for paopao-ce v0.3.0
-=======
 ## paopao-ce-plus roadmap
 #### paopao-ce-plus/v0.3.0
 * [ ] adapt for paopao-ce v0.3.0
@@ -65,4 +56,3 @@
 
 #### paopao-ce-pro/v0.2.0
 * [ ] adapt for paopao-ce v0.2.0
->>>>>>> x/sqlc
