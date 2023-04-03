@@ -69,7 +69,7 @@ windows-x64:
 	@CGO_ENABLED=$(CGO_ENABLED) GOOS=windows GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_WINDOWS_AMD64)/$(basename $(TARGET)).exe
 
 .PHONY: generate
-generate: gen-mir gen-grpc gen-yesql
+generate: gen-mir gen-grpc gen-sqlc gen-yesql
 
 .PHONY: gen-mir
 gen-mir:
@@ -86,6 +86,12 @@ gen-grpc:
 	@rm -rf auto/rpc
 	@buf generate proto
 	@go fmt ./auto/rpc/...
+
+.PHONY: gen-sqlc
+gen-sqlc:
+	@find internal/dao/slonik/sqlc/postgres -name '*.go' -exec rm -f {} +
+	@go generate internal/dao/slonik/sqlc/gen.go
+	@go fmt ./internal/dao/slonik/sqlc/...
 
 .PHONY: proto-mod
 proto-mod:
@@ -112,6 +118,10 @@ test:
 pre-commit: fmt
 	@go mod tidy
 
+
+.PHONY: install-plugins
+install-plugins: install-protobuf-plugins
+
 .PHONY: install-protobuf-plugins
 install-protobuf-plugins:
 	@go install github.com/bufbuild/buf/cmd/buf@v1.15.1
@@ -119,6 +129,10 @@ install-protobuf-plugins:
 	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-lint@v1.15.1
 	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+.PHONY: install-sqlc-plugins
+install-sqlc-plugins:
+	@go install github.com/kyleconroy/sqlc/cmd/sqlc@latest
 
 help:
 	@echo "make: make"
