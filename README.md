@@ -556,6 +556,7 @@ x/sqlx
 |[`paopao-ce`](https://github.com/rocboss/paopao-ce/tree/dev)|paopao-ce 主发行版本|[ROC](https://github.com/rocboss 'ROC')|该分支 [数据逻辑层](https://github.com/rocboss/paopao-ce/tree/dev/internal/dao/jinzhu) 使用[gorm](https://github.com/go-gorm/gorm)作为数据逻辑层的ORM框架，适配MySQL/PostgreSQL/Sqlite3数据库。| 
 |[`r/paopao-ce-plus`](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-plus)|paopao-ce-plus 发行版本|[北野](https://github.com/alimy 'Michael Li')|该分支 [数据逻辑层](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-plus/internal/dao/sakila) 使用[sqlx](https://github.com/jmoiron/sqlx)作为数据逻辑层的ORM框架，专注于为MySQL/PostgreSQL/Sqlite3使用更优化的查询语句以提升数据检索效率。建议熟悉[sqlx](https://github.com/jmoiron/sqlx)的开发人员可以基于此版本来做 二次开发。|
 |[`r/paopao-ce-pro`](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-pro)|paopao-ce-pro 发行版本|[北野](https://github.com/alimy 'Michael Li')|该分支 [数据逻辑层](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-pro/internal/dao/slonik) 使用[sqlc](https://github.com/kyleconroy/sqlc)作为sql语句生成器自动生成ORM代码，专门针对特定数据库MySQL/PostgreSQL进行查询优化，熟悉[sqlc](https://github.com/kyleconroy/sqlc)的开发人员可以基于此版本来做 二次开发。(另：分支目前只使用[pgx-v5](https://github.com/jackc/pgx)适配了PostgreSQL数据库，后续或许会适配MySQL/TiDB数据库。)|
+|[`r/paopao-ce-xtra`](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-xtra)|paopao-ce-xtra 发行版本|[北野](https://github.com/alimy 'Michael Li')|该分支 是paopao-ce、r/paopao-ce-plus、r/paopao-ce-pro的合集|
 
 **代码分支演进图**        
 ![](docs/proposal/.assets/000-01.png)
