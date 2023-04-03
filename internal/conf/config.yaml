@@ -8,8 +8,9 @@ App: # APP基础设置项
 Features:
   Default: []
 WebServer: # Web服务
+  RunMode: debug
   HttpIp: 0.0.0.0
-  HttpPort: 8010
+  HttpPort: 8008
   ReadTimeout: 60
   WriteTimeout: 60
 AdminServer: # Admin后台运维服务
