@@ -42,7 +42,7 @@ var (
 	TweetSearchSetting      *tweetSearchConf
 	ZincSetting             *zincConf
 	MeiliSetting            *meiliConf
-	ObjectStorage           *objectStorageS
+	ObjectStorage           *objectStorageConf
 	AliOSSSetting           *aliOSSConf
 	COSSetting              *cosConf
 	HuaweiOBSSetting        *huaweiOBSConf
