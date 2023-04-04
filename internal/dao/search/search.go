@@ -57,7 +57,7 @@ func NewZincTweetSearchService(ams core.AuthorizationManageService) (core.TweetS
 			ams: ams,
 		},
 		indexName:     s.Index,
-		client:        zinc.NewClient(s),
+		client:        zinc.NewClient(s.Endpoint(), s.User, s.Password),
 		publicFilter:  fmt.Sprintf("visibility:%d", core.PostVisitPublic),
 		privateFilter: fmt.Sprintf("visibility:%d AND user_id:%%d", core.PostVisitPrivate),
 		friendFilter:  fmt.Sprintf("visibility:%d", core.PostVisitFriend),
