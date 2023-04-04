@@ -5,11 +5,11 @@
 package zinc
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/cockroachdb/errors"
 	"github.com/go-resty/resty/v2"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/pkg/json"
