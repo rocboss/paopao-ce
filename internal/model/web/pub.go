@@ -7,7 +7,7 @@ package web
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
-	"github.com/rocboss/paopao-ce/pkg/debug"
+	"github.com/rocboss/paopao-ce/pkg/version"
 )
 
 const (
@@ -55,7 +55,7 @@ type SendCaptchaReq struct {
 }
 
 type VersionResp struct {
-	BuildInfo *debug.BuildInfo `json:"build_info"`
+	BuildInfo *version.BuildInfo `json:"build_info"`
 }
 
 type LoginReq struct {

@@ -200,7 +200,7 @@ func newAlipayPubSrv(s *base.DaoServant) api.AlipayPub {
 func newAlipayPubBinding(alipayClient *alipay.Client) api.AlipayPubBinding {
 	return &alipayPubBinding{
 		UnimplementedAlipayPubBinding: &api.UnimplementedAlipayPubBinding{
-			BindAny: base.BindAny,
+			BindAny: base.NewBindAnyFn(),
 		},
 		alipayClient: alipayClient,
 	}
@@ -224,7 +224,7 @@ func newAlipayPrivSrv(s *base.DaoServant, client *alipay.Client) api.AlipayPriv 
 func newAlipayPrivBinding() api.AlipayPrivBinding {
 	return &alipayPrivBinding{
 		UnimplementedAlipayPrivBinding: &api.UnimplementedAlipayPrivBinding{
-			BindAny: base.BindAny,
+			BindAny: base.NewBindAnyFn(),
 		},
 	}
 }

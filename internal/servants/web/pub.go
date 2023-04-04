@@ -25,8 +25,8 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants/web/assets"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/convert"
-	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/rocboss/paopao-ce/pkg/utils"
+	"github.com/rocboss/paopao-ce/pkg/version"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
 )
@@ -319,7 +319,7 @@ func (s *pubSrv) Login(req *web.LoginReq) (*web.LoginResp, mir.Error) {
 
 func (s *pubSrv) Version() (*web.VersionResp, mir.Error) {
 	return &web.VersionResp{
-		BuildInfo: debug.ReadBuildInfo(),
+		BuildInfo: version.ReadBuildInfo(),
 	}, nil
 }
 
@@ -351,7 +351,7 @@ func newPubSrv(s *base.DaoServant) api.Pub {
 func newPubBinding() api.PubBinding {
 	return &pubBinding{
 		UnimplementedPubBinding: &api.UnimplementedPubBinding{
-			BindAny: base.BindAny,
+			BindAny: base.NewBindAnyFn(),
 		},
 	}
 }

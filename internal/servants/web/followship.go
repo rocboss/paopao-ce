@@ -41,7 +41,7 @@ func newFollowshipSrv(s *base.DaoServant) api.Followship {
 func newFollowshipBinding() api.FollowshipBinding {
 	return &followshipBinding{
 		UnimplementedFollowshipBinding: &api.UnimplementedFollowshipBinding{
-			BindAny: base.BindAny,
+			BindAny: base.NewBindAnyFn(),
 		},
 	}
 }

@@ -7,6 +7,7 @@
 * [ ] add `Auth:Bcrypt` feature
 * [ ] add `Auth:MD5` feature (just for compatible)
 * [x] add `RedisCacheIndex` feature
+* [x] add `Sentry` feature
 * [x] add extend base ORM code for implement data logic base sqlx/sqlc
 * [ ] optimize media tweet submit logic
 * [ ] optimize search logic service
