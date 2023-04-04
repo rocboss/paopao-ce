@@ -13,8 +13,8 @@ import (
 )
 
 var (
-	_sqldb               *sql.DB
-	_onceSql, _onceRedis sync.Once
+	_sqldb   *sql.DB
+	_onceSql sync.Once
 )
 
 const (
