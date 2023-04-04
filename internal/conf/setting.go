@@ -166,7 +166,7 @@ type sqlite3Conf struct {
 	Path string
 }
 
-type objectStorageS struct {
+type objectStorageConf struct {
 	RetainInDays int
 	TempDir      string
 }
@@ -343,7 +343,7 @@ func (s *loggerMeiliConf) maxLogBuffer() int {
 	return s.MaxLogBuffer
 }
 
-func (s *objectStorageS) TempDirSlash() string {
+func (s *objectStorageConf) TempDirSlash() string {
 	return strings.Trim(s.TempDir, " /") + "/"
 }
 
