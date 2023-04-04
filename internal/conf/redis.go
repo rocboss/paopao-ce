@@ -13,11 +13,11 @@ import (
 
 var (
 	_redisClient rueidis.Client
-	_once        sync.Once
+	_onceRedis   sync.Once
 )
 
 func MustRedisClient() rueidis.Client {
-	_once.Do(func() {
+	_onceRedis.Do(func() {
 		client, err := rueidis.NewClient(rueidis.ClientOption{
 			InitAddress:      redisSetting.InitAddress,
 			Username:         redisSetting.Username,
