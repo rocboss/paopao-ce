@@ -30,6 +30,15 @@ type PyroscopeSettingS struct {
 	Logger    string
 }
 
+type SentrySettingS struct {
+	Dsn              string
+	Debug            bool
+	AttachStacktrace bool
+	TracesSampleRate float64
+	AttachLogrus     bool
+	AttachGin        bool
+}
+
 type LoggerSettingS struct {
 	Level string
 }

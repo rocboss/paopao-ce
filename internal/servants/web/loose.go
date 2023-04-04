@@ -158,7 +158,7 @@ func newLooseSrv(s *base.DaoServant) api.Loose {
 func newLooseBinding() api.LooseBinding {
 	return &looseBinding{
 		UnimplementedLooseBinding: &api.UnimplementedLooseBinding{
-			BindAny: base.BindAny,
+			BindAny: base.NewBindAnyFn(),
 		},
 	}
 }

@@ -17,6 +17,7 @@ var (
 	loggerFileSetting  *LoggerFileSettingS
 	loggerZincSetting  *LoggerZincSettingS
 	loggerMeiliSetting *LoggerMeiliSettingS
+	sentrySetting      *SentrySettingS
 	redisSetting       *RedisSettingS
 
 	PyroscopeSetting        *PyroscopeSettingS
@@ -83,6 +84,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"Alipay":            &AlipaySetting,
 		"SmsJuhe":           &SmsJuheSetting,
 		"Pyroscope":         &PyroscopeSetting,
+		"Sentry":            &sentrySetting,
 		"Logger":            &loggerSetting,
 		"LoggerFile":        &loggerFileSetting,
 		"LoggerZinc":        &loggerZincSetting,
@@ -126,6 +128,7 @@ func Initialize(suite []string, noDefault bool) {
 	}
 
 	setupLogger()
+	initSentry()
 }
 
 func GetOssDomain() string {
@@ -158,4 +161,8 @@ func GetOssDomain() string {
 
 func RunMode() string {
 	return AppSetting.RunMode
+}
+
+func UseSentryGin() bool {
+	return cfg.If("Sentry") && sentrySetting.AttachGin
 }
