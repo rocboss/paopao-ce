@@ -450,7 +450,7 @@ func newCoreSrv(s *base.DaoServant, oss core.ObjectStorageService) api.Core {
 func newCoreBinding() api.CoreBinding {
 	return &coreBinding{
 		UnimplementedCoreBinding: &api.UnimplementedCoreBinding{
-			BindAny: base.BindAny,
+			BindAny: base.NewBindAnyFn(),
 		},
 	}
 }

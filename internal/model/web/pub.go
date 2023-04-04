@@ -8,7 +8,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
-	"github.com/rocboss/paopao-ce/pkg/debug"
+	"github.com/rocboss/paopao-ce/pkg/version"
 )
 
 type TagType = cs.TagType
@@ -51,7 +51,7 @@ type SendCaptchaReq struct {
 }
 
 type VersionResp struct {
-	BuildInfo *debug.BuildInfo `json:"build_info"`
+	BuildInfo *version.BuildInfo `json:"build_info"`
 }
 
 type LoginReq struct {

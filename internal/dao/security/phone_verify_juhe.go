@@ -1,11 +1,11 @@
 package security
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/cockroachdb/errors"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/json"

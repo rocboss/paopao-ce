@@ -82,6 +82,13 @@ Pyroscope: # Pyroscope配置
   Endpoint: "http://localhost:4040"   # Pyroscope server address
   AuthToken:                          # Pyroscope authentication token
   Logger:  none                       # Pyroscope logger (standard | logrus | none)
+Sentry: # Sentry配置
+  Dsn: "http://4ea0af5cd88d4512b7e52070506c80ec@localhost:9000/2"
+  Debug: True
+  AttachStacktrace: True
+  TracesSampleRate: 1.0
+  AttachLogrus: True  # logrus是否附加到Sentry
+  AttachGin: True     # gin是否附加到Sentry
 Logger: # 日志通用配置
   Level: debug # 日志级别 panic|fatal|error|warn|info|debug|trace
 LoggerFile: # 使用File写日志
