@@ -47,8 +47,8 @@ func (s *suites) Set(value string) error {
 func init() {
 	flagParse()
 
-	conf.Initialize(features, noDefaultFeatures)
-	internal.Initialize()
+	conf.Initial(features, noDefaultFeatures)
+	internal.Initial()
 }
 
 func deferFn() {

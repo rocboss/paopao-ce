@@ -8,7 +8,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/migration"
 )
 
-func Initialize() {
+func Initial() {
 	// migrate database if needed
 	migration.Run()
 }
