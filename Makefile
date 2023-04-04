@@ -4,9 +4,10 @@ TARGET = paopao-ce
 ifeq ($(OS),Windows_NT)
 TARGET := $(TARGET).exe
 endif
+TARGET_BIN = $(basename $(TARGET))
 
 ifeq (n$(CGO_ENABLED),n)
-CGO_ENABLED := 1
+CGO_ENABLED := 0
 endif
 
 RELEASE_ROOT = release
@@ -22,9 +23,9 @@ SHA_SHORT := $(shell git rev-parse --short HEAD)
 
 TAGS = ""
 MOD_NAME = github.com/rocboss/paopao-ce
-LDFLAGS = -X "${MOD_NAME}/pkg/debug.version=${BUILD_VERSION}" \
-          -X "${MOD_NAME}/pkg/debug.buildDate=${BUILD_DATE}" \
-          -X "${MOD_NAME}/pkg/debug.commitID=${SHA_SHORT}" -w -s
+LDFLAGS = -X "${MOD_NAME}/pkg/version.version=${BUILD_VERSION}" \
+          -X "${MOD_NAME}/pkg/version.buildDate=${BUILD_DATE}" \
+          -X "${MOD_NAME}/pkg/version.commitID=${SHA_SHORT}" -w -s
 
 all: fmt build
 
@@ -51,22 +52,22 @@ release: linux-amd64 darwin-amd64 darwin-arm64 windows-x64
 .PHONY: linux-amd64
 linux-amd64:
 	@echo Build paopao-ce [linux-amd64] CGO_ENABLED=$(CGO_ENABLED)
-	@CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 go build -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_LINUX_AMD64)/$(TARGET)
+	@CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 go build -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_LINUX_AMD64)/$(TARGET_BIN)
 
 .PHONY: darwin-amd64
 darwin-amd64:
 	@echo Build paopao-ce [darwin-amd64] CGO_ENABLED=$(CGO_ENABLED)
-	@CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_AMD64)/$(TARGET)
+	@CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_AMD64)/$(TARGET_BIN)
 
 .PHONY: darwin-arm64
 darwin-arm64:
 	@echo Build paopao-ce [darwin-arm64] CGO_ENABLED=$(CGO_ENABLED)
-	@CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=arm64 go build -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_ARM64)/$(TARGET)
+	@CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=arm64 go build -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_ARM64)/$(TARGET_BIN)
 
 .PHONY: windows-x64
 windows-x64:
 	@echo Build paopao-ce [windows-x64] CGO_ENABLED=$(CGO_ENABLED)
-	@CGO_ENABLED=$(CGO_ENABLED) GOOS=windows GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_WINDOWS_AMD64)/$(basename $(TARGET)).exe
+	@CGO_ENABLED=$(CGO_ENABLED) GOOS=windows GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_WINDOWS_AMD64)/$(TARGET_BIN).exe
 
 .PHONY: generate
 generate: gen-mir gen-grpc

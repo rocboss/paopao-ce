@@ -877,7 +877,7 @@ func newPrivSrv(s *base.DaoServant, oss core.ObjectStorageService) api.Priv {
 func newPrivBinding() api.PrivBinding {
 	return &privBinding{
 		UnimplementedPrivBinding: &api.UnimplementedPrivBinding{
-			BindAny: base.BindAny,
+			BindAny: base.NewBindAnyFn(),
 		},
 	}
 }
