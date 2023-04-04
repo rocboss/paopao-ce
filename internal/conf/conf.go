@@ -53,13 +53,13 @@ var (
 )
 
 func setupSetting(suite []string, noDefault bool) error {
-	setting, err := newSetting()
+	vp, err := newViper()
 	if err != nil {
 		return err
 	}
 
 	// initialize features configure
-	ss, kv := setting.featuresInfoFrom("Features")
+	ss, kv := featuresInfoFrom(vp, "Features")
 	cfg.Initial(ss, kv)
 	if len(suite) > 0 {
 		cfg.Use(suite, noDefault)
@@ -104,8 +104,11 @@ func setupSetting(suite []string, noDefault bool) error {
 		"LocalOSS":          &LocalOSSSetting,
 		"S3":                &S3Setting,
 	}
-	if err = setting.Unmarshal(objects); err != nil {
-		return err
+	for k, v := range objects {
+		err := vp.UnmarshalKey(k, v)
+		if err != nil {
+			return err
+		}
 	}
 
 	JWTSetting.Expire *= time.Second
@@ -123,7 +126,6 @@ func Initial(suite []string, noDefault bool) {
 	if err != nil {
 		log.Fatalf("init.setupSetting err: %v", err)
 	}
-
 	setupLogger()
 	initSentry()
 }
