@@ -128,7 +128,7 @@ func newFriendshipSrv(s *base.DaoServant) api.Friendship {
 func newFriendshipBinding() api.FriendshipBinding {
 	return &friendshipBinding{
 		UnimplementedFriendshipBinding: &api.UnimplementedFriendshipBinding{
-			BindAny: base.BindAny,
+			BindAny: base.NewBindAnyFn(),
 		},
 	}
 }

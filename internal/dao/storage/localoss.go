@@ -5,7 +5,6 @@
 package storage
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -14,6 +13,7 @@ import (
 	"time"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/cockroachdb/errors"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/sirupsen/logrus"
 )
