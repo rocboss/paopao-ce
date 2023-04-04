@@ -6,56 +6,54 @@ package conf
 
 import (
 	"log"
-	"sync"
 	"time"
 
 	"github.com/alimy/cfg"
 )
 
 var (
-	loggerSetting      *LoggerSettingS
-	loggerFileSetting  *LoggerFileSettingS
-	loggerZincSetting  *LoggerZincSettingS
-	loggerMeiliSetting *LoggerMeiliSettingS
-	sentrySetting      *SentrySettingS
-	redisSetting       *RedisSettingS
+	loggerSetting      *loggerConf
+	loggerFileSetting  *loggerFileConf
+	loggerZincSetting  *loggerZincConf
+	loggerMeiliSetting *loggerMeiliConf
+	sentrySetting      *sentryConf
+	redisSetting       *redisConf
 
-	PyroscopeSetting        *PyroscopeSettingS
-	DatabaseSetting         *DatabaseSetingS
-	MysqlSetting            *MySQLSettingS
-	PostgresSetting         *PostgresSettingS
-	Sqlite3Setting          *Sqlite3SettingS
-	WebServerSetting        *HttpServerSettingS
-	AdminServerSetting      *HttpServerSettingS
-	SpaceXServerSetting     *HttpServerSettingS
-	BotServerSetting        *HttpServerSettingS
-	LocalossServerSetting   *HttpServerSettingS
-	FrontendWebSetting      *HttpServerSettingS
-	DocsServerSetting       *HttpServerSettingS
-	MobileServerSetting     *GRPCServerSettingS
-	AppSetting              *AppSettingS
-	CacheIndexSetting       *CacheIndexSettingS
-	SimpleCacheIndexSetting *SimpleCacheIndexSettingS
-	BigCacheIndexSetting    *BigCacheIndexSettingS
-	RedisCacheIndexSetting  *RedisCacheIndexSettingS
-	SmsJuheSetting          *SmsJuheSettings
-	AlipaySetting           *AlipaySettingS
-	TweetSearchSetting      *TweetSearchS
-	ZincSetting             *ZincSettingS
-	MeiliSetting            *MeiliSettingS
-	ObjectStorage           *ObjectStorageS
-	AliOSSSetting           *AliOSSSettingS
-	COSSetting              *COSSettingS
-	HuaweiOBSSetting        *HuaweiOBSSettingS
-	MinIOSetting            *MinIOSettingS
-	S3Setting               *S3SettingS
-	LocalOSSSetting         *LocalOSSSettingS
-	JWTSetting              *JWTSettingS
-	Mutex                   *sync.Mutex
+	PyroscopeSetting        *pyroscopeConf
+	DatabaseSetting         *databaseConf
+	MysqlSetting            *mysqlConf
+	PostgresSetting         *postgresConf
+	Sqlite3Setting          *sqlite3Conf
+	WebServerSetting        *httpServerConf
+	AdminServerSetting      *httpServerConf
+	SpaceXServerSetting     *httpServerConf
+	BotServerSetting        *httpServerConf
+	LocalossServerSetting   *httpServerConf
+	FrontendWebSetting      *httpServerConf
+	DocsServerSetting       *httpServerConf
+	MobileServerSetting     *grpcServerConf
+	AppSetting              *appConf
+	CacheIndexSetting       *cacheIndexConf
+	SimpleCacheIndexSetting *simpleCacheIndexConf
+	BigCacheIndexSetting    *bigCacheIndexConf
+	RedisCacheIndexSetting  *redisCacheIndexConf
+	SmsJuheSetting          *smsJuheConf
+	AlipaySetting           *alipayConf
+	TweetSearchSetting      *tweetSearchConf
+	ZincSetting             *zincConf
+	MeiliSetting            *meiliConf
+	ObjectStorage           *objectStorageS
+	AliOSSSetting           *aliOSSConf
+	COSSetting              *cosConf
+	HuaweiOBSSetting        *huaweiOBSConf
+	MinIOSetting            *minioConf
+	S3Setting               *s3Conf
+	LocalOSSSetting         *localossConf
+	JWTSetting              *jwtConf
 )
 
 func setupSetting(suite []string, noDefault bool) error {
-	setting, err := NewSetting()
+	setting, err := newSetting()
 	if err != nil {
 		return err
 	}
@@ -117,11 +115,10 @@ func setupSetting(suite []string, noDefault bool) error {
 	RedisCacheIndexSetting.ExpireInSecond *= time.Second
 	redisSetting.ConnWriteTimeout *= time.Second
 
-	Mutex = &sync.Mutex{}
 	return nil
 }
 
-func Initialize(suite []string, noDefault bool) {
+func Initial(suite []string, noDefault bool) {
 	err := setupSetting(suite, noDefault)
 	if err != nil {
 		log.Fatalf("init.setupSetting err: %v", err)
