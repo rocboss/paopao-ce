@@ -5,7 +5,10 @@ All notable changes to paopao-ce are documented in this file.
 ## 0.3.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
 
 ### Added
--  add `RedisCacheIndex` feature [#250](https://github.com/rocboss/paopao-ce/pull/250)
+
+- add custom comment sort strategy support [#243](https://github.com/rocboss/paopao-ce/pull/243)
+- add `RedisCacheIndex` feature [#250](https://github.com/rocboss/paopao-ce/pull/250)
+- add `Sentry` feature [#258](https://github.com/rocboss/paopao-ce/pull/258)
 
 ### Changed
 

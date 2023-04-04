@@ -8,9 +8,9 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	stdjson "encoding/json"
-	"errors"
 	"fmt"
 
+	"github.com/cockroachdb/errors"
 	"github.com/rocboss/paopao-ce/pkg/json"
 )
 
