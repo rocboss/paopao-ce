@@ -1,36 +1,27 @@
-// Copyright 2022 ROC. All rights reserved.
+// Copyright 2023 ROC. All rights reserved.
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
 package conf
 
 import (
-	"embed"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/pyroscope-io/client/pyroscope"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"gorm.io/gorm/logger"
 )
 
-//go:embed config.yaml
-var files embed.FS
-
-type Setting struct {
-	vp *viper.Viper
-}
-
-type PyroscopeSettingS struct {
+type pyroscopeConf struct {
 	AppName   string
 	Endpoint  string
 	AuthToken string
 	Logger    string
 }
 
-type SentrySettingS struct {
+type sentryConf struct {
 	Dsn              string
 	Debug            bool
 	AttachStacktrace bool
@@ -39,17 +30,17 @@ type SentrySettingS struct {
 	AttachGin        bool
 }
 
-type LoggerSettingS struct {
+type loggerConf struct {
 	Level string
 }
 
-type LoggerFileSettingS struct {
+type loggerFileConf struct {
 	SavePath string
 	FileName string
 	FileExt  string
 }
 
-type LoggerZincSettingS struct {
+type loggerZincConf struct {
 	Host     string
 	Index    string
 	User     string
@@ -57,7 +48,7 @@ type LoggerZincSettingS struct {
 	Secure   bool
 }
 
-type LoggerMeiliSettingS struct {
+type loggerMeiliConf struct {
 	Host         string
 	Index        string
 	ApiKey       string
@@ -66,7 +57,7 @@ type LoggerMeiliSettingS struct {
 	MinWorker    int
 }
 
-type HttpServerSettingS struct {
+type httpServerConf struct {
 	RunMode      string
 	HttpIp       string
 	HttpPort     string
@@ -74,12 +65,12 @@ type HttpServerSettingS struct {
 	WriteTimeout time.Duration
 }
 
-type GRPCServerSettingS struct {
+type grpcServerConf struct {
 	Host string
 	Port string
 }
 
-type AppSettingS struct {
+type appConf struct {
 	RunMode               string
 	MaxCommentCount       int64
 	AttachmentIncomeRate  float64
@@ -88,30 +79,30 @@ type AppSettingS struct {
 	MaxPageSize           int
 }
 
-type CacheIndexSettingS struct {
+type cacheIndexConf struct {
 	MaxUpdateQPS int
 	MinWorker    int
 }
 
-type SimpleCacheIndexSettingS struct {
+type simpleCacheIndexConf struct {
 	MaxIndexSize       int
 	CheckTickDuration  time.Duration
 	ExpireTickDuration time.Duration
 }
 
-type BigCacheIndexSettingS struct {
+type bigCacheIndexConf struct {
 	MaxIndexPage     int
 	HardMaxCacheSize int
 	ExpireInSecond   time.Duration
 	Verbose          bool
 }
 
-type RedisCacheIndexSettingS struct {
+type redisCacheIndexConf struct {
 	ExpireInSecond time.Duration
 	Verbose        bool
 }
 
-type AlipaySettingS struct {
+type alipayConf struct {
 	AppID             string
 	PrivateKey        string
 	RootCertFile      string
@@ -120,19 +111,19 @@ type AlipaySettingS struct {
 	InProduction      bool
 }
 
-type SmsJuheSettings struct {
+type smsJuheConf struct {
 	Gateway string
 	Key     string
 	TplID   string
 	TplVal  string
 }
 
-type TweetSearchS struct {
+type tweetSearchConf struct {
 	MaxUpdateQPS int
 	MinWorker    int
 }
 
-type ZincSettingS struct {
+type zincConf struct {
 	Host     string
 	Index    string
 	User     string
@@ -140,19 +131,19 @@ type ZincSettingS struct {
 	Secure   bool
 }
 
-type MeiliSettingS struct {
+type meiliConf struct {
 	Host   string
 	Index  string
 	ApiKey string
 	Secure bool
 }
 
-type DatabaseSetingS struct {
+type databaseConf struct {
 	TablePrefix string
 	LogLevel    string
 }
 
-type MySQLSettingS struct {
+type mysqlConf struct {
 	UserName     string
 	Password     string
 	Host         string
@@ -163,18 +154,18 @@ type MySQLSettingS struct {
 	MaxOpenConns int
 }
 
-type PostgresSettingS map[string]string
+type postgresConf map[string]string
 
-type Sqlite3SettingS struct {
+type sqlite3Conf struct {
 	Path string
 }
 
-type ObjectStorageS struct {
+type objectStorageS struct {
 	RetainInDays int
 	TempDir      string
 }
 
-type MinIOSettingS struct {
+type minioConf struct {
 	AccessKey string
 	SecretKey string
 	Secure    bool
@@ -183,7 +174,7 @@ type MinIOSettingS struct {
 	Domain    string
 }
 
-type S3SettingS struct {
+type s3Conf struct {
 	AccessKey string
 	SecretKey string
 	Secure    bool
@@ -192,7 +183,7 @@ type S3SettingS struct {
 	Domain    string
 }
 
-type AliOSSSettingS struct {
+type aliOSSConf struct {
 	AccessKeyID     string
 	AccessKeySecret string
 	Endpoint        string
@@ -200,7 +191,7 @@ type AliOSSSettingS struct {
 	Domain          string
 }
 
-type COSSettingS struct {
+type cosConf struct {
 	SecretID  string
 	SecretKey string
 	Region    string
@@ -208,7 +199,7 @@ type COSSettingS struct {
 	Domain    string
 }
 
-type HuaweiOBSSettingS struct {
+type huaweiOBSConf struct {
 	AccessKey string
 	SecretKey string
 	Endpoint  string
@@ -216,14 +207,14 @@ type HuaweiOBSSettingS struct {
 	Domain    string
 }
 
-type LocalOSSSettingS struct {
+type localossConf struct {
 	SavePath string
 	Secure   bool
 	Bucket   string
 	Domain   string
 }
 
-type RedisSettingS struct {
+type redisConf struct {
 	InitAddress      []string
 	Username         string
 	Password         string
@@ -231,79 +222,21 @@ type RedisSettingS struct {
 	ConnWriteTimeout time.Duration
 }
 
-type JWTSettingS struct {
+type jwtConf struct {
 	Secret string
 	Issuer string
 	Expire time.Duration
 }
 
-func NewSetting() (*Setting, error) {
-	cfgFile, err := files.Open("config.yaml")
-	if err != nil {
-		return nil, err
-	}
-	defer cfgFile.Close()
-
-	vp := viper.New()
-	vp.SetConfigName("config")
-	vp.AddConfigPath(".")
-	vp.AddConfigPath("custom/")
-	vp.SetConfigType("yaml")
-	if err = vp.ReadConfig(cfgFile); err != nil {
-		return nil, err
-	}
-	if err = vp.MergeInConfig(); err != nil {
-		return nil, err
-	}
-
-	return &Setting{vp}, nil
-}
-
-func (s *Setting) ReadSection(k string, v any) error {
-	err := s.vp.UnmarshalKey(k, v)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *Setting) Unmarshal(objects map[string]any) error {
-	for k, v := range objects {
-		err := s.vp.UnmarshalKey(k, v)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (s *Setting) featuresInfoFrom(k string) (map[string][]string, map[string]string) {
-	sub := s.vp.Sub(k)
-	keys := sub.AllKeys()
-
-	suites := make(map[string][]string)
-	kv := make(map[string]string, len(keys))
-	for _, key := range sub.AllKeys() {
-		val := sub.Get(key)
-		switch v := val.(type) {
-		case string:
-			kv[key] = v
-		case []any:
-			suites[key] = sub.GetStringSlice(key)
-		}
-	}
-	return suites, kv
-}
-
-func (s *HttpServerSettingS) GetReadTimeout() time.Duration {
+func (s *httpServerConf) GetReadTimeout() time.Duration {
 	return s.ReadTimeout * time.Second
 }
 
-func (s *HttpServerSettingS) GetWriteTimeout() time.Duration {
+func (s *httpServerConf) GetWriteTimeout() time.Duration {
 	return s.WriteTimeout * time.Second
 }
 
-func (s *MySQLSettingS) Dsn() string {
+func (s *mysqlConf) Dsn() string {
 	return fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local",
 		s.UserName,
 		s.Password,
@@ -314,7 +247,7 @@ func (s *MySQLSettingS) Dsn() string {
 	)
 }
 
-func (s PostgresSettingS) Dsn() string {
+func (s postgresConf) Dsn() string {
 	var params []string
 	for k, v := range s {
 		if len(v) == 0 {
@@ -334,7 +267,7 @@ func (s PostgresSettingS) Dsn() string {
 	return strings.Join(params, " ")
 }
 
-func (s *Sqlite3SettingS) Dsn(driverName string) string {
+func (s *sqlite3Conf) Dsn(driverName string) string {
 	pragmas := "_foreign_keys=1&_journal_mode=WAL&_synchronous=NORMAL&_busy_timeout=8000"
 	if driverName == "sqlite" {
 		pragmas = "_pragma=foreign_keys(1)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=busy_timeout(8000)&_pragma=journal_size_limit(100000000)"
@@ -342,7 +275,7 @@ func (s *Sqlite3SettingS) Dsn(driverName string) string {
 	return fmt.Sprintf("file:%s?%s", s.Path, pragmas)
 }
 
-func (s *DatabaseSetingS) logLevel() logger.LogLevel {
+func (s *databaseConf) logLevel() logger.LogLevel {
 	switch strings.ToLower(s.LogLevel) {
 	case "silent":
 		return logger.Silent
@@ -357,7 +290,7 @@ func (s *DatabaseSetingS) logLevel() logger.LogLevel {
 	}
 }
 
-func (s *LoggerSettingS) logLevel() logrus.Level {
+func (s *loggerConf) logLevel() logrus.Level {
 	switch strings.ToLower(s.Level) {
 	case "panic":
 		return logrus.PanicLevel
@@ -378,15 +311,15 @@ func (s *LoggerSettingS) logLevel() logrus.Level {
 	}
 }
 
-func (s *LoggerZincSettingS) Endpoint() string {
+func (s *loggerZincConf) Endpoint() string {
 	return endpoint(s.Host, s.Secure)
 }
 
-func (s *LoggerMeiliSettingS) Endpoint() string {
+func (s *loggerMeiliConf) Endpoint() string {
 	return endpoint(s.Host, s.Secure)
 }
 
-func (s *LoggerMeiliSettingS) minWork() int {
+func (s *loggerMeiliConf) minWork() int {
 	if s.MinWorker < 5 {
 		return 5
 	} else if s.MinWorker > 100 {
@@ -395,7 +328,7 @@ func (s *LoggerMeiliSettingS) minWork() int {
 	return s.MinWorker
 }
 
-func (s *LoggerMeiliSettingS) maxLogBuffer() int {
+func (s *loggerMeiliConf) maxLogBuffer() int {
 	if s.MaxLogBuffer < 10 {
 		return 10
 	} else if s.MaxLogBuffer > 1000 {
@@ -404,19 +337,19 @@ func (s *LoggerMeiliSettingS) maxLogBuffer() int {
 	return s.MaxLogBuffer
 }
 
-func (s *ObjectStorageS) TempDirSlash() string {
+func (s *objectStorageS) TempDirSlash() string {
 	return strings.Trim(s.TempDir, " /") + "/"
 }
 
-func (s *ZincSettingS) Endpoint() string {
+func (s *zincConf) Endpoint() string {
 	return endpoint(s.Host, s.Secure)
 }
 
-func (s *MeiliSettingS) Endpoint() string {
+func (s *meiliConf) Endpoint() string {
 	return endpoint(s.Host, s.Secure)
 }
 
-func (s *PyroscopeSettingS) GetLogger() (logger pyroscope.Logger) {
+func (s *pyroscopeConf) GetLogger() (logger pyroscope.Logger) {
 	switch strings.ToLower(s.Logger) {
 	case "standard":
 		logger = pyroscope.StandardLogger
