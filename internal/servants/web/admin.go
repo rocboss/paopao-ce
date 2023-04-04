@@ -59,7 +59,7 @@ func newAdminSrv(s *base.DaoServant) api.Admin {
 func newAdminBinding() api.AdminBinding {
 	return &adminBinding{
 		UnimplementedAdminBinding: &api.UnimplementedAdminBinding{
-			BindAny: base.BindAny,
+			BindAny: base.NewBindAnyFn(),
 		},
 	}
 }

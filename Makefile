@@ -22,9 +22,9 @@ SHA_SHORT := $(shell git rev-parse --short HEAD)
 
 TAGS = ""
 MOD_NAME = github.com/rocboss/paopao-ce
-LDFLAGS = -X "${MOD_NAME}/pkg/debug.version=${BUILD_VERSION}" \
-          -X "${MOD_NAME}/pkg/debug.buildDate=${BUILD_DATE}" \
-          -X "${MOD_NAME}/pkg/debug.commitID=${SHA_SHORT}" -w -s
+LDFLAGS = -X "${MOD_NAME}/pkg/version.version=${BUILD_VERSION}" \
+          -X "${MOD_NAME}/pkg/version.buildDate=${BUILD_DATE}" \
+          -X "${MOD_NAME}/pkg/version.commitID=${SHA_SHORT}" -w -s
 
 all: fmt build
 

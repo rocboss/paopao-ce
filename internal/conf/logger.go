@@ -6,8 +6,11 @@ package conf
 
 import (
 	"io"
+	"time"
 
 	"github.com/alimy/cfg"
+	"github.com/getsentry/sentry-go"
+	sentrylogrus "github.com/getsentry/sentry-go/logrus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -41,4 +44,17 @@ func setupLogger() {
 			logrus.AddHook(hook)
 		},
 	})
+}
+
+func setupSentryLogrus(opts sentry.ClientOptions) {
+	// Send only ERROR and higher level logs to Sentry
+	sentryLevels := []logrus.Level{logrus.ErrorLevel, logrus.FatalLevel, logrus.PanicLevel}
+	sentryHook, err := sentrylogrus.New(sentryLevels, opts)
+	if err != nil {
+		panic(err)
+	}
+	logrus.AddHook(sentryHook)
+	// Flushes before calling os.Exit(1) when using logger.Fatal
+	// (else all defers are not called, and Sentry does not have time to send the event)
+	logrus.RegisterExitHandler(func() { sentryHook.Flush(5 * time.Second) })
 }
