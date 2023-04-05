@@ -5,10 +5,10 @@
 package sakila
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	_ "embed"
-	"strings"
 
 	"github.com/alimy/yesql"
 	"github.com/jmoiron/sqlx"
@@ -17,7 +17,8 @@ import (
 )
 
 var (
-	_db *sqlx.DB
+	_db          *sqlx.DB
+	_tablePrefix string
 )
 
 type sqlxSrv struct {
@@ -110,7 +111,27 @@ func n(query string) *sqlx.NamedStmt {
 
 // t repace table prefix for query
 func t(query string) string {
-	return strings.Replace(query, "@", conf.DatabaseSetting.TablePrefix, -1)
+	buf := bytes.NewBuffer(make([]byte, 0, len(query)))
+	qr := make([]rune, 0, len(query))
+	for _, c := range query {
+		qr = append(qr, c)
+	}
+	isPrevAt := false
+	size := len(qr)
+	for i := 0; i < size; i++ {
+		if qr[i] == '@' {
+			if next := i + 1; next == size || (!isPrevAt && qr[next] != '@') {
+				buf.WriteString(_tablePrefix)
+			} else {
+				buf.WriteRune('@')
+			}
+			isPrevAt = true
+		} else {
+			buf.WriteRune(qr[i])
+			isPrevAt = false
+		}
+	}
+	return buf.String()
 }
 
 // yesqlScan yesql.Scan help function
@@ -122,9 +143,7 @@ func yesqlScan[T any](query yesql.SQLQuery, obj T) T {
 }
 
 func mustBuild[T any](db *sqlx.DB, fn func(yesql.PreparexBuilder, ...context.Context) (T, error)) T {
-	p := yesql.NewPreparexBuilder(db, func(query string) string {
-		return strings.Replace(query, "@", conf.DatabaseSetting.TablePrefix, -1)
-	})
+	p := yesql.NewPreparexBuilder(db, t)
 	obj, err := fn(p)
 	if err != nil {
 		logrus.Fatalf("build object failure: %s", err)
@@ -134,4 +153,10 @@ func mustBuild[T any](db *sqlx.DB, fn func(yesql.PreparexBuilder, ...context.Con
 
 func initSqlxDB() {
 	_db = conf.MustSqlxDB()
+	_tablePrefix = conf.DatabaseSetting.TablePrefix
+}
+
+// FnTest_t just for test t(...) function not use in out package
+func FnTest_t(query string) string {
+	return t(query)
 }
