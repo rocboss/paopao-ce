@@ -18,7 +18,7 @@ import (
 )
 
 //go:embed config.yaml
-var fileBytes []byte
+var configBytes []byte
 
 type pyroscopeConf struct {
 	AppName   string
@@ -379,7 +379,7 @@ func newViper() (*viper.Viper, error) {
 	vp.AddConfigPath(".")
 	vp.AddConfigPath("custom/")
 	vp.SetConfigType("yaml")
-	err := vp.ReadConfig(bytes.NewReader(fileBytes))
+	err := vp.ReadConfig(bytes.NewReader(configBytes))
 	if err != nil {
 		return nil, err
 	}
