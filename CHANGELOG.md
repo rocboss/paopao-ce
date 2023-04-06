@@ -10,6 +10,10 @@ All notable changes to paopao-ce are documented in this file.
 - add `RedisCacheIndex` feature [#250](https://github.com/rocboss/paopao-ce/pull/250)
 - add `Sentry` feature [#258](https://github.com/rocboss/paopao-ce/pull/258)
 
+### Fixed
+
+- fixed sql ddl p_contact's column `is_delete` define error (change to `is_del`) in scripts/paopao-mysql.sql [&afd8fe1](https://github.com/rocboss/paopao-ce/commit/afd8fe18d2dce08a4af846c2f822379d99a3d3b3 'commit afd8fe1')
+
 ### Changed
 
 - use [github.com/rueian/rueidis](https://github.com/rueian/rueidis) as Redis client [#249](https://github.com/rocboss/paopao-ce/pull/249)   
