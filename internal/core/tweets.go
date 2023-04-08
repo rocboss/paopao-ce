@@ -33,11 +33,6 @@ type (
 	Attachment         = dbr.Attachment
 	AttachmentType     = dbr.AttachmentType
 	PostContentT       = dbr.PostContentT
-
-	IndexTweetList struct {
-		Tweets []*PostFormated
-		Total  int64
-	}
 )
 
 // TweetService 推文检索服务
@@ -78,20 +73,15 @@ type TweetHelpService interface {
 	MergePosts(posts []*Post) ([]*PostFormated, error)
 }
 
-// IndexPostsService 广场首页推文列表服务
-type IndexPostsService interface {
-	IndexPosts(user *User, offset int, limit int) (*IndexTweetList, error)
-}
-
 // TweetServantA 推文检索服务(版本A)
 type TweetServantA interface {
 	TweetInfoById(id int64) (*cs.TweetInfo, error)
 	TweetItemById(id int64) (*cs.TweetItem, error)
 	UserTweets(visitorId, userId int64) (cs.TweetList, error)
 	ReactionByTweetId(userId int64, tweetId int64) (*cs.ReactionItem, error)
-	UserReactions(userId int64, offset int, limit int) (cs.ReactionList, error)
+	UserReactions(userId int64, limit int, offset int) (cs.ReactionList, error)
 	FavoriteByTweetId(userId int64, tweetId int64) (*cs.FavoriteItem, error)
-	UserFavorites(userId int64, offset int, limit int) (cs.FavoriteList, error)
+	UserFavorites(userId int64, limit int, offset int) (cs.FavoriteList, error)
 	AttachmentByTweetId(userId int64, tweetId int64) (*cs.AttachmentBill, error)
 }
 

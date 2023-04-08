@@ -8,12 +8,17 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 )
 
-// TweetTimelineService 广场首页推文时间线服务
-type TweetTimelineService interface {
-	TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error)
+type IndexTweetList struct {
+	Tweets []*PostFormated
+	Total  int64
 }
 
-// TweetTimelineServantA 广场首页推文时间线服务(版本A)
-type TweetTimelineServantA interface {
-	TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error)
+// IndexPostsService 广场首页推文列表服务
+type IndexPostsService interface {
+	IndexPosts(user *User, offset int, limit int) (*IndexTweetList, error)
+}
+
+// IndexPostsServantA 广场首页推文列表服务(版本A)
+type IndexPostsServantA interface {
+	IndexPosts(user *User, limit int, offset int) (*cs.TweetBox, error)
 }
