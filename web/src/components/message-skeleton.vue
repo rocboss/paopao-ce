@@ -24,4 +24,9 @@ const props = withDefaults(defineProps<{
         width: 100%;
     }
 }
+.dark {
+    .skeleton-item {
+        background-color: rgba(16, 16, 20, 0.75);
+    }
+}
 </style>

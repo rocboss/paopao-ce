@@ -428,4 +428,12 @@ onMounted(() => {
         overflow: hidden;
     }
 }
+.dark {
+    .compose-mention {
+        background-color: rgba(16, 16, 20, 0.75);
+    }
+    .compose-wrap {
+        background-color: rgba(16, 16, 20, 0.75);
+    }
+}
 </style>

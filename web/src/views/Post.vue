@@ -149,4 +149,9 @@ watch(postId, () => {
         opacity: 0.75;
     }
 }
+.dark {
+    .main-content-wrap, .skeleton-wrap {
+        background-color: rgba(16, 16, 20, 0.75);
+    }
+}
 </style>
