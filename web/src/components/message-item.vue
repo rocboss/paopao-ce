@@ -221,6 +221,10 @@ const handleReadMessage = (message: Item.MessageProps) => {
         &.unread {
             background: #0f180b;
         }
+        .brief-wrap {
+            background-color: #18181c;
+        }
+        background-color: rgba(16, 16, 20, 0.75);
     }
 }
 </style>
