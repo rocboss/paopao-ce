@@ -283,7 +283,7 @@ CREATE TABLE `p_contact` (
 	`status` tinyint NOT NULL DEFAULT '0' COMMENT '好友状态: 1请求好友, 2已好友, 3拒绝好友, 4已删好友',
 	`is_top` tinyint NOT NULL DEFAULT '0' COMMENT '是否置顶, 0否, 1是',
 	`is_black` tinyint NOT NULL DEFAULT '0' COMMENT '是否为黑名单, 0否, 1是',
-	`is_delete` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除好友, 0否, 1是',
+	`is_del` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除好友, 0否, 1是',
 	`notice_enable` tinyint NOT NULL DEFAULT '0' COMMENT '是否有消息提醒, 0否, 1是',
 	`created_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
 	`modified_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',

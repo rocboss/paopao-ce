@@ -9,7 +9,7 @@ require (
 	github.com/alimy/mir/v3 v3.1.1
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.7+incompatible
 	github.com/allegro/bigcache/v3 v3.0.2
-	github.com/bytedance/sonic v1.8.5
+	github.com/bytedance/sonic v1.8.7
 	github.com/cockroachdb/errors v1.9.1
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.15.0
@@ -18,7 +18,7 @@ require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/goccy/go-json v0.10.2
-	github.com/gofrs/uuid v4.0.0+incompatible
+	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.23.3+incompatible
@@ -26,13 +26,13 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/kyleconroy/sqlc v1.17.2
 	github.com/meilisearch/meilisearch-go v0.21.0
-	github.com/minio/minio-go/v7 v7.0.50
+	github.com/minio/minio-go/v7 v7.0.51
 	github.com/onsi/ginkgo/v2 v2.9.2
-	github.com/onsi/gomega v1.27.5
+	github.com/onsi/gomega v1.27.6
 	github.com/pyroscope-io/client v0.7.0
 	github.com/rueian/rueidis v0.0.97
 	github.com/sirupsen/logrus v1.9.0
-	github.com/smartwalle/alipay/v3 v3.2.0
+	github.com/smartwalle/alipay/v3 v3.2.1
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.15.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.41
@@ -122,7 +122,7 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/rs/xid v1.4.0 // indirect
-	github.com/smartwalle/crypto4go v1.0.2 // indirect
+	github.com/smartwalle/ncrypto v1.0.0 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/cobra v1.6.1 // indirect

@@ -147,14 +147,14 @@
                 <post-video :videos="post.videos" :full="true" />
                 <post-link :links="post.links" />
                 <div class="timestamp">
-                    发布于 {{ formatPrettyTime(post.created_on) }}
+                    发布于 {{ formatPrettyTime(post.created_on, store.state.collapsedLeft) }}
                     <span v-if="post.ip_loc">
                         <n-divider vertical />
                         {{ post.ip_loc }}
                     </span>
-                    <span v-if="post.created_on != post.latest_replied_on">
+                    <span v-if="!store.state.collapsedLeft && post.created_on != post.latest_replied_on">
                         <n-divider vertical /> 最后回复
-                        {{ formatPrettyTime(post.latest_replied_on) }}
+                        {{ formatPrettyTime(post.latest_replied_on, store.state.collapsedLeft) }}
                     </span>
                 </div>
             </template>

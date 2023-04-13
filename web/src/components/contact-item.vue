@@ -69,6 +69,7 @@ const goUserProfile = (username: string) => {
         &:hover {
             background: #18181c;
         }
+        background-color: rgba(16, 16, 20, 0.75);
     }
 }
 </style>
