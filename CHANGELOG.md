@@ -36,6 +36,8 @@ All notable changes to paopao-ce are documented in this file.
       SelectDB:
       ConnWriteTimeout: 60   # 连接写超时时间 多少秒 默认 60秒
     ```
+- optimize web frontend dark theme [&b082a8f](https://github.com/rocboss/paopao-ce/commit/b082a8fa5e43dd6dacf459df93fa7e243dd901ea 'commit b082a8f')
+- change web frontend main content layout default size to 544px [&b082a8f](https://github.com/rocboss/paopao-ce/commit/b082a8fa5e43dd6dacf459df93fa7e243dd901ea 'commit b082a8f')
 
 ### Removed
 
