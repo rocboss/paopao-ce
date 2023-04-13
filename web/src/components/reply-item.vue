@@ -32,7 +32,7 @@
                         ? props.reply.ip_loc + ' · '
                         : props.reply.ip_loc
                 }}
-                {{ formatPrettyTime(props.reply.created_on) }}
+                {{ formatPrettyTime(props.reply.created_on, store.state.collapsedLeft) }}
                 <n-popconfirm
                     v-if="
                         store.state.userInfo.is_admin ||
@@ -163,6 +163,7 @@ const execDelAction = () => {
 .dark {
     .reply-item {
         border-bottom: 1px solid #262628;
+        background-color: rgba(16, 16, 20, 0.75);
     }
 }
 </style>
