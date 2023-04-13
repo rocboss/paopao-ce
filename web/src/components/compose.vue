@@ -672,4 +672,9 @@ onMounted(() => {
         overflow: hidden;
     }
 }
+.dark {
+    .compose-wrap {
+        background-color: rgba(16, 16, 20, 0.75);
+    }
+}
 </style>
