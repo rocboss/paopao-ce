@@ -158,6 +158,7 @@ CREATE TABLE "p_post" (
   "comment_count" integer NOT NULL,
   "collection_count" integer NOT NULL,
   "upvote_count" integer NOT NULL,
+  "share_count" integer NOT NULL,
   "is_top" integer NOT NULL,
   "is_essence" integer NOT NULL,
   "is_lock" integer NOT NULL,

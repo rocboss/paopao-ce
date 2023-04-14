@@ -257,6 +257,7 @@ func (s *DaoServant) GetTweetList(conditions *core.ConditionsT, offset, limit in
 func NewDaoServant() *DaoServant {
 	return &DaoServant{
 		Redis: cache.NewRedisCache(),
+		Dsa:   dao.WebDataServantA(),
 		Ds:    dao.DataService(),
 		Ts:    dao.TweetSearchService(),
 	}

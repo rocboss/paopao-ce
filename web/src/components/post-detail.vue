@@ -187,6 +187,15 @@
                             </n-icon>
                             {{ post.collection_count }}
                         </div>
+                        <div
+                            class="opt-item hover"
+                            @click.stop="handlePostShare"
+                        >
+                            <n-icon size="20" class="opt-item-icon">
+                                <share-social-outline />
+                            </n-icon>
+                            {{ post.share_count }}
+                        </div>
                     </n-space>
                 </div>
             </template>
@@ -205,6 +214,7 @@ import {
     HeartOutline,
     Bookmark,
     BookmarkOutline,
+    ShareSocialOutline,
     ChatboxOutline,
 } from '@vicons/ionicons5';
 import { MoreHorizFilled } from '@vicons/material';
@@ -220,6 +230,7 @@ import {
 } from '@/api/post';
 import type { DropdownOption } from 'naive-ui';
 import { VisibilityEnum } from '@/utils/IEnum';
+import copy from "copy-to-clipboard";
 
 const store = useStore();
 const router = useRouter();
@@ -515,6 +526,10 @@ const handlePostCollection = () => {
         .catch((err) => {
             console.log(err);
         });
+};
+const handlePostShare = () => {
+   copy(`${window.location.origin}/#/post?id=${post.value.id}`);
+   window.$message.success('链接已复制到剪贴板');
 };
 
 onMounted(() => {
