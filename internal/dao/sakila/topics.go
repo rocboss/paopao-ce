@@ -15,15 +15,16 @@ import (
 )
 
 var (
-	_ core.TopicService = (*topicSrv)(nil)
+	_ core.TopicService  = (*topicSrvA)(nil)
+	_ core.TopicServantA = (*topicSrvA)(nil)
 )
 
-type topicSrv struct {
+type topicSrvA struct {
 	*sqlxSrv
-	q *cc.Topic
+	q *cc.TopicA
 }
 
-func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, xerr error) {
+func (s *topicSrvA) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, xerr error) {
 	if len(tags) == 0 {
 		return nil, nil
 	}
@@ -80,7 +81,7 @@ func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, 
 	return
 }
 
-func (s *topicSrv) DecrTagsById(ids []int64) error {
+func (s *topicSrvA) DecrTagsById(ids []int64) error {
 	return s.with(func(tx *sqlx.Tx) error {
 		var ids []int64
 		err := s.inSelect(tx, &ids, s.q.TagsByIdA, ids)
@@ -92,7 +93,7 @@ func (s *topicSrv) DecrTagsById(ids []int64) error {
 	})
 }
 
-func (s *topicSrv) ListTags(typ cs.TagType, limit int, offset int) (res cs.TagList, err error) {
+func (s *topicSrvA) ListTags(typ cs.TagType, limit int, offset int) (res cs.TagList, err error) {
 	switch typ {
 	case cs.TagTypeHot:
 		err = s.q.HotTags.Select(&res, limit, offset)
@@ -102,7 +103,7 @@ func (s *topicSrv) ListTags(typ cs.TagType, limit int, offset int) (res cs.TagLi
 	return
 }
 
-func (s *topicSrv) TagsByKeyword(keyword string) (res cs.TagInfoList, err error) {
+func (s *topicSrvA) TagsByKeyword(keyword string) (res cs.TagInfoList, err error) {
 	keyword = "%" + strings.Trim(keyword, " ") + "%"
 	if keyword == "%%" {
 		err = s.q.TagsByKeywordA.Select(&res)
@@ -113,8 +114,15 @@ func (s *topicSrv) TagsByKeyword(keyword string) (res cs.TagInfoList, err error)
 }
 
 func newTopicService(db *sqlx.DB) core.TopicService {
-	return &topicSrv{
+	return &topicSrvA{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildTopic),
+		q:       mustBuild(db, cc.BuildTopicA),
+	}
+}
+
+func newTopicServantA(db *sqlx.DB) core.TopicServantA {
+	return &topicSrvA{
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildTopicA),
 	}
 }

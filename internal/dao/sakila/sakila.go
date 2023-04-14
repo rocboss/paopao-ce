@@ -9,6 +9,7 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/alimy/cfg"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/dao/security"
@@ -112,8 +113,55 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 
 func NewWebDataServantA() (core.WebDataServantA, core.VersionInfo) {
 	lazyInitial()
-	// db := conf.MustSqlxDB()
-	ds := &webDataSrvA{}
+
+	var (
+		v   core.VersionInfo
+		cis core.CacheIndexService
+		ips core.IndexPostsService
+	)
+	// pvs := security.NewPhoneVerifyService()
+	ams := NewAuthorizationManageService()
+	ths := newTweetHelpService(_db)
+
+	// initialize core.IndexPostsService
+	if cfg.If("Friendship") {
+		ips = newFriendIndexService(_db, ams, ths)
+	} else if cfg.If("Followship") {
+		ips = newFollowIndexService(_db, ths)
+	} else if cfg.If("Lightship") {
+		ips = newLightIndexService(_db, ths)
+	} else {
+		// default use lightship post index service
+		ips = newLightIndexService(_db, ths)
+	}
+
+	// initialize core.CacheIndexService
+	cfg.On(cfg.Actions{
+		"SimpleCacheIndex": func() {
+			// simpleCache use special post index service
+			ips = newSimpleIndexPostsService(_db, ths)
+			cis, v = cache.NewSimpleCacheIndexService(ips)
+		},
+		"BigCacheIndex": func() {
+			// TODO: make cache index post in different scence like friendship/followship/lightship
+			cis, v = cache.NewBigCacheIndexService(ips, ams)
+		},
+		"RedisCacheIndex": func() {
+			cis, v = cache.NewRedisCacheIndexService(ips, ams)
+		},
+	}, func() {
+		// defualt no cache
+		cis, v = cache.NewNoneCacheIndexService(ips)
+	})
+	logrus.Infof("use %s as cache index service by version: %s", v.Name(), v.Version())
+
+	db := conf.MustSqlxDB()
+	ds := &webDataSrvA{
+		TopicServantA:       newTopicServantA(db),
+		TweetServantA:       newTweetServantA(db),
+		TweetManageServantA: newTweetManageServantA(db, cis),
+		TweetHelpServantA:   newTweetHelpServantA(db),
+	}
 	return ds, ds
 }
 
@@ -135,7 +183,7 @@ func (s *webDataSrvA) Name() string {
 }
 
 func (s *webDataSrvA) Version() *semver.Version {
-	return semver.MustParse("v0.0.0")
+	return semver.MustParse("v0.0.1")
 }
 
 // lazyInitial do some package lazy initialize for performance

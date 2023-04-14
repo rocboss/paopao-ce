@@ -20,16 +20,6 @@
                     <div class="uid">UID. {{ store.state.userInfo.id }}</div>
                 </div>
             </div>
-            <template #footer>
-                <div class="pagination-wrap" v-if="totalPage > 1">
-                    <n-pagination
-                        :page="page"
-                        @update:page="updatePage"
-                        :page-slot="!store.state.collapsedRight ? 8 : 5"
-                        :page-count="totalPage"
-                    />
-                </div>
-            </template>
             <n-tabs class="profile-tabs-wrap" animated>
                 <n-tab-pane name="post" tab="泡泡"> </n-tab-pane>
                 <!-- <n-tab-pane name="comment" tab="评论"> </n-tab-pane> -->
@@ -47,6 +37,15 @@
                 </n-list-item>
             </div>
         </n-list>
+
+        <div class="pagination-wrap" v-if="totalPage > 0">
+            <n-pagination
+                :page="page"
+                @update:page="updatePage"
+                :page-slot="!store.state.collapsedRight ? 8 : 5"
+                :page-count="totalPage"
+            />
+         </div>
     </div>
 </template>
 
@@ -127,5 +126,13 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     overflow: hidden;
+}
+.dark {
+    .profile-baseinfo {
+        background-color: #18181c;
+    }
+    .profile-wrap, .pagination-wrap {
+        background-color: rgba(16, 16, 20, 0.75);
+    }
 }
 </style>

@@ -17,6 +17,11 @@ var (
 	_ core.IndexPostsService = (*followIndexSrv)(nil)
 	_ core.IndexPostsService = (*lightIndexSrv)(nil)
 	_ core.IndexPostsService = (*simpleIndexPostsSrv)(nil)
+
+	_ core.IndexPostsServantA = (*friendIndexSrvA)(nil)
+	_ core.IndexPostsServantA = (*followIndexSrvA)(nil)
+	_ core.IndexPostsServantA = (*lightIndexSrvA)(nil)
+	_ core.IndexPostsServantA = (*simpleIndexPostsSrvA)(nil)
 )
 
 type friendIndexSrv struct {
@@ -44,13 +49,33 @@ type simpleIndexPostsSrv struct {
 	q   *cc.SimpleIndex
 }
 
-// IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *friendIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
+type friendIndexSrvA struct {
+	*sqlxSrv
+	ams core.AuthorizationManageService
+	ths core.TweetHelpServantA
+	q   *cc.FriendIndexA
 }
 
-func (s *friendIndexSrv) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
+type followIndexSrvA struct {
+	*sqlxSrv
+	ths core.TweetHelpServantA
+	q   *cc.FollowIndexA
+}
+
+type lightIndexSrvA struct {
+	*sqlxSrv
+	ths core.TweetHelpServantA
+	q   *cc.LightIndexA
+}
+
+type simpleIndexPostsSrvA struct {
+	*sqlxSrv
+	ths core.TweetHelpServantA
+	q   *cc.SimpleIndexA
+}
+
+// IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
+func (s *friendIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
@@ -61,18 +86,8 @@ func (s *followIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*co
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *followIndexSrv) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
 func (s *lightIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *lightIndexSrv) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
@@ -83,7 +98,26 @@ func (s *simpleIndexPostsSrv) IndexPosts(_user *core.User, offset int, limit int
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *simpleIndexPostsSrv) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
+// IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
+func (s *friendIndexSrvA) IndexPosts(user *core.User, limit int, offset int) (*cs.TweetBox, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+// IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
+func (s *followIndexSrvA) IndexPosts(user *core.User, limit int, offset int) (*cs.TweetBox, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+// IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
+func (s *lightIndexSrvA) IndexPosts(user *core.User, limit int, offset int) (*cs.TweetBox, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+// IndexPosts simpleCacheIndex 专属获取广场推文列表函数
+func (s *simpleIndexPostsSrvA) IndexPosts(_user *core.User, limit int, offset int) (*cs.TweetBox, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
@@ -91,6 +125,7 @@ func (s *simpleIndexPostsSrv) TweetTimeline(userId int64, offset int, limit int)
 func newFriendIndexService(db *sqlx.DB, ams core.AuthorizationManageService, ths core.TweetHelpService) core.IndexPostsService {
 	return &friendIndexSrv{
 		ams:     ams,
+		ths:     ths,
 		sqlxSrv: newSqlxSrv(db),
 		q:       mustBuild(db, cc.BuildFriendIndex),
 	}
@@ -117,5 +152,38 @@ func newSimpleIndexPostsService(db *sqlx.DB, ths core.TweetHelpService) core.Ind
 		ths:     ths,
 		sqlxSrv: newSqlxSrv(db),
 		q:       mustBuild(db, cc.BuildSimpleIndex),
+	}
+}
+
+func newFriendIndexServantA(db *sqlx.DB, ams core.AuthorizationManageService, ths core.TweetHelpServantA) core.IndexPostsServantA {
+	return &friendIndexSrvA{
+		ams:     ams,
+		ths:     ths,
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildFriendIndexA),
+	}
+}
+
+func newFollowIndexServantA(db *sqlx.DB, ths core.TweetHelpServantA) core.IndexPostsServantA {
+	return &followIndexSrvA{
+		ths:     ths,
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildFollowIndexA),
+	}
+}
+
+func newLightIndexServantA(db *sqlx.DB, ths core.TweetHelpServantA) core.IndexPostsServantA {
+	return &lightIndexSrvA{
+		ths:     ths,
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildLightIndexA),
+	}
+}
+
+func newSimpleIndexPostsServantA(db *sqlx.DB, ths core.TweetHelpServantA) core.IndexPostsServantA {
+	return &simpleIndexPostsSrvA{
+		ths:     ths,
+		sqlxSrv: newSqlxSrv(db),
+		q:       mustBuild(db, cc.BuildSimpleIndexA),
 	}
 }

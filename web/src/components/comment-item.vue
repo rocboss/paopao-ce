@@ -29,7 +29,7 @@
                                 ? comment.ip_loc + ' · '
                                 : comment.ip_loc
                         }}
-                        {{ formatPrettyTime(comment.created_on) }}
+                        {{ formatPrettyTime(comment.created_on, store.state.collapsedLeft) }}
                     </span>
 
                     <n-popconfirm
@@ -246,6 +246,9 @@ const execDelAction = () => {
 .dark {
     .reply-wrap {
         background: #18181c;
+    }
+    .comment-item {
+        background-color: rgba(16, 16, 20, 0.75);
     }
 }
 </style>

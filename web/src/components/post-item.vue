@@ -102,6 +102,12 @@
                         </n-icon>
                         {{ post.collection_count }}
                     </div>
+                    <div class="opt-item">
+                        <n-icon size="18" class="opt-item-icon">
+                            <share-social-outline />
+                        </n-icon>
+                        {{ post.share_count }}
+                    </div>
                 </n-space>
             </template>
         </n-thing>
@@ -118,6 +124,7 @@ import {
     HeartOutline,
     BookmarkOutline,
     ChatboxOutline,
+    ShareSocialOutline,
 } from '@vicons/ionicons5';
 
 const route = useRoute();
@@ -251,6 +258,7 @@ const doClickText = (e: MouseEvent, id: number) => {
         &:hover {
             background: #18181c;
         }
+        background-color: rgba(16, 16, 20, 0.75);
     }
 }
 </style>

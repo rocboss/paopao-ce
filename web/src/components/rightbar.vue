@@ -13,7 +13,7 @@
                 </template>
             </n-input>
         </div>
-        <n-card title="热门话题" embedded :bordered="false" size="small">
+        <n-card class="hottopic-wrap" title="热门话题" embedded :bordered="false" size="small">
             <n-spin :show="loading">
                 <div class="hot-tag-item" v-for="tag in tags" :key="tag.id">
                     <router-link
@@ -154,6 +154,14 @@ onMounted(() => {
         .hash-link {
             font-size: 12px;
         }
+    }
+}
+.dark {
+    .hottopic-wrap {
+        background-color: #18181c;
+    }
+    .copyright-wrap {
+        background-color: #18181c;
     }
 }
 </style>

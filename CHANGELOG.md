@@ -9,6 +9,24 @@ All notable changes to paopao-ce are documented in this file.
 - add custom comment sort strategy support [#243](https://github.com/rocboss/paopao-ce/pull/243)
 - add `RedisCacheIndex` feature [#250](https://github.com/rocboss/paopao-ce/pull/250)
 - add `Sentry` feature [#258](https://github.com/rocboss/paopao-ce/pull/258)
+- add simple tweet share feature(just copy tweet link to clipboard now) support [#264](https://github.com/rocboss/paopao-ce/pull/264)
+- add default tweet max length configure in web/.env support. [&a1160ca](https://github.com/rocboss/paopao-ce/commit/a1160ca79380445157146d9eae1710543c153cce 'commit a1160ca')   
+ Set the value of `VITE_DEFAULT_TWEET_MAX_LENGTH` in file web/.env to change the tweet max default length.
+  ```
+  # file: web/.env or web/.env.local
+  ...
+  # 局部参数
+  VITE_DEFAULT_TWEET_MAX_LENGTH=300
+  ...
+  ```
+
+### Fixed
+
+- fixed sql ddl p_contact's column `is_delete` define error (change to `is_del`) in scripts/paopao-mysql.sql [&afd8fe1](https://github.com/rocboss/paopao-ce/commit/afd8fe18d2dce08a4af846c2f822379d99a3d3b3 'commit afd8fe1')
+
+### Fixed
+
+- fixed sql ddl p_contact's column `is_delete` define error (change to `is_del`) in scripts/paopao-mysql.sql [&afd8fe1](https://github.com/rocboss/paopao-ce/commit/afd8fe18d2dce08a4af846c2f822379d99a3d3b3 'commit afd8fe1')
 
 ### Changed
 
@@ -32,6 +50,8 @@ All notable changes to paopao-ce are documented in this file.
       SelectDB:
       ConnWriteTimeout: 60   # 连接写超时时间 多少秒 默认 60秒
     ```
+- optimize web frontend dark theme [&b082a8f](https://github.com/rocboss/paopao-ce/commit/b082a8fa5e43dd6dacf459df93fa7e243dd901ea 'commit b082a8f')
+- change web frontend main content layout default size to 544px [&b082a8f](https://github.com/rocboss/paopao-ce/commit/b082a8fa5e43dd6dacf459df93fa7e243dd901ea 'commit b082a8f')
 
 ### Removed
 
