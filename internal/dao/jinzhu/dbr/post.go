@@ -26,6 +26,7 @@ type Post struct {
 	UserID          int64        `json:"user_id"`
 	CommentCount    int64        `json:"comment_count"`
 	CollectionCount int64        `json:"collection_count"`
+	ShareCount      int64        `json:"share_count"`
 	UpvoteCount     int64        `json:"upvote_count"`
 	Visibility      PostVisibleT `json:"visibility"`
 	IsTop           int          `json:"is_top"`
@@ -45,6 +46,7 @@ type PostFormated struct {
 	Contents        []*PostContentFormated `json:"contents"`
 	CommentCount    int64                  `json:"comment_count"`
 	CollectionCount int64                  `json:"collection_count"`
+	ShareCount      int64                  `json:"share_count"`
 	UpvoteCount     int64                  `json:"upvote_count"`
 	Visibility      PostVisibleT           `json:"visibility"`
 	IsTop           int                    `json:"is_top"`
@@ -71,6 +73,7 @@ func (p *Post) Format() *PostFormated {
 			Contents:        []*PostContentFormated{},
 			CommentCount:    p.CommentCount,
 			CollectionCount: p.CollectionCount,
+			ShareCount:      p.ShareCount,
 			UpvoteCount:     p.UpvoteCount,
 			Visibility:      p.Visibility,
 			IsTop:           p.IsTop,
