@@ -9,6 +9,15 @@ All notable changes to paopao-ce are documented in this file.
 - add custom comment sort strategy support [#243](https://github.com/rocboss/paopao-ce/pull/243)
 - add `RedisCacheIndex` feature [#250](https://github.com/rocboss/paopao-ce/pull/250)
 - add `Sentry` feature [#258](https://github.com/rocboss/paopao-ce/pull/258)
+- add default tweet max length configure in web/.env support.   
+ Set the value of `VITE_DEFAULT_TWEET_MAX_LENGTH` in file web/.env to change the tweet max default length.
+  ```
+  # file: web/.env
+  ...
+  # 局部参数
+  VITE_DEFAULT_TWEET_MAX_LENGTH=300
+  ...
+  ```
 
 ### Fixed
 
