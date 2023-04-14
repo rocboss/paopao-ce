@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:web/dist/assets/Thing-7c7318d4.js
-import{c as r,f as d,b as c,d as $,u as b,x as u,bE as y,j as E,y as S,A as w,h as i,ab as z}from"./index-dfd5495a.js";const C=r("thing",`
-========
 import{c as r,f as d,b as c,d as $,u as b,x as u,bE as y,j as E,y as S,A as w,h as i,ab as z}from"./index-eae02f93.js";const C=r("thing",`
->>>>>>>> rocboss-dev:web/dist/assets/Thing-fd33e8eb.js
  display: flex;
  transition: color .3s var(--n-bezier);
  font-size: var(--n-font-size);
