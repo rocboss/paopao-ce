@@ -1,4 +1,4 @@
-import{c as r,f as d,b as c,d as $,u as b,x as u,bE as y,j as E,y as S,A as w,h as i,ab as z}from"./index-cae59503.js";const C=r("thing",`
+import{c as r,f as d,b as c,d as $,u as b,x as u,bE as y,j as E,y as S,A as w,h as i,ab as z}from"./index-eae02f93.js";const C=r("thing",`
  display: flex;
  transition: color .3s var(--n-bezier);
  font-size: var(--n-font-size);
