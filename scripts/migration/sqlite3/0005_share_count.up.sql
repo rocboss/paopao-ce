@@ -1,0 +1,1 @@
+ALTER TABLE `p_post` ADD COLUMN `share_count` integer NOT NULL DEFAULT 0;

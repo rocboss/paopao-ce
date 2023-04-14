@@ -170,10 +170,10 @@
                                     :show-indicator="false"
                                     status="success"
                                     :stroke-width="10"
-                                    :percentage="(content.length / 200) * 100"
+                                    :percentage="(content.length / defaultTweetMaxLength) * 100"
                                 />
                             </template>
-                            {{ content.length }} / 200
+                            {{ content.length }} / {{ defaultTweetMaxLength }}
                         </n-tooltip>
 
                         <n-button
@@ -312,6 +312,7 @@ const visibilities = [
     , {value: VisibilityEnum.FRIEND, label: "好友可见"}
 ];
 
+const defaultTweetMaxLength = Number(import.meta.env.VITE_DEFAULT_TWEET_MAX_LENGTH)
 const allowTweetVideo = (import.meta.env.VITE_ALLOW_TWEET_VIDEO.toLocaleLowerCase() === 'true')
 const allowTweetAttachment = (import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT.toLocaleLowerCase() === 'true')
 const allowTweetAttachmentPrice = (import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT_PRICE.toLocaleLowerCase() === 'true')
@@ -387,7 +388,7 @@ const handleSearch = (k: string, prefix: string) => {
     }
 };
 const changeContent = (v: string) => {
-    if (v.length > 200) {
+    if (v.length > defaultTweetMaxLength) {
         return;
     }
     content.value = v;

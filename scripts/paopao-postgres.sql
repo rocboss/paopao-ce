@@ -114,6 +114,7 @@ CREATE TABLE p_post (
 	comment_count BIGINT NOT NULL DEFAULT 0,
 	collection_count BIGINT NOT NULL DEFAULT 0,
 	upvote_count BIGINT NOT NULL DEFAULT 0,
+	share_count BIGINT NOT NULL DEFAULT 0,
 	visibility SMALLINT NOT NULL DEFAULT 0, -- 可见性 0公开 1私密 2好友可见
 	is_top SMALLINT NOT NULL DEFAULT 0, -- 是否置顶
 	is_essence SMALLINT NOT NULL DEFAULT 0, -- 是否精华
