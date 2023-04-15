@@ -3,7 +3,7 @@
         <div class="logo-wrap">
             <n-image class="logo-img" width="36" :src="LOGO" :preview-disabled="true" @click="goHome" />
         </div>
-        <n-menu :accordion="true" :collapsed="store.state.collapsedLeft" :collapsed-width="64" :icon-size="24"
+        <n-menu :accordion="true" :icon-size="24"
             :options="menuOptions" :render-label="renderMenuLabel" :render-icon="renderMenuIcon" :value="selectedPath"
             @update:value="goRouter" />
 
@@ -350,8 +350,8 @@ window.$message = useMessage();
 
 @media screen and (max-width: 821px) {
     .sidebar-wrap {
-        width: 65px;
-        right: calc(100% - 60px);
+        width: 200px;
+        right: calc(100% - 200px);
     }
 
     .logo-wrap {
@@ -361,16 +361,15 @@ window.$message = useMessage();
     }
 
     .user-wrap {
-
         .user-avatar,
         .user-info,
         .login-wrap {
-            display: none;
+            margin-bottom: 32px;
         }
 
-        .user-mini-wrap {
-            display: block !important;
-        }
+    //     .user-mini-wrap {
+    //         display: block !important;
+    //     }
     }
 }
 </style>

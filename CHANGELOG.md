@@ -48,6 +48,8 @@ All notable changes to paopao-ce are documented in this file.
     ```
 - optimize web frontend dark theme [&b082a8f](https://github.com/rocboss/paopao-ce/commit/b082a8fa5e43dd6dacf459df93fa7e243dd901ea 'commit b082a8f')
 - change web frontend main content layout default size to 544px [&b082a8f](https://github.com/rocboss/paopao-ce/commit/b082a8fa5e43dd6dacf459df93fa7e243dd901ea 'commit b082a8f')
+- optimize web frontend in mobile environment use Drawer to display menu [#265](https://github.com/rocboss/paopao-ce/pull/265)   
+- optimize Dockerfile use pre-build builder/runner image to prevent network latency problem (`bitbus/paopao-ce-backend-builder` `bitbus/paopao-ce-backend-runner`) [#265](https://github.com/rocboss/paopao-ce/pull/265)   
 
 ### Removed
 
