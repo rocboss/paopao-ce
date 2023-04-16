@@ -6,7 +6,7 @@ authors = ["Rocboss"]
 license = "MIT License"
 repository = "https://github.com/rocboss/paopao-ce"
 edition = "2021"
-rust-version = "1.57"
+rust-version = "1.60"
 
 [build-dependencies]
 tauri-build = { version = "1.2", features = [] }
