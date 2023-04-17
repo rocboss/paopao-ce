@@ -37,7 +37,12 @@
             </div>
         </div>
         <div class="user-wrap" v-else>
-            <div class="login-wrap">
+            <div v-if="!allowUserRegister" class="login-only-wrap">
+                <n-button strong secondary round type="primary" @click="triggerAuth('signin')">
+                    登录
+                </n-button>
+            </div>
+            <div v-if="allowUserRegister" class="login-wrap">
                 <n-button strong secondary round type="primary" @click="triggerAuth('signin')">
                     登录
                 </n-button>
@@ -54,12 +59,10 @@ import { h, ref, watch, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { NIcon, NBadge, useMessage } from 'naive-ui';
-import type { RouteRecordName } from "vue-router";
 import {
     HomeOutline,
     BookmarksOutline,
     MegaphoneOutline,
-    SparklesOutline,
     ChatbubblesOutline,
     LeafOutline,
     PeopleOutline,
@@ -77,6 +80,7 @@ const router = useRouter();
 const hasUnreadMsg = ref(false);
 const selectedPath = ref<any>(route.name || '');
 const msgLoop = ref();
+const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
 
 watch(route, () => {
     selectedPath.value = route.name;
@@ -331,6 +335,17 @@ window.$message = useMessage();
         }
     }
 
+    .login-only-wrap {
+        display: flex;
+        justify-content:center;
+        width: 100%;
+
+        button {
+            margin: 0 4px;
+            width: 80%
+        }
+    }
+
     .login-wrap {
         display: flex;
         justify-content: center;
@@ -363,6 +378,7 @@ window.$message = useMessage();
     .user-wrap {
         .user-avatar,
         .user-info,
+        .login-only-wrap,
         .login-wrap {
             margin-bottom: 32px;
         }

@@ -281,7 +281,7 @@ func (s *coreSrv) UserPhoneBind(req *web.UserPhoneBindReq) mir.Error {
 	}
 
 	// 如果禁止phone verify 则允许通过任意验证码
-	if _EnablePhoneVerify {
+	if _enablePhoneVerify {
 		c, err := s.Ds.GetLatestPhoneCaptcha(req.Phone)
 		if err != nil {
 			return _errErrorPhoneCaptcha

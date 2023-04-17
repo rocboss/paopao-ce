@@ -238,7 +238,18 @@
             <div class="login-wrap">
                 <span class="login-banner"> 登录后，精彩更多</span>
             </div>
-            <div class="login-wrap">
+            <div v-if="!allowUserRegister" class="login-only-wrap">
+                <n-button
+                    strong
+                    secondary
+                    round
+                    type="primary"
+                    @click="triggerAuth('signin')"
+                >
+                    登录
+                </n-button>
+            </div>
+            <div v-if="allowUserRegister" class="login-wrap">
                 <n-button
                     strong
                     secondary
@@ -313,10 +324,11 @@ const visibilities = [
 ];
 
 const defaultTweetMaxLength = Number(import.meta.env.VITE_DEFAULT_TWEET_MAX_LENGTH)
-const allowTweetVideo = (import.meta.env.VITE_ALLOW_TWEET_VIDEO.toLocaleLowerCase() === 'true')
-const allowTweetAttachment = (import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT.toLocaleLowerCase() === 'true')
-const allowTweetAttachmentPrice = (import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT_PRICE.toLocaleLowerCase() === 'true')
-const allowTweetVisibility = (import.meta.env.VITE_ALLOW_TWEET_VISIBILITY.toLocaleLowerCase() === 'true')
+const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
+const allowTweetVideo = ref(import.meta.env.VITE_ALLOW_TWEET_VIDEO.toLowerCase() === 'true')
+const allowTweetAttachment = ref(import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT.toLowerCase() === 'true')
+const allowTweetAttachmentPrice = ref(import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT_PRICE.toLowerCase() === 'true')
+const allowTweetVisibility = ref(import.meta.env.VITE_ALLOW_TWEET_VISIBILITY.toLowerCase() === 'true')
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = ref();
 
@@ -652,6 +664,15 @@ onMounted(() => {
     }
     .eye-wrap {
         margin-left: 64px;
+    }
+    .login-only-wrap {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        button {
+            margin: 0 4px;
+            width: 50%
+        }
     }
     .login-wrap {
         display: flex;

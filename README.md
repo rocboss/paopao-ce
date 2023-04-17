@@ -375,6 +375,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`Docs:OpenAPI` | 开发文档 | 稳定 | 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi) |
 |[`Pyroscope`](docs/proposal/016-关于使用pyroscope用于性能调试的设计.md)| 性能优化 | 内测 | 开启Pyroscope功能用于性能调试 |   
 |`PhoneBind` | 其他 | 稳定 | 手机绑定功能 |   
+|`Web:DisallowUserRegister` | 功能特性 | 稳定 | 不允许用户注册 |     
 
 > 功能项状态详情参考 [features-status](features-status.md).
      
