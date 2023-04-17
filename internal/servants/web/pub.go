@@ -250,6 +250,9 @@ func (s *pubSrv) GetCaptcha() (*web.GetCaptchaResp, mir.Error) {
 }
 
 func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
+	if _disallowUserRegister {
+		return nil, _errDisallowUserRegister
+	}
 	// 用户名检查
 	if err := s.validUsername(req.Username); err != nil {
 		return nil, err

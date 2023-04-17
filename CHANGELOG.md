@@ -12,11 +12,13 @@ All notable changes to paopao-ce are documented in this file.
 - add simple tweet share feature(just copy tweet link to clipboard now) support [#264](https://github.com/rocboss/paopao-ce/pull/264)
 - add default tweet max length configure in web/.env support. [&a1160ca](https://github.com/rocboss/paopao-ce/commit/a1160ca79380445157146d9eae1710543c153cce 'commit a1160ca')   
  Set the value of `VITE_DEFAULT_TWEET_MAX_LENGTH` in file web/.env to change the tweet max default length.
+ - add custom whether provide user register configure in web/.env support. [#267](https://github.com/rocboss/paopao-ce/pull/267)   
+ Set the value of `VITE_ALLOW_USER_REGISTER` in file web/.env to custom whether provide user register feature.
   ```
   # file: web/.env or web/.env.local
   ...
   # 局部参数
-  VITE_DEFAULT_TWEET_MAX_LENGTH=300
+  VITE_ALLOW_USER_REGISTER=true
   ...
   ```
 

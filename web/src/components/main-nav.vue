@@ -2,6 +2,7 @@
     <div v-if="store.state.drawerModelShow">
         <n-drawer
             v-model:show="activeDrawerRef"
+            :width=212
             :placement="placementRef"
             resizable
         >
