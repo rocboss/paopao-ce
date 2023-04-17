@@ -3,7 +3,7 @@ module github.com/rocboss/paopao-ce
 go 1.20
 
 require (
-	github.com/Masterminds/semver/v3 v3.2.0
+	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/cfg v0.3.0
 	github.com/alimy/mir/v3 v3.1.1
