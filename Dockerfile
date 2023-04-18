@@ -11,15 +11,11 @@ RUN [ $EMBED_UI != yes ] || [ $USE_DIST != no ] || (yarn && yarn build)
 RUN [ $EMBED_UI = yes ] || mkdir dist || echo ""
 
 # build backend
-FROM golang:1.20-alpine AS backend
+FROM bitbus/paopao-ce-backend-builder:latest AS backend
 ARG API_HOST
 ARG USE_API_HOST=yes
 ARG EMBED_UI=yes
 ARG USE_DIST=no
-RUN apk --no-cache --no-progress add --virtual \
-  build-deps \
-  build-base \
-  git
 
 WORKDIR /paopao-ce
 COPY . .
@@ -28,13 +24,12 @@ ENV GOPROXY=https://goproxy.cn
 RUN [ $EMBED_UI != yes ] || make build TAGS='embed go_json'
 RUN [ $EMBED_UI = yes ] || make build TAGS='go_json'
 
-FROM alpine:3.17
+FROM bitbus/paopao-ce-backend-runner:latest
 ARG API_HOST
 ARG USE_API_HOST=yes
 ARG EMBED_UI=yes
 ARG USE_DIST=no
 ENV TZ=Asia/Shanghai
-RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
 
 WORKDIR /app/paopao-ce
 COPY --from=backend /paopao-ce/release/paopao-ce .

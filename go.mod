@@ -3,7 +3,7 @@ module github.com/rocboss/paopao-ce
 go 1.20
 
 require (
-	github.com/Masterminds/semver/v3 v3.2.0
+	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/cfg v0.3.0
 	github.com/alimy/mir/v3 v3.1.1
@@ -28,11 +28,11 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/kyleconroy/sqlc v1.17.2
 	github.com/meilisearch/meilisearch-go v0.21.0
-	github.com/minio/minio-go/v7 v7.0.51
+	github.com/minio/minio-go/v7 v7.0.52
 	github.com/onsi/ginkgo/v2 v2.9.2
 	github.com/onsi/gomega v1.27.6
 	github.com/pyroscope-io/client v0.7.0
-	github.com/rueian/rueidis v0.0.97
+	github.com/rueian/rueidis v0.0.100
 	github.com/sirupsen/logrus v1.9.0
 	github.com/smartwalle/alipay/v3 v3.2.1
 	github.com/sourcegraph/conc v0.3.0
@@ -46,8 +46,8 @@ require (
 	gopkg.in/resty.v1 v1.12.0
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/driver/postgres v1.5.0
-	gorm.io/driver/sqlite v1.4.4
-	gorm.io/gorm v1.24.7-0.20230306060331-85eaf9eeda11
+	gorm.io/driver/sqlite v1.5.0
+	gorm.io/gorm v1.25.0
 	gorm.io/plugin/dbresolver v1.4.1
 	gorm.io/plugin/soft_delete v1.2.0
 	modernc.org/sqlite v1.21.1
