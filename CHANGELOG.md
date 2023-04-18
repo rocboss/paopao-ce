@@ -12,17 +12,28 @@ All notable changes to paopao-ce are documented in this file.
 - add simple tweet share feature(just copy tweet link to clipboard now) support [#264](https://github.com/rocboss/paopao-ce/pull/264)
 - add default tweet max length configure in web/.env support. [&a1160ca](https://github.com/rocboss/paopao-ce/commit/a1160ca79380445157146d9eae1710543c153cce 'commit a1160ca')   
  Set the value of `VITE_DEFAULT_TWEET_MAX_LENGTH` in file web/.env to change the tweet max default length.
-  ```
-  # file: web/.env or web/.env.local
-  ...
-  # 局部参数
-  VITE_DEFAULT_TWEET_MAX_LENGTH=300
-  ...
-  ```
+ - add custom whether provide user register configure in web/.env support. [#267](https://github.com/rocboss/paopao-ce/pull/267)   
+    Set the value of `VITE_ALLOW_USER_REGISTER` in file web/.env to custom whether provide user register feature.
+    ```
+    # file: web/.env or web/.env.local
+    ...
+    # 局部参数
+    VITE_ALLOW_USER_REGISTER=true
+    ...
+    ```
+    and disallow user register in backend(add `Web:DisallowUserRegister` feature in `config.yaml`):
+    ```yaml
+    # file config.yaml
+    ...
+    Features:
+      Default: ["Base", "Postgres", "Zinc", "LocalOSS", "LoggerZinc", "BigCacheIndex", "Friendship", "Service", "Web:DisallowUserRegister"]
+    ...
+    ```
 
 ### Fixed
 
 - fixed sql ddl p_contact's column `is_delete` define error (change to `is_del`) in scripts/paopao-mysql.sql [&afd8fe1](https://github.com/rocboss/paopao-ce/commit/afd8fe18d2dce08a4af846c2f822379d99a3d3b3 'commit afd8fe1')
+- fixed cache index not expire in delete/add tweet error [#266](https://github.com/rocboss/paopao-ce/pull/266)
 
 ### Fixed
 
@@ -52,6 +63,8 @@ All notable changes to paopao-ce are documented in this file.
     ```
 - optimize web frontend dark theme [&b082a8f](https://github.com/rocboss/paopao-ce/commit/b082a8fa5e43dd6dacf459df93fa7e243dd901ea 'commit b082a8f')
 - change web frontend main content layout default size to 544px [&b082a8f](https://github.com/rocboss/paopao-ce/commit/b082a8fa5e43dd6dacf459df93fa7e243dd901ea 'commit b082a8f')
+- optimize web frontend in mobile environment use Drawer to display menu [#265](https://github.com/rocboss/paopao-ce/pull/265)   
+- optimize Dockerfile use pre-build builder/runner image to prevent network latency problem (`bitbus/paopao-ce-backend-builder` `bitbus/paopao-ce-backend-runner`) [#265](https://github.com/rocboss/paopao-ce/pull/265)   
 
 ### Removed
 

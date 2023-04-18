@@ -1,0 +1,1 @@
+import{h as r}from"./moment-b7869f98.js";r.locale("zh-cn");const u=e=>r.unix(e).fromNow(),n=(e,o)=>{if(o)return r.unix(e).utc(!0).fromNow();let t=r.unix(e).utc(!0),m=r().utc(!0);return t.year()!=m.year()?t.format("YYYY-MM-DD HH:mm"):r().diff(t,"month")>3?t.format("MM-DD HH:mm"):t.fromNow()};export{u as a,n as f};

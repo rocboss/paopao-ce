@@ -3,7 +3,7 @@
         <div class="logo-wrap">
             <n-image class="logo-img" width="36" :src="LOGO" :preview-disabled="true" @click="goHome" />
         </div>
-        <n-menu :accordion="true" :collapsed="store.state.collapsedLeft" :collapsed-width="64" :icon-size="24"
+        <n-menu :accordion="true" :icon-size="24"
             :options="menuOptions" :render-label="renderMenuLabel" :render-icon="renderMenuIcon" :value="selectedPath"
             @update:value="goRouter" />
 
@@ -37,7 +37,12 @@
             </div>
         </div>
         <div class="user-wrap" v-else>
-            <div class="login-wrap">
+            <div v-if="!allowUserRegister" class="login-only-wrap">
+                <n-button strong secondary round type="primary" @click="triggerAuth('signin')">
+                    登录
+                </n-button>
+            </div>
+            <div v-if="allowUserRegister" class="login-wrap">
                 <n-button strong secondary round type="primary" @click="triggerAuth('signin')">
                     登录
                 </n-button>
@@ -54,12 +59,10 @@ import { h, ref, watch, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { NIcon, NBadge, useMessage } from 'naive-ui';
-import type { RouteRecordName } from "vue-router";
 import {
     HomeOutline,
     BookmarksOutline,
     MegaphoneOutline,
-    SparklesOutline,
     ChatbubblesOutline,
     LeafOutline,
     PeopleOutline,
@@ -77,6 +80,7 @@ const router = useRouter();
 const hasUnreadMsg = ref(false);
 const selectedPath = ref<any>(route.name || '');
 const msgLoop = ref();
+const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
 
 watch(route, () => {
     selectedPath.value = route.name;
@@ -331,6 +335,17 @@ window.$message = useMessage();
         }
     }
 
+    .login-only-wrap {
+        display: flex;
+        justify-content:center;
+        width: 100%;
+
+        button {
+            margin: 0 4px;
+            width: 80%
+        }
+    }
+
     .login-wrap {
         display: flex;
         justify-content: center;
@@ -350,8 +365,8 @@ window.$message = useMessage();
 
 @media screen and (max-width: 821px) {
     .sidebar-wrap {
-        width: 65px;
-        right: calc(100% - 60px);
+        width: 200px;
+        right: calc(100% - 200px);
     }
 
     .logo-wrap {
@@ -361,16 +376,16 @@ window.$message = useMessage();
     }
 
     .user-wrap {
-
         .user-avatar,
         .user-info,
+        .login-only-wrap,
         .login-wrap {
-            display: none;
+            margin-bottom: 32px;
         }
 
-        .user-mini-wrap {
-            display: block !important;
-        }
+    //     .user-mini-wrap {
+    //         display: block !important;
+    //     }
     }
 }
 </style>

@@ -32,6 +32,7 @@ var (
 	_errNicknameLengthLimit     = xerror.NewError(20020, "昵称长度2~12")
 	_errNoExistUsername         = xerror.NewError(20021, "用户不存在")
 	_errNoAdminPermission       = xerror.NewError(20022, "无管理权限")
+	_errDisallowUserRegister    = xerror.NewError(20023, "系统不允许注册用户")
 
 	_errGetPostsFailed          = xerror.NewError(30001, "获取动态列表失败")
 	_errCreatePostFailed        = xerror.NewError(30002, "动态发布失败")

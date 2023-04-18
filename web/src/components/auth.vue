@@ -12,7 +12,52 @@
     >
         <div class="auth-wrap">
             <n-card :bordered="false">
+                <div v-if="!allowUserRegister">
+                    <n-space justify="center"><n-h3><n-text type="success">账号登录</n-text></n-h3></n-space>
+                    <n-form
+                            ref="loginRef"
+                            :model="loginForm"
+                            :rules="{
+                                username: {
+                                    required: true,
+                                    message: '请输入账户名',
+                                },
+                                password: {
+                                    required: true,
+                                    message: '请输入密码',
+                                },
+                            }"
+                        >
+                            <n-form-item-row label="账户" path="username">
+                                <n-input
+                                    v-model:value="loginForm.username"
+                                    placeholder="请输入用户名"
+                                    @keyup.enter.prevent="handleLogin"
+                                />
+                            </n-form-item-row>
+                            <n-form-item-row label="密码" path="password">
+                                <n-input
+                                    type="password"
+                                    show-password-on="mousedown"
+                                    v-model:value="loginForm.password"
+                                    placeholder="请输入账户密码"
+                                    @keyup.enter.prevent="handleLogin"
+                                />
+                            </n-form-item-row>
+                        </n-form>
+                        <n-button
+                            type="primary"
+                            block
+                            secondary
+                            strong
+                            :loading="loading"
+                            @click="handleLogin"
+                        >
+                            登录
+                        </n-button>
+                </div>
                 <n-tabs
+                    v-if="allowUserRegister" 
                     :default-value="store.state.authModelTab"
                     size="large"
                     justify-content="space-evenly"
@@ -114,6 +159,7 @@ import { useStore } from 'vuex';
 import { userLogin, userRegister, userInfo } from '@/api/auth';
 import type { FormInst, FormItemRule } from 'naive-ui';
 
+const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
 const store = useStore();
 
 const loading = ref(false);
