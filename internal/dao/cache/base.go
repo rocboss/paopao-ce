@@ -181,7 +181,7 @@ func (s *cacheIndexSrv) deleteCacheByUserId(id int64, oneself bool) {
 	}
 	for _, key := range allKeys {
 		keyParts := strings.Split(key, ":")
-		if len(keyParts) > 2 && keyParts[0] == "index" {
+		if len(keyParts) > 2 && keyParts[0] == _cacheIndexKey {
 			if _, ok := friendSet[keyParts[1]]; ok {
 				keys = append(keys, key)
 			}
