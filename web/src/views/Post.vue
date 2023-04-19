@@ -136,7 +136,6 @@ watch(postId, () => {
         padding-top: 4px;
         font-size: 16px;
         text-align: center;
-        opacity: 0.75;
     }
 }
 .dark {
