@@ -23,6 +23,7 @@ type TagFormated struct {
 	Tag         string        `json:"tag"`
 	QuoteNum    int64         `json:"quote_num"`
 	IsFollowing int8          `json:"is_following"`
+	IsTop       int8          `json:"is_top"`
 }
 
 func (t *Tag) Format() *TagFormated {
@@ -36,7 +37,8 @@ func (t *Tag) Format() *TagFormated {
 		User:        &UserFormated{},
 		Tag:         t.Tag,
 		QuoteNum:    t.QuoteNum,
-		IsFollowing: 0,
+		IsFollowing: 1,
+		IsTop:       0,
 	}
 }
 

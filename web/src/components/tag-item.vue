@@ -68,12 +68,23 @@ const props = withDefaults(
 
 const tagOptions = computed(() => {
     let options: DropdownOption[] = [];
-    if (props.tag.is_following == 0) {
+    if (props.tag.is_following === 0) {
         options.push({
             label: '关注',
             key: 'follow',
         });
     } else {
+        if (props.tag.is_top === 0) {
+            options.push({
+                label: '置顶',
+                key: 'stick',
+            });
+        } else {
+            options.push({
+                label: '取消置顶',
+                key: 'unstick',
+            });
+        }
         options.push({
             label: '取消关注',
             key: 'unfollow',
@@ -83,14 +94,24 @@ const tagOptions = computed(() => {
 });
 
 const handleTagAction = (
-    item: 'follow' | 'unfollow'
+    item: 'follow' | 'unfollow' | 'stick' | 'unstick'
 ) => {
     switch (item) {
         case 'follow':
-            window.$message.success(`关注话题 - ${props.tag.tag}`);
+            // TODO
+            window.$message.success(`关注成功`);
             break;
         case 'unfollow':
-            window.$message.success(`取消关注话题 - ${props.tag.tag}`);
+            // TODO
+            window.$message.success(`取消关注`);
+            break;
+        case 'stick':
+            // TODO
+            window.$message.success(`置顶成功`);
+            break;
+        case 'unstick':
+            // TODO
+            window.$message.success(`取消置顶`);
             break;
         default:
             break;
