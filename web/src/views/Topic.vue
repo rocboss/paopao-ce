@@ -8,13 +8,18 @@
                 <n-tab-pane name="new" tab="最新" />
                 <n-tab-pane v-if="store.state.userLogined"
                 name="follow" tab="关注" />
+                <template v-if="store.state.userLogined" #suffix>
+                    <n-tag v-model:checked="tagsChecked" checkable>
+                        {{tagsEditText}}
+                    </n-tag>
+                </template>
             </n-tabs>
             <n-spin :show="loading">
                 <n-space>
                     <tag-item
                         v-for="tag in tags"
                         :tag="tag"
-                        :showAction="store.state.userLogined"
+                        :showAction="store.state.userLogined && tagsChecked"
                     >
                     </tag-item>
                 </n-space>
@@ -24,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted} from 'vue';
+import { ref, onMounted, computed} from 'vue';
 import { getTags } from '@/api/post';
 import { useStore } from 'vuex';
 
@@ -32,7 +37,20 @@ const store = useStore();
 const tags = ref<Item.TagProps[]>([]);
 const tagType = ref<"hot" | "new" | "follow">('hot');
 const loading = ref(false);
+const tagsChecked = ref(false)
 
+const tagsEditText = computed({  
+    get: () => {  
+        let text = "编辑";
+        if (tagsChecked.value) {
+            text = "保存";
+        }
+        return text;
+    },
+    set: (newVal) => {
+        // do nothing
+    },
+});
 const loadTags = () => {
     loading.value = true;
     getTags({
