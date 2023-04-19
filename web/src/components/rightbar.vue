@@ -13,7 +13,7 @@
                 </template>
             </n-input>
         </div>
-        <n-card v-if="store.state.userLogined" class="hottopic-wrap" title="关注话题" embedded :bordered="false" size="small">
+        <n-card v-if="showFollowTopics" class="hottopic-wrap" title="关注话题" embedded :bordered="false" size="small">
             <n-spin :show="loading">
                 <div class="hot-tag-item" v-for="tag in followTags" :key="tag.id">
                     <router-link
@@ -82,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { getTags } from '@/api/post';
@@ -105,10 +105,12 @@ const loadHotTags = () => {
     getTags({
         type: 'hot_extral',
         num: 12,
+        extral_num: 8,
     })
         .then((res) => {
             hotTags.value = res.topics;
-            followTags.value = res.extral_topics;
+            followTags.value = res.extral_topics??[];
+            showFollowTopics.value = true
             loading.value = false;
         })
         .catch((err) => {
@@ -130,6 +132,14 @@ const handleSearch = () => {
         },
     });
 };
+const showFollowTopics = computed({  
+    get: () => {     
+        return store.state.userLogined && followTags.value.length !==0;
+    },
+    set: (newVal) => {
+        // do nothing
+    },
+});
 onMounted(() => {
     loadHotTags();
 });

@@ -8,7 +8,6 @@ import (
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
@@ -156,9 +155,6 @@ func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Err
 		err              error
 	)
 	num := req.Num
-	if num > conf.AppSetting.MaxPageSize {
-		num = conf.AppSetting.MaxPageSize
-	}
 	switch req.Type {
 	case web.TagTypeHot:
 		tags, err = s.Ds.GetHotTags(num, 0)
@@ -167,9 +163,13 @@ func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Err
 	case web.TagTypeFollow:
 		tags, err = s.Ds.GetFollowTags(num, 0)
 	case web.TagTypeHotExtral:
+		extralNum := req.ExtralNum
+		if extralNum == 0 {
+			extralNum = num
+		}
 		tags, err = s.Ds.GetHotTags(num, 0)
 		if err == nil {
-			extralTags, err = s.Ds.GetFollowTags(num, 0)
+			extralTags, err = s.Ds.GetFollowTags(extralNum, 0)
 		}
 	default:
 		// TODO: return good error

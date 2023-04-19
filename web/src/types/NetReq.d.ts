@@ -141,7 +141,7 @@ declare module NetReq {
 
   interface PostGetTags {
     topics: Item.TagProps[];
-    extral_topics: Item.TagProps[];
+    extral_topics?: Item.TagProps[];
   }
 
   interface PostGetPostComments {

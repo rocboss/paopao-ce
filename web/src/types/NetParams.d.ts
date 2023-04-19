@@ -167,6 +167,7 @@ declare module NetParams {
   interface PostGetTags {
     type: "hot" | "new" | "follow" | "hot_extral";
     num: number;
+    extral_num?: number;
   }
 
   interface PostGetPostComments {

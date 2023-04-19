@@ -23,7 +23,7 @@ type topicServant struct {
 
 func newTopicService(db *gorm.DB, ums core.UserManageService) core.TopicService {
 	return &topicServant{
-		db: db,
+		db:  db,
 		ums: ums,
 	}
 }
