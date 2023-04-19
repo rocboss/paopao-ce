@@ -8,6 +8,7 @@ import (
 	"github.com/alimy/mir/v3"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
@@ -146,6 +147,40 @@ func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfi
 		Avatar:   he.Avatar,
 		IsAdmin:  he.IsAdmin,
 		IsFriend: isFriend,
+	}, nil
+}
+
+func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error) {
+	var (
+		tags, extralTags []*core.TagFormated
+		err              error
+	)
+	num := req.Num
+	if num > conf.AppSetting.MaxPageSize {
+		num = conf.AppSetting.MaxPageSize
+	}
+	switch req.Type {
+	case web.TagTypeHot:
+		tags, err = s.Ds.GetHotTags(num, 0)
+	case web.TagTypeNew:
+		tags, err = s.Ds.GetNewestTags(num, 0)
+	case web.TagTypeFollow:
+		tags, err = s.Ds.GetFollowTags(num, 0)
+	case web.TagTypeHotExtral:
+		tags, err = s.Ds.GetHotTags(num, 0)
+		if err == nil {
+			extralTags, err = s.Ds.GetFollowTags(num, 0)
+		}
+	default:
+		// TODO: return good error
+		err = _errGetPostTagsFailed
+	}
+	if err != nil {
+		return nil, _errGetPostTagsFailed
+	}
+	return &web.TopicListResp{
+		Topics:       tags,
+		ExtralTopics: extralTags,
 	}, nil
 }
 

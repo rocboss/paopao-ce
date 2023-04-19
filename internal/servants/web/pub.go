@@ -18,7 +18,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
@@ -63,50 +62,6 @@ func (b *pubBinding) BindTweetComments(c *gin.Context) (*web.TweetCommentsReq, m
 		SortStrategy: c.Query("sort_strategy"),
 		Page:         page,
 		PageSize:     pageSize,
-	}, nil
-}
-
-func (s *pubSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error) {
-	// tags, err := broker.GetPostTags(&param)
-	num := req.Num
-	if num > conf.AppSetting.MaxPageSize {
-		num = conf.AppSetting.MaxPageSize
-	}
-
-	conditions := &core.ConditionsT{}
-	if req.Type == web.TagTypeHot {
-		// 热门标签
-		conditions = &core.ConditionsT{
-			"ORDER": "quote_num DESC",
-		}
-	} else if req.Type == web.TagTypeNew {
-		// 热门标签
-		conditions = &core.ConditionsT{
-			"ORDER": "id DESC",
-		}
-	}
-	tags, err := s.Ds.GetTags(conditions, 0, num)
-	if err != nil {
-		return nil, _errGetPostTagsFailed
-	}
-	// 获取创建者User IDs
-	userIds := []int64{}
-	for _, tag := range tags {
-		userIds = append(userIds, tag.UserID)
-	}
-	users, _ := s.Ds.GetUsersByIDs(userIds)
-	tagsFormated := []*core.TagFormated{}
-	for _, tag := range tags {
-		tagFormated := tag.Format()
-		for _, user := range users {
-			if user.ID == tagFormated.UserID {
-				tagFormated.User = user.Format()
-			}
-		}
-		tagsFormated = append(tagsFormated, tagFormated)
-	}
-	return &web.TopicListResp{
-		Topics: tagsFormated,
 	}, nil
 }
 

@@ -290,6 +290,8 @@ declare module Item {
     modified_on?: number;
     /** 删除时间 */
     deleted_on?: number;
+    /** 是否关注：0为未关注，1为已关注 */
+    is_following?: 0 | 1;
     /** 是否删除：0为未删除，1为已删除 */
     is_del?: 0 | 1;
   }

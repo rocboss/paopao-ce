@@ -11,6 +11,7 @@ export default createStore({
     desktopModelShow: document.body.clientWidth > 821,
     authModalShow: false,
     authModelTab: "signin",
+    userLogined: false,
     userInfo: {
       id: 0,
       username: "",
@@ -40,10 +41,14 @@ export default createStore({
     },
     updateUserinfo(state, data) {
       state.userInfo = data;
+      if (state.userInfo.id > 0) {
+        state.userLogined = true;
+      }
     },
     userLogout(state) {
       localStorage.removeItem("PAOPAO_TOKEN");
       state.userInfo = { id: 0, nickname: "", username: "" };
+      state.userLogined = false;
     },
   },
   actions: {},

@@ -10,13 +10,6 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/version"
 )
 
-const (
-	TagTypeHot TagType = "hot"
-	TagTypeNew TagType = "new"
-)
-
-type TagType string
-
 type TweetDetailReq struct {
 	TweetId int64 `form:"id"`
 }
@@ -31,17 +24,6 @@ type TweetCommentsReq struct {
 }
 
 type TweetCommentsResp base.PageResp
-
-type TopicListReq struct {
-	Type TagType `json:"type" form:"type" binding:"required"`
-	Num  int     `json:"num" form:"num" binding:"required"`
-}
-
-// TopicListResp 主题返回值
-// TODO: 优化内容定义
-type TopicListResp struct {
-	Topics []*core.TagFormated `json:"topics"`
-}
 
 type GetCaptchaResp struct {
 	Id      string `json:"id"`

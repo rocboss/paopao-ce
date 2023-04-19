@@ -6,33 +6,17 @@
             <n-tabs type="line" animated @update:value="changeTab">
                 <n-tab-pane name="hot" tab="热门" />
                 <n-tab-pane name="new" tab="最新" />
+                <n-tab-pane v-if="store.state.userLogined"
+                name="follow" tab="关注" />
             </n-tabs>
             <n-spin :show="loading">
                 <n-space>
-                    <n-tag
-                        class="tag-item"
-                        type="success"
-                        round
+                    <tag-item
                         v-for="tag in tags"
-                        :key="tag.id"
+                        :tag="tag"
+                        :showAction="store.state.userLogined"
                     >
-                        <router-link
-                            class="hash-link"
-                            :to="{
-                                name: 'home',
-                                query: {
-                                    q: tag.tag,
-                                    t: 'tag',
-                                },
-                            }"
-                        >
-                            #{{ tag.tag }}
-                        </router-link>
-                        <span class="tag-hot">({{ tag.quote_num }})</span>
-                        <template #avatar>
-                            <n-avatar :src="tag.user.avatar" />
-                        </template>
-                    </n-tag>
+                    </tag-item>
                 </n-space>
             </n-spin>
         </n-list>
@@ -40,11 +24,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted} from 'vue';
 import { getTags } from '@/api/post';
+import { useStore } from 'vuex';
 
+const store = useStore();
 const tags = ref<Item.TagProps[]>([]);
-const tagType = ref<"hot" | "new">('hot');
+const tagType = ref<"hot" | "new" | "follow">('hot');
 const loading = ref(false);
 
 const loadTags = () => {
@@ -61,8 +47,11 @@ const loadTags = () => {
             loading.value = false;
         });
 };
-const changeTab = (tab: "hot" | "new") => {
+const changeTab = (tab: "hot" | "new" | "follow") => {
     tagType.value = tab;
+    if (tab == "follow") {
+        tagType.value = "hot"
+    }
     loadTags();
 };
 onMounted(() => {
@@ -73,13 +62,6 @@ onMounted(() => {
 <style lang="less" scoped>
 .tags-wrap {
     padding: 20px;
-    .tag-item {
-        .tag-hot {
-            margin-left: 12px;
-            font-size: 12px;
-            opacity: 0.75;
-        }
-    }
 }
 .dark {
     .tags-wrap {

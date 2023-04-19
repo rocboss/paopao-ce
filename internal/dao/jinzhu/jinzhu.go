@@ -49,6 +49,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	pvs := security.NewPhoneVerifyService()
 	ams := NewAuthorizationManageService()
 	ths := newTweetHelpService(db)
+	ums := newUserManageService(db)
 
 	// initialize core.IndexPostsService
 	if cfg.If("Friendship") {
@@ -86,7 +87,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		IndexPostsService:      cis,
 		WalletService:          newWalletService(db),
 		MessageService:         newMessageService(db),
-		TopicService:           newTopicService(db),
+		TopicService:           newTopicService(db, ums),
 		TweetService:           newTweetService(db),
 		TweetManageService:     newTweetManageService(db, cis),
 		TweetHelpService:       newTweetHelpService(db),

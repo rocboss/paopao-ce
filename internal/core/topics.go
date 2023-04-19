@@ -18,5 +18,8 @@ type TopicService interface {
 	CreateTag(tag *Tag) (*Tag, error)
 	DeleteTag(tag *Tag) error
 	GetTags(conditions *ConditionsT, offset, limit int) ([]*Tag, error)
+	GetHotTags(limit int, offset int) ([]*TagFormated, error)
+	GetNewestTags(limit int, offset int) ([]*TagFormated, error)
+	GetFollowTags(limit int, offset int) ([]*TagFormated, error)
 	GetTagsByKeyword(keyword string) ([]*Tag, error)
 }
