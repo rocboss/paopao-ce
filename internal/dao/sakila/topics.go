@@ -12,6 +12,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
+	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
 var (
@@ -111,6 +112,36 @@ func (s *topicSrvA) TagsByKeyword(keyword string) (res cs.TagInfoList, err error
 		err = s.q.TagsByKeywordB.Select(&res)
 	}
 	return
+}
+
+func (s *topicSrvA) GetHotTags(userId int64, limit int, offset int) (cs.TagList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *topicSrvA) GetNewestTags(userId int64, limit int, offset int) (cs.TagList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *topicSrvA) GetFollowTags(userId int64, limit int, offset int) (cs.TagList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *topicSrvA) FollowTopic(userId int64, topicId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *topicSrvA) UnfollowTopic(userId int64, topicId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *topicSrvA) StickTopic(userId int64, topicId int64) (int8, error) {
+	// TODO
+	return 0, debug.ErrNotImplemented
 }
 
 func newTopicService(db *sqlx.DB) core.TopicService {

@@ -165,8 +165,9 @@ declare module NetParams {
   }
 
   interface PostGetTags {
-    type: "hot" | "new";
+    type: "hot" | "new" | "follow" | "hot_extral";
     num: number;
+    extral_num?: number;
   }
 
   interface PostGetPostComments {
@@ -217,5 +218,17 @@ declare module NetParams {
 
   interface PostDeleteCommentReply {
     id: number;
+  }
+
+  interface PostStickTopic {
+    topic_id: number;
+  }
+
+  interface PostFollowTopic {
+    topic_id: number;
+  }
+
+  interface PostUnfollowTopic {
+    topic_id: number;
   }
 }
