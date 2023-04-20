@@ -75,7 +75,12 @@ func (s *topicServant) GetFollowTags(userId int64, limit int, offset int) ([]*co
 		return nil, nil
 	}
 	userTopics := []*topicInfo{}
-	err := s.db.Model(&dbr.TopicUser{}).Where("user_id=?", userId).Order("is_top DESC").Find(&userTopics).Error
+	err := s.db.Model(&dbr.TopicUser{}).
+		Where("user_id=?", userId).
+		Order("is_top DESC").
+		Limit(limit).
+		Offset(offset).
+		Find(&userTopics).Error
 	if err != nil {
 		return nil, err
 	}
