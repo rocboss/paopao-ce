@@ -147,6 +147,25 @@ type DownloadAttachmentResp struct {
 	SignedURL string `json:"signed_url"`
 }
 
+type StickTopicReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	TopicId    int64 `json:"topic_id" binding:"required"`
+}
+
+type StickTopicResp struct {
+	StickStatus int8 `json:"top_status"`
+}
+
+type FollowTopicReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	TopicId    int64 `json:"topic_id" binding:"required"`
+}
+
+type UnfollowTopicReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	TopicId    int64 `json:"topic_id" binding:"required"`
+}
+
 // Check 检查PostContentItem属性
 func (p *PostContentItem) Check(acs core.AttachmentCheckService) error {
 	// 检查附件是否是本站资源
