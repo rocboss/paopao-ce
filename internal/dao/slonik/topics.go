@@ -13,6 +13,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/sqlc/postgres"
+	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
 var (
@@ -161,6 +162,36 @@ func (s *topicSrv) TagsByKeyword(keyword string) (res cs.TagInfoList, _ error) {
 		}
 	}
 	return
+}
+
+func (s *topicSrv) GetHotTags(userId int64, limit int, offset int) (cs.TagList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *topicSrv) GetNewestTags(userId int64, limit int, offset int) (cs.TagList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *topicSrv) GetFollowTags(userId int64, limit int, offset int) (cs.TagList, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *topicSrv) FollowTopic(userId int64, topicId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *topicSrv) UnfollowTopic(userId int64, topicId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *topicSrv) StickTopic(userId int64, topicId int64) (int8, error) {
+	// TODO
+	return 0, debug.ErrNotImplemented
 }
 
 func newTopicService(db *pgx.Conn) core.TopicService {
