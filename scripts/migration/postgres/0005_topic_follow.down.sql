@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS `p_topic_user`;
+DROP TABLE IF EXISTS p_topic_user;
