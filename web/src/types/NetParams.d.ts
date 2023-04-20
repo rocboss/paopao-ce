@@ -219,4 +219,16 @@ declare module NetParams {
   interface PostDeleteCommentReply {
     id: number;
   }
+
+  interface PostStickTopic {
+    topic_id: number;
+  }
+
+  interface PostFollowTopic {
+    topic_id: number;
+  }
+
+  interface PostUnfollowTopic {
+    topic_id: number;
+  }
 }

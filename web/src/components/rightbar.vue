@@ -82,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { getTags } from '@/api/post';
@@ -140,6 +140,16 @@ const showFollowTopics = computed({
         // do nothing
     },
 });
+watch(
+    () => ({
+        refreshTopicFollow: store.state.refreshTopicFollow,
+    }),
+    (to, from) => {
+        if (to.refreshTopicFollow !== from.refreshTopicFollow) {
+            loadHotTags();
+        }
+    }
+);
 onMounted(() => {
     loadHotTags();
 });

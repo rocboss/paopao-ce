@@ -54,11 +54,10 @@ type GetUserProfileResp struct {
 }
 
 type TopicListReq struct {
-	BaseInfo  `form:"-"  binding:"-"`
-	Type      TagType `json:"type" form:"type" binding:"required"`
-	UserId    int     `json:"uid" form:"uid"`
-	Num       int     `json:"num" form:"num" binding:"required"`
-	ExtralNum int     `json:"extral_num" form:"extral_num"`
+	SimpleInfo `form:"-"  binding:"-"`
+	Type       TagType `json:"type" form:"type" binding:"required"`
+	Num        int     `json:"num" form:"num" binding:"required"`
+	ExtralNum  int     `json:"extral_num" form:"extral_num"`
 }
 
 // TopicListResp 主题返回值

@@ -20,6 +20,7 @@
                         v-for="tag in tags"
                         :tag="tag"
                         :showAction="store.state.userLogined && tagsChecked"
+                        :checkFollowing="inFollwTab"
                     >
                     </tag-item>
                 </n-space>
@@ -29,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed} from 'vue';
+import { ref, onMounted, computed, watch} from 'vue';
 import { getTags } from '@/api/post';
 import { useStore } from 'vuex';
 
@@ -38,7 +39,14 @@ const tags = ref<Item.TagProps[]>([]);
 const tagType = ref<"hot" | "new" | "follow">('hot');
 const loading = ref(false);
 const tagsChecked = ref(false)
+const inFollwTab = ref(false)
 
+watch(tagsChecked, () => {
+    if (!tagsChecked.value) {
+        window.$message.success("保存成功");
+        store.commit("refreshTopicFollow")
+    }
+});
 const tagsEditText = computed({  
     get: () => {  
         let text = "编辑";
@@ -62,13 +70,16 @@ const loadTags = () => {
             loading.value = false;
         })
         .catch((err) => {
+            console.log(err);
             loading.value = false;
         });
 };
 const changeTab = (tab: "hot" | "new" | "follow") => {
     tagType.value = tab;
     if (tab == "follow") {
-        tagType.value = "hot"
+        inFollwTab.value = true
+    } else {
+        inFollwTab.value = false
     }
     loadTags();
 };

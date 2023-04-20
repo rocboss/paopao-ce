@@ -1,5 +1,5 @@
 <template>
-    <div class="tag-item">
+    <div v-if="!checkFollowing || (checkFollowing && tag.is_following === 1)" class="tag-item">
         <n-thing>
             <template #header>
                 <n-tag
@@ -56,12 +56,14 @@
 import { ref, onMounted, computed } from 'vue';
 import { MoreVertOutlined } from '@vicons/material';
 import type { DropdownOption } from 'naive-ui';
+import { stickTopic, followTopic, unfollowTopic } from '@/api/post';
 
 const hasFollowing= ref(false);
 const props = withDefaults(
     defineProps<{
         tag: Item.TagProps;
         showAction: boolean;
+        checkFollowing: boolean;
     }>(),
     {}
 );
@@ -98,28 +100,56 @@ const handleTagAction = (
 ) => {
     switch (item) {
         case 'follow':
-            // TODO
-            window.$message.success(`关注成功`);
+            followTopic({
+                topic_id: props.tag.id
+             })
+            .then((res) => {
+                props.tag.is_following = 1
+                window.$message.success(`关注成功`);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
             break;
         case 'unfollow':
-            // TODO
-            window.$message.success(`取消关注`);
+            unfollowTopic({
+                topic_id: props.tag.id
+             })
+            .then((res) => {
+                props.tag.is_following = 0
+                window.$message.success(`取消关注`);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
             break;
         case 'stick':
-            // TODO
-            window.$message.success(`置顶成功`);
+            stickTopic({
+                topic_id: props.tag.id
+             })
+            .then((res) => {
+                props.tag.is_top = res.top_status
+                window.$message.success(`置顶成功`);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
             break;
         case 'unstick':
-            // TODO
-            window.$message.success(`取消置顶`);
+        stickTopic({
+                topic_id: props.tag.id
+             })
+            .then((res) => {
+                props.tag.is_top = res.top_status
+                window.$message.success(`取消置顶`);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
             break;
         default:
             break;
     }
-};
-const execFollowAction = () => {
-    // TODO
-    window.$message.success('修改follow/unfllow');
 };
 
 onMounted(() => {

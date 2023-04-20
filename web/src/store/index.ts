@@ -4,6 +4,7 @@ import { createStore } from "vuex";
 export default createStore({
   state: {
     refresh: Date.now(),
+    refreshTopicFollow: Date.now(),
     theme: localStorage.getItem("PAOPAO_THEME"),
     collapsedLeft: document.body.clientWidth <= 821,
     collapsedRight: document.body.clientWidth <= 821,
@@ -21,6 +22,9 @@ export default createStore({
   mutations: {
     refresh(state, refresh) {
       state.refresh = refresh || Date.now();
+    },
+    refreshTopicFollow(state) {
+      state.refreshTopicFollow = Date.now();
     },
     triggerTheme(state, theme) {
       state.theme = theme;

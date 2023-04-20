@@ -16,6 +16,19 @@ type Tag struct {
 	Tag      string `json:"tag"`
 	QuoteNum int64  `json:"quote_num"`
 }
+
+type TopicUser struct {
+	*Model
+	UserID    int64  `json:"user_id"`
+	TopicID   int64  `json:"topic_id"`
+	AliasName string `json:"-"`
+	Remark    string `json:"-"`
+	QuoteNum  int64  `json:"quote_num"`
+	IsTop     int8   `json:"is_top"`
+	ReserveA  string `json:"-"`
+	ReserveB  string `json:"-"`
+}
+
 type TagFormated struct {
 	ID          int64         `json:"id"`
 	UserID      int64         `json:"user_id"`
@@ -37,7 +50,7 @@ func (t *Tag) Format() *TagFormated {
 		User:        &UserFormated{},
 		Tag:         t.Tag,
 		QuoteNum:    t.QuoteNum,
-		IsFollowing: 1,
+		IsFollowing: 0,
 		IsTop:       0,
 	}
 }

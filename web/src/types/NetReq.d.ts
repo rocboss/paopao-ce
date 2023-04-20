@@ -169,4 +169,13 @@ declare module NetReq {
     /** 页码信息 */
     pager: Item.PagerProps;
   }
+
+  interface PostStickTopic {
+    /** 置顶状态：0为未置顶，1为置顶 */
+    top_status: 0 | 1;
+  }
+
+  interface PostFollowTopic {}
+
+  interface PostUnfollowTopic {}
 }

@@ -204,9 +204,28 @@ CREATE UNIQUE INDEX idx_tag_tag ON p_tag USING btree (tag);
 CREATE INDEX idx_tag_user_id ON p_tag USING btree (user_id);
 CREATE INDEX idx_tag_quote_num ON p_tag USING btree (quote_num);
 
+DROP TABLE IF EXISTS p_topic_user;
+CREATE TABLE p_topic_user (
+	ID BIGSERIAL PRIMARY KEY,
+	topic_id BIGINT NOT NULL,-- 标签ID
+	user_id BIGINT NOT NULL,-- 创建者ID
+	alias_name VARCHAR ( 255 ),-- 别名
+	remark VARCHAR ( 512 ),-- 备注
+	quote_num BIGINT,-- 引用数
+	is_top SMALLINT NOT NULL DEFAULT 0,-- 是否置顶 0 为未置顶、1 为已置顶
+	created_on BIGINT NOT NULL DEFAULT 0,-- 创建时间
+	modified_on BIGINT NOT NULL DEFAULT 0,-- 修改时间
+	deleted_on BIGINT NOT NULL DEFAULT 0,-- 删除时间
+	is_del SMALLINT NOT NULL DEFAULT 0,-- 是否删除 0 为未删除、1 为已删除
+	reserve_a VARCHAR ( 255 ),-- 保留字段a
+	reserve_b VARCHAR ( 255 ) -- 保留字段b
+);
+CREATE UNIQUE INDEX idx_topic_user_uid_tid ON p_topic_user USING btree ( topic_id, user_id );
+
+CREATE SEQUENCE IF NOT EXISTS user_id_seq AS BIGINT MINVALUE 100058 NO MAXVALUE;
 DROP TABLE IF EXISTS p_user;
 CREATE TABLE p_user (
-	id BIGSERIAL PRIMARY KEY,
+	id BIGINT NOT NULL DEFAULT nextval('user_id_seq'::regclass),
 	nickname VARCHAR(32) NOT NULL DEFAULT '',
 	username VARCHAR(32) NOT NULL DEFAULT '',
 	phone VARCHAR(16) NOT NULL DEFAULT '', -- 手机号
@@ -219,7 +238,8 @@ CREATE TABLE p_user (
 	created_on BIGINT NOT NULL DEFAULT 0,
 	modified_on BIGINT NOT NULL DEFAULT 0,
 	deleted_on BIGINT NOT NULL DEFAULT 0,
-	is_del SMALLINT NOT NULL DEFAULT 0
+	is_del SMALLINT NOT NULL DEFAULT 0,
+	PRIMARY KEY (id)
 );
 CREATE UNIQUE INDEX idx_user_username ON p_user USING btree (username);
 CREATE INDEX idx_user_phone ON p_user USING btree (phone);

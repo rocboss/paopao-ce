@@ -29,6 +29,7 @@ All notable changes to paopao-ce are documented in this file.
       Default: ["Base", "Postgres", "Zinc", "LocalOSS", "LoggerZinc", "BigCacheIndex", "Friendship", "Service", "Web:DisallowUserRegister"]
     ...
     ```
+- add topic follow feature support [#273](https://github.com/rocboss/paopao-ce/pull/273)   
 
 ### Fixed
 

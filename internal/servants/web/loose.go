@@ -157,19 +157,19 @@ func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Err
 	num := req.Num
 	switch req.Type {
 	case web.TagTypeHot:
-		tags, err = s.Ds.GetHotTags(num, 0)
+		tags, err = s.Ds.GetHotTags(req.Uid, num, 0)
 	case web.TagTypeNew:
-		tags, err = s.Ds.GetNewestTags(num, 0)
+		tags, err = s.Ds.GetNewestTags(req.Uid, num, 0)
 	case web.TagTypeFollow:
-		tags, err = s.Ds.GetFollowTags(num, 0)
+		tags, err = s.Ds.GetFollowTags(req.Uid, num, 0)
 	case web.TagTypeHotExtral:
 		extralNum := req.ExtralNum
 		if extralNum == 0 {
 			extralNum = num
 		}
-		tags, err = s.Ds.GetHotTags(num, 0)
+		tags, err = s.Ds.GetHotTags(req.Uid, num, 0)
 		if err == nil {
-			extralTags, err = s.Ds.GetFollowTags(extralNum, 0)
+			extralTags, err = s.Ds.GetFollowTags(req.Uid, num, 0)
 		}
 	default:
 		// TODO: return good error
