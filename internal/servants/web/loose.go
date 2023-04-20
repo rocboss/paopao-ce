@@ -149,6 +149,41 @@ func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfi
 	}, nil
 }
 
+func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error) {
+	var (
+		tags, extralTags []*core.TagFormated
+		err              error
+	)
+	num := req.Num
+	switch req.Type {
+	case web.TagTypeHot:
+		tags, err = s.Ds.GetHotTags(req.Uid, num, 0)
+	case web.TagTypeNew:
+		tags, err = s.Ds.GetNewestTags(req.Uid, num, 0)
+	case web.TagTypeFollow:
+		tags, err = s.Ds.GetFollowTags(req.Uid, num, 0)
+	case web.TagTypeHotExtral:
+		extralNum := req.ExtralNum
+		if extralNum == 0 {
+			extralNum = num
+		}
+		tags, err = s.Ds.GetHotTags(req.Uid, num, 0)
+		if err == nil {
+			extralTags, err = s.Ds.GetFollowTags(req.Uid, num, 0)
+		}
+	default:
+		// TODO: return good error
+		err = _errGetPostTagsFailed
+	}
+	if err != nil {
+		return nil, _errGetPostTagsFailed
+	}
+	return &web.TopicListResp{
+		Topics:       tags,
+		ExtralTopics: extralTags,
+	}, nil
+}
+
 func newLooseSrv(s *base.DaoServant) api.Loose {
 	return &looseSrv{
 		DaoServant: s,

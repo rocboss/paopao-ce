@@ -56,4 +56,13 @@ type Priv struct {
 
 	// DeleteCommentReply 删除评论回复
 	DeleteCommentReply func(Delete, web.DeleteCommentReplyReq) `mir:"/post/comment/reply"`
+
+	// StickTopic 置顶动态
+	StickTopic func(Post, web.StickTopicReq) web.StickTopicResp `mir:"/topic/stick"`
+
+	// FollowTopic 关注话题
+	FollowTopic func(Post, web.FollowTopicReq) `mir:"/topic/follow"`
+
+	// UnfollowTopic 取消关注话题
+	UnfollowTopic func(Post, web.UnfollowTopicReq) `mir:"/topic/unfollow"`
 }

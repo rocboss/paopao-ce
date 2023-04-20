@@ -4,6 +4,7 @@ import { createStore } from "vuex";
 export default createStore({
   state: {
     refresh: Date.now(),
+    refreshTopicFollow: Date.now(),
     theme: localStorage.getItem("PAOPAO_THEME"),
     collapsedLeft: document.body.clientWidth <= 821,
     collapsedRight: document.body.clientWidth <= 821,
@@ -11,6 +12,7 @@ export default createStore({
     desktopModelShow: document.body.clientWidth > 821,
     authModalShow: false,
     authModelTab: "signin",
+    userLogined: false,
     userInfo: {
       id: 0,
       username: "",
@@ -20,6 +22,9 @@ export default createStore({
   mutations: {
     refresh(state, refresh) {
       state.refresh = refresh || Date.now();
+    },
+    refreshTopicFollow(state) {
+      state.refreshTopicFollow = Date.now();
     },
     triggerTheme(state, theme) {
       state.theme = theme;
@@ -40,10 +45,14 @@ export default createStore({
     },
     updateUserinfo(state, data) {
       state.userInfo = data;
+      if (state.userInfo.id > 0) {
+        state.userLogined = true;
+      }
     },
     userLogout(state) {
       localStorage.removeItem("PAOPAO_TOKEN");
       state.userInfo = { id: 0, nickname: "", username: "" };
+      state.userLogined = false;
     },
   },
   actions: {},

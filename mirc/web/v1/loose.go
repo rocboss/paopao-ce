@@ -23,4 +23,7 @@ type Loose struct {
 
 	// GetUserProfile 获取用户基本信息
 	GetUserProfile func(Get, web.GetUserProfileReq) web.GetUserProfileResp `mir:"/user/profile"`
+
+	// TopicList 获取话题列表
+	TopicList func(Get, web.TopicListReq) web.TopicListResp `mir:"/tags"`
 }
