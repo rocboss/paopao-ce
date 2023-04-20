@@ -6,8 +6,18 @@ package web
 
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 )
+
+const (
+	TagTypeHot       = cs.TagTypeHot
+	TagTypeNew       = cs.TagTypeNew
+	TagTypeFollow    = cs.TagTypeFollow
+	TagTypeHotExtral = cs.TagTypeHotExtral
+)
+
+type TagType = cs.TagType
 
 type TimelineReq struct {
 	BaseInfo   `form:"-"  binding:"-"`
@@ -42,6 +52,20 @@ type GetUserProfileResp struct {
 	Avatar   string `json:"avatar"`
 	IsAdmin  bool   `json:"is_admin"`
 	IsFriend bool   `json:"is_friend"`
+}
+
+type TopicListReq struct {
+	SimpleInfo `form:"-"  binding:"-"`
+	Type       TagType `json:"type" form:"type" binding:"required"`
+	Num        int     `json:"num" form:"num" binding:"required"`
+	ExtralNum  int     `json:"extral_num" form:"extral_num"`
+}
+
+// TopicListResp 主题返回值
+// TODO: 优化内容定义
+type TopicListResp struct {
+	Topics       cs.TagList `json:"topics"`
+	ExtralTopics cs.TagList `json:"extral_topics,omitempty"`
 }
 
 func (r *GetUserTweetsReq) SetPageInfo(page int, pageSize int) {

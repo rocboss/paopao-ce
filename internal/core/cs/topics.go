@@ -6,8 +6,10 @@ package cs
 
 const (
 	// 标签类型
-	TagTypeHot TagType = "hot"
-	TagTypeNew TagType = "new"
+	TagTypeHot       TagType = "hot"
+	TagTypeNew       TagType = "new"
+	TagTypeFollow    TagType = "follow"
+	TagTypeHotExtral TagType = "hot_extral"
 )
 
 type (
@@ -31,19 +33,23 @@ type TagInfo struct {
 
 // TagItem 标签信息条陈
 type TagItem struct {
-	ID       int64     `json:"id"`
-	UserID   int64     `json:"user_id"`
-	User     *UserInfo `json:"user" db:"u"`
-	Tag      string    `json:"tag"`
-	QuoteNum int64     `json:"quote_num"`
+	ID          int64     `json:"id"`
+	UserID      int64     `json:"user_id"`
+	User        *UserInfo `json:"user" db:"u"`
+	Tag         string    `json:"tag"`
+	QuoteNum    int64     `json:"quote_num"`
+	IsFollowing int8      `json:"is_following"`
+	IsTop       int8      `json:"is_top"`
 }
 
 func (t *TagInfo) Format() *TagItem {
 	return &TagItem{
-		ID:       t.ID,
-		UserID:   t.UserID,
-		User:     &UserInfo{},
-		Tag:      t.Tag,
-		QuoteNum: t.QuoteNum,
+		ID:          t.ID,
+		UserID:      t.UserID,
+		User:        &UserInfo{},
+		Tag:         t.Tag,
+		QuoteNum:    t.QuoteNum,
+		IsFollowing: 0,
+		IsTop:       0,
 	}
 }

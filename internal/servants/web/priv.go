@@ -144,6 +144,33 @@ func (s *privSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT(), chain.Priv()}
 }
 
+func (s *privSrv) UnfollowTopic(req *web.UnfollowTopicReq) mir.Error {
+	if err := s.Ds.UnfollowTopic(req.Uid, req.TopicId); err != nil {
+		logrus.Errorf("user(%d) unfollow topic(%d) failed: %s", req.Uid, req.TopicId, err)
+		return _errUnfollowTopicFailed
+	}
+	return nil
+}
+
+func (s *privSrv) FollowTopic(req *web.FollowTopicReq) mir.Error {
+	if err := s.Ds.FollowTopic(req.Uid, req.TopicId); err != nil {
+		logrus.Errorf("user(%d) follow topic(%d) failed: %s", req.Uid, req.TopicId, err)
+		return _errFollowTopicFailed
+	}
+	return nil
+}
+
+func (s *privSrv) StickTopic(req *web.StickTopicReq) (*web.StickTopicResp, mir.Error) {
+	status, err := s.Ds.StickTopic(req.Uid, req.TopicId)
+	if err != nil {
+		logrus.Errorf("user(%d) stick topic(%d) failed: %s", req.Uid, req.TopicId, err)
+		return nil, _errStickTopicFailed
+	}
+	return &web.StickTopicResp{
+		StickStatus: status,
+	}, nil
+}
+
 func (s *privSrv) UploadAttachment(req *web.UploadAttachmentReq) (*web.UploadAttachmentResp, mir.Error) {
 	defer req.File.Close()
 

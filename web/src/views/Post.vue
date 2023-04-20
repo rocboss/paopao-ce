@@ -14,17 +14,13 @@
                 </n-spin>
             </n-list-item>
             <div class="comment-opts-wrap" v-if="post.id > 0">
-            <n-space justify="space-between">
-                <div class="comment-title-item">
-                    <span comment-title-item>评论</span>
-                </div>
-                <div class="comment-opt-item ">
-                    <n-tabs type="bar" size="small" animated @update:value="commentTab">
-                        <n-tab-pane name="default" tab="默认" />
-                        <n-tab-pane name="newest" tab="最新" />
-                    </n-tabs>
-                </div>
-            </n-space>
+                <n-tabs type="bar" justify-content="end" size="small" animated @update:value="commentTab">
+                    <template #prefix>
+                        <span class="comment-title-item">评论</span>
+                    </template>
+                    <n-tab-pane name="default" tab="默认" />
+                    <n-tab-pane name="newest" tab="最新" />
+                </n-tabs>
             </div>
             <n-list-item v-if="post.id > 0">
                 <compose-comment
@@ -131,22 +127,15 @@ watch(postId, () => {
 .detail-wrap {
     min-height: 100px;
 }
-
 .comment-opts-wrap {
-    margin-top: 6px;
-    .comment-opt-item {
-        display: flex;
-        padding-left: 16px;
-        padding-right: 16px;
-        align-items: center;
-        opacity: 0.75;
-    }
+    padding-top: 6px;
+    padding-left: 16px;
+    padding-right: 16px;
+    opacity: 0.75;
     .comment-title-item {
-        padding-left: 16px;
         padding-top: 4px;
         font-size: 16px;
         text-align: center;
-        opacity: 0.75;
     }
 }
 .dark {
