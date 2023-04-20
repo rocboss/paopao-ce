@@ -18,7 +18,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
@@ -63,21 +62,6 @@ func (b *pubBinding) BindTweetComments(c *gin.Context) (*web.TweetCommentsReq, m
 		SortStrategy: c.Query("sort_strategy"),
 		Page:         page,
 		PageSize:     pageSize,
-	}, nil
-}
-
-func (s *pubSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error) {
-	// tags, err := broker.GetPostTags(&param)
-	num := req.Num
-	if num > conf.AppSetting.MaxPageSize {
-		num = conf.AppSetting.MaxPageSize
-	}
-	tags, err := s.Ds.ListTags(req.Type, num, 0)
-	if err != nil {
-		return nil, _errGetPostTagsFailed
-	}
-	return &web.TopicListResp{
-		Topics: tags,
 	}, nil
 }
 

@@ -239,7 +239,6 @@ const goHome = () => {
     if (route.path === '/') {
         store.commit('refresh');
     }
-
     goRouter('home');
 };
 const triggerAuth = (key: string) => {
@@ -248,6 +247,7 @@ const triggerAuth = (key: string) => {
 };
 const handleLogout = () => {
     store.commit('userLogout');
+    goHome()
 };
 window.$store = store;
 window.$message = useMessage();
