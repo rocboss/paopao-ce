@@ -24,12 +24,13 @@
             <template #header-extra>
                 <div class="opt-wrap">
                     <span class="timestamp">
-                        {{
+                        {{  comment.ip_loc}}
+                        <!-- {{
                             comment.ip_loc
                                 ? comment.ip_loc + ' · '
                                 : comment.ip_loc
                         }}
-                        {{ formatPrettyTime(comment.created_on, store.state.collapsedLeft) }}
+                        {{ formatPrettyTime(comment.created_on, store.state.collapsedLeft) }} -->
                     </span>
 
                     <n-popconfirm
@@ -74,6 +75,16 @@
                 <post-image
                     v-if="comment.imgs.length > 0"
                     :imgs="comment.imgs" />
+                  <!-- 回复编辑器 -->
+                  <compose-reply
+                    ref="replyComposeRef"
+                    :timestamp="comment.created_on"
+                    :comment-id="comment.id"
+                    :at-userid="replyAtUserID"
+                    :at-username="replyAtUsername"
+                    @reload="reload"
+                    @reset="resetReply"
+                />
                 <!-- 回复列表 -->
                 <div class="reply-wrap">
                     <reply-item
@@ -84,16 +95,6 @@
                         @reload="reload"
                     />
                 </div>
-                <!-- 回复编辑器 -->
-                <compose-reply
-                    ref="replyComposeRef"
-                    v-if="store.state.userInfo.id > 0"
-                    :comment-id="comment.id"
-                    :at-userid="replyAtUserID"
-                    :at-username="replyAtUsername"
-                    @reload="reload"
-                    @reset="resetReply"
-                />
             </template>
         </n-thing>
     </div>

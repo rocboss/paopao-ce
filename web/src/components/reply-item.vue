@@ -27,12 +27,13 @@
                 </router-link>
             </div>
             <div class="timestamp">
-                {{
+                {{ props.reply.ip_loc }}
+                <!-- {{
                     props.reply.ip_loc
                         ? props.reply.ip_loc + ' · '
                         : props.reply.ip_loc
-                }}
-                {{ formatPrettyTime(props.reply.created_on, store.state.collapsedLeft) }}
+                }} -->
+                <!-- {{ formatPrettyTime(props.reply.created_on, store.state.collapsedLeft) }} -->
                 <n-popconfirm
                     v-if="
                         store.state.userInfo.is_admin ||
@@ -58,18 +59,50 @@
 
         <div class="base-wrap">
             <div class="content">{{ props.reply.content }}</div>
-            <div class="reply-switch" v-if="store.state.userInfo.id > 0">
-                <span class="show" @click="focusReply"> 回复 </span>
+            <div class="reply-switch">
+                <span class="time-item">
+                    {{ formatPrettyTime(props.reply.created_on, store.state.collapsedLeft) }}
+                </span>
+                <div
+                class="action-item hover"
+                @click.stop=""
+            >
+                <n-icon size="medium">
+                    <thumb-up-outlined v-if="!hasUpvote" />
+                    <thumb-up-twotone v-if="hasUpvote" color="#18a058" />
+                </n-icon>
+                <span class="upvote-count">100</span>
+            </div>
+            <div
+                class="action-item hover"
+                @click.stop=""
+            >
+                <n-icon size="medium">
+                    <thumb-down-outlined v-if="!hasDownvote" />
+                    <thumb-down-twotone v-if="hasDownvote" color="#18a058" />
+                </n-icon>
+            </div>
+                <span  v-if="store.state.userLogined" class="show" @click="focusReply"> 回复 </span>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useStore } from 'vuex';
 import { Trash } from '@vicons/tabler';
 import { formatPrettyTime } from '@/utils/formatTime';
 import { deleteCommentReply } from '@/api/post';
+import {
+    ThumbUpTwotone,
+    ThumbUpOutlined,
+    ThumbDownTwotone,
+    ThumbDownOutlined,
+} from '@vicons/material';
+
+const hasUpvote = ref(true)
+const hasDownvote = ref(false)
 
 const props = withDefaults(defineProps<{
     reply: Item.ReplyProps,
@@ -135,7 +168,7 @@ const execDelAction = () => {
         }
     }
     .base-wrap {
-        display: flex;
+        display: block;
         .content {
             width: calc(100% - 40px);
             margin-top: 4px;
@@ -144,11 +177,28 @@ const execDelAction = () => {
             line-height: 2;
         }
         .reply-switch {
-            width: 40px;
-            text-align: right;
+            display: flex;
+            align-items: center;
             font-size: 12px;
             margin: 10px 0 0;
-
+            .time-item {
+                font-size: 12px;
+                opacity: 0.75;
+                margin-right: 18px;
+            }
+            .action-item {
+                display: flex;
+                align-items: center;
+                margin-right: 18px;
+                opacity: 0.75;
+                .upvote-count {
+                    margin-left: 4px;
+                    font-size: 12px;
+                }
+                &.hover {
+                    cursor: pointer;
+                }
+            }
             .show {
                 color: #18a058;
                 cursor: pointer;
