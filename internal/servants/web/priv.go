@@ -767,14 +767,14 @@ func (s *privSrv) createPostPreHandler(commentID int64, userID, atUserID int64) 
 }
 
 func (s *privSrv) createPostStar(postID, userID int64) (*core.PostStar, mir.Error) {
-	// 加载Post
 	post, err := s.Ds.GetPostByID(postID)
 	if err != nil {
 		return nil, xerror.ServerError
 	}
 
 	// 私密post不可操作
-	if post.Visibility == core.PostVisitPrivate {
+	// TODO: 使用统一的permission checker来检查权限问题，这里好友可见post就没处理，是bug
+	if post.Visibility == core.PostVisitPrivate && post.UserID != userID {
 		return nil, _errNoPermission
 	}
 
@@ -789,24 +789,23 @@ func (s *privSrv) createPostStar(postID, userID int64) (*core.PostStar, mir.Erro
 
 	// 更新索引
 	s.PushPostToSearch(post)
-
 	return star, nil
 }
 
 func (s *privSrv) deletePostStar(star *core.PostStar) mir.Error {
-	err := s.Ds.DeletePostStar(star)
-	if err != nil {
-		return xerror.ServerError
-	}
-	// 加载Post
 	post, err := s.Ds.GetPostByID(star.PostID)
 	if err != nil {
 		return xerror.ServerError
 	}
 
-	// 私密post不可操作
-	if post.Visibility == core.PostVisitPrivate {
+	// 私密post特殊处理
+	// TODO: 使用统一的permission checker来检查权限问题，这里好友可见post就没处理，是bug
+	if post.Visibility == core.PostVisitPrivate && post.UserID != star.UserID {
 		return _errNoPermission
+	}
+
+	if err = s.Ds.DeletePostStar(star); err != nil {
+		return xerror.ServerError
 	}
 
 	// 更新Post点赞数
@@ -815,19 +814,18 @@ func (s *privSrv) deletePostStar(star *core.PostStar) mir.Error {
 
 	// 更新索引
 	s.PushPostToSearch(post)
-
 	return nil
 }
 
 func (s *privSrv) createPostCollection(postID, userID int64) (*core.PostCollection, mir.Error) {
-	// 加载Post
 	post, err := s.Ds.GetPostByID(postID)
 	if err != nil {
 		return nil, xerror.ServerError
 	}
 
-	// 私密post不可操作
-	if post.Visibility == core.PostVisitPrivate {
+	// 私密post特殊处理
+	// TODO: 使用统一的permission checker来检查权限问题，这里好友可见post就没处理，是bug
+	if post.Visibility == core.PostVisitPrivate && post.UserID != userID {
 		return nil, _errNoPermission
 	}
 
@@ -842,24 +840,22 @@ func (s *privSrv) createPostCollection(postID, userID int64) (*core.PostCollecti
 
 	// 更新索引
 	s.PushPostToSearch(post)
-
 	return collection, nil
 }
 
 func (s *privSrv) deletePostCollection(collection *core.PostCollection) mir.Error {
-	err := s.Ds.DeletePostCollection(collection)
-	if err != nil {
-		return xerror.ServerError
-	}
-	// 加载Post
 	post, err := s.Ds.GetPostByID(collection.PostID)
 	if err != nil {
 		return xerror.ServerError
 	}
 
-	// 私密post不可操作
-	if post.Visibility == core.PostVisitPrivate {
+	// 私密post特殊处理
+	// TODO: 使用统一的permission checker来检查权限问题，这里好友可见post就没处理，是bug
+	if post.Visibility == core.PostVisitPrivate && post.UserID != collection.UserID {
 		return _errNoPermission
+	}
+	if err = s.Ds.DeletePostCollection(collection); err != nil {
+		return xerror.ServerError
 	}
 
 	// 更新Post点赞数
@@ -868,7 +864,6 @@ func (s *privSrv) deletePostCollection(collection *core.PostCollection) mir.Erro
 
 	// 更新索引
 	s.PushPostToSearch(post)
-
 	return nil
 }
 
