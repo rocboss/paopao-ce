@@ -16,14 +16,14 @@ export const formatRelativeTime = (time: number) => {
 
 export const formatPrettyTime = (time: number, noPretty: boolean) => {
   if (noPretty) {
-    return moment.unix(time).utc(true).fromNow();
+    return moment.unix(time).fromNow();
   }
-  let mt = moment.unix(time).utc(true);
-  let now = moment().utc(true);
+  let mt = moment.unix(time);
+  let now = moment();
   if (mt.year() != now.year()) {
-    return mt.format("YYYY-MM-DD HH:mm");
+    return mt.utc(true).format("YYYY-MM-DD HH:mm");
   } else if (moment().diff(mt, "month") > 3) {
-    return mt.format("MM-DD HH:mm");
+    return mt.utc(true).format("MM-DD HH:mm");
   }
   return mt.fromNow();
 };
