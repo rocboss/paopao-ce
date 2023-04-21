@@ -5,22 +5,41 @@
                 {{ formatPrettyTime(timestamp, store.state.collapsedLeft) }}
             </span>
             <div
-                class="action-item hover"
-                @click.stop=""
+                v-if="!store.state.userLogined"
+                class="action-item"
             >
                 <n-icon size="medium">
-                    <thumb-up-outlined v-if="!hasUpvote" />
-                    <thumb-up-twotone v-if="hasUpvote" color="#18a058" />
+                    <thumb-up-outlined/>
                 </n-icon>
-                <span class="upvote-count">1000</span>
+                <span class="upvote-count">{{ thumbsUpCount }}</span>
             </div>
             <div
+                v-if="store.state.userLogined"
                 class="action-item hover"
-                @click.stop=""
+                @click.stop="handleThumbsUp"
             >
                 <n-icon size="medium">
-                    <thumb-down-outlined v-if="!hasDownvote" />
-                    <thumb-down-twotone v-if="hasDownvote" color="#18a058" />
+                    <thumb-up-outlined v-if="!hasThumbsUp" />
+                    <thumb-up-twotone v-if="hasThumbsUp" color="#18a058" />
+                </n-icon>
+                <span class="upvote-count">{{ thumbsUpCount }}</span>
+            </div>
+            <div
+                v-if="!store.state.userLogined"
+                class="action-item"
+            >
+                <n-icon size="medium">
+                    <thumb-down-outlined />
+                </n-icon>
+            </div>
+            <div
+                v-if="store.state.userLogined"
+                class="action-item hover"
+                @click.stop="handleThumbsDown"
+            >
+                <n-icon size="medium">
+                    <thumb-down-outlined v-if="!hasThumbsDown" />
+                    <thumb-down-twotone v-if="hasThumbsDown" color="#18a058" />
                 </n-icon>
             </div>
             <span class="show" v-if="store.state.userLogined && !showReply" @click="switchReply(true)">
@@ -73,8 +92,10 @@ import {
     ThumbDownOutlined,
 } from '@vicons/material';
 
-const hasUpvote = ref(false)
-const hasDownvote = ref(true)
+const hasThumbsUp = ref(false)
+const hasThumbsDown = ref(false)
+const thumbsUpCount = ref(0)
+
 const props = withDefaults(defineProps<{
     timestamp: number,
     commentId: number,
@@ -95,6 +116,27 @@ const inputInstRef = ref<InputInst>();
 const showReply = ref(false);
 const replyContent = ref('');
 const submitting = ref(false);
+
+const handleThumbsUp = () => {
+    // TODO
+    hasThumbsUp.value = !hasThumbsUp.value
+    if (hasThumbsUp.value) {
+        thumbsUpCount.value++
+        hasThumbsDown.value = false
+    } else {
+        thumbsUpCount.value--
+    }
+};
+const handleThumbsDown = () => {
+    // TODO
+    hasThumbsDown.value = !hasThumbsDown.value
+    if (hasThumbsDown.value) {
+        if (hasThumbsUp.value) {
+            thumbsUpCount.value--
+            hasThumbsUp.value = false
+        }
+    }
+};
 const switchReply = (status: boolean) => {
     showReply.value = status;
 

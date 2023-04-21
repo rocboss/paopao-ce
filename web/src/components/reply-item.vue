@@ -28,12 +28,6 @@
             </div>
             <div class="timestamp">
                 {{ props.reply.ip_loc }}
-                <!-- {{
-                    props.reply.ip_loc
-                        ? props.reply.ip_loc + ' · '
-                        : props.reply.ip_loc
-                }} -->
-                <!-- {{ formatPrettyTime(props.reply.created_on, store.state.collapsedLeft) }} -->
                 <n-popconfirm
                     v-if="
                         store.state.userInfo.is_admin ||
@@ -64,25 +58,45 @@
                     {{ formatPrettyTime(props.reply.created_on, store.state.collapsedLeft) }}
                 </span>
                 <div
-                class="action-item hover"
-                @click.stop=""
-            >
-                <n-icon size="medium">
-                    <thumb-up-outlined v-if="!hasUpvote" />
-                    <thumb-up-twotone v-if="hasUpvote" color="#18a058" />
-                </n-icon>
-                <span class="upvote-count">100</span>
+                    v-if="!store.state.userLogined"
+                    class="action-item"
+                    @click.stop=""
+                >
+                    <n-icon size="medium">
+                        <thumb-up-outlined/>
+                    </n-icon>
+                    <span class="upvote-count">{{ thumbsUpCount }}</span>
+                </div>
+                <div
+                    v-if="store.state.userLogined"
+                    class="action-item hover"
+                    @click.stop="handleThumbsUp"
+                >
+                    <n-icon size="medium">
+                        <thumb-up-outlined v-if="!hasThumbsUp" />
+                        <thumb-up-twotone v-if="hasThumbsUp" color="#18a058" />
+                    </n-icon>
+                    <span class="upvote-count">{{ thumbsUpCount }}</span>
             </div>
             <div
-                class="action-item hover"
-                @click.stop=""
+                v-if="!store.state.userLogined"
+                class="action-item"
             >
                 <n-icon size="medium">
-                    <thumb-down-outlined v-if="!hasDownvote" />
-                    <thumb-down-twotone v-if="hasDownvote" color="#18a058" />
+                    <thumb-down-outlined />
                 </n-icon>
             </div>
-                <span  v-if="store.state.userLogined" class="show" @click="focusReply"> 回复 </span>
+            <div
+                v-if="store.state.userLogined"
+                class="action-item hover"
+                @click.stop="handleThumbsDown"
+            >
+                <n-icon size="medium">
+                    <thumb-down-outlined v-if="!hasThumbsDown" />
+                    <thumb-down-twotone v-if="hasThumbsDown" color="#18a058" />
+                </n-icon>
+            </div>
+            <span  v-if="store.state.userLogined" class="show" @click="focusReply"> 回复 </span>
             </div>
         </div>
     </div>
@@ -101,8 +115,9 @@ import {
     ThumbDownOutlined,
 } from '@vicons/material';
 
-const hasUpvote = ref(true)
-const hasDownvote = ref(false)
+const hasThumbsUp = ref(false)
+const hasThumbsDown = ref(false)
+const thumbsUpCount = ref(0)
 
 const props = withDefaults(defineProps<{
     reply: Item.ReplyProps,
@@ -113,6 +128,26 @@ const emit = defineEmits<{
     (e: 'reload'): void
 }>();
 
+const handleThumbsUp = () => {
+    // TODO
+    hasThumbsUp.value = !hasThumbsUp.value
+    if (hasThumbsUp.value) {
+        thumbsUpCount.value++
+        hasThumbsDown.value = false
+    } else {
+        thumbsUpCount.value--
+    }
+};
+const handleThumbsDown = () => {
+    // TODO
+    hasThumbsDown.value = !hasThumbsDown.value
+    if (hasThumbsDown.value) {
+        if (hasThumbsUp.value) {
+            thumbsUpCount.value--
+            hasThumbsUp.value = false
+        }
+    }
+};
 const focusReply = () => {
     emit('focusReply', props.reply);
 };
@@ -159,8 +194,6 @@ const execDelAction = () => {
         .timestamp {
             opacity: 0.75;
             text-align: right;
-            display: flex;
-            align-items: center;
             max-width: 50%;
             overflow: hidden;
             text-overflow: ellipsis;

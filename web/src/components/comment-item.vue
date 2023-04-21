@@ -25,12 +25,6 @@
                 <div class="opt-wrap">
                     <span class="timestamp">
                         {{  comment.ip_loc}}
-                        <!-- {{
-                            comment.ip_loc
-                                ? comment.ip_loc + ' · '
-                                : comment.ip_loc
-                        }}
-                        {{ formatPrettyTime(comment.created_on, store.state.collapsedLeft) }} -->
                     </span>
 
                     <n-popconfirm
@@ -104,7 +98,6 @@
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { formatPrettyTime } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
 import { Trash } from '@vicons/tabler';
 import { deleteComment } from '@/api/post';
