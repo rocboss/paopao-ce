@@ -199,6 +199,7 @@ func (s *commentManageServant) ThumbsUpComment(userId int64, tweetId, commentId 
 			commentThumbs.IsThumbsDown = types.No
 		}
 		commentThumbs.IsThumbsUp = 1 - commentThumbs.IsThumbsUp
+		commentThumbs.ModifiedOn = time.Now().Unix()
 	} else {
 		commentThumbs = &dbr.TweetCommentThumbs{
 			UserID:       userId,
@@ -248,6 +249,7 @@ func (s *commentManageServant) ThumbsDownComment(userId int64, tweetId, commentI
 
 		}
 		commentThumbs.IsThumbsDown = 1 - commentThumbs.IsThumbsDown
+		commentThumbs.ModifiedOn = time.Now().Unix()
 	} else {
 		commentThumbs = &dbr.TweetCommentThumbs{
 			UserID:       userId,
@@ -294,9 +296,9 @@ func (s *commentManageServant) ThumbsUpReply(userId int64, tweetId, commentId, r
 		default:
 			thumbsUpCount, thumbsDownCount = 1, -1
 			commentThumbs.IsThumbsDown = types.No
-
 		}
 		commentThumbs.IsThumbsUp = 1 - commentThumbs.IsThumbsUp
+		commentThumbs.ModifiedOn = time.Now().Unix()
 	} else {
 		commentThumbs = &dbr.TweetCommentThumbs{
 			UserID:       userId,
@@ -344,9 +346,9 @@ func (s *commentManageServant) ThumbsDownReply(userId int64, tweetId, commentId,
 		default:
 			thumbsUpCount, thumbsDownCount = -1, 1
 			commentThumbs.IsThumbsUp = types.No
-
 		}
 		commentThumbs.IsThumbsDown = 1 - commentThumbs.IsThumbsDown
+		commentThumbs.ModifiedOn = time.Now().Unix()
 	} else {
 		commentThumbs = &dbr.TweetCommentThumbs{
 			UserID:       userId,
@@ -386,5 +388,9 @@ func (s *commentManageServant) updateCommentThumbsUpCount(obj any, id int64, thu
 	} else if thumbsDownCount == -1 {
 		updateColumns["thumbs_down_count"] = gorm.Expr("thumbs_down_count - 1")
 	}
-	return s.db.Model(obj).Where("id=?", id).UpdateColumns(updateColumns).Error
+	if len(updateColumns) > 0 {
+		updateColumns["modified_on"] = time.Now().Unix()
+		return s.db.Model(obj).Where("id=?", id).UpdateColumns(updateColumns).Error
+	}
+	return nil
 }
