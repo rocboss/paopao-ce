@@ -114,10 +114,7 @@ import {
     ThumbDownTwotone,
     ThumbDownOutlined,
 } from '@vicons/material';
-
-const hasThumbsUp = ref(false)
-const hasThumbsDown = ref(false)
-const thumbsUpCount = ref(0)
+import { YesNoEnum } from '@/utils/IEnum';
 
 const props = withDefaults(defineProps<{
     tweetId: number,
@@ -129,6 +126,10 @@ const emit = defineEmits<{
     (e: 'reload'): void
 }>();
 
+const hasThumbsUp = ref(props.reply.is_thumbs_up == YesNoEnum.YES)
+const hasThumbsDown = ref(props.reply.is_thumbs_down == YesNoEnum.YES)
+const thumbsUpCount = ref(props.reply.thumbs_up_count)
+
 const handleThumbsUp = () => {
     thumbsUpTweetReply({
         tweet_id: props.tweetId,
@@ -139,7 +140,7 @@ const handleThumbsUp = () => {
         hasThumbsUp.value = !hasThumbsUp.value
         if (hasThumbsUp.value) {
             thumbsUpCount.value++
-            hasThumbsDown.value = false
+            hasThumbsDown.value= false
         } else {
             thumbsUpCount.value--
         }

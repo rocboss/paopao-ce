@@ -2,7 +2,7 @@
     <div class="reply-compose-wrap">
         <div class="reply-switch">
             <span class="time-item">
-                {{ formatPrettyTime(timestamp) }}
+                {{ formatPrettyTime(comment.created_on) }}
             </span>
             <div
                 v-if="!store.state.userLogined"
@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { formatPrettyTime } from '@/utils/formatTime';
 import { createCommentReply, thumbsUpTweetComment, thumbsDownTweetComment } from '@/api/post';
@@ -90,23 +90,14 @@ import {
     ThumbUpOutlined,
     ThumbDownTwotone,
     ThumbDownOutlined,
-CommentFilled,
 } from '@vicons/material';
-
-const hasThumbsUp = ref(false)
-const hasThumbsDown = ref(false)
-const thumbsUpCount = ref(0)
+import { YesNoEnum } from '@/utils/IEnum';
 
 const props = withDefaults(defineProps<{
-    timestamp: number,
-    tweetId: number,
-    commentId: number,
+    comment: Item.CommentProps,
     atUserid: number,
     atUsername: string,
 }>(), {
-    timestamp: 0,
-    tweet_id: 0,
-    commentId: 0,
     atUserid: 0,
     atUsername: ''
 });
@@ -120,10 +111,14 @@ const showReply = ref(false);
 const replyContent = ref('');
 const submitting = ref(false);
 
+const hasThumbsUp = ref(props.comment.is_thumbs_up == YesNoEnum.YES)
+const hasThumbsDown = ref(props.comment.is_thumbs_down == YesNoEnum.YES)
+const thumbsUpCount = ref(props.comment.thumbs_up_count)
+
 const handleThumbsUp = () => {
     thumbsUpTweetComment({
-        tweet_id: props.tweetId,
-        comment_id: props.commentId,
+        tweet_id: props.comment.post_id,
+        comment_id: props.comment.id,
     })
     .then((_res) => {
         hasThumbsUp.value = !hasThumbsUp.value
@@ -140,13 +135,13 @@ const handleThumbsUp = () => {
 };
 const handleThumbsDown = () => {
     thumbsDownTweetComment({
-        tweet_id: props.tweetId,
-        comment_id: props.commentId,
+        tweet_id: props.comment.post_id,
+        comment_id: props.comment.id,
     })
     .then((_res) => {
         hasThumbsDown.value = !hasThumbsDown.value
-        if (hasThumbsDown.value) {
-            if (hasThumbsUp.value) {
+        if ( hasThumbsDown.value) {
+            if ( hasThumbsUp.value) {
                 thumbsUpCount.value--
                 hasThumbsUp.value = false
             }
@@ -172,7 +167,7 @@ const switchReply = (status: boolean) => {
 const submitReply = () => {
     submitting.value = true;
     createCommentReply({
-        comment_id: props.commentId,
+        comment_id: props.comment.id,
         at_user_id: props.atUserid,
         content: replyContent.value,
     })

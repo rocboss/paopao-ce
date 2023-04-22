@@ -13,12 +13,14 @@ import (
 
 type CommentReply struct {
 	*Model
-	CommentID int64  `json:"comment_id"`
-	UserID    int64  `json:"user_id"`
-	AtUserID  int64  `json:"at_user_id"`
-	Content   string `json:"content"`
-	IP        string `json:"ip"`
-	IPLoc     string `json:"ip_loc"`
+	CommentID       int64  `json:"comment_id"`
+	UserID          int64  `json:"user_id"`
+	AtUserID        int64  `json:"at_user_id"`
+	Content         string `json:"content"`
+	IP              string `json:"ip"`
+	IPLoc           string `json:"ip_loc"`
+	ThumbsUpCount   int32  `json:"thumbs_up_count"`
+	ThumbsDownCount int32  `json:"-"`
 }
 
 type CommentReplyFormated struct {
@@ -51,7 +53,7 @@ func (c *CommentReply) Format() *CommentReplyFormated {
 		AtUser:        &UserFormated{},
 		Content:       c.Content,
 		IPLoc:         c.IPLoc,
-		ThumbsUpCount: 0,
+		ThumbsUpCount: c.ThumbsUpCount,
 		IsThumbsUp:    types.No,
 		IsThumbsDown:  types.No,
 		CreatedOn:     c.CreatedOn,

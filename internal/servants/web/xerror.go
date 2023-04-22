@@ -54,6 +54,7 @@ var (
 	_errCreateReplyFailed   = xerror.NewError(40005, "评论回复失败")
 	_errGetReplyFailed      = xerror.NewError(40006, "获取评论详情失败")
 	_errMaxCommentCount     = xerror.NewError(40007, "评论数已达最大限制")
+	_errGetCommentThumbs    = xerror.NewError(40008, "获取评论点赞信息失败")
 
 	_errGetMessagesFailed = xerror.NewError(50001, "获取消息列表失败")
 	_errReadMessageFailed = xerror.NewError(50002, "标记消息已读失败")

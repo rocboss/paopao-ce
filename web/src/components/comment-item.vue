@@ -72,9 +72,7 @@
                   <!-- 回复编辑器 -->
                   <compose-reply
                     ref="replyComposeRef"
-                    :timestamp="comment.created_on"
-                    :tweet-id="comment.post_id"
-                    :comment-id="comment.id"
+                    :comment="comment"
                     :at-userid="replyAtUserID"
                     :at-username="replyAtUsername"
                     @reload="reload"
