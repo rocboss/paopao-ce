@@ -155,6 +155,10 @@ declare module NetReq {
 
   interface PostDeletePost {}
 
+  interface PostTweetCommentThumbs {}
+
+  interface PostTweetReplyThumbs {}
+
   type PostCreateComment = Item.CommentProps;
 
   interface PostDeleteComment {}

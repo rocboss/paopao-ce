@@ -27,12 +27,7 @@
                 </router-link>
             </div>
             <div class="timestamp">
-                {{
-                    props.reply.ip_loc
-                        ? props.reply.ip_loc + ' · '
-                        : props.reply.ip_loc
-                }}
-                {{ formatPrettyTime(props.reply.created_on, store.state.collapsedLeft) }}
+                {{ props.reply.ip_loc }}
                 <n-popconfirm
                     v-if="
                         store.state.userInfo.is_admin ||
@@ -58,20 +53,71 @@
 
         <div class="base-wrap">
             <div class="content">{{ props.reply.content }}</div>
-            <div class="reply-switch" v-if="store.state.userInfo.id > 0">
-                <span class="show" @click="focusReply"> 回复 </span>
+            <div class="reply-switch">
+                <span class="time-item">
+                    {{ formatPrettyTime(props.reply.created_on) }}
+                </span>
+                <div
+                    v-if="!store.state.userLogined"
+                    class="action-item"
+                    @click.stop=""
+                >
+                    <n-icon size="medium">
+                        <thumb-up-outlined/>
+                    </n-icon>
+                    <span class="upvote-count">{{ thumbsUpCount }}</span>
+                </div>
+                <div
+                    v-if="store.state.userLogined"
+                    class="action-item hover"
+                    @click.stop="handleThumbsUp"
+                >
+                    <n-icon size="medium">
+                        <thumb-up-outlined v-if="!hasThumbsUp" />
+                        <thumb-up-twotone v-if="hasThumbsUp" color="#18a058" />
+                    </n-icon>
+                    <span class="upvote-count">{{ thumbsUpCount }}</span>
+            </div>
+            <div
+                v-if="!store.state.userLogined"
+                class="action-item"
+            >
+                <n-icon size="medium">
+                    <thumb-down-outlined />
+                </n-icon>
+            </div>
+            <div
+                v-if="store.state.userLogined"
+                class="action-item hover"
+                @click.stop="handleThumbsDown"
+            >
+                <n-icon size="medium">
+                    <thumb-down-outlined v-if="!hasThumbsDown" />
+                    <thumb-down-twotone v-if="hasThumbsDown" color="#18a058" />
+                </n-icon>
+            </div>
+            <span  v-if="store.state.userLogined" class="show" @click="focusReply"> 回复 </span>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useStore } from 'vuex';
 import { Trash } from '@vicons/tabler';
 import { formatPrettyTime } from '@/utils/formatTime';
-import { deleteCommentReply } from '@/api/post';
+import { deleteCommentReply, thumbsUpTweetReply, thumbsDownTweetReply } from '@/api/post';
+import {
+    ThumbUpTwotone,
+    ThumbUpOutlined,
+    ThumbDownTwotone,
+    ThumbDownOutlined,
+} from '@vicons/material';
+import { YesNoEnum } from '@/utils/IEnum';
 
 const props = withDefaults(defineProps<{
+    tweetId: number,
     reply: Item.ReplyProps,
 }>(), {});
 const store = useStore();
@@ -80,6 +126,48 @@ const emit = defineEmits<{
     (e: 'reload'): void
 }>();
 
+const hasThumbsUp = ref(props.reply.is_thumbs_up == YesNoEnum.YES)
+const hasThumbsDown = ref(props.reply.is_thumbs_down == YesNoEnum.YES)
+const thumbsUpCount = ref(props.reply.thumbs_up_count)
+
+const handleThumbsUp = () => {
+    thumbsUpTweetReply({
+        tweet_id: props.tweetId,
+        comment_id: props.reply.comment_id,
+        reply_id: props.reply.id,
+    })
+    .then((_res) => {
+        hasThumbsUp.value = !hasThumbsUp.value
+        if (hasThumbsUp.value) {
+            thumbsUpCount.value++
+            hasThumbsDown.value= false
+        } else {
+            thumbsUpCount.value--
+        }
+    })
+    .catch((err) => {
+        console.log(err);
+    }); 
+};
+const handleThumbsDown = () => {
+    thumbsDownTweetReply({
+        tweet_id: props.tweetId,
+        comment_id: props.reply.comment_id,
+        reply_id: props.reply.id,
+    })
+    .then((_res) => {
+        hasThumbsDown.value = !hasThumbsDown.value
+        if (hasThumbsDown.value) {
+            if (hasThumbsUp.value) {
+                thumbsUpCount.value--
+                hasThumbsUp.value = false
+            }
+        }
+    })
+    .catch((err) => {
+        console.log(err);
+    }); 
+};
 const focusReply = () => {
     emit('focusReply', props.reply);
 };
@@ -126,8 +214,6 @@ const execDelAction = () => {
         .timestamp {
             opacity: 0.75;
             text-align: right;
-            display: flex;
-            align-items: center;
             max-width: 50%;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -135,7 +221,7 @@ const execDelAction = () => {
         }
     }
     .base-wrap {
-        display: flex;
+        display: block;
         .content {
             width: calc(100% - 40px);
             margin-top: 4px;
@@ -144,11 +230,28 @@ const execDelAction = () => {
             line-height: 2;
         }
         .reply-switch {
-            width: 40px;
-            text-align: right;
+            display: flex;
+            align-items: center;
             font-size: 12px;
             margin: 10px 0 0;
-
+            .time-item {
+                font-size: 12px;
+                opacity: 0.75;
+                margin-right: 18px;
+            }
+            .action-item {
+                display: flex;
+                align-items: center;
+                margin-right: 18px;
+                opacity: 0.75;
+                .upvote-count {
+                    margin-left: 4px;
+                    font-size: 12px;
+                }
+                &.hover {
+                    cursor: pointer;
+                }
+            }
             .show {
                 color: #18a058;
                 cursor: pointer;

@@ -7,30 +7,36 @@ package dbr
 import (
 	"time"
 
+	"github.com/rocboss/paopao-ce/pkg/types"
 	"gorm.io/gorm"
 )
 
 type CommentReply struct {
 	*Model
-	CommentID int64  `json:"comment_id"`
-	UserID    int64  `json:"user_id"`
-	AtUserID  int64  `json:"at_user_id"`
-	Content   string `json:"content"`
-	IP        string `json:"ip"`
-	IPLoc     string `json:"ip_loc"`
+	CommentID       int64  `json:"comment_id"`
+	UserID          int64  `json:"user_id"`
+	AtUserID        int64  `json:"at_user_id"`
+	Content         string `json:"content"`
+	IP              string `json:"ip"`
+	IPLoc           string `json:"ip_loc"`
+	ThumbsUpCount   int32  `json:"thumbs_up_count"`
+	ThumbsDownCount int32  `json:"-"`
 }
 
 type CommentReplyFormated struct {
-	ID         int64         `json:"id"`
-	CommentID  int64         `json:"comment_id"`
-	UserID     int64         `json:"user_id"`
-	User       *UserFormated `json:"user"`
-	AtUserID   int64         `json:"at_user_id"`
-	AtUser     *UserFormated `json:"at_user"`
-	Content    string        `json:"content"`
-	IPLoc      string        `json:"ip_loc"`
-	CreatedOn  int64         `json:"created_on"`
-	ModifiedOn int64         `json:"modified_on"`
+	ID            int64         `json:"id"`
+	CommentID     int64         `json:"comment_id"`
+	UserID        int64         `json:"user_id"`
+	User          *UserFormated `json:"user"`
+	AtUserID      int64         `json:"at_user_id"`
+	AtUser        *UserFormated `json:"at_user"`
+	Content       string        `json:"content"`
+	IPLoc         string        `json:"ip_loc"`
+	ThumbsUpCount int32         `json:"thumbs_up_count"`
+	IsThumbsUp    int8          `json:"is_thumbs_up"`
+	IsThumbsDown  int8          `json:"is_thumbs_down"`
+	CreatedOn     int64         `json:"created_on"`
+	ModifiedOn    int64         `json:"modified_on"`
 }
 
 func (c *CommentReply) Format() *CommentReplyFormated {
@@ -39,16 +45,19 @@ func (c *CommentReply) Format() *CommentReplyFormated {
 	}
 
 	return &CommentReplyFormated{
-		ID:         c.ID,
-		CommentID:  c.CommentID,
-		UserID:     c.UserID,
-		User:       &UserFormated{},
-		AtUserID:   c.AtUserID,
-		AtUser:     &UserFormated{},
-		Content:    c.Content,
-		IPLoc:      c.IPLoc,
-		CreatedOn:  c.CreatedOn,
-		ModifiedOn: c.ModifiedOn,
+		ID:            c.ID,
+		CommentID:     c.CommentID,
+		UserID:        c.UserID,
+		User:          &UserFormated{},
+		AtUserID:      c.AtUserID,
+		AtUser:        &UserFormated{},
+		Content:       c.Content,
+		IPLoc:         c.IPLoc,
+		ThumbsUpCount: c.ThumbsUpCount,
+		IsThumbsUp:    types.No,
+		IsThumbsDown:  types.No,
+		CreatedOn:     c.CreatedOn,
+		ModifiedOn:    c.ModifiedOn,
 	}
 }
 

@@ -1,10 +1,51 @@
 <template>
     <div class="reply-compose-wrap">
         <div class="reply-switch">
-            <span class="show" v-if="!showReply" @click="switchReply(true)">
+            <span class="time-item">
+                {{ formatPrettyTime(comment.created_on) }}
+            </span>
+            <div
+                v-if="!store.state.userLogined"
+                class="action-item"
+            >
+                <n-icon size="medium">
+                    <thumb-up-outlined/>
+                </n-icon>
+                <span class="upvote-count">{{ thumbsUpCount }}</span>
+            </div>
+            <div
+                v-if="store.state.userLogined"
+                class="action-item hover"
+                @click.stop="handleThumbsUp"
+            >
+                <n-icon size="medium">
+                    <thumb-up-outlined v-if="!hasThumbsUp" />
+                    <thumb-up-twotone v-if="hasThumbsUp" color="#18a058" />
+                </n-icon>
+                <span class="upvote-count">{{ thumbsUpCount }}</span>
+            </div>
+            <div
+                v-if="!store.state.userLogined"
+                class="action-item"
+            >
+                <n-icon size="medium">
+                    <thumb-down-outlined />
+                </n-icon>
+            </div>
+            <div
+                v-if="store.state.userLogined"
+                class="action-item hover"
+                @click.stop="handleThumbsDown"
+            >
+                <n-icon size="medium">
+                    <thumb-down-outlined v-if="!hasThumbsDown" />
+                    <thumb-down-twotone v-if="hasThumbsDown" color="#18a058" />
+                </n-icon>
+            </div>
+            <span class="show" v-if="store.state.userLogined && !showReply" @click="switchReply(true)">
                 回复
             </span>
-            <span class="hide" v-if="showReply" @click="switchReply(false)">
+            <span class="hide" v-if="store.state.userLogined && showReply" @click="switchReply(false)">
                 取消
             </span>
         </div>
@@ -39,19 +80,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { createCommentReply } from '@/api/post';
+import { ref, computed } from 'vue';
+import { useStore } from 'vuex';
+import { formatPrettyTime } from '@/utils/formatTime';
+import { createCommentReply, thumbsUpTweetComment, thumbsDownTweetComment } from '@/api/post';
 import { InputInst } from 'naive-ui';
+import {
+    ThumbUpTwotone,
+    ThumbUpOutlined,
+    ThumbDownTwotone,
+    ThumbDownOutlined,
+} from '@vicons/material';
+import { YesNoEnum } from '@/utils/IEnum';
 
 const props = withDefaults(defineProps<{
-    commentId: number,
+    comment: Item.CommentProps,
     atUserid: number,
     atUsername: string,
 }>(), {
-    commentId: 0,
     atUserid: 0,
     atUsername: ''
 });
+const store = useStore();
 const emit = defineEmits<{
     (e: 'reload'): void,
     (e: 'reset'): void
@@ -60,6 +110,47 @@ const inputInstRef = ref<InputInst>();
 const showReply = ref(false);
 const replyContent = ref('');
 const submitting = ref(false);
+
+const hasThumbsUp = ref(props.comment.is_thumbs_up == YesNoEnum.YES)
+const hasThumbsDown = ref(props.comment.is_thumbs_down == YesNoEnum.YES)
+const thumbsUpCount = ref(props.comment.thumbs_up_count)
+
+const handleThumbsUp = () => {
+    thumbsUpTweetComment({
+        tweet_id: props.comment.post_id,
+        comment_id: props.comment.id,
+    })
+    .then((_res) => {
+        hasThumbsUp.value = !hasThumbsUp.value
+        if (hasThumbsUp.value) {
+            thumbsUpCount.value++
+            hasThumbsDown.value = false
+        } else {
+            thumbsUpCount.value--
+        }
+    })
+    .catch((err) => {
+        console.log(err);
+    }); 
+};
+const handleThumbsDown = () => {
+    thumbsDownTweetComment({
+        tweet_id: props.comment.post_id,
+        comment_id: props.comment.id,
+    })
+    .then((_res) => {
+        hasThumbsDown.value = !hasThumbsDown.value
+        if ( hasThumbsDown.value) {
+            if ( hasThumbsUp.value) {
+                thumbsUpCount.value--
+                hasThumbsUp.value = false
+            }
+        }
+    })
+    .catch((err) => {
+        console.log(err);
+    }); 
+};
 const switchReply = (status: boolean) => {
     showReply.value = status;
 
@@ -76,7 +167,7 @@ const switchReply = (status: boolean) => {
 const submitReply = () => {
     submitting.value = true;
     createCommentReply({
-        comment_id: props.commentId,
+        comment_id: props.comment.id,
         at_user_id: props.atUserid,
         content: replyContent.value,
     })
@@ -95,10 +186,29 @@ defineExpose({ switchReply });
 <style lang="less" scoped>
 .reply-compose-wrap {
     .reply-switch {
+        display: flex;
+        align-items: center;
         text-align: right;
         font-size: 12px;
         margin: 10px 0;
-
+        .time-item {
+            font-size: 12px;
+            opacity: 0.75;
+            margin-right: 18px;
+        }
+        .action-item {
+            display: flex;
+            align-items: center;
+            margin-right: 18px;
+            opacity: 0.75;
+            .upvote-count {
+                margin-left: 4px;
+                font-size: 12px;
+            }
+            &.hover {
+                cursor: pointer;
+            }
+        }
         .show {
             color: #18a058;
             cursor: pointer;

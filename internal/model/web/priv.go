@@ -12,6 +12,19 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 )
 
+type TweetCommentThumbsReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	TweetId    int64 `json:"tweet_id" binding:"required"`
+	CommentId  int64 `json:"comment_id" binding:"required"`
+}
+
+type TweetReplyThumbsReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	TweetId    int64 `json:"tweet_id" binding:"required"`
+	CommentId  int64 `json:"comment_id" binding:"required"`
+	ReplyId    int64 `json:"reply_id" binding:"required"`
+}
+
 type PostContentItem struct {
 	Content string            `json:"content"  binding:"required"`
 	Type    core.PostContentT `json:"type"  binding:"required"`

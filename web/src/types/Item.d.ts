@@ -62,6 +62,12 @@ declare module Item {
     ip?: string;
     /** 评论者城市地址 */
     ip_loc: string;
+    /** 点赞数 */
+    thumbs_up_count: number;
+    /** 是否点赞，0为未点赞，1为已点赞 */
+    is_thumbs_up: import("@/utils/IEnum").YesNoEnum;
+    /** 是否反对，0为未反对，1为已反对 */
+    is_thumbs_down: import("@/utils/IEnum").YesNoEnum;
     /** 创建时间 */
     created_on: number;
     /** 修改时间 */
@@ -99,6 +105,12 @@ declare module Item {
     ip?: string;
     /** 回复人城市地址 */
     ip_loc: string;
+    /** 点赞数 */
+    thumbs_up_count: number;
+    /** 是否点赞，0为未点赞，1为已点赞 */
+    is_thumbs_up: import("@/utils/IEnum").YesNoEnum;
+    /** 是否反对，0为未反对，1为已反对 */
+    is_thumbs_down: import("@/utils/IEnum").YesNoEnum;
     /** 创建时间 */
     created_on: number;
     /** 修改时间 */
