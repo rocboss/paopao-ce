@@ -50,6 +50,8 @@ All notable changes to paopao-ce are documented in this file.
         UNIQUE KEY `idx_topic_user_uid_tid` ( `topic_id`, `user_id` ) USING BTREE 
       ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户话题';
     ```
+- add tweet comment thumbs up/down feature support [#275](https://github.com/rocboss/paopao-ce/pull/275)   
+  mirgration database first(sql ddl file in `scripts/migration/**/*_comment_thumbs.up.sql`):
 
 ### Fixed
 
