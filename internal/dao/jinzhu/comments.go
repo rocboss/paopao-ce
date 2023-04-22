@@ -187,7 +187,7 @@ func (s *commentManageServant) ThumbsUpComment(userId int64, tweetId, commentId 
 	)
 	commentThumbs := &dbr.TweetCommentThumbs{}
 	// 检查thumbs状态
-	err := s.db.Where("user_id=? AND tweet_id=? AND comment_id=?", userId, tweetId, commentId).Take(commentThumbs).Error
+	err := s.db.Where("user_id=? AND tweet_id=? AND comment_id=? AND comment_type=0", userId, tweetId, commentId).Take(commentThumbs).Error
 	if err == nil {
 		switch {
 		case commentThumbs.IsThumbsUp == types.Yes && commentThumbs.IsThumbsDown == types.No:
@@ -235,7 +235,7 @@ func (s *commentManageServant) ThumbsDownComment(userId int64, tweetId, commentI
 	)
 	commentThumbs := &dbr.TweetCommentThumbs{}
 	// 检查thumbs状态
-	err := s.db.Where("user_id=? AND tweet_id=? AND comment_id=?", userId, tweetId, commentId).Take(commentThumbs).Error
+	err := s.db.Where("user_id=? AND tweet_id=? AND comment_id=? AND comment_type=0", userId, tweetId, commentId).Take(commentThumbs).Error
 	if err == nil {
 		switch {
 		case commentThumbs.IsThumbsDown == types.Yes:
@@ -284,7 +284,7 @@ func (s *commentManageServant) ThumbsUpReply(userId int64, tweetId, commentId, r
 	)
 	commentThumbs := &dbr.TweetCommentThumbs{}
 	// 检查thumbs状态
-	err := s.db.Where("user_id=? AND tweet_id=? AND comment_id=? AND reply_id=?", userId, tweetId, commentId, replyId).Take(commentThumbs).Error
+	err := s.db.Where("user_id=? AND tweet_id=? AND comment_id=? AND reply_id=? AND comment_type=1", userId, tweetId, commentId, replyId).Take(commentThumbs).Error
 	if err == nil {
 		switch {
 		case commentThumbs.IsThumbsUp == types.Yes:
@@ -334,7 +334,7 @@ func (s *commentManageServant) ThumbsDownReply(userId int64, tweetId, commentId,
 	)
 	commentThumbs := &dbr.TweetCommentThumbs{}
 	// 检查thumbs状态
-	err := s.db.Where("user_id=? AND tweet_id=? AND comment_id=? AND reply_id=?", userId, tweetId, commentId, replyId).Take(commentThumbs).Error
+	err := s.db.Where("user_id=? AND tweet_id=? AND comment_id=? AND reply_id=? AND comment_type=1", userId, tweetId, commentId, replyId).Take(commentThumbs).Error
 	if err == nil {
 		switch {
 		case commentThumbs.IsThumbsDown == types.Yes:
