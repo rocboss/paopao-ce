@@ -143,6 +143,38 @@ func (s *privSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT(), chain.Priv()}
 }
 
+func (s *privSrv) ThumbsDownTweetReply(req *web.TweetReplyThumbsReq) mir.Error {
+	if err := s.Ds.ThumbsDownReply(req.Uid, req.TweetId, req.CommentId, req.ReplyId); err != nil {
+		logrus.Errorf("thumbs down tweet reply error: %s req:%v", err, req)
+		return _errThumbsDownTweetReply
+	}
+	return nil
+}
+
+func (s *privSrv) ThumbsUpTweetReply(req *web.TweetReplyThumbsReq) mir.Error {
+	if err := s.Ds.ThumbsUpReply(req.Uid, req.TweetId, req.CommentId, req.ReplyId); err != nil {
+		logrus.Errorf("thumbs up tweet reply error: %s req:%v", err, req)
+		return _errThumbsUpTweetReply
+	}
+	return nil
+}
+
+func (s *privSrv) ThumbsDownTweetComment(req *web.TweetCommentThumbsReq) mir.Error {
+	if err := s.Ds.ThumbsDownComment(req.Uid, req.TweetId, req.CommentId); err != nil {
+		logrus.Errorf("thumbs down tweet comment error: %s req:%v", err, req)
+		return _errThumbsDownTweetComment
+	}
+	return nil
+}
+
+func (s *privSrv) ThumbsUpTweetComment(req *web.TweetCommentThumbsReq) mir.Error {
+	if err := s.Ds.ThumbsUpComment(req.Uid, req.TweetId, req.CommentId); err != nil {
+		logrus.Errorf("thumbs up tweet comment error: %s req:%v", err, req)
+		return _errThumbsUpTweetComment
+	}
+	return nil
+}
+
 func (s *privSrv) UnfollowTopic(req *web.UnfollowTopicReq) mir.Error {
 	if err := s.Ds.UnfollowTopic(req.Uid, req.TopicId); err != nil {
 		logrus.Errorf("user(%d) unfollow topic(%d) failed: %s", req.Uid, req.TopicId, err)

@@ -83,13 +83,14 @@
 import { ref } from 'vue';
 import { useStore } from 'vuex';
 import { formatPrettyTime } from '@/utils/formatTime';
-import { createCommentReply } from '@/api/post';
+import { createCommentReply, thumbsUpTweetComment, thumbsDownTweetComment } from '@/api/post';
 import { InputInst } from 'naive-ui';
 import {
     ThumbUpTwotone,
     ThumbUpOutlined,
     ThumbDownTwotone,
     ThumbDownOutlined,
+CommentFilled,
 } from '@vicons/material';
 
 const hasThumbsUp = ref(false)
@@ -98,11 +99,13 @@ const thumbsUpCount = ref(0)
 
 const props = withDefaults(defineProps<{
     timestamp: number,
+    tweetId: number,
     commentId: number,
     atUserid: number,
     atUsername: string,
 }>(), {
     timestamp: 0,
+    tweet_id: 0,
     commentId: 0,
     atUserid: 0,
     atUsername: ''
@@ -118,24 +121,40 @@ const replyContent = ref('');
 const submitting = ref(false);
 
 const handleThumbsUp = () => {
-    // TODO
-    hasThumbsUp.value = !hasThumbsUp.value
-    if (hasThumbsUp.value) {
-        thumbsUpCount.value++
-        hasThumbsDown.value = false
-    } else {
-        thumbsUpCount.value--
-    }
+    thumbsUpTweetComment({
+        tweet_id: props.tweetId,
+        comment_id: props.commentId,
+    })
+    .then((_res) => {
+        hasThumbsUp.value = !hasThumbsUp.value
+        if (hasThumbsUp.value) {
+            thumbsUpCount.value++
+            hasThumbsDown.value = false
+        } else {
+            thumbsUpCount.value--
+        }
+    })
+    .catch((err) => {
+        console.log(err);
+    }); 
 };
 const handleThumbsDown = () => {
-    // TODO
-    hasThumbsDown.value = !hasThumbsDown.value
-    if (hasThumbsDown.value) {
-        if (hasThumbsUp.value) {
-            thumbsUpCount.value--
-            hasThumbsUp.value = false
+    thumbsDownTweetComment({
+        tweet_id: props.tweetId,
+        comment_id: props.commentId,
+    })
+    .then((_res) => {
+        hasThumbsDown.value = !hasThumbsDown.value
+        if (hasThumbsDown.value) {
+            if (hasThumbsUp.value) {
+                thumbsUpCount.value--
+                hasThumbsUp.value = false
+            }
         }
-    }
+    })
+    .catch((err) => {
+        console.log(err);
+    }); 
 };
 const switchReply = (status: boolean) => {
     showReply.value = status;

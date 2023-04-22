@@ -194,6 +194,17 @@ declare module NetParams {
     id: number;
   }
 
+  interface PostTweetCommentThumbs {
+    tweet_id: number;
+    comment_id: number;
+  }
+
+  interface PostTweetReplyThumbs {
+    tweet_id: number;
+    comment_id: number;
+    reply_id: number;
+  }
+
   interface PostCreateComment {
     /** 内容ID */
     post_id: number;

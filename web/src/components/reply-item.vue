@@ -107,7 +107,7 @@ import { ref } from 'vue';
 import { useStore } from 'vuex';
 import { Trash } from '@vicons/tabler';
 import { formatPrettyTime } from '@/utils/formatTime';
-import { deleteCommentReply } from '@/api/post';
+import { deleteCommentReply, thumbsUpTweetReply, thumbsDownTweetReply } from '@/api/post';
 import {
     ThumbUpTwotone,
     ThumbUpOutlined,
@@ -120,6 +120,7 @@ const hasThumbsDown = ref(false)
 const thumbsUpCount = ref(0)
 
 const props = withDefaults(defineProps<{
+    tweetId: number,
     reply: Item.ReplyProps,
 }>(), {});
 const store = useStore();
@@ -129,24 +130,42 @@ const emit = defineEmits<{
 }>();
 
 const handleThumbsUp = () => {
-    // TODO
-    hasThumbsUp.value = !hasThumbsUp.value
-    if (hasThumbsUp.value) {
-        thumbsUpCount.value++
-        hasThumbsDown.value = false
-    } else {
-        thumbsUpCount.value--
-    }
+    thumbsUpTweetReply({
+        tweet_id: props.tweetId,
+        comment_id: props.reply.comment_id,
+        reply_id: props.reply.id,
+    })
+    .then((_res) => {
+        hasThumbsUp.value = !hasThumbsUp.value
+        if (hasThumbsUp.value) {
+            thumbsUpCount.value++
+            hasThumbsDown.value = false
+        } else {
+            thumbsUpCount.value--
+        }
+    })
+    .catch((err) => {
+        console.log(err);
+    }); 
 };
 const handleThumbsDown = () => {
-    // TODO
-    hasThumbsDown.value = !hasThumbsDown.value
-    if (hasThumbsDown.value) {
-        if (hasThumbsUp.value) {
-            thumbsUpCount.value--
-            hasThumbsUp.value = false
+    thumbsDownTweetReply({
+        tweet_id: props.tweetId,
+        comment_id: props.reply.comment_id,
+        reply_id: props.reply.id,
+    })
+    .then((_res) => {
+        hasThumbsDown.value = !hasThumbsDown.value
+        if (hasThumbsDown.value) {
+            if (hasThumbsUp.value) {
+                thumbsUpCount.value--
+                hasThumbsUp.value = false
+            }
         }
-    }
+    })
+    .catch((err) => {
+        console.log(err);
+    }); 
 };
 const focusReply = () => {
     emit('focusReply', props.reply);

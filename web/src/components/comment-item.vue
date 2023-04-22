@@ -73,6 +73,7 @@
                   <compose-reply
                     ref="replyComposeRef"
                     :timestamp="comment.created_on"
+                    :tweet-id="comment.post_id"
                     :comment-id="comment.id"
                     :at-userid="replyAtUserID"
                     :at-username="replyAtUsername"
@@ -85,6 +86,7 @@
                         v-for="reply in comment.replies"
                         :key="reply.id"
                         :reply="reply"
+                        :tweet-id="comment.post_id"
                         @focusReply="focusReply"
                         @reload="reload"
                     />

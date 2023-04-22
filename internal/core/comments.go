@@ -33,4 +33,8 @@ type CommentManageService interface {
 	CreateCommentReply(reply *CommentReply) (*CommentReply, error)
 	DeleteCommentReply(reply *CommentReply) error
 	CreateCommentContent(content *CommentContent) (*CommentContent, error)
+	ThumbsUpComment(userId int64, tweetId, commentId int64) error
+	ThumbsDownComment(userId int64, tweetId, commentId int64) error
+	ThumbsUpReply(userId int64, tweetId, commentId, replyId int64) error
+	ThumbsDownReply(userId int64, tweetId, commentId, replyId int64) error
 }

@@ -57,6 +57,18 @@ type Priv struct {
 	// DeleteCommentReply 删除评论回复
 	DeleteCommentReply func(Delete, web.DeleteCommentReplyReq) `mir:"/post/comment/reply"`
 
+	// ThumbsUpTweetComment 点赞评论
+	ThumbsUpTweetComment func(Post, web.TweetCommentThumbsReq) `mir:"/tweet/comment/thumbsup"`
+
+	// ThumbsDownTweetComment 点踩评论
+	ThumbsDownTweetComment func(Post, web.TweetCommentThumbsReq) `mir:"/tweet/comment/thumbsdown"`
+
+	// ThumbsUpTweetReply 点赞评论回复
+	ThumbsUpTweetReply func(Post, web.TweetReplyThumbsReq) `mir:"/tweet/reply/thumbsup"`
+
+	// ThumbsDownTweetReply 点踩评论回复
+	ThumbsDownTweetReply func(Post, web.TweetReplyThumbsReq) `mir:"/tweet/reply/thumbsdown"`
+
 	// StickTopic 置顶动态
 	StickTopic func(Post, web.StickTopicReq) web.StickTopicResp `mir:"/topic/stick"`
 

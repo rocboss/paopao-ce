@@ -7,6 +7,7 @@ package jinzhu
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
+	"github.com/rocboss/paopao-ce/pkg/debug"
 	"gorm.io/gorm"
 )
 
@@ -123,4 +124,24 @@ func (s *commentManageServant) DeleteCommentReply(reply *core.CommentReply) erro
 
 func (s *commentManageServant) CreateCommentContent(content *core.CommentContent) (*core.CommentContent, error) {
 	return content.Create(s.db)
+}
+
+func (s *commentManageServant) ThumbsUpComment(userId int64, tweetId, commentId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *commentManageServant) ThumbsDownComment(userId int64, tweetId, commentId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *commentManageServant) ThumbsUpReply(userId int64, tweetId, commentId, replyId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *commentManageServant) ThumbsDownReply(userId int64, tweetId, commentId, replyId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
 }

@@ -78,9 +78,13 @@ var (
 	_errGetContactsFailed          = xerror.NewError(80007, "获取联系人列表失败")
 	_errNoActionToSelf             = xerror.NewError(80008, "不允许对自己操作")
 
-	_errFollowTopicFailed   = xerror.NewError(90001, "关注话题失败")
-	_errUnfollowTopicFailed = xerror.NewError(90002, "取消关注话题失败")
-	_errStickTopicFailed    = xerror.NewError(90003, "更行话题置顶状态失败")
+	_errFollowTopicFailed      = xerror.NewError(90001, "关注话题失败")
+	_errUnfollowTopicFailed    = xerror.NewError(90002, "取消关注话题失败")
+	_errStickTopicFailed       = xerror.NewError(90003, "更行话题置顶状态失败")
+	_errThumbsUpTweetComment   = xerror.NewError(90101, "评论点赞失败")
+	_errThumbsDownTweetComment = xerror.NewError(90102, "评论点踩失败")
+	_errThumbsUpTweetReply     = xerror.NewError(90103, "评论回复点赞失败")
+	_errThumbsDownTweetReply   = xerror.NewError(90104, "评论回复点踩失败")
 
 	_errFileUploadFailed = xerror.NewError(10200, "文件上传失败")
 	_errFileInvalidExt   = xerror.NewError(10201, "文件类型不合法")
