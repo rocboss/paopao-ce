@@ -14,10 +14,7 @@ export const formatRelativeTime = (time: number) => {
   return moment.unix(time).fromNow();
 };
 
-export const formatPrettyTime = (time: number, noPretty: boolean) => {
-  if (noPretty) {
-    return moment.unix(time).fromNow();
-  }
+export const formatPrettyTime = (time: number) => {
   let mt = moment.unix(time);
   let now = moment();
   if (mt.year() != now.year()) {

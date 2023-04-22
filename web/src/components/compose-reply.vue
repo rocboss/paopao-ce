@@ -2,7 +2,7 @@
     <div class="reply-compose-wrap">
         <div class="reply-switch">
             <span class="time-item">
-                {{ formatPrettyTime(timestamp, store.state.collapsedLeft) }}
+                {{ formatPrettyTime(timestamp) }}
             </span>
             <div
                 v-if="!store.state.userLogined"

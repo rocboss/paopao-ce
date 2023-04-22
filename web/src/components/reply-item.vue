@@ -55,7 +55,7 @@
             <div class="content">{{ props.reply.content }}</div>
             <div class="reply-switch">
                 <span class="time-item">
-                    {{ formatPrettyTime(props.reply.created_on, store.state.collapsedLeft) }}
+                    {{ formatPrettyTime(props.reply.created_on) }}
                 </span>
                 <div
                     v-if="!store.state.userLogined"
