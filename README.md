@@ -220,8 +220,10 @@ PaoPao主要由以下优秀的开源项目/工具构建
 ### 方式三. 使用 docker-compose 运行
 ```sh
 git clone https://github.com/rocboss/paopao-ce.git
-docker compose up --build
-# visit paopao-ce(http://127.0.0.1:8008) and phpMyadmin(http://127.0.0.1:8080)
+cd paopao-ce && docker compose up -d
+# visit http://localhost:8008  👀 paopao-ce
+# visit http://localhost:8001  👀 RedisInsight
+# visit http://localhost:8080  👀 phpMyAdmin
 ```
 
 默认是使用config.yaml.sample的配置，如果需要自定义配置，请拷贝默认配置文件(比如config.yaml)，修改后再同步配置到docker-compose.yaml如下：
