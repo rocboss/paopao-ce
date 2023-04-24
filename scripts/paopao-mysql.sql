@@ -51,8 +51,8 @@ CREATE TABLE `p_comment` (
 	`user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
 	`ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'IP地址',
 	`ip_loc` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'IP城市地址',
-	`thumbs_up_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点赞数';
-	`thumbs_down_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点踩数';
+	`thumbs_up_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点赞数',
+	`thumbs_down_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点踩数',
 	`created_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
 	`modified_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
 	`deleted_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
@@ -96,8 +96,8 @@ CREATE TABLE `p_comment_reply` (
 	`content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
 	`ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'IP地址',
 	`ip_loc` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'IP城市地址',
-	`thumbs_up_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点赞数';
-	`thumbs_down_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点踩数';
+	`thumbs_up_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点赞数',
+	`thumbs_down_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点踩数',
 	`created_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
 	`modified_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
 	`deleted_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
