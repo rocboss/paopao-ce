@@ -46,7 +46,7 @@ require (
 	gorm.io/gorm v1.25.0
 	gorm.io/plugin/dbresolver v1.4.1
 	gorm.io/plugin/soft_delete v1.2.0
-	modernc.org/sqlite v1.21.2
+	modernc.org/sqlite v1.22.0
 )
 
 require (
