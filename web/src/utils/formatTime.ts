@@ -24,3 +24,14 @@ export const formatPrettyTime = (time: number) => {
   }
   return mt.fromNow();
 };
+
+export const formatPrettyDate = (time: number) => {
+  let mt = moment.unix(time);
+  let now = moment();
+  if (mt.year() != now.year()) {
+    return mt.utc(true).format("YYYY-MM-DD");
+  } else if (moment().diff(mt, "month") > 3) {
+    return mt.utc(true).format("MM-DD");
+  }
+  return mt.fromNow();
+};
