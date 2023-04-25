@@ -4,9 +4,9 @@
             <n-dialog-provider>
                 <div
                     class="app-container"
-                    :class="{ dark: theme?.name === 'dark' }"
+                    :class="{ dark: theme?.name === 'dark', mobile: !store.state.desktopModelShow }"
                 >
-                    <div has-sider class="main-wrap" position="static">
+                    <div has-sider class="main-wrap" position="static" >
                         <!-- 侧边栏 -->
                         <div v-if="store.state.desktopModelShow">
                             <sidebar />

@@ -20,7 +20,7 @@
             >
                 <n-icon size="medium">
                     <thumb-up-outlined v-if="!hasThumbsUp" />
-                    <thumb-up-twotone v-if="hasThumbsUp" color="#18a058" />
+                    <thumb-up-twotone v-if="hasThumbsUp" class="show" />
                 </n-icon>
                 <span class="upvote-count">{{ thumbsUpCount }}</span>
             </div>
@@ -39,10 +39,10 @@
             >
                 <n-icon size="medium">
                     <thumb-down-outlined v-if="!hasThumbsDown" />
-                    <thumb-down-twotone v-if="hasThumbsDown" color="#18a058" />
+                    <thumb-down-twotone v-if="hasThumbsDown" class="show" />
                 </n-icon>
             </div>
-            <span class="show" v-if="store.state.userLogined && !showReply" @click="switchReply(true)">
+            <span class="show opacity-item" v-if="store.state.userLogined && !showReply" @click="switchReply(true)">
                 回复
             </span>
             <span class="hide" v-if="store.state.userLogined && showReply" @click="switchReply(false)">
@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useStore } from 'vuex';
 import { formatPrettyTime } from '@/utils/formatTime';
 import { createCommentReply, thumbsUpTweetComment, thumbsDownTweetComment } from '@/api/post';
@@ -193,14 +193,14 @@ defineExpose({ switchReply });
         margin: 10px 0;
         .time-item {
             font-size: 12px;
-            opacity: 0.75;
+            opacity: 0.65;
             margin-right: 18px;
         }
         .action-item {
             display: flex;
             align-items: center;
             margin-right: 18px;
-            opacity: 0.75;
+            opacity: 0.65;
             .upvote-count {
                 margin-left: 4px;
                 font-size: 12px;
@@ -209,6 +209,9 @@ defineExpose({ switchReply });
                 cursor: pointer;
             }
         }
+        .opacity-item {
+                opacity: 0.75;
+            }
         .show {
             color: #18a058;
             cursor: pointer;
@@ -222,6 +225,11 @@ defineExpose({ switchReply });
 .dark {
     .reply-compose-wrap {
         background-color: rgba(16, 16, 20, 0.75);
+        .reply-switch {
+            .show {
+                color: #63e2b7;
+             }
+        }
     }
 }
 </style>
