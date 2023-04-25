@@ -69,6 +69,7 @@ const commentTab = (tab: "default" | "newest") => {
     sortStrategy.value = tab;
     page.value = 1;
     comments.value = []
+    bottomElement.value = null
     loadComments();
 };
 
@@ -96,6 +97,7 @@ const reloadComments = () => {
     // TODO：后续持续优化， 这里有大bug！！！
     page.value = 1;
     comments.value = []
+    bottomElement.value = null
     loadComments()
 }
 const loadComments = (scrollToBottom: boolean = false) => {
@@ -109,7 +111,7 @@ const loadComments = (scrollToBottom: boolean = false) => {
         page_size: pageSize,
     })
         .then((res) => {
-            if (res.list.length === 0) {
+            if (res.list.length === 0 || (page.value === 1 && res.list.length < pageSize)) {
                 noMore.value = true
             }
 
@@ -132,7 +134,7 @@ const loadComments = (scrollToBottom: boolean = false) => {
 };
 
 const loadMoreComments = () => {
-    if (!commentLoading.value && comments.value.length > 0) {
+    if (!commentLoading.value && comments.value.length >= pageSize) {
         page.value = page.value + 1;
         loadComments();
     }
@@ -196,7 +198,6 @@ watch(postId, () => {
 }
 
 .dark {
-
     .main-content-wrap,
     .skeleton-wrap {
         background-color: rgba(16, 16, 20, 0.75);
