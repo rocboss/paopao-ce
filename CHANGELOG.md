@@ -52,6 +52,7 @@ All notable changes to paopao-ce are documented in this file.
     ```
 - add tweet comment thumbs up/down feature support [#275](https://github.com/rocboss/paopao-ce/pull/275)   
   mirgration database first(sql ddl file in `scripts/migration/**/*_comment_thumbs.up.sql`):
+- add load more comments feature support [&60b217b](https://github.com/rocboss/paopao-ce/commit/60b217bcd950c69ba45cebcaa17efdf8048d5a4f 'commit 60b217b')  
 
 ### Fixed
 
@@ -85,7 +86,8 @@ All notable changes to paopao-ce are documented in this file.
 - optimize web frontend dark theme [&b082a8f](https://github.com/rocboss/paopao-ce/commit/b082a8fa5e43dd6dacf459df93fa7e243dd901ea 'commit b082a8f')
 - change web frontend main content layout default size to 544px [&b082a8f](https://github.com/rocboss/paopao-ce/commit/b082a8fa5e43dd6dacf459df93fa7e243dd901ea 'commit b082a8f')
 - optimize web frontend in mobile environment use Drawer to display menu [#265](https://github.com/rocboss/paopao-ce/pull/265)   
-- optimize Dockerfile use pre-build builder/runner image to prevent network latency problem (`bitbus/paopao-ce-backend-builder` `bitbus/paopao-ce-backend-runner`) [#265](https://github.com/rocboss/paopao-ce/pull/265)   
+- optimize Dockerfile use pre-build builder/runner image to prevent network latency problem (`bitbus/paopao-ce-backend-builder` `bitbus/paopao-ce-backend-runner`) [#265](https://github.com/rocboss/paopao-ce/pull/265)  
+- optimize web ui in mobile environment [#280](https://github.com/rocboss/paopao-ce/pull/280)  
 
 ### Removed
 
