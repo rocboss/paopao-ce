@@ -74,7 +74,7 @@
                 >
                     <n-icon size="medium">
                         <thumb-up-outlined v-if="!hasThumbsUp" />
-                        <thumb-up-twotone v-if="hasThumbsUp" color="#18a058" />
+                        <thumb-up-twotone v-if="hasThumbsUp" class="show" />
                     </n-icon>
                     <span class="upvote-count">{{ thumbsUpCount }}</span>
             </div>
@@ -93,10 +93,10 @@
             >
                 <n-icon size="medium">
                     <thumb-down-outlined v-if="!hasThumbsDown" />
-                    <thumb-down-twotone v-if="hasThumbsDown" color="#18a058" />
+                    <thumb-down-twotone v-if="hasThumbsDown" class="show" />
                 </n-icon>
             </div>
-            <span  v-if="store.state.userLogined" class="show" @click="focusReply"> 回复 </span>
+            <span v-if="store.state.userLogined" class="show opacity-item" @click="focusReply"> 回复 </span>
             </div>
         </div>
     </div>
@@ -243,7 +243,7 @@ const execDelAction = () => {
                 display: flex;
                 align-items: center;
                 margin-right: 18px;
-                opacity: 0.75;
+                opacity: 0.65;
                 .upvote-count {
                     margin-left: 4px;
                     font-size: 12px;
@@ -251,6 +251,9 @@ const execDelAction = () => {
                 &.hover {
                     cursor: pointer;
                 }
+            }
+            .opacity-item {
+                opacity: 0.75;
             }
             .show {
                 color: #18a058;
@@ -267,6 +270,14 @@ const execDelAction = () => {
     .reply-item {
         border-bottom: 1px solid #262628;
         background-color: rgba(16, 16, 20, 0.75);
+
+        .base-wrap {
+            .reply-switch {
+                .show {
+                    color: #63e2b7;
+                }
+            }
+         }
     }
 }
 </style>
