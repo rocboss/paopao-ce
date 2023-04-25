@@ -2,41 +2,29 @@
     <div class="reply-item">
         <div class="header-wrap">
             <div class="username">
-                <router-link
-                    class="user-link"
-                    :to="{
-                        name: 'user',
-                        query: { username: props.reply.user.username },
-                    }"
-                >
+                <router-link class="user-link" :to="{
+                    name: 'user',
+                    query: { username: props.reply.user.username },
+                }">
                     {{ props.reply.user.username }}
                 </router-link>
                 <span class="reply-name">
                     {{ props.reply.at_user_id > 0 ? '回复' : ':' }}
                 </span>
 
-                <router-link
-                    class="user-link"
-                    :to="{
-                        name: 'user',
-                        query: { username: props.reply.at_user.username },
-                    }"
-                    v-if="props.reply.at_user_id > 0"
-                >
+                <router-link class="user-link" :to="{
+                    name: 'user',
+                    query: { username: props.reply.at_user.username },
+                }" v-if="props.reply.at_user_id > 0">
                     {{ props.reply.at_user.username }}
                 </router-link>
             </div>
             <div class="timestamp">
                 {{ props.reply.ip_loc }}
-                <n-popconfirm
-                    v-if="
-                        store.state.userInfo.is_admin ||
-                        store.state.userInfo.id === props.reply.user.id
-                    "
-                    negative-text="取消"
-                    positive-text="确认"
-                    @positive-click="execDelAction"
-                >
+                <n-popconfirm v-if="
+                    store.state.userInfo.is_admin ||
+                    store.state.userInfo.id === props.reply.user.id
+                " negative-text="取消" positive-text="确认" @positive-click="execDelAction">
                     <template #trigger>
                         <n-button quaternary circle size="tiny" class="del-btn">
                             <template #icon>
@@ -57,46 +45,34 @@
                 <span class="time-item">
                     {{ formatPrettyTime(props.reply.created_on) }}
                 </span>
-                <div
-                    v-if="!store.state.userLogined"
-                    class="action-item"
-                    @click.stop=""
-                >
-                    <n-icon size="medium">
-                        <thumb-up-outlined/>
-                    </n-icon>
-                    <span class="upvote-count">{{ thumbsUpCount }}</span>
+
+                <div class="actions">
+                    <div v-if="!store.state.userLogined" class="action-item" @click.stop="">
+                        <n-icon size="medium">
+                            <thumb-up-outlined />
+                        </n-icon>
+                        <span class="upvote-count">{{ thumbsUpCount }}</span>
+                    </div>
+                    <div v-if="store.state.userLogined" class="action-item hover" @click.stop="handleThumbsUp">
+                        <n-icon size="medium">
+                            <thumb-up-outlined v-if="!hasThumbsUp" />
+                            <thumb-up-twotone v-if="hasThumbsUp" class="show" />
+                        </n-icon>
+                        <span class="upvote-count">{{ thumbsUpCount }}</span>
+                    </div>
+                    <div v-if="!store.state.userLogined" class="action-item">
+                        <n-icon size="medium">
+                            <thumb-down-outlined />
+                        </n-icon>
+                    </div>
+                    <div v-if="store.state.userLogined" class="action-item hover" @click.stop="handleThumbsDown">
+                        <n-icon size="medium">
+                            <thumb-down-outlined v-if="!hasThumbsDown" />
+                            <thumb-down-twotone v-if="hasThumbsDown" class="show" />
+                        </n-icon>
+                    </div>
+                    <span v-if="store.state.userLogined" class="show opacity-item" @click="focusReply"> 回复 </span>
                 </div>
-                <div
-                    v-if="store.state.userLogined"
-                    class="action-item hover"
-                    @click.stop="handleThumbsUp"
-                >
-                    <n-icon size="medium">
-                        <thumb-up-outlined v-if="!hasThumbsUp" />
-                        <thumb-up-twotone v-if="hasThumbsUp" class="show" />
-                    </n-icon>
-                    <span class="upvote-count">{{ thumbsUpCount }}</span>
-            </div>
-            <div
-                v-if="!store.state.userLogined"
-                class="action-item"
-            >
-                <n-icon size="medium">
-                    <thumb-down-outlined />
-                </n-icon>
-            </div>
-            <div
-                v-if="store.state.userLogined"
-                class="action-item hover"
-                @click.stop="handleThumbsDown"
-            >
-                <n-icon size="medium">
-                    <thumb-down-outlined v-if="!hasThumbsDown" />
-                    <thumb-down-twotone v-if="hasThumbsDown" class="show" />
-                </n-icon>
-            </div>
-            <span v-if="store.state.userLogined" class="show opacity-item" @click="focusReply"> 回复 </span>
             </div>
         </div>
     </div>
@@ -136,18 +112,18 @@ const handleThumbsUp = () => {
         comment_id: props.reply.comment_id,
         reply_id: props.reply.id,
     })
-    .then((_res) => {
-        hasThumbsUp.value = !hasThumbsUp.value
-        if (hasThumbsUp.value) {
-            thumbsUpCount.value++
-            hasThumbsDown.value= false
-        } else {
-            thumbsUpCount.value--
-        }
-    })
-    .catch((err) => {
-        console.log(err);
-    }); 
+        .then((_res) => {
+            hasThumbsUp.value = !hasThumbsUp.value
+            if (hasThumbsUp.value) {
+                thumbsUpCount.value++
+                hasThumbsDown.value = false
+            } else {
+                thumbsUpCount.value--
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 };
 const handleThumbsDown = () => {
     thumbsDownTweetReply({
@@ -155,18 +131,18 @@ const handleThumbsDown = () => {
         comment_id: props.reply.comment_id,
         reply_id: props.reply.id,
     })
-    .then((_res) => {
-        hasThumbsDown.value = !hasThumbsDown.value
-        if (hasThumbsDown.value) {
-            if (hasThumbsUp.value) {
-                thumbsUpCount.value--
-                hasThumbsUp.value = false
+        .then((_res) => {
+            hasThumbsDown.value = !hasThumbsDown.value
+            if (hasThumbsDown.value) {
+                if (hasThumbsUp.value) {
+                    thumbsUpCount.value--
+                    hasThumbsUp.value = false
+                }
             }
-        }
-    })
-    .catch((err) => {
-        console.log(err);
-    }); 
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 };
 const focusReply = () => {
     emit('focusReply', props.reply);
@@ -201,16 +177,19 @@ const execDelAction = () => {
         display: flex;
         align-items: center;
         justify-content: space-between;
+
         .username {
             max-width: 50%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+
             .reply-name {
                 margin: 0 3px;
                 opacity: 0.75;
             }
         }
+
         .timestamp {
             opacity: 0.75;
             text-align: right;
@@ -220,8 +199,10 @@ const execDelAction = () => {
             white-space: nowrap;
         }
     }
+
     .base-wrap {
         display: block;
+
         .content {
             width: calc(100% - 40px);
             margin-top: 4px;
@@ -229,36 +210,54 @@ const execDelAction = () => {
             text-align: justify;
             line-height: 2;
         }
+
         .reply-switch {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             font-size: 12px;
             margin: 10px 0 0;
+
+            .actions {
+                display: flex;
+                align-items: center;
+                text-align: right;
+                font-size: 12px;
+                margin: 10px 0;
+            }
+
             .time-item {
                 font-size: 12px;
                 opacity: 0.75;
                 margin-right: 18px;
             }
+
             .action-item {
                 display: flex;
                 align-items: center;
-                margin-right: 18px;
+                margin-left: 18px;
                 opacity: 0.65;
+
                 .upvote-count {
                     margin-left: 4px;
                     font-size: 12px;
                 }
+
                 &.hover {
                     cursor: pointer;
                 }
             }
+
             .opacity-item {
                 opacity: 0.75;
+                margin-left: 18px;
             }
+
             .show {
                 color: #18a058;
                 cursor: pointer;
             }
+
             .hide {
                 opacity: 0.75;
                 cursor: pointer;
@@ -266,6 +265,7 @@ const execDelAction = () => {
         }
     }
 }
+
 .dark {
     .reply-item {
         border-bottom: 1px solid #262628;
@@ -277,7 +277,7 @@ const execDelAction = () => {
                     color: #63e2b7;
                 }
             }
-         }
+        }
     }
 }
 </style>
