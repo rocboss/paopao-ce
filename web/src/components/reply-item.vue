@@ -71,7 +71,7 @@
                             <thumb-down-twotone v-if="hasThumbsDown" class="show" />
                         </n-icon>
                     </div>
-                    <span v-if="store.state.userLogined" class="show opacity-item" @click="focusReply"> 回复 </span>
+                    <span v-if="store.state.userLogined" class="show opacity-item reply-btn" @click="focusReply"> 回复 </span>
                 </div>
             </div>
         </div>
@@ -250,8 +250,11 @@ const execDelAction = () => {
 
             .opacity-item {
                 opacity: 0.75;
-                margin-left: 18px;
             }
+
+            .reply-btn {
+                margin-left: 18px;
+             }
 
             .show {
                 color: #18a058;
