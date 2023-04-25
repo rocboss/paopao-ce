@@ -36,7 +36,7 @@
                     </div>
 
                     <n-list-item v-for="comment in comments" :key="comment.id">
-                        <comment-item :comment="comment" @reload="loadComments" />
+                        <comment-item :comment="comment" @reload="reloadComments" />
                     </n-list-item>
                 </div>
             </div>
@@ -63,9 +63,12 @@ const sortStrategy = ref<"default" | "newest">('default');
 const bottomElement = ref<HTMLElement | null>(null);
 const page = ref<number>(1);
 const noMore = ref(false);
+const pageSize = 20
 
 const commentTab = (tab: "default" | "newest") => {
     sortStrategy.value = tab;
+    page.value = 1;
+    comments.value = []
     loadComments();
 };
 
@@ -88,6 +91,13 @@ const loadPost = () => {
             loading.value = false;
         });
 };
+const reloadComments = () => {
+    // 这里需要做特殊处理,目前暴力处理，一切都重新加载
+    // TODO：后续持续优化， 这里有大bug！！！
+    page.value = 1;
+    comments.value = []
+    loadComments()
+}
 const loadComments = (scrollToBottom: boolean = false) => {
     if (comments.value.length === 0) {
         commentLoading.value = true;
@@ -96,7 +106,7 @@ const loadComments = (scrollToBottom: boolean = false) => {
         id: post.value.id as number,
         sort_strategy: sortStrategy.value,
         page: page.value,
-        page_size: 20
+        page_size: pageSize,
     })
         .then((res) => {
             if (res.list.length === 0) {
@@ -109,7 +119,7 @@ const loadComments = (scrollToBottom: boolean = false) => {
                 comments.value = comments.value.concat(res.list);
             }
             commentLoading.value = false;
-
+            
             if (scrollToBottom) {
                 setTimeout(() => {
                     window.scrollTo(0, 99999);

@@ -216,7 +216,6 @@ const execDelAction = () => {
             align-items: center;
             justify-content: space-between;
             font-size: 12px;
-            margin: 10px 0 0;
 
             .actions {
                 display: flex;
