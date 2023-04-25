@@ -1,13 +1,10 @@
 <template>
     <div class="post-item" @click="goPostDetail(post.id)">
         <n-thing content-indented>
-            <template v-if="store.state.desktopModelShow" #avatar>
+            <template #avatar>
                 <n-avatar round :size="30" :src="post.user.avatar" />
             </template>
             <template #header>
-            <div class="post-header">
-                <n-avatar v-if="!store.state.desktopModelShow" round :size="34" :src="post.user.avatar" />
-                <div class="post-header-title">
                     <span class="nickname-wrap">
                         <router-link
                             @click.stop
@@ -53,12 +50,9 @@
                             {{ formatPrettyDate(post.created_on) }} {{ post.ip_loc }}
                         </span>
                     </div>
-                </div>
-            </div>
             </template>
-            <template #header-extra>
-                <span v-if="store.state.desktopModelShow"
-                    class="timestamp">
+            <template v-if="store.state.desktopModelShow" #header-extra>
+                <span class="timestamp">
                     {{ post.ip_loc ? post.ip_loc + ' · ' : post.ip_loc }}
                     {{ formatPrettyDate(post.created_on) }}
                 </span>
@@ -275,16 +269,6 @@ const doClickText = (e: MouseEvent, id: number) => {
             background: #18181c;
         }
         background-color: rgba(16, 16, 20, 0.75);
-    }
-}
-.mobile {
-    .post-header{
-        display: flex;
-        align-items: center;
-        .post-header-title {
-            margin-left: 8px;
-            margin-right: 8px;
-        }
     }
 }
 </style>
