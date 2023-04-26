@@ -43,8 +43,8 @@
             <n-space justify="center">
                 <InfiniteLoading class="load-more" v-if="comments.length > 0" :slots="{complete: '没有更多数据了', error: '加载出错'}" @infinite="loadComments">
                     <template #spinner>
-                        <span v-if="defaultCommentsSort && defaultNoMore" class="load-more-spinner" >已加载所有评论</span>
-                        <span v-if="!defaultCommentsSort && newestNoMore" class="load-more-spinner" >已加载所有评论</span>
+                        <span v-if="defaultCommentsSort && defaultNoMore" class="load-more-spinner" ><!-- 注意一定要保留这里 --></span>
+                        <span v-if="!defaultCommentsSort && newestNoMore" class="load-more-spinner" ><!-- 注意一定要保留这里 --></span>
                         <span v-if="defaultCommentsSort && !defaultNoMore" class="load-more-spinner" >加载评论</span>
                         <span v-if="!defaultCommentsSort && !newestNoMore" class="load-more-spinner" >加载评论</span>
                     </template>
@@ -173,7 +173,6 @@ const loadNewestComments = ($state: any) => {
             stateHandler = $state
         }
         if (res.list.length < pageSize) {
-            // stateHandler.complete();
             newestNoMore.value = true
         } else {
             newestCommmentsPage++
@@ -209,14 +208,8 @@ const loadComments = ($state: any) => {
         comments.value = newestComments.value
         loadNewestComments($state)
     }
+    commentLoading.value = false;
 };
-
-const loadMoreTip = computed(()=>{
-    if ((sortStrategy.value === 'default' && defaultNoMore) || (sortStrategy.value === 'newest' && newestNoMore)) {
-        return '已经加载所有评论'
-    }
-    return '加载更多评论'
-});
 
 const reloadComments = () => {
     // 这里需要做特殊处理,目前暴力处理，一切都重新加载
