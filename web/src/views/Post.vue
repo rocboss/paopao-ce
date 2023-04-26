@@ -23,7 +23,7 @@
                 </n-tabs>
             </div>
             <n-list-item v-if="post.id > 0">
-                <compose-comment :lock="post.is_lock" :post-id="post.id" @post-success="loadComments(true)" />
+                <compose-comment :lock="post.is_lock" :post-id="post.id" @post-success="reloadComments" />
             </n-list-item>
 
             <div v-if="post.id > 0">
@@ -36,22 +36,30 @@
                     </div>
 
                     <n-list-item v-for="comment in comments" :key="comment.id">
-                        <comment-item :comment="comment" @reload="loadComments" />
+                        <comment-item :comment="comment" @reload="reloadComments" />
                     </n-list-item>
                 </div>
             </div>
-
-            <div class="load-more-ele" v-if="!noMore" ref="bottomElement">
-                加载更多...
-            </div>
+            <n-space justify="center">
+                <InfiniteLoading class="load-more" v-if="comments.length > 0" :slots="{complete: '没有更多数据了', error: '加载出错'}" @infinite="loadComments">
+                    <template #spinner>
+                        <span v-if="defaultCommentsSort && defaultNoMore" class="load-more-spinner" >已加载所有评论</span>
+                        <span v-if="!defaultCommentsSort && newestNoMore" class="load-more-spinner" >已加载所有评论</span>
+                        <span v-if="defaultCommentsSort && !defaultNoMore" class="load-more-spinner" >加载评论</span>
+                        <span v-if="!defaultCommentsSort && !newestNoMore" class="load-more-spinner" >加载评论</span>
+                    </template>
+                </InfiniteLoading>
+            </n-space>
         </n-list>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, computed, Ref } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPost, getPostComments } from '@/api/post';
+import InfiniteLoading from "v3-infinite-loading";
+import "v3-infinite-loading/lib/style.css";
 
 const route = useRoute();
 const post = ref<Item.PostProps>({} as Item.PostProps);
@@ -60,13 +68,30 @@ const commentLoading = ref(false);
 const comments = ref<Item.CommentProps[]>([]);
 const postId = computed(() => +(route.query.id as string));
 const sortStrategy = ref<"default" | "newest">('default');
-const bottomElement = ref<HTMLElement | null>(null);
-const page = ref<number>(1);
-const noMore = ref(false);
+const defaultCommentsSort = ref<boolean>(true)
+const pageSize = 20
+
+let stateHandler = ({
+  loading() {
+    //nothing
+  },
+  loaded() {
+    // nothing
+  },
+  complete() {
+    // nothing
+  },
+  error() {
+    // nothing
+  },
+});
 
 const commentTab = (tab: "default" | "newest") => {
     sortStrategy.value = tab;
-    loadComments();
+    if (tab === "default") {
+        defaultCommentsSort.value = true
+    }
+    loadComments(stateHandler);
 };
 
 const loadPost = () => {
@@ -82,74 +107,133 @@ const loadPost = () => {
             post.value = res;
 
             // 加载评论
-            loadComments();
+            loadComments(stateHandler);
         })
         .catch((err) => {
             loading.value = false;
         });
 };
-const loadComments = (scrollToBottom: boolean = false) => {
+
+let defaultCommmentsPage = 1;
+const defaultNoMore = ref<boolean>(false)
+const defaultComments = ref<Item.CommentProps[]>([]);
+const loadDefaultComments = ($state: any) => {
+    if (defaultNoMore.value) {
+        return
+    }
+
+    getPostComments({
+        id: post.value.id as number,
+        sort_strategy: 'default',
+        page: defaultCommmentsPage,
+        page_size: pageSize,
+    })
+    .then((res) => {
+        if ($state !== null) {
+            stateHandler = $state
+        }
+        if (res.list.length < pageSize) {
+            defaultNoMore.value = true
+        } else {
+            defaultCommmentsPage++
+        }
+        if (res.list.length > 0)  {
+            if (defaultCommmentsPage === 1) {
+                defaultComments.value = res.list;
+            } else {
+                defaultComments.value.push(...res.list);
+            }
+            comments.value = defaultComments.value
+        }
+        stateHandler.loaded();
+        commentLoading.value = false;
+    })
+    .catch((err) => {
+        commentLoading.value = false;
+        stateHandler.error();
+    });
+};
+
+let newestCommmentsPage = 1;
+let newestNoMore = ref<boolean>(false)
+const newestComments=ref<Item.CommentProps[]>([]);
+const loadNewestComments = ($state: any) => {
+    if (newestNoMore.value) {
+        return
+    }
+
+    getPostComments({
+        id: post.value.id as number,
+        sort_strategy: 'newest',
+        page: newestCommmentsPage,
+        page_size: pageSize,
+    })
+    .then((res) => {
+        if ($state !== null) {
+            stateHandler = $state
+        }
+        if (res.list.length < pageSize) {
+            // stateHandler.complete();
+            newestNoMore.value = true
+        } else {
+            newestCommmentsPage++
+        }
+        if (res.list.length > 0) {
+            if (newestCommmentsPage === 1) {
+                newestComments.value = res.list;
+            } else {
+                newestComments.value.push(...res.list);
+            }
+            comments.value = newestComments.value
+        }
+        stateHandler.loaded();
+        commentLoading.value = false;
+    })
+    .catch((err) => {
+        commentLoading.value = false;
+        stateHandler.error();
+    });
+};
+
+const loadComments = ($state: any) => {
+    if (postId.value < 1) {
+        return
+    }
     if (comments.value.length === 0) {
         commentLoading.value = true;
     }
-    getPostComments({
-        id: post.value.id as number,
-        sort_strategy: sortStrategy.value,
-        page: page.value,
-        page_size: 20
-    })
-        .then((res) => {
-            if (res.list.length === 0) {
-                noMore.value = true
-            }
-
-            if (page.value === 1) {
-                comments.value = res.list;
-            } else {
-                comments.value = comments.value.concat(res.list);
-            }
-            commentLoading.value = false;
-
-            if (scrollToBottom) {
-                setTimeout(() => {
-                    window.scrollTo(0, 99999);
-                }, 50);
-            }
-        })
-        .catch((err) => {
-            commentLoading.value = false;
-        });
-};
-
-const loadMoreComments = () => {
-    if (!commentLoading.value && comments.value.length > 0) {
-        page.value = page.value + 1;
-        loadComments();
+    if (sortStrategy.value === 'default') {
+        comments.value = defaultComments.value
+        loadDefaultComments($state)
+    } else {
+        comments.value = newestComments.value
+        loadNewestComments($state)
     }
 };
 
-const observer = new IntersectionObserver((entries: IntersectionObserverEntry[]) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            loadMoreComments();
-        }
-    });
-}, {
-    root: null,
-    rootMargin: '0px',
-    threshold: 1
+const loadMoreTip = computed(()=>{
+    if ((sortStrategy.value === 'default' && defaultNoMore) || (sortStrategy.value === 'newest' && newestNoMore)) {
+        return '已经加载所有评论'
+    }
+    return '加载更多评论'
 });
+
+const reloadComments = () => {
+    // 这里需要做特殊处理,目前暴力处理，一切都重新加载
+    // TODO：后续持续优化， 这里有大bug！！！
+    defaultCommmentsPage = 1;
+    defaultNoMore.value = false
+    defaultComments.value = []
+
+    newestCommmentsPage = 1;
+    newestNoMore.value = false
+    newestComments.value = []
+
+    loadComments(stateHandler)
+}
 
 onMounted(() => {
-    if (bottomElement.value) {
-        observer.observe(bottomElement.value);
-    }
-
     loadPost();
-});
-
-onUnmounted(() => {
-    observer.disconnect()
 });
 
 watch(postId, () => {
@@ -177,16 +261,18 @@ watch(postId, () => {
     }
 }
 
-.load-more-ele {
-    font-size: 12px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.main-content-wrap {
+    .load-more {
+        margin-bottom: 8px;
+        .load-more-spinner {
+            font-size: 14px;
+            opacity: 0.65;
+        }
+    }
 }
 
-.dark {
 
+.dark {
     .main-content-wrap,
     .skeleton-wrap {
         background-color: rgba(16, 16, 20, 0.75);

@@ -165,7 +165,6 @@ defineExpose({ switchReply });
         justify-content: space-between;
         text-align: right;
         font-size: 12px;
-        margin: 10px 0;
 
         .actions {
             display: flex;
