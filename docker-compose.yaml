@@ -100,7 +100,7 @@ services:
       - paopao-network
 
   backend:
-    image: bitbus/paopao-ce:latest
+    image: bitbus/paopao-ce:0.2
     restart: always
     depends_on:
       - db
