@@ -40,8 +40,8 @@
                     </n-list-item>
                 </div>
             </div>
-            <n-space justify="center">
-                <InfiniteLoading class="load-more" v-if="comments.length > 0" :slots="{complete: '没有更多数据了', error: '加载出错'}" @infinite="loadComments">
+            <n-space v-if="comments.length >= pageSize" justify="center">
+                <InfiniteLoading class="load-more" :slots="{complete: '没有更多数据了', error: '加载出错'}" @infinite="loadComments">
                     <template #spinner>
                         <span v-if="defaultCommentsSort && defaultNoMore" class="load-more-spinner" ><!-- 注意一定要保留这里 --></span>
                         <span v-if="!defaultCommentsSort && newestNoMore" class="load-more-spinner" ><!-- 注意一定要保留这里 --></span>
