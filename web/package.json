@@ -24,6 +24,7 @@
     "qrcanvas-vue": "^3.0.0",
     "qrcode": "^1.5.1",
     "unplugin-vue-components": "^0.24.1",
+    "v3-infinite-loading": "^1.2.2",
     "vfonts": "^0.0.3",
     "vue": "^3.2.47",
     "vue-router": "4",
@@ -37,7 +38,7 @@
     "@vitejs/plugin-vue": "^4.1.0",
     "@vue/compiler-sfc": "^3.2.47",
     "rollup-plugin-visualizer": "^5.9.0",
-    "typescript": "^5.0.2",
-    "vite": "^4.2.1"
+    "typescript": "^5.0.4",
+    "vite": "^4.3.1"
   }
 }

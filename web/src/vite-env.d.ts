@@ -19,6 +19,8 @@ interface ImportMetaEnv {
   readonly VITE_DEFAULT_TWEET_VISIBILITY: string;
   readonly VITE_DEFAULT_TWEET_IMAGE_404: string;
   readonly VITE_TWEET_IMAGE_THUMBNAIL: string;
+  readonly VITE_RIGHT_FOLLOW_TOPIC_MAX_SIZE: number;
+  readonly VITE_RIGHT_HOT_TOPIC_MAX_SIZE: number;
   readonly VITE_COPYRIGHT_TOP: string;
   readonly VITE_COPYRIGHT_LEFT: string;
   readonly VITE_COPYRIGHT_LEFT_LINK: string;

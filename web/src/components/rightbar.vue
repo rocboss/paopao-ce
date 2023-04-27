@@ -99,13 +99,15 @@ const copyrightLeft = import.meta.env.VITE_COPYRIGHT_LEFT
 const copyrightLeftLink = import.meta.env.VITE_COPYRIGHT_LEFT_LINK
 const copyrightRight = import.meta.env.VITE_COPYRIGHT_RIGHT
 const copyrightRightLink = import.meta.env.VITE_COPYRIGHT_RIGHT_LINK
+const rightFollowTopicMaxSize = Number(import.meta.env.VITE_RIGHT_FOLLOW_TOPIC_MAX_SIZE)
+const rightHotTopicMaxSize = Number(import.meta.env.VITE_RIGHT_HOT_TOPIC_MAX_SIZE)
 
 const loadHotTags = () => {
     loading.value = true;
     getTags({
         type: 'hot_extral',
-        num: 12,
-        extral_num: 8,
+        num: rightHotTopicMaxSize,
+        extral_num: rightFollowTopicMaxSize,
     })
         .then((res) => {
             hotTags.value = res.topics;
@@ -143,9 +145,10 @@ const showFollowTopics = computed({
 watch(
     () => ({
         refreshTopicFollow: store.state.refreshTopicFollow,
+        userLogined: store.state.userLogined 
     }),
     (to, from) => {
-        if (to.refreshTopicFollow !== from.refreshTopicFollow) {
+        if (to.refreshTopicFollow !== from.refreshTopicFollow || to.userLogined) {
             loadHotTags();
         }
     }

@@ -247,6 +247,7 @@ const triggerAuth = (key: string) => {
 };
 const handleLogout = () => {
     store.commit('userLogout');
+    store.commit('refresh')
     goHome()
 };
 window.$store = store;

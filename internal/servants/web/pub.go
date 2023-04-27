@@ -102,15 +102,26 @@ func (s *pubSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsRes
 		return nil, _errGetCommentsFailed
 	}
 
+	commentThumbs, replyThumbs, err := s.Ds.GetCommentThumbsMap(req.TweetId)
+	if err != nil {
+		return nil, _errGetCommentsFailed
+	}
+
 	commentsFormated := []*core.CommentFormated{}
 	for _, comment := range comments {
 		commentFormated := comment.Format()
+		if thumbs, exist := commentThumbs[comment.ID]; exist {
+			commentFormated.IsThumbsUp, commentFormated.IsThumbsDown = thumbs.IsThumbsUp, thumbs.IsThumbsDown
+		}
 		for _, content := range contents {
 			if content.CommentID == comment.ID {
 				commentFormated.Contents = append(commentFormated.Contents, content)
 			}
 		}
 		for _, reply := range replies {
+			if thumbs, exist := replyThumbs[reply.ID]; exist {
+				reply.IsThumbsUp, reply.IsThumbsDown = thumbs.IsThumbsUp, thumbs.IsThumbsDown
+			}
 			if reply.CommentID == commentFormated.ID {
 				commentFormated.Replies = append(commentFormated.Replies, reply)
 			}
