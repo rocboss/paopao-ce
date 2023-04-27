@@ -349,7 +349,7 @@ CREATE TABLE `p_contact_group` (
 	`id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '联系人ID',
 	`user_id` int NOT NULL DEFAULT '0' COMMENT '用户id',
 	`name` varchar(32) NOT NULL DEFAULT '' COMMENT '分组名称',
-	`is_delete` tinyint NOT NULL DEFAULT '1' COMMENT '是否删除, 0否, 1是',
+	`is_del` tinyint NOT NULL DEFAULT '1' COMMENT '是否删除, 0否, 1是',
 	`created_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
 	`modified_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
 	`deleted_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
