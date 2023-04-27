@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:experimental
+
 # build frontend
 FROM node:19-alpine as frontend
 ARG API_HOST

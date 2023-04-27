@@ -17,7 +17,7 @@ RELEASE_DARWIN_AMD64 = $(RELEASE_ROOT)/darwin-amd64/$(TARGET)
 RELEASE_DARWIN_ARM64 = $(RELEASE_ROOT)/darwin-arm64/$(TARGET)
 RELEASE_WINDOWS_AMD64 = $(RELEASE_ROOT)/windows-amd64/$(TARGET)
 
-BUILD_VERSION := $(shell git describe --tags | cut -f 1 -d "-")
+BUILD_VERSION := $(shell git describe --tags --always | cut -f1 -f2 -d "-")
 BUILD_DATE := $(shell date +'%Y-%m-%d %H:%M:%S')
 SHA_SHORT := $(shell git rev-parse --short HEAD)
 
@@ -51,22 +51,22 @@ release: linux-amd64 darwin-amd64 darwin-arm64 windows-x64
 
 .PHONY: linux-amd64
 linux-amd64:
-	@echo Build paopao-ce [linux-amd64] CGO_ENABLED=$(CGO_ENABLED)
+	@echo Build paopao-ce [linux-amd64] CGO_ENABLED=$(CGO_ENABLED) TAGS="'$(TAGS)'"
 	@CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 go build -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_LINUX_AMD64)/$(TARGET_BIN)
 
 .PHONY: darwin-amd64
 darwin-amd64:
-	@echo Build paopao-ce [darwin-amd64] CGO_ENABLED=$(CGO_ENABLED)
+	@echo Build paopao-ce [darwin-amd64] CGO_ENABLED=$(CGO_ENABLED) TAGS="'$(TAGS)'"
 	@CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_AMD64)/$(TARGET_BIN)
 
 .PHONY: darwin-arm64
 darwin-arm64:
-	@echo Build paopao-ce [darwin-arm64] CGO_ENABLED=$(CGO_ENABLED)
+	@echo Build paopao-ce [darwin-arm64] CGO_ENABLED=$(CGO_ENABLED) TAGS="'$(TAGS)'"
 	@CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=arm64 go build -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_ARM64)/$(TARGET_BIN)
 
 .PHONY: windows-x64
 windows-x64:
-	@echo Build paopao-ce [windows-x64] CGO_ENABLED=$(CGO_ENABLED)
+	@echo Build paopao-ce [windows-x64] CGO_ENABLED=$(CGO_ENABLED) TAGS="'$(TAGS)'"
 	@CGO_ENABLED=$(CGO_ENABLED) GOOS=windows GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_WINDOWS_AMD64)/$(TARGET_BIN).exe
 
 .PHONY: generate

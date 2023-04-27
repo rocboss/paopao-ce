@@ -43,6 +43,8 @@ CREATE TABLE p_comment (
 	user_id BIGINT NOT NULL DEFAULT 0,
 	ip VARCHAR(64) NOT NULL DEFAULT '',
 	ip_loc VARCHAR(64) NOT NULL DEFAULT '',
+	thumbs_up_count int NOT NULL DEFAULT 0, -- 点赞数
+	thumbs_down_count int NOT NULL DEFAULT 0, -- 点踩数
 	created_on BIGINT NOT NULL DEFAULT 0,
 	modified_on BIGINT NOT NULL DEFAULT 0,
 	deleted_on BIGINT NOT NULL DEFAULT 0,
@@ -78,6 +80,8 @@ CREATE TABLE p_comment_reply (
 	content VARCHAR(255) NOT NULL DEFAULT '',
 	ip VARCHAR(64) NOT NULL DEFAULT '',
 	ip_loc VARCHAR(64) NOT NULL DEFAULT '',
+	thumbs_up_count int NOT NULL DEFAULT 0, -- 点赞数
+	thumbs_down_count int NOT NULL DEFAULT 0, -- 点踩数
 	created_on BIGINT NOT NULL DEFAULT 0,
 	modified_on BIGINT NOT NULL DEFAULT 0,
 	deleted_on BIGINT NOT NULL DEFAULT 0,
@@ -85,12 +89,29 @@ CREATE TABLE p_comment_reply (
 );
 CREATE INDEX idx_comment_reply_comment_id ON p_comment_reply USING btree (comment_id);
 
+DROP TABLE IF EXISTS p_tweet_comment_thumbs;
+CREATE TABLE p_tweet_comment_thumbs (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  tweet_id BIGINT NOT NULL,
+  comment_id BIGINT NOT NULL,
+  reply_id BIGINT,
+  comment_type SMALLINT NOT NULL DEFAULT 0, -- 评论类型 0为推文评论、1为评论回复
+  is_thumbs_up SMALLINT NOT NULL DEFAULT 0, -- 是否点赞 0 为否 1为是
+  is_thumbs_down SMALLINT NOT NULL DEFAULT 0, -- 是否点踩 0 为否 1为是
+  created_on BIGINT NOT NULL DEFAULT 0,
+  modified_on BIGINT NOT NULL DEFAULT 0,
+  deleted_on BIGINT NOT NULL DEFAULT 0,
+  is_del SMALLINT NOT NULL DEFAULT 0 -- 是否删除 0 为未删除、1 为已删除
+);
+CREATE INDEX idx_tweet_comment_thumbs_uid_tid ON p_tweet_comment_thumbs USING btree (user_id, tweet_id);
+
 DROP TABLE IF EXISTS p_message;
 CREATE TABLE p_message (
 	id BIGSERIAL PRIMARY KEY,
 	sender_user_id BIGINT NOT NULL DEFAULT 0,
 	receiver_user_id BIGINT NOT NULL DEFAULT 0,
-	type SMALLINT NOT NULL DEFAULT 1,
+	"type" SMALLINT NOT NULL DEFAULT 1,
 	brief VARCHAR(255) NOT NULL DEFAULT '',
 	content VARCHAR(255) NOT NULL DEFAULT '',
 	post_id BIGINT NOT NULL DEFAULT 0,

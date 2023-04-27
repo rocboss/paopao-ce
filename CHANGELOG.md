@@ -50,6 +50,9 @@ All notable changes to paopao-ce are documented in this file.
         UNIQUE KEY `idx_topic_user_uid_tid` ( `topic_id`, `user_id` ) USING BTREE 
       ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户话题';
     ```
+- add tweet comment thumbs up/down feature support [#275](https://github.com/rocboss/paopao-ce/pull/275)   
+  mirgration database first(sql ddl file in `scripts/migration/**/*_comment_thumbs.up.sql`):
+- add load more comments feature support [&60b217b](https://github.com/rocboss/paopao-ce/commit/60b217bcd950c69ba45cebcaa17efdf8048d5a4f 'commit 60b217b')  
 
 ### Fixed
 
@@ -87,11 +90,25 @@ All notable changes to paopao-ce are documented in this file.
 - optimize web frontend dark theme [&b082a8f](https://github.com/rocboss/paopao-ce/commit/b082a8fa5e43dd6dacf459df93fa7e243dd901ea 'commit b082a8f')
 - change web frontend main content layout default size to 544px [&b082a8f](https://github.com/rocboss/paopao-ce/commit/b082a8fa5e43dd6dacf459df93fa7e243dd901ea 'commit b082a8f')
 - optimize web frontend in mobile environment use Drawer to display menu [#265](https://github.com/rocboss/paopao-ce/pull/265)   
-- optimize Dockerfile use pre-build builder/runner image to prevent network latency problem (`bitbus/paopao-ce-backend-builder` `bitbus/paopao-ce-backend-runner`) [#265](https://github.com/rocboss/paopao-ce/pull/265)   
+- optimize Dockerfile use pre-build builder/runner image to prevent network latency problem (`bitbus/paopao-ce-backend-builder` `bitbus/paopao-ce-backend-runner`) [#265](https://github.com/rocboss/paopao-ce/pull/265)  
+- optimize web ui in mobile environment [#280](https://github.com/rocboss/paopao-ce/pull/280)  
 
 ### Removed
 
 - remove `Deprecated:OldWeb` feature  [#256](https://github.com/rocboss/paopao-ce/pull/256)   
+
+## 0.2.5
+
+### Changed
+
+- fixed sql ddl error for contact table [#281](https://github.com/rocboss/paopao-ce/pull/281)
+
+## 0.2.4
+
+### Added
+
+-  add PWA support for web frontend [#242](https://github.com/rocboss/paopao-ce/pull/242)
+
 
 ## 0.2.3
 
