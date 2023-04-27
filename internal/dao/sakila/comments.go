@@ -7,6 +7,7 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
@@ -56,6 +57,11 @@ func (s *commentSrv) GetCommentContentsByIDs(ids []int64) ([]*core.CommentConten
 	return nil, nil
 }
 
+func (s *commentSrv) GetCommentThumbsMap(tweetId int64) (cs.CommentThumbsMap, cs.CommentThumbsMap, error) {
+	// TODO
+	return nil, nil, debug.ErrNotImplemented
+}
+
 func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*core.CommentReplyFormated, error) {
 	// TODO
 	debug.NotImplemented()
@@ -90,6 +96,26 @@ func (s *commentManageSrv) CreateCommentContent(content *core.CommentContent) (*
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
+}
+
+func (s *commentManageSrv) ThumbsUpComment(userId int64, tweetId, commentId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *commentManageSrv) ThumbsDownComment(userId int64, tweetId, commentId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *commentManageSrv) ThumbsUpReply(userId int64, tweetId, commentId, replyId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, replyId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
 }
 
 func newCommentService(db *sqlx.DB) core.CommentService {
