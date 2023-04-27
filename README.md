@@ -544,8 +544,9 @@ x/sqlx
 | 名称 | 说明 | 备注|
 | ----- | ----- | ----- |       
 | [`main`](https://github.com/rocboss/paopao-ce) | 主分支 |分支`main`是主分支，也是paopao-ce的稳定版本发布分支，只有经过内部测试，没有重大bug出现的稳定代码才会推进到这个分支；该分支主要由`beta`分支代码演进而来，原则上**只接受bug修复PR**。`rc版本/稳定版本` 发布都应该在`main`主分支中进行。|
-| [`beta`](https://github.com/rocboss/paopao-ce/tree/beta) | 公测分支 |分支`beta`是公测分支，代码推进到`main`主分支的候选分支；该分支主要由`dev`分支代码演进而来，**接受bug修复以及新功能优化的PR**，原则上不接受新功能PR。`alpha/beta版本` 发布都应该在`beta`公测分支下进行。|
-| [`dev`](https://github.com/rocboss/paopao-ce/tree/dev) | 开发分支 | 分支`dev`是开发分支，**不定期频繁更新**，接受 *新功能PR、代码优化PR、bug修复PR*；**新功能PR** 都应该首先提交给`dev`分支进行合并，bug修复/代码优化 后 **冻结新功能** 将代码演进合并到`beta`分支。|
+| [`beta`](https://github.com/rocboss/paopao-ce/tree/beta) | 公测分支 |分支`beta`是公测分支，代码推进到`main`主分支的候选分支；该分支主要由`alpha`分支代码演进而来，**接受bug修复以及新功能优化的PR**，原则上不接受新功能PR。`beta版本` 发布都应该在`beta`公测分支下进行。|
+| [`alpha`](https://github.com/rocboss/paopao-ce/tree/alpha) | 内测分支 |分支`alpha`是内测分支，代码推进到`beta`分支的候选分支；该分支主要由`dev`分支代码演进而来，**接受bug修复以及新功能相关的PR**，接受新功能PR。分支代码演进到一个里程碑式的阶段后**冻结所有新功能**，合并代码到`beta`公测分支进行下一阶段的持续演进。`alpha版本` 发布都应该在`alpha`内测分支下进行。|   
+| [`dev`](https://github.com/rocboss/paopao-ce/tree/dev) | 开发分支 | 分支`dev`是开发分支，**不定期频繁更新**，接受 *新功能PR、代码优化PR、bug修复PR*；**新功能PR** 都应该首先提交给`dev`分支进行合并，bug修复/新功能开发/代码优化 **阶段性冻结** 后将代码演进合并到`alpha`分支。|   
 | `feature/*` | 子功能分支 |`feature/*`是新功能子分支，一般新功能子分支都是 *从`dev`开发分支fork出来的*；子功能分支 **只专注于该新功能** 代码的开发/优化，待开发接近内测阶段 *提交新功能PR给`dev`分支进行review/merge*，待新功能代码演进到`beta`分支后，原则上是可以删除该分支，但也可以保留到稳定版本发布。**该分支专注于新功能的开发，只接受新功能的bug修复/优化PR**。|
 | `jc/*` |维护者的开发分支|`jc/*`是代码库维护者的开发分支，一般包含一些局部优化或者bug修复代码，有时可以直接将代码merge到`dev/beta`分支，原则上不允许直接merge代码到`main`主分支。|
 | `x/*` |实验分支|`x/*`是技术实验分支，某些技术的引入需要经过具体的代码实现与真实场景的测评，考量评估后如果某项技术适合引入到paopao-ce，就fork出一个`feature/*`分支，作为新功能引入到paopao-ce。一般一些比较激进的技术，从`dev`分支fork出一个新的`x/*`分支，各种尝试、考量、评估后，或丢弃、或引入到paopao-ce。|   
@@ -556,9 +557,10 @@ x/sqlx
 | 名称 | 说明 | 维护者 | 备注 |
 | ----- | ----- | ----- | ----- |   
 |[`paopao-ce`](https://github.com/rocboss/paopao-ce/tree/dev)|paopao-ce 主发行版本|[ROC](https://github.com/rocboss 'ROC')|该分支 [数据逻辑层](https://github.com/rocboss/paopao-ce/tree/dev/internal/dao/jinzhu) 使用[gorm](https://github.com/go-gorm/gorm)作为数据逻辑层的ORM框架，适配MySQL/PostgreSQL/Sqlite3数据库。| 
+|[`r/paopao-ce`](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce)|paopao-ce 主分支预览版本|[ROC](https://github.com/rocboss 'ROC')<br/>[北野](https://github.com/alimy 'Michael Li')|该分支 [数据逻辑层](https://github.com/rocboss/paopao-ce/tree/dev/internal/dao/jinzhu) 使用[gorm](https://github.com/go-gorm/gorm)作为数据逻辑层的ORM框架，适配MySQL/PostgreSQL/Sqlite3数据库。代码较`main`分支新，是主发行版本的前瞻预览版本。|
 |[`r/paopao-ce-plus`](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-plus)|paopao-ce-plus 发行版本|[北野](https://github.com/alimy 'Michael Li')|该分支 [数据逻辑层](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-plus/internal/dao/sakila) 使用[sqlx](https://github.com/jmoiron/sqlx)作为数据逻辑层的ORM框架，专注于为MySQL/PostgreSQL/Sqlite3使用更优化的查询语句以提升数据检索效率。建议熟悉[sqlx](https://github.com/jmoiron/sqlx)的开发人员可以基于此版本来做 二次开发。|
 |[`r/paopao-ce-pro`](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-pro)|paopao-ce-pro 发行版本|[北野](https://github.com/alimy 'Michael Li')|该分支 [数据逻辑层](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-pro/internal/dao/slonik) 使用[sqlc](https://github.com/kyleconroy/sqlc)作为sql语句生成器自动生成ORM代码，专门针对特定数据库MySQL/PostgreSQL进行查询优化，熟悉[sqlc](https://github.com/kyleconroy/sqlc)的开发人员可以基于此版本来做 二次开发。(另：分支目前只使用[pgx-v5](https://github.com/jackc/pgx)适配了PostgreSQL数据库，后续或许会适配MySQL/TiDB数据库。)|
-|[`r/paopao-ce-xtra`](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-xtra)|paopao-ce-xtra 发行版本|[北野](https://github.com/alimy 'Michael Li')|该分支 是paopao-ce、r/paopao-ce-plus、r/paopao-ce-pro的合集|
+|[`r/paopao-ce-xtra`](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-xtra)|paopao-ce-xtra 发行版本|[北野](https://github.com/alimy 'Michael Li')|该分支 是r/paopao-ce、r/paopao-ce-plus、r/paopao-ce-pro的合集|
 
 **代码分支演进图**        
 ![](docs/proposal/.assets/000-01.png)

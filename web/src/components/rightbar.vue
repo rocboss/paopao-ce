@@ -145,9 +145,10 @@ const showFollowTopics = computed({
 watch(
     () => ({
         refreshTopicFollow: store.state.refreshTopicFollow,
+        userLogined: store.state.userLogined 
     }),
     (to, from) => {
-        if (to.refreshTopicFollow !== from.refreshTopicFollow) {
+        if (to.refreshTopicFollow !== from.refreshTopicFollow || to.userLogined) {
             loadHotTags();
         }
     }

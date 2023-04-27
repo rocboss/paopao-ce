@@ -35,7 +35,7 @@ declare module NetParams {
     id: number;
   }
 
-  interface UserGetUnreadMsgCount {}
+  interface UserGetUnreadMsgCount { }
 
   interface UserGetMessages {
     page: number;
@@ -82,7 +82,7 @@ declare module NetParams {
     imgCaptcha: string;
   }
 
-  interface UserGetCaptcha {}
+  interface UserGetCaptcha { }
 
   interface UserWhisper {
     user_id: number;
@@ -173,9 +173,11 @@ declare module NetParams {
   interface PostGetPostComments {
     id: number;
     sort_strategy: "default" | "newest";
+    page?: number;
+    page_size?: number;
   }
 
-  interface GetContacts {}
+  interface GetContacts { }
 
   interface PostCreatePost {
     /** 帖子内容列表 */
@@ -192,6 +194,17 @@ declare module NetParams {
 
   interface PostDeletePost {
     id: number;
+  }
+
+  interface PostTweetCommentThumbs {
+    tweet_id: number;
+    comment_id: number;
+  }
+
+  interface PostTweetReplyThumbs {
+    tweet_id: number;
+    comment_id: number;
+    reply_id: number;
   }
 
   interface PostCreateComment {

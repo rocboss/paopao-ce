@@ -1,7 +1,7 @@
 App: # APP基础设置项
   RunMode: debug
   AttachmentIncomeRate: 0.8
-  MaxCommentCount: 10
+  MaxCommentCount: 1000
   DefaultContextTimeout: 60
   DefaultPageSize: 10
   MaxPageSize: 100
