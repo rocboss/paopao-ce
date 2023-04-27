@@ -226,6 +226,7 @@ const handleLogin = (e: Event) => {
 
                     store.commit('updateUserinfo', res);
                     store.commit('triggerAuth', false);
+                    store.commit('refresh')
                     loginForm.username = '';
                     loginForm.password = '';
                 })

@@ -5,51 +5,56 @@
                 <n-avatar round :size="30" :src="post.user.avatar" />
             </template>
             <template #header>
-                <span class="nickname-wrap">
-                    <router-link
-                        @click.stop
-                        class="username-link"
-                        :to="{
-                            name: 'user',
-                            query: { username: post.user.username },
-                        }"
+                    <span class="nickname-wrap">
+                        <router-link
+                            @click.stop
+                            class="username-link"
+                            :to="{
+                                name: 'user',
+                                query: { username: post.user.username },
+                            }"
+                        >
+                            {{ post.user.nickname }}
+                        </router-link>
+                    </span>
+                    <span class="username-wrap"> @{{ post.user.username }} </span>
+                    <n-tag
+                        v-if="post.is_top"
+                        class="top-tag"
+                        type="warning"
+                        size="small"
+                        round
                     >
-                        {{ post.user.nickname }}
-                    </router-link>
-                </span>
-                <span class="username-wrap"> @{{ post.user.username }} </span>
-                <n-tag
-                    v-if="post.is_top"
-                    class="top-tag"
-                    type="warning"
-                    size="small"
-                    round
-                >
-                    置顶
-                </n-tag>
-                <n-tag
-                    v-if="post.visibility == 1"
-                    class="top-tag"
-                    type="error"
-                    size="small"
-                    round
-                >
-                    私密
-                </n-tag>
-                <n-tag
-                    v-if="post.visibility == 2"
-                    class="top-tag"
-                    type="info"
-                    size="small"
-                    round
-                >
-                    好友可见
-                </n-tag>
+                        置顶
+                    </n-tag>
+                    <n-tag
+                        v-if="post.visibility == 1"
+                        class="top-tag"
+                        type="error"
+                        size="small"
+                        round
+                    >
+                        私密
+                    </n-tag>
+                    <n-tag
+                        v-if="post.visibility == 2"
+                        class="top-tag"
+                        type="info"
+                        size="small"
+                        round
+                    >
+                        好友可见
+                    </n-tag>
+                    <div v-if="!store.state.desktopModelShow">
+                        <span class="timestamp-mobile">
+                            {{ formatPrettyDate(post.created_on) }} {{ post.ip_loc }}
+                        </span>
+                    </div>
             </template>
-            <template #header-extra>
+            <template v-if="store.state.desktopModelShow" #header-extra>
                 <span class="timestamp">
                     {{ post.ip_loc ? post.ip_loc + ' · ' : post.ip_loc }}
-                    {{ formatRelativeTime(post.created_on) }}
+                    {{ formatPrettyDate(post.created_on) }}
                 </span>
             </template>
             <template #description v-if="post.texts.length > 0">
@@ -118,7 +123,7 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
-import { formatRelativeTime } from '@/utils/formatTime';
+import { formatPrettyDate } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
 import {
     HeartOutline,
@@ -220,6 +225,11 @@ const doClickText = (e: MouseEvent, id: number) => {
 
     .top-tag {
         transform: scale(0.75);
+    }
+    .timestamp-mobile {
+        margin-top: 2px;
+        opacity: 0.75;
+        font-size: 11px;
     }
     .timestamp {
         opacity: 0.75;
