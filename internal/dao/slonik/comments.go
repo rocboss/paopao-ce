@@ -7,6 +7,7 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -59,6 +60,11 @@ func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*core.CommentReplyFor
 	return nil, nil
 }
 
+func (s *commentSrv) GetCommentThumbsMap(tweetId int64) (cs.CommentThumbsMap, cs.CommentThumbsMap, error) {
+	// TODO
+	return nil, nil, debug.ErrNotImplemented
+}
+
 func (s *commentManageSrv) DeleteComment(comment *core.Comment) error {
 	// TODO
 	debug.NotImplemented()
@@ -87,6 +93,26 @@ func (s *commentManageSrv) CreateCommentContent(content *core.CommentContent) (*
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
+}
+
+func (s *commentManageSrv) ThumbsUpComment(userId int64, tweetId, commentId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *commentManageSrv) ThumbsDownComment(userId int64, tweetId, commentId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *commentManageSrv) ThumbsUpReply(userId int64, tweetId, commentId, replyId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
+}
+
+func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, replyId int64) error {
+	// TODO
+	return debug.ErrNotImplemented
 }
 
 func newCommentService(db *pgx.Conn) core.CommentService {
