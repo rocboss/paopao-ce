@@ -93,6 +93,19 @@ All notable changes to paopao-ce are documented in this file.
 
 - remove `Deprecated:OldWeb` feature  [#256](https://github.com/rocboss/paopao-ce/pull/256)   
 
+## 0.2.5
+
+### Changed
+
+- fixed sql ddl error for contact table [#281](https://github.com/rocboss/paopao-ce/pull/281)
+
+## 0.2.4
+
+### Added
+
+-  add PWA support for web frontend [#242](https://github.com/rocboss/paopao-ce/pull/242)
+
+
 ## 0.2.3
 
 ### Added
