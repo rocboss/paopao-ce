@@ -57,7 +57,7 @@
                         {{ post.ip_loc ? post.ip_loc + ' · ' : post.ip_loc }}
                         {{ formatPrettyDate(post.created_on) }}
                     </span>
-                    <n-dropdown
+                    <n-dropdown v-if="!store.state.desktopModelShow"
                         placement="bottom-end"
                         trigger="click"
                         size="small"
