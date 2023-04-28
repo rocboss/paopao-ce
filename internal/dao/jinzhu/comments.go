@@ -39,9 +39,12 @@ func newCommentManageService(db *gorm.DB) core.CommentManageService {
 	}
 }
 
-func (s *commentServant) GetCommentThumbsMap(tweetId int64) (cs.CommentThumbsMap, cs.CommentThumbsMap, error) {
+func (s *commentServant) GetCommentThumbsMap(userId int64, tweetId int64) (cs.CommentThumbsMap, cs.CommentThumbsMap, error) {
+	if userId < 0 {
+		return nil, nil, nil
+	}
 	commentThumbsList := cs.CommentThumbsList{}
-	err := s.db.Model(&dbr.TweetCommentThumbs{}).Where("tweet_id=?", tweetId).Find(&commentThumbsList).Error
+	err := s.db.Model(&dbr.TweetCommentThumbs{}).Where("user_id=? AND tweet_id=?", userId, tweetId).Find(&commentThumbsList).Error
 	if err != nil {
 		return nil, nil, err
 	}
@@ -93,6 +96,7 @@ func (s *commentServant) GetCommentRepliesByID(ids []int64) ([]*core.CommentRepl
 	CommentReply := &dbr.CommentReply{}
 	replies, err := CommentReply.List(s.db, &dbr.ConditionsT{
 		"comment_id IN ?": ids,
+		"ORDER":           "id ASC",
 	}, 0, 0)
 
 	if err != nil {

@@ -16,6 +16,16 @@ const (
 	TagTypeHotExtral TagType = "hot_extral"
 )
 
+type TweetCommentsReq struct {
+	SimpleInfo   `form:"-" binding:"-"`
+	TweetId      int64  `form:"id" binding:"required"`
+	SortStrategy string `form:"sort_strategy"`
+	Page         int    `form:"-" binding:"-"`
+	PageSize     int    `form:"-" binding:"-"`
+}
+
+type TweetCommentsResp base.PageResp
+
 type TagType string
 
 type TimelineReq struct {
@@ -68,5 +78,9 @@ type TopicListResp struct {
 }
 
 func (r *GetUserTweetsReq) SetPageInfo(page int, pageSize int) {
+	r.Page, r.PageSize = page, pageSize
+}
+
+func (r *TweetCommentsReq) SetPageInfo(page int, pageSize int) {
 	r.Page, r.PageSize = page, pageSize
 }
