@@ -13,7 +13,6 @@ import (
 )
 
 type Pub interface {
-	TweetComments(*web.TweetCommentsReq) (*web.TweetCommentsResp, mir.Error)
 	TweetDetail(*web.TweetDetailReq) (*web.TweetDetailResp, mir.Error)
 	SendCaptcha(*web.SendCaptchaReq) mir.Error
 	GetCaptcha() (*web.GetCaptchaResp, mir.Error)
@@ -25,7 +24,6 @@ type Pub interface {
 }
 
 type PubBinding interface {
-	BindTweetComments(*gin.Context) (*web.TweetCommentsReq, mir.Error)
 	BindTweetDetail(*gin.Context) (*web.TweetDetailReq, mir.Error)
 	BindSendCaptcha(*gin.Context) (*web.SendCaptchaReq, mir.Error)
 	BindRegister(*gin.Context) (*web.RegisterReq, mir.Error)
@@ -35,7 +33,6 @@ type PubBinding interface {
 }
 
 type PubRender interface {
-	RenderTweetComments(*gin.Context, *web.TweetCommentsResp, mir.Error)
 	RenderTweetDetail(*gin.Context, *web.TweetDetailResp, mir.Error)
 	RenderSendCaptcha(*gin.Context, mir.Error)
 	RenderGetCaptcha(*gin.Context, *web.GetCaptchaResp, mir.Error)
@@ -51,22 +48,6 @@ func RegisterPubServant(e *gin.Engine, s Pub, b PubBinding, r PubRender) {
 	router := e.Group("v1")
 
 	// register routes info to router
-	router.Handle("GET", "/post/comments", func(c *gin.Context) {
-		select {
-		case <-c.Request.Context().Done():
-			return
-		default:
-		}
-
-		req, err := b.BindTweetComments(c)
-		if err != nil {
-			r.RenderTweetComments(c, nil, err)
-			return
-		}
-		resp, err := s.TweetComments(req)
-		r.RenderTweetComments(c, resp, err)
-	})
-
 	router.Handle("GET", "/post", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
@@ -158,10 +139,6 @@ func RegisterPubServant(e *gin.Engine, s Pub, b PubBinding, r PubRender) {
 type UnimplementedPubServant struct {
 }
 
-func (UnimplementedPubServant) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsResp, mir.Error) {
-	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
-}
-
 func (UnimplementedPubServant) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
@@ -193,10 +170,6 @@ type UnimplementedPubRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
-func (r *UnimplementedPubRender) RenderTweetComments(c *gin.Context, data *web.TweetCommentsResp, err mir.Error) {
-	r.RenderAny(c, data, err)
-}
-
 func (r *UnimplementedPubRender) RenderTweetDetail(c *gin.Context, data *web.TweetDetailResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
@@ -226,12 +199,6 @@ func (r *UnimplementedPubRender) mustEmbedUnimplementedPubRender() {}
 // UnimplementedPubBinding can be embedded to have forward compatible implementations.
 type UnimplementedPubBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
-}
-
-func (b *UnimplementedPubBinding) BindTweetComments(c *gin.Context) (*web.TweetCommentsReq, mir.Error) {
-	obj := new(web.TweetCommentsReq)
-	err := b.BindAny(c, obj)
-	return obj, err
 }
 
 func (b *UnimplementedPubBinding) BindTweetDetail(c *gin.Context) (*web.TweetDetailReq, mir.Error) {
