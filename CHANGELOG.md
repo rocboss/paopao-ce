@@ -60,6 +60,7 @@ All notable changes to paopao-ce are documented in this file.
 - fixed cache index not expire in delete/add tweet error [#266](https://github.com/rocboss/paopao-ce/pull/266)
 - fixed tweet's owner not allow star/collection action when tweet is private error [#274](https://github.com/rocboss/paopao-ce/pull/274)
 - fixed user not list owner's collectioned private tweet error [#274](https://github.com/rocboss/paopao-ce/pull/274)
+- fixed comments thumbs up/down state incorrect error [#283](https://github.com/rocboss/paopao-ce/pull/283)
 
 ### Fixed
 
