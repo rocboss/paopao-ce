@@ -1,5 +1,5 @@
 <template>
-    <div class="post-item" @click="goPostDetail(post.id)">
+    <div class="post-item">
         <n-thing content-indented>
             <template #avatar>
                 <n-avatar round :size="30" :src="post.user.avatar" />
@@ -51,21 +51,39 @@
                         </span>
                     </div>
             </template>
-            <template v-if="store.state.desktopModelShow" #header-extra>
-                <span class="timestamp">
-                    {{ post.ip_loc ? post.ip_loc + ' · ' : post.ip_loc }}
-                    {{ formatPrettyDate(post.created_on) }}
-                </span>
+            <template #header-extra>
+                <div class="item-header-extra">
+                    <span v-if="store.state.desktopModelShow" class="timestamp">
+                        {{ post.ip_loc ? post.ip_loc + ' · ' : post.ip_loc }}
+                        {{ formatPrettyDate(post.created_on) }}
+                    </span>
+                    <n-dropdown v-if="!store.state.desktopModelShow"
+                        placement="bottom-end"
+                        trigger="click"
+                        size="small"
+                        :options="tweetOptions"
+                        @select="handleTweetAction"
+                    >
+                        <n-button quaternary circle>
+                            <template #icon>
+                                <n-icon>
+                                    <more-vert-filled />
+                                </n-icon>
+                            </template>
+                        </n-button>
+                    </n-dropdown>
+                </div>
             </template>
             <template #description v-if="post.texts.length > 0">
-                <span
+                <div @click="goPostDetail(post.id)">
+                    <span
                     v-for="content in post.texts"
                     :key="content.id"
                     class="post-text"
                     @click.stop="doClickText($event, post.id)"
                     v-html="parsePostTag(content.content).content"
-                >
-                </span>
+                    ></span>
+                </div>
             </template>
 
             <template #footer>
@@ -95,7 +113,7 @@
                         </n-icon>
                         {{ post.upvote_count }}
                     </div>
-                    <div class="opt-item">
+                    <div class="opt-item" @click.stop="goPostDetail(post.id)">
                         <n-icon size="18" class="opt-item-icon">
                             <chatbox-outline />
                         </n-icon>
@@ -107,12 +125,12 @@
                         </n-icon>
                         {{ post.collection_count }}
                     </div>
-                    <div class="opt-item">
+                    <!-- <div class="opt-item">
                         <n-icon size="18" class="opt-item-icon">
                             <share-social-outline />
                         </n-icon>
                         {{ post.share_count }}
-                    </div>
+                    </div> -->
                 </n-space>
             </template>
         </n-thing>
@@ -122,6 +140,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+import type { DropdownOption } from 'naive-ui';
 import { useRoute, useRouter } from 'vue-router';
 import { formatPrettyDate } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
@@ -129,8 +148,10 @@ import {
     HeartOutline,
     BookmarkOutline,
     ChatboxOutline,
-    ShareSocialOutline,
+    // ShareSocialOutline,
 } from '@vicons/ionicons5';
+import { MoreVertFilled } from '@vicons/material';
+import copy from "copy-to-clipboard";
 
 const route = useRoute();
 const router = useRouter();
@@ -138,6 +159,29 @@ const store = useStore();
 const props = withDefaults(defineProps<{
     post: Item.PostProps,
 }>(), {});
+
+const tweetOptions = computed(() => {
+    let options: DropdownOption[] = [
+        {
+            label: '复制链接',
+            key: 'copyTweetLink',
+        },
+    ];
+    return options;
+});
+
+const handleTweetAction = (
+    item: 'copyTweetLink'
+) => {
+    switch (item) {
+        case 'copyTweetLink':
+            copy(`${window.location.origin}/#/post?id=${post.value.id}`);
+            window.$message.success('链接已复制到剪贴板');
+            break;
+        default:
+            break;
+    }
+};
 
 const post = computed(() => {
     let post: Item.PostComponentProps = Object.assign(
@@ -231,9 +275,13 @@ const doClickText = (e: MouseEvent, id: number) => {
         opacity: 0.75;
         font-size: 11px;
     }
-    .timestamp {
+    .item-header-extra {
+        display: flex;
+        align-items: center;
         opacity: 0.75;
-        font-size: 12px;
+        .timestamp {
+            font-size: 12px;
+        }
     }
     .post-text {
         text-align: justify;
