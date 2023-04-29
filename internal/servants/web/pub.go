@@ -15,7 +15,6 @@ import (
 
 	"github.com/afocus/captcha"
 	"github.com/alimy/mir/v3"
-	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
@@ -23,7 +22,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/web/assets"
 	"github.com/rocboss/paopao-ce/pkg/app"
-	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/rocboss/paopao-ce/pkg/version"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
@@ -52,92 +50,6 @@ type pubBinding struct {
 
 type pubRender struct {
 	*api.UnimplementedPubRender
-}
-
-func (b *pubBinding) BindTweetComments(c *gin.Context) (*web.TweetCommentsReq, mir.Error) {
-	tweetId := convert.StrTo(c.Query("id")).MustInt64()
-	page, pageSize := app.GetPageInfo(c)
-	return &web.TweetCommentsReq{
-		TweetId:      tweetId,
-		SortStrategy: c.Query("sort_strategy"),
-		Page:         page,
-		PageSize:     pageSize,
-	}, nil
-}
-
-func (s *pubSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsResp, mir.Error) {
-	sort := "id ASC"
-	if req.SortStrategy == "newest" {
-		sort = "id DESC"
-	}
-	conditions := &core.ConditionsT{
-		"post_id": req.TweetId,
-		"ORDER":   sort,
-	}
-
-	comments, err := s.Ds.GetComments(conditions, (req.Page-1)*req.PageSize, req.PageSize)
-	if err != nil {
-		return nil, _errGetCommentsFailed
-	}
-
-	userIDs := []int64{}
-	commentIDs := []int64{}
-	for _, comment := range comments {
-		userIDs = append(userIDs, comment.UserID)
-		commentIDs = append(commentIDs, comment.ID)
-	}
-
-	users, err := s.Ds.GetUsersByIDs(userIDs)
-	if err != nil {
-		return nil, _errGetCommentsFailed
-	}
-
-	contents, err := s.Ds.GetCommentContentsByIDs(commentIDs)
-	if err != nil {
-		return nil, _errGetCommentsFailed
-	}
-
-	replies, err := s.Ds.GetCommentRepliesByID(commentIDs)
-	if err != nil {
-		return nil, _errGetCommentsFailed
-	}
-
-	commentThumbs, replyThumbs, err := s.Ds.GetCommentThumbsMap(req.TweetId)
-	if err != nil {
-		return nil, _errGetCommentsFailed
-	}
-
-	commentsFormated := []*core.CommentFormated{}
-	for _, comment := range comments {
-		commentFormated := comment.Format()
-		if thumbs, exist := commentThumbs[comment.ID]; exist {
-			commentFormated.IsThumbsUp, commentFormated.IsThumbsDown = thumbs.IsThumbsUp, thumbs.IsThumbsDown
-		}
-		for _, content := range contents {
-			if content.CommentID == comment.ID {
-				commentFormated.Contents = append(commentFormated.Contents, content)
-			}
-		}
-		for _, reply := range replies {
-			if thumbs, exist := replyThumbs[reply.ID]; exist {
-				reply.IsThumbsUp, reply.IsThumbsDown = thumbs.IsThumbsUp, thumbs.IsThumbsDown
-			}
-			if reply.CommentID == commentFormated.ID {
-				commentFormated.Replies = append(commentFormated.Replies, reply)
-			}
-		}
-		for _, user := range users {
-			if user.ID == comment.UserID {
-				commentFormated.User = user.Format()
-			}
-		}
-		commentsFormated = append(commentsFormated, commentFormated)
-	}
-
-	// 获取总量
-	totalRows, _ := s.Ds.GetCommentCount(conditions)
-	resp := base.PageRespFrom(commentsFormated, req.Page, req.PageSize, totalRows)
-	return (*web.TweetCommentsResp)(resp), nil
 }
 
 func (s *pubSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir.Error) {
