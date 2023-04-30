@@ -67,7 +67,7 @@
                         <n-button quaternary circle>
                             <template #icon>
                                 <n-icon>
-                                    <more-vert-filled />
+                                    <more-horiz-filled />
                                 </n-icon>
                             </template>
                         </n-button>
@@ -150,7 +150,7 @@ import {
     ChatboxOutline,
     // ShareSocialOutline,
 } from '@vicons/ionicons5';
-import { MoreVertFilled } from '@vicons/material';
+import { MoreHorizFilled } from '@vicons/material';
 import copy from "copy-to-clipboard";
 
 const route = useRoute();
