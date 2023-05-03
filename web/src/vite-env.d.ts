@@ -15,6 +15,7 @@ interface ImportMetaEnv {
   readonly VITE_ALLOW_TWEET_VIDEO: string;
   readonly VITE_ALLOW_TWEET_LABEL: string;
   readonly VITE_ALLOW_TWEET_VISIBILITY: string;
+  readonly VITE_DEFAULT_MSG_LOOP_INTERVAL: number;
   readonly VITE_DEFAULT_TWEET_MAX_LENGTH: number;
   readonly VITE_DEFAULT_TWEET_VISIBILITY: string;
   readonly VITE_DEFAULT_TWEET_IMAGE_404: string;
