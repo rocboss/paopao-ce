@@ -81,6 +81,7 @@ const hasUnreadMsg = ref(false);
 const selectedPath = ref<any>(route.name || '');
 const msgLoop = ref();
 const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
+const defMsgLoopInterval = Number(import.meta.env.VITE_DEFAULT_MSG_LOOP_INTERVAL)
 
 watch(route, () => {
     selectedPath.value = route.name;
@@ -104,7 +105,7 @@ watch(store.state, () => {
                     .catch((err) => {
                         console.log(err);
                     });
-            }, 5000);
+            }, defMsgLoopInterval);
         }
     } else {
         if (msgLoop.value) {
