@@ -48,7 +48,10 @@ func GetFileExt(s string) (string, error) {
 		return ".mp4", nil
 	case "video/quicktime":
 		return ".mov", nil
-	case "application/zip":
+	case "application/zip",
+		"application/x-zip",
+		"application/octet-stream",
+		"application/x-zip-compressed":
 		return ".zip", nil
 	default:
 		return "", errcode.FileInvalidExt.WithDetails("仅允许 png/jpg/gif/mp4/mov/zip 类型")
