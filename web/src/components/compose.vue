@@ -278,6 +278,7 @@ import {
 } from '@vicons/ionicons5';
 import { createPost } from '@/api/post';
 import { parsePostTag } from '@/utils/content';
+import { isZipFile } from '@/utils/isZipFile';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
 import { VisibilityEnum, PostItemTypeEnum } from '@/utils/IEnum';
 
@@ -432,11 +433,9 @@ const beforeUpload = async (data: any) => {
         window.$message.warning('视频大小不能超过100MB');
         return false;
     }
-
     // 附件类型校验
     if (
-        uploadType.value === 'attachment' &&
-        !['application/zip'].includes(data.file.file?.type)
+        uploadType.value === 'attachment' && !(await isZipFile(data.file.file))
     ) {
         window.$message.warning('附件仅允许 zip 格式');
         return false;
