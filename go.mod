@@ -10,7 +10,7 @@ require (
 	github.com/alimy/yesql v1.1.6
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.7+incompatible
 	github.com/allegro/bigcache/v3 v3.0.2
-	github.com/bytedance/sonic v1.8.7
+	github.com/bytedance/sonic v1.8.8
 	github.com/cockroachdb/errors v1.9.1
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.15.0
@@ -27,7 +27,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/json-iterator/go v1.1.12
 	github.com/kyleconroy/sqlc v1.17.2
-	github.com/meilisearch/meilisearch-go v0.21.0
+	github.com/meilisearch/meilisearch-go v0.24.0
 	github.com/minio/minio-go/v7 v7.0.52
 	github.com/onsi/ginkgo/v2 v2.9.2
 	github.com/onsi/gomega v1.27.6
@@ -50,7 +50,7 @@ require (
 	gorm.io/gorm v1.25.0
 	gorm.io/plugin/dbresolver v1.4.1
 	gorm.io/plugin/soft_delete v1.2.1
-	modernc.org/sqlite v1.22.0
+	modernc.org/sqlite v1.22.1
 )
 
 require (
@@ -152,7 +152,7 @@ require (
 	lukechampine.com/uint128 v1.2.0 // indirect
 	modernc.org/cc/v3 v3.40.0 // indirect
 	modernc.org/ccgo/v3 v3.16.13 // indirect
-	modernc.org/libc v1.22.4 // indirect
+	modernc.org/libc v1.22.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.5.0 // indirect
 	modernc.org/opt v0.1.3 // indirect

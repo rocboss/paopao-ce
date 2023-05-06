@@ -19,6 +19,16 @@ const (
 
 type TagType = cs.TagType
 
+type TweetCommentsReq struct {
+	SimpleInfo   `form:"-" binding:"-"`
+	TweetId      int64  `form:"id" binding:"required"`
+	SortStrategy string `form:"sort_strategy"`
+	Page         int    `form:"-" binding:"-"`
+	PageSize     int    `form:"-" binding:"-"`
+}
+
+type TweetCommentsResp base.PageResp
+
 type TimelineReq struct {
 	BaseInfo   `form:"-"  binding:"-"`
 	Query      string              `form:"query"`
@@ -69,5 +79,9 @@ type TopicListResp struct {
 }
 
 func (r *GetUserTweetsReq) SetPageInfo(page int, pageSize int) {
+	r.Page, r.PageSize = page, pageSize
+}
+
+func (r *TweetCommentsReq) SetPageInfo(page int, pageSize int) {
 	r.Page, r.PageSize = page, pageSize
 }

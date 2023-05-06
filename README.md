@@ -220,8 +220,10 @@ PaoPao主要由以下优秀的开源项目/工具构建
 ### 方式三. 使用 docker-compose 运行
 ```sh
 git clone https://github.com/rocboss/paopao-ce.git
-docker compose up --build
-# visit paopao-ce(http://127.0.0.1:8008) and phpMyadmin(http://127.0.0.1:8080)
+cd paopao-ce && docker compose up -d
+# visit http://localhost:8008  👀 paopao-ce
+# visit http://localhost:8001  👀 RedisInsight
+# visit http://localhost:8080  👀 phpMyAdmin
 ```
 
 默认是使用config.yaml.sample的配置，如果需要自定义配置，请拷贝默认配置文件(比如config.yaml)，修改后再同步配置到docker-compose.yaml如下：
@@ -433,19 +435,10 @@ docker run -d --name meili -v ${PWD}/data/meili/data:/meili_data -p 7700:7700 -e
 # 使用docker compose运行，需要删除docker-compose.yaml中关于meili的注释
 docker compose up -d meili
 
-# 使用docker运行meilisearch的ui管理前端
-docker run -d --name uirecord -p 7701:3000 bitriory/uirecord
-# visit http://localhost:7701
-
-# 使用docker compose运行meilisearch的ui管理前端，需要删除docker-compose.yaml中关于uirecord的注释
-docker compose up -d uirecord
-# visit http://loclahost:7701
-
 # 查看meili运行状态
 docker compose ps
 NAME                   COMMAND                  SERVICE             STATUS              PORTS
 paopao-ce-meili-1      "tini -- /bin/sh -c …"   meili               running             0.0.0.0:7700->7700/tcp
-paopao-ce-uirecord-1   "docker-entrypoint.s…"   uirecord            running             0.0.0.0:7701->3000/tcp
 ```
 
 * 修改Meili配置

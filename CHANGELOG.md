@@ -1,9 +1,9 @@
 # Changelog
 
 All notable changes to paopao-ce are documented in this file.
+## 0.4.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
 
-## 0.3.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
-
+## 0.3.0
 ### Added
 
 - add custom comment sort strategy support [#243](https://github.com/rocboss/paopao-ce/pull/243)
@@ -60,6 +60,7 @@ All notable changes to paopao-ce are documented in this file.
 - fixed cache index not expire in delete/add tweet error [#266](https://github.com/rocboss/paopao-ce/pull/266)
 - fixed tweet's owner not allow star/collection action when tweet is private error [#274](https://github.com/rocboss/paopao-ce/pull/274)
 - fixed user not list owner's collectioned private tweet error [#274](https://github.com/rocboss/paopao-ce/pull/274)
+- fixed comments thumbs up/down state incorrect error [#283](https://github.com/rocboss/paopao-ce/pull/283)
 
 ### Fixed
 
@@ -92,6 +93,8 @@ All notable changes to paopao-ce are documented in this file.
 - optimize web frontend in mobile environment use Drawer to display menu [#265](https://github.com/rocboss/paopao-ce/pull/265)   
 - optimize Dockerfile use pre-build builder/runner image to prevent network latency problem (`bitbus/paopao-ce-backend-builder` `bitbus/paopao-ce-backend-runner`) [#265](https://github.com/rocboss/paopao-ce/pull/265)  
 - optimize web ui in mobile environment [#280](https://github.com/rocboss/paopao-ce/pull/280)  
+- optimize upload zip attachment compatible with different browsers for uploading zip mimetype [#286](https://github.com/rocboss/paopao-ce/pull/286)  
+- adapte meilisearch to version v1.1 [#288](https://github.com/rocboss/paopao-ce/pull/288)  
 
 ### Removed
 
