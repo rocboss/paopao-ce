@@ -57,7 +57,7 @@ func (s *commentSrv) GetCommentContentsByIDs(ids []int64) ([]*core.CommentConten
 	return nil, nil
 }
 
-func (s *commentSrv) GetCommentThumbsMap(tweetId int64) (cs.CommentThumbsMap, cs.CommentThumbsMap, error) {
+func (s *commentSrv) GetCommentThumbsMap(userId int64, tweetId int64) (cs.CommentThumbsMap, cs.CommentThumbsMap, error) {
 	// TODO
 	return nil, nil, debug.ErrNotImplemented
 }
