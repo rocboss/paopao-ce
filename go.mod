@@ -28,7 +28,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.9.2
 	github.com/onsi/gomega v1.27.6
 	github.com/pyroscope-io/client v0.7.0
-	github.com/rueian/rueidis v0.0.100
+	github.com/redis/rueidis v1.0.2
 	github.com/sirupsen/logrus v1.9.0
 	github.com/smartwalle/alipay/v3 v3.2.1
 	github.com/sourcegraph/conc v0.3.0
@@ -58,7 +58,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/go-logr/logr v1.2.3 // indirect
+	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.11.2 // indirect
@@ -120,7 +120,7 @@ require (
 	golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9 // indirect
 	golang.org/x/mod v0.9.0 // indirect
 	golang.org/x/net v0.8.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.7.0 // indirect

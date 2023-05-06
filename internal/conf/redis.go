@@ -8,7 +8,7 @@ import (
 	"log"
 	"sync"
 
-	"github.com/rueian/rueidis"
+	"github.com/redis/rueidis"
 )
 
 var (
