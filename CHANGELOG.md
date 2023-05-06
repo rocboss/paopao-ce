@@ -3,7 +3,7 @@
 All notable changes to paopao-ce are documented in this file.
 ## 0.4.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
 
-## 0.3.0-beta
+## 0.3.0
 ### Added
 
 - add custom comment sort strategy support [#243](https://github.com/rocboss/paopao-ce/pull/243)
