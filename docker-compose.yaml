@@ -28,7 +28,7 @@ services:
   #     - 9000:9000
   #     - 9001:9001
   #   volumes:
-  #     - ./data/minio/data:/data
+  #     - ./custom/data/minio/data:/data
   #   networks:
   #     - paopao-network
 
@@ -58,7 +58,7 @@ services:
     ports:
       - 4080:4080
     volumes:
-      - ./data/zinc/data:/data
+      - ./custom/data/zinc/data:/data
     environment:
       ZINC_FIRST_ADMIN_USER: admin
       ZINC_FIRST_ADMIN_PASSWORD: admin
@@ -67,23 +67,14 @@ services:
       - paopao-network
 
   # meili:
-  #   image: getmeili/meilisearch:v0.29.0
+  #   image: getmeili/meilisearch:v1.1
   #   restart: always
   #   ports:
   #     - 7700:7700
   #   volumes:
-  #     - ./data/meili/data:/meili_data
+  #     - ./custom/data/meili/data:/meili_data
   #   environment:
   #     - MEILI_MASTER_KEY=paopao-meilisearch
-  #   networks:
-  #     - paopao-network
-  
-  # # a ui for managing your meilisearch instances
-  # uirecord:
-  #   image: bitriory/uirecord:latest
-  #   restart: always
-  #   ports:
-  #     - 7701:3000
   #   networks:
   #     - paopao-network
 
