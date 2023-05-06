@@ -433,19 +433,10 @@ docker run -d --name meili -v ${PWD}/data/meili/data:/meili_data -p 7700:7700 -e
 # 使用docker compose运行，需要删除docker-compose.yaml中关于meili的注释
 docker compose up -d meili
 
-# 使用docker运行meilisearch的ui管理前端
-docker run -d --name uirecord -p 7701:3000 bitriory/uirecord
-# visit http://localhost:7701
-
-# 使用docker compose运行meilisearch的ui管理前端，需要删除docker-compose.yaml中关于uirecord的注释
-docker compose up -d uirecord
-# visit http://loclahost:7701
-
 # 查看meili运行状态
 docker compose ps
 NAME                   COMMAND                  SERVICE             STATUS              PORTS
 paopao-ce-meili-1      "tini -- /bin/sh -c …"   meili               running             0.0.0.0:7700->7700/tcp
-paopao-ce-uirecord-1   "docker-entrypoint.s…"   uirecord            running             0.0.0.0:7701->3000/tcp
 ```
 
 * 修改Meili配置
