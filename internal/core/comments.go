@@ -5,6 +5,7 @@
 package core
 
 import (
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 )
 
@@ -24,6 +25,7 @@ type CommentService interface {
 	GetCommentReplyByID(id int64) (*CommentReply, error)
 	GetCommentContentsByIDs(ids []int64) ([]*CommentContent, error)
 	GetCommentRepliesByID(ids []int64) ([]*CommentReplyFormated, error)
+	GetCommentThumbsMap(userId int64, tweetId int64) (cs.CommentThumbsMap, cs.CommentThumbsMap, error)
 }
 
 // CommentManageService 评论管理服务
@@ -33,4 +35,8 @@ type CommentManageService interface {
 	CreateCommentReply(reply *CommentReply) (*CommentReply, error)
 	DeleteCommentReply(reply *CommentReply) error
 	CreateCommentContent(content *CommentContent) (*CommentContent, error)
+	ThumbsUpComment(userId int64, tweetId, commentId int64) error
+	ThumbsDownComment(userId int64, tweetId, commentId int64) error
+	ThumbsUpReply(userId int64, tweetId, commentId, replyId int64) error
+	ThumbsDownReply(userId int64, tweetId, commentId, replyId int64) error
 }

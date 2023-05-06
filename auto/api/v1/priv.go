@@ -16,6 +16,13 @@ type Priv interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
+	UnfollowTopic(*web.UnfollowTopicReq) mir.Error
+	FollowTopic(*web.FollowTopicReq) mir.Error
+	StickTopic(*web.StickTopicReq) (*web.StickTopicResp, mir.Error)
+	ThumbsDownTweetReply(*web.TweetReplyThumbsReq) mir.Error
+	ThumbsUpTweetReply(*web.TweetReplyThumbsReq) mir.Error
+	ThumbsDownTweetComment(*web.TweetCommentThumbsReq) mir.Error
+	ThumbsUpTweetComment(*web.TweetCommentThumbsReq) mir.Error
 	DeleteCommentReply(*web.DeleteCommentReplyReq) mir.Error
 	CreateCommentReply(*web.CreateCommentReplyReq) (*web.CreateCommentReplyResp, mir.Error)
 	DeleteComment(*web.DeleteCommentReq) mir.Error
@@ -35,6 +42,13 @@ type Priv interface {
 }
 
 type PrivBinding interface {
+	BindUnfollowTopic(*gin.Context) (*web.UnfollowTopicReq, mir.Error)
+	BindFollowTopic(*gin.Context) (*web.FollowTopicReq, mir.Error)
+	BindStickTopic(*gin.Context) (*web.StickTopicReq, mir.Error)
+	BindThumbsDownTweetReply(*gin.Context) (*web.TweetReplyThumbsReq, mir.Error)
+	BindThumbsUpTweetReply(*gin.Context) (*web.TweetReplyThumbsReq, mir.Error)
+	BindThumbsDownTweetComment(*gin.Context) (*web.TweetCommentThumbsReq, mir.Error)
+	BindThumbsUpTweetComment(*gin.Context) (*web.TweetCommentThumbsReq, mir.Error)
 	BindDeleteCommentReply(*gin.Context) (*web.DeleteCommentReplyReq, mir.Error)
 	BindCreateCommentReply(*gin.Context) (*web.CreateCommentReplyReq, mir.Error)
 	BindDeleteComment(*gin.Context) (*web.DeleteCommentReq, mir.Error)
@@ -54,6 +68,13 @@ type PrivBinding interface {
 }
 
 type PrivRender interface {
+	RenderUnfollowTopic(*gin.Context, mir.Error)
+	RenderFollowTopic(*gin.Context, mir.Error)
+	RenderStickTopic(*gin.Context, *web.StickTopicResp, mir.Error)
+	RenderThumbsDownTweetReply(*gin.Context, mir.Error)
+	RenderThumbsUpTweetReply(*gin.Context, mir.Error)
+	RenderThumbsDownTweetComment(*gin.Context, mir.Error)
+	RenderThumbsUpTweetComment(*gin.Context, mir.Error)
 	RenderDeleteCommentReply(*gin.Context, mir.Error)
 	RenderCreateCommentReply(*gin.Context, *web.CreateCommentReplyResp, mir.Error)
 	RenderDeleteComment(*gin.Context, mir.Error)
@@ -80,6 +101,112 @@ func RegisterPrivServant(e *gin.Engine, s Priv, b PrivBinding, r PrivRender) {
 	router.Use(middlewares...)
 
 	// register routes info to router
+	router.Handle("POST", "/topic/unfollow", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		req, err := b.BindUnfollowTopic(c)
+		if err != nil {
+			r.RenderUnfollowTopic(c, err)
+			return
+		}
+		r.RenderUnfollowTopic(c, s.UnfollowTopic(req))
+	})
+
+	router.Handle("POST", "/topic/follow", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		req, err := b.BindFollowTopic(c)
+		if err != nil {
+			r.RenderFollowTopic(c, err)
+			return
+		}
+		r.RenderFollowTopic(c, s.FollowTopic(req))
+	})
+
+	router.Handle("POST", "/topic/stick", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		req, err := b.BindStickTopic(c)
+		if err != nil {
+			r.RenderStickTopic(c, nil, err)
+			return
+		}
+		resp, err := s.StickTopic(req)
+		r.RenderStickTopic(c, resp, err)
+	})
+
+	router.Handle("POST", "/tweet/reply/thumbsdown", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		req, err := b.BindThumbsDownTweetReply(c)
+		if err != nil {
+			r.RenderThumbsDownTweetReply(c, err)
+			return
+		}
+		r.RenderThumbsDownTweetReply(c, s.ThumbsDownTweetReply(req))
+	})
+
+	router.Handle("POST", "/tweet/reply/thumbsup", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		req, err := b.BindThumbsUpTweetReply(c)
+		if err != nil {
+			r.RenderThumbsUpTweetReply(c, err)
+			return
+		}
+		r.RenderThumbsUpTweetReply(c, s.ThumbsUpTweetReply(req))
+	})
+
+	router.Handle("POST", "/tweet/comment/thumbsdown", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		req, err := b.BindThumbsDownTweetComment(c)
+		if err != nil {
+			r.RenderThumbsDownTweetComment(c, err)
+			return
+		}
+		r.RenderThumbsDownTweetComment(c, s.ThumbsDownTweetComment(req))
+	})
+
+	router.Handle("POST", "/tweet/comment/thumbsup", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		req, err := b.BindThumbsUpTweetComment(c)
+		if err != nil {
+			r.RenderThumbsUpTweetComment(c, err)
+			return
+		}
+		r.RenderThumbsUpTweetComment(c, s.ThumbsUpTweetComment(req))
+	})
+
 	router.Handle("DELETE", "/post/comment/reply", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
@@ -311,6 +438,34 @@ func (UnimplementedPrivServant) Chain() gin.HandlersChain {
 	return nil
 }
 
+func (UnimplementedPrivServant) UnfollowTopic(req *web.UnfollowTopicReq) mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) FollowTopic(req *web.FollowTopicReq) mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) StickTopic(req *web.StickTopicReq) (*web.StickTopicResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) ThumbsDownTweetReply(req *web.TweetReplyThumbsReq) mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) ThumbsUpTweetReply(req *web.TweetReplyThumbsReq) mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) ThumbsDownTweetComment(req *web.TweetCommentThumbsReq) mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) ThumbsUpTweetComment(req *web.TweetCommentThumbsReq) mir.Error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
 func (UnimplementedPrivServant) DeleteCommentReply(req *web.DeleteCommentReplyReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
@@ -374,6 +529,34 @@ type UnimplementedPrivRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
+func (r *UnimplementedPrivRender) RenderUnfollowTopic(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedPrivRender) RenderFollowTopic(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedPrivRender) RenderStickTopic(c *gin.Context, data *web.StickTopicResp, err mir.Error) {
+	r.RenderAny(c, data, err)
+}
+
+func (r *UnimplementedPrivRender) RenderThumbsDownTweetReply(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedPrivRender) RenderThumbsUpTweetReply(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedPrivRender) RenderThumbsDownTweetComment(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
+func (r *UnimplementedPrivRender) RenderThumbsUpTweetComment(c *gin.Context, err mir.Error) {
+	r.RenderAny(c, nil, err)
+}
+
 func (r *UnimplementedPrivRender) RenderDeleteCommentReply(c *gin.Context, err mir.Error) {
 	r.RenderAny(c, nil, err)
 }
@@ -435,6 +618,48 @@ func (r *UnimplementedPrivRender) mustEmbedUnimplementedPrivRender() {}
 // UnimplementedPrivBinding can be embedded to have forward compatible implementations.
 type UnimplementedPrivBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
+}
+
+func (b *UnimplementedPrivBinding) BindUnfollowTopic(c *gin.Context) (*web.UnfollowTopicReq, mir.Error) {
+	obj := new(web.UnfollowTopicReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindFollowTopic(c *gin.Context) (*web.FollowTopicReq, mir.Error) {
+	obj := new(web.FollowTopicReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindStickTopic(c *gin.Context) (*web.StickTopicReq, mir.Error) {
+	obj := new(web.StickTopicReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindThumbsDownTweetReply(c *gin.Context) (*web.TweetReplyThumbsReq, mir.Error) {
+	obj := new(web.TweetReplyThumbsReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindThumbsUpTweetReply(c *gin.Context) (*web.TweetReplyThumbsReq, mir.Error) {
+	obj := new(web.TweetReplyThumbsReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindThumbsDownTweetComment(c *gin.Context) (*web.TweetCommentThumbsReq, mir.Error) {
+	obj := new(web.TweetCommentThumbsReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedPrivBinding) BindThumbsUpTweetComment(c *gin.Context) (*web.TweetCommentThumbsReq, mir.Error) {
+	obj := new(web.TweetCommentThumbsReq)
+	err := b.BindAny(c, obj)
+	return obj, err
 }
 
 func (b *UnimplementedPrivBinding) BindDeleteCommentReply(c *gin.Context) (*web.DeleteCommentReplyReq, mir.Error) {

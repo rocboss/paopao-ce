@@ -32,6 +32,7 @@ var (
 	_errNicknameLengthLimit     = xerror.NewError(20020, "昵称长度2~12")
 	_errNoExistUsername         = xerror.NewError(20021, "用户不存在")
 	_errNoAdminPermission       = xerror.NewError(20022, "无管理权限")
+	_errDisallowUserRegister    = xerror.NewError(20023, "系统不允许注册用户")
 
 	_errGetPostsFailed          = xerror.NewError(30001, "获取动态列表失败")
 	_errCreatePostFailed        = xerror.NewError(30002, "动态发布失败")
@@ -53,6 +54,7 @@ var (
 	_errCreateReplyFailed   = xerror.NewError(40005, "评论回复失败")
 	_errGetReplyFailed      = xerror.NewError(40006, "获取评论详情失败")
 	_errMaxCommentCount     = xerror.NewError(40007, "评论数已达最大限制")
+	_errGetCommentThumbs    = xerror.NewError(40008, "获取评论点赞信息失败")
 
 	_errGetMessagesFailed = xerror.NewError(50001, "获取消息列表失败")
 	_errReadMessageFailed = xerror.NewError(50002, "标记消息已读失败")
@@ -76,6 +78,14 @@ var (
 	_errDeleteFriendFailed         = xerror.NewError(80006, "删除好友失败")
 	_errGetContactsFailed          = xerror.NewError(80007, "获取联系人列表失败")
 	_errNoActionToSelf             = xerror.NewError(80008, "不允许对自己操作")
+
+	_errFollowTopicFailed      = xerror.NewError(90001, "关注话题失败")
+	_errUnfollowTopicFailed    = xerror.NewError(90002, "取消关注话题失败")
+	_errStickTopicFailed       = xerror.NewError(90003, "更行话题置顶状态失败")
+	_errThumbsUpTweetComment   = xerror.NewError(90101, "评论点赞失败")
+	_errThumbsDownTweetComment = xerror.NewError(90102, "评论点踩失败")
+	_errThumbsUpTweetReply     = xerror.NewError(90103, "评论回复点赞失败")
+	_errThumbsDownTweetReply   = xerror.NewError(90104, "评论回复点踩失败")
 
 	_errFileUploadFailed = xerror.NewError(10200, "文件上传失败")
 	_errFileInvalidExt   = xerror.NewError(10201, "文件类型不合法")

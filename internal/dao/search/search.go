@@ -22,19 +22,22 @@ func NewMeiliTweetSearchService(ams core.AuthorizationManageService) (core.Tweet
 	})
 
 	if _, err := client.Index(s.Index).FetchInfo(); err != nil {
-		logrus.Debugf("create index because fetch index info error: %v", err)
-		client.CreateIndex(&meilisearch.IndexConfig{
+		logrus.Debugf("create meili index because fetch index info error: %v", err)
+		if _, err := client.CreateIndex(&meilisearch.IndexConfig{
 			Uid:        s.Index,
 			PrimaryKey: "id",
-		})
-		searchableAttributes := []string{"content", "tags"}
-		sortableAttributes := []string{"is_top", "latest_replied_on"}
-		filterableAttributes := []string{"tags", "visibility", "user_id"}
-
-		index := client.Index(s.Index)
-		index.UpdateSearchableAttributes(&searchableAttributes)
-		index.UpdateSortableAttributes(&sortableAttributes)
-		index.UpdateFilterableAttributes(&filterableAttributes)
+		}); err == nil {
+			settings := meilisearch.Settings{
+				SearchableAttributes: []string{"content", "tags"},
+				SortableAttributes:   []string{"is_top", "latest_replied_on"},
+				FilterableAttributes: []string{"tags", "visibility", "user_id"},
+			}
+			if _, err = client.Index(s.Index).UpdateSettings(&settings); err != nil {
+				logrus.Errorf("update meili settings error: %s", err)
+			}
+		} else {
+			logrus.Errorf("create meili index error: %s", err)
+		}
 	}
 
 	mts := &meiliTweetSearchServant{
@@ -57,7 +60,7 @@ func NewZincTweetSearchService(ams core.AuthorizationManageService) (core.TweetS
 			ams: ams,
 		},
 		indexName:     s.Index,
-		client:        zinc.NewClient(s),
+		client:        zinc.NewClient(s.Endpoint(), s.User, s.Password),
 		publicFilter:  fmt.Sprintf("visibility:%d", core.PostVisitPublic),
 		privateFilter: fmt.Sprintf("visibility:%d AND user_id:%%d", core.PostVisitPrivate),
 		friendFilter:  fmt.Sprintf("visibility:%d", core.PostVisitFriend),

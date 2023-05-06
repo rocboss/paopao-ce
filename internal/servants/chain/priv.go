@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/pkg/app"
-	"github.com/rocboss/paopao-ce/pkg/errcode"
 )
 
 func Priv() gin.HandlerFunc {
@@ -20,7 +19,7 @@ func Priv() gin.HandlerFunc {
 					if user.Status == core.UserStatusNormal {
 						if user.Phone == "" {
 							response := app.NewResponse(c)
-							response.ToErrorResponse(errcode.AccountNoPhoneBind)
+							response.ToErrorResponse(_errAccountNoPhoneBind)
 							c.Abort()
 							return
 						}
@@ -30,7 +29,7 @@ func Priv() gin.HandlerFunc {
 				}
 			}
 			response := app.NewResponse(c)
-			response.ToErrorResponse(errcode.UserHasBeenBanned)
+			response.ToErrorResponse(_errUserHasBeenBanned)
 			c.Abort()
 		}
 	} else {
@@ -42,7 +41,7 @@ func Priv() gin.HandlerFunc {
 				}
 			}
 			response := app.NewResponse(c)
-			response.ToErrorResponse(errcode.UserHasBeenBanned)
+			response.ToErrorResponse(_errUserHasBeenBanned)
 			c.Abort()
 		}
 	}

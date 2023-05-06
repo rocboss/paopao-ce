@@ -37,7 +37,7 @@ func newUserSrv() api.User {
 func newUserBinding() api.UserBinding {
 	return &userBinding{
 		UnimplementedUserBinding: &api.UnimplementedUserBinding{
-			BindAny: base.BindAny,
+			BindAny: base.NewBindAnyFn(),
 		},
 	}
 }

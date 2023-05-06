@@ -10,15 +10,20 @@ import (
 	"os"
 	"os/signal"
 	"strings"
-	"sync"
 	"syscall"
+	"time"
 
+	"github.com/alimy/cfg"
 	"github.com/fatih/color"
+	"github.com/getsentry/sentry-go"
 	"github.com/rocboss/paopao-ce/internal"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/debug"
-	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/rocboss/paopao-ce/pkg/utils"
+	"github.com/rocboss/paopao-ce/pkg/version"
+	"github.com/sourcegraph/conc"
+	_ "go.uber.org/automaxprocs"
 )
 
 var (
@@ -42,8 +47,15 @@ func (s *suites) Set(value string) error {
 func init() {
 	flagParse()
 
-	conf.Initialize(features, noDefaultFeatures)
-	internal.Initialize()
+	conf.Initial(features, noDefaultFeatures)
+	internal.Initial()
+}
+
+func deferFn() {
+	if cfg.If("Sentry") {
+		// Flush buffered events before the program terminates.
+		sentry.Flush(2 * time.Second)
+	}
 }
 
 func flagParse() {
@@ -53,24 +65,26 @@ func flagParse() {
 }
 
 func main() {
-	util.PrintHelloBanner(debug.VersionInfo())
+	utils.PrintHelloBanner(version.VersionInfo())
 	ss := service.MustInitService()
 	if len(ss) < 1 {
 		fmt.Fprintln(color.Output, "no service need start so just exit")
 		return
 	}
 
+	// do defer function
+	defer deferFn()
+
 	// start pyroscope if need
 	debug.StartPyroscope()
 
 	// start services
-	wg := &sync.WaitGroup{}
+	wg := conc.NewWaitGroup()
 	fmt.Fprintf(color.Output, "\nstarting run service...\n\n")
 	service.Start(wg)
 
 	// graceful stop services
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		quit := make(chan os.Signal, 1)
 		// kill (no param) default send syscall.SIGTERM
 		// kill -2 is syscall.SIGINT
@@ -79,7 +93,6 @@ func main() {
 		<-quit
 		fmt.Fprintf(color.Output, "\nshutting down server...\n\n")
 		service.Stop()
-		wg.Done()
-	}()
+	})
 	wg.Wait()
 }

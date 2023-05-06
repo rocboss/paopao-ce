@@ -12,8 +12,8 @@ func init() {
 
 // Priv 私有授权的服务
 type Priv struct {
-	Chain Chain `mir:"-"`
-	Group Group `mir:"v1"`
+	Chain `mir:"-"`
+	Group `mir:"v1"`
 
 	// UploadAttachment 上传资源
 	UploadAttachment func(Post, web.UploadAttachmentReq) web.UploadAttachmentResp `mir:"/attachment"`
@@ -56,4 +56,25 @@ type Priv struct {
 
 	// DeleteCommentReply 删除评论回复
 	DeleteCommentReply func(Delete, web.DeleteCommentReplyReq) `mir:"/post/comment/reply"`
+
+	// ThumbsUpTweetComment 点赞评论
+	ThumbsUpTweetComment func(Post, web.TweetCommentThumbsReq) `mir:"/tweet/comment/thumbsup"`
+
+	// ThumbsDownTweetComment 点踩评论
+	ThumbsDownTweetComment func(Post, web.TweetCommentThumbsReq) `mir:"/tweet/comment/thumbsdown"`
+
+	// ThumbsUpTweetReply 点赞评论回复
+	ThumbsUpTweetReply func(Post, web.TweetReplyThumbsReq) `mir:"/tweet/reply/thumbsup"`
+
+	// ThumbsDownTweetReply 点踩评论回复
+	ThumbsDownTweetReply func(Post, web.TweetReplyThumbsReq) `mir:"/tweet/reply/thumbsdown"`
+
+	// StickTopic 置顶动态
+	StickTopic func(Post, web.StickTopicReq) web.StickTopicResp `mir:"/topic/stick"`
+
+	// FollowTopic 关注话题
+	FollowTopic func(Post, web.FollowTopicReq) `mir:"/topic/follow"`
+
+	// UnfollowTopic 取消关注话题
+	UnfollowTopic func(Post, web.UnfollowTopicReq) `mir:"/topic/unfollow"`
 }

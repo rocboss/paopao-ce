@@ -46,6 +46,8 @@ CREATE TABLE "p_comment" (
   "user_id" integer NOT NULL,
   "ip" text(64) NOT NULL,
   "ip_loc" text(64) NOT NULL,
+  "thumbs_up_count" integer NOT NULL DEFAULT 0, -- 点赞数
+	"thumbs_down_count" integer NOT NULL DEFAULT 0, -- 点踩数
   "created_on" integer NOT NULL,
   "modified_on" integer NOT NULL,
   "deleted_on" integer NOT NULL,
@@ -83,11 +85,32 @@ CREATE TABLE "p_comment_reply" (
   "content" text(255) NOT NULL,
   "ip" text(64) NOT NULL,
   "ip_loc" text(64) NOT NULL,
+  "thumbs_up_count" integer NOT NULL DEFAULT 0, -- 点赞数
+	"thumbs_down_count" integer NOT NULL DEFAULT 0, -- 点踩数
   "created_on" integer NOT NULL,
   "modified_on" integer NOT NULL,
   "deleted_on" integer NOT NULL,
   "is_del" integer NOT NULL,
   PRIMARY KEY ("id")
+);
+
+-- ----------------------------
+-- Table structure for p_tweet_comment_thumbs
+-- ----------------------------
+DROP TABLE IF EXISTS p_tweet_comment_thumbs;
+CREATE TABLE "p_tweet_comment_thumbs" (
+  "id"  integer PRIMARY KEY,
+  "user_id" integer NOT NULL,
+  "tweet_id" integer NOT NULL,
+  "comment_id" integer NOT NULL,
+  "reply_id" integer,
+  "comment_type" integer NOT NULL DEFAULT 0, -- 评论类型 0为推文评论、1为评论回复
+  "is_thumbs_up" integer NOT NULL DEFAULT 0, -- 是否点赞 0 为否 1为是
+  "is_thumbs_down" integer NOT NULL DEFAULT 0, -- 是否点踩 0 为否 1为是
+  "created_on" integer NOT NULL DEFAULT 0,
+  "modified_on" integer NOT NULL DEFAULT 0,
+  "deleted_on" integer NOT NULL DEFAULT 0,
+  "is_del" integer NOT NULL DEFAULT 0 -- 是否删除 0 为未删除、1 为已删除
 );
 
 -- ----------------------------
@@ -158,6 +181,7 @@ CREATE TABLE "p_post" (
   "comment_count" integer NOT NULL,
   "collection_count" integer NOT NULL,
   "upvote_count" integer NOT NULL,
+  "share_count" integer NOT NULL,
   "is_top" integer NOT NULL,
   "is_essence" integer NOT NULL,
   "is_lock" integer NOT NULL,
@@ -252,6 +276,27 @@ CREATE TABLE "p_tag" (
   "deleted_on" integer NOT NULL,
   "is_del" integer NOT NULL,
   PRIMARY KEY ("id")
+);
+
+-- ----------------------------
+-- Table structure for p_topic_user
+-- ----------------------------
+DROP TABLE IF EXISTS "p_topic_user";
+CREATE TABLE "p_topic_user" (
+	"id" integer,
+	"topic_id" integer NOT NULL,-- 标签ID
+	"user_id" integer NOT NULL,-- 创建者ID
+	"alias_name" text ( 255 ),-- 别名
+	"remark" text ( 512 ),-- 备注
+	"quote_num" integer,-- 引用数
+	"is_top" integer NOT NULL DEFAULT 0,-- 是否置顶 0 为未置顶、1 为已置顶
+	"created_on" integer NOT NULL DEFAULT 0,-- 创建时间
+	"modified_on" integer NOT NULL DEFAULT 0,-- 修改时间
+	"deleted_on" integer NOT NULL DEFAULT 0,-- 删除时间
+	"is_del" integer NOT NULL DEFAULT 0,-- 是否删除 0 为未删除、1 为已删除
+	"reserve_a" text,-- 保留字段a
+	"reserve_b" text,-- 保留字段b
+	PRIMARY KEY ( "id" ) 
 );
 
 -- ----------------------------
@@ -376,6 +421,15 @@ ON "p_comment_reply" (
 );
 
 -- ----------------------------
+-- Indexes structure for table idx_tweet_comment_thumbs_uid_tid
+-- ----------------------------
+CREATE INDEX "idx_tweet_comment_thumbs_uid_tid"
+ON "p_tweet_comment_thumbs"(
+  "user_id" ASC,
+  "tweet_id" ASC
+);
+
+-- ----------------------------
 -- Indexes structure for table p_contact
 -- ----------------------------
 CREATE UNIQUE INDEX "idx_contact_user_friend"
@@ -480,6 +534,15 @@ ON "p_tag" (
 CREATE INDEX "idx_tag_user_id"
 ON "p_tag" (
   "user_id" ASC
+);
+
+-- ----------------------------
+-- Indexes structure for table p_topic_user
+-- ----------------------------
+CREATE UNIQUE INDEX "idx_topic_user_uid_tid" 
+ON "p_topic_user" (
+  "topic_id",
+  "user_id"
 );
 
 -- ----------------------------

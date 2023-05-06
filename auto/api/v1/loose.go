@@ -16,6 +16,8 @@ type Loose interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
+	TweetComments(*web.TweetCommentsReq) (*web.TweetCommentsResp, mir.Error)
+	TopicList(*web.TopicListReq) (*web.TopicListResp, mir.Error)
 	GetUserProfile(*web.GetUserProfileReq) (*web.GetUserProfileResp, mir.Error)
 	GetUserTweets(*web.GetUserTweetsReq) (*web.GetUserTweetsResp, mir.Error)
 	Timeline(*web.TimelineReq) (*web.TimelineResp, mir.Error)
@@ -24,6 +26,8 @@ type Loose interface {
 }
 
 type LooseBinding interface {
+	BindTweetComments(*gin.Context) (*web.TweetCommentsReq, mir.Error)
+	BindTopicList(*gin.Context) (*web.TopicListReq, mir.Error)
 	BindGetUserProfile(*gin.Context) (*web.GetUserProfileReq, mir.Error)
 	BindGetUserTweets(*gin.Context) (*web.GetUserTweetsReq, mir.Error)
 	BindTimeline(*gin.Context) (*web.TimelineReq, mir.Error)
@@ -32,6 +36,8 @@ type LooseBinding interface {
 }
 
 type LooseRender interface {
+	RenderTweetComments(*gin.Context, *web.TweetCommentsResp, mir.Error)
+	RenderTopicList(*gin.Context, *web.TopicListResp, mir.Error)
 	RenderGetUserProfile(*gin.Context, *web.GetUserProfileResp, mir.Error)
 	RenderGetUserTweets(*gin.Context, *web.GetUserTweetsResp, mir.Error)
 	RenderTimeline(*gin.Context, *web.TimelineResp, mir.Error)
@@ -47,6 +53,38 @@ func RegisterLooseServant(e *gin.Engine, s Loose, b LooseBinding, r LooseRender)
 	router.Use(middlewares...)
 
 	// register routes info to router
+	router.Handle("GET", "/post/comments", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		req, err := b.BindTweetComments(c)
+		if err != nil {
+			r.RenderTweetComments(c, nil, err)
+			return
+		}
+		resp, err := s.TweetComments(req)
+		r.RenderTweetComments(c, resp, err)
+	})
+
+	router.Handle("GET", "/tags", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		req, err := b.BindTopicList(c)
+		if err != nil {
+			r.RenderTopicList(c, nil, err)
+			return
+		}
+		resp, err := s.TopicList(req)
+		r.RenderTopicList(c, resp, err)
+	})
+
 	router.Handle("GET", "/user/profile", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
@@ -105,6 +143,14 @@ func (UnimplementedLooseServant) Chain() gin.HandlersChain {
 	return nil
 }
 
+func (UnimplementedLooseServant) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedLooseServant) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
 func (UnimplementedLooseServant) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfileResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
@@ -124,6 +170,14 @@ type UnimplementedLooseRender struct {
 	RenderAny func(*gin.Context, any, mir.Error)
 }
 
+func (r *UnimplementedLooseRender) RenderTweetComments(c *gin.Context, data *web.TweetCommentsResp, err mir.Error) {
+	r.RenderAny(c, data, err)
+}
+
+func (r *UnimplementedLooseRender) RenderTopicList(c *gin.Context, data *web.TopicListResp, err mir.Error) {
+	r.RenderAny(c, data, err)
+}
+
 func (r *UnimplementedLooseRender) RenderGetUserProfile(c *gin.Context, data *web.GetUserProfileResp, err mir.Error) {
 	r.RenderAny(c, data, err)
 }
@@ -141,6 +195,18 @@ func (r *UnimplementedLooseRender) mustEmbedUnimplementedLooseRender() {}
 // UnimplementedLooseBinding can be embedded to have forward compatible implementations.
 type UnimplementedLooseBinding struct {
 	BindAny func(*gin.Context, any) mir.Error
+}
+
+func (b *UnimplementedLooseBinding) BindTweetComments(c *gin.Context) (*web.TweetCommentsReq, mir.Error) {
+	obj := new(web.TweetCommentsReq)
+	err := b.BindAny(c, obj)
+	return obj, err
+}
+
+func (b *UnimplementedLooseBinding) BindTopicList(c *gin.Context) (*web.TopicListReq, mir.Error) {
+	obj := new(web.TopicListReq)
+	err := b.BindAny(c, obj)
+	return obj, err
 }
 
 func (b *UnimplementedLooseBinding) BindGetUserProfile(c *gin.Context) (*web.GetUserProfileReq, mir.Error) {

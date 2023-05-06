@@ -9,23 +9,28 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"time"
 
 	"github.com/alimy/mir/v3"
+	"github.com/cockroachdb/errors"
+	"github.com/getsentry/sentry-go"
+	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/dao"
+	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
+	"github.com/sirupsen/logrus"
 )
 
 type BaseServant types.Empty
 
 type DaoServant struct {
-	Redis *redis.Client
 	Ds    core.DataService
 	Ts    core.TweetSearchService
+	Redis core.RedisCache
 }
 
 type BaseBinding types.Empty
@@ -36,6 +41,10 @@ type JsonResp struct {
 	Code int    `json:"code"`
 	Msg  string `json:"msg,omitempty"`
 	Data any    `json:"data,omitempty"`
+}
+
+type SentryHubSetter interface {
+	SetSentryHub(hub *sentry.Hub)
 }
 
 type UserSetter interface {
@@ -74,7 +83,7 @@ func UserNameFrom(c *gin.Context) (string, bool) {
 	return "", false
 }
 
-func BindAny(c *gin.Context, obj any) mir.Error {
+func bindAny(c *gin.Context, obj any) mir.Error {
 	var errs xerror.ValidErrors
 	err := c.ShouldBind(obj)
 	if err != nil {
@@ -96,6 +105,40 @@ func BindAny(c *gin.Context, obj any) mir.Error {
 		setter.SetPageInfo(page, pageSize)
 	}
 	return nil
+}
+
+func bindAnySentry(c *gin.Context, obj any) mir.Error {
+	hub := sentrygin.GetHubFromContext(c)
+	var errs xerror.ValidErrors
+	err := c.ShouldBind(obj)
+	if err != nil {
+		xerr := mir.NewError(xerror.InvalidParams.StatusCode(), xerror.InvalidParams.WithDetails(errs.Error()))
+		if hub != nil {
+			hub.CaptureException(errors.Wrap(xerr, "bind object"))
+		}
+		return xerr
+	}
+	// setup sentry hub if needed
+	if setter, ok := obj.(SentryHubSetter); ok && hub != nil {
+		setter.SetSentryHub(hub)
+	}
+	// setup *core.User if needed
+	if setter, ok := obj.(UserSetter); ok {
+		user, _ := UserFrom(c)
+		setter.SetUser(user)
+	}
+	// setup UserId if needed
+	if setter, ok := obj.(UserIdSetter); ok {
+		uid, _ := UserIdFrom(c)
+		setter.SetUserId(uid)
+	}
+	// setup PageInfo if needed
+	if setter, ok := obj.(PageInfoSetter); ok {
+		page, pageSize := app.GetPageInfo(c)
+		setter.SetPageInfo(page, pageSize)
+	}
+	return nil
+
 }
 
 func RenderAny(c *gin.Context, data any, err mir.Error) {
@@ -140,8 +183,8 @@ func (s *DaoServant) GetTweetBy(id int64) (*core.PostFormated, error) {
 }
 
 func (s *DaoServant) PushPostsToSearch(c context.Context) {
-	if ok, _ := s.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
-		defer s.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
+	if err := s.Redis.SetPushToSearchJob(c); err == nil {
+		defer s.Redis.DelPushToSearchJob(c)
 
 		splitNum := 1000
 		totalRows, _ := s.Ds.GetPostCount(&core.ConditionsT{
@@ -168,6 +211,8 @@ func (s *DaoServant) PushPostsToSearch(c context.Context) {
 				s.Ts.AddDocuments(docs, fmt.Sprintf("%d", posts[i].ID))
 			}
 		}
+	} else {
+		logrus.Errorf("redis: set JOB_PUSH_TO_SEARCH error: %s", err)
 	}
 }
 
@@ -206,4 +251,19 @@ func (s *DaoServant) GetTweetList(conditions *core.ConditionsT, offset, limit in
 	}
 	postFormated, err := s.Ds.MergePosts(posts)
 	return posts, postFormated, err
+}
+
+func NewDaoServant() *DaoServant {
+	return &DaoServant{
+		Redis: cache.NewRedisCache(),
+		Ds:    dao.DataService(),
+		Ts:    dao.TweetSearchService(),
+	}
+}
+
+func NewBindAnyFn() func(c *gin.Context, obj any) mir.Error {
+	if conf.UseSentryGin() {
+		return bindAnySentry
+	}
+	return bindAny
 }

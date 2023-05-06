@@ -6,7 +6,6 @@ package web
 
 import (
 	"context"
-	"fmt"
 
 	"time"
 	"unicode/utf8"
@@ -120,6 +119,8 @@ func (s *coreSrv) Chain() gin.HandlersChain {
 func (s *coreSrv) SyncSearchIndex(req *web.SyncSearchIndexReq) mir.Error {
 	if req.User != nil && req.User.IsAdmin {
 		go s.PushPostsToSearch(context.Background())
+	} else {
+		logrus.Warnf("sync search index need admin permision user: %#v", req.User)
 	}
 	return nil
 }
@@ -225,8 +226,7 @@ func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 
 	// 今日频次限制
 	ctx := context.Background()
-	whisperKey := fmt.Sprintf("WhisperTimes:%d", req.Uid)
-	if res, _ := s.Redis.Get(ctx, whisperKey).Result(); convert.StrTo(res).MustInt() >= _MaxWhisperNumDaily {
+	if count, _ := s.Redis.GetCountWhisper(ctx, req.Uid); count >= _MaxWhisperNumDaily {
 		return _errTooManyWhisperNum
 	}
 
@@ -244,10 +244,7 @@ func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 	}
 
 	// 写入当日（自然日）计数缓存
-	s.Redis.Incr(ctx, whisperKey).Result()
-	currentTime := time.Now()
-	endTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
-	s.Redis.Expire(ctx, whisperKey, endTime.Sub(currentTime))
+	s.Redis.IncrCountWhisper(ctx, req.Uid)
 
 	return nil
 }
@@ -286,7 +283,7 @@ func (s *coreSrv) UserPhoneBind(req *web.UserPhoneBindReq) mir.Error {
 	}
 
 	// 如果禁止phone verify 则允许通过任意验证码
-	if _EnablePhoneVerify {
+	if _enablePhoneVerify {
 		c, err := s.Ds.GetLatestPhoneCaptcha(req.Phone)
 		if err != nil {
 			return _errErrorPhoneCaptcha
@@ -455,7 +452,7 @@ func newCoreSrv(s *base.DaoServant, oss core.ObjectStorageService) api.Core {
 func newCoreBinding() api.CoreBinding {
 	return &coreBinding{
 		UnimplementedCoreBinding: &api.UnimplementedCoreBinding{
-			BindAny: base.BindAny,
+			BindAny: base.NewBindAnyFn(),
 		},
 	}
 }

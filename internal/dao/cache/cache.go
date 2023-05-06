@@ -13,6 +13,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func NewRedisCache() core.RedisCache {
+	return &redisCache{
+		c: conf.MustRedisClient(),
+	}
+}
+
 func NewBigCacheIndexService(ips core.IndexPostsService, ams core.AuthorizationManageService) (core.CacheIndexService, core.VersionInfo) {
 	s := conf.BigCacheIndexSetting
 	c := bigcache.DefaultConfig(s.ExpireInSecond)
@@ -21,32 +27,23 @@ func NewBigCacheIndexService(ips core.IndexPostsService, ams core.AuthorizationM
 	c.Verbose = s.Verbose
 	c.MaxEntrySize = 10000
 	c.Logger = logrus.StandardLogger()
-	cache, err := bigcache.NewBigCache(c)
+
+	bc, err := bigcache.NewBigCache(c)
 	if err != nil {
 		logrus.Fatalf("initial bigCahceIndex failure by err: %v", err)
 	}
+	cacheIndex := newCacheIndexSrv(ips, ams, &bigCacheTweetsCache{
+		bc: bc,
+	})
+	return cacheIndex, cacheIndex
+}
 
-	cacheIndex := &bigCacheIndexServant{
-		ips:             ips,
-		ams:             ams,
-		cache:           cache,
-		preventDuration: 10 * time.Second,
-	}
-
-	// indexActionCh capacity custom configure by conf.yaml need in [10, 10000]
-	// or re-compile source to adjust min/max capacity
-	capacity := conf.CacheIndexSetting.MaxUpdateQPS
-	if capacity < 10 {
-		capacity = 10
-	} else if capacity > 10000 {
-		capacity = 10000
-	}
-	cacheIndex.indexActionCh = make(chan *core.IndexAction, capacity)
-	cacheIndex.cachePostsCh = make(chan *postsEntry, capacity)
-
-	// 启动索引更新器
-	go cacheIndex.startIndexPosts()
-
+func NewRedisCacheIndexService(ips core.IndexPostsService, ams core.AuthorizationManageService) (core.CacheIndexService, core.VersionInfo) {
+	cacheIndex := newCacheIndexSrv(ips, ams, &redisCacheTweetsCache{
+		expireDuration: conf.RedisCacheIndexSetting.ExpireInSecond,
+		expireInSecond: int64(conf.RedisCacheIndexSetting.ExpireInSecond / time.Second),
+		c:              conf.MustRedisClient(),
+	})
 	return cacheIndex, cacheIndex
 }
 

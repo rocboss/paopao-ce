@@ -147,14 +147,14 @@
                 <post-video :videos="post.videos" :full="true" />
                 <post-link :links="post.links" />
                 <div class="timestamp">
-                    发布于 {{ formatRelativeTime(post.created_on) }}
+                    发布于 {{ formatPrettyTime(post.created_on) }}
                     <span v-if="post.ip_loc">
                         <n-divider vertical />
                         {{ post.ip_loc }}
                     </span>
-                    <span v-if="post.created_on != post.latest_replied_on">
+                    <span v-if="!store.state.collapsedLeft && post.created_on != post.latest_replied_on">
                         <n-divider vertical /> 最后回复
-                        {{ formatRelativeTime(post.latest_replied_on) }}
+                        {{ formatPrettyTime(post.latest_replied_on) }}
                     </span>
                 </div>
             </template>
@@ -187,6 +187,15 @@
                             </n-icon>
                             {{ post.collection_count }}
                         </div>
+                        <div
+                            class="opt-item hover"
+                            @click.stop="handlePostShare"
+                        >
+                            <n-icon size="20" class="opt-item-icon">
+                                <share-social-outline />
+                            </n-icon>
+                            {{ post.share_count }}
+                        </div>
                     </n-space>
                 </div>
             </template>
@@ -198,13 +207,14 @@
 import { ref, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { formatRelativeTime } from '@/utils/formatTime';
+import { formatPrettyTime } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
 import {
     Heart,
     HeartOutline,
     Bookmark,
     BookmarkOutline,
+    ShareSocialOutline,
     ChatboxOutline,
 } from '@vicons/ionicons5';
 import { MoreHorizFilled } from '@vicons/material';
@@ -220,6 +230,7 @@ import {
 } from '@/api/post';
 import type { DropdownOption } from 'naive-ui';
 import { VisibilityEnum } from '@/utils/IEnum';
+import copy from "copy-to-clipboard";
 
 const store = useStore();
 const router = useRouter();
@@ -515,6 +526,10 @@ const handlePostCollection = () => {
         .catch((err) => {
             console.log(err);
         });
+};
+const handlePostShare = () => {
+   copy(`${window.location.origin}/#/post?id=${post.value.id}`);
+   window.$message.success('链接已复制到剪贴板');
 };
 
 onMounted(() => {

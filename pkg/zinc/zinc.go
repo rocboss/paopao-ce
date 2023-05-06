@@ -5,13 +5,12 @@
 package zinc
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/cockroachdb/errors"
 	"github.com/go-resty/resty/v2"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/pkg/json"
 )
 
@@ -75,12 +74,12 @@ type HitItem struct {
 }
 
 // NewClient 获取ZincClient新实例
-func NewClient(conf *conf.ZincSettingS) *ZincClient {
+func NewClient(host, user, passwd string) *ZincClient {
 	return &ZincClient{
 		ZincClientConfig: &ZincClientConfig{
-			ZincHost:     conf.Endpoint(),
-			ZincUser:     conf.User,
-			ZincPassword: conf.Password,
+			ZincHost:     host,
+			ZincUser:     user,
+			ZincPassword: passwd,
 		},
 	}
 }

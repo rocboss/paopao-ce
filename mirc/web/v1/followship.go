@@ -12,8 +12,8 @@ func init() {
 
 // Followship 关注者模式 服务
 type Followship struct {
-	Chain Chain `mir:"-"`
-	Group Group `mir:"v1"`
+	Chain `mir:"-"`
+	Group `mir:"v1"`
 
 	// AddFollowing 添加关注
 	AddFollowing func(Post, web.AddFollowingReq) `mir:"/following/add"`

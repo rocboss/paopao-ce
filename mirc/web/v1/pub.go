@@ -12,7 +12,7 @@ func init() {
 
 // Pub 不用授权的公开服务
 type Pub struct {
-	Group Group `mir:"v1"`
+	Group `mir:"v1"`
 
 	// Version 获取后台版本信息
 	Version func(Get) web.VersionResp `mir:"/"`
@@ -31,10 +31,4 @@ type Pub struct {
 
 	// TweetDetail 获取动态详情
 	TweetDetail func(Get, web.TweetDetailReq) web.TweetDetailResp `mir:"/post"`
-
-	// TweetComments 获取动态评论
-	TweetComments func(Get, web.TweetCommentsReq) web.TweetCommentsResp `mir:"/post/comments"`
-
-	// TopicList 获取话题列表
-	TopicList func(Get, web.TopicListReq) web.TopicListResp `mir:"/tags"`
 }
