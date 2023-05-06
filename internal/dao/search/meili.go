@@ -59,12 +59,12 @@ func (s *meiliTweetSearchServant) IndexName() string {
 	return s.index.UID
 }
 
-func (s *meiliTweetSearchServant) AddDocuments(data []core.TsDocItem, primaryKey ...string) (bool, error) {
+func (s *meiliTweetSearchServant) AddDocuments(data []core.TsDocItem, _primaryKey ...string) (bool, error) {
 	docs := s.toDocs(data)
 	if len(docs) == 0 {
 		return true, nil
 	}
-	if _, err := s.index.AddDocuments(docs, primaryKey...); err != nil {
+	if _, err := s.index.AddDocuments(docs); err != nil {
 		logrus.Errorf("meiliTweetSearchServant.AddDocuments error: %s", err)
 		return false, err
 	}
