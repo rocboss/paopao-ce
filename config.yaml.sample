@@ -8,23 +8,23 @@ App: # APP基础设置项
 Server: # 服务设置
   RunMode: debug
   HttpIp: 0.0.0.0
-  HttpPort: 8008
+  HttpPort: 8010
   ReadTimeout: 60
   WriteTimeout: 60
 Features:
-  Default: ["Base", "MySQL", "Option", "Zinc", "LocalOSS", "LoggerFile", "Friendship", "Deprecated"]
+  Default: ["Web", "Frontend:EmbedWeb", "Zinc", "LocalOSS",  "MySQL", "BigCacheIndex", "LoggerZinc", "Friendship"]
   Develop: ["Base", "MySQL", "BigCacheIndex", "Meili", "Sms", "AliOSS", "LoggerMeili", "OSS:Retention"]
   Demo: ["Base", "MySQL", "Option", "Zinc", "Sms", "MinIO", "LoggerZinc", "Migration"]
   Slim: ["Base", "Sqlite3", "LocalOSS", "LoggerFile", "OSS:TempDir"]
   Base: ["Redis", "PhoneBind"]
   Docs: ["Docs:OpenAPI"]
   Deprecated: ["Deprecated:OldWeb"]
-  Service: ["Web", "Admin", "SpaceX", "Bot", "LocalOSS", "Mobile", "Frontend:Web", "Fronetend:EmbedWeb", "Docs"]
+  Service: ["Web", "Admin", "SpaceX", "Bot", "LocalOSS", "Mobile", "Frontend:Web", "Frontend:EmbedWeb", "Docs"]
   Option: ["SimpleCacheIndex"]
   Sms: "SmsJuhe"
 WebServer: # Web服务
   HttpIp: 0.0.0.0
-  HttpPort: 8010
+  HttpPort: 8008
   ReadTimeout: 60
   WriteTimeout: 60
 AdminServer: # Admin后台运维服务
@@ -84,7 +84,7 @@ BigCacheIndex: # 使用BigCache缓存泡泡广场消息流
 Logger: # 日志通用配置
   Level: debug # 日志级别 panic|fatal|error|warn|info|debug|trace
 LoggerFile: # 使用File写日志
-  SavePath: data/paopao-ce/logs
+  SavePath: custom/data/paopao-ce/logs
   FileName: app
   FileExt: .log
 LoggerZinc: # 使用Zinc写日志
@@ -154,7 +154,7 @@ S3: # Amazon S3 存储配置
   Bucket: paopao
   Domain: 
 LocalOSS: # 本地文件OSS存储配置
-  SavePath: data/paopao-ce/oss
+  SavePath: custom/data/paopao-ce/oss
   Secure: False
   Bucket: paopao
   Domain: 127.0.0.1:8008
@@ -179,9 +179,8 @@ Postgres: # PostgreSQL数据库
   SSLMode: disable
   TimeZone: Asia/Shanghai
 Sqlite3: # Sqlite3数据库
-  Path: data/sqlite3/paopao-ce.db
+  Path: custom/data/sqlite3/paopao-ce.db
 Redis:
-  Host: redis:6379
-  Password: 
-  DB: 
+  InitAddress:
+  - redis:6379
   

@@ -12,6 +12,19 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 )
 
+type TweetCommentThumbsReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	TweetId    int64 `json:"tweet_id" binding:"required"`
+	CommentId  int64 `json:"comment_id" binding:"required"`
+}
+
+type TweetReplyThumbsReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	TweetId    int64 `json:"tweet_id" binding:"required"`
+	CommentId  int64 `json:"comment_id" binding:"required"`
+	ReplyId    int64 `json:"reply_id" binding:"required"`
+}
+
 type PostContentItem struct {
 	Content string            `json:"content"  binding:"required"`
 	Type    core.PostContentT `json:"type"  binding:"required"`
@@ -144,6 +157,25 @@ type DownloadAttachmentReq struct {
 
 type DownloadAttachmentResp struct {
 	SignedURL string `json:"signed_url"`
+}
+
+type StickTopicReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	TopicId    int64 `json:"topic_id" binding:"required"`
+}
+
+type StickTopicResp struct {
+	StickStatus int8 `json:"top_status"`
+}
+
+type FollowTopicReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	TopicId    int64 `json:"topic_id" binding:"required"`
+}
+
+type UnfollowTopicReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	TopicId    int64 `json:"topic_id" binding:"required"`
 }
 
 // Check 检查PostContentItem属性

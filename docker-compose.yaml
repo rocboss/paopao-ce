@@ -13,7 +13,7 @@ services:
       - ./scripts/paopao-mysql.sql:/docker-entrypoint-initdb.d/paopao.sql
       - ./custom/data/mysql/data:/var/lib/mysql
     ports:
-      - 127.0.0.1::3306
+      - 3306:3306
     networks:
       - paopao-network
 
@@ -32,11 +32,22 @@ services:
   #   networks:
   #     - paopao-network
 
+  # redis:
+  #   image: redis:7.0-alpine
+  #   restart: always
+  #   ports:
+  #     - 6379:6379
+  #   networks:
+  #     - paopao-network
+
   redis:
-    image: redis:7.0-alpine
+    image: redis/redis-stack:7.0.6-RC8
     restart: always
     ports:
       - 6379:6379
+      - 8001:8001
+    environment:
+      REDISEARCH_ARGS: "MAXSEARCHRESULTS 5"
     networks:
       - paopao-network
   
@@ -56,7 +67,7 @@ services:
       - paopao-network
 
   # meili:
-  #   image: getmeili/meilisearch:v1.0
+  #   image: getmeili/meilisearch:v1.1
   #   restart: always
   #   ports:
   #     - 7700:7700
@@ -66,13 +77,14 @@ services:
   #     - MEILI_MASTER_KEY=paopao-meilisearch
   #   networks:
   #     - paopao-network
-  
-  # # a ui for managing your meilisearch instances
-  # uirecord:
-  #   image: bitriory/uirecord:latest
+
+  # pyroscope:
+  #   image: pyroscope/pyroscope:latest
   #   restart: always
   #   ports:
-  #     - 7701:3000
+  #     - 4040:4040
+  #   command:
+  #     - 'server'
   #   networks:
   #     - paopao-network
 
@@ -90,8 +102,7 @@ services:
       - paopao-network
 
   backend:
-    build:
-      context: .
+    image: bitbus/paopao-ce:nightly
     restart: always
     depends_on:
       - db
@@ -100,7 +111,7 @@ services:
     # modify below to reflect your custom configure
     volumes:
       - ./config.yaml.sample:/app/paopao-ce/config.yaml
-      - ./custom/data/paopao-ce/data:/app/paopao-ce/data
+      - ./custom:/app/paopao-ce/custom
     ports:
       - 8008:8008
     networks:

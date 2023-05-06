@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/pkg/errcode"
+	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
 
 type Response struct {
@@ -56,12 +56,12 @@ func (r *Response) ToResponseList(list any, totalRows int64) {
 	})
 }
 
-func (r *Response) ToErrorResponse(err *errcode.Error) {
-	response := gin.H{"code": err.Code(), "msg": err.Msg()}
+func (r *Response) ToErrorResponse(err *xerror.Error) {
+	response := gin.H{"code": err.StatusCode(), "msg": err.Msg()}
 	details := err.Details()
 	if len(details) > 0 {
 		response["details"] = details
 	}
 
-	r.Ctx.JSON(err.StatusCode(), response)
+	r.Ctx.JSON(xerror.HttpStatusCode(err), response)
 }

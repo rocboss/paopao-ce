@@ -1,0 +1,30 @@
+Features:
+  Default: ["Sqlite3", "Zinc", "LocalOSS", "LoggerFile", "BigCacheIndex", "Friendship", "Frontend:EmbedWeb", "Web"]
+BigCacheIndex: # 使用BigCache缓存泡泡广场消息流
+  MaxIndexPage: 1024            # 最大缓存页数，必须是2^n, 代表最大同时缓存多少页数据
+  HardMaxCacheSize: 256         # 最大缓存大小(MB)，0表示无限制
+WebServer: # Web服务
+  HttpIp: 0.0.0.0
+  HttpPort: 8008
+  ReadTimeout: 60
+  WriteTimeout: 60
+JWT: # 鉴权加密
+  Secret: 18a6413dc4fe394c66345ebe501b2f26
+  Issuer: paopao-api
+  Expire: 86400
+Zinc: # Zinc搜索配置
+  Host: 127.0.0.1:4080
+  Index: paopao-data
+  User: admin
+  Password: admin
+  Secure: False
+LocalOSS: # 本地文件OSS存储配置
+  SavePath: custom/data/oss
+  Secure: True
+  Bucket: paopao
+  Domain: api.alimy.me
+Sqlite3: # Sqlite3数据库
+  Path: custom/data/sqlite3/paopao-ce.db
+Redis:
+  InitAddress:
+  - 127.0.0.1:6379

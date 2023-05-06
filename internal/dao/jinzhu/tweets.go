@@ -293,7 +293,8 @@ func (s *tweetManageServant) VisiblePost(post *core.Post, visibility core.PostVi
 	tags := strings.Split(post.Tags, ",")
 	for _, t := range tags {
 		tag := &dbr.Tag{
-			Tag: t,
+			UserID: post.UserID,
+			Tag:    t,
 		}
 		// TODO: 暂时宽松不处理错误，这里或许可以有优化，后续完善
 		if oldVisibility == dbr.PostVisitPrivate {

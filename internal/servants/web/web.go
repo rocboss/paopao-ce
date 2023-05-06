@@ -18,19 +18,16 @@ import (
 )
 
 var (
-	_EnablePhoneVerify bool
-	_onceInitial       sync.Once
+	_enablePhoneVerify    bool
+	_disallowUserRegister bool
+	_onceInitial          sync.Once
 )
 
 // RouteWeb register web route
 func RouteWeb(e *gin.Engine) {
 	lazyInitial()
 	oss := dao.ObjectStorageService()
-	ds := &base.DaoServant{
-		Redis: conf.Redis,
-		Ds:    dao.DataService(),
-		Ts:    dao.TweetSearchService(),
-	}
+	ds := base.NewDaoServant()
 	// aways register servants
 	api.RegisterAdminServant(e, newAdminSrv(ds), newAdminBinding(), newAdminRender())
 	api.RegisterCoreServant(e, newCoreSrv(ds, oss), newCoreBinding(), newCoreRender())
@@ -78,6 +75,7 @@ func mustAlipayClient() *alipay.Client {
 // lazyInitial do some package lazy initialize for performance
 func lazyInitial() {
 	_onceInitial.Do(func() {
-		_EnablePhoneVerify = cfg.If("Sms")
+		_enablePhoneVerify = cfg.If("Sms")
+		_disallowUserRegister = cfg.If("Web:DisallowUserRegister")
 	})
 }

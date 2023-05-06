@@ -1,66 +1,89 @@
 <template>
-    <div class="post-item" @click="goPostDetail(post.id)">
+    <div class="post-item">
         <n-thing content-indented>
             <template #avatar>
                 <n-avatar round :size="30" :src="post.user.avatar" />
             </template>
             <template #header>
-                <span class="nickname-wrap">
-                    <router-link
-                        @click.stop
-                        class="username-link"
-                        :to="{
-                            name: 'user',
-                            query: { username: post.user.username },
-                        }"
+                    <span class="nickname-wrap">
+                        <router-link
+                            @click.stop
+                            class="username-link"
+                            :to="{
+                                name: 'user',
+                                query: { username: post.user.username },
+                            }"
+                        >
+                            {{ post.user.nickname }}
+                        </router-link>
+                    </span>
+                    <span class="username-wrap"> @{{ post.user.username }} </span>
+                    <n-tag
+                        v-if="post.is_top"
+                        class="top-tag"
+                        type="warning"
+                        size="small"
+                        round
                     >
-                        {{ post.user.nickname }}
-                    </router-link>
-                </span>
-                <span class="username-wrap"> @{{ post.user.username }} </span>
-                <n-tag
-                    v-if="post.is_top"
-                    class="top-tag"
-                    type="warning"
-                    size="small"
-                    round
-                >
-                    置顶
-                </n-tag>
-                <n-tag
-                    v-if="post.visibility == 1"
-                    class="top-tag"
-                    type="error"
-                    size="small"
-                    round
-                >
-                    私密
-                </n-tag>
-                <n-tag
-                    v-if="post.visibility == 2"
-                    class="top-tag"
-                    type="info"
-                    size="small"
-                    round
-                >
-                    好友可见
-                </n-tag>
+                        置顶
+                    </n-tag>
+                    <n-tag
+                        v-if="post.visibility == 1"
+                        class="top-tag"
+                        type="error"
+                        size="small"
+                        round
+                    >
+                        私密
+                    </n-tag>
+                    <n-tag
+                        v-if="post.visibility == 2"
+                        class="top-tag"
+                        type="info"
+                        size="small"
+                        round
+                    >
+                        好友可见
+                    </n-tag>
+                    <div v-if="!store.state.desktopModelShow">
+                        <span class="timestamp-mobile">
+                            {{ formatPrettyDate(post.created_on) }} {{ post.ip_loc }}
+                        </span>
+                    </div>
             </template>
             <template #header-extra>
-                <span class="timestamp">
-                    {{ post.ip_loc ? post.ip_loc + ' · ' : post.ip_loc }}
-                    {{ formatRelativeTime(post.created_on) }}
-                </span>
+                <div class="item-header-extra">
+                    <span v-if="store.state.desktopModelShow" class="timestamp">
+                        {{ post.ip_loc ? post.ip_loc + ' · ' : post.ip_loc }}
+                        {{ formatPrettyDate(post.created_on) }}
+                    </span>
+                    <n-dropdown v-if="!store.state.desktopModelShow"
+                        placement="bottom-end"
+                        trigger="click"
+                        size="small"
+                        :options="tweetOptions"
+                        @select="handleTweetAction"
+                    >
+                        <n-button quaternary circle>
+                            <template #icon>
+                                <n-icon>
+                                    <more-horiz-filled />
+                                </n-icon>
+                            </template>
+                        </n-button>
+                    </n-dropdown>
+                </div>
             </template>
             <template #description v-if="post.texts.length > 0">
-                <span
+                <div @click="goPostDetail(post.id)">
+                    <span
                     v-for="content in post.texts"
                     :key="content.id"
                     class="post-text"
                     @click.stop="doClickText($event, post.id)"
                     v-html="parsePostTag(content.content).content"
-                >
-                </span>
+                    ></span>
+                </div>
             </template>
 
             <template #footer>
@@ -90,7 +113,7 @@
                         </n-icon>
                         {{ post.upvote_count }}
                     </div>
-                    <div class="opt-item">
+                    <div class="opt-item" @click.stop="goPostDetail(post.id)">
                         <n-icon size="18" class="opt-item-icon">
                             <chatbox-outline />
                         </n-icon>
@@ -102,6 +125,12 @@
                         </n-icon>
                         {{ post.collection_count }}
                     </div>
+                    <!-- <div class="opt-item">
+                        <n-icon size="18" class="opt-item-icon">
+                            <share-social-outline />
+                        </n-icon>
+                        {{ post.share_count }}
+                    </div> -->
                 </n-space>
             </template>
         </n-thing>
@@ -111,14 +140,18 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+import type { DropdownOption } from 'naive-ui';
 import { useRoute, useRouter } from 'vue-router';
-import { formatRelativeTime } from '@/utils/formatTime';
+import { formatPrettyDate } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
 import {
     HeartOutline,
     BookmarkOutline,
     ChatboxOutline,
+    // ShareSocialOutline,
 } from '@vicons/ionicons5';
+import { MoreHorizFilled } from '@vicons/material';
+import copy from "copy-to-clipboard";
 
 const route = useRoute();
 const router = useRouter();
@@ -126,6 +159,29 @@ const store = useStore();
 const props = withDefaults(defineProps<{
     post: Item.PostProps,
 }>(), {});
+
+const tweetOptions = computed(() => {
+    let options: DropdownOption[] = [
+        {
+            label: '复制链接',
+            key: 'copyTweetLink',
+        },
+    ];
+    return options;
+});
+
+const handleTweetAction = (
+    item: 'copyTweetLink'
+) => {
+    switch (item) {
+        case 'copyTweetLink':
+            copy(`${window.location.origin}/#/post?id=${post.value.id}`);
+            window.$message.success('链接已复制到剪贴板');
+            break;
+        default:
+            break;
+    }
+};
 
 const post = computed(() => {
     let post: Item.PostComponentProps = Object.assign(
@@ -214,9 +270,18 @@ const doClickText = (e: MouseEvent, id: number) => {
     .top-tag {
         transform: scale(0.75);
     }
-    .timestamp {
+    .timestamp-mobile {
+        margin-top: 2px;
         opacity: 0.75;
-        font-size: 12px;
+        font-size: 11px;
+    }
+    .item-header-extra {
+        display: flex;
+        align-items: center;
+        opacity: 0.75;
+        .timestamp {
+            font-size: 12px;
+        }
     }
     .post-text {
         text-align: justify;
@@ -251,6 +316,7 @@ const doClickText = (e: MouseEvent, id: number) => {
         &:hover {
             background: #18181c;
         }
+        background-color: rgba(16, 16, 20, 0.75);
     }
 }
 </style>

@@ -9,6 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
@@ -149,6 +151,128 @@ func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfi
 	}, nil
 }
 
+func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error) {
+	var (
+		tags, extralTags []*core.TagFormated
+		err              error
+	)
+	num := req.Num
+	switch req.Type {
+	case web.TagTypeHot:
+		tags, err = s.Ds.GetHotTags(req.Uid, num, 0)
+	case web.TagTypeNew:
+		tags, err = s.Ds.GetNewestTags(req.Uid, num, 0)
+	case web.TagTypeFollow:
+		tags, err = s.Ds.GetFollowTags(req.Uid, num, 0)
+	case web.TagTypeHotExtral:
+		extralNum := req.ExtralNum
+		if extralNum <= 0 {
+			extralNum = num
+		}
+		tags, err = s.Ds.GetHotTags(req.Uid, num, 0)
+		if err == nil {
+			extralTags, err = s.Ds.GetFollowTags(req.Uid, extralNum, 0)
+		}
+	default:
+		// TODO: return good error
+		err = _errGetPostTagsFailed
+	}
+	if err != nil {
+		return nil, _errGetPostTagsFailed
+	}
+	return &web.TopicListResp{
+		Topics:       tags,
+		ExtralTopics: extralTags,
+	}, nil
+}
+
+func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsResp, mir.Error) {
+	sort := "id ASC"
+	if req.SortStrategy == "newest" {
+		sort = "id DESC"
+	}
+	conditions := &core.ConditionsT{
+		"post_id": req.TweetId,
+		"ORDER":   sort,
+	}
+
+	comments, err := s.Ds.GetComments(conditions, (req.Page-1)*req.PageSize, req.PageSize)
+	if err != nil {
+		return nil, _errGetCommentsFailed
+	}
+
+	userIDs := []int64{}
+	commentIDs := []int64{}
+	for _, comment := range comments {
+		userIDs = append(userIDs, comment.UserID)
+		commentIDs = append(commentIDs, comment.ID)
+	}
+
+	users, err := s.Ds.GetUsersByIDs(userIDs)
+	if err != nil {
+		return nil, _errGetCommentsFailed
+	}
+
+	contents, err := s.Ds.GetCommentContentsByIDs(commentIDs)
+	if err != nil {
+		return nil, _errGetCommentsFailed
+	}
+
+	replies, err := s.Ds.GetCommentRepliesByID(commentIDs)
+	if err != nil {
+		return nil, _errGetCommentsFailed
+	}
+
+	var commentThumbs, replyThumbs cs.CommentThumbsMap
+	if req.Uid > 0 {
+		commentThumbs, replyThumbs, err = s.Ds.GetCommentThumbsMap(req.Uid, req.TweetId)
+		if err != nil {
+			return nil, _errGetCommentsFailed
+		}
+	}
+
+	replyMap := make(map[int64][]*dbr.CommentReplyFormated)
+	if len(replyThumbs) > 0 {
+		for _, reply := range replies {
+			if thumbs, exist := replyThumbs[reply.ID]; exist {
+				reply.IsThumbsUp, reply.IsThumbsDown = thumbs.IsThumbsUp, thumbs.IsThumbsDown
+			}
+			replyMap[reply.CommentID] = append(replyMap[reply.CommentID], reply)
+		}
+	} else {
+		for _, reply := range replies {
+			replyMap[reply.CommentID] = append(replyMap[reply.CommentID], reply)
+		}
+	}
+
+	commentsFormated := []*core.CommentFormated{}
+	for _, comment := range comments {
+		commentFormated := comment.Format()
+		if thumbs, exist := commentThumbs[comment.ID]; exist {
+			commentFormated.IsThumbsUp, commentFormated.IsThumbsDown = thumbs.IsThumbsUp, thumbs.IsThumbsDown
+		}
+		for _, content := range contents {
+			if content.CommentID == comment.ID {
+				commentFormated.Contents = append(commentFormated.Contents, content)
+			}
+		}
+		if replySlice, exist := replyMap[commentFormated.ID]; exist {
+			commentFormated.Replies = replySlice
+		}
+		for _, user := range users {
+			if user.ID == comment.UserID {
+				commentFormated.User = user.Format()
+			}
+		}
+		commentsFormated = append(commentsFormated, commentFormated)
+	}
+
+	// 获取总量
+	totalRows, _ := s.Ds.GetCommentCount(conditions)
+	resp := base.PageRespFrom(commentsFormated, req.Page, req.PageSize, totalRows)
+	return (*web.TweetCommentsResp)(resp), nil
+}
+
 func newLooseSrv(s *base.DaoServant) api.Loose {
 	return &looseSrv{
 		DaoServant: s,
@@ -158,7 +282,7 @@ func newLooseSrv(s *base.DaoServant) api.Loose {
 func newLooseBinding() api.LooseBinding {
 	return &looseBinding{
 		UnimplementedLooseBinding: &api.UnimplementedLooseBinding{
-			BindAny: base.BindAny,
+			BindAny: base.NewBindAnyFn(),
 		},
 	}
 }

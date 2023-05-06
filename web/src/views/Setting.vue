@@ -772,4 +772,9 @@ onMounted(() => {
         }
     }
 }
+.dark {
+    .setting-card {
+        background-color: rgba(16, 16, 20, 0.75);
+    }
+}
 </style>

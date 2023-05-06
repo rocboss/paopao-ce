@@ -15,7 +15,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model/web"
-	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
 )
@@ -89,13 +89,13 @@ func checkPassword(password string) mir.Error {
 
 // ValidPassword 检查密码是否一致
 func validPassword(dbPassword, password, salt string) bool {
-	return strings.Compare(dbPassword, util.EncodeMD5(util.EncodeMD5(password)+salt)) == 0
+	return strings.Compare(dbPassword, utils.EncodeMD5(utils.EncodeMD5(password)+salt)) == 0
 }
 
 // encryptPasswordAndSalt 密码加密&生成salt
 func encryptPasswordAndSalt(password string) (string, string) {
 	salt := uuid.Must(uuid.NewV4()).String()[:8]
-	password = util.EncodeMD5(util.EncodeMD5(password) + salt)
+	password = utils.EncodeMD5(utils.EncodeMD5(password) + salt)
 	return password, salt
 }
 
@@ -163,7 +163,10 @@ func getFileExt(s string) (string, mir.Error) {
 		return ".mp4", nil
 	case "video/quicktime":
 		return ".mov", nil
-	case "application/zip":
+	case "application/zip",
+		"application/x-zip",
+		"application/octet-stream",
+		"application/x-zip-compressed":
 		return ".zip", nil
 	default:
 		return "", _errFileInvalidExt.WithDetails("仅允许 png/jpg/gif/mp4/mov/zip 类型")

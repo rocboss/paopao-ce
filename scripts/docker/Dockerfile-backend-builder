@@ -1,0 +1,5 @@
+FROM golang:1.20-alpine
+RUN apk --no-cache --no-progress add --virtual \
+  build-deps \
+  build-base \
+  git

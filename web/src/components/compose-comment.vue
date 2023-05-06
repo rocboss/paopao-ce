@@ -129,7 +129,18 @@
             <div class="login-wrap">
                 <span class="login-banner"> 登录后，精彩更多</span>
             </div>
-            <div class="login-wrap">
+            <div v-if="!allowUserRegister" class="login-only-wrap">
+                <n-button
+                    strong
+                    secondary
+                    round
+                    type="primary"
+                    @click="triggerAuth('signin')"
+                >
+                    登录
+                </n-button>
+            </div>
+            <div v-if="allowUserRegister" class="login-wrap">
                 <n-button
                     strong
                     secondary
@@ -191,6 +202,7 @@ const uploadRef = ref<UploadInst>();
 const uploadType = ref('public/image');
 const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
+const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
 
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = ref();
@@ -398,6 +410,15 @@ onMounted(() => {
             }
         }
     }
+    .login-only-wrap {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        button {
+            margin: 0 4px;
+            width: 50%
+        }
+    }
     .login-wrap {
         display: flex;
         justify-content: center;
@@ -426,6 +447,14 @@ onMounted(() => {
     margin-left: 42px;
     .n-upload-file-info__thumbnail {
         overflow: hidden;
+    }
+}
+.dark {
+    .compose-mention {
+        background-color: rgba(16, 16, 20, 0.75);
+    }
+    .compose-wrap {
+        background-color: rgba(16, 16, 20, 0.75);
     }
 }
 </style>

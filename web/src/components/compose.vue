@@ -170,10 +170,10 @@
                                     :show-indicator="false"
                                     status="success"
                                     :stroke-width="10"
-                                    :percentage="(content.length / 200) * 100"
+                                    :percentage="(content.length / defaultTweetMaxLength) * 100"
                                 />
                             </template>
-                            {{ content.length }} / 200
+                            {{ content.length }} / {{ defaultTweetMaxLength }}
                         </n-tooltip>
 
                         <n-button
@@ -238,7 +238,18 @@
             <div class="login-wrap">
                 <span class="login-banner"> 登录后，精彩更多</span>
             </div>
-            <div class="login-wrap">
+            <div v-if="!allowUserRegister" class="login-only-wrap">
+                <n-button
+                    strong
+                    secondary
+                    round
+                    type="primary"
+                    @click="triggerAuth('signin')"
+                >
+                    登录
+                </n-button>
+            </div>
+            <div v-if="allowUserRegister" class="login-wrap">
                 <n-button
                     strong
                     secondary
@@ -278,6 +289,7 @@ import {
 } from '@vicons/ionicons5';
 import { createPost } from '@/api/post';
 import { parsePostTag } from '@/utils/content';
+import { isZipFile } from '@/utils/isZipFile';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
 import { VisibilityEnum, PostItemTypeEnum } from '@/utils/IEnum';
 
@@ -312,10 +324,12 @@ const visibilities = [
     , {value: VisibilityEnum.FRIEND, label: "好友可见"}
 ];
 
-const allowTweetVideo = (import.meta.env.VITE_ALLOW_TWEET_VIDEO.toLocaleLowerCase() === 'true')
-const allowTweetAttachment = (import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT.toLocaleLowerCase() === 'true')
-const allowTweetAttachmentPrice = (import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT_PRICE.toLocaleLowerCase() === 'true')
-const allowTweetVisibility = (import.meta.env.VITE_ALLOW_TWEET_VISIBILITY.toLocaleLowerCase() === 'true')
+const defaultTweetMaxLength = Number(import.meta.env.VITE_DEFAULT_TWEET_MAX_LENGTH)
+const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
+const allowTweetVideo = ref(import.meta.env.VITE_ALLOW_TWEET_VIDEO.toLowerCase() === 'true')
+const allowTweetAttachment = ref(import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT.toLowerCase() === 'true')
+const allowTweetAttachmentPrice = ref(import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT_PRICE.toLowerCase() === 'true')
+const allowTweetVisibility = ref(import.meta.env.VITE_ALLOW_TWEET_VISIBILITY.toLowerCase() === 'true')
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = ref();
 
@@ -387,7 +401,7 @@ const handleSearch = (k: string, prefix: string) => {
     }
 };
 const changeContent = (v: string) => {
-    if (v.length > 200) {
+    if (v.length > defaultTweetMaxLength) {
         return;
     }
     content.value = v;
@@ -432,11 +446,9 @@ const beforeUpload = async (data: any) => {
         window.$message.warning('视频大小不能超过100MB');
         return false;
     }
-
     // 附件类型校验
     if (
-        uploadType.value === 'attachment' &&
-        !['application/zip'].includes(data.file.file?.type)
+        uploadType.value === 'attachment' && !(await isZipFile(data.file.file))
     ) {
         window.$message.warning('附件仅允许 zip 格式');
         return false;
@@ -652,6 +664,15 @@ onMounted(() => {
     .eye-wrap {
         margin-left: 64px;
     }
+    .login-only-wrap {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        button {
+            margin: 0 4px;
+            width: 50%
+        }
+    }
     .login-wrap {
         display: flex;
         justify-content: center;
@@ -670,6 +691,11 @@ onMounted(() => {
     margin-left: 42px;
     .n-upload-file-info__thumbnail {
         overflow: hidden;
+    }
+}
+.dark {
+    .compose-wrap {
+        background-color: rgba(16, 16, 20, 0.75);
     }
 }
 </style>

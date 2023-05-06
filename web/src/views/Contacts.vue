@@ -3,14 +3,6 @@
         <main-nav title="好友" />
 
         <n-list class="main-content-wrap" bordered>
-
-            <template #footer>
-                <div class="pagination-wrap" v-if="totalPage > 1">
-                    <n-pagination :page="page" @update:page="updatePage"
-                        :page-slot="!store.state.collapsedRight ? 8 : 5" :page-count="totalPage" />
-                </div>
-            </template>
-
             <div v-if="loading" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />
             </div>
@@ -26,6 +18,14 @@
                 </n-list-item>
             </div>
         </n-list>
+    </div>
+
+    <div class="pagination-wrap" v-if="totalPage > 0">
+        <n-pagination 
+            :page="page" 
+            @update:page="updatePage"
+            :page-slot="!store.state.collapsedRight ? 8 : 5" 
+            :page-count="totalPage" />
     </div>
 </template>
 
@@ -84,5 +84,10 @@ const loadContacts = (scrollToBottom: boolean = false) => {
     display: flex;
     justify-content: center;
     overflow: hidden;
+}
+.dark {
+    .main-content-wrap, .empty-wrap, .skeleton-wrap {
+        background-color: rgba(16, 16, 20, 0.75);
+    }
 }
 </style>

@@ -49,6 +49,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	pvs := security.NewPhoneVerifyService()
 	ams := NewAuthorizationManageService()
 	ths := newTweetHelpService(db)
+	ums := newUserManageService(db)
 
 	// initialize core.IndexPostsService
 	if cfg.If("Friendship") {
@@ -63,23 +64,30 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	}
 
 	// initialize core.CacheIndexService
-	if cfg.If("SimpleCacheIndex") {
-		// simpleCache use special post index service
-		ips = newSimpleIndexPostsService(db, ths)
-		cis, v = cache.NewSimpleCacheIndexService(ips)
-	} else if cfg.If("BigCacheIndex") {
-		// TODO: make cache index post in different scence like friendship/followship/lightship
-		cis, v = cache.NewBigCacheIndexService(ips, ams)
-	} else {
+	cfg.On(cfg.Actions{
+		"SimpleCacheIndex": func() {
+			// simpleCache use special post index service
+			ips = newSimpleIndexPostsService(db, ths)
+			cis, v = cache.NewSimpleCacheIndexService(ips)
+		},
+		"BigCacheIndex": func() {
+			// TODO: make cache index post in different scence like friendship/followship/lightship
+			cis, v = cache.NewBigCacheIndexService(ips, ams)
+		},
+		"RedisCacheIndex": func() {
+			cis, v = cache.NewRedisCacheIndexService(ips, ams)
+		},
+	}, func() {
+		// defualt no cache
 		cis, v = cache.NewNoneCacheIndexService(ips)
-	}
+	})
 	logrus.Infof("use %s as cache index service by version: %s", v.Name(), v.Version())
 
 	ds := &dataServant{
 		IndexPostsService:      cis,
 		WalletService:          newWalletService(db),
 		MessageService:         newMessageService(db),
-		TopicService:           newTopicService(db),
+		TopicService:           newTopicService(db, ums),
 		TweetService:           newTweetService(db),
 		TweetManageService:     newTweetManageService(db, cis),
 		TweetHelpService:       newTweetHelpService(db),

@@ -20,7 +20,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
 	"github.com/rocboss/paopao-ce/pkg/convert"
-	"github.com/rocboss/paopao-ce/pkg/util"
+	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
 )
@@ -141,6 +141,65 @@ func (s *privBinding) BindCreateComment(c *gin.Context) (*web.CreateCommentReq, 
 
 func (s *privSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT(), chain.Priv()}
+}
+
+func (s *privSrv) ThumbsDownTweetReply(req *web.TweetReplyThumbsReq) mir.Error {
+	if err := s.Ds.ThumbsDownReply(req.Uid, req.TweetId, req.CommentId, req.ReplyId); err != nil {
+		logrus.Errorf("thumbs down tweet reply error: %s req:%v", err, req)
+		return _errThumbsDownTweetReply
+	}
+	return nil
+}
+
+func (s *privSrv) ThumbsUpTweetReply(req *web.TweetReplyThumbsReq) mir.Error {
+	if err := s.Ds.ThumbsUpReply(req.Uid, req.TweetId, req.CommentId, req.ReplyId); err != nil {
+		logrus.Errorf("thumbs up tweet reply error: %s req:%v", err, req)
+		return _errThumbsUpTweetReply
+	}
+	return nil
+}
+
+func (s *privSrv) ThumbsDownTweetComment(req *web.TweetCommentThumbsReq) mir.Error {
+	if err := s.Ds.ThumbsDownComment(req.Uid, req.TweetId, req.CommentId); err != nil {
+		logrus.Errorf("thumbs down tweet comment error: %s req:%v", err, req)
+		return _errThumbsDownTweetComment
+	}
+	return nil
+}
+
+func (s *privSrv) ThumbsUpTweetComment(req *web.TweetCommentThumbsReq) mir.Error {
+	if err := s.Ds.ThumbsUpComment(req.Uid, req.TweetId, req.CommentId); err != nil {
+		logrus.Errorf("thumbs up tweet comment error: %s req:%v", err, req)
+		return _errThumbsUpTweetComment
+	}
+	return nil
+}
+
+func (s *privSrv) UnfollowTopic(req *web.UnfollowTopicReq) mir.Error {
+	if err := s.Ds.UnfollowTopic(req.Uid, req.TopicId); err != nil {
+		logrus.Errorf("user(%d) unfollow topic(%d) failed: %s", req.Uid, req.TopicId, err)
+		return _errUnfollowTopicFailed
+	}
+	return nil
+}
+
+func (s *privSrv) FollowTopic(req *web.FollowTopicReq) mir.Error {
+	if err := s.Ds.FollowTopic(req.Uid, req.TopicId); err != nil {
+		logrus.Errorf("user(%d) follow topic(%d) failed: %s", req.Uid, req.TopicId, err)
+		return _errFollowTopicFailed
+	}
+	return nil
+}
+
+func (s *privSrv) StickTopic(req *web.StickTopicReq) (*web.StickTopicResp, mir.Error) {
+	status, err := s.Ds.StickTopic(req.Uid, req.TopicId)
+	if err != nil {
+		logrus.Errorf("user(%d) stick topic(%d) failed: %s", req.Uid, req.TopicId, err)
+		return nil, _errStickTopicFailed
+	}
+	return &web.StickTopicResp{
+		StickStatus: status,
+	}, nil
 }
 
 func (s *privSrv) UploadAttachment(req *web.UploadAttachmentReq) (*web.UploadAttachmentResp, mir.Error) {
@@ -270,7 +329,7 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 		UserID:          req.User.ID,
 		Tags:            strings.Join(tags, ","),
 		IP:              req.ClientIP,
-		IPLoc:           util.GetIPLoc(req.ClientIP),
+		IPLoc:           utils.GetIPLoc(req.ClientIP),
 		AttachmentPrice: req.AttachmentPrice,
 		Visibility:      req.Visibility,
 	}
@@ -407,7 +466,7 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.Creat
 		Content:   req.Content,
 		AtUserID:  atUserID,
 		IP:        req.ClientIP,
-		IPLoc:     util.GetIPLoc(req.ClientIP),
+		IPLoc:     utils.GetIPLoc(req.ClientIP),
 	}
 
 	reply, err = s.Ds.CreateCommentReply(reply)
@@ -522,7 +581,7 @@ func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateComment
 		PostID: post.ID,
 		UserID: req.Uid,
 		IP:     req.ClientIP,
-		IPLoc:  util.GetIPLoc(req.ClientIP),
+		IPLoc:  utils.GetIPLoc(req.ClientIP),
 	}
 	comment, err = s.Ds.CreateComment(comment)
 	if err != nil {
@@ -745,14 +804,14 @@ func (s *privSrv) createPostPreHandler(commentID int64, userID, atUserID int64) 
 }
 
 func (s *privSrv) createPostStar(postID, userID int64) (*core.PostStar, mir.Error) {
-	// 加载Post
 	post, err := s.Ds.GetPostByID(postID)
 	if err != nil {
 		return nil, xerror.ServerError
 	}
 
 	// 私密post不可操作
-	if post.Visibility == core.PostVisitPrivate {
+	// TODO: 使用统一的permission checker来检查权限问题，这里好友可见post就没处理，是bug
+	if post.Visibility == core.PostVisitPrivate && post.UserID != userID {
 		return nil, _errNoPermission
 	}
 
@@ -767,24 +826,23 @@ func (s *privSrv) createPostStar(postID, userID int64) (*core.PostStar, mir.Erro
 
 	// 更新索引
 	s.PushPostToSearch(post)
-
 	return star, nil
 }
 
 func (s *privSrv) deletePostStar(star *core.PostStar) mir.Error {
-	err := s.Ds.DeletePostStar(star)
-	if err != nil {
-		return xerror.ServerError
-	}
-	// 加载Post
 	post, err := s.Ds.GetPostByID(star.PostID)
 	if err != nil {
 		return xerror.ServerError
 	}
 
-	// 私密post不可操作
-	if post.Visibility == core.PostVisitPrivate {
+	// 私密post特殊处理
+	// TODO: 使用统一的permission checker来检查权限问题，这里好友可见post就没处理，是bug
+	if post.Visibility == core.PostVisitPrivate && post.UserID != star.UserID {
 		return _errNoPermission
+	}
+
+	if err = s.Ds.DeletePostStar(star); err != nil {
+		return xerror.ServerError
 	}
 
 	// 更新Post点赞数
@@ -793,19 +851,18 @@ func (s *privSrv) deletePostStar(star *core.PostStar) mir.Error {
 
 	// 更新索引
 	s.PushPostToSearch(post)
-
 	return nil
 }
 
 func (s *privSrv) createPostCollection(postID, userID int64) (*core.PostCollection, mir.Error) {
-	// 加载Post
 	post, err := s.Ds.GetPostByID(postID)
 	if err != nil {
 		return nil, xerror.ServerError
 	}
 
-	// 私密post不可操作
-	if post.Visibility == core.PostVisitPrivate {
+	// 私密post特殊处理
+	// TODO: 使用统一的permission checker来检查权限问题，这里好友可见post就没处理，是bug
+	if post.Visibility == core.PostVisitPrivate && post.UserID != userID {
 		return nil, _errNoPermission
 	}
 
@@ -820,24 +877,22 @@ func (s *privSrv) createPostCollection(postID, userID int64) (*core.PostCollecti
 
 	// 更新索引
 	s.PushPostToSearch(post)
-
 	return collection, nil
 }
 
 func (s *privSrv) deletePostCollection(collection *core.PostCollection) mir.Error {
-	err := s.Ds.DeletePostCollection(collection)
-	if err != nil {
-		return xerror.ServerError
-	}
-	// 加载Post
 	post, err := s.Ds.GetPostByID(collection.PostID)
 	if err != nil {
 		return xerror.ServerError
 	}
 
-	// 私密post不可操作
-	if post.Visibility == core.PostVisitPrivate {
+	// 私密post特殊处理
+	// TODO: 使用统一的permission checker来检查权限问题，这里好友可见post就没处理，是bug
+	if post.Visibility == core.PostVisitPrivate && post.UserID != collection.UserID {
 		return _errNoPermission
+	}
+	if err = s.Ds.DeletePostCollection(collection); err != nil {
+		return xerror.ServerError
 	}
 
 	// 更新Post点赞数
@@ -846,7 +901,6 @@ func (s *privSrv) deletePostCollection(collection *core.PostCollection) mir.Erro
 
 	// 更新索引
 	s.PushPostToSearch(post)
-
 	return nil
 }
 
@@ -877,7 +931,7 @@ func newPrivSrv(s *base.DaoServant, oss core.ObjectStorageService) api.Priv {
 func newPrivBinding() api.PrivBinding {
 	return &privBinding{
 		UnimplementedPrivBinding: &api.UnimplementedPrivBinding{
-			BindAny: base.BindAny,
+			BindAny: base.NewBindAnyFn(),
 		},
 	}
 }

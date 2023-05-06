@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/alimy/cfg"
-	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -20,22 +19,21 @@ import (
 )
 
 var (
-	db    *gorm.DB
-	Redis *redis.Client
-	once  sync.Once
+	_gormDB   *gorm.DB
+	_onceGorm sync.Once
 )
 
 func MustGormDB() *gorm.DB {
-	once.Do(func() {
+	_onceGorm.Do(func() {
 		var err error
-		if db, err = newDBEngine(); err != nil {
+		if _gormDB, err = newGormDB(); err != nil {
 			logrus.Fatalf("new gorm db failed: %s", err)
 		}
 	})
-	return db
+	return _gormDB
 }
 
-func newDBEngine() (*gorm.DB, error) {
+func newGormDB() (*gorm.DB, error) {
 	newLogger := logger.New(
 		logrus.StandardLogger(), // io writer（日志输出的目标，前缀和日志包含的内容）
 		logger.Config{
@@ -83,12 +81,4 @@ func newDBEngine() (*gorm.DB, error) {
 	}
 
 	return db, err
-}
-
-func setupDBEngine() {
-	Redis = redis.NewClient(&redis.Options{
-		Addr:     redisSetting.Host,
-		Password: redisSetting.Password,
-		DB:       redisSetting.DB,
-	})
 }
