@@ -8,7 +8,7 @@
                 target="_blank"
                 @click.stop
             >
-                <span class="link-txt">{{ link.content }}</span>
+                <span class="link-txt" :style="{ maxWidth: maxWidth + 'px' }">{{ link.content }}</span>
             </a>
         </div>
     </div>
@@ -18,6 +18,7 @@
 import { LinkOutline } from '@vicons/ionicons5';
 const props = withDefaults(defineProps<{
     links: Item.PostItemProps[]
+    maxWidth: number
 }>(), {
     links: () => []
 });
@@ -26,6 +27,7 @@ const props = withDefaults(defineProps<{
 <style lang="less" scoped>
 .link-wrap {
     margin-bottom: 10px;
+    position: relative;
     .link-item {
         display: flex;
         align-items: center;
@@ -33,6 +35,11 @@ const props = withDefaults(defineProps<{
             .link-txt {
                 margin-left: 4px;
                 word-break: break-all;
+                display: inline-block;
+                width: auto;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
             }
         }
     }
