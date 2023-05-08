@@ -1,5 +1,5 @@
 <template>
-    <div class="post-item" @click="goPostDetail(post.id)">
+    <div class="post-item">
         <n-thing content-indented>
             <template #avatar>
                 <n-avatar round :size="30" :src="post.user.avatar" />
@@ -45,23 +45,40 @@
                     >
                         好友可见
                     </n-tag>
+                    <div>
+                        <span class="timestamp-mobile">
+                            {{ formatPrettyDate(post.created_on) }} {{ post.ip_loc }}
+                        </span>
+                    </div>
             </template>
             <template #header-extra>
                 <div class="item-header-extra">
-                    <span class="timestamp">
-                        {{ post.ip_loc ? post.ip_loc + ' · ' : post.ip_loc }}
-                        {{ formatPrettyDate(post.created_on) }}
-                    </span>
+                    <n-dropdown
+                        placement="bottom-end"
+                        trigger="click"
+                        size="small"
+                        :options="tweetOptions"
+                        @select="handleTweetAction"
+                    >
+                        <n-button quaternary circle>
+                            <template #icon>
+                                <n-icon>
+                                    <more-horiz-filled />
+                                </n-icon>
+                            </template>
+                        </n-button>
+                    </n-dropdown>
                 </div>
             </template>
             <template #description v-if="post.texts.length > 0">
-                <span
-                    v-for="content in post.texts"
-                    :key="content.id"
-                    class="post-text"
-                    @click.stop="doClickText($event, post.id)"
-                    v-html="parsePostTag(content.content).content"
-                ></span>
+                <div @click="goPostDetail(post.id)">
+                    <span v-for="content in post.texts"
+                        :key="content.id"
+                        class="post-text"
+                        @click.stop="doClickText($event, post.id)"
+                        v-html="parsePostTag(content.content).content"
+                    ></span>
+                </div>
             </template>
 
             <template #footer>
@@ -112,6 +129,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+import type { DropdownOption } from 'naive-ui';
 import { useRouter } from 'vue-router';
 import { formatPrettyDate } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
@@ -120,12 +138,37 @@ import {
     BookmarkOutline,
     ChatboxOutline,
 } from '@vicons/ionicons5';
+import { MoreHorizFilled } from '@vicons/material';
+import copy from "copy-to-clipboard";
 
 const router = useRouter();
 const store = useStore();
 const props = withDefaults(defineProps<{
     post: Item.PostProps,
 }>(), {});
+
+const tweetOptions = computed(() => {
+    let options: DropdownOption[] = [
+        {
+            label: '复制链接',
+            key: 'copyTweetLink',
+        },
+    ];
+    return options;
+});
+
+const handleTweetAction = async (
+    item: 'copyTweetLink'
+) => {
+    switch (item) {
+        case 'copyTweetLink':
+            copy(`${window.location.origin}/#/post?id=${post.value.id}`);
+            window.$message.success('链接已复制到剪贴板');
+            break;
+        default:
+            break;
+    }
+};
 
 const post = computed(() => {
     let post: Item.PostComponentProps = Object.assign(
@@ -213,6 +256,11 @@ const doClickText = (e: MouseEvent, id: number) => {
 
     .top-tag {
         transform: scale(0.75);
+    }
+    .timestamp-mobile {
+        margin-top: 2px;
+        opacity: 0.75;
+        font-size: 11px;
     }
     .item-header-extra {
         display: flex;
