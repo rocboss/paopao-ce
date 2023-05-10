@@ -403,9 +403,10 @@ const handleSearch = (k: string, prefix: string) => {
 };
 const changeContent = (v: string) => {
     if (v.length > defaultTweetMaxLength) {
-        return;
+        content.value = v.substring(0, defaultTweetMaxLength);
+    } else {
+        content.value = v
     }
-    content.value = v;
 };
 const setUploadType = (type: string) => {
     uploadType.value = type;
