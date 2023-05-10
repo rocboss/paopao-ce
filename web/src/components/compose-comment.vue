@@ -89,10 +89,10 @@
                                     :show-indicator="false"
                                     status="success"
                                     :stroke-width="10"
-                                    :percentage="(content.length / 200) * 100"
+                                    :percentage="(content.length / defaultCommentMaxLength) * 100"
                                 />
                             </template>
-                            {{ content.length }} / 200
+                            {{ content.length }} / {{ defaultCommentMaxLength }}
                         </n-tooltip>
                     </div>
 
@@ -204,6 +204,7 @@ const uploadType = ref('public/image');
 const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
 const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
+const defaultCommentMaxLength = Number(import.meta.env.VITE_DEFAULT_COMMENT_MAX_LENGTH)
 
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = ref();

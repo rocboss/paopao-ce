@@ -44,7 +44,7 @@
                     props.atUsername
                         ? '@' + props.atUsername
                         : '请输入回复内容..'
-                " maxlength="100" v-model:value="replyContent" show-count clearable />
+                " :maxlength="defaultReplyMaxLength" v-model:value="replyContent" show-count clearable />
                 <n-button type="primary" size="small" ghost :loading="submitting" @click="submitReply">
                     回复
                 </n-button>
@@ -85,6 +85,7 @@ const showReply = ref(false);
 const replyContent = ref('');
 const submitting = ref(false);
 
+const defaultReplyMaxLength = Number(import.meta.env.VITE_DEFAULT_REPLY_MAX_LENGTH)
 const hasThumbsUp = ref(props.comment.is_thumbs_up == YesNoEnum.YES)
 const hasThumbsDown = ref(props.comment.is_thumbs_down == YesNoEnum.YES)
 const thumbsUpCount = ref(props.comment.thumbs_up_count)
