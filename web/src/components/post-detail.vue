@@ -1,5 +1,5 @@
 <template>
-    <div class="detail-item" @click="goPostDetail(post.id)" ref="parrentElem">
+    <div class="detail-item" @click="goPostDetail(post.id)">
         <n-thing>
             <template #avatar>
                 <n-avatar round :size="30" :src="post.user.avatar" />
@@ -145,7 +145,7 @@
                 />
                 <post-image :imgs="post.imgs" />
                 <post-video :videos="post.videos" :full="true" />
-                <post-link :links="post.links" :maxWidth="linkMaxWidth" />
+                <post-link :links="post.links" />
                 <div class="timestamp">
                     发布于 {{ formatPrettyTime(post.created_on) }}
                     <span v-if="post.ip_loc">
@@ -236,8 +236,6 @@ const store = useStore();
 const router = useRouter();
 const hasStarred = ref(false);
 const hasCollected = ref(false);
-const parrentElem = ref<HTMLElement | null>(null);
-const linkMaxWidth = ref(0)
 const props = withDefaults(
     defineProps<{
         post: Item.PostProps;
@@ -555,12 +553,6 @@ onMounted(() => {
             .catch((err) => {
                 console.log(err);
             });
-    }
-    linkMaxWidth.value = parrentElem.value?.clientWidth || 0
-    if (linkMaxWidth.value > 0) {
-        linkMaxWidth.value *= 0.86
-    } else {
-        linkMaxWidth.value = 465
     }
 });
 </script>

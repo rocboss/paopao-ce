@@ -1,5 +1,5 @@
 <template>
-    <div class="post-item" @click="goPostDetail(post.id)" ref="parrentElem">
+    <div class="post-item" @click="goPostDetail(post.id)">
         <n-thing content-indented>
             <template #avatar>
                 <n-avatar round :size="30" :src="post.user.avatar" />
@@ -81,7 +81,7 @@
                     :videos="post.videos" />
                 <post-link
                     v-if="post.links.length > 0"
-                    :links="post.links" :maxWidth="linkMaxWidth"/>
+                    :links="post.links" />
             </template>
             <template #action>
                 <n-space justify="space-between">
@@ -110,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { formatPrettyDate } from '@/utils/formatTime';
@@ -123,8 +123,6 @@ import {
 
 const router = useRouter();
 const store = useStore();
-const parrentElem = ref<HTMLElement | null>(null);
-const linkMaxWidth = ref(0)
 const props = withDefaults(defineProps<{
     post: Item.PostProps,
 }>(), {});
@@ -197,14 +195,6 @@ const doClickText = (e: MouseEvent, id: number) => {
     }
     goPostDetail(id);
 };
-onMounted(() => {
-    linkMaxWidth.value = parrentElem.value?.clientWidth || 0
-    if (linkMaxWidth.value > 0) {
-        linkMaxWidth.value *= 0.78
-    } else {
-        linkMaxWidth.value = 422
-    }
-});
 </script>
 
 <style lang="less">

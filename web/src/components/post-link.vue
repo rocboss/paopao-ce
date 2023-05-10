@@ -2,14 +2,11 @@
     <div class="link-wrap">
         <div class="link-item" v-for="link in props.links" :key="link.id">
             <n-icon class="hash-link"><link-outline /></n-icon>
-            <a
-                :href="link.content"
-                class="hash-link"
-                target="_blank"
-                @click.stop
-            >
-                <span class="link-txt" :style="{ maxWidth: maxWidth + 'px' }">{{ link.content }}</span>
-            </a>
+            <div class="link-txt-wrap">
+                <a :href="link.content" class="hash-link" target="_blank" @click.stop>
+                    <span class="link-txt">{{ link.content }}</span>  
+                </a>
+            </div>
         </div>
     </div>
 </template>
@@ -18,7 +15,6 @@
 import { LinkOutline } from '@vicons/ionicons5';
 const props = withDefaults(defineProps<{
     links: Item.PostItemProps[]
-    maxWidth: number
 }>(), {
     links: () => []
 });
@@ -29,17 +25,21 @@ const props = withDefaults(defineProps<{
     margin-bottom: 10px;
     position: relative;
     .link-item {
+        height: 22px;
         display: flex;
         align-items: center;
-        .hash-link {
-            .link-txt {
-                margin-left: 4px;
-                word-break: break-all;
-                display: inline-block;
-                width: auto;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
+        position: relative;
+        .link-txt-wrap {
+            left: calc(1em + 4px);
+            width: calc(100% - 1em);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            position: absolute;
+            .hash-link {
+                .link-txt {
+                    word-break: break-all;
+                }
             }
         }
     }
