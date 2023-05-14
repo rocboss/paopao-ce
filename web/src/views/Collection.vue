@@ -11,9 +11,16 @@
                     <n-empty size="large" description="暂无数据" />
                 </div>
 
-                <n-list-item v-for="post in list" :key="post.id">
-                    <post-item :post="post" />
-                </n-list-item>
+                <div v-if="store.state.desktopModelShow">
+                    <n-list-item v-for="post in list" :key="post.id">
+                        <post-item :post="post" />
+                    </n-list-item>
+                </div>
+                <div v-else>
+                    <n-list-item v-for="post in list" :key="post.id">
+                        <mobile-post-item :post="post" />
+                    </n-list-item>
+                </div>
             </div>
         </n-list>
 
@@ -28,14 +35,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import { getCollections } from '@/api/user';
 
 const store = useStore();
 const route = useRoute();
-const router = useRouter();
 
 const loading = ref(false);
 const list = ref<any[]>([]);

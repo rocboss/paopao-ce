@@ -58,9 +58,16 @@
                     <n-empty size="large" description="暂无数据" />
                 </div>
 
-                <n-list-item v-for="post in list" :key="post.id">
-                    <post-item :post="post" />
-                </n-list-item>
+                <div v-if="store.state.desktopModelShow">
+                    <n-list-item v-for="post in list" :key="post.id">
+                        <post-item :post="post" />
+                    </n-list-item>
+                </div>
+                <div v-else>
+                    <n-list-item v-for="post in list" :key="post.id">
+                        <mobile-post-item :post="post" />
+                    </n-list-item>
+                </div>
             </div>
         </n-list>
         <div class="pagination-wrap" v-if="totalPage > 0">

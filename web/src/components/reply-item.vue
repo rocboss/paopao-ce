@@ -58,7 +58,7 @@
                             <thumb-up-outlined v-if="!hasThumbsUp" />
                             <thumb-up-twotone v-if="hasThumbsUp" class="show" />
                         </n-icon>
-                        <span class="upvote-count">{{ thumbsUpCount }}</span>
+                        <span class="upvote-count">{{ thumbsUpCount>0 ? thumbsUpCount : "赞" }}</span>
                     </div>
                     <div v-if="!store.state.userLogined" class="action-item">
                         <n-icon size="medium">
@@ -204,7 +204,7 @@ const execDelAction = () => {
         display: block;
 
         .content {
-            width: calc(100% - 40px);
+            width: calc(100%);
             margin-top: 4px;
             font-size: 12px;
             text-align: justify;
