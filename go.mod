@@ -13,7 +13,7 @@ require (
 	github.com/cockroachdb/errors v1.9.1
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.15.0
-	github.com/getsentry/sentry-go v0.20.0
+	github.com/getsentry/sentry-go v0.21.0
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-resty/resty/v2 v2.7.0
@@ -28,9 +28,9 @@ require (
 	github.com/onsi/ginkgo/v2 v2.9.4
 	github.com/onsi/gomega v1.27.6
 	github.com/pyroscope-io/client v0.7.0
-	github.com/redis/rueidis v1.0.2
+	github.com/redis/rueidis v1.0.4
 	github.com/sirupsen/logrus v1.9.0
-	github.com/smartwalle/alipay/v3 v3.2.2
+	github.com/smartwalle/alipay/v3 v3.2.3
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.15.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.41
