@@ -28,7 +28,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.9.4
 	github.com/onsi/gomega v1.27.6
 	github.com/pyroscope-io/client v0.7.0
-	github.com/redis/rueidis v1.0.4
+	github.com/redis/rueidis v1.0.5
 	github.com/sirupsen/logrus v1.9.2
 	github.com/smartwalle/alipay/v3 v3.2.3
 	github.com/sourcegraph/conc v0.3.0
@@ -40,7 +40,7 @@ require (
 	google.golang.org/protobuf v1.30.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/resty.v1 v1.12.0
-	gorm.io/driver/mysql v1.5.0
+	gorm.io/driver/mysql v1.5.1
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/driver/sqlite v1.4.4
 	gorm.io/gorm v1.25.1
