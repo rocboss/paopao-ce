@@ -9,7 +9,7 @@ require (
 	github.com/alimy/mir/v3 v3.1.1
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.7+incompatible
 	github.com/allegro/bigcache/v3 v3.0.2
-	github.com/bytedance/sonic v1.8.8
+	github.com/bytedance/sonic v1.8.9
 	github.com/cockroachdb/errors v1.9.1
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.15.0
