@@ -29,7 +29,7 @@ require (
 	github.com/onsi/gomega v1.27.6
 	github.com/pyroscope-io/client v0.7.0
 	github.com/redis/rueidis v1.0.4
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.2
 	github.com/smartwalle/alipay/v3 v3.2.3
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.15.0
