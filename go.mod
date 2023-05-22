@@ -10,7 +10,7 @@ require (
 	github.com/alimy/yesql v1.1.6
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.7+incompatible
 	github.com/allegro/bigcache/v3 v3.0.2
-	github.com/bytedance/sonic v1.8.8
+	github.com/bytedance/sonic v1.8.9
 	github.com/cockroachdb/errors v1.9.1
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.15.0
@@ -26,12 +26,12 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/json-iterator/go v1.1.12
 	github.com/meilisearch/meilisearch-go v0.24.0
-	github.com/minio/minio-go/v7 v7.0.52
+	github.com/minio/minio-go/v7 v7.0.53
 	github.com/onsi/ginkgo/v2 v2.9.4
 	github.com/onsi/gomega v1.27.6
 	github.com/pyroscope-io/client v0.7.0
-	github.com/redis/rueidis v1.0.4
-	github.com/sirupsen/logrus v1.9.0
+	github.com/redis/rueidis v1.0.5
+	github.com/sirupsen/logrus v1.9.2
 	github.com/smartwalle/alipay/v3 v3.2.3
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.15.0
@@ -42,7 +42,7 @@ require (
 	google.golang.org/protobuf v1.30.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/resty.v1 v1.12.0
-	gorm.io/driver/mysql v1.5.0
+	gorm.io/driver/mysql v1.5.1
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/driver/sqlite v1.4.4
 	gorm.io/gorm v1.25.1
