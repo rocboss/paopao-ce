@@ -17,7 +17,7 @@ import (
 	"github.com/alimy/mir/v3"
 	"github.com/gofrs/uuid"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
-	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/web/assets"
@@ -141,13 +141,13 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
 		return nil, _errUserRegisterFailed
 	}
 	password, salt := encryptPasswordAndSalt(req.Password)
-	user := &core.User{
+	user := &ms.User{
 		Nickname: req.Username,
 		Username: req.Username,
 		Password: password,
 		Avatar:   getRandomAvatar(),
 		Salt:     salt,
-		Status:   core.UserStatusNormal,
+		Status:   ms.UserStatusNormal,
 	}
 	user, err := s.Ds.CreateUser(user)
 	if err != nil {
@@ -174,7 +174,7 @@ func (s *pubSrv) Login(req *web.LoginReq) (*web.LoginResp, mir.Error) {
 		}
 		// 对比密码是否正确
 		if validPassword(user.Password, req.Password, user.Salt) {
-			if user.Status == core.UserStatusClosed {
+			if user.Status == ms.UserStatusClosed {
 				return nil, _errUserHasBeenBanned
 			}
 			// 清空登录计数

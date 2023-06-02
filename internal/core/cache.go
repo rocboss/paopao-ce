@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 )
 
@@ -51,7 +52,7 @@ func (a IdxAct) String() string {
 	}
 }
 
-func NewIndexAction(act IdxAct, post *dbr.Post) *IndexAction {
+func NewIndexAction(act IdxAct, post *ms.Post) *IndexAction {
 	return &IndexAction{
 		Act:  act,
 		Post: post,

@@ -7,6 +7,7 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
@@ -20,19 +21,19 @@ type authorizationManageSrv struct {
 	q *cc.AuthorizationManage
 }
 
-func (s *authorizationManageSrv) IsAllow(user *core.User, action *core.Action) bool {
+func (s *authorizationManageSrv) IsAllow(user *ms.User, action *ms.Action) bool {
 	// TODO
 	debug.NotImplemented()
 	return false
 }
 
-func (s *authorizationManageSrv) MyFriendSet(userId int64) core.FriendSet {
+func (s *authorizationManageSrv) MyFriendSet(userId int64) ms.FriendSet {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *authorizationManageSrv) BeFriendFilter(userId int64) core.FriendFilter {
+func (s *authorizationManageSrv) BeFriendFilter(userId int64) ms.FriendFilter {
 	// TODO
 	debug.NotImplemented()
 	return nil

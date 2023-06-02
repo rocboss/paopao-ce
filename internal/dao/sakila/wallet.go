@@ -7,6 +7,7 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
@@ -20,18 +21,18 @@ type walletSrv struct {
 	q *cc.Wallet
 }
 
-func (s *walletSrv) GetRechargeByID(id int64) (*core.WalletRecharge, error) {
+func (s *walletSrv) GetRechargeByID(id int64) (*ms.WalletRecharge, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
-func (s *walletSrv) CreateRecharge(userId, amount int64) (*core.WalletRecharge, error) {
+func (s *walletSrv) CreateRecharge(userId, amount int64) (*ms.WalletRecharge, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *walletSrv) GetUserWalletBills(userID int64, offset, limit int) ([]*core.WalletStatement, error) {
+func (s *walletSrv) GetUserWalletBills(userID int64, offset, limit int) ([]*ms.WalletStatement, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
@@ -43,13 +44,13 @@ func (s *walletSrv) GetUserWalletBillCount(userID int64) (int64, error) {
 	return 0, nil
 }
 
-func (s *walletSrv) HandleRechargeSuccess(recharge *core.WalletRecharge, tradeNo string) error {
+func (s *walletSrv) HandleRechargeSuccess(recharge *ms.WalletRecharge, tradeNo string) error {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *walletSrv) HandlePostAttachmentBought(post *core.Post, user *core.User) error {
+func (s *walletSrv) HandlePostAttachmentBought(post *ms.Post, user *ms.User) error {
 	// TODO
 	debug.NotImplemented()
 	return nil

@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
@@ -27,31 +28,31 @@ type commentManageSrv struct {
 	q *cc.CommentManage
 }
 
-func (s *commentSrv) GetComments(conditions *core.ConditionsT, offset, limit int) ([]*core.Comment, error) {
+func (s *commentSrv) GetComments(conditions *ms.ConditionsT, offset, limit int) ([]*ms.Comment, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *commentSrv) GetCommentByID(id int64) (*core.Comment, error) {
+func (s *commentSrv) GetCommentByID(id int64) (*ms.Comment, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *commentSrv) GetCommentReplyByID(id int64) (*core.CommentReply, error) {
+func (s *commentSrv) GetCommentReplyByID(id int64) (*ms.CommentReply, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *commentSrv) GetCommentCount(conditions *core.ConditionsT) (int64, error) {
+func (s *commentSrv) GetCommentCount(conditions *ms.ConditionsT) (int64, error) {
 	// TODO
 	debug.NotImplemented()
 	return 0, nil
 }
 
-func (s *commentSrv) GetCommentContentsByIDs(ids []int64) ([]*core.CommentContent, error) {
+func (s *commentSrv) GetCommentContentsByIDs(ids []int64) ([]*ms.CommentContent, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
@@ -62,37 +63,37 @@ func (s *commentSrv) GetCommentThumbsMap(userId int64, tweetId int64) (cs.Commen
 	return nil, nil, debug.ErrNotImplemented
 }
 
-func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*core.CommentReplyFormated, error) {
+func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*ms.CommentReplyFormated, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *commentManageSrv) DeleteComment(comment *core.Comment) error {
+func (s *commentManageSrv) DeleteComment(comment *ms.Comment) error {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *commentManageSrv) CreateComment(comment *core.Comment) (*core.Comment, error) {
+func (s *commentManageSrv) CreateComment(comment *ms.Comment) (*ms.Comment, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *commentManageSrv) CreateCommentReply(reply *core.CommentReply) (*core.CommentReply, error) {
+func (s *commentManageSrv) CreateCommentReply(reply *ms.CommentReply) (*ms.CommentReply, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *commentManageSrv) DeleteCommentReply(reply *core.CommentReply) error {
+func (s *commentManageSrv) DeleteCommentReply(reply *ms.CommentReply) error {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *commentManageSrv) CreateCommentContent(content *core.CommentContent) (*core.CommentContent, error) {
+func (s *commentManageSrv) CreateCommentContent(content *ms.CommentContent) (*ms.CommentContent, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil

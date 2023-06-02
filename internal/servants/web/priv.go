@@ -17,6 +17,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
@@ -252,7 +253,7 @@ func (s *privSrv) DownloadAttachmentPrecheck(req *web.DownloadAttachmentPrecheck
 		return nil, _errInvalidDownloadReq
 	}
 	resp := &web.DownloadAttachmentPrecheckResp{Paid: true}
-	if content.Type == core.ContentTypeChargeAttachment {
+	if content.Type == ms.ContentTypeChargeAttachment {
 		tweet, err := s.GetTweetBy(content.PostID)
 		if err != nil {
 			logrus.Errorf("get tweet err: %v", err)
@@ -275,7 +276,7 @@ func (s *privSrv) DownloadAttachment(req *web.DownloadAttachmentReq) (*web.Downl
 		return nil, _errInvalidDownloadReq
 	}
 	// 收费附件
-	if content.Type == core.ContentTypeChargeAttachment {
+	if content.Type == ms.ContentTypeChargeAttachment {
 		post, err := s.GetTweetBy(content.PostID)
 		if err != nil {
 			logrus.Errorf("s.GetTweetBy err: %v", err)
@@ -288,8 +289,8 @@ func (s *privSrv) DownloadAttachment(req *web.DownloadAttachmentReq) (*web.Downl
 		}
 		// 未购买，则尝试购买
 		if !paidFlag {
-			err := s.buyPostAttachment(&core.Post{
-				Model: &core.Model{
+			err := s.buyPostAttachment(&ms.Post{
+				Model: &ms.Model{
 					ID: post.ID,
 				},
 				UserID:          post.UserID,
@@ -326,7 +327,7 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 	}
 	mediaContents = contents
 	tags := tagsFrom(req.Tags)
-	post := &core.Post{
+	post := &ms.Post{
 		UserID:          req.User.ID,
 		Tags:            strings.Join(tags, ","),
 		IP:              req.ClientIP,
@@ -347,10 +348,10 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 			logrus.Infof("contents check err: %s", err)
 			continue
 		}
-		if item.Type == core.ContentTypeAttachment && req.AttachmentPrice > 0 {
-			item.Type = core.ContentTypeChargeAttachment
+		if item.Type == ms.ContentTypeAttachment && req.AttachmentPrice > 0 {
+			item.Type = ms.ContentTypeChargeAttachment
 		}
-		postContent := &core.PostContent{
+		postContent := &ms.PostContent{
 			PostID:  post.ID,
 			UserID:  req.User.ID,
 			Content: item.Content,
@@ -377,10 +378,10 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 
 			// 创建消息提醒
 			// TODO: 优化消息提醒处理机制
-			go s.Ds.CreateMessage(&core.Message{
+			go s.Ds.CreateMessage(&ms.Message{
 				SenderUserID:   req.User.ID,
 				ReceiverUserID: user.ID,
-				Type:           core.MsgTypePost,
+				Type:           ms.MsgTypePost,
 				Brief:          "在新发布的泡泡动态中@了你",
 				PostID:         post.ID,
 			})
@@ -388,7 +389,7 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 	}
 	// 推送Search
 	s.PushPostToSearch(post)
-	formatedPosts, err := s.Ds.RevampPosts([]*core.PostFormated{post.Format()})
+	formatedPosts, err := s.Ds.RevampPosts([]*ms.PostFormated{post.Format()})
 	if err != nil {
 		logrus.Infof("Ds.RevampPosts err: %s", err)
 		return nil, _errCreatePostFailed
@@ -444,8 +445,8 @@ func (s *privSrv) DeleteCommentReply(req *web.DeleteCommentReplyReq) mir.Error {
 
 func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.CreateCommentReplyResp, mir.Error) {
 	var (
-		post     *core.Post
-		comment  *core.Comment
+		post     *ms.Post
+		comment  *ms.Comment
 		atUserID int64
 		err      error
 	)
@@ -455,7 +456,7 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.Creat
 	}
 
 	// 创建评论
-	reply := &core.CommentReply{
+	reply := &ms.CommentReply{
 		CommentID: req.CommentID,
 		UserID:    req.Uid,
 		Content:   req.Content,
@@ -480,10 +481,10 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.Creat
 	// 创建用户消息提醒
 	commentMaster, err := s.Ds.GetUserByID(comment.UserID)
 	if err == nil && commentMaster.ID != req.Uid {
-		go s.Ds.CreateMessage(&core.Message{
+		go s.Ds.CreateMessage(&ms.Message{
 			SenderUserID:   req.Uid,
 			ReceiverUserID: commentMaster.ID,
-			Type:           core.MsgTypeReply,
+			Type:           ms.MsgTypeReply,
 			Brief:          "在泡泡评论下回复了你",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
@@ -492,10 +493,10 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.Creat
 	}
 	postMaster, err := s.Ds.GetUserByID(post.UserID)
 	if err == nil && postMaster.ID != req.Uid && commentMaster.ID != postMaster.ID {
-		go s.Ds.CreateMessage(&core.Message{
+		go s.Ds.CreateMessage(&ms.Message{
 			SenderUserID:   req.Uid,
 			ReceiverUserID: postMaster.ID,
-			Type:           core.MsgTypeReply,
+			Type:           ms.MsgTypeReply,
 			Brief:          "在泡泡评论下发布了新回复",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
@@ -506,10 +507,10 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.Creat
 		user, err := s.Ds.GetUserByID(atUserID)
 		if err == nil && user.ID != req.Uid && commentMaster.ID != user.ID && postMaster.ID != user.ID {
 			// 创建消息提醒
-			go s.Ds.CreateMessage(&core.Message{
+			go s.Ds.CreateMessage(&ms.Message{
 				SenderUserID:   req.Uid,
 				ReceiverUserID: user.ID,
-				Type:           core.MsgTypeReply,
+				Type:           ms.MsgTypeReply,
 				Brief:          "在泡泡评论的回复中@了你",
 				PostID:         post.ID,
 				CommentID:      comment.ID,
@@ -572,7 +573,7 @@ func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateComment
 	if post.CommentCount >= conf.AppSetting.MaxCommentCount {
 		return nil, _errMaxCommentCount
 	}
-	comment := &core.Comment{
+	comment := &ms.Comment{
 		PostID: post.ID,
 		UserID: req.Uid,
 		IP:     req.ClientIP,
@@ -586,12 +587,12 @@ func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateComment
 
 	for _, item := range req.Contents {
 		// 检查附件是否是本站资源
-		if item.Type == core.ContentTypeImage || item.Type == core.ContentTypeVideo || item.Type == core.ContentTypeAttachment {
+		if item.Type == ms.ContentTypeImage || item.Type == ms.ContentTypeVideo || item.Type == ms.ContentTypeAttachment {
 			if err := s.Ds.CheckAttachment(item.Content); err != nil {
 				continue
 			}
 		}
-		postContent := &core.CommentContent{
+		postContent := &ms.CommentContent{
 			CommentID: comment.ID,
 			UserID:    req.Uid,
 			Content:   item.Content,
@@ -612,10 +613,10 @@ func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateComment
 	// 创建用户消息提醒
 	postMaster, err := s.Ds.GetUserByID(post.UserID)
 	if err == nil && postMaster.ID != req.Uid {
-		go s.Ds.CreateMessage(&core.Message{
+		go s.Ds.CreateMessage(&ms.Message{
 			SenderUserID:   req.Uid,
 			ReceiverUserID: postMaster.ID,
-			Type:           core.MsgtypeComment,
+			Type:           ms.MsgtypeComment,
 			Brief:          "在泡泡中评论了你",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
@@ -628,10 +629,10 @@ func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateComment
 		}
 
 		// 创建消息提醒
-		go s.Ds.CreateMessage(&core.Message{
+		go s.Ds.CreateMessage(&ms.Message{
 			SenderUserID:   req.Uid,
 			ReceiverUserID: user.ID,
-			Type:           core.MsgtypeComment,
+			Type:           ms.MsgtypeComment,
 			Brief:          "在泡泡评论中@了你",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
@@ -741,7 +742,7 @@ func (s *privSrv) LockTweet(req *web.LockTweetReq) (*web.LockTweetResp, mir.Erro
 	}, nil
 }
 
-func (s *privSrv) deletePostCommentReply(reply *core.CommentReply) error {
+func (s *privSrv) deletePostCommentReply(reply *ms.CommentReply) error {
 	err := s.Ds.DeleteCommentReply(reply)
 	if err != nil {
 		return err
@@ -765,7 +766,7 @@ func (s *privSrv) deletePostCommentReply(reply *core.CommentReply) error {
 	return nil
 }
 
-func (s *privSrv) createPostPreHandler(commentID int64, userID, atUserID int64) (*core.Post, *core.Comment, int64,
+func (s *privSrv) createPostPreHandler(commentID int64, userID, atUserID int64) (*ms.Post, *ms.Comment, int64,
 	error) {
 	// 加载Comment
 	comment, err := s.Ds.GetCommentByID(commentID)
@@ -798,7 +799,7 @@ func (s *privSrv) createPostPreHandler(commentID int64, userID, atUserID int64) 
 	return post, comment, atUserID, nil
 }
 
-func (s *privSrv) createPostStar(postID, userID int64) (*core.PostStar, mir.Error) {
+func (s *privSrv) createPostStar(postID, userID int64) (*ms.PostStar, mir.Error) {
 	post, err := s.Ds.GetPostByID(postID)
 	if err != nil {
 		return nil, xerror.ServerError
@@ -824,7 +825,7 @@ func (s *privSrv) createPostStar(postID, userID int64) (*core.PostStar, mir.Erro
 	return star, nil
 }
 
-func (s *privSrv) deletePostStar(star *core.PostStar) mir.Error {
+func (s *privSrv) deletePostStar(star *ms.PostStar) mir.Error {
 	post, err := s.Ds.GetPostByID(star.PostID)
 	if err != nil {
 		return xerror.ServerError
@@ -849,7 +850,7 @@ func (s *privSrv) deletePostStar(star *core.PostStar) mir.Error {
 	return nil
 }
 
-func (s *privSrv) createPostCollection(postID, userID int64) (*core.PostCollection, mir.Error) {
+func (s *privSrv) createPostCollection(postID, userID int64) (*ms.PostCollection, mir.Error) {
 	post, err := s.Ds.GetPostByID(postID)
 	if err != nil {
 		return nil, xerror.ServerError
@@ -875,7 +876,7 @@ func (s *privSrv) createPostCollection(postID, userID int64) (*core.PostCollecti
 	return collection, nil
 }
 
-func (s *privSrv) deletePostCollection(collection *core.PostCollection) mir.Error {
+func (s *privSrv) deletePostCollection(collection *ms.PostCollection) mir.Error {
 	post, err := s.Ds.GetPostByID(collection.PostID)
 	if err != nil {
 		return xerror.ServerError
@@ -904,7 +905,7 @@ func (s *privSrv) checkPostAttachmentIsPaid(postID, userID int64) bool {
 	return err == nil && bill.Model != nil && bill.ID > 0
 }
 
-func (s *privSrv) buyPostAttachment(post *core.Post, user *core.User) mir.Error {
+func (s *privSrv) buyPostAttachment(post *ms.Post, user *ms.User) mir.Error {
 	if user.Balance < post.AttachmentPrice {
 		return _errInsuffientDownloadMoney
 	}

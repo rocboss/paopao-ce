@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
 )
@@ -31,14 +32,14 @@ func newSecurityService(db *gorm.DB, phoneVerify core.PhoneVerifyService) core.S
 }
 
 // GetLatestPhoneCaptcha 获取最新短信验证码
-func (s *securitySrv) GetLatestPhoneCaptcha(phone string) (*core.Captcha, error) {
+func (s *securitySrv) GetLatestPhoneCaptcha(phone string) (*ms.Captcha, error) {
 	return (&dbr.Captcha{
 		Phone: phone,
 	}).Get(s.db)
 }
 
 // UsePhoneCaptcha 更新短信验证码
-func (s *securitySrv) UsePhoneCaptcha(captcha *core.Captcha) error {
+func (s *securitySrv) UsePhoneCaptcha(captcha *ms.Captcha) error {
 	captcha.UseTimes++
 	return captcha.Update(s.db)
 }

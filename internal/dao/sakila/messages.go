@@ -7,6 +7,7 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
@@ -20,7 +21,7 @@ type messageSrv struct {
 	q *cc.Message
 }
 
-func (s *messageSrv) CreateMessage(msg *core.Message) (*core.Message, error) {
+func (s *messageSrv) CreateMessage(msg *ms.Message) (*ms.Message, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
@@ -32,25 +33,25 @@ func (s *messageSrv) GetUnreadCount(userID int64) (int64, error) {
 	return 0, nil
 }
 
-func (s *messageSrv) GetMessageByID(id int64) (*core.Message, error) {
+func (s *messageSrv) GetMessageByID(id int64) (*ms.Message, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *messageSrv) ReadMessage(message *core.Message) error {
+func (s *messageSrv) ReadMessage(message *ms.Message) error {
 	// TODO
 	debug.NotImplemented()
 	return nil
 }
 
-func (s *messageSrv) GetMessages(conditions *core.ConditionsT, offset, limit int) ([]*core.MessageFormated, error) {
+func (s *messageSrv) GetMessages(conditions *ms.ConditionsT, offset, limit int) ([]*ms.MessageFormated, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *messageSrv) GetMessageCount(conditions *core.ConditionsT) (int64, error) {
+func (s *messageSrv) GetMessageCount(conditions *ms.ConditionsT) (int64, error) {
 	// TODO
 	debug.NotImplemented()
 	return 0, nil

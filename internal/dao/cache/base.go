@@ -15,6 +15,7 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/sirupsen/logrus"
 )
@@ -30,7 +31,7 @@ var (
 
 type postsEntry struct {
 	key    string
-	tweets *core.IndexTweetList
+	tweets *ms.IndexTweetList
 }
 
 type tweetsCache interface {
@@ -54,7 +55,7 @@ type cacheIndexSrv struct {
 	preventDuration    time.Duration
 }
 
-func (s *cacheIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *cacheIndexSrv) IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
 	key := s.keyFrom(user, offset, limit)
 	posts, err := s.getPosts(key)
 	if err == nil {
@@ -70,7 +71,7 @@ func (s *cacheIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*cor
 	return posts, nil
 }
 
-func (s *cacheIndexSrv) getPosts(key string) (*core.IndexTweetList, error) {
+func (s *cacheIndexSrv) getPosts(key string) (*ms.IndexTweetList, error) {
 	data, err := s.cache.getTweetsBytes(key)
 	if err != nil {
 		logrus.Debugf("cacheIndexSrv.getPosts get posts by key: %s from cache err: %v", key, err)
@@ -78,7 +79,7 @@ func (s *cacheIndexSrv) getPosts(key string) (*core.IndexTweetList, error) {
 	}
 	buf := bytes.NewBuffer(data)
 	dec := gob.NewDecoder(buf)
-	var resp core.IndexTweetList
+	var resp ms.IndexTweetList
 	if err := dec.Decode(&resp); err != nil {
 		logrus.Debugf("cacheIndexSrv.getPosts get posts from cache in decode err: %v", err)
 		return nil, err
@@ -86,7 +87,7 @@ func (s *cacheIndexSrv) getPosts(key string) (*core.IndexTweetList, error) {
 	return &resp, nil
 }
 
-func (s *cacheIndexSrv) cachePosts(key string, tweets *core.IndexTweetList) {
+func (s *cacheIndexSrv) cachePosts(key string, tweets *ms.IndexTweetList) {
 	entry := &postsEntry{key: key, tweets: tweets}
 	select {
 	case s.cachePostsCh <- entry:
@@ -112,7 +113,7 @@ func (s *cacheIndexSrv) setPosts(entry *postsEntry) {
 	logrus.Debugf("cacheIndexSrv.setPosts setPosts set cache by key: %s", entry.key)
 }
 
-func (s *cacheIndexSrv) keyFrom(user *core.User, offset int, limit int) string {
+func (s *cacheIndexSrv) keyFrom(user *ms.User, offset int, limit int) string {
 	var userId int64 = -1
 	if user != nil {
 		userId = user.ID
@@ -120,7 +121,7 @@ func (s *cacheIndexSrv) keyFrom(user *core.User, offset int, limit int) string {
 	return fmt.Sprintf("%s:%d:%d:%d", _cacheIndexKey, userId, offset, limit)
 }
 
-func (s *cacheIndexSrv) SendAction(act core.IdxAct, post *core.Post) {
+func (s *cacheIndexSrv) SendAction(act core.IdxAct, post *ms.Post) {
 	action := core.NewIndexAction(act, post)
 	select {
 	case s.indexActionCh <- action:
@@ -168,7 +169,7 @@ func (s *cacheIndexSrv) handleIndexAction(action *core.IndexAction) {
 func (s *cacheIndexSrv) deleteCacheByUserId(id int64, oneself bool) {
 	var keys []string
 	userId := strconv.FormatInt(id, 10)
-	friendSet := core.FriendSet{}
+	friendSet := ms.FriendSet{}
 	if !oneself {
 		friendSet = s.ams.MyFriendSet(id)
 	}

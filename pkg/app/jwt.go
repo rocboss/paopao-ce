@@ -9,7 +9,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 )
 
 type Claims struct {
@@ -22,7 +22,7 @@ func GetJWTSecret() []byte {
 	return []byte(conf.JWTSetting.Secret)
 }
 
-func GenerateToken(User *core.User) (string, error) {
+func GenerateToken(User *ms.User) (string, error) {
 	expireTime := time.Now().Add(conf.JWTSetting.Expire)
 	claims := Claims{
 		UID:      User.ID,
