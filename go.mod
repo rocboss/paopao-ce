@@ -30,7 +30,7 @@ require (
 	github.com/pyroscope-io/client v0.7.0
 	github.com/redis/rueidis v1.0.5
 	github.com/sirupsen/logrus v1.9.2
-	github.com/smartwalle/alipay/v3 v3.2.3
+	github.com/smartwalle/alipay/v3 v3.2.10
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.15.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.41
@@ -104,7 +104,8 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/rs/xid v1.4.0 // indirect
-	github.com/smartwalle/ncrypto v1.0.0 // indirect
+	github.com/smartwalle/ncrypto v1.0.2 // indirect
+	github.com/smartwalle/nsign v0.0.1 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
