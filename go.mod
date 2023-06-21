@@ -27,7 +27,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.53
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.8
-	github.com/pyroscope-io/client v0.7.0
+	github.com/pyroscope-io/client v0.7.1
 	github.com/redis/rueidis v1.0.5
 	github.com/sirupsen/logrus v1.9.2
 	github.com/smartwalle/alipay/v3 v3.2.3
