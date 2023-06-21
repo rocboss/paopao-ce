@@ -20,7 +20,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "naive-ui": "^2.34.3",
-    "nonesir-video": "^1.0.3",
+    "paopao-video-player": "^1.0.0",
     "qrcanvas-vue": "^3.0.0",
     "qrcode": "^1.5.3",
     "unplugin-vue-components": "^0.24.1",
@@ -28,7 +28,6 @@
     "vfonts": "^0.0.3",
     "vue": "^3.3.1",
     "vue-router": "4",
-    "vue3-player-video": "^1.2.5",
     "vuex": "^4.1.0"
   },
   "devDependencies": {
