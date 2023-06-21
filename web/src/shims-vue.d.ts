@@ -12,7 +12,7 @@ declare module '*.gif'
 declare module '*.bmp'
 declare module '*.tiff'
 declare module '*.json'
-declare module 'nonesir-video'
+declare module 'paopao-video-player'
 
 interface AnyObject {
 	[key: string]: any
