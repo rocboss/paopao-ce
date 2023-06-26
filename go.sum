@@ -1175,8 +1175,8 @@ github.com/pyroscope-io/client v0.7.1 h1:yFRhj3vbgjBxehvxQmedmUWJQ4CAfCHhn+itPsu
 github.com/pyroscope-io/client v0.7.1/go.mod h1:4h21iOU4pUOq0prKyDlvYRL+SCKsBc5wKiEtV+rJGqU=
 github.com/pyroscope-io/godeltaprof v0.1.0 h1:UBqtjt0yZi4jTxqZmLAs34XG6ycS3vUTlhEUSq4NHLE=
 github.com/pyroscope-io/godeltaprof v0.1.0/go.mod h1:psMITXp90+8pFenXkKIpNhrfmI9saQnPbba27VIaiQE=
-github.com/redis/rueidis v1.0.5 h1:VQ8m2AfkNskm5nK9lswTvTpL6/clF+UY1KgIcAZcBx4=
-github.com/redis/rueidis v1.0.5/go.mod h1:yxbpgX+VYNxCvdE0KEQXDeUFcF2hB2Oz/TJiaqFxoEU=
+github.com/redis/rueidis v1.0.10 h1:5QbYwjVoC8sGFP3LXZIqUt6eqbpNY/ZZq9nYgCTRkqk=
+github.com/redis/rueidis v1.0.10/go.mod h1:+1zDH4a8XhwIbCSlIhVGIu6Xib0ZMDoBM0qGhHXc1ew=
 github.com/remyoudompheng/bigfft v0.0.0-20190728182440-6a916e37a237/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec h1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=
