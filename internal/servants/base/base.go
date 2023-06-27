@@ -20,7 +20,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/pkg/app"
-	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
 )
@@ -36,10 +35,6 @@ type DaoServant struct {
 	Ts    core.TweetSearchService
 	Redis core.RedisCache
 }
-
-type BaseBinding types.Empty
-
-type BaseRender types.Empty
 
 type JsonResp struct {
 	Code int    `json:"code"`
