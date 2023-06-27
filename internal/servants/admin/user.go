@@ -14,10 +14,12 @@ var (
 )
 
 type userSrv struct {
-	base.BaseServant
+	*base.BaseServant
 	api.UnimplementedUserServant
 }
 
 func newUserSrv() api.User {
-	return &userSrv{}
+	return &userSrv{
+		BaseServant: base.NewBaseServant(),
+	}
 }
