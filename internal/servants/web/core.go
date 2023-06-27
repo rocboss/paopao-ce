@@ -122,7 +122,7 @@ func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mi
 	}
 	if err != nil {
 		logrus.Errorf("Ds.GetMessages err: %v\n", err)
-		return nil, _errGetMessagesFailed
+		return nil, web.ErrGetMessagesFailed
 	}
 	totalRows, _ := s.Ds.GetMessageCount(conditions)
 	resp := base.PageRespFrom(messages, req.Page, req.PageSize, totalRows)
@@ -132,14 +132,14 @@ func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mi
 func (s *coreSrv) ReadMessage(req *web.ReadMessageReq) mir.Error {
 	message, err := s.Ds.GetMessageByID(req.ID)
 	if err != nil {
-		return _errReadMessageFailed
+		return web.ErrReadMessageFailed
 	}
 	if message.ReceiverUserID != req.Uid {
-		return _errNoPermission
+		return web.ErrNoPermission
 	}
 	if err = s.Ds.ReadMessage(message); err != nil {
 		logrus.Errorf("Ds.ReadMessage err: %s", err)
-		return _errReadMessageFailed
+		return web.ErrReadMessageFailed
 	}
 	return nil
 }
@@ -147,13 +147,13 @@ func (s *coreSrv) ReadMessage(req *web.ReadMessageReq) mir.Error {
 func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 	// 不允许发送私信给自己
 	if req.Uid == req.UserID {
-		return _errNoWhisperToSelf
+		return web.ErrNoWhisperToSelf
 	}
 
 	// 今日频次限制
 	ctx := context.Background()
 	if count, _ := s.Redis.GetCountWhisper(ctx, req.Uid); count >= _MaxWhisperNumDaily {
-		return _errTooManyWhisperNum
+		return web.ErrTooManyWhisperNum
 	}
 
 	// 创建私信
@@ -166,7 +166,7 @@ func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 	})
 	if err != nil {
 		logrus.Errorf("Ds.CreateWhisper err: %s", err)
-		return _errSendWhisperFailed
+		return web.ErrSendWhisperFailed
 	}
 
 	// 写入当日（自然日）计数缓存
@@ -179,12 +179,12 @@ func (s *coreSrv) GetCollections(req *web.GetCollectionsReq) (*web.GetCollection
 	collections, err := s.Ds.GetUserPostCollections(req.UserId, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserPostCollections err: %s", err)
-		return nil, _errGetCollectionsFailed
+		return nil, web.ErrGetCollectionsFailed
 	}
 	totalRows, err := s.Ds.GetUserPostCollectionCount(req.UserId)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserPostCollectionCount err: %s", err)
-		return nil, _errGetCollectionsFailed
+		return nil, web.ErrGetCollectionsFailed
 	}
 
 	var posts []*core.Post
@@ -194,7 +194,7 @@ func (s *coreSrv) GetCollections(req *web.GetCollectionsReq) (*web.GetCollection
 	postsFormated, err := s.Ds.MergePosts(posts)
 	if err != nil {
 		logrus.Errorf("Ds.MergePosts err: %s", err)
-		return nil, _errGetCollectionsFailed
+		return nil, web.ErrGetCollectionsFailed
 	}
 	resp := base.PageRespFrom(postsFormated, req.Page, req.PageSize, totalRows)
 
@@ -205,23 +205,23 @@ func (s *coreSrv) UserPhoneBind(req *web.UserPhoneBindReq) mir.Error {
 	// 手机重复性检查
 	u, err := s.Ds.GetUserByPhone(req.Phone)
 	if err == nil && u.Model != nil && u.ID != 0 && u.ID != req.User.ID {
-		return _errExistedUserPhone
+		return web.ErrExistedUserPhone
 	}
 
 	// 如果禁止phone verify 则允许通过任意验证码
 	if _enablePhoneVerify {
 		c, err := s.Ds.GetLatestPhoneCaptcha(req.Phone)
 		if err != nil {
-			return _errErrorPhoneCaptcha
+			return web.ErrErrorPhoneCaptcha
 		}
 		if c.Captcha != req.Captcha {
-			return _errErrorPhoneCaptcha
+			return web.ErrErrorPhoneCaptcha
 		}
 		if c.ExpiredOn < time.Now().Unix() {
-			return _errErrorPhoneCaptcha
+			return web.ErrErrorPhoneCaptcha
 		}
 		if c.UseTimes >= _MaxCaptchaTimes {
-			return _errMaxPhoneCaptchaUseTimes
+			return web.ErrMaxPhoneCaptchaUseTimes
 		}
 		// 更新检测次数
 		s.Ds.UsePhoneCaptcha(c)
@@ -242,12 +242,12 @@ func (s *coreSrv) GetStars(req *web.GetStarsReq) (*web.GetStarsResp, mir.Error) 
 	stars, err := s.Ds.GetUserPostStars(req.UserId, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserPostStars err: %s", err)
-		return nil, _errGetStarsFailed
+		return nil, web.ErrGetStarsFailed
 	}
 	totalRows, err := s.Ds.GetUserPostStarCount(req.UserId)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserPostStars err: %s", err)
-		return nil, _errGetStarsFailed
+		return nil, web.ErrGetStarsFailed
 	}
 
 	var posts []*core.Post
@@ -257,7 +257,7 @@ func (s *coreSrv) GetStars(req *web.GetStarsReq) (*web.GetStarsResp, mir.Error) 
 	postsFormated, err := s.Ds.MergePosts(posts)
 	if err != nil {
 		logrus.Errorf("Ds.MergePosts err: %s", err)
-		return nil, _errGetStarsFailed
+		return nil, web.ErrGetStarsFailed
 	}
 	resp := base.PageRespFrom(postsFormated, req.Page, req.PageSize, totalRows)
 
@@ -272,7 +272,7 @@ func (s *coreSrv) ChangePassword(req *web.ChangePasswordReq) mir.Error {
 	// 旧密码校验
 	user := req.User
 	if !validPassword(user.Password, req.OldPassword, req.User.Salt) {
-		return _errErrorOldPassword
+		return web.ErrErrorOldPassword
 	}
 	// 更新入库
 	user.Password, user.Salt = encryptPasswordAndSalt(req.Password)
@@ -311,7 +311,7 @@ func (s *coreSrv) SuggestUsers(req *web.SuggestUsersReq) (*web.SuggestUsersResp,
 
 func (s *coreSrv) ChangeNickname(req *web.ChangeNicknameReq) mir.Error {
 	if utf8.RuneCountInString(req.Nickname) < 2 || utf8.RuneCountInString(req.Nickname) > 12 {
-		return _errNicknameLengthLimit
+		return web.ErrNicknameLengthLimit
 	}
 	user := req.User
 	user.Nickname = req.Nickname

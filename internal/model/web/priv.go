@@ -209,7 +209,7 @@ func (r *UploadAttachmentReq) Bind(c *gin.Context) (xerr mir.Error) {
 	uploadType := c.Request.FormValue("type")
 	file, fileHeader, err := c.Request.FormFile("file")
 	if err != nil {
-		return _errFileUploadFailed
+		return ErrFileUploadFailed
 	}
 	defer func() {
 		if xerr != nil {

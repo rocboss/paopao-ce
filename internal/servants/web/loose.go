@@ -37,7 +37,7 @@ func (s *looseSrv) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error)
 		res, err := s.Ds.IndexPosts(req.User, offset, limit)
 		if err != nil {
 			logrus.Errorf("Ds.IndexPosts err: %s", err)
-			return nil, _errGetPostsFailed
+			return nil, web.ErrGetPostsFailed
 		}
 		resp = base.PageRespFrom(res.Tweets, req.Page, req.PageSize, res.Total)
 	} else {
@@ -48,12 +48,12 @@ func (s *looseSrv) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error)
 		res, err := s.Ts.Search(req.User, q, offset, limit)
 		if err != nil {
 			logrus.Errorf("Ts.Search err: %s", err)
-			return nil, _errGetPostsFailed
+			return nil, web.ErrGetPostsFailed
 		}
 		posts, err := s.Ds.RevampPosts(res.Items)
 		if err != nil {
 			logrus.Errorf("Ds.RevampPosts err: %s", err)
-			return nil, _errGetPostsFailed
+			return nil, web.ErrGetPostsFailed
 		}
 		resp = base.PageRespFrom(posts, req.Page, req.PageSize, res.Total)
 	}
@@ -85,12 +85,12 @@ func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (*web.GetUserTweetsR
 	_, posts, err := s.GetTweetList(conditions, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
 		logrus.Errorf("s.GetTweetList err: %s", err)
-		return nil, _errGetPostsFailed
+		return nil, web.ErrGetPostsFailed
 	}
 	totalRows, err := s.Ds.GetPostCount(conditions)
 	if err != nil {
 		logrus.Errorf("s.GetPostCount err: %s", err)
-		return nil, _errGetPostsFailed
+		return nil, web.ErrGetPostsFailed
 	}
 
 	resp := base.PageRespFrom(posts, req.Page, req.PageSize, totalRows)
@@ -101,10 +101,10 @@ func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfi
 	he, err := s.Ds.GetUserByUsername(req.Username)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserByUsername err: %s", err)
-		return nil, _errNoExistUsername
+		return nil, web.ErrNoExistUsername
 	}
 	if he.Model == nil && he.ID <= 0 {
-		return nil, _errNoExistUsername
+		return nil, web.ErrNoExistUsername
 	}
 	// 设定自己不是自己的朋友
 	isFriend := !(req.User == nil || req.User.ID == he.ID)
@@ -146,10 +146,10 @@ func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Err
 		}
 	default:
 		// TODO: return good error
-		err = _errGetPostTagsFailed
+		err = web.ErrGetPostTagsFailed
 	}
 	if err != nil {
-		return nil, _errGetPostTagsFailed
+		return nil, web.ErrGetPostTagsFailed
 	}
 	return &web.TopicListResp{
 		Topics:       tags,
@@ -169,7 +169,7 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 
 	comments, err := s.Ds.GetComments(conditions, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
-		return nil, _errGetCommentsFailed
+		return nil, web.ErrGetCommentsFailed
 	}
 
 	userIDs := []int64{}
@@ -181,24 +181,24 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 
 	users, err := s.Ds.GetUsersByIDs(userIDs)
 	if err != nil {
-		return nil, _errGetCommentsFailed
+		return nil, web.ErrGetCommentsFailed
 	}
 
 	contents, err := s.Ds.GetCommentContentsByIDs(commentIDs)
 	if err != nil {
-		return nil, _errGetCommentsFailed
+		return nil, web.ErrGetCommentsFailed
 	}
 
 	replies, err := s.Ds.GetCommentRepliesByID(commentIDs)
 	if err != nil {
-		return nil, _errGetCommentsFailed
+		return nil, web.ErrGetCommentsFailed
 	}
 
 	var commentThumbs, replyThumbs cs.CommentThumbsMap
 	if req.Uid > 0 {
 		commentThumbs, replyThumbs, err = s.Ds.GetCommentThumbsMap(req.Uid, req.TweetId)
 		if err != nil {
-			return nil, _errGetCommentsFailed
+			return nil, web.ErrGetCommentsFailed
 		}
 	}
 

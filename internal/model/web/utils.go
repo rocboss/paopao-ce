@@ -17,7 +17,7 @@ func fileCheck(uploadType string, size int64) mir.Error {
 		return xerror.InvalidParams
 	}
 	if size > 1024*1024*100 {
-		return _errFileInvalidSize.WithDetails("最大允许100MB")
+		return ErrFileInvalidSize.WithDetails("最大允许100MB")
 	}
 	return nil
 }
@@ -42,6 +42,6 @@ func getFileExt(s string) (string, mir.Error) {
 		"application/x-zip-compressed":
 		return ".zip", nil
 	default:
-		return "", _errFileInvalidExt.WithDetails("仅允许 png/jpg/gif/mp4/mov/zip 类型")
+		return "", ErrFileInvalidExt.WithDetails("仅允许 png/jpg/gif/mp4/mov/zip 类型")
 	}
 }

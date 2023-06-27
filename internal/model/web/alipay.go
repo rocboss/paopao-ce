@@ -57,12 +57,12 @@ type AlipayNotifyReq struct {
 func (r *AlipayNotifyReq) Bind(c *gin.Context) mir.Error {
 	if err := c.Request.ParseForm(); err != nil {
 		logrus.Errorf("parse form err: %s", err)
-		return _errRechargeNotifyError
+		return ErrRechargeNotifyError
 	}
 	noti, err := conf.MustAlipayClient().GetTradeNotification(c.Request)
 	if err != nil {
 		logrus.Errorf("alipayClient.GetTradeNotification err: %s form: %v", err, c.Request.Form)
-		return _errRechargeNotifyError
+		return ErrRechargeNotifyError
 	}
 	r.Ctx = c.Request.Context()
 	r.ID = convert.StrTo(noti.OutTradeNo).MustInt64()

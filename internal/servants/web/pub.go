@@ -45,15 +45,15 @@ type pubSrv struct {
 func (s *pubSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir.Error) {
 	post, err := s.Ds.GetPostByID(req.TweetId)
 	if err != nil {
-		return nil, _errGetPostFailed
+		return nil, web.ErrGetPostFailed
 	}
 	postContents, err := s.Ds.GetPostContentsByIDs([]int64{post.ID})
 	if err != nil {
-		return nil, _errGetPostFailed
+		return nil, web.ErrGetPostFailed
 	}
 	users, err := s.Ds.GetUsersByIDs([]int64{post.UserID})
 	if err != nil {
-		return nil, _errGetPostFailed
+		return nil, web.ErrGetPostFailed
 	}
 	// 数据整合
 	postFormated := post.Format()
@@ -74,13 +74,13 @@ func (s *pubSrv) SendCaptcha(req *web.SendCaptchaReq) mir.Error {
 	// 验证图片验证码
 	if captcha, err := s.Redis.GetImgCaptcha(ctx, req.ImgCaptchaID); err != nil || string(captcha) != req.ImgCaptcha {
 		logrus.Debugf("get captcha err:%s expect:%s got:%s", err, captcha, req.ImgCaptcha)
-		return _errErrorCaptchaPassword
+		return web.ErrErrorCaptchaPassword
 	}
 	s.Redis.DelImgCaptcha(ctx, req.ImgCaptchaID)
 
 	// 今日频次限制
 	if count, _ := s.Redis.GetCountSmsCaptcha(ctx, req.Phone); count >= _MaxPhoneCaptcha {
-		return _errTooManyPhoneCaptchaSend
+		return web.ErrTooManyPhoneCaptchaSend
 	}
 
 	if err := s.Ds.SendPhoneCaptcha(req.Phone); err != nil {
@@ -119,7 +119,7 @@ func (s *pubSrv) GetCaptcha() (*web.GetCaptchaResp, mir.Error) {
 
 func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
 	if _disallowUserRegister {
-		return nil, _errDisallowUserRegister
+		return nil, web.ErrDisallowUserRegister
 	}
 	// 用户名检查
 	if err := s.validUsername(req.Username); err != nil {
@@ -128,7 +128,7 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
 	// 密码检查
 	if err := checkPassword(req.Password); err != nil {
 		logrus.Errorf("scheckPassword err: %v", err)
-		return nil, _errUserRegisterFailed
+		return nil, web.ErrUserRegisterFailed
 	}
 	password, salt := encryptPasswordAndSalt(req.Password)
 	user := &core.User{
@@ -142,7 +142,7 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
 	user, err := s.Ds.CreateUser(user)
 	if err != nil {
 		logrus.Errorf("Ds.CreateUser err: %s", err)
-		return nil, _errUserRegisterFailed
+		return nil, web.ErrUserRegisterFailed
 	}
 	return &web.RegisterResp{
 		UserId:   user.ID,
@@ -160,12 +160,12 @@ func (s *pubSrv) Login(req *web.LoginReq) (*web.LoginResp, mir.Error) {
 
 	if user.Model != nil && user.ID > 0 {
 		if count, err := s.Redis.GetCountLoginErr(ctx, user.ID); err == nil && count >= _MaxLoginErrTimes {
-			return nil, _errTooManyLoginError
+			return nil, web.ErrTooManyLoginError
 		}
 		// 对比密码是否正确
 		if validPassword(user.Password, req.Password, user.Salt) {
 			if user.Status == core.UserStatusClosed {
-				return nil, _errUserHasBeenBanned
+				return nil, web.ErrUserHasBeenBanned
 			}
 			// 清空登录计数
 			s.Redis.DelCountLoginErr(ctx, user.ID)
@@ -198,17 +198,17 @@ func (s *pubSrv) Version() (*web.VersionResp, mir.Error) {
 func (s *pubSrv) validUsername(username string) mir.Error {
 	// 检测用户是否合规
 	if utf8.RuneCountInString(username) < 3 || utf8.RuneCountInString(username) > 12 {
-		return _errUsernameLengthLimit
+		return web.ErrUsernameLengthLimit
 	}
 
 	if !regexp.MustCompile(`^[a-zA-Z0-9]+$`).MatchString(username) {
-		return _errUsernameCharLimit
+		return web.ErrUsernameCharLimit
 	}
 
 	// 重复检查
 	user, _ := s.Ds.GetUserByUsername(username)
 	if user.Model != nil && user.ID > 0 {
-		return _errUsernameHasExisted
+		return web.ErrUsernameHasExisted
 	}
 	return nil
 }

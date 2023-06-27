@@ -30,7 +30,7 @@ func (s *adminSrv) Chain() gin.HandlersChain {
 func (s *adminSrv) ChangeUserStatus(req *web.ChangeUserStatusReq) mir.Error {
 	user, err := s.Ds.GetUserByID(req.ID)
 	if err != nil || user.Model == nil || user.ID <= 0 {
-		return _errNoExistUsername
+		return web.ErrNoExistUsername
 	}
 	// 执行更新
 	user.Status = req.Status
