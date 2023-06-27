@@ -10,14 +10,13 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
-	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
 )
@@ -29,9 +28,7 @@ const (
 )
 
 var (
-	_ api.Core        = (*coreSrv)(nil)
-	_ api.CoreBinding = (*coreBinding)(nil)
-	_ api.CoreRender  = (*coreRender)(nil)
+	_ api.Core = (*coreSrv)(nil)
 )
 
 type coreSrv struct {
@@ -39,77 +36,6 @@ type coreSrv struct {
 	*base.DaoServant
 
 	oss core.ObjectStorageService
-}
-
-type coreBinding struct {
-	*api.UnimplementedCoreBinding
-}
-
-type coreRender struct {
-	*api.UnimplementedCoreRender
-}
-
-func (b *coreBinding) BindGetUserInfo(c *gin.Context) (*web.UserInfoReq, mir.Error) {
-	username, exist := base.UserNameFrom(c)
-	if !exist {
-		return nil, xerror.UnauthorizedAuthNotExist
-	}
-	return &web.UserInfoReq{
-		Username: username,
-	}, nil
-}
-
-func (b *coreBinding) BindGetMessages(c *gin.Context) (*web.GetMessagesReq, mir.Error) {
-	v, err := web.BasePageReqFrom(c)
-	return (*web.GetMessagesReq)(v), err
-}
-
-func (b *coreBinding) BindGetCollections(c *gin.Context) (*web.GetCollectionsReq, mir.Error) {
-	v, err := web.BasePageReqFrom(c)
-	return (*web.GetCollectionsReq)(v), err
-}
-
-func (b *coreBinding) BindGetStars(c *gin.Context) (*web.GetStarsReq, mir.Error) {
-	v, err := web.BasePageReqFrom(c)
-	return (*web.GetStarsReq)(v), err
-}
-
-func (b *coreBinding) BindSuggestTags(c *gin.Context) (*web.SuggestTagsReq, mir.Error) {
-	return &web.SuggestTagsReq{
-		Keyword: c.Query("k"),
-	}, nil
-}
-
-func (b *coreBinding) BindSuggestUsers(c *gin.Context) (*web.SuggestUsersReq, mir.Error) {
-	return &web.SuggestUsersReq{
-		Keyword: c.Query("k"),
-	}, nil
-}
-
-func (b *coreBinding) BindTweetCollectionStatus(c *gin.Context) (*web.TweetCollectionStatusReq, mir.Error) {
-	UserId, exist := base.UserIdFrom(c)
-	if !exist {
-		return nil, xerror.UnauthorizedAuthNotExist
-	}
-	return &web.TweetCollectionStatusReq{
-		SimpleInfo: web.SimpleInfo{
-			Uid: UserId,
-		},
-		TweetId: convert.StrTo(c.Query("id")).MustInt64(),
-	}, nil
-}
-
-func (b *coreBinding) BindTweetStarStatus(c *gin.Context) (*web.TweetStarStatusReq, mir.Error) {
-	UserId, exist := base.UserIdFrom(c)
-	if !exist {
-		return nil, xerror.UnauthorizedAuthNotExist
-	}
-	return &web.TweetStarStatusReq{
-		SimpleInfo: web.SimpleInfo{
-			Uid: UserId,
-		},
-		TweetId: convert.StrTo(c.Query("id")).MustInt64(),
-	}, nil
 }
 
 func (s *coreSrv) Chain() gin.HandlersChain {
@@ -446,21 +372,5 @@ func newCoreSrv(s *base.DaoServant, oss core.ObjectStorageService) api.Core {
 	return &coreSrv{
 		DaoServant: s,
 		oss:        oss,
-	}
-}
-
-func newCoreBinding() api.CoreBinding {
-	return &coreBinding{
-		UnimplementedCoreBinding: &api.UnimplementedCoreBinding{
-			BindAny: base.NewBindAnyFn(),
-		},
-	}
-}
-
-func newCoreRender() api.CoreRender {
-	return &coreRender{
-		UnimplementedCoreRender: &api.UnimplementedCoreRender{
-			RenderAny: base.RenderAny,
-		},
 	}
 }

@@ -14,7 +14,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/afocus/captcha"
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
 	"github.com/gofrs/uuid"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
@@ -29,9 +29,7 @@ import (
 )
 
 var (
-	_ api.Pub        = (*pubSrv)(nil)
-	_ api.PubBinding = (*pubBinding)(nil)
-	_ api.PubRender  = (*pubRender)(nil)
+	_ api.Pub = (*pubSrv)(nil)
 )
 
 const (
@@ -42,14 +40,6 @@ const (
 type pubSrv struct {
 	api.UnimplementedPubServant
 	*base.DaoServant
-}
-
-type pubBinding struct {
-	*api.UnimplementedPubBinding
-}
-
-type pubRender struct {
-	*api.UnimplementedPubRender
 }
 
 func (s *pubSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir.Error) {
@@ -226,21 +216,5 @@ func (s *pubSrv) validUsername(username string) mir.Error {
 func newPubSrv(s *base.DaoServant) api.Pub {
 	return &pubSrv{
 		DaoServant: s,
-	}
-}
-
-func newPubBinding() api.PubBinding {
-	return &pubBinding{
-		UnimplementedPubBinding: &api.UnimplementedPubBinding{
-			BindAny: base.NewBindAnyFn(),
-		},
-	}
-}
-
-func newPubRender() api.PubRender {
-	return &pubRender{
-		UnimplementedPubRender: &api.UnimplementedPubRender{
-			RenderAny: base.RenderAny,
-		},
 	}
 }

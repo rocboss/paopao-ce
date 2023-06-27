@@ -11,7 +11,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
 	"github.com/gofrs/uuid"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model/web"

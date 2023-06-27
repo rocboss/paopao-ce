@@ -10,9 +10,7 @@ import (
 )
 
 var (
-	_ api.User        = (*userSrv)(nil)
-	_ api.UserBinding = (*userBinding)(nil)
-	_ api.UserRender  = (*userRender)(nil)
+	_ api.User = (*userSrv)(nil)
 )
 
 type userSrv struct {
@@ -20,32 +18,6 @@ type userSrv struct {
 	api.UnimplementedUserServant
 }
 
-type userBinding struct {
-	base.BaseBinding
-	*api.UnimplementedUserBinding
-}
-
-type userRender struct {
-	base.BaseRender
-	*api.UnimplementedUserRender
-}
-
 func newUserSrv() api.User {
 	return &userSrv{}
-}
-
-func newUserBinding() api.UserBinding {
-	return &userBinding{
-		UnimplementedUserBinding: &api.UnimplementedUserBinding{
-			BindAny: base.NewBindAnyFn(),
-		},
-	}
-}
-
-func newUserRender() api.UserRender {
-	return &userRender{
-		UnimplementedUserRender: &api.UnimplementedUserRender{
-			RenderAny: base.RenderAny,
-		},
-	}
 }

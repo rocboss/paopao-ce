@@ -10,8 +10,8 @@ package main
 import (
 	"log"
 
-	. "github.com/alimy/mir/v3/core"
-	. "github.com/alimy/mir/v3/engine"
+	. "github.com/alimy/mir/v4/core"
+	. "github.com/alimy/mir/v4/engine"
 
 	_ "github.com/rocboss/paopao-ce/mirc/admin/v1"
 	_ "github.com/rocboss/paopao-ce/mirc/bot/v1"

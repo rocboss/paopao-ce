@@ -5,7 +5,7 @@
 package web
 
 import (
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/model/web"
@@ -16,22 +16,12 @@ import (
 )
 
 var (
-	_ api.Friendship        = (*friendshipSrv)(nil)
-	_ api.FriendshipBinding = (*friendshipBinding)(nil)
-	_ api.FriendshipRender  = (*friendshipRender)(nil)
+	_ api.Friendship = (*friendshipSrv)(nil)
 )
 
 type friendshipSrv struct {
 	api.UnimplementedFriendshipServant
 	*base.DaoServant
-}
-
-type friendshipBinding struct {
-	*api.UnimplementedFriendshipBinding
-}
-
-type friendshipRender struct {
-	*api.UnimplementedFriendshipRender
 }
 
 func (s *friendshipSrv) Chain() gin.HandlersChain {
@@ -122,21 +112,5 @@ func (s *friendshipSrv) RequestingFriend(req *web.RequestingFriendReq) mir.Error
 func newFriendshipSrv(s *base.DaoServant) api.Friendship {
 	return &friendshipSrv{
 		DaoServant: s,
-	}
-}
-
-func newFriendshipBinding() api.FriendshipBinding {
-	return &friendshipBinding{
-		UnimplementedFriendshipBinding: &api.UnimplementedFriendshipBinding{
-			BindAny: base.NewBindAnyFn(),
-		},
-	}
-}
-
-func newFriendshipRender() api.FriendshipRender {
-	return &friendshipRender{
-		UnimplementedFriendshipRender: &api.UnimplementedFriendshipRender{
-			RenderAny: base.RenderAny,
-		},
 	}
 }

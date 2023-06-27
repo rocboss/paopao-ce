@@ -5,7 +5,7 @@
 package web
 
 import (
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
@@ -14,45 +14,16 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
-	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/sirupsen/logrus"
 )
 
 var (
-	_ api.Loose        = (*looseSrv)(nil)
-	_ api.LooseBinding = (*looseBinding)(nil)
-	_ api.LooseRender  = (*looseRender)(nil)
+	_ api.Loose = (*looseSrv)(nil)
 )
 
 type looseSrv struct {
 	api.UnimplementedLooseServant
 	*base.DaoServant
-}
-
-type looseBinding struct {
-	*api.UnimplementedLooseBinding
-}
-
-type looseRender struct {
-	*api.UnimplementedLooseRender
-}
-
-func (s *looseBinding) BindTimeline(c *gin.Context) (*web.TimelineReq, mir.Error) {
-	user, _ := base.UserFrom(c)
-	page, pageSize := app.GetPageInfo(c)
-	v := &web.TimelineReq{
-		BaseInfo: web.BaseInfo{
-			User: user,
-		},
-		Query:    c.Query("query"),
-		Type:     "search",
-		Page:     page,
-		PageSize: pageSize,
-	}
-	if c.Query("type") == "tag" {
-		v.Type = "tag"
-	}
-	return v, nil
 }
 
 func (s *looseSrv) Chain() gin.HandlersChain {
@@ -276,21 +247,5 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 func newLooseSrv(s *base.DaoServant) api.Loose {
 	return &looseSrv{
 		DaoServant: s,
-	}
-}
-
-func newLooseBinding() api.LooseBinding {
-	return &looseBinding{
-		UnimplementedLooseBinding: &api.UnimplementedLooseBinding{
-			BindAny: base.NewBindAnyFn(),
-		},
-	}
-}
-
-func newLooseRender() api.LooseRender {
-	return &looseRender{
-		UnimplementedLooseRender: &api.UnimplementedLooseRender{
-			RenderAny: base.RenderAny,
-		},
 	}
 }

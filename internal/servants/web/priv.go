@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
@@ -19,16 +19,13 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
-	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
 )
 
 var (
-	_ api.Priv        = (*privSrv)(nil)
-	_ api.PrivBinding = (*privBinding)(nil)
-	_ api.PrivRender  = (*privRender)(nil)
+	_ api.Priv = (*privSrv)(nil)
 
 	_uploadAttachmentTypeMap = map[string]core.AttachmentType{
 		"public/image":  core.AttachmentTypeImage,
@@ -43,100 +40,6 @@ type privSrv struct {
 	*base.DaoServant
 
 	oss core.ObjectStorageService
-}
-
-type privBinding struct {
-	*api.UnimplementedPrivBinding
-}
-
-type privRender struct {
-	*api.UnimplementedPrivRender
-}
-
-func (b *privBinding) BindUploadAttachment(c *gin.Context) (_ *web.UploadAttachmentReq, xerr mir.Error) {
-	UserId, exist := base.UserIdFrom(c)
-	if !exist {
-		return nil, xerror.UnauthorizedAuthNotExist
-	}
-
-	uploadType := c.Request.FormValue("type")
-	file, fileHeader, err := c.Request.FormFile("file")
-	if err != nil {
-		return nil, _errFileUploadFailed
-	}
-	defer func() {
-		if xerr != nil {
-			file.Close()
-		}
-	}()
-
-	if err := fileCheck(uploadType, fileHeader.Size); err != nil {
-		return nil, err
-	}
-
-	contentType := fileHeader.Header.Get("Content-Type")
-	fileExt, xerr := getFileExt(contentType)
-	if xerr != nil {
-		return nil, xerr
-	}
-
-	return &web.UploadAttachmentReq{
-		SimpleInfo: web.SimpleInfo{
-			Uid: UserId,
-		},
-		UploadType:  uploadType,
-		ContentType: contentType,
-		File:        file,
-		FileSize:    fileHeader.Size,
-		FileExt:     fileExt,
-	}, nil
-}
-
-func (b *privBinding) BindDownloadAttachmentPrecheck(c *gin.Context) (*web.DownloadAttachmentPrecheckReq, mir.Error) {
-	user, exist := base.UserFrom(c)
-	if !exist {
-		return nil, xerror.UnauthorizedAuthNotExist
-	}
-	return &web.DownloadAttachmentPrecheckReq{
-		BaseInfo: web.BaseInfo{
-			User: user,
-		},
-		ContentID: convert.StrTo(c.Query("id")).MustInt64(),
-	}, nil
-}
-
-func (b *privBinding) BindDownloadAttachment(c *gin.Context) (*web.DownloadAttachmentReq, mir.Error) {
-	user, exist := base.UserFrom(c)
-	if !exist {
-		return nil, xerror.UnauthorizedAuthNotExist
-	}
-	return &web.DownloadAttachmentReq{
-		BaseInfo: web.BaseInfo{
-			User: user,
-		},
-		ContentID: convert.StrTo(c.Query("id")).MustInt64(),
-	}, nil
-}
-
-func (s *privBinding) BindCreateTweet(c *gin.Context) (*web.CreateTweetReq, mir.Error) {
-	v := &web.CreateTweetReq{}
-	err := s.BindAny(c, v)
-	v.ClientIP = c.ClientIP()
-	return v, err
-}
-
-func (s *privBinding) BindCreateCommentReply(c *gin.Context) (*web.CreateCommentReplyReq, mir.Error) {
-	v := &web.CreateCommentReplyReq{}
-	err := s.BindAny(c, v)
-	v.ClientIP = c.ClientIP()
-	return v, err
-}
-
-func (s *privBinding) BindCreateComment(c *gin.Context) (*web.CreateCommentReq, mir.Error) {
-	v := &web.CreateCommentReq{}
-	err := s.BindAny(c, v)
-	v.ClientIP = c.ClientIP()
-	return v, err
 }
 
 func (s *privSrv) Chain() gin.HandlersChain {
@@ -925,21 +828,5 @@ func newPrivSrv(s *base.DaoServant, oss core.ObjectStorageService) api.Priv {
 	return &privSrv{
 		DaoServant: s,
 		oss:        oss,
-	}
-}
-
-func newPrivBinding() api.PrivBinding {
-	return &privBinding{
-		UnimplementedPrivBinding: &api.UnimplementedPrivBinding{
-			BindAny: base.NewBindAnyFn(),
-		},
-	}
-}
-
-func newPrivRender() api.PrivRender {
-	return &privRender{
-		UnimplementedPrivRender: &api.UnimplementedPrivRender{
-			RenderAny: base.RenderAny,
-		},
 	}
 }

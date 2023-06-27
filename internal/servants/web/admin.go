@@ -5,7 +5,7 @@
 package web
 
 import (
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/model/web"
@@ -15,22 +15,12 @@ import (
 )
 
 var (
-	_ api.Admin        = (*adminSrv)(nil)
-	_ api.AdminBinding = (*adminBinding)(nil)
-	_ api.AdminRender  = (*adminRender)(nil)
+	_ api.Admin = (*adminSrv)(nil)
 )
 
 type adminSrv struct {
 	api.UnimplementedAdminServant
 	*base.DaoServant
-}
-
-type adminBinding struct {
-	*api.UnimplementedAdminBinding
-}
-
-type adminRender struct {
-	*api.UnimplementedAdminRender
 }
 
 func (s *adminSrv) Chain() gin.HandlersChain {
@@ -53,21 +43,5 @@ func (s *adminSrv) ChangeUserStatus(req *web.ChangeUserStatusReq) mir.Error {
 func newAdminSrv(s *base.DaoServant) api.Admin {
 	return &adminSrv{
 		DaoServant: s,
-	}
-}
-
-func newAdminBinding() api.AdminBinding {
-	return &adminBinding{
-		UnimplementedAdminBinding: &api.UnimplementedAdminBinding{
-			BindAny: base.NewBindAnyFn(),
-		},
-	}
-}
-
-func newAdminRender() api.AdminRender {
-	return &adminRender{
-		UnimplementedAdminRender: &api.UnimplementedAdminRender{
-			RenderAny: base.RenderAny,
-		},
 	}
 }
