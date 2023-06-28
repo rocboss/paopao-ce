@@ -12,19 +12,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
-type _binding_ interface {
-	Bind(*gin.Context) mir.Error
-}
-
-type _render_ interface {
-	Render(*gin.Context)
-}
-
-type _default_ interface {
-	Bind(*gin.Context, any) mir.Error
-	Render(*gin.Context, any, mir.Error)
-}
-
 type Pub interface {
 	_default_
 
@@ -50,31 +37,13 @@ func RegisterPubServant(e *gin.Engine, s Pub) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.TweetDetailReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.TweetDetail(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.TweetDetail(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/captcha", func(c *gin.Context) {
 		select {
@@ -83,22 +52,11 @@ func RegisterPubServant(e *gin.Engine, s Pub) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.SendCaptchaReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.SendCaptcha(req))
 	})
 	router.Handle("GET", "/captcha", func(c *gin.Context) {
@@ -108,21 +66,8 @@ func RegisterPubServant(e *gin.Engine, s Pub) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
-
-		obj, err = s.GetCaptcha()
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.GetCaptcha()
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/auth/register", func(c *gin.Context) {
 		select {
@@ -131,31 +76,13 @@ func RegisterPubServant(e *gin.Engine, s Pub) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.RegisterReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.Register(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.Register(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/auth/login", func(c *gin.Context) {
 		select {
@@ -164,31 +91,13 @@ func RegisterPubServant(e *gin.Engine, s Pub) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.LoginReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.Login(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.Login(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/", func(c *gin.Context) {
 		select {
@@ -197,21 +106,8 @@ func RegisterPubServant(e *gin.Engine, s Pub) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
-
-		obj, err = s.Version()
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.Version()
+		s.Render(c, resp, err)
 	})
 }
 

@@ -53,31 +53,14 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.TweetCollectionStatusReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.TweetCollectionStatus(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.TweetCollectionStatus(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/post/star", func(c *gin.Context) {
 		select {
@@ -86,31 +69,14 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.TweetStarStatusReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.TweetStarStatus(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.TweetStarStatus(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/suggest/tags", func(c *gin.Context) {
 		select {
@@ -119,31 +85,14 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.SuggestTagsReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.SuggestTags(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.SuggestTags(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/suggest/users", func(c *gin.Context) {
 		select {
@@ -152,31 +101,14 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.SuggestUsersReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.SuggestUsers(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.SuggestUsers(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/user/avatar", func(c *gin.Context) {
 		select {
@@ -185,22 +117,11 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.ChangeAvatarReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.ChangeAvatar(req))
 	})
 	router.Handle("POST", "/user/nickname", func(c *gin.Context) {
@@ -210,22 +131,11 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.ChangeNicknameReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.ChangeNickname(req))
 	})
 	router.Handle("POST", "/user/password", func(c *gin.Context) {
@@ -235,22 +145,11 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.ChangePasswordReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.ChangePassword(req))
 	})
 	router.Handle("POST", "/user/phone", func(c *gin.Context) {
@@ -260,22 +159,11 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.UserPhoneBindReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.UserPhoneBind(req))
 	})
 	router.Handle("GET", "/user/stars", func(c *gin.Context) {
@@ -285,31 +173,14 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.GetStarsReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.GetStars(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.GetStars(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/user/collections", func(c *gin.Context) {
 		select {
@@ -318,31 +189,14 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.GetCollectionsReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.GetCollections(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.GetCollections(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/user/whisper", func(c *gin.Context) {
 		select {
@@ -351,22 +205,11 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.SendWhisperReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.SendUserWhisper(req))
 	})
 	router.Handle("POST", "/user/message/read", func(c *gin.Context) {
@@ -376,22 +219,11 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.ReadMessageReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.ReadMessage(req))
 	})
 	router.Handle("GET", "/user/messages", func(c *gin.Context) {
@@ -401,31 +233,14 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.GetMessagesReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.GetMessages(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.GetMessages(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/user/msgcount/unread", func(c *gin.Context) {
 		select {
@@ -434,31 +249,13 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.GetUnreadMsgCountReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.GetUnreadMsgCount(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.GetUnreadMsgCount(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/user/info", func(c *gin.Context) {
 		select {
@@ -467,31 +264,14 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.UserInfoReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.GetUserInfo(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.GetUserInfo(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/sync/index", func(c *gin.Context) {
 		select {
@@ -500,22 +280,11 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.SyncSearchIndexReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.SyncSearchIndex(req))
 	})
 }

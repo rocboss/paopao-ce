@@ -41,31 +41,13 @@ func RegisterFollowshipServant(e *gin.Engine, s Followship) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.ListFollowersReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.ListFollowers(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.ListFollowers(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/following/list", func(c *gin.Context) {
 		select {
@@ -74,31 +56,13 @@ func RegisterFollowshipServant(e *gin.Engine, s Followship) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.ListFollowingsReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.ListFollowings(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.ListFollowings(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/following/delete", func(c *gin.Context) {
 		select {
@@ -107,22 +71,11 @@ func RegisterFollowshipServant(e *gin.Engine, s Followship) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.DeleteFollowingReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.DeleteFollowing(req))
 	})
 	router.Handle("POST", "/following/add", func(c *gin.Context) {
@@ -132,22 +85,11 @@ func RegisterFollowshipServant(e *gin.Engine, s Followship) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.AddFollowingReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.AddFollowing(req))
 	})
 }

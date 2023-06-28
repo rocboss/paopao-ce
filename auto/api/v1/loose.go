@@ -42,31 +42,13 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.TweetCommentsReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.TweetComments(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.TweetComments(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/tags", func(c *gin.Context) {
 		select {
@@ -75,31 +57,13 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.TopicListReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.TopicList(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.TopicList(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/user/profile", func(c *gin.Context) {
 		select {
@@ -108,31 +72,13 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.GetUserProfileReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.GetUserProfile(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.GetUserProfile(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/user/posts", func(c *gin.Context) {
 		select {
@@ -141,31 +87,13 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.GetUserTweetsReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.GetUserTweets(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.GetUserTweets(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/posts", func(c *gin.Context) {
 		select {
@@ -174,31 +102,14 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.TimelineReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.Timeline(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.Timeline(req)
+		s.Render(c, resp, err)
 	})
 }
 

@@ -58,22 +58,11 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.UnfollowTopicReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.UnfollowTopic(req))
 	})
 	router.Handle("POST", "/topic/follow", func(c *gin.Context) {
@@ -83,22 +72,11 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.FollowTopicReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.FollowTopic(req))
 	})
 	router.Handle("POST", "/topic/stick", func(c *gin.Context) {
@@ -108,31 +86,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.StickTopicReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.StickTopic(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.StickTopic(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/tweet/reply/thumbsdown", func(c *gin.Context) {
 		select {
@@ -141,22 +101,11 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.TweetReplyThumbsReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.ThumbsDownTweetReply(req))
 	})
 	router.Handle("POST", "/tweet/reply/thumbsup", func(c *gin.Context) {
@@ -166,22 +115,11 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.TweetReplyThumbsReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.ThumbsUpTweetReply(req))
 	})
 	router.Handle("POST", "/tweet/comment/thumbsdown", func(c *gin.Context) {
@@ -191,22 +129,11 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.TweetCommentThumbsReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.ThumbsDownTweetComment(req))
 	})
 	router.Handle("POST", "/tweet/comment/thumbsup", func(c *gin.Context) {
@@ -216,22 +143,11 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.TweetCommentThumbsReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.ThumbsUpTweetComment(req))
 	})
 	router.Handle("DELETE", "/post/comment/reply", func(c *gin.Context) {
@@ -241,22 +157,11 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.DeleteCommentReplyReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.DeleteCommentReply(req))
 	})
 	router.Handle("POST", "/post/comment/reply", func(c *gin.Context) {
@@ -266,31 +171,14 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.CreateCommentReplyReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.CreateCommentReply(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.CreateCommentReply(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("DELETE", "/post/comment", func(c *gin.Context) {
 		select {
@@ -299,22 +187,11 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.DeleteCommentReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.DeleteComment(req))
 	})
 	router.Handle("POST", "/post/comment", func(c *gin.Context) {
@@ -324,31 +201,14 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.CreateCommentReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.CreateComment(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.CreateComment(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/post/visibility", func(c *gin.Context) {
 		select {
@@ -357,31 +217,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.VisibleTweetReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.VisibleTweet(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.VisibleTweet(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/post/stick", func(c *gin.Context) {
 		select {
@@ -390,31 +232,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.StickTweetReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.StickTweet(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.StickTweet(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/post/lock", func(c *gin.Context) {
 		select {
@@ -423,31 +247,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.LockTweetReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.LockTweet(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.LockTweet(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/post/collection", func(c *gin.Context) {
 		select {
@@ -456,31 +262,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.CollectionTweetReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.CollectionTweet(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.CollectionTweet(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/post/star", func(c *gin.Context) {
 		select {
@@ -489,31 +277,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.StarTweetReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.StarTweet(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.StarTweet(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("DELETE", "/post", func(c *gin.Context) {
 		select {
@@ -522,22 +292,11 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.DeleteTweetReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.DeleteTweet(req))
 	})
 	router.Handle("POST", "/post", func(c *gin.Context) {
@@ -547,31 +306,14 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.CreateTweetReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.CreateTweet(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.CreateTweet(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/attachment", func(c *gin.Context) {
 		select {
@@ -580,31 +322,14 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.DownloadAttachmentReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.DownloadAttachment(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.DownloadAttachment(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/attachment/precheck", func(c *gin.Context) {
 		select {
@@ -613,31 +338,14 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.DownloadAttachmentPrecheckReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.DownloadAttachmentPrecheck(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.DownloadAttachmentPrecheck(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/attachment", func(c *gin.Context) {
 		select {
@@ -646,31 +354,14 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.UploadAttachmentReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.UploadAttachment(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.UploadAttachment(req)
+		s.Render(c, resp, err)
 	})
 }
 

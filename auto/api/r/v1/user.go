@@ -85,31 +85,13 @@ func RegisterUserServant(e *gin.Engine, s User) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(LoginReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.Login(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.Login(req)
+		s.Render(c, resp, err)
 	})
 }
 

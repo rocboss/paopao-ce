@@ -12,6 +12,19 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
+type _binding_ interface {
+	Bind(*gin.Context) mir.Error
+}
+
+type _render_ interface {
+	Render(*gin.Context)
+}
+
+type _default_ interface {
+	Bind(*gin.Context, any) mir.Error
+	Render(*gin.Context, any, mir.Error)
+}
+
 type Admin interface {
 	_default_
 
@@ -38,22 +51,11 @@ func RegisterAdminServant(e *gin.Engine, s Admin) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.ChangeUserStatusReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.ChangeUserStatus(req))
 	})
 }

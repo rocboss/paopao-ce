@@ -32,22 +32,12 @@ func RegisterAlipayPubServant(e *gin.Engine, s AlipayPub) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.AlipayNotifyReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.AlipayNotify(req))
 	})
 }

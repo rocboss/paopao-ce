@@ -13,6 +13,7 @@ import (
 	. "github.com/alimy/mir/v4/core"
 	. "github.com/alimy/mir/v4/engine"
 
+	_ "github.com/alimy/mir/engine/gin/v4"
 	_ "github.com/rocboss/paopao-ce/mirc/admin/v1"
 	_ "github.com/rocboss/paopao-ce/mirc/bot/v1"
 	_ "github.com/rocboss/paopao-ce/mirc/localoss/v1"

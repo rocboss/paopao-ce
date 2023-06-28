@@ -42,31 +42,13 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.GetContactsReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.GetContacts(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.GetContacts(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/friend/delete", func(c *gin.Context) {
 		select {
@@ -75,22 +57,11 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.DeleteFriendReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.DeleteFriend(req))
 	})
 	router.Handle("POST", "/friend/reject", func(c *gin.Context) {
@@ -100,22 +71,11 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.RejectFriendReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.RejectFriend(req))
 	})
 	router.Handle("POST", "/friend/add", func(c *gin.Context) {
@@ -125,22 +85,11 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.AddFriendReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.AddFriend(req))
 	})
 	router.Handle("POST", "/friend/requesting", func(c *gin.Context) {
@@ -150,22 +99,11 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.RequestingFriendReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-
 		s.Render(c, nil, s.RequestingFriend(req))
 	})
 }

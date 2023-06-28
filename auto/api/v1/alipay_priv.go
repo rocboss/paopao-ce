@@ -40,31 +40,14 @@ func RegisterAlipayPrivServant(e *gin.Engine, s AlipayPriv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.UserWalletBillsReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.UserWalletBills(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.UserWalletBills(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("GET", "/user/recharge", func(c *gin.Context) {
 		select {
@@ -73,31 +56,14 @@ func RegisterAlipayPrivServant(e *gin.Engine, s AlipayPriv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.UserRechargeResultReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.UserRechargeResult(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.UserRechargeResult(req)
+		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/user/recharge", func(c *gin.Context) {
 		select {
@@ -106,31 +72,14 @@ func RegisterAlipayPrivServant(e *gin.Engine, s AlipayPriv) {
 		default:
 		}
 
-		var (
-			obj any
-			err mir.Error
-		)
 		req := new(web.UserRechargeLinkReq)
-		obj = req
-		if bv, ok := obj.(_binding_); !ok {
-			err = s.Bind(c, req)
-		} else {
-			err = bv.Bind(c)
-		}
-		if err != nil {
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
-		obj, err = s.UserRechargeLink(req)
-		if err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		if rv, ok := obj.(_render_); !ok {
-			s.Render(c, obj, nil)
-		} else {
-			rv.Render(c)
-		}
+		resp, err := s.UserRechargeLink(req)
+		s.Render(c, resp, err)
 	})
 }
 
