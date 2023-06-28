@@ -2,6 +2,8 @@
 
 All notable changes to paopao-ce are documented in this file.
 ## 0.4.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+### Added
+- add `pprof` feature support [#327](https://github.com/rocboss/paopao-ce/pull/327)  
 
 ## 0.3.0
 ### Added
