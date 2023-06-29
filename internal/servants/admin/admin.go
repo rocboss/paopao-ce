@@ -11,5 +11,5 @@ import (
 
 // RouteWeb register Manager route
 func RouteManager(e *gin.Engine) {
-	api.RegisterUserServant(e, newUserSrv(), newUserBinding(), newUserRender())
+	api.RegisterUserServant(e, newUserSrv())
 }

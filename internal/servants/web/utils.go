@@ -11,8 +11,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/alimy/mir/v3"
-	"github.com/gofrs/uuid"
+	"github.com/alimy/mir/v4"
+	"github.com/gofrs/uuid/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/web"
@@ -83,7 +83,7 @@ func getRandomAvatar() string {
 func checkPassword(password string) mir.Error {
 	// 检测用户是否合规
 	if utf8.RuneCountInString(password) < 6 || utf8.RuneCountInString(password) > 16 {
-		return _errPasswordLengthLimit
+		return web.ErrPasswordLengthLimit
 	}
 	return nil
 }
@@ -145,7 +145,7 @@ func fileCheck(uploadType string, size int64) mir.Error {
 		return xerror.InvalidParams
 	}
 	if size > 1024*1024*100 {
-		return _errFileInvalidSize.WithDetails("最大允许100MB")
+		return web.ErrFileInvalidSize.WithDetails("最大允许100MB")
 	}
 	return nil
 }
@@ -170,7 +170,7 @@ func getFileExt(s string) (string, mir.Error) {
 		"application/x-zip-compressed":
 		return ".zip", nil
 	default:
-		return "", _errFileInvalidExt.WithDetails("仅允许 png/jpg/gif/mp4/mov/zip 类型")
+		return "", web.ErrFileInvalidExt.WithDetails("仅允许 png/jpg/gif/mp4/mov/zip 类型")
 	}
 }
 
@@ -203,7 +203,7 @@ func tagsFrom(originTags []string) []string {
 // checkPermision 检查是否拥有者或管理员
 func checkPermision(user *ms.User, targetUserId int64) mir.Error {
 	if user == nil || (user.ID != targetUserId && !user.IsAdmin) {
-		return _errNoPermission
+		return web.ErrNoPermission
 	}
 	return nil
 }

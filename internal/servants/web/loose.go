@@ -5,7 +5,7 @@
 package web
 
 import (
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
@@ -15,45 +15,16 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
-	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/sirupsen/logrus"
 )
 
 var (
-	_ api.Loose        = (*looseSrv)(nil)
-	_ api.LooseBinding = (*looseBinding)(nil)
-	_ api.LooseRender  = (*looseRender)(nil)
+	_ api.Loose = (*looseSrv)(nil)
 )
 
 type looseSrv struct {
 	api.UnimplementedLooseServant
 	*base.DaoServant
-}
-
-type looseBinding struct {
-	*api.UnimplementedLooseBinding
-}
-
-type looseRender struct {
-	*api.UnimplementedLooseRender
-}
-
-func (s *looseBinding) BindTimeline(c *gin.Context) (*web.TimelineReq, mir.Error) {
-	user, _ := base.UserFrom(c)
-	page, pageSize := app.GetPageInfo(c)
-	v := &web.TimelineReq{
-		BaseInfo: web.BaseInfo{
-			User: user,
-		},
-		Query:    c.Query("query"),
-		Type:     "search",
-		Page:     page,
-		PageSize: pageSize,
-	}
-	if c.Query("type") == "tag" {
-		v.Type = "tag"
-	}
-	return v, nil
 }
 
 func (s *looseSrv) Chain() gin.HandlersChain {
@@ -67,7 +38,7 @@ func (s *looseSrv) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error)
 		res, err := s.Ds.IndexPosts(req.User, offset, limit)
 		if err != nil {
 			logrus.Errorf("Ds.IndexPosts err: %s", err)
-			return nil, _errGetPostsFailed
+			return nil, web.ErrGetPostsFailed
 		}
 		resp = base.PageRespFrom(res.Tweets, req.Page, req.PageSize, res.Total)
 	} else {
@@ -78,12 +49,12 @@ func (s *looseSrv) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error)
 		res, err := s.Ts.Search(req.User, q, offset, limit)
 		if err != nil {
 			logrus.Errorf("Ts.Search err: %s", err)
-			return nil, _errGetPostsFailed
+			return nil, web.ErrGetPostsFailed
 		}
 		posts, err := s.Ds.RevampPosts(res.Items)
 		if err != nil {
 			logrus.Errorf("Ds.RevampPosts err: %s", err)
-			return nil, _errGetPostsFailed
+			return nil, web.ErrGetPostsFailed
 		}
 		resp = base.PageRespFrom(posts, req.Page, req.PageSize, res.Total)
 	}
@@ -115,12 +86,12 @@ func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (*web.GetUserTweetsR
 	_, posts, err := s.GetTweetList(conditions, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
 		logrus.Errorf("s.GetTweetList err: %s", err)
-		return nil, _errGetPostsFailed
+		return nil, web.ErrGetPostsFailed
 	}
 	totalRows, err := s.Ds.GetPostCount(conditions)
 	if err != nil {
 		logrus.Errorf("s.GetPostCount err: %s", err)
-		return nil, _errGetPostsFailed
+		return nil, web.ErrGetPostsFailed
 	}
 
 	resp := base.PageRespFrom(posts, req.Page, req.PageSize, totalRows)
@@ -131,10 +102,10 @@ func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfi
 	he, err := s.Ds.GetUserByUsername(req.Username)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserByUsername err: %s", err)
-		return nil, _errNoExistUsername
+		return nil, web.ErrNoExistUsername
 	}
 	if he.Model == nil && he.ID <= 0 {
-		return nil, _errNoExistUsername
+		return nil, web.ErrNoExistUsername
 	}
 	// 设定自己不是自己的朋友
 	isFriend := !(req.User == nil || req.User.ID == he.ID)
@@ -176,10 +147,10 @@ func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Err
 		}
 	default:
 		// TODO: return good error
-		err = _errGetPostTagsFailed
+		err = web.ErrGetPostTagsFailed
 	}
 	if err != nil {
-		return nil, _errGetPostTagsFailed
+		return nil, web.ErrGetPostTagsFailed
 	}
 	return &web.TopicListResp{
 		Topics:       tags,
@@ -199,7 +170,7 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 
 	comments, err := s.Ds.GetComments(conditions, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
-		return nil, _errGetCommentsFailed
+		return nil, web.ErrGetCommentsFailed
 	}
 
 	userIDs := []int64{}
@@ -211,24 +182,24 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 
 	users, err := s.Ds.GetUsersByIDs(userIDs)
 	if err != nil {
-		return nil, _errGetCommentsFailed
+		return nil, web.ErrGetCommentsFailed
 	}
 
 	contents, err := s.Ds.GetCommentContentsByIDs(commentIDs)
 	if err != nil {
-		return nil, _errGetCommentsFailed
+		return nil, web.ErrGetCommentsFailed
 	}
 
 	replies, err := s.Ds.GetCommentRepliesByID(commentIDs)
 	if err != nil {
-		return nil, _errGetCommentsFailed
+		return nil, web.ErrGetCommentsFailed
 	}
 
 	var commentThumbs, replyThumbs cs.CommentThumbsMap
 	if req.Uid > 0 {
 		commentThumbs, replyThumbs, err = s.Ds.GetCommentThumbsMap(req.Uid, req.TweetId)
 		if err != nil {
-			return nil, _errGetCommentsFailed
+			return nil, web.ErrGetCommentsFailed
 		}
 	}
 
@@ -277,21 +248,5 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 func newLooseSrv(s *base.DaoServant) api.Loose {
 	return &looseSrv{
 		DaoServant: s,
-	}
-}
-
-func newLooseBinding() api.LooseBinding {
-	return &looseBinding{
-		UnimplementedLooseBinding: &api.UnimplementedLooseBinding{
-			BindAny: base.NewBindAnyFn(),
-		},
-	}
-}
-
-func newLooseRender() api.LooseRender {
-	return &looseRender{
-		UnimplementedLooseRender: &api.UnimplementedLooseRender{
-			RenderAny: base.RenderAny,
-		},
 	}
 }

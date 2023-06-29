@@ -72,6 +72,9 @@ func newService() (ss []Service) {
 		"Docs": func() {
 			ss = append(ss, newDocsService())
 		},
+		"Pprof": func() {
+			ss = append(ss, newPprofService())
+		},
 	})
 	return
 }

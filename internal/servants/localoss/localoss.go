@@ -26,5 +26,5 @@ func RouteLocalOSS(e *gin.Engine) {
 
 // RouteLocaloss register LocalOSS route if needed
 func RouteLocaloss(e *gin.Engine) {
-	api.RegisterUserServant(e, newUserSrv(), newUserBinding(), newUserRender())
+	api.RegisterUserServant(e, newUserSrv())
 }
