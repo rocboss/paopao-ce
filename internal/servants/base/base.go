@@ -10,7 +10,7 @@ import (
 	"math"
 	"net/http"
 
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
 	"github.com/cockroachdb/errors"
 	"github.com/getsentry/sentry-go"
 	sentrygin "github.com/getsentry/sentry-go/gin"
@@ -20,23 +20,22 @@ import (
 	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/pkg/app"
-	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
 )
 
-type BaseServant types.Empty
+type BaseServant struct {
+	bindAny func(c *gin.Context, obj any) mir.Error
+}
 
 type DaoServant struct {
+	*BaseServant
+
 	Dsa   core.WebDataServantA
 	Ds    core.DataService
 	Ts    core.TweetSearchService
 	Redis core.RedisCache
 }
-
-type BaseBinding types.Empty
-
-type BaseRender types.Empty
 
 type JsonResp struct {
 	Code int    `json:"code"`
@@ -157,6 +156,25 @@ func RenderAny(c *gin.Context, data any, err mir.Error) {
 	}
 }
 
+func (s *BaseServant) Bind(c *gin.Context, obj any) mir.Error {
+	return s.bindAny(c, obj)
+}
+
+func (s *BaseServant) Render(c *gin.Context, data any, err mir.Error) {
+	if err == nil {
+		c.JSON(http.StatusOK, &JsonResp{
+			Code: 0,
+			Msg:  "success",
+			Data: data,
+		})
+	} else {
+		c.JSON(xerror.HttpStatusCode(err), &JsonResp{
+			Code: err.StatusCode(),
+			Msg:  err.Error(),
+		})
+	}
+}
+
 func (s *DaoServant) GetTweetBy(id int64) (*core.PostFormated, error) {
 	post, err := s.Ds.GetPostByID(id)
 	if err != nil {
@@ -254,18 +272,25 @@ func (s *DaoServant) GetTweetList(conditions *core.ConditionsT, offset, limit in
 	return posts, postFormated, err
 }
 
-func NewDaoServant() *DaoServant {
-	return &DaoServant{
-		Redis: cache.NewRedisCache(),
-		Dsa:   dao.WebDataServantA(),
-		Ds:    dao.DataService(),
-		Ts:    dao.TweetSearchService(),
-	}
-}
-
 func NewBindAnyFn() func(c *gin.Context, obj any) mir.Error {
 	if conf.UseSentryGin() {
 		return bindAnySentry
 	}
 	return bindAny
+}
+
+func NewBaseServant() *BaseServant {
+	return &BaseServant{
+		bindAny: NewBindAnyFn(),
+	}
+}
+
+func NewDaoServant() *DaoServant {
+	return &DaoServant{
+		BaseServant: NewBaseServant(),
+		Redis:       cache.NewRedisCache(),
+		Dsa:         dao.WebDataServantA(),
+		Ds:          dao.DataService(),
+		Ts:          dao.TweetSearchService(),
+	}
 }

@@ -37,6 +37,12 @@ LocalossServer: # Localoss服务
   HttpPort: 8018
   ReadTimeout: 60
   WriteTimeout: 60
+PprofServer: # Pprof服务
+  RunMode: debug
+  HttpIp: 0.0.0.0
+  HttpPort: 6060
+  ReadTimeout: 60
+  WriteTimeout: 60
 FrontendWebServer: # Web前端静态资源服务
   RunMode: debug
   HttpIp: 0.0.0.0
