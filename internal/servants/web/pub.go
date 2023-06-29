@@ -15,7 +15,7 @@ import (
 
 	"github.com/afocus/captcha"
 	"github.com/alimy/mir/v4"
-	"github.com/gofrs/uuid"
+	"github.com/gofrs/uuid/v5"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model/web"

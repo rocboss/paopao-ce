@@ -12,7 +12,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/alimy/mir/v4"
-	"github.com/gofrs/uuid"
+	"github.com/gofrs/uuid/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/pkg/utils"

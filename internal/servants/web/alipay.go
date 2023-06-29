@@ -91,12 +91,12 @@ func (s *alipayPrivSrv) UserRechargeLink(req *web.UserRechargeLinkReq) (*web.Use
 		logrus.Errorf("client.TradePreCreate err: %v\n", err)
 		return nil, web.ErrRechargeReqFail
 	}
-	if rsp.Content.Code != alipay.CodeSuccess {
+	if rsp.Code != alipay.CodeSuccess {
 		return nil, web.ErrRechargeReqFail
 	}
 	return &web.UserRechargeLinkResp{
 		Id:  recharge.ID,
-		Pay: rsp.Content.QRCode,
+		Pay: rsp.QRCode,
 	}, nil
 }
 
