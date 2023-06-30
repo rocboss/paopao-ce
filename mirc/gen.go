@@ -12,8 +12,8 @@ import (
 
 	. "github.com/alimy/mir/v4/core"
 	. "github.com/alimy/mir/v4/engine"
+	"github.com/gin-gonic/gin"
 
-	_ "github.com/alimy/mir/engine/gin/v4"
 	_ "github.com/rocboss/paopao-ce/mirc/admin/v1"
 	_ "github.com/rocboss/paopao-ce/mirc/bot/v1"
 	_ "github.com/rocboss/paopao-ce/mirc/localoss/v1"
@@ -26,6 +26,7 @@ func main() {
 	log.Println("[Mir] generate code start")
 	opts := Options{
 		RunMode(InSerialMode),
+		AssertType[*gin.Context](),
 		GeneratorName(GeneratorGin),
 		WatchCtxDone(true),
 		SinkPath("../auto"),
