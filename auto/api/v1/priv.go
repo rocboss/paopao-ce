@@ -57,7 +57,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.UnfollowTopicReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -71,7 +70,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.FollowTopicReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -85,7 +83,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.StickTopicReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -100,7 +97,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.TweetReplyThumbsReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -114,7 +110,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.TweetReplyThumbsReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -128,7 +123,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.TweetCommentThumbsReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -142,7 +136,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.TweetCommentThumbsReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -156,7 +149,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.DeleteCommentReplyReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -170,7 +162,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.CreateCommentReplyReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -186,7 +177,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.DeleteCommentReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -200,7 +190,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.CreateCommentReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -216,7 +205,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.VisibleTweetReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -231,7 +219,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.StickTweetReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -246,7 +233,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.LockTweetReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -261,7 +247,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.CollectionTweetReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -276,7 +261,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.StarTweetReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -291,7 +275,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.DeleteTweetReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -305,7 +288,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.CreateTweetReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -321,7 +303,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.DownloadAttachmentReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -337,7 +318,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.DownloadAttachmentPrecheckReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -353,7 +333,6 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		default:
 		}
-
 		req := new(web.UploadAttachmentReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {

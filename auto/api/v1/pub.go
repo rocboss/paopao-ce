@@ -36,7 +36,6 @@ func RegisterPubServant(e *gin.Engine, s Pub) {
 			return
 		default:
 		}
-
 		req := new(web.TweetDetailReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -51,7 +50,6 @@ func RegisterPubServant(e *gin.Engine, s Pub) {
 			return
 		default:
 		}
-
 		req := new(web.SendCaptchaReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -75,7 +73,6 @@ func RegisterPubServant(e *gin.Engine, s Pub) {
 			return
 		default:
 		}
-
 		req := new(web.RegisterReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -90,7 +87,6 @@ func RegisterPubServant(e *gin.Engine, s Pub) {
 			return
 		default:
 		}
-
 		req := new(web.LoginReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)

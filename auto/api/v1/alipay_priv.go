@@ -39,7 +39,6 @@ func RegisterAlipayPrivServant(e *gin.Engine, s AlipayPriv) {
 			return
 		default:
 		}
-
 		req := new(web.UserWalletBillsReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -55,7 +54,6 @@ func RegisterAlipayPrivServant(e *gin.Engine, s AlipayPriv) {
 			return
 		default:
 		}
-
 		req := new(web.UserRechargeResultReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -71,7 +69,6 @@ func RegisterAlipayPrivServant(e *gin.Engine, s AlipayPriv) {
 			return
 		default:
 		}
-
 		req := new(web.UserRechargeLinkReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {

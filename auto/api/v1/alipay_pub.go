@@ -12,6 +12,19 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
+type _binding_ interface {
+	Bind(*gin.Context) mir.Error
+}
+
+type _render_ interface {
+	Render(*gin.Context)
+}
+
+type _default_ interface {
+	Bind(*gin.Context, any) mir.Error
+	Render(*gin.Context, any, mir.Error)
+}
+
 type AlipayPub interface {
 	_default_
 
@@ -31,7 +44,6 @@ func RegisterAlipayPubServant(e *gin.Engine, s AlipayPub) {
 			return
 		default:
 		}
-
 		req := new(web.AlipayNotifyReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {

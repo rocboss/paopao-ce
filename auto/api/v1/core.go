@@ -52,7 +52,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.TweetCollectionStatusReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -68,7 +67,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.TweetStarStatusReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -84,7 +82,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.SuggestTagsReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -100,7 +97,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.SuggestUsersReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -116,7 +112,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.ChangeAvatarReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -130,7 +125,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.ChangeNicknameReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -144,7 +138,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.ChangePasswordReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -158,7 +151,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.UserPhoneBindReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -172,7 +164,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.GetStarsReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -188,7 +179,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.GetCollectionsReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -204,7 +194,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.SendWhisperReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -218,7 +207,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.ReadMessageReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -232,7 +220,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.GetMessagesReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -248,7 +235,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.GetUnreadMsgCountReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -263,7 +249,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.UserInfoReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
@@ -279,7 +264,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 			return
 		default:
 		}
-
 		req := new(web.SyncSearchIndexReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
