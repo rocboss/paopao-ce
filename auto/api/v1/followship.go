@@ -40,7 +40,6 @@ func RegisterFollowshipServant(e *gin.Engine, s Followship) {
 			return
 		default:
 		}
-
 		req := new(web.ListFollowersReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -55,7 +54,6 @@ func RegisterFollowshipServant(e *gin.Engine, s Followship) {
 			return
 		default:
 		}
-
 		req := new(web.ListFollowingsReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -70,7 +68,6 @@ func RegisterFollowshipServant(e *gin.Engine, s Followship) {
 			return
 		default:
 		}
-
 		req := new(web.DeleteFollowingReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -84,7 +81,6 @@ func RegisterFollowshipServant(e *gin.Engine, s Followship) {
 			return
 		default:
 		}
-
 		req := new(web.AddFollowingReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)

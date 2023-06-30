@@ -79,7 +79,6 @@ func RegisterUserServant(e *gin.Engine, s User) {
 			return
 		default:
 		}
-
 		req := new(LoginReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)

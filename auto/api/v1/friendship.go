@@ -41,7 +41,6 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship) {
 			return
 		default:
 		}
-
 		req := new(web.GetContactsReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -56,7 +55,6 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship) {
 			return
 		default:
 		}
-
 		req := new(web.DeleteFriendReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -70,7 +68,6 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship) {
 			return
 		default:
 		}
-
 		req := new(web.RejectFriendReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -84,7 +81,6 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship) {
 			return
 		default:
 		}
-
 		req := new(web.AddFriendReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -98,7 +94,6 @@ func RegisterFriendshipServant(e *gin.Engine, s Friendship) {
 			return
 		default:
 		}
-
 		req := new(web.RequestingFriendReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
