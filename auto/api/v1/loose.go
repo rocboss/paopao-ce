@@ -41,7 +41,6 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 			return
 		default:
 		}
-
 		req := new(web.TweetCommentsReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -56,7 +55,6 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 			return
 		default:
 		}
-
 		req := new(web.TopicListReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -71,7 +69,6 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 			return
 		default:
 		}
-
 		req := new(web.GetUserProfileReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -86,7 +83,6 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 			return
 		default:
 		}
-
 		req := new(web.GetUserTweetsReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
@@ -101,7 +97,6 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 			return
 		default:
 		}
-
 		req := new(web.TimelineReq)
 		var bv _binding_ = req
 		if err := bv.Bind(c); err != nil {
