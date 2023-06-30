@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/cfg v0.3.0
-	github.com/alimy/mir/v4 v4.0.0-alpha.6
+	github.com/alimy/mir/v4 v4.0.0-alpha.7
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.7+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/bytedance/sonic v1.9.1

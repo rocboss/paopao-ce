@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	AddEntry(new(Admin))
+	Entry[Admin]()
 }
 
 // Admin 运维相关服务

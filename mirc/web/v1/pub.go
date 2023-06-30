@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	AddEntry(new(Pub))
+	Entry[Pub]()
 }
 
 // Pub 不用授权的公开服务

@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	AddEntry(new(Followship))
+	Entry[Followship]()
 }
 
 // Followship 关注者模式 服务
