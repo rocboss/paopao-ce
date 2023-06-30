@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	AddEntry(new(Loose))
+	Entry[Loose]()
 }
 
 // Loose 宽松授权的服务

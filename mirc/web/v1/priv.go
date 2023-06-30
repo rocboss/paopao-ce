@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	AddEntry(new(Priv))
+	Entry[Priv]()
 }
 
 // Priv 私有授权的服务
