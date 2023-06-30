@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	AddEntry(new(Core))
+	Entry[Core]()
 }
 
 // Core 核心服务，需要授权访问

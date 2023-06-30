@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	AddEntry(new(Friendship))
+	Entry[Friendship]()
 }
 
 // Friendship 好友模式 服务
