@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	AddEntry(new(User))
+	Entry[User]()
 }
 
 type AgentInfo struct {
