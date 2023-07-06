@@ -40,7 +40,11 @@
         </div>
 
         <div class="base-wrap">
-            <div class="content">{{ props.reply.content }}</div>
+            <div class="content">
+                <n-ellipsis expand-trigger="click" line-clamp="5" :tooltip="false">
+                    {{ props.reply.content }}
+                </n-ellipsis>
+            </div>
             <div class="reply-switch">
                 <span class="time-item">
                     {{ formatPrettyTime(props.reply.created_on) }}
