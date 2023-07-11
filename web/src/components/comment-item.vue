@@ -61,8 +61,7 @@
                     class="comment-text"
                     @click.stop="doClickText($event, comment.id)"
                     v-html="parsePostTag(content.content).content"
-                >
-                </span>
+                ></span>
             </template>
 
             <template #footer>

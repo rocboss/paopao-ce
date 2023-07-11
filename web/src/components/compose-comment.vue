@@ -240,10 +240,11 @@ const handleSearch = (k: string, prefix: string) => {
     }
 };
 const changeContent = (v: string) => {
-    if (v.length > 200) {
-        return;
+    if (v.length > defaultCommentMaxLength) {
+        content.value = v.substring(0, defaultCommentMaxLength);
+    } else {
+        content.value = v;
     }
-    content.value = v;
 };
 const setUploadType = (type: string) => {
     uploadType.value = type;
