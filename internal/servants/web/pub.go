@@ -14,8 +14,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/afocus/captcha"
-	"github.com/alimy/mir/v4"
-	"github.com/gofrs/uuid/v5"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model/web"
@@ -130,7 +128,7 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
 		logrus.Errorf("scheckPassword err: %v", err)
 		return nil, web.ErrUserRegisterFailed
 	}
-	password, salt := encryptPasswordAndSalt(req.Password)
+	password, salt := encryptPasswordAndSalt(req.Password, req.Username)
 	user := &core.User{
 		Nickname: req.Username,
 		Username: req.Username,
