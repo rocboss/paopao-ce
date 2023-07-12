@@ -5,10 +5,11 @@
         <n-list class="main-content-wrap" bordered>
             <div class="balance-wrap">
                 <div class="balance-line">
-                    <n-statistic label="账户余额 (元)"
+                  <!-- 账户余额 (元) -->
+                    <n-statistic label="会员有效期 (天)"
                         ><n-number-animation
                             :from="0.0"
-                            :to="(store.state.userInfo.balance || 0) / 100"
+                            :to="(timecalculate(store.state.userInfo.balance) || 0) / 100"
                             :duration="500"
                             :precision="2"
                         />
@@ -29,7 +30,7 @@
                                 type="tertiary"
                                 @click="doWithdraw"
                             >
-                                提现
+                                客服
                             </n-button>
                         </n-space>
                     </div>
@@ -80,7 +81,7 @@
         <n-modal v-model:show="showRecharge">
             <n-card
                 :bordered="false"
-                title="请选择充值金额"
+                title="请选择购买时长-年付优惠"
                 role="dialog"
                 aria-modal="true"
                 style="width: 100%; max-width: 330px"
@@ -99,7 +100,7 @@
                             "
                             @click.stop="selectedRechargeAmount = amount"
                         >
-                            {{ amount / 100 }}元
+                            {{ amount / 100 }}天
                         </n-button>
                     </n-space>
                 </div>
@@ -129,7 +130,7 @@
                     <div class="pay-tips">
                         请使用支付宝扫码支付{{
                             (selectedRechargeAmount / 100).toFixed(2)
-                        }}元
+                        }}天
                     </div>
                     <div class="pay-sub-tips">
                         <n-badge :value="100" type="info" dot processing />
@@ -160,15 +161,24 @@ const showRecharge = ref(false);
 const selectedRechargeAmount = ref(100);
 const recharging = ref(false);
 const rechargeQrcode = ref('');
-
+const
 const loading = ref(false);
 const list = ref<Item.BillProps[]>([]);
 const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
-
-const openAmounts = ref([100, 200, 300, 500, 1000, 3000, 5000, 10000, 50000]);
-
+const openAmounts = ref([3000,18500,36500]);
+const timecalculate = (timestamp: number) => { //传递时间戳
+  const timestampInSeconds = Math.floor(new Date().getTime() / 1000); // 输出当前时间的时间戳（以秒为单位）
+//获取时间差
+const timeDifference = timestampInSeconds - timestamp;
+  const days = Math.floor(timeDifference / (24 * 3600)); // 计算出相差天数
+  //determine the days >0
+  if (days > 0) {
+    return days;
+  }
+  return 0;
+};
 const loadPosts = () => {
     loading.value = true;
     getBills({
@@ -257,9 +267,12 @@ const handleRecharge = (amount: any) => {
 };
 const doWithdraw = () => {
     if (store.state.userInfo.balance == 0) {
-        window.$message.warning('您暂无可提现资金');
+        window.$message.warning('售前客服'); //这里可以改成售前客服
+        window.location.href = 'http://pre-sales.zhai-zhai.com'
+
     } else {
-        window.$message.warning('该功能即将开放');
+        window.$message.warning('售后客服'); //这里可以改成售后客服
+      window.location.href = 'http://after-sales.zhai-zhai.com'
     }
 };
 onMounted(() => {

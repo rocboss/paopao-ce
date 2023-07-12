@@ -183,4 +183,6 @@ Sqlite3: # Sqlite3数据库
 Redis:
   InitAddress:
   - redis:6379
-  
+Payment:
+    Yearly:365
+    Monthly:30

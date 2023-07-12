@@ -11,8 +11,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/alimy/mir/v4"
-	"github.com/gofrs/uuid/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/pkg/utils"
@@ -93,8 +91,9 @@ func validPassword(dbPassword, password, salt string) bool {
 }
 
 // encryptPasswordAndSalt 密码加密&生成salt
-func encryptPasswordAndSalt(password string) (string, string) {
-	salt := uuid.Must(uuid.NewV4()).String()[:8]
+func encryptPasswordAndSalt(password string, username string) (string, string) {
+	//salt := uuid.Must(uuid.NewV4()).String()[:8]
+	salt := utils.EncodeMD5(utils.EncodeMD5(username)).String()[:8]
 	password = utils.EncodeMD5(utils.EncodeMD5(password) + salt)
 	return password, salt
 }
