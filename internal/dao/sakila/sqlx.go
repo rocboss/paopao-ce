@@ -151,6 +151,15 @@ func mustBuild[T any](db *sqlx.DB, fn func(yesql.PreparexBuilder, ...context.Con
 	return obj
 }
 
+func mustBuildFn[T any](db *sqlx.DB, fn func(yesql.PreparexBuilder) (T, error)) T {
+	p := yesql.NewPreparexBuilder(db, t)
+	obj, err := fn(p)
+	if err != nil {
+		logrus.Fatalf("build object failure: %s", err)
+	}
+	return obj
+}
+
 func initSqlxDB() {
 	_db = conf.MustSqlxDB()
 	_tablePrefix = conf.DatabaseSetting.TablePrefix

@@ -467,7 +467,7 @@ func newTweetManageService(db *sqlx.DB, cacheIndex core.CacheIndexService) core.
 func newTweetHelpService(db *sqlx.DB) core.TweetHelpService {
 	return &tweetHelpSrv{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildTweetHelp),
+		q:       mustBuildFn(db, cc.BuildTweetHelp),
 	}
 }
 
