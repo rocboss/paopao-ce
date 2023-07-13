@@ -28,7 +28,7 @@ type User struct {
 }
 
 type UserFormated struct {
-	ID       int64  `json:"id"`
+	ID       int64  `db:"id" json:"id"`
 	Nickname string `json:"nickname"`
 	Username string `json:"username"`
 	Status   int    `json:"status"`

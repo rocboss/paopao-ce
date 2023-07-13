@@ -197,9 +197,9 @@ func (s *tweetManageSrv) CreatePostContent(content *ms.PostContent) (*ms.PostCon
 	return content.Create(s.db)
 }
 
-func (s *tweetManageSrv) CreateAttachment(obj *cs.Attachment) (int64, error) {
-	// TODO
-	return 0, debug.ErrNotImplemented
+func (s *tweetManageSrv) CreateAttachment(obj *ms.Attachment) (int64, error) {
+	attachment, err := obj.Create(s.db)
+	return attachment.ID, err
 }
 
 func (s *tweetManageSrv) CreatePost(post *ms.Post) (*ms.Post, error) {

@@ -22,32 +22,27 @@ type contactManageSrv struct {
 }
 
 func (s *contactManageSrv) RequestingFriend(userId int64, friendId int64, greetings string) (err error) {
-	// TODO
-	debug.NotImplemented()
-	return nil
+	_, err = s.q.RejectFriend.Query(userId, friendId, greetings)
+	return
 }
 
 func (s *contactManageSrv) AddFriend(userId int64, friendId int64) (err error) {
-	// TODO
-	debug.NotImplemented()
-	return nil
+	_, err = s.q.AddFriend.Exec(userId, friendId)
+	return
 }
 
 func (s *contactManageSrv) RejectFriend(userId int64, friendId int64) (err error) {
-	// TODO
-	debug.NotImplemented()
-	return nil
+	_, err = s.q.RejectFriend.Exec(userId, friendId)
+	return
 }
 
 func (s *contactManageSrv) DeleteFriend(userId int64, friendId int64) (err error) {
-	// TODO
-	debug.NotImplemented()
-	return nil
+	_, err = s.q.DelFriend.Exec(userId, friendId)
+	return
 }
 
 func (s *contactManageSrv) GetContacts(userId int64, offset int, limit int) (*ms.ContactList, error) {
 	// TODO
-	debug.NotImplemented()
 	return nil, nil
 }
 

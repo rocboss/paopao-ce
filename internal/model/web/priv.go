@@ -12,7 +12,6 @@ import (
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/pkg/convert"
@@ -144,7 +143,7 @@ type UploadAttachmentResp struct {
 	FileSize  int64             `json:"file_size"`
 	ImgWidth  int               `json:"img_width"`
 	ImgHeight int               `json:"img_height"`
-	Type      cs.AttachmentType `json:"type"`
+	Type      ms.AttachmentType `json:"type"`
 	Content   string            `json:"content"`
 }
 

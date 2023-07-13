@@ -88,8 +88,8 @@ type TweetInfo struct {
 type TweetItem struct {
 	ID              int64            `json:"id"`
 	UserID          int64            `json:"user_id"`
-	User            *UserInfo        `json:"user"`
-	Contents        []*TweetBlock    `json:"contents"`
+	User            *UserInfo        `db:"user" json:"user"`
+	Contents        []*TweetBlock    `db:"-" json:"contents"`
 	CommentCount    int64            `json:"comment_count"`
 	CollectionCount int64            `json:"collection_count"`
 	UpvoteCount     int64            `json:"upvote_count"`

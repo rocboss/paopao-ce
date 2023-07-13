@@ -29,7 +29,13 @@ import (
 var (
 	_ api.Priv = (*privSrv)(nil)
 
-	_uploadAttachmentTypeMap = map[string]cs.AttachmentType{
+	_uploadAttachmentTypeMap = map[string]ms.AttachmentType{
+		"public/image":  ms.AttachmentTypeImage,
+		"public/avatar": ms.AttachmentTypeImage,
+		"public/video":  ms.AttachmentTypeVideo,
+		"attachment":    ms.AttachmentTypeOther,
+	}
+	_uploadAttachmentTypes = map[string]cs.AttachmentType{
 		"public/image":  cs.AttachmentTypeImage,
 		"public/avatar": cs.AttachmentTypeImage,
 		"public/video":  cs.AttachmentTypeVideo,
@@ -120,20 +126,20 @@ func (s *privSrv) UploadAttachment(req *web.UploadAttachmentReq) (*web.UploadAtt
 	}
 
 	// 构造附件Model
-	attachment := &cs.Attachment{
+	attachment := &ms.Attachment{
 		UserID:   req.Uid,
 		FileSize: req.FileSize,
 		Content:  objectUrl,
 		Type:     _uploadAttachmentTypeMap[req.UploadType],
 	}
-	if attachment.Type == cs.AttachmentTypeImage {
+	if attachment.Type == ms.AttachmentTypeImage {
 		var src image.Image
 		src, err = imaging.Decode(req.File)
 		if err == nil {
 			attachment.ImgWidth, attachment.ImgHeight = getImageSize(src.Bounds())
 		}
 	}
-	attachment.ID, err = s.Dsa.CreateAttachment(attachment)
+	attachment.ID, err = s.Ds.CreateAttachment(attachment)
 	if err != nil {
 		logrus.Errorf("Ds.CreateAttachment err: %s", err)
 		return nil, web.ErrFileUploadFailed

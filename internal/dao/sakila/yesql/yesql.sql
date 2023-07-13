@@ -26,7 +26,27 @@ SELECT * FROM @user WHERE username=?
 -- contact_manager sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@contact_manager
+-- name: requesting_friend@contact_manager
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: add_friend@contact_manager
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: reject_friend@contact_manager
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: del_friend@contact_manager
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_contacts@contact_manager
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: is_friend@contact_manager
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
@@ -114,7 +134,52 @@ SELECT * FROM @user WHERE username=?
 -- tweet sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@tweet
+-- name: get_post_by_id@tweet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_posts@tweet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_post_count@tweet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_user_post_star@tweet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_user_post_stars@tweet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_user_post_star_count@tweet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_user_post_collection@tweet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_user_post_collections@tweet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_user_post_collection_count@tweet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_post_attachment_bill@tweet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_post_contetns_by_ids@tweet
+-- prepare: raw
+-- clause: in
+SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?);
+
+-- name: get_post_content_by_id@tweet
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
@@ -122,7 +187,51 @@ SELECT * FROM @user WHERE username=?
 -- tweet_manage sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@tweet_manage
+-- name: add_post@tweet_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: del_post@tweet_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: lock_post@tweet_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: stick_post@tweet_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: visible_post@tweet_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: update_post@tweet_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: add_post_star@tweet_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: del_post_star@tweet_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: add_post_collection@tweet_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: del_post_collection@tweet_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: add_post_content@tweet_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: add_attachment@tweet_manage
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
@@ -130,8 +239,14 @@ SELECT * FROM @user WHERE username=?
 -- tweet_help sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@tweet_help
--- prepare: stmt
+-- name: get_post_content_by_ids@tweet_help
+-- prepare: raw
+-- clause: in
+SELECT * FROM @user WHERE username=?
+
+-- name: get_users_by_ids@tweet_help
+-- prepare: raw
+-- clause: in
 SELECT * FROM @user WHERE username=?
 
 --------------------------------------------------------------------------------
@@ -139,6 +254,50 @@ SELECT * FROM @user WHERE username=?
 --------------------------------------------------------------------------------
 
 -- name: user_info@tweet_a
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: tweet_info_by_id@tweet_a
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: tweet_item_by_id@tweet_a
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: user_tweets_by_admin@tweet_a
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: user_tweets_by_self@tweet_a
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: user_tweets_by_friend@tweet_a
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: user_tweets_by_guest@tweet_a
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: reaction_by_tweet_id@tweet_a
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: user_reactions@tweet_a
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: favorite_by_tweet_id@tweet_a
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: user_favorites@tweet_a
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: attachment_by_tweet_id@tweet_a
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
@@ -221,7 +380,32 @@ UPDATE @tag SET quote_num=quote_num+1, is_del=0, modified_on=? WHERE id IN (?);
 -- user_manage sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@user_manage
+-- name: get_user_by_id@user_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_user_by_username@user_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_user_by_phone@user_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_users_by_ids@user_manage
+-- prepare: raw
+-- clause: in
+SELECT * FROM @user WHERE username=?
+
+-- name: get_users_by_keyword@user_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: add_user@user_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: update_user@user_manage
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 

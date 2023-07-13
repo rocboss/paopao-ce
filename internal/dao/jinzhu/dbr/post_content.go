@@ -44,7 +44,7 @@ type PostContent struct {
 }
 
 type PostContentFormated struct {
-	ID      int64        `json:"id"`
+	ID      int64        `db:"id" json:"id"`
 	PostID  int64        `json:"post_id"`
 	Content string       `json:"content"`
 	Type    PostContentT `json:"type"`
