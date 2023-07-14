@@ -161,7 +161,6 @@ const showRecharge = ref(false);
 const selectedRechargeAmount = ref(100);
 const recharging = ref(false);
 const rechargeQrcode = ref('');
-const
 const loading = ref(false);
 const list = ref<Item.BillProps[]>([]);
 const page = ref(+(route.query.p as string) || 1);
