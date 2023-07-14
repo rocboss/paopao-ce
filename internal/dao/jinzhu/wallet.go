@@ -71,16 +71,16 @@ func (d *walletServant) HandleRechargeSuccess(recharge *core.WalletRecharge, tra
 	return d.db.Transaction(func(tx *gorm.DB) error {
 		//获取当前时间戳
 		currentTimestamp := time.Now().Unix()
-
+		if balance < currentTimestamp {
+			balance = currentTimestamp
+		}
 		// 扣除金额
 		if err := tx.Model(user).Update("balance", gorm.Expr("balance + ?", recharge.Amount*864)).Error; err != nil {
 			// 返回任何错误都会回滚事务
 			return err
 		}
 		balance := user.Balance
-		if balance < currentTimestamp {
-			balance = currentTimestamp
-		}
+
 		// 新增账单
 		if err := tx.Create(&dbr.WalletStatement{
 			UserID:          user.ID,
