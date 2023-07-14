@@ -2,28 +2,16 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-
-
-package main
-
-import (
-	"fmt"
-	"time"
-)
-
 package jinzhu
+
 import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
+	"time"
 )
-func main() { //当前时间戳
-	currentTimestamp := time.Now().Unix()
-	fmt.Println("Current timestamp:", currentTimestamp)
-	// 只需要获得时间戳的值，无需打印输出
-	_ = currentTimestamp
-}
+
 var (
 	_ core.WalletService = (*walletServant)(nil)
 )
@@ -81,30 +69,18 @@ func (d *walletServant) HandleRechargeSuccess(recharge *core.WalletRecharge, tra
 	}).Get(d.db)
 
 	return d.db.Transaction(func(tx *gorm.DB) error {
-		//查询用户信息
-		user, err := s.Ds.GetUserByID(req.User.ID)
-		if err != nil {
-			logrus.Errorf("Ds.GetUserByID err: %v", err)
-			return nil, web.ErrRechargeReqFail
-		}
-		//得到用户的balance
-		balance := user.Balance
-		// 扣除金额
-		//compare the value of the "balance" in the database with the value of the ”currentTimestamp“
-		//if balance is less than currentTimestamp, then use the value of the currentTimestamp to replace the value of the balance
-		//if balance is greater than currentTimestamp, then pass the value of the balance to the following code
+		//获取当前时间戳
 		currentTimestamp := time.Now().Unix()
 
-		if balance < currentTimestamp {
-			balance = currentTimestamp
-		}
-
+		// 扣除金额
 		if err := tx.Model(user).Update("balance", gorm.Expr("balance + ?", recharge.Amount*864)).Error; err != nil {
 			// 返回任何错误都会回滚事务
 			return err
 		}
-
-
+		balance := user.Balance
+		if balance < currentTimestamp {
+			balance = currentTimestamp
+		}
 		// 新增账单
 		if err := tx.Create(&dbr.WalletStatement{
 			UserID:          user.ID,
