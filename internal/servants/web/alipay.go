@@ -6,12 +6,14 @@ package web
 
 import (
 	"fmt"
+	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
 	"github.com/sirupsen/logrus"
+	"github.com/smartwalle/alipay/v3"
 )
 
 var (
@@ -79,20 +81,20 @@ func (s *alipayPrivSrv) UserRechargeLink(req *web.UserRechargeLinkReq) (*web.Use
 		return nil, web.ErrRechargeReqFail
 	}
 	//定义一个整型变量，单价
-	a := 0.8
-	//var a float64
-	//if req.Amount == 3000 {
-	//	a = 1
-	//	//a = viper.GetFloat64("Monthly")
-	//} else {
-	//	a = 0.8
-	//	//a = viper.GetFloat64("Yearly")
-	//}
+	//a := 0.8
+	var a float64
+	if req.Amount == 3000 {
+		a = 1
+		//a = viper.GetFloat64("Monthly")
+	} else {
+		a = 0.8
+		//a = viper.GetFloat64("Yearly")
+	}
 	//定义一个整型变量，单价
 	p := alipay.TradePreCreate{}
 	p.OutTradeNo = fmt.Sprintf("%d", recharge.ID)
 	p.Subject = "PaoPao用户钱包充值"
-	p.TotalAmount = fmt.Sprintf("%.2f", (float64(recharge.Amount)/100.0)*a)
+	p.TotalAmount = fmt.Sprintf("%.2f", float64(recharge.Amount)/100.0*a)
 	p.NotifyURL = "https://" + req.Host + "/v1/alipay/notify"
 	rsp, err := s.alipayClient.TradePreCreate(p)
 	if err != nil {
