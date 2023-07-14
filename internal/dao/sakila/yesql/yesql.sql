@@ -19,7 +19,7 @@ SELECT * FROM @user WHERE username=?
 --------------------------------------------------------------------------------
 
 -- name: get_comments@comment
--- prepare: stmt
+-- prepare: named_stmt
 SELECT * FROM @user WHERE username=?
 
 -- name: get_comment_by_id@comment
@@ -27,22 +27,29 @@ SELECT * FROM @user WHERE username=?
 SELECT * FROM @user WHERE username=?
 
 -- name: get_comment_count@comment
--- prepare: stmt
+-- prepare: named_stmt
 SELECT * FROM @user WHERE username=?
 
--- name: get_comment_replay_by_id@comment
+-- name: get_comment_reply_by_id@comment
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
 -- name: get_comment_contents_by_ids@comment
--- prepare: stmt
+-- prepare: raw
+-- clause: in
 SELECT * FROM @user WHERE username=?
 
--- name: get_commment_replies_by_id@comment
--- prepare: stmt
+-- name: get_commment_replies_by_ids@comment
+-- prepare: raw
+-- clause: in
 SELECT * FROM @user WHERE username=?
 
--- name: get_comment_thumbs_map@comment
+-- name: get_users_by_ids@comment
+-- prepare: raw
+-- clause: in
+SELECT * FROM @user WHERE username=?
+
+-- name: get_comment_thumbs@comment
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
@@ -54,23 +61,47 @@ SELECT * FROM @user WHERE username=?
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
--- name: create_comment@comment_manage
+-- name: delete_comment_thumbs@comment_manage
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
+-- name: create_comment@comment_manage
+-- prepare: named_stmt
+SELECT * FROM @user WHERE username=?
+
 -- name: create_comment_reply@comment_manage
--- prepare: stmt
+-- prepare: named_stmt
 SELECT * FROM @user WHERE username=?
 
 -- name: delete_comment_reply@comment_manage
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
--- name: create_comment_content@comment_manage
+-- name: delete_reply_thumbs@comment_manage
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
--- name: thumbs_up_comment@comment_manage
+-- name: create_comment_content@comment_manage
+-- prepare: named_stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: update_thumbs_up_comment@comment_manage
+-- prepare: named_stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: create_thumbs_up_comment@comment_manage
+-- prepare: named_stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: update_comment_thumbs_count@comment_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_tweet_comment_thumb@comment_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_comment_reply_thumb@comment_manage
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
@@ -110,7 +141,11 @@ SELECT * FROM @user WHERE username=?
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
--- name: is_friend@contact_manager
+-- name: total_contacts_by_id@contact_manager
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_user_friend@contact_manager
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
@@ -119,7 +154,7 @@ SELECT * FROM @user WHERE username=?
 --------------------------------------------------------------------------------
 
 -- name: create_message@message
--- prepare: stmt
+-- prepare: named_stmt
 SELECT * FROM @user WHERE username=?
 
 -- name: get_unread_count@message
@@ -135,11 +170,11 @@ SELECT * FROM @user WHERE username=?
 SELECT * FROM @user WHERE username=?
 
 -- name: get_messages@message
--- prepare: stmt
+-- prepare: named_stmt
 SELECT * FROM @user WHERE username=?
 
 -- name: get_message_count@message
--- prepare: stmt
+-- prepare: named_stmt
 SELECT * FROM @user WHERE username=?
 
 --------------------------------------------------------------------------------
@@ -151,11 +186,15 @@ SELECT * FROM @user WHERE username=?
 SELECT * FROM @user WHERE username=?
 
 -- name: use_phone_captcha@security
--- prepare: stmt
+-- prepare: named_stmt
 SELECT * FROM @user WHERE username=?
 
 -- name: send_phone_captcha@security
 -- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: create_phone_captcha@security
+-- prepare: named_stmt
 SELECT * FROM @user WHERE username=?
 
 --------------------------------------------------------------------------------

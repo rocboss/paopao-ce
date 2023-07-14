@@ -7,14 +7,22 @@ package sakila
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
-	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
 var (
 	_ core.ContactManageService = (*contactManageSrv)(nil)
 )
+
+type contact struct {
+	UserId       int64 `db:"user_id" json:"user_id"`
+	FriendId     int64 `db:"friend_id" json:"friend_id"`
+	Status       int8  `json:"status"` // 1请求好友, 2已同意好友, 3已拒绝好友, 4已删除好友
+	IsBlack      int8  `json:"is_black"`
+	NoticeEnable int8  `json:"notice_enable"`
+}
 
 type contactManageSrv struct {
 	*sqlxSrv
@@ -42,13 +50,27 @@ func (s *contactManageSrv) DeleteFriend(userId int64, friendId int64) (err error
 }
 
 func (s *contactManageSrv) GetContacts(userId int64, offset int, limit int) (*ms.ContactList, error) {
-	// TODO
-	return nil, nil
+	res := &ms.ContactList{
+		Contacts: []ms.ContactItem{},
+	}
+	if err := s.q.GetContacts.Select(&res.Contacts, userId, limit, offset); err != nil {
+		return nil, err
+	}
+	if err := s.q.TotalContactsById.Get(&res.Total, userId); err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func (s *contactManageSrv) IsFriend(userId int64, friendId int64) bool {
-	// TODO
-	debug.NotImplemented()
+	ct := &contact{
+		UserId:   friendId,
+		FriendId: userId,
+	}
+	err := s.q.GetUserFriend.Get(ct, userId, friendId)
+	if err == nil && ct.Status == cs.ContactStatusAgree {
+		return true
+	}
 	return false
 }
 

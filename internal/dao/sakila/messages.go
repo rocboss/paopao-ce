@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
@@ -22,21 +23,27 @@ type messageSrv struct {
 }
 
 func (s *messageSrv) CreateMessage(msg *ms.Message) (*ms.Message, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+	res, err := s.q.CreateMessage.Exec(msg)
+	if err != nil {
+		return nil, err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	msg.Model = &dbr.Model{ID: id}
+	return msg, nil
 }
 
-func (s *messageSrv) GetUnreadCount(userID int64) (int64, error) {
-	// TODO
-	debug.NotImplemented()
-	return 0, nil
+func (s *messageSrv) GetUnreadCount(userID int64) (res int64, err error) {
+	err = s.q.GetUnreadCount.Get(&res)
+	return
 }
 
 func (s *messageSrv) GetMessageByID(id int64) (*ms.Message, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+	res := &ms.Message{}
+	err := s.q.GetMessageById.Get(res, id)
+	return res, err
 }
 
 func (s *messageSrv) ReadMessage(message *ms.Message) error {
@@ -45,16 +52,16 @@ func (s *messageSrv) ReadMessage(message *ms.Message) error {
 	return nil
 }
 
-func (s *messageSrv) GetMessages(conditions *ms.ConditionsT, offset, limit int) ([]*ms.MessageFormated, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *messageSrv) GetMessages(r *ms.ConditionsT, offset, limit int) ([]*ms.MessageFormated, error) {
+	res := []*ms.MessageFormated{}
+	(*r)["limit"], (*r)["offset"] = limit, offset
+	err := s.q.GetMessages.Select(&res, r)
+	return res, err
 }
 
-func (s *messageSrv) GetMessageCount(conditions *ms.ConditionsT) (int64, error) {
-	// TODO
-	debug.NotImplemented()
-	return 0, nil
+func (s *messageSrv) GetMessageCount(r *ms.ConditionsT) (res int64, err error) {
+	err = s.q.GetMessageCount.Get(&res, r)
+	return
 }
 
 func newMessageService(db *sqlx.DB) core.MessageService {
