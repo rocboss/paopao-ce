@@ -130,7 +130,8 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
 		logrus.Errorf("scheckPassword err: %v", err)
 		return nil, web.ErrUserRegisterFailed
 	}
-	password, salt := encryptPasswordAndSalt(req.Password, req.Username)
+	password, salt := encryptPasswordAndSalt(req.Password)
+	//password, salt := encryptPasswordAndSalt(req.Password, req.Username)
 	user := &core.User{
 		Nickname: req.Username,
 		Username: req.Username,
