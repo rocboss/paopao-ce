@@ -72,9 +72,9 @@ func (d *walletServant) HandleRechargeSuccess(recharge *core.WalletRecharge, tra
 		//获取当前时间戳
 		currentTimestamp := time.Now().Unix()
 		balance := user.Balance
-		newBalance := balance + recharge.Amount*864
 		if balance < currentTimestamp {
 			balance = currentTimestamp
+			newBalance := balance + recharge.Amount*864
 			if err := tx.Model(user).Update("balance", newBalance).Error; err != nil {
 				// 返回任何错误都会回滚事务
 				return err
