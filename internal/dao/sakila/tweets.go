@@ -125,13 +125,13 @@ func (s *tweetHelpSrv) RevampPosts(posts []*ms.PostFormated) ([]*ms.PostFormated
 
 func (s *tweetHelpSrv) getPostContentsByIDs(ids []int64) ([]*dbr.PostContentFormated, error) {
 	res := []*dbr.PostContentFormated{}
-	err := s.inSelect(s.db, &res, s.q.GetPostContentByIds, ids)
+	err := s.inSelect(&res, s.q.GetPostContentByIds, ids)
 	return res, err
 }
 
 func (s *tweetHelpSrv) getUsersByIDs(ids []int64) ([]*dbr.UserFormated, error) {
 	res := []*dbr.UserFormated{}
-	err := s.inSelect(s.db, &res, s.q.GetUsersByIds, ids)
+	err := s.inSelect(&res, s.q.GetUsersByIds, ids)
 	return res, err
 }
 
@@ -306,7 +306,7 @@ func (s *tweetSrv) GetPostAttatchmentBill(postID, userID int64) (*ms.PostAttachm
 
 func (s *tweetSrv) GetPostContentsByIDs(ids []int64) ([]*ms.PostContent, error) {
 	res := []*ms.PostContent{}
-	err := s.inSelect(s.db, &res, s.q.GetPostContetnsByIds, ids)
+	err := s.inSelect(&res, s.q.GetPostContetnsByIds, ids)
 	return res, err
 }
 

@@ -57,7 +57,32 @@ func (s *sqlxSrv) in(query string, args ...any) (string, []any, error) {
 	return s.db.Rebind(q), params, nil
 }
 
-func (s *sqlxSrv) inExec(execer sqlx.Execer, query string, args ...any) (sql.Result, error) {
+func (s *sqlxSrv) inExec(query string, args ...any) (sql.Result, error) {
+	q, params, err := sqlx.In(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	return s.db.Exec(s.db.Rebind(q), params...)
+}
+
+func (s *sqlxSrv) inSelect(dest any, query string, args ...any) error {
+	q, params, err := sqlx.In(query, args...)
+	if err != nil {
+		return err
+	}
+	return sqlx.Select(s.db, dest, s.db.Rebind(q), params...)
+}
+
+func (s *sqlxSrv) inGet(dest any, query string, args ...any) error {
+	q, params, err := sqlx.In(query, args...)
+	if err != nil {
+		return err
+	}
+	return sqlx.Get(s.db, dest, s.db.Rebind(q), params...)
+}
+
+// inExecx execute for in clause with Transcation
+func (s *sqlxSrv) inExecx(execer sqlx.Execer, query string, args ...any) (sql.Result, error) {
 	q, params, err := sqlx.In(query, args...)
 	if err != nil {
 		return nil, err
@@ -65,7 +90,8 @@ func (s *sqlxSrv) inExec(execer sqlx.Execer, query string, args ...any) (sql.Res
 	return execer.Exec(s.db.Rebind(q), params...)
 }
 
-func (s *sqlxSrv) inSelect(queryer sqlx.Queryer, dest any, query string, args ...any) error {
+// inSelectx select for in clause with Transcation
+func (s *sqlxSrv) inSelectx(queryer sqlx.Queryer, dest any, query string, args ...any) error {
 	q, params, err := sqlx.In(query, args...)
 	if err != nil {
 		return err
@@ -73,7 +99,8 @@ func (s *sqlxSrv) inSelect(queryer sqlx.Queryer, dest any, query string, args ..
 	return sqlx.Select(queryer, dest, s.db.Rebind(q), params...)
 }
 
-func (s *sqlxSrv) inGet(queryer sqlx.Queryer, dest any, query string, args ...any) error {
+// inGetx get for in clause with Transcation
+func (s *sqlxSrv) inGetx(queryer sqlx.Queryer, dest any, query string, args ...any) error {
 	q, params, err := sqlx.In(query, args...)
 	if err != nil {
 		return err

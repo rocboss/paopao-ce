@@ -2,7 +2,15 @@
 -- authorization_manage sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@authorization_manage
+-- name: be_friend_filter@authorization_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: be_friend_ids@authorization_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: my_friend_set@authorization_manage
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
@@ -10,7 +18,31 @@ SELECT * FROM @user WHERE username=?
 -- comment sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@comment
+-- name: get_comments@comment
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_comment_by_id@comment
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_comment_count@comment
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_comment_replay_by_id@comment
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_comment_contents_by_ids@comment
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_commment_replies_by_id@comment
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_comment_thumbs_map@comment
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
@@ -18,7 +50,39 @@ SELECT * FROM @user WHERE username=?
 -- comment_manage sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@comment_manage
+-- name: delete_comment@comment_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: create_comment@comment_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: create_comment_reply@comment_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: delete_comment_reply@comment_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: create_comment_content@comment_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: thumbs_up_comment@comment_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: thumbs_down_comment@comment_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: thumbs_up_reply@comment_manage
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: thumbs_down_reply@comment_manage
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
@@ -54,7 +118,27 @@ SELECT * FROM @user WHERE username=?
 -- message sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@message
+-- name: create_message@message
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_unread_count@message
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_message_by_id@message
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: read_message@message
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_messages@message
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_message_count@message
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
@@ -62,7 +146,15 @@ SELECT * FROM @user WHERE username=?
 -- security sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@security
+-- name: get_latest_phone_captcha@security
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: use_phone_captcha@security
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: send_phone_captcha@security
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
@@ -413,6 +505,26 @@ SELECT * FROM @user WHERE username=?
 -- wallet sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@wallet
+-- name: get_user_wallet_bills@wallet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_user_wallet_bill_count@wallet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: get_recharge_by_id@wallet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: create_recharge@wallet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: handle_recharge_success@wallet
+-- prepare: stmt
+SELECT * FROM @user WHERE username=?
+
+-- name: handle_post_attachement_bought@wallet
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?

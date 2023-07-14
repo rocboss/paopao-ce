@@ -41,7 +41,7 @@ func (s *userManageSrv) GetUserByPhone(phone string) (*ms.User, error) {
 
 func (s *userManageSrv) GetUsersByIDs(ids []int64) ([]*ms.User, error) {
 	res := []*ms.User{}
-	err := s.inSelect(s.db, &res, s.q.GetUsersByIds, ids)
+	err := s.inSelect(&res, s.q.GetUsersByIds, ids)
 	return res, err
 }
 

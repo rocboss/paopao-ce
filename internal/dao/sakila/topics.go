@@ -31,7 +31,7 @@ func (s *topicSrvA) UpsertTags(userId int64, tags []string) (res cs.TagInfoList,
 	}
 	xerr = s.with(func(tx *sqlx.Tx) error {
 		var upTags cs.TagInfoList
-		if err := s.inSelect(tx, &upTags, s.q.TagsForIncr, tags); err != nil {
+		if err := s.inSelectx(tx, &upTags, s.q.TagsForIncr, tags); err != nil {
 			return err
 		}
 		now := time.Now().Unix()
@@ -51,7 +51,7 @@ func (s *topicSrvA) UpsertTags(userId int64, tags []string) (res cs.TagInfoList,
 					}
 				}
 			}
-			if _, err := s.inExec(tx, s.q.IncrTagsById, now, ids); err != nil {
+			if _, err := s.inExecx(tx, s.q.IncrTagsById, now, ids); err != nil {
 				return err
 			}
 			res = append(res, upTags...)
@@ -73,7 +73,7 @@ func (s *topicSrvA) UpsertTags(userId int64, tags []string) (res cs.TagInfoList,
 			ids = append(ids, id)
 		}
 		var newTags cs.TagInfoList
-		if err := s.inSelect(tx, &newTags, s.q.TagsByIdB, ids); err != nil {
+		if err := s.inSelectx(tx, &newTags, s.q.TagsByIdB, ids); err != nil {
 			return err
 		}
 		res = append(res, newTags...)
@@ -85,11 +85,11 @@ func (s *topicSrvA) UpsertTags(userId int64, tags []string) (res cs.TagInfoList,
 func (s *topicSrvA) DecrTagsById(ids []int64) error {
 	return s.with(func(tx *sqlx.Tx) error {
 		var ids []int64
-		err := s.inSelect(tx, &ids, s.q.TagsByIdA, ids)
+		err := s.inSelectx(tx, &ids, s.q.TagsByIdA, ids)
 		if err != nil {
 			return err
 		}
-		_, err = s.inExec(tx, s.q.DecrTagsById, time.Now().Unix(), ids)
+		_, err = s.inExecx(tx, s.q.DecrTagsById, time.Now().Unix(), ids)
 		return err
 	})
 }
