@@ -156,7 +156,6 @@ import { formatRelativeTime } from '@/utils/formatTime';
 
 const store = useStore();
 const route = useRoute();
-
 const showRecharge = ref(false);
 const selectedRechargeAmount = ref(100);
 const recharging = ref(false);
