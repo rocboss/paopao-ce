@@ -9,7 +9,7 @@
                     <n-statistic label="会员有效期 (天)"
                         ><n-number-animation
                             :from="0.0"
-                            :to="(timecalculate(store.state.userInfo.balance) || 0) / 100"
+                            :to="timecal(store.state.userInfo.balance) || 0 "
                             :duration="500"
                             :precision="2"
                         />
@@ -153,6 +153,7 @@ import { LogoAlipay } from '@vicons/ionicons5';
 import { userInfo } from '@/api/auth';
 import { reqRecharge, getRecharge, getBills } from '@/api/user';
 import { formatRelativeTime } from '@/utils/formatTime';
+import MainNav from "@/components/main-nav.vue";
 
 const store = useStore();
 const route = useRoute();
@@ -166,17 +167,24 @@ const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 const openAmounts = ref([3000,18500,36500]);
-const timecalculate = (timestamp: number) => { //传递时间戳
-  const timestampInSeconds = Math.floor(new Date().getTime() / 1000); // 输出当前时间的时间戳（以秒为单位）
-//获取时间差
-const timeDifference = timestampInSeconds - timestamp;
-  const days = Math.floor(timeDifference / (24 * 3600)); // 计算出相差天数
-  //determine the days >0
-  if (days > 0) {
-    return days;
-  }
-  return 0;
+// const timecal = (timestamp: number) => { //传递时间戳
+//   const timestampInSeconds = Math.floor(new Date().getTime() / 1000); // 输出当前时间的时间戳（以秒为单位）
+// //获取时间差
+// const timeDifference = timestampInSeconds - timestamp;
+//   const days = Math.floor(timeDifference / (24 * 3600)); // 计算出相差天数
+//   //determine the days >0
+//   if (days > 0) {
+//     return days;
+//   }
+//   return 0;
+// };
+const timecal = (timestamp) => {
+  const timestampInSeconds = Math.floor(Date.now() / 1000);
+  const timeDifference = timestamp - timestampInSeconds;
+  const days = Math.floor(timeDifference / (24 * 3600));
+  return Math.max(0, days); // 确保返回值不会是负数
 };
+////获取时间差
 const loadPosts = () => {
     loading.value = true;
     getBills({
