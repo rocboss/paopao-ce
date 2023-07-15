@@ -178,7 +178,7 @@ const openAmounts = ref([3000,18500,36500]);
 //   }
 //   return 0;
 // };
-const timecal = (timestamp) => {
+const timecal = (timestamp: number) => {
   const timestampInSeconds = Math.floor(Date.now() / 1000);
   const timeDifference = timestamp - timestampInSeconds;
   const days = Math.floor(timeDifference / (24 * 3600));
