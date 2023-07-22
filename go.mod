@@ -24,7 +24,7 @@ require (
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.23.4+incompatible
 	github.com/json-iterator/go v1.1.12
 	github.com/meilisearch/meilisearch-go v0.25.0
-	github.com/minio/minio-go/v7 v7.0.59
+	github.com/minio/minio-go/v7 v7.0.60
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.8
 	github.com/pyroscope-io/client v0.7.1
