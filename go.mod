@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
-	github.com/alimy/cfg v0.3.0
+	github.com/alimy/cfg v0.4.0
 	github.com/alimy/mir/v4 v4.0.0-rc.1
 	github.com/alimy/yesql v1.3.0
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.7+incompatible
@@ -26,11 +26,11 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/json-iterator/go v1.1.12
 	github.com/meilisearch/meilisearch-go v0.25.0
-	github.com/minio/minio-go/v7 v7.0.59
+	github.com/minio/minio-go/v7 v7.0.60
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.8
 	github.com/pyroscope-io/client v0.7.1
-	github.com/redis/rueidis v1.0.11
+	github.com/redis/rueidis v1.0.12
 	github.com/sirupsen/logrus v1.9.3
 	github.com/smartwalle/alipay/v3 v3.2.14
 	github.com/sourcegraph/conc v0.3.0
@@ -48,7 +48,7 @@ require (
 	gorm.io/gorm v1.25.2
 	gorm.io/plugin/dbresolver v1.4.1
 	gorm.io/plugin/soft_delete v1.2.1
-	modernc.org/sqlite v1.23.1
+	modernc.org/sqlite v1.24.0
 )
 
 require (
