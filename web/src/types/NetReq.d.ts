@@ -55,6 +55,13 @@ declare module NetReq {
     pager: Item.PagerProps;
   }
 
+  interface UserGetStars {
+    /** 帖子列表 */
+    list: Item.PostProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
+
   type UserGetUserProfile = Item.UserInfo;
 
   interface UserGetBills {
