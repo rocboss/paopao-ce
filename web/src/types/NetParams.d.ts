@@ -27,6 +27,11 @@ declare module NetParams {
     page_size: number;
   }
 
+  interface UserGetStars {
+    page: number,
+    page_size: number
+  }
+
   interface UserPrecheckAttachment {
     id: number;
   }

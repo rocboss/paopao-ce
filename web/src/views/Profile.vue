@@ -20,9 +20,9 @@
                     <div class="uid">UID. {{ store.state.userInfo.id }}</div>
                 </div>
             </div>
-            <n-tabs class="profile-tabs-wrap" animated>
+            <n-tabs class="profile-tabs-wrap" type="line" animated @update:value="changeTab">
                 <n-tab-pane name="post" tab="泡泡"> </n-tab-pane>
-                <!-- <n-tab-pane name="comment" tab="评论"> </n-tab-pane> -->
+                <n-tab-pane name="star" tab="点赞"> </n-tab-pane>
             </n-tabs>
             <div v-if="loading" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />
@@ -57,20 +57,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
-import { getUserPosts } from '@/api/user';
+import { getUserPosts, getStars } from '@/api/user';
 
 const store = useStore();
 const route = useRoute();
 
 const loading = ref(false);
 const list = ref<Item.PostProps[]>([]);
+const pageType = ref<"post" | "star">('post');
+const postPage = ref(+(route.query.p as string) || 1);
+const starPage = ref(1);
 const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 
+const loadPage = () => {
+    if (pageType.value == "post") {
+        loadPosts()
+    } else if (pageType.value = "star") {
+        loadStars()
+    }
+};
 const loadPosts = () => {
     loading.value = true;
     getUserPosts({
@@ -89,13 +99,68 @@ const loadPosts = () => {
             loading.value = false;
         });
 };
+const loadStars = () => {
+    loading.value = true;
+    getStars({
+        page: page.value,
+        page_size: pageSize.value,
+    })
+        .then((rsp) => {
+            loading.value = false;
+            list.value = rsp.list;
+            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+
+            window.scrollTo(0, 0);
+        })
+        .catch((err) => {
+            loading.value = false;
+        });
+};
+const changeTab = (tab: "post" | "star") => {
+    pageType.value = tab;
+    if (tab == "post") {
+       page.value = postPage.value
+       loadPosts();
+    } else if (tab == "star") {
+        page.value = starPage.value
+        loadStars();
+    }
+};
 const updatePage = (p: number) => {
     page.value = p;
-    loadPosts();
+    if (pageType.value == "post") {
+        postPage.value = p
+        loadPosts();
+    } else if (pageType.value == "star") {
+        starPage.value = page.value
+        loadStars();
+    }
 };
 onMounted(() => {
-    loadPosts();
+    loadPage();
 });
+watch(
+    () => ({
+        path: route.path,
+        query: route.query,
+        refresh: store.state.refresh,
+    }),
+    (to, from) => {
+        if (to.refresh !== from.refresh) {
+            page.value = +(route.query.p as string) || 1;
+            setTimeout(() => {
+                loadPage();
+            }, 0);
+            return;
+        }
+        if (from.path !== '/post' && to.path === '/profile') {
+            page.value = +(route.query.p as string) || 1;
+            setTimeout(() => {
+                loadPage();
+            }, 0);
+        }
+    }
+);
 </script>
 
 <style lang="less" scoped>
