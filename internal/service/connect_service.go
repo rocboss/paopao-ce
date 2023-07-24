@@ -16,8 +16,8 @@ type baseConnectService struct {
 	server *connectServer
 }
 
-func (s *baseConnectService) registerServer(srv Service, h func(func(string, http.Handler), ...connect.HandlerOption)) {
-	h(s.server.register, s.server.handlerOpts...)
+func (s *baseConnectService) registerServer(srv Service, h func(func(string, http.Handler), ...connect.HandlerOption), opts ...connect.HandlerOption) {
+	h(s.server.register, append(opts, s.server.handlerOpts...)...)
 	s.server.addService(srv)
 }
 
