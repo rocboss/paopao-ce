@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package auth;
+package core.v1;
 
-option go_package = "github.com/rocboss/paopao-ce/auto/rpc/v1";
+option go_package = "github.com/rocboss/paopao-ce/auto/connect/core/v1;corev1";
 
 message User {
     string phoneNum = 1;
