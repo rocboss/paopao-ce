@@ -83,19 +83,10 @@ gen-yesql:
 	@go fmt ./internal/dao/sakila/yesql/...
 
 .PHONY: gen-rpc
-gen-rpc: gen-grpc gen-connect
-
-.PHONY: gen-grpc
-gen-grpc:
-	@rm -rf auto/rpc
-	@buf generate --template buf.grpc.gen.yaml proto/grpc
-	@go fmt ./auto/rpc/...
-
-.PHONY: gen-connect
-gen-connect:
-	@rm -rf auto/connect
-	@buf generate --template buf.connect.gen.yaml proto/connect
-	@go fmt ./auto/connect/...
+gen-rpc:
+	@rm -rf auto/rpc auto/connect
+	@buf generate proto
+	@go fmt ./auto/rpc/... ./auto/connect/...
 
 .PHONY: proto-mod
 proto-mod:
