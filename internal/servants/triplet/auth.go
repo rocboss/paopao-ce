@@ -9,9 +9,9 @@ import (
 )
 
 var (
-	_ api.AuthenticateHandler = (*authenticateHandler)(nil)
+	_ api.AuthenticateServiceHandler = (*authenticateSrv)(nil)
 )
 
-type authenticateHandler struct {
-	api.UnimplementedAuthenticateHandler
+type authenticateSrv struct {
+	api.UnimplementedAuthenticateServiceHandler
 }

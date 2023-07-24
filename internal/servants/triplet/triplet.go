@@ -12,5 +12,5 @@ import (
 )
 
 func RegisterAuthenticateHandler(h func(string, http.Handler), opts ...connect.HandlerOption) {
-	h(api.NewAuthenticateHandler(&authenticateHandler{}, opts...))
+	h(api.NewAuthenticateServiceHandler(&authenticateSrv{}, opts...))
 }
