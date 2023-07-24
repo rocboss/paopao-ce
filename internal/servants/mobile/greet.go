@@ -6,9 +6,16 @@ package mobile
 
 import (
 	api "github.com/rocboss/paopao-ce/auto/rpc/greet/v1"
-	"google.golang.org/grpc"
 )
 
-func RegisterServants(s *grpc.Server) {
-	api.RegisterGreetServiceServer(s, newGreetServiceServer())
+var (
+	_ api.GreetServiceServer = (*greetServiceSrv)(nil)
+)
+
+type greetServiceSrv struct {
+	api.UnimplementedGreetServiceServer
+}
+
+func newGreetServiceServer() *greetServiceSrv {
+	return &greetServiceSrv{}
 }

@@ -1,0 +1,15 @@
+version: v1
+managed:
+  enabled: true
+  go_package_prefix:
+    default: github.com/rocboss/paopao-ce/auto/connect
+    except:
+      - buf.build/googleapis/googleapis
+plugins:
+  - plugin: go
+    out: auto/connect
+    opt: paths=source_relative
+  - plugin: connect-go
+    out: auto/connect
+    opt:
+      - paths=source_relative

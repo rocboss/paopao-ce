@@ -1,3 +1,4 @@
 version: v1
 directories:
-  - proto
+  - proto/connect
+  - proto/grpc

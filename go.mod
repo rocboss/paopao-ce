@@ -10,6 +10,7 @@ require (
 	github.com/alimy/yesql v1.3.0
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.7+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
+	github.com/bufbuild/connect-go v1.9.0
 	github.com/bytedance/sonic v1.9.2
 	github.com/cockroachdb/errors v1.10.0
 	github.com/disintegration/imaging v1.6.2
