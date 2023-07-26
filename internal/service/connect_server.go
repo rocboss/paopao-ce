@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/bufbuild/connect-go"
+	hx "github.com/rocboss/paopao-ce/pkg/http"
 )
 
 var (
@@ -24,7 +25,12 @@ type connectServer struct {
 	keyFile     string
 	handlerOpts []connect.HandlerOption
 	server      *http.Server
-	mux         *http.ServeMux
+	mux         connectMux
+}
+
+type connectMux interface {
+	http.Handler
+	Handle(string, http.Handler)
 }
 
 func (s *connectServer) start() error {
@@ -44,12 +50,18 @@ func (s *connectServer) register(path string, handler http.Handler) {
 	s.mux.Handle(path, handler)
 }
 
-func defaultConnectServer(addr string) *connectServer {
-	return &connectServer{
+func defaultConnectServer(addr string) (s *connectServer) {
+	s = &connectServer{
 		baseServer: newBaseServe(),
 		server: &http.Server{
 			Addr: addr,
 		},
 		mux: &http.ServeMux{},
 	}
+	// TODO: custom value from config
+	var useConnectMux bool
+	if useConnectMux {
+		s.mux = hx.NewConnectMux()
+	}
+	return
 }
