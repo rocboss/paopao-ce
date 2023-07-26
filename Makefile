@@ -70,18 +70,18 @@ windows-x64:
 	@CGO_ENABLED=$(CGO_ENABLED) GOOS=windows GOARCH=amd64 go build -pgo=auto -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_WINDOWS_AMD64)/$(TARGET_BIN).exe
 
 .PHONY: generate
-generate: gen-mir gen-grpc
+generate: gen-mir gen-rpc
 
 .PHONY: gen-mir
 gen-mir:
 	@go generate mirc/gen.go
 	@go fmt ./auto/api/...
 
-.PHONY: gen-grpc
-gen-grpc:
-	@rm -rf auto/rpc
+.PHONY: gen-rpc
+gen-rpc:
+	@rm -rf auto/rpc auto/connect
 	@buf generate proto
-	@go fmt ./auto/rpc/...
+	@go fmt ./auto/rpc/... ./auto/connect/...
 
 .PHONY: proto-mod
 proto-mod:
@@ -110,9 +110,11 @@ pre-commit: fmt
 
 .PHONY: install-protobuf-plugins
 install-protobuf-plugins:
-	@go install github.com/bufbuild/buf/cmd/buf@v1.22.0
-	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking@v1.22.0
-	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-lint@v1.22.0
+	@go install github.com/bufbuild/buf/cmd/buf@v1.25.0
+	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking@v1.25.0
+	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-lint@v1.25.0
+	@go install github.com/bufbuild/connect-go/cmd/protoc-gen-connect-go@latest
+	@go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
 	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 

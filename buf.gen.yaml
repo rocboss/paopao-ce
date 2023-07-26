@@ -14,3 +14,6 @@ plugins:
     opt:
       - paths=source_relative
       - require_unimplemented_servers=true
+  - plugin: connect-go
+    out: auto/connect
+    opt: paths=source_relative
