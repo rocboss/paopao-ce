@@ -10,8 +10,7 @@ import (
 )
 
 var _ = g.Describe("Mux", g.Ordered, func() {
-	var smm muxMap[int]
-	var pmm muxMap[int]
+	var smm, pmm muxMap[int]
 
 	g.BeforeAll(func() {
 		smm = make(simpleMuxMap[int])
