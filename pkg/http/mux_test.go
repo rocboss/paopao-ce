@@ -66,5 +66,8 @@ var _ = g.Describe("Mux", g.Ordered, func() {
 		val, exist = pmm.match("/connect/core.v1.AuthenticateService/logout")
 		m.Expect(val).To(m.Equal(1))
 		m.Expect(exist).To(m.BeTrue())
+
+		_, exist = pmm.match("/core.v1.AuthenticateService/logout")
+		m.Expect(exist).To(m.BeFalse())
 	})
 })
