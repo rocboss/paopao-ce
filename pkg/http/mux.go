@@ -66,7 +66,11 @@ func (m *prefixMuxMap[T]) get(path string) (val T, exist bool) {
 
 // match assume pattern like `/core.v1.AuthenticateService/login`
 func (m *prefixMuxMap[T]) match(pattern string) (val T, exist bool) {
-	path, _ := strings.CutPrefix(pattern, m.prefix)
+	path, found := strings.CutPrefix(pattern, m.prefix)
+	if !found {
+		exist = false
+		return
+	}
 	idx := strings.IndexByte(path[1:], '/')
 	if idx < 0 {
 		return
