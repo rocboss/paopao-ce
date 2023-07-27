@@ -20,6 +20,13 @@ const (
 	TagTypeHotExtral = cs.TagTypeHotExtral
 )
 
+const (
+	UserPostsStylePost    = "post"
+	UserPostsStyleComment = "comment"
+	UserPostsStyleMedia   = "media"
+	UserPostsStyleStar    = "star"
+)
+
 type TagType = cs.TagType
 
 type TweetCommentsReq struct {
@@ -46,6 +53,7 @@ type TimelineResp base.PageResp
 type GetUserTweetsReq struct {
 	BaseInfo `form:"-" binding:"-"`
 	Username string `form:"username" binding:"required"`
+	Style    string `form:"style"`
 	Page     int    `form:"-" binding:"-"`
 	PageSize int    `form:"-" binding:"-"`
 }

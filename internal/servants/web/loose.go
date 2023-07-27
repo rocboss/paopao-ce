@@ -60,7 +60,81 @@ func (s *looseSrv) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error)
 	return (*web.TimelineResp)(resp), nil
 }
 
-func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (*web.GetUserTweetsResp, mir.Error) {
+func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTweetsResp, err mir.Error) {
+	isSelf := (req.User != nil && req.User.Username == req.Username)
+	switch req.Style {
+	case web.UserPostsStyleComment:
+		res, err = s.getUserCommentTweets(req, isSelf)
+	case web.UserPostsStyleMedia:
+		res, err = s.getUserMediaTweets(req, isSelf)
+	case web.UserPostsStyleStar:
+		res, err = s.getUserStarTweets(req, isSelf)
+	case web.UserPostsStylePost:
+		fallthrough
+	default:
+		res, err = s.getUserPostTweets(req)
+	}
+	return
+}
+
+func (s *looseSrv) getUserCommentTweets(req *web.GetUserTweetsReq, isSelf bool) (*web.GetUserTweetsResp, mir.Error) {
+	// TODO: add implement logic
+	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) getUserMediaTweets(req *web.GetUserTweetsReq, isSelf bool) (*web.GetUserTweetsResp, mir.Error) {
+	// TODO: add implement logic
+	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, isSelf bool) (*web.GetUserTweetsResp, mir.Error) {
+	if isSelf {
+		return s.getSelfStarTweets(req)
+	}
+	// TODO: add implement logic for not self star tweets
+	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) getSelfCommentTweets(req *web.GetUserTweetsReq) (*web.GetUserTweetsResp, mir.Error) {
+	// TODO: add implement logic
+	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) getSelfMediaTweets(req *web.GetUserTweetsReq) (*web.GetUserTweetsResp, mir.Error) {
+	// TODO: add implement logic
+	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) getSelfStarTweets(req *web.GetUserTweetsReq) (*web.GetUserTweetsResp, mir.Error) {
+	stars, err := s.Ds.GetUserPostStars(req.User.ID, (req.Page-1)*req.PageSize, req.PageSize)
+	if err != nil {
+		logrus.Errorf("Ds.GetUserPostStars err: %s", err)
+		return nil, web.ErrGetStarsFailed
+	}
+	totalRows, err := s.Ds.GetUserPostStarCount(req.User.ID)
+	if err != nil {
+		logrus.Errorf("Ds.GetUserPostStars err: %s", err)
+		return nil, web.ErrGetStarsFailed
+	}
+	var posts []*core.Post
+	for _, star := range stars {
+		posts = append(posts, star.Post)
+	}
+	postsFormated, err := s.Ds.MergePosts(posts)
+	if err != nil {
+		logrus.Errorf("Ds.MergePosts err: %s", err)
+		return nil, web.ErrGetStarsFailed
+	}
+	resp := base.PageRespFrom(postsFormated, req.Page, req.PageSize, totalRows)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq) (*web.GetUserTweetsResp, mir.Error) {
 	other, xerr := s.GetUserProfile(&web.GetUserProfileReq{
 		BaseInfo: req.BaseInfo,
 		Username: req.Username,
