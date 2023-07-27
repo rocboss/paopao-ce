@@ -225,17 +225,6 @@ export const getCollections = (
   });
 };
 
-/** 获取点赞列表 */
-export const getStars = (
-  params: NetParams.UserGetStars
-): Promise<NetReq.UserGetStars> => {
-  return request({
-    method: "get",
-    url: "/v1/user/stars",
-    params,
-  });
-};
-
 /** 获取用户基础信息 */
 export const getUserProfile = (
   params: NetParams.UserGetUserProfile
