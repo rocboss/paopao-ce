@@ -122,7 +122,7 @@ func (s *looseSrv) getSelfStarTweets(req *web.GetUserTweetsReq) (*web.GetUserTwe
 		logrus.Errorf("Ds.GetUserPostStars err: %s", err)
 		return nil, web.ErrGetStarsFailed
 	}
-	var posts []*core.Post
+	var posts []*ms.Post
 	for _, star := range stars {
 		posts = append(posts, star.Post)
 	}
