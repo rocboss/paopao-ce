@@ -19,6 +19,13 @@ const (
 	TagTypeHotExtral TagType = "hot_extral"
 )
 
+const (
+	UserPostsStylePost    = "post"
+	UserPostsStyleComment = "comment"
+	UserPostsStyleMedia   = "media"
+	UserPostsStyleStar    = "star"
+)
+
 type TweetCommentsReq struct {
 	SimpleInfo   `form:"-" binding:"-"`
 	TweetId      int64  `form:"id" binding:"required"`
@@ -45,6 +52,7 @@ type TimelineResp base.PageResp
 type GetUserTweetsReq struct {
 	BaseInfo `form:"-" binding:"-"`
 	Username string `form:"username" binding:"required"`
+	Style    string `form:"style"`
 	Page     int    `form:"-" binding:"-"`
 	PageSize int    `form:"-" binding:"-"`
 }

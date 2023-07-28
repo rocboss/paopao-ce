@@ -25,11 +25,11 @@ import (
 func main() {
 	log.Println("generate code start")
 	opts := Options{
+		UseGin(),
+		SinkPath("../auto"),
+		WatchCtxDone(true),
 		RunMode(InSerialMode),
 		AssertType[*gin.Context](),
-		GeneratorName(GeneratorGin),
-		WatchCtxDone(true),
-		SinkPath("../auto"),
 	}
 	if err := Generate(opts); err != nil {
 		log.Fatal(err)
