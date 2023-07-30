@@ -21,6 +21,9 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/sirupsen/logrus"
 	"github.com/tencentyun/cos-go-sdk-v5"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 func MustAliossService() (core.ObjectStorageService, core.VersionInfo) {
@@ -229,15 +232,12 @@ func MustMinioService() (core.ObjectStorageService, core.VersionInfo) {
 }
 
 func MustS3Service() (core.ObjectStorageService, core.VersionInfo) {
-	// Initialize s3 client object use minio-go.
-	client, err := minio.New(conf.S3Setting.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(conf.S3Setting.AccessKey, conf.S3Setting.SecretKey, ""),
-		Secure: conf.S3Setting.Secure,
-	})
+	// Initialize AWS S3 client object.
+	client, err := s3.NewClient(conf.S3Setting.Region, conf.S3Setting.AccessKey, conf.S3Setting.SecretKey)
 	if err != nil {
-		logrus.Fatalf("storage.MustS3Service create client failed: %s", err)
+	logrus.Fatalf("storage.MustS3Service create client failed: %s", err)
 	}
-
+	
 	domain := conf.GetOssDomain()
 	var cs core.OssCreateService
 	if cfg.If("OSS:TempDir") {
@@ -265,7 +265,7 @@ func MustS3Service() (core.ObjectStorageService, core.VersionInfo) {
 		}
 		logrus.Debugln("use OSS:Direct feature")
 	}
-
+	
 	obj := &s3Servant{
 		OssCreateService: cs,
 		client:           client,
