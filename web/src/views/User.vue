@@ -46,9 +46,11 @@
                 <!-- 加好友组件 -->
                 <whisper-add-friend :show="showAddFriendWhisper" :user="user" @success="addFriendWhisperSuccess" />
             </n-spin>
-            <n-tabs class="profile-tabs-wrap" animated>
-                <n-tab-pane name="post" tab="泡泡" />
-                <!-- <n-tab-pane name="comment" tab="评论"> </n-tab-pane> -->
+            <n-tabs class="profile-tabs-wrap" type="line" animated @update:value="changeTab">
+                <n-tab-pane name="post" tab="泡泡"> </n-tab-pane>
+                <n-tab-pane name="comment" tab="评论"> </n-tab-pane>
+                <n-tab-pane name="media" tab="图文"> </n-tab-pane>
+                <n-tab-pane name="star" tab="喜欢"> </n-tab-pane>
             </n-tabs>
             <div v-if="loading" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />
@@ -85,12 +87,10 @@ import { ref, reactive, watch, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import { getUserProfile, getUserPosts, changeUserStatus, deleteFriend } from '@/api/user';
-import { useDialog, useMessage, DropdownOption } from 'naive-ui';
+import { useDialog, DropdownOption } from 'naive-ui';
 import WhisperAddFriend from '../components/whisper-add-friend.vue';
 import { MoreHorizFilled } from '@vicons/material';
-import { VisibilityEnum } from '@/utils/IEnum';
 
-const message = useMessage();
 const dialog = useDialog();
 const store = useStore();
 const route = useRoute();
@@ -111,26 +111,126 @@ const showAddFriendWhisper = ref(false);
 const list = ref<Item.PostProps[]>([]);
 const username = ref(route.query.username || '');
 const page = ref(+(route.query.p as string) || 1);
+const pageType = ref<"post" | "comment" | "media" | "star">('post');
+const postPage = ref(+(route.query.p as string) || 1);
+const commentPage = ref(1)
+const mediaPage = ref(1)
+const starPage = ref(1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 
+const loadPage = () => {
+    switch(pageType.value) {
+        case "post":
+            loadPosts();
+            break;
+        case "comment":
+            loadCommentPosts();
+            break;
+        case "media":
+            loadMediaPosts();
+            break;
+        case "star":
+            loadStarPosts();
+            break;
+    } 
+};
 const loadPosts = () => {
     loading.value = true;
     getUserPosts({
         username: username.value as string,
+        style: "post",
         page: page.value,
         page_size: pageSize.value,
     })
         .then((rsp) => {
             loading.value = false;
-            list.value = rsp.list;
+            list.value = rsp.list || [];
             totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-
             window.scrollTo(0, 0);
         })
         .catch((err) => {
+            list.value = []
             loading.value = false;
         });
+};
+const loadCommentPosts = () => {
+    loading.value = true;
+    getUserPosts({
+        username: username.value as string,
+        style: "comment",
+        page: page.value,
+        page_size: pageSize.value,
+    })
+        .then((rsp) => {
+            loading.value = false;
+            list.value = rsp.list || [];
+            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+            window.scrollTo(0, 0);
+        })
+        .catch((err) => {
+            list.value = []
+            loading.value = false;
+        });
+};
+const loadMediaPosts = () => {
+    loading.value = true;
+    getUserPosts({
+        username: username.value as string,
+        style: "media",
+        page: page.value,
+        page_size: pageSize.value,
+    })
+        .then((rsp) => {
+            loading.value = false;
+            list.value = rsp.list || [];
+            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+            window.scrollTo(0, 0);
+        })
+        .catch((err) => {
+            list.value = []
+            loading.value = false;
+        });
+};
+const loadStarPosts = () => {
+    loading.value = true;
+    getUserPosts({
+        username: username.value as string,
+        style: "star",
+        page: page.value,
+        page_size: pageSize.value,
+    })
+        .then((rsp) => {
+            loading.value = false;
+            list.value = rsp.list || [];
+            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+            window.scrollTo(0, 0);
+        })
+        .catch((err) => {
+            list.value = []
+            loading.value = false;
+        });
+};
+const changeTab = (tab: "post" | "comment" | "media" | "star") => {
+    pageType.value = tab;
+    switch(pageType.value) {
+        case "post":
+            page.value = postPage.value
+            loadPosts();
+            break;
+        case "comment":
+            page.value = commentPage.value
+            loadCommentPosts();
+            break;
+        case "media":
+            page.value = mediaPage.value
+            loadMediaPosts();
+            break;
+        case "star":
+            page.value = starPage.value
+            loadStarPosts();
+            break;
+    }
 };
 const loadUser = () => {
     userLoading.value = true;
@@ -146,19 +246,34 @@ const loadUser = () => {
             user.is_admin = res.is_admin;
             user.is_friend = res.is_friend;
             user.status = res.status;
-            loadPosts();
+            loadPage();
         })
         .catch((err) => {
             userLoading.value = false;
             console.log(err);
         });
 };
-
 const updatePage = (p: number) => {
     page.value = p;
-    loadPosts();
+    switch(pageType.value) {
+        case "post":
+            postPage.value = p
+            loadPosts();
+            break;
+        case "comment":
+            commentPage.value = page.value
+            loadCommentPosts();
+            break;
+        case "media":
+            mediaPage.value = page.value
+            loadMediaPosts();
+            break;
+        case "star":
+            starPage.value = page.value
+            loadStarPosts();
+            break;
+    }
 };
-
 const openWhisper = () => {
     showWhisper.value = true;
 };

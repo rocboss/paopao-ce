@@ -24,6 +24,7 @@ var (
 	MysqlSetting            *mysqlConf
 	PostgresSetting         *postgresConf
 	Sqlite3Setting          *sqlite3Conf
+	PprofServerSetting      *httpServerConf
 	WebServerSetting        *httpServerConf
 	AdminServerSetting      *httpServerConf
 	SpaceXServerSetting     *httpServerConf
@@ -67,6 +68,7 @@ func setupSetting(suite []string, noDefault bool) error {
 
 	objects := map[string]any{
 		"App":               &AppSetting,
+		"PprofServer":       &PprofServerSetting,
 		"WebServer":         &WebServerSetting,
 		"AdminServer":       &AdminServerSetting,
 		"SpaceXServer":      &SpaceXServerSetting,

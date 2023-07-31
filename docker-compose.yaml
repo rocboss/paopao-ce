@@ -67,7 +67,7 @@ services:
       - paopao-network
 
   # meili:
-  #   image: getmeili/meilisearch:v1.1
+  #   image: getmeili/meilisearch:v1.2
   #   restart: always
   #   ports:
   #     - 7700:7700
@@ -102,7 +102,7 @@ services:
       - paopao-network
 
   backend:
-    image: bitbus/paopao-ce:0.3.0-rc.1
+    image: bitbus/paopao-ce:0.3.0
     restart: always
     depends_on:
       - db

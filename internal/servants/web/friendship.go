@@ -5,7 +5,7 @@
 package web
 
 import (
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/model/web"
@@ -16,22 +16,12 @@ import (
 )
 
 var (
-	_ api.Friendship        = (*friendshipSrv)(nil)
-	_ api.FriendshipBinding = (*friendshipBinding)(nil)
-	_ api.FriendshipRender  = (*friendshipRender)(nil)
+	_ api.Friendship = (*friendshipSrv)(nil)
 )
 
 type friendshipSrv struct {
 	api.UnimplementedFriendshipServant
 	*base.DaoServant
-}
-
-type friendshipBinding struct {
-	*api.UnimplementedFriendshipBinding
-}
-
-type friendshipRender struct {
-	*api.UnimplementedFriendshipRender
 }
 
 func (s *friendshipSrv) Chain() gin.HandlersChain {
@@ -45,7 +35,7 @@ func (s *friendshipSrv) GetContacts(req *web.GetContactsReq) (*web.GetContactsRe
 	res, err := s.Ds.GetContacts(req.User.ID, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
 		logrus.Errorf("service.GetContacts err: %s", err)
-		return nil, _errGetContactsFailed
+		return nil, web.ErrGetContactsFailed
 	}
 	resp := base.PageRespFrom(res.Contacts, req.Page, req.PageSize, res.Total)
 	return (*web.GetContactsResp)(resp), nil
@@ -56,14 +46,14 @@ func (s *friendshipSrv) DeleteFriend(req *web.DeleteFriendReq) mir.Error {
 		return xerror.ServerError
 	}
 	if req.User != nil && req.User.ID == req.UserId {
-		return _errNoActionToSelf
+		return web.ErrNoActionToSelf
 	}
 	if _, err := s.Ds.GetUserByID(req.UserId); err != nil {
-		return _errNotExistFriendId
+		return web.ErrNotExistFriendId
 	}
 	if err := s.Ds.DeleteFriend(req.User.ID, req.UserId); err != nil {
 		logrus.Errorf("Ds.DeleteFriend err: %s", err)
-		return _errDeleteFriendFailed
+		return web.ErrDeleteFriendFailed
 	}
 	return nil
 }
@@ -73,14 +63,14 @@ func (s *friendshipSrv) RejectFriend(req *web.RejectFriendReq) mir.Error {
 		return xerror.ServerError
 	}
 	if req.User.ID == req.UserId {
-		return _errNoActionToSelf
+		return web.ErrNoActionToSelf
 	}
 	if _, err := s.Ds.GetUserByID(req.UserId); err != nil {
-		return _errNotExistFriendId
+		return web.ErrNotExistFriendId
 	}
 	if err := s.Ds.RejectFriend(req.User.ID, req.UserId); err != nil {
 		logrus.Errorf("Ds.RejectFriend err: %s", err)
-		return _errRejectFriendFailed
+		return web.ErrRejectFriendFailed
 	}
 	return nil
 }
@@ -90,14 +80,14 @@ func (s *friendshipSrv) AddFriend(req *web.AddFriendReq) mir.Error {
 		return xerror.ServerError
 	}
 	if req.User.ID == req.UserId {
-		return _errNoActionToSelf
+		return web.ErrNoActionToSelf
 	}
 	if _, err := s.Ds.GetUserByID(req.UserId); err != nil {
-		return _errNotExistFriendId
+		return web.ErrNotExistFriendId
 	}
 	if err := s.Ds.AddFriend(req.User.ID, req.UserId); err != nil {
 		logrus.Errorf("Ds.AddFriend err: %s", err)
-		return _errAddFriendFailed
+		return web.ErrAddFriendFailed
 	}
 	return nil
 }
@@ -107,14 +97,14 @@ func (s *friendshipSrv) RequestingFriend(req *web.RequestingFriendReq) mir.Error
 		return xerror.ServerError
 	}
 	if req.User.ID == req.UserId {
-		return _errNoRequestingFriendToSelf
+		return web.ErrNoRequestingFriendToSelf
 	}
 	if _, err := s.Ds.GetUserByID(req.UserId); err != nil {
-		return _errNotExistFriendId
+		return web.ErrNotExistFriendId
 	}
 	if err := s.Ds.RequestingFriend(req.User.ID, req.UserId, req.Greetings); err != nil {
 		logrus.Errorf("Ds.RequestingFriend err: %s", err)
-		return _errSendRequestingFriendFailed
+		return web.ErrSendRequestingFriendFailed
 	}
 	return nil
 }
@@ -122,21 +112,5 @@ func (s *friendshipSrv) RequestingFriend(req *web.RequestingFriendReq) mir.Error
 func newFriendshipSrv(s *base.DaoServant) api.Friendship {
 	return &friendshipSrv{
 		DaoServant: s,
-	}
-}
-
-func newFriendshipBinding() api.FriendshipBinding {
-	return &friendshipBinding{
-		UnimplementedFriendshipBinding: &api.UnimplementedFriendshipBinding{
-			BindAny: base.NewBindAnyFn(),
-		},
-	}
-}
-
-func newFriendshipRender() api.FriendshipRender {
-	return &friendshipRender{
-		UnimplementedFriendshipRender: &api.UnimplementedFriendshipRender{
-			RenderAny: base.RenderAny,
-		},
 	}
 }
