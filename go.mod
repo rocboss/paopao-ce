@@ -31,7 +31,7 @@ require (
 	github.com/pyroscope-io/client v0.7.1
 	github.com/redis/rueidis v1.0.13
 	github.com/sirupsen/logrus v1.9.3
-	github.com/smartwalle/alipay/v3 v3.2.14
+	github.com/smartwalle/alipay/v3 v3.2.15
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.16.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.42
