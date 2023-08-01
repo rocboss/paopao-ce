@@ -2,56 +2,56 @@
 -- authorization_manage sql dml
 --------------------------------------------------------------------------------
 
--- name: be_friend_filter@authorization_manage
--- prepare: stmt
-SELECT * FROM @user WHERE username=?
-
 -- name: be_friend_ids@authorization_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT user_id FROM @contact WHERE friend_id=? AND status=2 AND is_del=0;
 
 -- name: my_friend_set@authorization_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT friend_id FROM @contact WHERE user_id=? AND status=2 AND is_del=0;
+
+-- name: is_friend@authorization_manage
+-- prepare: stmt
+SELECT status FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0;
 
 --------------------------------------------------------------------------------
 -- comment sql dml
 --------------------------------------------------------------------------------
 
 -- name: get_comments@comment
--- prepare: named_stmt
-SELECT * FROM @user WHERE username=?
+-- prepare: raw
+SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY %order% LIMIT ? OFFSET ?; 
 
 -- name: get_comment_by_id@comment
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @comment WHERE id=? AND is_del=0;
 
 -- name: get_comment_count@comment
 -- prepare: named_stmt
-SELECT * FROM @user WHERE username=?
+SELECT count(*) FROM @comment WHERE post_id=:post_id AND is_del=0;
 
 -- name: get_comment_reply_by_id@comment
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @comment_reply WHERE id=? AND is_del=0;
 
 -- name: get_comment_contents_by_ids@comment
 -- prepare: raw
 -- clause: in
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @comment_content WHERE comment_id IN ?;
 
 -- name: get_commment_replies_by_ids@comment
 -- prepare: raw
 -- clause: in
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @comment_reply WHERE comment_id IN ? ORDER BY id ASC;
 
 -- name: get_users_by_ids@comment
 -- prepare: raw
 -- clause: in
-SELECT * FROM @user WHERE username=?
+SELECT id, nickname, username, status, avatar, is_admin FROM @user WHERE id IN ?;
 
 -- name: get_comment_thumbs@comment
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=?;
 
 --------------------------------------------------------------------------------
 -- comment_manage sql dml
@@ -166,7 +166,7 @@ SELECT * FROM @user WHERE username=?
 SELECT * FROM @user WHERE username=?
 
 -- name: read_message@message
--- prepare: stmt
+-- prepare: named_stmt
 SELECT * FROM @user WHERE username=?
 
 -- name: get_messages@message

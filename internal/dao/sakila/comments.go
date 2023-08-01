@@ -5,6 +5,7 @@
 package sakila
 
 import (
+	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -31,23 +32,22 @@ type commentManageSrv struct {
 	q *cc.CommentManage
 }
 
-func (s *commentSrv) GetComments(r *ms.ConditionsT, offset, limit int) ([]*ms.Comment, error) {
-	res := []*ms.Comment{}
-	(*r)["limit"], (*r)["offset"] = limit, offset
-	err := s.q.GetComments.Select(&res, r)
-	return res, err
+func (s *commentSrv) GetComments(r *ms.ConditionsT, offset, limit int) (res []*ms.Comment, err error) {
+	order := (*r)["ORDER"].(string)
+	postId := (*r)["post_id"]
+	stmt := strings.Replace(s.q.GetComments, "%order%", order, 1)
+	err = s.db.Select(&res, stmt, postId, limit, offset)
+	return
 }
 
-func (s *commentSrv) GetCommentByID(id int64) (*ms.Comment, error) {
-	res := &ms.Comment{}
-	err := s.q.GetCommentById.Get(res, id)
-	return res, err
+func (s *commentSrv) GetCommentByID(id int64) (res *ms.Comment, err error) {
+	err = s.q.GetCommentById.Get(res, id)
+	return
 }
 
-func (s *commentSrv) GetCommentReplyByID(id int64) (*ms.CommentReply, error) {
-	res := &ms.CommentReply{}
-	err := s.q.GetCommentById.Get(res, id)
-	return res, err
+func (s *commentSrv) GetCommentReplyByID(id int64) (res *ms.CommentReply, err error) {
+	err = s.q.GetCommentReplyById.Get(res, id)
+	return
 }
 
 func (s *commentSrv) GetCommentCount(r *ms.ConditionsT) (res int64, err error) {
@@ -55,9 +55,8 @@ func (s *commentSrv) GetCommentCount(r *ms.ConditionsT) (res int64, err error) {
 	return
 }
 
-func (s *commentSrv) GetCommentContentsByIDs(ids []int64) ([]*ms.CommentContent, error) {
-	res := []*ms.CommentContent{}
-	err := s.inSelect(&res, s.q.GetCommentContentsByIds, ids)
+func (s *commentSrv) GetCommentContentsByIDs(ids []int64) (res []*ms.CommentContent, err error) {
+	err = s.inSelect(&res, s.q.GetCommentContentsByIds, ids)
 	return res, err
 }
 

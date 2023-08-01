@@ -10,7 +10,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
-	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
 var (
@@ -46,10 +45,9 @@ func (s *messageSrv) GetMessageByID(id int64) (*ms.Message, error) {
 	return res, err
 }
 
-func (s *messageSrv) ReadMessage(message *ms.Message) error {
-	// TODO
-	debug.NotImplemented()
-	return nil
+func (s *messageSrv) ReadMessage(message *ms.Message) (err error) {
+	_, err = s.q.ReadMessage.Exec(message)
+	return
 }
 
 func (s *messageSrv) GetMessages(r *ms.ConditionsT, offset, limit int) ([]*ms.MessageFormated, error) {
