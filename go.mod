@@ -45,7 +45,7 @@ require (
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/driver/sqlite v1.5.2
 	gorm.io/gorm v1.25.2
-	gorm.io/plugin/dbresolver v1.4.1
+	gorm.io/plugin/dbresolver v1.4.2
 	gorm.io/plugin/soft_delete v1.2.1
 	modernc.org/sqlite v1.24.0
 )
