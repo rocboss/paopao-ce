@@ -59,63 +59,55 @@ SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=?;
 
 -- name: delete_comment@comment_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @comment SET deleted_on=?, is_del=1 WHERE id=? AND is_del=0;
 
 -- name: delete_comment_thumbs@comment_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @tweet_comment_thumbs SET deleted_on=?, is_del=1 WHERE user_id=? AND tweet_id=? AND comment_id=? AND is_del=0;
 
 -- name: create_comment@comment_manage
--- prepare: named_stmt
-SELECT * FROM @user WHERE username=?
+-- prepare: stmt
+INSERT INTO @comment (post_id, user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?);
 
 -- name: create_comment_reply@comment_manage
--- prepare: named_stmt
-SELECT * FROM @user WHERE username=?
+-- prepare: stmt
+INSERT INTO @comment_reply (comment_id, user_id, content, at_user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?, ?, ?);
 
 -- name: delete_comment_reply@comment_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @comment_reply SET deleted_on=?, is_del=1 WHERE id=? AND is_del=0;
 
 -- name: delete_reply_thumbs@comment_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @tweet_comment_thumbs SET deleted_on=?, is_del=1 WHERE user_id=? AND comment_id=? AND reply_id=? AND is_del=0;
 
 -- name: create_comment_content@comment_manage
--- prepare: named_stmt
-SELECT * FROM @user WHERE username=?
+-- prepare: stmt
+INSERT INTO @comment_content (comment_id, user_id, content, type, sort, created_on) VALUES (?, ?, ?, ?, ?, ?);
 
--- name: update_thumbs_up_comment@comment_manage
+-- name: update_thumbs_updown_comment@comment_manage
 -- prepare: named_stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @tweet_comment_thumbs SET is_thumbs_up=:is_thumbs_up, is_thumbs_down=:is_thumbs_down, modified_on=:modified_on WHERE id=:id AND is_del=0;
 
--- name: create_thumbs_up_comment@comment_manage
+-- name: create_thumbs_updown_comment@comment_manage
 -- prepare: named_stmt
-SELECT * FROM @user WHERE username=?
+INSERT INTO @tweet_comment_thumbs (user_id, tweet_id, comment_id, reply_id, is_thumbs_up, is_thumbs_down, comment_type, created_on) VALUES (:user_id, :tweet_id, :comment_id, :reply_id, :is_thumbs_up, :is_thumbs_down, :comment_type, :created_on);
 
 -- name: update_comment_thumbs_count@comment_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @comment SET thumbs_up_count=?, thumbs_down_count=?, modified_on=? WHERE id=? AND is_del=0;
 
 -- name: get_tweet_comment_thumb@comment_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=? AND comment_id=? AND comment_type=0 AND is_del=0;
 
 -- name: get_comment_reply_thumb@comment_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=? AND comment_id=? AND reply_id=? AND comment_type=1 AND is_del=0;
 
--- name: thumbs_down_comment@comment_manage
+-- name: update_reply_thumbs_count@comment_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
-
--- name: thumbs_up_reply@comment_manage
--- prepare: stmt
-SELECT * FROM @user WHERE username=?
-
--- name: thumbs_down_reply@comment_manage
--- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @comment_reply SET thumbs_up_count=?, thumbs_down_count=?, modified_on=? WHERE id=? AND is_del=0;
 
 --------------------------------------------------------------------------------
 -- contact_manager sql dml

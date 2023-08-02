@@ -110,18 +110,21 @@ func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*ms.CommentReplyForma
 	return repliesFormated, nil
 }
 
+// DeleteComment delete comment
+// TODO: need delete related replies and update tweet comment count and comment content?
 func (s *commentManageSrv) DeleteComment(r *ms.Comment) error {
 	return s.with(func(tx *sqlx.Tx) error {
-		if _, err := tx.Stmtx(s.q.DeleteComment).Exec(r.ID); err != nil {
+		now := time.Now().Unix()
+		if _, err := tx.Stmtx(s.q.DeleteComment).Exec(now, r.ID); err != nil {
 			return err
 		}
-		_, err := tx.Stmtx(s.q.DeleteCommentThumbs).Exec(r.UserID, r.PostID, r.ID)
+		_, err := tx.Stmtx(s.q.DeleteCommentThumbs).Exec(now, r.UserID, r.PostID, r.ID)
 		return err
 	})
 }
 
 func (s *commentManageSrv) CreateComment(r *ms.Comment) (*ms.Comment, error) {
-	res, err := s.q.CreateComment.Exec(r)
+	res, err := s.q.CreateComment.Exec(r.PostID, r.UserID, r.IP, r.IPLoc, time.Now().Unix())
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +139,8 @@ func (s *commentManageSrv) CreateComment(r *ms.Comment) (*ms.Comment, error) {
 }
 
 func (s *commentManageSrv) CreateCommentReply(r *ms.CommentReply) (*ms.CommentReply, error) {
-	res, err := s.q.CreateComment.Exec(r)
+	res, err := s.q.CreateCommentReply.Exec(r.CommentID, r.UserID, r.Content,
+		r.AtUserID, r.IP, r.IPLoc, time.Now().Unix())
 	if err != nil {
 		return nil, err
 	}
@@ -150,16 +154,17 @@ func (s *commentManageSrv) CreateCommentReply(r *ms.CommentReply) (*ms.CommentRe
 
 func (s *commentManageSrv) DeleteCommentReply(r *ms.CommentReply) error {
 	return s.with(func(tx *sqlx.Tx) error {
-		if _, err := tx.Stmtx(s.q.DeleteCommentReply).Exec(r.ID); err != nil {
+		now := time.Now().Unix()
+		if _, err := tx.Stmtx(s.q.DeleteCommentReply).Exec(now, r.ID); err != nil {
 			return err
 		}
-		_, err := tx.Stmtx(s.q.DeleteCommentThumbs).Exec(r.UserID, r.CommentID, r.ID)
+		_, err := tx.Stmtx(s.q.DeleteCommentThumbs).Exec(now, r.UserID, r.CommentID, r.ID)
 		return err
 	})
 }
 
 func (s *commentManageSrv) CreateCommentContent(r *ms.CommentContent) (*ms.CommentContent, error) {
-	res, err := s.q.CreateCommentContent.Exec(r)
+	res, err := s.q.CreateCommentContent.Exec(r.CommentID, r.UserID, r.Content, r.Type, r.Sort, time.Now().Unix())
 	if err != nil {
 		return nil, err
 	}
@@ -177,6 +182,7 @@ func (s *commentManageSrv) ThumbsUpComment(userId int64, tweetId, commentId int6
 			thumbsUpCount   int32 = 0
 			thumbsDownCount int32 = 0
 		)
+		now := time.Now().Unix()
 		commentThumbs := &dbr.TweetCommentThumbs{}
 		// 检查thumbs状态
 		err := tx.Stmtx(s.q.GetTweetCommentThumb).Get(commentThumbs, userId, tweetId, commentId)
@@ -191,8 +197,8 @@ func (s *commentManageSrv) ThumbsUpComment(userId int64, tweetId, commentId int6
 				commentThumbs.IsThumbsDown = types.No
 			}
 			commentThumbs.IsThumbsUp = 1 - commentThumbs.IsThumbsUp
-			commentThumbs.ModifiedOn = time.Now().Unix()
-			if _, err := tx.NamedStmt(s.q.UpdateThumbsUpComment).Exec(commentThumbs); err != nil {
+			commentThumbs.ModifiedOn = now
+			if _, err := tx.Stmtx(s.q.UpdateThumbsUpdownComment).Exec(commentThumbs); err != nil {
 				return err
 			}
 		} else {
@@ -204,16 +210,16 @@ func (s *commentManageSrv) ThumbsUpComment(userId int64, tweetId, commentId int6
 				IsThumbsDown: types.No,
 				CommentType:  0,
 				Model: &dbr.Model{
-					CreatedOn: time.Now().Unix(),
+					CreatedOn: now,
 				},
 			}
 			thumbsUpCount, thumbsDownCount = 1, 0
-			if _, err := tx.NamedStmt(s.q.CreateThumbsUpComment).Exec(commentThumbs); err != nil {
+			if _, err := tx.NamedStmt(s.q.CreateThumbsUpdownComment).Exec(commentThumbs); err != nil {
 				return err
 			}
 		}
-		// 更新thumbsUpCount
-		_, err = tx.Stmtx(s.q.UpdateCommentThumbsCount).Exec(commentId, thumbsUpCount, thumbsDownCount)
+		// 更新comment thumbsUpCount
+		_, err = tx.Stmtx(s.q.UpdateCommentThumbsCount).Exec(thumbsUpCount, thumbsDownCount, now, commentId)
 		return err
 	})
 }
@@ -224,6 +230,7 @@ func (s *commentManageSrv) ThumbsDownComment(userId int64, tweetId, commentId in
 			thumbsUpCount   int32 = 0
 			thumbsDownCount int32 = 0
 		)
+		now := time.Now().Unix()
 		commentThumbs := &dbr.TweetCommentThumbs{}
 		// 检查thumbs状态
 		err := tx.Stmtx(s.q.GetTweetCommentThumb).Get(commentThumbs, userId, tweetId, commentId)
@@ -239,8 +246,8 @@ func (s *commentManageSrv) ThumbsDownComment(userId int64, tweetId, commentId in
 
 			}
 			commentThumbs.IsThumbsDown = 1 - commentThumbs.IsThumbsDown
-			commentThumbs.ModifiedOn = time.Now().Unix()
-			if _, err := tx.NamedStmt(s.q.UpdateThumbsUpComment).Exec(commentThumbs); err != nil {
+			commentThumbs.ModifiedOn = now
+			if _, err := tx.NamedStmt(s.q.UpdateThumbsUpdownComment).Exec(commentThumbs); err != nil {
 				return err
 			}
 		} else {
@@ -252,27 +259,27 @@ func (s *commentManageSrv) ThumbsDownComment(userId int64, tweetId, commentId in
 				IsThumbsDown: types.Yes,
 				CommentType:  0,
 				Model: &dbr.Model{
-					CreatedOn: time.Now().Unix(),
+					CreatedOn: now,
 				},
 			}
 			thumbsUpCount, thumbsDownCount = 0, 1
-			if _, err := tx.NamedStmt(s.q.CreateThumbsUpComment).Exec(commentThumbs); err != nil {
+			if _, err := tx.NamedStmt(s.q.CreateThumbsUpdownComment).Exec(commentThumbs); err != nil {
 				return err
 			}
 		}
-		// 更新thumbsUpCount
-		_, err = tx.Stmtx(s.q.UpdateCommentThumbsCount).Exec(commentId, thumbsUpCount, thumbsDownCount)
+		// 更新comment thumbsUpCount
+		_, err = tx.Stmtx(s.q.UpdateCommentThumbsCount).Exec(thumbsUpCount, thumbsDownCount, now, commentId)
 		return err
 	})
 }
 
 func (s *commentManageSrv) ThumbsUpReply(userId int64, tweetId, commentId, replyId int64) error {
 	return s.with(func(tx *sqlx.Tx) error {
-
 		var (
 			thumbsUpCount   int32 = 0
 			thumbsDownCount int32 = 0
 		)
+		now := time.Now().Unix()
 		commentThumbs := &dbr.TweetCommentThumbs{}
 		// 检查thumbs状态
 		err := tx.Stmtx(s.q.GetCommentReplyThumb).Get(commentThumbs, userId, tweetId, commentId, replyId)
@@ -287,8 +294,8 @@ func (s *commentManageSrv) ThumbsUpReply(userId int64, tweetId, commentId, reply
 				commentThumbs.IsThumbsDown = types.No
 			}
 			commentThumbs.IsThumbsUp = 1 - commentThumbs.IsThumbsUp
-			commentThumbs.ModifiedOn = time.Now().Unix()
-			if _, err := tx.NamedStmt(s.q.UpdateThumbsUpComment).Exec(commentThumbs); err != nil {
+			commentThumbs.ModifiedOn = now
+			if _, err := tx.NamedStmt(s.q.UpdateThumbsUpdownComment).Exec(commentThumbs); err != nil {
 				return err
 			}
 		} else {
@@ -301,16 +308,16 @@ func (s *commentManageSrv) ThumbsUpReply(userId int64, tweetId, commentId, reply
 				IsThumbsDown: types.No,
 				CommentType:  1,
 				Model: &dbr.Model{
-					CreatedOn: time.Now().Unix(),
+					CreatedOn: now,
 				},
 			}
 			thumbsUpCount, thumbsDownCount = 1, 0
-			if _, err := tx.NamedStmt(s.q.CreateThumbsUpComment).Exec(commentThumbs); err != nil {
+			if _, err := tx.NamedStmt(s.q.CreateThumbsUpdownComment).Exec(commentThumbs); err != nil {
 				return err
 			}
 		}
-		// 更新thumbsUpCount
-		_, err = tx.Stmtx(s.q.UpdateCommentThumbsCount).Exec(commentId, thumbsUpCount, thumbsDownCount)
+		// 更新comment_reply thumbsUpCount
+		_, err = tx.Stmtx(s.q.UpdateReplyThumbsCount).Exec(thumbsUpCount, thumbsDownCount, now, replyId)
 		return err
 	})
 }
@@ -321,6 +328,7 @@ func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, rep
 			thumbsUpCount   int32 = 0
 			thumbsDownCount int32 = 0
 		)
+		now := time.Now().Unix()
 		commentThumbs := &dbr.TweetCommentThumbs{}
 		// 检查thumbs状态
 		err := tx.Stmtx(s.q.GetCommentReplyThumb).Get(commentThumbs, userId, tweetId, commentId, replyId)
@@ -335,8 +343,8 @@ func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, rep
 				commentThumbs.IsThumbsUp = types.No
 			}
 			commentThumbs.IsThumbsDown = 1 - commentThumbs.IsThumbsDown
-			commentThumbs.ModifiedOn = time.Now().Unix()
-			if _, err := tx.NamedStmt(s.q.UpdateThumbsUpComment).Exec(commentThumbs); err != nil {
+			commentThumbs.ModifiedOn = now
+			if _, err := tx.NamedStmt(s.q.UpdateThumbsUpdownComment).Exec(commentThumbs); err != nil {
 				return err
 			}
 		} else {
@@ -349,16 +357,16 @@ func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, rep
 				IsThumbsDown: types.Yes,
 				CommentType:  1,
 				Model: &dbr.Model{
-					CreatedOn: time.Now().Unix(),
+					CreatedOn: now,
 				},
 			}
 			thumbsUpCount, thumbsDownCount = 0, 1
-			if _, err := tx.NamedStmt(s.q.CreateThumbsUpComment).Exec(commentThumbs); err != nil {
+			if _, err := tx.NamedStmt(s.q.CreateThumbsUpdownComment).Exec(commentThumbs); err != nil {
 				return err
 			}
 		}
-		// 更新thumbsUpCount
-		_, err = tx.Stmtx(s.q.UpdateCommentThumbsCount).Exec(commentId, thumbsUpCount, thumbsDownCount)
+		// 更新comment_reply thumbsUpCount
+		_, err = tx.Stmtx(s.q.UpdateReplyThumbsCount).Exec(thumbsUpCount, thumbsDownCount, now, replyId)
 		return err
 	})
 }

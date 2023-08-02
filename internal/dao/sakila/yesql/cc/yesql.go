@@ -12,120 +12,118 @@ import (
 )
 
 const (
-	_AuthorizationManage_BeFriendIds        = `SELECT user_id FROM @contact WHERE friend_id=? AND status=2 AND is_del=0`
-	_AuthorizationManage_IsFriend           = `SELECT status FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0`
-	_AuthorizationManage_MyFriendSet        = `SELECT friend_id FROM @contact WHERE user_id=? AND status=2 AND is_del=0`
-	_Comment_GetCommentById                 = `SELECT * FROM @comment WHERE id=? AND is_del=0`
-	_Comment_GetCommentContentsByIds        = `SELECT * FROM @comment_content WHERE comment_id IN ?`
-	_Comment_GetCommentCount                = `SELECT count(*) FROM @comment WHERE post_id=:post_id AND is_del=0`
-	_Comment_GetCommentReplyById            = `SELECT * FROM @comment_reply WHERE id=? AND is_del=0`
-	_Comment_GetCommentThumbs               = `SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=?`
-	_Comment_GetComments                    = `SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY %order% LIMIT ? OFFSET ?`
-	_Comment_GetCommmentRepliesByIds        = `SELECT * FROM @comment_reply WHERE comment_id IN ? ORDER BY id ASC`
-	_Comment_GetUsersByIds                  = `SELECT id, nickname, username, status, avatar, is_admin FROM @user WHERE id IN ?`
-	_CommentManage_CreateComment            = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_CreateCommentContent     = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_CreateCommentReply       = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_CreateThumbsUpComment    = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_DeleteComment            = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_DeleteCommentReply       = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_DeleteCommentThumbs      = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_DeleteReplyThumbs        = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_GetCommentReplyThumb     = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_GetTweetCommentThumb     = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_ThumbsDownComment        = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_ThumbsDownReply          = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_ThumbsUpReply            = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_UpdateCommentThumbsCount = `SELECT * FROM @user WHERE username=?`
-	_CommentManage_UpdateThumbsUpComment    = `SELECT * FROM @user WHERE username=?`
-	_ContactManager_AddFriend               = `SELECT * FROM @user WHERE username=?`
-	_ContactManager_DelFriend               = `SELECT * FROM @user WHERE username=?`
-	_ContactManager_GetContacts             = `SELECT * FROM @user WHERE username=?`
-	_ContactManager_GetUserFriend           = `SELECT * FROM @user WHERE username=?`
-	_ContactManager_RejectFriend            = `SELECT * FROM @user WHERE username=?`
-	_ContactManager_RequestingFriend        = `SELECT * FROM @user WHERE username=?`
-	_ContactManager_TotalContactsById       = `SELECT * FROM @user WHERE username=?`
-	_FollowIndexA_UserInfo                  = `SELECT * FROM @user WHERE username=?`
-	_FollowIndex_UserInfo                   = `SELECT * FROM @user WHERE username=?`
-	_FriendIndexA_UserInfo                  = `SELECT * FROM @user WHERE username=?`
-	_FriendIndex_UserInfo                   = `SELECT * FROM @user WHERE username=?`
-	_LightIndexA_UserInfo                   = `SELECT * FROM @user WHERE username=?`
-	_LightIndex_UserInfo                    = `SELECT * FROM @user WHERE username=?`
-	_Message_CreateMessage                  = `SELECT * FROM @user WHERE username=?`
-	_Message_GetMessageById                 = `SELECT * FROM @user WHERE username=?`
-	_Message_GetMessageCount                = `SELECT * FROM @user WHERE username=?`
-	_Message_GetMessages                    = `SELECT * FROM @user WHERE username=?`
-	_Message_GetUnreadCount                 = `SELECT * FROM @user WHERE username=?`
-	_Message_ReadMessage                    = `SELECT * FROM @user WHERE username=?`
-	_Security_CreatePhoneCaptcha            = `SELECT * FROM @user WHERE username=?`
-	_Security_GetLatestPhoneCaptcha         = `SELECT * FROM @user WHERE username=?`
-	_Security_SendPhoneCaptcha              = `SELECT * FROM @user WHERE username=?`
-	_Security_UsePhoneCaptcha               = `SELECT * FROM @user WHERE username=?`
-	_SimpleIndexA_UserInfo                  = `SELECT * FROM @user WHERE username=?`
-	_SimpleIndex_UserInfo                   = `SELECT * FROM @user WHERE username=?`
-	_TopicA_DecrTagsById                    = `UPDATE @tag SET quote_num=quote_num-1, modified_on=? WHERE id IN (?)`
-	_TopicA_HotTags                         = `SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.quote_num DESC LIMIT ? OFFSET ?`
-	_TopicA_IncrTagsById                    = `UPDATE @tag SET quote_num=quote_num+1, is_del=0, modified_on=? WHERE id IN (?)`
-	_TopicA_InsertTag                       = `INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1)`
-	_TopicA_NewestTags                      = `SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.id DESC LIMIT ? OFFSET ?`
-	_TopicA_TagsByIdA                       = `SELECT id FROM @tag WHERE id IN (?) AND is_del = 0 AND quote_num > 0`
-	_TopicA_TagsByIdB                       = `SELECT id, user_id, tag, quote_num FROM @tag WHERE id IN (?)`
-	_TopicA_TagsByKeywordA                  = `SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 ORDER BY quote_num DESC LIMIT 6`
-	_TopicA_TagsByKeywordB                  = `SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND tag LIKE ? ORDER BY quote_num DESC LIMIT 6`
-	_TopicA_TagsForIncr                     = `SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?)`
-	_TweetA_AttachmentByTweetId             = `SELECT * FROM @user WHERE username=?`
-	_TweetA_FavoriteByTweetId               = `SELECT * FROM @user WHERE username=?`
-	_TweetA_ReactionByTweetId               = `SELECT * FROM @user WHERE username=?`
-	_TweetA_TweetInfoById                   = `SELECT * FROM @user WHERE username=?`
-	_TweetA_TweetItemById                   = `SELECT * FROM @user WHERE username=?`
-	_TweetA_UserFavorites                   = `SELECT * FROM @user WHERE username=?`
-	_TweetA_UserInfo                        = `SELECT * FROM @user WHERE username=?`
-	_TweetA_UserReactions                   = `SELECT * FROM @user WHERE username=?`
-	_TweetA_UserTweetsByAdmin               = `SELECT * FROM @user WHERE username=?`
-	_TweetA_UserTweetsByFriend              = `SELECT * FROM @user WHERE username=?`
-	_TweetA_UserTweetsByGuest               = `SELECT * FROM @user WHERE username=?`
-	_TweetA_UserTweetsBySelf                = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetPostAttachmentBill            = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetPostById                      = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetPostContentById               = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetPostContetnsByIds             = `SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?)`
-	_Tweet_GetPostCount                     = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetPosts                         = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetUserPostCollection            = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetUserPostCollectionCount       = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetUserPostCollections           = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetUserPostStar                  = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetUserPostStarCount             = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetUserPostStars                 = `SELECT * FROM @user WHERE username=?`
-	_TweetHelpA_UserInfo                    = `SELECT * FROM @user WHERE username=?`
-	_TweetHelp_GetPostContentByIds          = `SELECT * FROM @user WHERE username=?`
-	_TweetHelp_GetUsersByIds                = `SELECT * FROM @user WHERE username=?`
-	_TweetManageA_UserInfo                  = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_AddAttachment              = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_AddPost                    = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_AddPostCollection          = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_AddPostContent             = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_AddPostStar                = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_DelPost                    = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_DelPostCollection          = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_DelPostStar                = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_LockPost                   = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_StickPost                  = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_UpdatePost                 = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_VisiblePost                = `SELECT * FROM @user WHERE username=?`
-	_UserManage_AddUser                     = `SELECT * FROM @user WHERE username=?`
-	_UserManage_GetUserById                 = `SELECT * FROM @user WHERE username=?`
-	_UserManage_GetUserByPhone              = `SELECT * FROM @user WHERE username=?`
-	_UserManage_GetUserByUsername           = `SELECT * FROM @user WHERE username=?`
-	_UserManage_GetUsersByIds               = `SELECT * FROM @user WHERE username=?`
-	_UserManage_GetUsersByKeyword           = `SELECT * FROM @user WHERE username=?`
-	_UserManage_UpdateUser                  = `SELECT * FROM @user WHERE username=?`
-	_Wallet_CreateRecharge                  = `SELECT * FROM @user WHERE username=?`
-	_Wallet_GetRechargeById                 = `SELECT * FROM @user WHERE username=?`
-	_Wallet_GetUserWalletBillCount          = `SELECT * FROM @user WHERE username=?`
-	_Wallet_GetUserWalletBills              = `SELECT * FROM @user WHERE username=?`
-	_Wallet_HandlePostAttachementBought     = `SELECT * FROM @user WHERE username=?`
-	_Wallet_HandleRechargeSuccess           = `SELECT * FROM @user WHERE username=?`
+	_AuthorizationManage_BeFriendIds         = `SELECT user_id FROM @contact WHERE friend_id=? AND status=2 AND is_del=0`
+	_AuthorizationManage_IsFriend            = `SELECT status FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0`
+	_AuthorizationManage_MyFriendSet         = `SELECT friend_id FROM @contact WHERE user_id=? AND status=2 AND is_del=0`
+	_Comment_GetCommentById                  = `SELECT * FROM @comment WHERE id=? AND is_del=0`
+	_Comment_GetCommentContentsByIds         = `SELECT * FROM @comment_content WHERE comment_id IN ?`
+	_Comment_GetCommentCount                 = `SELECT count(*) FROM @comment WHERE post_id=:post_id AND is_del=0`
+	_Comment_GetCommentReplyById             = `SELECT * FROM @comment_reply WHERE id=? AND is_del=0`
+	_Comment_GetCommentThumbs                = `SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=?`
+	_Comment_GetComments                     = `SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY %order% LIMIT ? OFFSET ?`
+	_Comment_GetCommmentRepliesByIds         = `SELECT * FROM @comment_reply WHERE comment_id IN ? ORDER BY id ASC`
+	_Comment_GetUsersByIds                   = `SELECT id, nickname, username, status, avatar, is_admin FROM @user WHERE id IN ?`
+	_CommentManage_CreateComment             = `INSERT INTO @comment (post_id, user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?)`
+	_CommentManage_CreateCommentContent      = `INSERT INTO @comment_content (comment_id, user_id, content, type, sort, created_on) VALUES (?, ?, ?, ?, ?, ?)`
+	_CommentManage_CreateCommentReply        = `INSERT INTO @comment_reply (comment_id, user_id, content, at_user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	_CommentManage_CreateThumbsUpdownComment = `INSERT INTO @tweet_comment_thumbs (user_id, tweet_id, comment_id, reply_id, is_thumbs_up, is_thumbs_down, comment_type, created_on) VALUES (:user_id, :tweet_id, :comment_id, :reply_id, :is_thumbs_up, :is_thumbs_down, :comment_type, :created_on)`
+	_CommentManage_DeleteComment             = `UPDATE @comment SET deleted_on=?, is_del=1 WHERE id=? AND is_del=0`
+	_CommentManage_DeleteCommentReply        = `UPDATE @comment_reply SET deleted_on=?, is_del=1 WHERE id=? AND is_del=0`
+	_CommentManage_DeleteCommentThumbs       = `UPDATE @tweet_comment_thumbs SET deleted_on=?, is_del=1 WHERE user_id=? AND tweet_id=? AND comment_id=? AND is_del=0`
+	_CommentManage_DeleteReplyThumbs         = `UPDATE @tweet_comment_thumbs SET deleted_on=?, is_del=1 WHERE user_id=? AND comment_id=? AND reply_id=? AND is_del=0`
+	_CommentManage_GetCommentReplyThumb      = `SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=? AND comment_id=? AND reply_id=? AND comment_type=1 AND is_del=0`
+	_CommentManage_GetTweetCommentThumb      = `SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=? AND comment_id=? AND comment_type=0 AND is_del=0`
+	_CommentManage_UpdateCommentThumbsCount  = `UPDATE @comment SET thumbs_up_count=?, thumbs_down_count=?, modified_on=? WHERE id=? AND is_del=0`
+	_CommentManage_UpdateReplyThumbsCount    = `UPDATE @comment_reply SET thumbs_up_count=?, thumbs_down_count=?, modified_on=? WHERE id=? AND is_del=0`
+	_CommentManage_UpdateThumbsUpdownComment = `UPDATE @tweet_comment_thumbs SET is_thumbs_up=:is_thumbs_up, is_thumbs_down=:is_thumbs_down, modified_on=:modified_on WHERE id=:id AND is_del=0`
+	_ContactManager_AddFriend                = `SELECT * FROM @user WHERE username=?`
+	_ContactManager_DelFriend                = `SELECT * FROM @user WHERE username=?`
+	_ContactManager_GetContacts              = `SELECT * FROM @user WHERE username=?`
+	_ContactManager_GetUserFriend            = `SELECT * FROM @user WHERE username=?`
+	_ContactManager_RejectFriend             = `SELECT * FROM @user WHERE username=?`
+	_ContactManager_RequestingFriend         = `SELECT * FROM @user WHERE username=?`
+	_ContactManager_TotalContactsById        = `SELECT * FROM @user WHERE username=?`
+	_FollowIndexA_UserInfo                   = `SELECT * FROM @user WHERE username=?`
+	_FollowIndex_UserInfo                    = `SELECT * FROM @user WHERE username=?`
+	_FriendIndexA_UserInfo                   = `SELECT * FROM @user WHERE username=?`
+	_FriendIndex_UserInfo                    = `SELECT * FROM @user WHERE username=?`
+	_LightIndexA_UserInfo                    = `SELECT * FROM @user WHERE username=?`
+	_LightIndex_UserInfo                     = `SELECT * FROM @user WHERE username=?`
+	_Message_CreateMessage                   = `SELECT * FROM @user WHERE username=?`
+	_Message_GetMessageById                  = `SELECT * FROM @user WHERE username=?`
+	_Message_GetMessageCount                 = `SELECT * FROM @user WHERE username=?`
+	_Message_GetMessages                     = `SELECT * FROM @user WHERE username=?`
+	_Message_GetUnreadCount                  = `SELECT * FROM @user WHERE username=?`
+	_Message_ReadMessage                     = `SELECT * FROM @user WHERE username=?`
+	_Security_CreatePhoneCaptcha             = `SELECT * FROM @user WHERE username=?`
+	_Security_GetLatestPhoneCaptcha          = `SELECT * FROM @user WHERE username=?`
+	_Security_SendPhoneCaptcha               = `SELECT * FROM @user WHERE username=?`
+	_Security_UsePhoneCaptcha                = `SELECT * FROM @user WHERE username=?`
+	_SimpleIndexA_UserInfo                   = `SELECT * FROM @user WHERE username=?`
+	_SimpleIndex_UserInfo                    = `SELECT * FROM @user WHERE username=?`
+	_TopicA_DecrTagsById                     = `UPDATE @tag SET quote_num=quote_num-1, modified_on=? WHERE id IN (?)`
+	_TopicA_HotTags                          = `SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.quote_num DESC LIMIT ? OFFSET ?`
+	_TopicA_IncrTagsById                     = `UPDATE @tag SET quote_num=quote_num+1, is_del=0, modified_on=? WHERE id IN (?)`
+	_TopicA_InsertTag                        = `INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1)`
+	_TopicA_NewestTags                       = `SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.id DESC LIMIT ? OFFSET ?`
+	_TopicA_TagsByIdA                        = `SELECT id FROM @tag WHERE id IN (?) AND is_del = 0 AND quote_num > 0`
+	_TopicA_TagsByIdB                        = `SELECT id, user_id, tag, quote_num FROM @tag WHERE id IN (?)`
+	_TopicA_TagsByKeywordA                   = `SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 ORDER BY quote_num DESC LIMIT 6`
+	_TopicA_TagsByKeywordB                   = `SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND tag LIKE ? ORDER BY quote_num DESC LIMIT 6`
+	_TopicA_TagsForIncr                      = `SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?)`
+	_TweetA_AttachmentByTweetId              = `SELECT * FROM @user WHERE username=?`
+	_TweetA_FavoriteByTweetId                = `SELECT * FROM @user WHERE username=?`
+	_TweetA_ReactionByTweetId                = `SELECT * FROM @user WHERE username=?`
+	_TweetA_TweetInfoById                    = `SELECT * FROM @user WHERE username=?`
+	_TweetA_TweetItemById                    = `SELECT * FROM @user WHERE username=?`
+	_TweetA_UserFavorites                    = `SELECT * FROM @user WHERE username=?`
+	_TweetA_UserInfo                         = `SELECT * FROM @user WHERE username=?`
+	_TweetA_UserReactions                    = `SELECT * FROM @user WHERE username=?`
+	_TweetA_UserTweetsByAdmin                = `SELECT * FROM @user WHERE username=?`
+	_TweetA_UserTweetsByFriend               = `SELECT * FROM @user WHERE username=?`
+	_TweetA_UserTweetsByGuest                = `SELECT * FROM @user WHERE username=?`
+	_TweetA_UserTweetsBySelf                 = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetPostAttachmentBill             = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetPostById                       = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetPostContentById                = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetPostContetnsByIds              = `SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?)`
+	_Tweet_GetPostCount                      = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetPosts                          = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetUserPostCollection             = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetUserPostCollectionCount        = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetUserPostCollections            = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetUserPostStar                   = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetUserPostStarCount              = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetUserPostStars                  = `SELECT * FROM @user WHERE username=?`
+	_TweetHelpA_UserInfo                     = `SELECT * FROM @user WHERE username=?`
+	_TweetHelp_GetPostContentByIds           = `SELECT * FROM @user WHERE username=?`
+	_TweetHelp_GetUsersByIds                 = `SELECT * FROM @user WHERE username=?`
+	_TweetManageA_UserInfo                   = `SELECT * FROM @user WHERE username=?`
+	_TweetManage_AddAttachment               = `SELECT * FROM @user WHERE username=?`
+	_TweetManage_AddPost                     = `SELECT * FROM @user WHERE username=?`
+	_TweetManage_AddPostCollection           = `SELECT * FROM @user WHERE username=?`
+	_TweetManage_AddPostContent              = `SELECT * FROM @user WHERE username=?`
+	_TweetManage_AddPostStar                 = `SELECT * FROM @user WHERE username=?`
+	_TweetManage_DelPost                     = `SELECT * FROM @user WHERE username=?`
+	_TweetManage_DelPostCollection           = `SELECT * FROM @user WHERE username=?`
+	_TweetManage_DelPostStar                 = `SELECT * FROM @user WHERE username=?`
+	_TweetManage_LockPost                    = `SELECT * FROM @user WHERE username=?`
+	_TweetManage_StickPost                   = `SELECT * FROM @user WHERE username=?`
+	_TweetManage_UpdatePost                  = `SELECT * FROM @user WHERE username=?`
+	_TweetManage_VisiblePost                 = `SELECT * FROM @user WHERE username=?`
+	_UserManage_AddUser                      = `SELECT * FROM @user WHERE username=?`
+	_UserManage_GetUserById                  = `SELECT * FROM @user WHERE username=?`
+	_UserManage_GetUserByPhone               = `SELECT * FROM @user WHERE username=?`
+	_UserManage_GetUserByUsername            = `SELECT * FROM @user WHERE username=?`
+	_UserManage_GetUsersByIds                = `SELECT * FROM @user WHERE username=?`
+	_UserManage_GetUsersByKeyword            = `SELECT * FROM @user WHERE username=?`
+	_UserManage_UpdateUser                   = `SELECT * FROM @user WHERE username=?`
+	_Wallet_CreateRecharge                   = `SELECT * FROM @user WHERE username=?`
+	_Wallet_GetRechargeById                  = `SELECT * FROM @user WHERE username=?`
+	_Wallet_GetUserWalletBillCount           = `SELECT * FROM @user WHERE username=?`
+	_Wallet_GetUserWalletBills               = `SELECT * FROM @user WHERE username=?`
+	_Wallet_HandlePostAttachementBought      = `SELECT * FROM @user WHERE username=?`
+	_Wallet_HandleRechargeSuccess            = `SELECT * FROM @user WHERE username=?`
 )
 
 type AuthorizationManage struct {
@@ -148,22 +146,20 @@ type Comment struct {
 }
 
 type CommentManage struct {
-	yesql.Namespace          `yesql:"comment_manage"`
-	DeleteComment            *sqlx.Stmt      `yesql:"delete_comment"`
-	DeleteCommentReply       *sqlx.Stmt      `yesql:"delete_comment_reply"`
-	DeleteCommentThumbs      *sqlx.Stmt      `yesql:"delete_comment_thumbs"`
-	DeleteReplyThumbs        *sqlx.Stmt      `yesql:"delete_reply_thumbs"`
-	GetCommentReplyThumb     *sqlx.Stmt      `yesql:"get_comment_reply_thumb"`
-	GetTweetCommentThumb     *sqlx.Stmt      `yesql:"get_tweet_comment_thumb"`
-	ThumbsDownComment        *sqlx.Stmt      `yesql:"thumbs_down_comment"`
-	ThumbsDownReply          *sqlx.Stmt      `yesql:"thumbs_down_reply"`
-	ThumbsUpReply            *sqlx.Stmt      `yesql:"thumbs_up_reply"`
-	UpdateCommentThumbsCount *sqlx.Stmt      `yesql:"update_comment_thumbs_count"`
-	CreateComment            *sqlx.NamedStmt `yesql:"create_comment"`
-	CreateCommentContent     *sqlx.NamedStmt `yesql:"create_comment_content"`
-	CreateCommentReply       *sqlx.NamedStmt `yesql:"create_comment_reply"`
-	CreateThumbsUpComment    *sqlx.NamedStmt `yesql:"create_thumbs_up_comment"`
-	UpdateThumbsUpComment    *sqlx.NamedStmt `yesql:"update_thumbs_up_comment"`
+	yesql.Namespace           `yesql:"comment_manage"`
+	CreateComment             *sqlx.Stmt      `yesql:"create_comment"`
+	CreateCommentContent      *sqlx.Stmt      `yesql:"create_comment_content"`
+	CreateCommentReply        *sqlx.Stmt      `yesql:"create_comment_reply"`
+	DeleteComment             *sqlx.Stmt      `yesql:"delete_comment"`
+	DeleteCommentReply        *sqlx.Stmt      `yesql:"delete_comment_reply"`
+	DeleteCommentThumbs       *sqlx.Stmt      `yesql:"delete_comment_thumbs"`
+	DeleteReplyThumbs         *sqlx.Stmt      `yesql:"delete_reply_thumbs"`
+	GetCommentReplyThumb      *sqlx.Stmt      `yesql:"get_comment_reply_thumb"`
+	GetTweetCommentThumb      *sqlx.Stmt      `yesql:"get_tweet_comment_thumb"`
+	UpdateCommentThumbsCount  *sqlx.Stmt      `yesql:"update_comment_thumbs_count"`
+	UpdateReplyThumbsCount    *sqlx.Stmt      `yesql:"update_reply_thumbs_count"`
+	CreateThumbsUpdownComment *sqlx.NamedStmt `yesql:"create_thumbs_updown_comment"`
+	UpdateThumbsUpdownComment *sqlx.NamedStmt `yesql:"update_thumbs_updown_comment"`
 }
 
 type ContactManager struct {
@@ -390,6 +386,15 @@ func BuildCommentManage(p yesql.PreparexBuilder, ctx ...context.Context) (obj *C
 		c = context.Background()
 	}
 	obj = &CommentManage{}
+	if obj.CreateComment, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_CreateComment))); err != nil {
+		return
+	}
+	if obj.CreateCommentContent, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_CreateCommentContent))); err != nil {
+		return
+	}
+	if obj.CreateCommentReply, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_CreateCommentReply))); err != nil {
+		return
+	}
 	if obj.DeleteComment, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_DeleteComment))); err != nil {
 		return
 	}
@@ -408,31 +413,16 @@ func BuildCommentManage(p yesql.PreparexBuilder, ctx ...context.Context) (obj *C
 	if obj.GetTweetCommentThumb, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_GetTweetCommentThumb))); err != nil {
 		return
 	}
-	if obj.ThumbsDownComment, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_ThumbsDownComment))); err != nil {
-		return
-	}
-	if obj.ThumbsDownReply, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_ThumbsDownReply))); err != nil {
-		return
-	}
-	if obj.ThumbsUpReply, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_ThumbsUpReply))); err != nil {
-		return
-	}
 	if obj.UpdateCommentThumbsCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_UpdateCommentThumbsCount))); err != nil {
 		return
 	}
-	if obj.CreateComment, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_CommentManage_CreateComment))); err != nil {
+	if obj.UpdateReplyThumbsCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_UpdateReplyThumbsCount))); err != nil {
 		return
 	}
-	if obj.CreateCommentContent, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_CommentManage_CreateCommentContent))); err != nil {
+	if obj.CreateThumbsUpdownComment, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_CommentManage_CreateThumbsUpdownComment))); err != nil {
 		return
 	}
-	if obj.CreateCommentReply, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_CommentManage_CreateCommentReply))); err != nil {
-		return
-	}
-	if obj.CreateThumbsUpComment, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_CommentManage_CreateThumbsUpComment))); err != nil {
-		return
-	}
-	if obj.UpdateThumbsUpComment, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_CommentManage_UpdateThumbsUpComment))); err != nil {
+	if obj.UpdateThumbsUpdownComment, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_CommentManage_UpdateThumbsUpdownComment))); err != nil {
 		return
 	}
 	return
