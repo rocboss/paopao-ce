@@ -5,8 +5,11 @@
 package web
 
 import (
+	"github.com/alimy/mir/v4"
+	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
+	"github.com/rocboss/paopao-ce/pkg/app"
 )
 
 const (
@@ -14,6 +17,13 @@ const (
 	TagTypeNew       TagType = "new"
 	TagTypeFollow    TagType = "follow"
 	TagTypeHotExtral TagType = "hot_extral"
+)
+
+const (
+	UserPostsStylePost    = "post"
+	UserPostsStyleComment = "comment"
+	UserPostsStyleMedia   = "media"
+	UserPostsStyleStar    = "star"
 )
 
 type TweetCommentsReq struct {
@@ -42,6 +52,7 @@ type TimelineResp base.PageResp
 type GetUserTweetsReq struct {
 	BaseInfo `form:"-" binding:"-"`
 	Username string `form:"username" binding:"required"`
+	Style    string `form:"style"`
 	Page     int    `form:"-" binding:"-"`
 	PageSize int    `form:"-" binding:"-"`
 }
@@ -83,4 +94,14 @@ func (r *GetUserTweetsReq) SetPageInfo(page int, pageSize int) {
 
 func (r *TweetCommentsReq) SetPageInfo(page int, pageSize int) {
 	r.Page, r.PageSize = page, pageSize
+}
+
+func (r *TimelineReq) Bind(c *gin.Context) mir.Error {
+	user, _ := base.UserFrom(c)
+	r.BaseInfo = BaseInfo{
+		User: user,
+	}
+	r.Page, r.PageSize = app.GetPageInfo(c)
+	r.Query, r.Type = c.Query("query"), "search"
+	return nil
 }

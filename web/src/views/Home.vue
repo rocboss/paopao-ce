@@ -15,10 +15,16 @@
                 <div class="empty-wrap" v-if="list.length === 0">
                     <n-empty size="large" description="暂无数据" />
                 </div>
-
-                <n-list-item v-for="post in list" :key="post.id">
-                    <post-item :post="post" />
-                </n-list-item>
+                <div v-if="store.state.desktopModelShow">
+                    <n-list-item v-for="post in list" :key="post.id">
+                        <post-item :post="post" />
+                    </n-list-item>
+                </div>
+                <div v-else>
+                    <n-list-item v-for="post in list" :key="post.id">
+                        <mobile-post-item :post="post" />
+                    </n-list-item>
+                </div>
             </div>
         </n-list>
 
@@ -49,7 +55,7 @@ const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 const title = computed(() => {
-    let t = '泡泡广场';
+    let t = 'Aimo Community';
 
     if (route.query && route.query.q) {
         if (route.query.t && route.query.t === 'tag') {

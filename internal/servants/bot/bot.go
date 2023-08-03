@@ -11,5 +11,5 @@ import (
 
 // RouteBot register Bot route
 func RouteBot(e *gin.Engine) {
-	api.RegisterUserServant(e, newUserSrv(), newUserBinding(), newUserRender())
+	api.RegisterUserServant(e, newUserSrv())
 }

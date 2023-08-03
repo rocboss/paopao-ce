@@ -35,7 +35,7 @@ declare module NetParams {
     id: number;
   }
 
-  interface UserGetUnreadMsgCount { }
+  interface UserGetUnreadMsgCount {}
 
   interface UserGetMessages {
     page: number;
@@ -43,8 +43,8 @@ declare module NetParams {
   }
 
   interface UserGetUserPosts {
-    /** 用户名 */
     username: string;
+    style: string;
     page: number;
     page_size: number;
   }
@@ -56,6 +56,17 @@ declare module NetParams {
   interface UserGetBills {
     page: number;
     page_size: number;
+  }
+
+  //获取用户分享码请求参数
+  interface UserGetShareKeys {
+    page: number;
+    page_size: number;
+  }
+
+  //删除用户分享码请求参数
+  interface UserDeleteShareKey {
+    share_key : string;
   }
 
   interface UserStatusReq {
@@ -82,7 +93,7 @@ declare module NetParams {
     imgCaptcha: string;
   }
 
-  interface UserGetCaptcha { }
+  interface UserGetCaptcha {}
 
   interface UserWhisper {
     user_id: number;
@@ -177,7 +188,7 @@ declare module NetParams {
     page_size?: number;
   }
 
-  interface GetContacts { }
+  interface GetContacts {}
 
   interface PostCreatePost {
     /** 帖子内容列表 */

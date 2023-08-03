@@ -34,4 +34,7 @@ type DataService interface {
 	// 安全服务
 	SecurityService
 	AttachmentCheckService
+
+	// share_key服务
+	ShareKeyService
 }

@@ -1,13 +1,13 @@
 package v1
 
 import (
-	. "github.com/alimy/mir/v3"
-	. "github.com/alimy/mir/v3/engine"
+	. "github.com/alimy/mir/v4"
+	. "github.com/alimy/mir/v4/engine"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
 func init() {
-	AddEntry(new(Core))
+	Entry[Core]()
 }
 
 // Core 核心服务，需要授权访问

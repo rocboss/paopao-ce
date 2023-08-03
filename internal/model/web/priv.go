@@ -9,7 +9,12 @@ import (
 	"mime/multipart"
 	"strings"
 
+	"github.com/alimy/mir/v4"
+	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/servants/base"
+	"github.com/rocboss/paopao-ce/pkg/convert"
+	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
 
 type TweetCommentThumbsReq struct {
@@ -193,4 +198,76 @@ func (p *PostContentItem) Check(acs core.AttachmentCheckService) error {
 		}
 	}
 	return nil
+}
+
+func (r *UploadAttachmentReq) Bind(c *gin.Context) (xerr mir.Error) {
+	userId, exist := base.UserIdFrom(c)
+	if !exist {
+		return xerror.UnauthorizedAuthNotExist
+	}
+
+	uploadType := c.Request.FormValue("type")
+	file, fileHeader, err := c.Request.FormFile("file")
+	if err != nil {
+		return ErrFileUploadFailed
+	}
+	defer func() {
+		if xerr != nil {
+			file.Close()
+		}
+	}()
+
+	if err := fileCheck(uploadType, fileHeader.Size); err != nil {
+		return err
+	}
+	contentType := fileHeader.Header.Get("Content-Type")
+	fileExt, xerr := getFileExt(contentType)
+	if xerr != nil {
+		return xerr
+	}
+	r.SimpleInfo = SimpleInfo{
+		Uid: userId,
+	}
+	r.UploadType, r.ContentType = uploadType, contentType
+	r.File, r.FileSize, r.FileExt = file, fileHeader.Size, fileExt
+	return nil
+}
+
+func (r *DownloadAttachmentPrecheckReq) Bind(c *gin.Context) mir.Error {
+	user, exist := base.UserFrom(c)
+	if !exist {
+		return xerror.UnauthorizedAuthNotExist
+	}
+	r.BaseInfo = BaseInfo{
+		User: user,
+	}
+	r.ContentID = convert.StrTo(c.Query("id")).MustInt64()
+	return nil
+}
+
+func (r *DownloadAttachmentReq) Bind(c *gin.Context) mir.Error {
+	user, exist := base.UserFrom(c)
+	if !exist {
+		return xerror.UnauthorizedAuthNotExist
+	}
+	r.BaseInfo = BaseInfo{
+		User: user,
+	}
+	r.ContentID = convert.StrTo(c.Query("id")).MustInt64()
+	return nil
+}
+
+func (r *CreateTweetReq) Bind(c *gin.Context) mir.Error {
+	r.ClientIP = c.ClientIP()
+	return bindAny(c, r)
+}
+
+func (r *CreateCommentReplyReq) Bind(c *gin.Context) mir.Error {
+	r.ClientIP = c.ClientIP()
+	return bindAny(c, r)
+}
+
+func (r *CreateCommentReq) Bind(c *gin.Context) mir.Error {
+	r.ClientIP = c.ClientIP()
+	return bindAny(c, r)
 }

@@ -37,6 +37,7 @@ type dataServant struct {
 	core.ContactManageService
 	core.SecurityService
 	core.AttachmentCheckService
+	core.ShareKeyService
 }
 
 func NewDataService() (core.DataService, core.VersionInfo) {
@@ -97,6 +98,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		ContactManageService:   newContactManageService(db),
 		SecurityService:        newSecurityService(db, pvs),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
+		ShareKeyService:        NewShareKeyService(db),
 	}
 	return ds, ds
 }

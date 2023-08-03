@@ -325,4 +325,13 @@ declare module Item {
     change_amount: number;
     created_on: number;
   }
+
+  //sharekey参数
+  interface ShareKeyProps {
+    share_key: string;
+    //名称
+    name: string;
+    //描述
+    description: string;
+  }
 }

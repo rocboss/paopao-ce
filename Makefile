@@ -32,10 +32,10 @@ all: fmt build
 build:
 	@go mod download
 	@echo Build paopao-ce
-	@go build -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_ROOT)/$(TARGET)
+	@go build -pgo=auto -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_ROOT)/$(TARGET)
 
 run:
-	@go run -trimpath -gcflags "all=-N -l" -tags '$(TAGS)' -ldflags '$(LDFLAGS)' .
+	@go run -pgo=auto -trimpath -gcflags "all=-N -l" -tags '$(TAGS)' -ldflags '$(LDFLAGS)' .
 
 .PHONY: release
 release: linux-amd64 darwin-amd64 darwin-arm64 windows-x64
@@ -52,36 +52,36 @@ release: linux-amd64 darwin-amd64 darwin-arm64 windows-x64
 .PHONY: linux-amd64
 linux-amd64:
 	@echo Build paopao-ce [linux-amd64] CGO_ENABLED=$(CGO_ENABLED) TAGS="'$(TAGS)'"
-	@CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 go build -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_LINUX_AMD64)/$(TARGET_BIN)
+	@CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 go build -pgo=auto -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_LINUX_AMD64)/$(TARGET_BIN)
 
 .PHONY: darwin-amd64
 darwin-amd64:
 	@echo Build paopao-ce [darwin-amd64] CGO_ENABLED=$(CGO_ENABLED) TAGS="'$(TAGS)'"
-	@CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_AMD64)/$(TARGET_BIN)
+	@CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=amd64 go build -pgo=auto -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_AMD64)/$(TARGET_BIN)
 
 .PHONY: darwin-arm64
 darwin-arm64:
 	@echo Build paopao-ce [darwin-arm64] CGO_ENABLED=$(CGO_ENABLED) TAGS="'$(TAGS)'"
-	@CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=arm64 go build -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_ARM64)/$(TARGET_BIN)
+	@CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=arm64 go build -pgo=auto -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_DARWIN_ARM64)/$(TARGET_BIN)
 
 .PHONY: windows-x64
 windows-x64:
 	@echo Build paopao-ce [windows-x64] CGO_ENABLED=$(CGO_ENABLED) TAGS="'$(TAGS)'"
-	@CGO_ENABLED=$(CGO_ENABLED) GOOS=windows GOARCH=amd64 go build -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_WINDOWS_AMD64)/$(TARGET_BIN).exe
+	@CGO_ENABLED=$(CGO_ENABLED) GOOS=windows GOARCH=amd64 go build -pgo=auto -trimpath  -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_WINDOWS_AMD64)/$(TARGET_BIN).exe
 
 .PHONY: generate
-generate: gen-mir gen-grpc
+generate: gen-mir gen-rpc
 
 .PHONY: gen-mir
 gen-mir:
 	@go generate mirc/gen.go
 	@go fmt ./auto/api/...
 
-.PHONY: gen-grpc
-gen-grpc:
-	@rm -rf auto/rpc
+.PHONY: gen-rpc
+gen-rpc:
+	@rm -rf auto/rpc auto/connect
 	@buf generate proto
-	@go fmt ./auto/rpc/...
+	@go fmt ./auto/rpc/... ./auto/connect/...
 
 .PHONY: proto-mod
 proto-mod:
@@ -110,9 +110,11 @@ pre-commit: fmt
 
 .PHONY: install-protobuf-plugins
 install-protobuf-plugins:
-	@go install github.com/bufbuild/buf/cmd/buf@v1.15.1
-	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking@v1.15.1
-	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-lint@v1.15.1
+	@go install github.com/bufbuild/buf/cmd/buf@v1.25.0
+	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking@v1.25.0
+	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-lint@v1.25.0
+	@go install github.com/bufbuild/connect-go/cmd/protoc-gen-connect-go@latest
+	@go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
 	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
