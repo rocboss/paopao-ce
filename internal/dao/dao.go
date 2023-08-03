@@ -30,9 +30,9 @@ func DataService() core.DataService {
 		var v core.VersionInfo
 		if cfg.If("Gorm") {
 			ds, v = jinzhu.NewDataService()
-		} else if cfg.If("Sqlx") && cfg.If("MySQL") {
+		} else if cfg.All("Sqlx", "MySQL") {
 			ds, v = sakila.NewDataService()
-		} else if cfg.If("Sqlx") && (cfg.If("Postgres") || cfg.If("PostgreSQL")) {
+		} else if cfg.If("Sqlx") && cfg.Any("Postgres", "PostgreSQL") {
 			ds, v = slonik.NewDataService()
 		} else {
 			// default use gorm as orm for sql database
@@ -93,9 +93,9 @@ func TweetSearchService() core.TweetSearchService {
 func newAuthorizationManageService() (s core.AuthorizationManageService) {
 	if cfg.If("Gorm") {
 		s = jinzhu.NewAuthorizationManageService()
-	} else if cfg.If("Sqlx") && cfg.If("MySQL") {
+	} else if cfg.All("Sqlx", "MySQL") {
 		s = sakila.NewAuthorizationManageService()
-	} else if cfg.If("Sqlx") && (cfg.If("Postgres") || cfg.If("PostgreSQL")) {
+	} else if cfg.If("Sqlx") && cfg.Any("Postgres", "PostgreSQL") {
 		s = slonik.NewAuthorizationManageService()
 	} else {
 		s = jinzhu.NewAuthorizationManageService()

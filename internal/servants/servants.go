@@ -5,7 +5,10 @@
 package servants
 
 import (
+	"net/http"
+
 	"github.com/alimy/cfg"
+	"github.com/bufbuild/connect-go"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/servants/admin"
 	"github.com/rocboss/paopao-ce/internal/servants/bot"
@@ -14,6 +17,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants/mobile"
 	"github.com/rocboss/paopao-ce/internal/servants/space"
 	"github.com/rocboss/paopao-ce/internal/servants/statick"
+	"github.com/rocboss/paopao-ce/internal/servants/triplet"
 	"github.com/rocboss/paopao-ce/internal/servants/web"
 	"google.golang.org/grpc"
 )
@@ -62,4 +66,9 @@ func RegisterFrontendWebServants(e *gin.Engine) {
 // RegisterMobileServants register all the servants to grpc.Server
 func RegisterMobileServants(s *grpc.Server) {
 	mobile.RegisterServants(s)
+}
+
+// RegisterTripletServants register all the servants to Connect
+func RegisterTripletServants(h func(string, http.Handler), opts ...connect.HandlerOption) {
+	triplet.RegisterAuthenticateHandler(h, opts...)
 }

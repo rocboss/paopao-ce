@@ -181,6 +181,13 @@ const menuOptions = computed(() => {
         href: '/setting',
     });
 
+    options.push({
+        label: '密钥',
+        key: 'sharekey',
+        icon: () => h(SettingsOutline),
+        href: '/sharekey',
+    });
+
     return store.state.userInfo.id > 0
         ? options
         : [

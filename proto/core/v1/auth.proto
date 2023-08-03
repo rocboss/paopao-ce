@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package core.v1;
+
+option go_package = "github.com/rocboss/paopao-ce/auto/connect/core/v1;corev1";
+
+message User {
+    string phone_num = 1;
+}
+
+message UserVerify {
+    string phone_num = 1;
+    string verification_code = 2;
+}
+
+message LoginReply {
+    int32 status_code = 1;
+    string token = 2;
+}
+
+message ActionReply {
+    int32 status_code = 1;
+}
+
+service AuthenticateService {
+    rpc preLogin(User) returns (ActionReply);
+    rpc login(User) returns (LoginReply);
+    rpc logout(User) returns (ActionReply);
+}

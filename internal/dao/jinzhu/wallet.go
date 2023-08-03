@@ -9,6 +9,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
+	"time"
 )
 
 var (
@@ -34,6 +35,8 @@ func (d *walletServant) GetRechargeByID(id int64) (*core.WalletRecharge, error) 
 
 	return recharge.Get(d.db)
 }
+
+// 点击前往支付会创建支付数据
 func (d *walletServant) CreateRecharge(userId, amount int64) (*core.WalletRecharge, error) {
 	recharge := &dbr.WalletRecharge{
 		UserID: userId,
@@ -68,17 +71,28 @@ func (d *walletServant) HandleRechargeSuccess(recharge *core.WalletRecharge, tra
 	}).Get(d.db)
 
 	return d.db.Transaction(func(tx *gorm.DB) error {
-		// 扣除金额
-		if err := tx.Model(user).Update("balance", gorm.Expr("balance + ?", recharge.Amount)).Error; err != nil {
-			// 返回任何错误都会回滚事务
-			return err
+		//获取当前时间戳
+		currentTimestamp := time.Now().Unix()
+		balance := user.Balance
+		if balance < currentTimestamp {
+			balance = currentTimestamp
+			newBalance := balance + recharge.Amount*864
+			if err := tx.Model(user).Update("balance", newBalance).Error; err != nil {
+				// 返回任何错误都会回滚事务
+				return err
+			}
+		} else {
+			// 扣除金额
+			if err := tx.Model(user).Update("balance", gorm.Expr("balance + ?", recharge.Amount*864)).Error; err != nil {
+				// 返回任何错误都会回滚事务
+				return err
+			}
 		}
-
 		// 新增账单
 		if err := tx.Create(&dbr.WalletStatement{
 			UserID:          user.ID,
 			ChangeAmount:    recharge.Amount,
-			BalanceSnapshot: user.Balance + recharge.Amount,
+			BalanceSnapshot: balance + recharge.Amount*864,
 			Reason:          "用户充值",
 		}).Error; err != nil {
 			return err

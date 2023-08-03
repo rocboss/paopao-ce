@@ -10,8 +10,9 @@ package main
 import (
 	"log"
 
-	. "github.com/alimy/mir/v3/core"
-	. "github.com/alimy/mir/v3/engine"
+	. "github.com/alimy/mir/v4/core"
+	. "github.com/alimy/mir/v4/engine"
+	"github.com/gin-gonic/gin"
 
 	_ "github.com/rocboss/paopao-ce/mirc/admin/v1"
 	_ "github.com/rocboss/paopao-ce/mirc/bot/v1"
@@ -24,10 +25,11 @@ import (
 func main() {
 	log.Println("generate code start")
 	opts := Options{
-		RunMode(InSerialMode),
-		GeneratorName(GeneratorGin),
-		WatchCtxDone(true),
+		UseGin(),
 		SinkPath("../auto"),
+		WatchCtxDone(true),
+		RunMode(InSerialMode),
+		AssertType[*gin.Context](),
 	}
 	if err := Generate(opts); err != nil {
 		log.Fatal(err)
