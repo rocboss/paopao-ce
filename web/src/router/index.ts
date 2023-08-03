@@ -91,6 +91,14 @@ const routes = [
         component: () => import('@/views/Setting.vue'),
     },
     {
+        path: '/sharekey',
+        name: 'sharekey',
+        meta: {
+            title: '密钥',
+        },
+        component: () => import('@/views/ShareKey.vue'),
+    },
+    {
         path: '/404',
         name: '404',
         meta: {

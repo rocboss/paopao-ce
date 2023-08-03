@@ -90,4 +90,8 @@ var (
 	ErrFileUploadFailed = xerror.NewError(10200, "文件上传失败")
 	ErrFileInvalidExt   = xerror.NewError(10201, "文件类型不合法")
 	ErrFileInvalidSize  = xerror.NewError(10202, "文件大小超限")
+	ErrGetUserKeysFailed   = xerror.NewError(11001, "获取用户Share Key失败")
+	ErrDsNil               = xerror.NewError(11002, "数据源为空")
+	ErrUserNameEmpty       = xerror.NewError(11003, "用户名为空")
+	ErrDeleteUserKeyFailed = xerror.NewError(11004, "删除用户Share Key失败")
 )

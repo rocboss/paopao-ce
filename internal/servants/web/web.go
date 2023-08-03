@@ -32,6 +32,7 @@ func RouteWeb(e *gin.Engine) {
 	api.RegisterLooseServant(e, newLooseSrv(ds))
 	api.RegisterPrivServant(e, newPrivSrv(ds, oss))
 	api.RegisterPubServant(e, newPubSrv(ds))
+	api.RegisterKeyQueryServant(e, NewShareKeyServant(ds))
 	// regster servants if needed by configure
 	cfg.In(cfg.Actions{
 		"Alipay": func() {

@@ -35,6 +35,8 @@ func (d *walletServant) GetRechargeByID(id int64) (*core.WalletRecharge, error) 
 
 	return recharge.Get(d.db)
 }
+
+// 点击前往支付会创建支付数据
 func (d *walletServant) CreateRecharge(userId, amount int64) (*core.WalletRecharge, error) {
 	recharge := &dbr.WalletRecharge{
 		UserID: userId,

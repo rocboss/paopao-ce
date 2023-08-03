@@ -63,6 +63,18 @@ declare module NetReq {
     pager: Item.PagerProps;
   }
 
+  //用户获取分享码响应参数
+  interface UserGetShareKeys {
+    shareKeys: Item.ShareKeyProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
+
+  //用户删除分享码响应参数
+  interface UserDeleteShareKey {
+    Status: string;
+  }
+
   interface UserReqRecharge {
     id: number;
     pay: string;

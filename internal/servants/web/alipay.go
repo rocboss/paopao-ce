@@ -75,7 +75,7 @@ func (s *alipayPrivSrv) UserWalletBills(req *web.UserWalletBillsReq) (*web.UserW
 }
 
 func (s *alipayPrivSrv) UserRechargeLink(req *web.UserRechargeLinkReq) (*web.UserRechargeLinkResp, mir.Error) {
-	recharge, err := s.Ds.CreateRecharge(req.User.ID, req.Amount) //天数换算成时间戳
+	recharge, err := s.Ds.CreateRecharge(req.User.ID, req.Amount) //天数换算成时间戳，将数据存入p_wallet_recharge表
 	if err != nil {
 		logrus.Errorf("Ds.CreateRecharge err: %v", err)
 		return nil, web.ErrRechargeReqFail
@@ -95,7 +95,9 @@ func (s *alipayPrivSrv) UserRechargeLink(req *web.UserRechargeLinkReq) (*web.Use
 	p.OutTradeNo = fmt.Sprintf("%d", recharge.ID)
 	p.Subject = "PaoPao用户钱包充值"
 	p.TotalAmount = fmt.Sprintf("%.2f", float64(recharge.Amount)/100.0*a)
-	p.NotifyURL = "https://" + req.Host + "/v1/alipay/notify"
+	//p.NotifyURL = "http://" + req.Host + "/v1/alipay/notify"
+	//支付宝回调，如果是内网环境的话，需要增加内网穿透
+	p.NotifyURL = "http://5tc4bf.natappfree.cc/v1/alipay/notify"
 	rsp, err := s.alipayClient.TradePreCreate(p)
 	if err != nil {
 		logrus.Errorf("client.TradePreCreate err: %v\n", err)
