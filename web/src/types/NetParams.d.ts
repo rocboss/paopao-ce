@@ -60,10 +60,8 @@ declare module NetParams {
 
   //获取用户分享码请求参数
   interface UserGetShareKeys {
-    userId : number;
-    userName : string;
-    // page: number;
-    // page_size: number;
+    page: number;
+    page_size: number;
   }
 
   //删除用户分享码请求参数

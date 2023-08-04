@@ -9,6 +9,7 @@ type (
 
 // share_key服务
 type ShareKeyService interface {
-	GetUserKeys(UserName string) ([]*ShareKey, error)
+	GetUserKeys(UserName string, offset, limit int) ([]*ShareKey, error)
 	DeleteUserKey(UserName string, key string) (DeleteKeySuccessOrFail, error)
+	GetUserShareKeyCount(name string) (int64, error)
 }

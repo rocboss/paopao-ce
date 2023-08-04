@@ -2,6 +2,7 @@ package jinzhu
 
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
 )
 
@@ -21,14 +22,21 @@ func (s ShareKeyService) DeleteUserKey(UserName string, key string) (core.Delete
 	return deleteKey, nil
 }
 
-func (s ShareKeyService) GetUserKeys(UserName string) ([]*core.ShareKey, error) {
-	//根据username查询相应的keys
-	var keys []*core.ShareKey
-	err := s.db.Table("p_share_key").Where("user_name = ? and status = 0", UserName).Find(&keys).Error
-	if err != nil {
-		return nil, err
+func (s ShareKeyService) GetUserKeys(UserName string, offset, limit int) ([]*core.ShareKey, error) {
+	statement := &dbr.ShareKey{
+		UserName: UserName,
 	}
-	return keys, nil
+	//fmt.Print(statement.List(s.db, &dbr.ConditionsT{}, offset, limit))
+	return statement.List(s.db, &dbr.ConditionsT{}, offset, limit)
+}
+
+func (s ShareKeyService) GetUserShareKeyCount(name string) (int64, error) {
+	var count int64
+	err := s.db.Table("p_share_key").Where("user_name = ? and status = 0", name).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func NewShareKeyService(db *gorm.DB) *ShareKeyService {

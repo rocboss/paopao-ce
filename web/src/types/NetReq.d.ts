@@ -65,7 +65,7 @@ declare module NetReq {
 
   //用户获取分享码响应参数
   interface UserGetShareKeys {
-    shareKeys: Item.ShareKeyProps[];
+    list: Item.ShareKeyProps[];
     /** 页码信息 */
     pager: Item.PagerProps;
   }

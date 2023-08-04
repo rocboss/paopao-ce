@@ -20,7 +20,7 @@
                     :options="optionsRef"
                     @search="handleSearch"
                     @update:value="changeContent"
-                    placeholder="说说您的新鲜事..."
+                    placeholder="讲讲今天和AI聊的工具吧"
                 />
             </div>
 
@@ -104,7 +104,7 @@
                             </n-button>
                         </n-upload-trigger>
 
-                        <n-upload-trigger
+                        <!-- <n-upload-trigger
                           v-if="allowTweetAttachment"
                           #="{ handleClick }" abstract>
                             <n-button
@@ -132,7 +132,7 @@
                                     </n-icon>
                                 </template>
                             </n-button>
-                        </n-upload-trigger>
+                        </n-upload-trigger> -->
 
                         <n-button
                             quaternary

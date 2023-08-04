@@ -4,6 +4,7 @@ import (
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
+	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
@@ -12,6 +13,8 @@ import (
 type GetUserKeysReq struct {
 	UserId   int64
 	UserName string
+	Page     int
+	PageSize int
 }
 
 func (g *GetUserKeysReq) Bind(c *gin.Context) mir.Error {
@@ -21,6 +24,7 @@ func (g *GetUserKeysReq) Bind(c *gin.Context) mir.Error {
 	}
 	g.UserId = uid.ID
 	g.UserName = uid.Username
+	g.Page, g.PageSize = app.GetPageInfo(c)
 	return nil
 }
 
@@ -30,9 +34,7 @@ type KeyInfo struct {
 	Description string `json:"description"`
 }
 
-type GetUserKeysResp struct {
-	ShareKeys []KeyInfo `json:"shareKeys"`
-}
+type GetUserKeysResp base.PageResp
 
 // 逻辑删除服务
 type DeleteKeyReq struct {

@@ -69,6 +69,13 @@ import {
     WalletOutline,
     SettingsOutline,
     LogOutOutline,
+    CaretUpCircleSharp,
+    LinkOutline,
+    PersonOutline,
+    PlanetOutline,
+    RocketOutline,
+    TodayOutline,
+    NewspaperOutline,
 } from '@vicons/ionicons5';
 import { Hash } from '@vicons/tabler';
 import { getUnreadMsgCount } from '@/api/user';
@@ -122,69 +129,69 @@ onMounted(() => {
 const menuOptions = computed(() => {
     const options = [
         {
-            label: '广场',
+            label: '发现',
             key: 'home',
-            icon: () => h(HomeOutline),
+            icon: () => h(PlanetOutline),
             href: '/',
         },
         {
-            label: '话题',
+            label: '专题',
             key: 'topic',
-            icon: () => h(Hash),
+            icon: () => h(NewspaperOutline),
             href: '/topic',
         },
     ];
     if (import.meta.env.VITE_ENABLE_ANOUNCEMENT.toLowerCase() === 'true') {
         options.push( {
-            label: '公告',
+            label: '排行榜',
             key: 'anouncement',
-            icon: () => h(MegaphoneOutline),
+            icon: () => h(RocketOutline),
             href: '/anouncement',
         });
     }
     options.push({
-        label: '主页',
+        label: '我的贴子',
         key: 'profile',
-        icon: () => h(LeafOutline),
+        icon: () => h(HomeOutline),
         href: '/profile',
     });
     options.push({
-        label: '消息',
+        label: '短消息',
         key: 'messages',
         icon: () => h(ChatbubblesOutline),
         href: '/messages',
     })
-    options.push({
-        label: '收藏',
-        key: 'collection',
-        icon: () => h(BookmarksOutline),
-        href: '/collection',
-    });
-    options.push({
-        label: '好友',
-        key: 'contacts',
-        icon: () => h(PeopleOutline),
-        href: '/contacts',
-    });
+    // options.push({
+    //     label: '收藏',
+    //     key: 'collection',
+    //     icon: () => h(BookmarksOutline),
+    //     href: '/collection',
+    // });
+    // options.push({
+    //     label: '好友',
+    //     key: 'contacts',
+    //     icon: () => h(PeopleOutline),
+    //     href: '/contacts',
+    // });
     if (import.meta.env.VITE_ENABLE_WALLET.toLocaleLowerCase() === 'true') {
         options.push({
-            label: '钱包',
+            label: '订阅',
             key: 'wallet',
-            icon: () => h(WalletOutline),
+            icon: () => h(TodayOutline),
             href: '/wallet',
         });
     }
     options.push({
-        label: '设置',
+        label: '个人中心',
         key: 'setting',
-        icon: () => h(SettingsOutline),
+        icon: () => h(PersonOutline),
         href: '/setting',
     });
 
     options.push({
-        label: '密钥',
+        label: '我的分享码',
         key: 'sharekey',
-        icon: () => h(SettingsOutline),
+        icon: () => h(LinkOutline),
         href: '/sharekey',
     });
 
@@ -192,15 +199,15 @@ const menuOptions = computed(() => {
         ? options
         : [
             {
-                label: '广场',
+                label: '发现',
                 key: 'home',
-                icon: () => h(HomeOutline),
+                icon: () => h(PlanetOutline),
                 href: '/',
             },
             {
-                label: '话题',
+                label: '专题',
                 key: 'topic',
-                icon: () => h(Hash),
+                icon: () => h(NewspaperOutline),
                 href: '/topic',
             },
         ];

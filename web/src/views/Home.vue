@@ -55,7 +55,7 @@ const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 const title = computed(() => {
-    let t = 'AIMO灵感';
+    let t = 'Aimo Community';
 
     if (route.query && route.query.q) {
         if (route.query.t && route.query.t === 'tag') {

@@ -37,7 +37,7 @@ func (s *shareKey) GetKeyDetail(req *web.GetUserKeysReq) (*web.GetUserKeysResp, 
 		return nil, web.ErrUserNameEmpty
 	}
 	// 调用数据源的方法查询用户的所有key信息
-	keys, err := s.Ds.GetUserKeys(req.UserName)
+	keys, err := s.Ds.GetUserKeys(req.UserName, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
 		logrus.Errorf("GetUserKeys err: %s", err)
 		return nil, web.ErrGetUserKeysFailed
@@ -53,11 +53,16 @@ func (s *shareKey) GetKeyDetail(req *web.GetUserKeysReq) (*web.GetUserKeysResp, 
 		})
 	}
 
-	// 构建返回结果并返回
-	resp := &web.GetUserKeysResp{
-		ShareKeys: keyInfos,
+	//计算share_key的总数
+	totalRows, err := s.Ds.GetUserShareKeyCount(req.UserName)
+	if err != nil {
+		logrus.Errorf("GetUserShareKeyCount err: %s", err)
+		return nil, web.ErrGetUserShareKeyCountFailed
 	}
-	return resp, nil
+	resp := base.PageRespFrom(keys, req.Page, req.PageSize, totalRows)
+
+	// 构建返回结果并返回
+	return (*web.GetUserKeysResp)(resp), nil
 }
 
 func (s *shareKey) DeleteKeyDetail(req *web.DeleteKeyReq) (*web.DeleteKeyResp, mir.Error) {

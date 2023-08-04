@@ -10,13 +10,14 @@ import { request } from "@/utils/request";
 //         params,
 //     });
 // }
-export const getShareKeys = (token: NetParams.AuthUserInfo = ""): Promise<NetReq.UserGetShareKeys> => {
+export const getShareKeys = (params: NetParams.UserGetShareKeys, token: NetParams.AuthUserInfo = ""): Promise<NetReq.UserGetShareKeys> => {
     return request({
         method: "get",
         url: "/v1/user/keys",
         headers: {
             Authorization: `Bearer ${token}`,
         },
+        params,
     });
 }
 
