@@ -1,6 +1,6 @@
 <template>
     <div>
-        <main-nav title="话题" />
+        <main-nav title="专题" />
 
         <n-list class="main-content-wrap tags-wrap" bordered>
             <n-tabs type="line" animated @update:value="changeTab">

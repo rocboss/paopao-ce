@@ -242,7 +242,7 @@ export const deleteCommentReply = (
   });
 };
 
-/** 置顶/取消置顶话题 */
+/** 置顶/取消置顶专题 */
 export const stickTopic = (
   data: NetParams.PostStickTopic
 ): Promise<NetReq.PostStickTopic> => {
@@ -253,7 +253,7 @@ export const stickTopic = (
   });
 };
 
-/** 关注话题 */
+/** 关注专题 */
 export const followTopic = (
   data: NetParams.PostFollowTopic
 ): Promise<NetReq.PostFollowTopic> => {
@@ -264,7 +264,7 @@ export const followTopic = (
   });
 };
 
-/** 取消关注话题 */
+/** 取消关注专题 */
 export const unfollowTopic = (
   data: NetParams.PostUnfollowTopic
 ): Promise<NetReq.PostUnfollowTopic> => {

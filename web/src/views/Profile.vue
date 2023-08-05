@@ -1,6 +1,6 @@
 <template>
     <div>
-        <main-nav title="主页" />
+        <main-nav title="我的贴子" />
 
         <n-list
             class="main-content-wrap profile-wrap"

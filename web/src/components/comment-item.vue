@@ -140,7 +140,7 @@ const doClickText = (e: MouseEvent, id: number | string) => {
         if (d.length === 2) {
             store.commit('refresh');
             if (d[0] === 'tag') {
-                window.$message.warning('评论内的无效话题');
+                window.$message.warning('评论内的无效专题');
             } else {
                 router.push({
                     name: 'user',

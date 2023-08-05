@@ -156,7 +156,7 @@ const menuOptions = computed(() => {
         href: '/profile',
     });
     options.push({
-        label: '短消息',
+        label: '消息',
         key: 'messages',
         icon: () => h(ChatbubblesOutline),
         href: '/messages',

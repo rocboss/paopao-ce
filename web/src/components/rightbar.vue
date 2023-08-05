@@ -13,7 +13,7 @@
                 </template>
             </n-input>
         </div>
-        <n-card v-if="showFollowTopics" class="hottopic-wrap" title="关注话题" embedded :bordered="false" size="small">
+        <n-card v-if="showFollowTopics" class="hottopic-wrap" title="关注专题" embedded :bordered="false" size="small">
             <n-spin :show="loading">
                 <div class="hot-tag-item" v-for="tag in followTags" :key="tag.id">
                     <router-link
@@ -35,7 +35,7 @@
                 </div>
             </n-spin>
         </n-card>
-        <n-card class="hottopic-wrap" title="热门话题" embedded :bordered="false" size="small">
+        <n-card class="hottopic-wrap" title="热门专题" embedded :bordered="false" size="small">
             <n-spin :show="loading">
                 <div class="hot-tag-item" v-for="tag in hotTags" :key="tag.id">
                     <router-link

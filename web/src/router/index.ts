@@ -14,7 +14,7 @@ const routes = [
         path: '/post',
         name: 'post',
         meta: {
-            title: '话题详情',
+            title: '专题详情',
         },
         component: () => import('@/views/Post.vue'),
     },
@@ -22,7 +22,7 @@ const routes = [
         path: '/topic',
         name: 'topic',
         meta: {
-            title: '话题',
+            title: '专题',
         },
         component: () => import('@/views/Topic.vue'),
     },
@@ -30,7 +30,7 @@ const routes = [
         path: '/anouncement',
         name: 'anouncement',
         meta: {
-            title: '公告',
+            title: '排行榜',
         },
         component: () => import('@/views/Anouncement.vue'),
     },
@@ -38,7 +38,7 @@ const routes = [
         path: '/profile',
         name: 'profile',
         meta: {
-            title: '主页',
+            title: '我的贴子',
         },
         component: () => import('@/views/Profile.vue'),
     },
@@ -78,7 +78,7 @@ const routes = [
         path: '/wallet',
         name: 'wallet',
         meta: {
-            title: '钱包',
+            title: '订阅',
         },
         component: () => import('@/views/Wallet.vue'),
     },
@@ -86,7 +86,7 @@ const routes = [
         path: '/setting',
         name: 'setting',
         meta: {
-            title: '设置',
+            title: '个人中心',
         },
         component: () => import('@/views/Setting.vue'),
     },

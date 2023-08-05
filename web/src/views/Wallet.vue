@@ -1,6 +1,6 @@
 <template>
     <div>
-        <main-nav title="钱包" />
+        <main-nav title="订阅" />
 
         <n-list class="main-content-wrap" bordered>
             <div class="balance-wrap">
