@@ -48,7 +48,7 @@ const (
 	_ContactManager_IsFriend                 = `SELECT true FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0 AND status=2`
 	_ContactManager_ListFriend               = `SELECT c.friend_id user_id, u.username username, u.nickname nickname, u.avatar avatar, u.phone phone FROM @contact c JOIN @user u ON c.friend_id=u.id WHERE user_id=? AND status=2 AND is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
 	_ContactManager_RejectFriendMsgsUpdate   = `UPDATE @message SET reply_id=?, modified_on=? WHERE sender_user_id = ? AND receiver_user_id = ? AND type = ? AND reply_id = ?`
-	_ContactManager_TotalFriendsById         = `SELECT count(*) FROM @contact WHERE user_id=? AND status=2 AND is_del=0 LIMIT ? OFFSET ?`
+	_ContactManager_TotalFriendsById         = `SELECT count(*) FROM @contact WHERE user_id=? AND status=2 AND is_del=0`
 	_FollowIndexA_UserInfo                   = `SELECT * FROM @user WHERE username=?`
 	_FollowIndex_UserInfo                    = `SELECT * FROM @user WHERE username=?`
 	_FriendIndexA_UserInfo                   = `SELECT * FROM @user WHERE username=?`
