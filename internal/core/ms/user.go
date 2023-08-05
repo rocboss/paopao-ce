@@ -7,7 +7,7 @@ package ms
 type (
 	ContactItem struct {
 		UserId   int64  `json:"user_id"`
-		UserName string `json:"username"`
+		UserName string `db:"username" json:"username"`
 		Nickname string `json:"nickname"`
 		Avatar   string `json:"avatar"`
 		Phone    string `json:"phone"`

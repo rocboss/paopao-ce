@@ -21,4 +21,6 @@ type Contact struct {
 	IsTop        int8   `json:"is_top"`
 	IsBlack      int8   `json:"is_black"`
 	NoticeEnable int8   `json:"notice_enable"`
+	IsDel        int8   `json:"-"`
+	DeletedOn    int64  `db:"-" json:"-"`
 }

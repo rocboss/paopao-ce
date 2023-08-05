@@ -36,13 +36,18 @@ const (
 	_CommentManage_UpdateCommentThumbsCount  = `UPDATE @comment SET thumbs_up_count=?, thumbs_down_count=?, modified_on=? WHERE id=? AND is_del=0`
 	_CommentManage_UpdateReplyThumbsCount    = `UPDATE @comment_reply SET thumbs_up_count=?, thumbs_down_count=?, modified_on=? WHERE id=? AND is_del=0`
 	_CommentManage_UpdateThumbsUpdownComment = `UPDATE @tweet_comment_thumbs SET is_thumbs_up=:is_thumbs_up, is_thumbs_down=:is_thumbs_down, modified_on=:modified_on WHERE id=:id AND is_del=0`
-	_ContactManager_AddFriend                = `SELECT * FROM @user WHERE username=?`
-	_ContactManager_DelFriend                = `SELECT * FROM @user WHERE username=?`
-	_ContactManager_GetContacts              = `SELECT * FROM @user WHERE username=?`
-	_ContactManager_GetUserFriend            = `SELECT * FROM @user WHERE username=?`
-	_ContactManager_RejectFriend             = `SELECT * FROM @user WHERE username=?`
-	_ContactManager_RequestingFriend         = `SELECT * FROM @user WHERE username=?`
-	_ContactManager_TotalContactsById        = `SELECT * FROM @user WHERE username=?`
+	_ContactManager_AddFriendMsgsUpdate      = `UPDATE @message SET reply_id=?, modified_on=? WHERE ((sender_user_id = ? AND receiver_user_id = ?) OR (sender_user_id = ? AND receiver_user_id = ?)) AND type = ? AND reply_id = ?`
+	_ContactManager_CreateContact            = `INSERT INTO @contact (user_id, friend_id, status, created_on) VALUES (?, ?, ?, ?)`
+	_ContactManager_CreateMessage            = `INSERT INTO @message (sender_user_id, receiver_user_id, type, brief, content, reply_id, created_on) VALUES (:sender_user_id, :receiver_user_id, :type, :brief, :content, :reply_id, :created_on)`
+	_ContactManager_DelFriend                = `UPDATE @contact SET status=4, is_del=1, deleted_on=? WHERE id=?`
+	_ContactManager_FreshContactStatus       = `UPDATE @contact SET status=?, modified_on=?, is_del=0 WHERE id=?`
+	_ContactManager_GetContact               = `SELECT id, user_id, friend_id, group_id, remark, status, is_top, is_black, notice_enable, is_del FROM @contact WHERE user_id=? AND friend_id=?`
+	_ContactManager_GetContacts              = `SELECT id, user_id, friend_id, group_id, remark, status, is_top, is_black, notice_enable, is_del FROM @contact WHERE (user_id=? AND friend_id=?) OR (user_id=? AND friend_id=?)`
+	_ContactManager_GetUserFriend            = `SELECT id, user_id, friend_id, group_id, remark, status, is_top, is_black, notice_enable, is_del FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0`
+	_ContactManager_IsFriend                 = `SELECT true FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0 AND status=2`
+	_ContactManager_ListFriend               = `SELECT c.friend_id user_id, u.username username, u.nickname nickname, u.avatar avatar, u.phone phone FROM @contact c JOIN @user u ON c.friend_id=u.id WHERE user_id=? AND status=2 AND is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
+	_ContactManager_RejectFriendMsgsUpdate   = `UPDATE @message SET reply_id=?, modified_on=? WHERE sender_user_id = ? AND receiver_user_id = ? AND type = ? AND reply_id = ?`
+	_ContactManager_TotalFriendsById         = `SELECT count(*) FROM @contact WHERE user_id=? AND status=2 AND is_del=0 LIMIT ? OFFSET ?`
 	_FollowIndexA_UserInfo                   = `SELECT * FROM @user WHERE username=?`
 	_FollowIndex_UserInfo                    = `SELECT * FROM @user WHERE username=?`
 	_FriendIndexA_UserInfo                   = `SELECT * FROM @user WHERE username=?`
@@ -163,14 +168,19 @@ type CommentManage struct {
 }
 
 type ContactManager struct {
-	yesql.Namespace   `yesql:"contact_manager"`
-	AddFriend         *sqlx.Stmt `yesql:"add_friend"`
-	DelFriend         *sqlx.Stmt `yesql:"del_friend"`
-	GetContacts       *sqlx.Stmt `yesql:"get_contacts"`
-	GetUserFriend     *sqlx.Stmt `yesql:"get_user_friend"`
-	RejectFriend      *sqlx.Stmt `yesql:"reject_friend"`
-	RequestingFriend  *sqlx.Stmt `yesql:"requesting_friend"`
-	TotalContactsById *sqlx.Stmt `yesql:"total_contacts_by_id"`
+	yesql.Namespace        `yesql:"contact_manager"`
+	AddFriendMsgsUpdate    *sqlx.Stmt      `yesql:"add_friend_msgs_update"`
+	CreateContact          *sqlx.Stmt      `yesql:"create_contact"`
+	DelFriend              *sqlx.Stmt      `yesql:"del_friend"`
+	FreshContactStatus     *sqlx.Stmt      `yesql:"fresh_contact_status"`
+	GetContact             *sqlx.Stmt      `yesql:"get_contact"`
+	GetContacts            *sqlx.Stmt      `yesql:"get_contacts"`
+	GetUserFriend          *sqlx.Stmt      `yesql:"get_user_friend"`
+	IsFriend               *sqlx.Stmt      `yesql:"is_friend"`
+	ListFriend             *sqlx.Stmt      `yesql:"list_friend"`
+	RejectFriendMsgsUpdate *sqlx.Stmt      `yesql:"reject_friend_msgs_update"`
+	TotalFriendsById       *sqlx.Stmt      `yesql:"total_friends_by_id"`
+	CreateMessage          *sqlx.NamedStmt `yesql:"create_message"`
 }
 
 type FollowIndex struct {
@@ -436,10 +446,19 @@ func BuildContactManager(p yesql.PreparexBuilder, ctx ...context.Context) (obj *
 		c = context.Background()
 	}
 	obj = &ContactManager{}
-	if obj.AddFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_AddFriend))); err != nil {
+	if obj.AddFriendMsgsUpdate, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_AddFriendMsgsUpdate))); err != nil {
+		return
+	}
+	if obj.CreateContact, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_CreateContact))); err != nil {
 		return
 	}
 	if obj.DelFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_DelFriend))); err != nil {
+		return
+	}
+	if obj.FreshContactStatus, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_FreshContactStatus))); err != nil {
+		return
+	}
+	if obj.GetContact, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_GetContact))); err != nil {
 		return
 	}
 	if obj.GetContacts, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_GetContacts))); err != nil {
@@ -448,13 +467,19 @@ func BuildContactManager(p yesql.PreparexBuilder, ctx ...context.Context) (obj *
 	if obj.GetUserFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_GetUserFriend))); err != nil {
 		return
 	}
-	if obj.RejectFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_RejectFriend))); err != nil {
+	if obj.IsFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_IsFriend))); err != nil {
 		return
 	}
-	if obj.RequestingFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_RequestingFriend))); err != nil {
+	if obj.ListFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_ListFriend))); err != nil {
 		return
 	}
-	if obj.TotalContactsById, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_TotalContactsById))); err != nil {
+	if obj.RejectFriendMsgsUpdate, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_RejectFriendMsgsUpdate))); err != nil {
+		return
+	}
+	if obj.TotalFriendsById, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ContactManager_TotalFriendsById))); err != nil {
+		return
+	}
+	if obj.CreateMessage, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_ContactManager_CreateMessage))); err != nil {
 		return
 	}
 	return

@@ -113,33 +113,53 @@ UPDATE @comment_reply SET thumbs_up_count=?, thumbs_down_count=?, modified_on=? 
 -- contact_manager sql dml
 --------------------------------------------------------------------------------
 
--- name: requesting_friend@contact_manager
+-- name: create_contact@contact_manager
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+INSERT INTO @contact (user_id, friend_id, status, created_on) VALUES (?, ?, ?, ?);
 
--- name: add_friend@contact_manager
+-- name: fresh_contact_status@contact_manager
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @contact SET status=?, modified_on=?, is_del=0 WHERE id=?;
 
--- name: reject_friend@contact_manager
+-- name: create_message@contact_manager
+-- prepare: named_stmt
+INSERT INTO @message (sender_user_id, receiver_user_id, type, brief, content, reply_id, created_on) VALUES (:sender_user_id, :receiver_user_id, :type, :brief, :content, :reply_id, :created_on);
+
+-- name: add_friend_msgs_update@contact_manager
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @message SET reply_id=?, modified_on=? WHERE ((sender_user_id = ? AND receiver_user_id = ?) OR (sender_user_id = ? AND receiver_user_id = ?)) AND type = ? AND reply_id = ?;
+
+-- name: reject_friend_msgs_update@contact_manager
+-- prepare: stmt
+UPDATE @message SET reply_id=?, modified_on=? WHERE sender_user_id = ? AND receiver_user_id = ? AND type = ? AND reply_id = ?;
 
 -- name: del_friend@contact_manager
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @contact SET status=4, is_del=1, deleted_on=? WHERE id=?;
+
+-- name: list_friend@contact_manager
+-- prepare: stmt
+SELECT c.friend_id user_id, u.username username, u.nickname nickname, u.avatar avatar, u.phone phone FROM @contact c JOIN @user u ON c.friend_id=u.id WHERE user_id=? AND status=2 AND is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?;
+
+-- name: total_friends_by_id@contact_manager
+-- prepare: stmt
+SELECT count(*) FROM @contact WHERE user_id=? AND status=2 AND is_del=0 LIMIT ? OFFSET ?;
 
 -- name: get_contacts@contact_manager
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
-
--- name: total_contacts_by_id@contact_manager
--- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT id, user_id, friend_id, group_id, remark, status, is_top, is_black, notice_enable, is_del FROM @contact WHERE (user_id=? AND friend_id=?) OR (user_id=? AND friend_id=?);
 
 -- name: get_user_friend@contact_manager
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT id, user_id, friend_id, group_id, remark, status, is_top, is_black, notice_enable, is_del FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0;
+
+-- name: get_contact@contact_manager
+-- prepare: stmt
+SELECT id, user_id, friend_id, group_id, remark, status, is_top, is_black, notice_enable, is_del FROM @contact WHERE user_id=? AND friend_id=?;
+
+-- name: is_friend@contact_manager
+-- prepare: stmt
+SELECT true FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0 AND status=2;
 
 --------------------------------------------------------------------------------
 -- message sql dml
