@@ -54,12 +54,12 @@ const (
 	_FriendIndex_UserInfo                    = `SELECT * FROM @user WHERE username=?`
 	_LightIndexA_UserInfo                    = `SELECT * FROM @user WHERE username=?`
 	_LightIndex_UserInfo                     = `SELECT * FROM @user WHERE username=?`
-	_Message_CreateMessage                   = `SELECT * FROM @user WHERE username=?`
-	_Message_GetMessageById                  = `SELECT * FROM @user WHERE username=?`
-	_Message_GetMessageCount                 = `SELECT * FROM @user WHERE username=?`
-	_Message_GetMessages                     = `SELECT * FROM @user WHERE username=?`
-	_Message_GetUnreadCount                  = `SELECT * FROM @user WHERE username=?`
-	_Message_ReadMessage                     = `SELECT * FROM @user WHERE username=?`
+	_Message_CreateMessage                   = `INSERT INTO @message (sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, created_on) VALUES (:sender_user_id, :receiver_user_id, :type, :brief, :content, :post_id, :comment_id, :reply_id, :created_on)`
+	_Message_GetMessageById                  = `SELECT * FROM @message WHERE id=? AND is_del=0`
+	_Message_GetMessageCount                 = `SELECT count(*) FROM @message WHERE receiver_user_id=:recerver_user_id AND is_del=0`
+	_Message_GetMessages                     = `SELECT * FROM @message WHERE receiver_user_id=:recerver_user_id AND is_del=0 ORDER BY id DESC LIMIT :limit OFFSET :offset`
+	_Message_GetUnreadCount                  = `SELECT count(*) FROM @message WHERE receiver_user_id=? AND is_read=0 AND is_del=0`
+	_Message_ReadMessage                     = `UPDATE @message SET is_read=1, modified_on=? WHERE id=?`
 	_Security_CreatePhoneCaptcha             = `SELECT * FROM @user WHERE username=?`
 	_Security_GetLatestPhoneCaptcha          = `SELECT * FROM @user WHERE username=?`
 	_Security_SendPhoneCaptcha               = `SELECT * FROM @user WHERE username=?`
@@ -217,10 +217,10 @@ type Message struct {
 	yesql.Namespace `yesql:"message"`
 	GetMessageById  *sqlx.Stmt      `yesql:"get_message_by_id"`
 	GetUnreadCount  *sqlx.Stmt      `yesql:"get_unread_count"`
+	ReadMessage     *sqlx.Stmt      `yesql:"read_message"`
 	CreateMessage   *sqlx.NamedStmt `yesql:"create_message"`
 	GetMessageCount *sqlx.NamedStmt `yesql:"get_message_count"`
 	GetMessages     *sqlx.NamedStmt `yesql:"get_messages"`
-	ReadMessage     *sqlx.NamedStmt `yesql:"read_message"`
 }
 
 type Security struct {
@@ -583,6 +583,9 @@ func BuildMessage(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Message
 	if obj.GetUnreadCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_GetUnreadCount))); err != nil {
 		return
 	}
+	if obj.ReadMessage, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_ReadMessage))); err != nil {
+		return
+	}
 	if obj.CreateMessage, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_Message_CreateMessage))); err != nil {
 		return
 	}
@@ -590,9 +593,6 @@ func BuildMessage(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Message
 		return
 	}
 	if obj.GetMessages, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_Message_GetMessages))); err != nil {
-		return
-	}
-	if obj.ReadMessage, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_Message_ReadMessage))); err != nil {
 		return
 	}
 	return

@@ -5,6 +5,8 @@
 package sakila
 
 import (
+	"time"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -21,17 +23,19 @@ type messageSrv struct {
 	q *cc.Message
 }
 
-func (s *messageSrv) CreateMessage(msg *ms.Message) (*ms.Message, error) {
-	res, err := s.q.CreateMessage.Exec(msg)
+func (s *messageSrv) CreateMessage(r *ms.Message) (*ms.Message, error) {
+	r.Model = &dbr.Model{
+		CreatedOn: time.Now().Unix(),
+	}
+	res, err := s.q.CreateMessage.Exec(r)
 	if err != nil {
 		return nil, err
 	}
-	id, err := res.LastInsertId()
+	r.ID, err = res.LastInsertId()
 	if err != nil {
 		return nil, err
 	}
-	msg.Model = &dbr.Model{ID: id}
-	return msg, nil
+	return r, nil
 }
 
 func (s *messageSrv) GetUnreadCount(userID int64) (res int64, err error) {
@@ -39,22 +43,28 @@ func (s *messageSrv) GetUnreadCount(userID int64) (res int64, err error) {
 	return
 }
 
-func (s *messageSrv) GetMessageByID(id int64) (*ms.Message, error) {
-	res := &ms.Message{}
-	err := s.q.GetMessageById.Get(res, id)
-	return res, err
+func (s *messageSrv) GetMessageByID(id int64) (res *ms.Message, err error) {
+	err = s.q.GetMessageById.Get(res, id)
+	return
 }
 
-func (s *messageSrv) ReadMessage(message *ms.Message) (err error) {
-	_, err = s.q.ReadMessage.Exec(message)
+func (s *messageSrv) ReadMessage(r *ms.Message) (err error) {
+	_, err = s.q.ReadMessage.Exec(time.Now().Unix(), r.ID)
 	return
 }
 
 func (s *messageSrv) GetMessages(r *ms.ConditionsT, offset, limit int) ([]*ms.MessageFormated, error) {
-	res := []*ms.MessageFormated{}
+	var messages []*ms.Message
 	(*r)["limit"], (*r)["offset"] = limit, offset
-	err := s.q.GetMessages.Select(&res, r)
-	return res, err
+	if err := s.q.GetMessages.Select(&messages, r); err != nil {
+		return nil, err
+	}
+	mfs := make([]*dbr.MessageFormated, 0, len(messages))
+	for _, message := range messages {
+		mf := message.Format()
+		mfs = append(mfs, mf)
+	}
+	return mfs, nil
 }
 
 func (s *messageSrv) GetMessageCount(r *ms.ConditionsT) (res int64, err error) {

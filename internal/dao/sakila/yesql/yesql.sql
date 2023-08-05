@@ -167,27 +167,27 @@ SELECT true FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0 AND statu
 
 -- name: create_message@message
 -- prepare: named_stmt
-SELECT * FROM @user WHERE username=?
+INSERT INTO @message (sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, created_on) VALUES (:sender_user_id, :receiver_user_id, :type, :brief, :content, :post_id, :comment_id, :reply_id, :created_on);
 
 -- name: get_unread_count@message
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT count(*) FROM @message WHERE receiver_user_id=? AND is_read=0 AND is_del=0;
 
 -- name: get_message_by_id@message
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @message WHERE id=? AND is_del=0;
 
 -- name: read_message@message
--- prepare: named_stmt
-SELECT * FROM @user WHERE username=?
+-- prepare: stmt
+UPDATE @message SET is_read=1, modified_on=? WHERE id=?;
 
 -- name: get_messages@message
 -- prepare: named_stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @message WHERE receiver_user_id=:recerver_user_id AND is_del=0 ORDER BY id DESC LIMIT :limit OFFSET :offset
 
 -- name: get_message_count@message
 -- prepare: named_stmt
-SELECT * FROM @user WHERE username=?
+SELECT count(*) FROM @message WHERE receiver_user_id=:recerver_user_id AND is_del=0;
 
 --------------------------------------------------------------------------------
 -- security sql dml
