@@ -10,6 +10,7 @@ import (
 
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
 )
@@ -73,16 +74,16 @@ func (s *topicSrv) DecrTagsById(ids []int64) (err error) {
 }
 
 func (s *topicSrv) ListTags(typ cs.TagType, offset, limit int) (res cs.TagList, err error) {
-	conditions := &core.ConditionsT{}
+	conditions := &ms.ConditionsT{}
 	switch typ {
 	case cs.TagTypeHot:
 		// 热门标签
-		conditions = &core.ConditionsT{
+		conditions = &ms.ConditionsT{
 			"ORDER": "quote_num DESC",
 		}
 	case cs.TagTypeNew:
 		// 最新标签
-		conditions = &core.ConditionsT{
+		conditions = &ms.ConditionsT{
 			"ORDER": "id DESC",
 		}
 	}
@@ -90,7 +91,7 @@ func (s *topicSrv) ListTags(typ cs.TagType, offset, limit int) (res cs.TagList, 
 }
 
 func (s *topicSrv) GetHotTags(userId int64, limit int, offset int) (cs.TagList, error) {
-	tags, err := s.listTags(&core.ConditionsT{
+	tags, err := s.listTags(&ms.ConditionsT{
 		"ORDER": "quote_num DESC",
 	}, limit, offset)
 	if err != nil {
@@ -100,7 +101,7 @@ func (s *topicSrv) GetHotTags(userId int64, limit int, offset int) (cs.TagList, 
 }
 
 func (s *topicSrv) GetNewestTags(userId int64, limit int, offset int) (cs.TagList, error) {
-	tags, err := s.listTags(&core.ConditionsT{
+	tags, err := s.listTags(&ms.ConditionsT{
 		"ORDER": "id DESC",
 	}, limit, offset)
 	if err != nil {
@@ -149,7 +150,7 @@ func (s *topicSrv) GetFollowTags(userId int64, limit int, offset int) (cs.TagLis
 	return res, nil
 }
 
-func (s *topicSrv) listTags(conditions *core.ConditionsT, limit int, offset int) (res cs.TagList, err error) {
+func (s *topicSrv) listTags(conditions *ms.ConditionsT, limit int, offset int) (res cs.TagList, err error) {
 	// TODO: 优化查询方式，直接返回[]*core.Tag, 目前保持先转换一下
 	var (
 		tags []*dbr.Tag
@@ -298,16 +299,16 @@ func (s *topicSrvA) DecrTagsById(ids []int64) (err error) {
 }
 
 func (s *topicSrvA) ListTags(typ cs.TagType, offset, limit int) (res cs.TagList, err error) {
-	conditions := &core.ConditionsT{}
+	conditions := &ms.ConditionsT{}
 	switch typ {
 	case cs.TagTypeHot:
 		// 热门标签
-		conditions = &core.ConditionsT{
+		conditions = &ms.ConditionsT{
 			"ORDER": "quote_num DESC",
 		}
 	case cs.TagTypeNew:
 		// 最新标签
-		conditions = &core.ConditionsT{
+		conditions = &ms.ConditionsT{
 			"ORDER": "id DESC",
 		}
 	}

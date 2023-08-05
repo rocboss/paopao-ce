@@ -5,32 +5,15 @@
 package core
 
 import (
-	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
-)
-
-const (
-	MsgTypePost             = dbr.MsgTypePost
-	MsgtypeComment          = dbr.MsgtypeComment
-	MsgTypeReply            = dbr.MsgTypeReply
-	MsgTypeWhisper          = dbr.MsgTypeWhisper
-	MsgTypeRequestingFriend = dbr.MsgTypeRequestingFriend
-	MsgTypeSystem           = dbr.MsgTypeSystem
-
-	MsgStatusUnread = dbr.MsgStatusUnread
-	MsgStatusReaded = dbr.MsgStatusReaded
-)
-
-type (
-	Message         = dbr.Message
-	MessageFormated = dbr.MessageFormated
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 )
 
 // MessageService 消息服务
 type MessageService interface {
-	CreateMessage(msg *Message) (*Message, error)
+	CreateMessage(msg *ms.Message) (*ms.Message, error)
 	GetUnreadCount(userID int64) (int64, error)
-	GetMessageByID(id int64) (*Message, error)
-	ReadMessage(message *Message) error
-	GetMessages(conditions *ConditionsT, offset, limit int) ([]*MessageFormated, error)
-	GetMessageCount(conditions *ConditionsT) (int64, error)
+	GetMessageByID(id int64) (*ms.Message, error)
+	ReadMessage(message *ms.Message) error
+	GetMessages(conditions *ms.ConditionsT, offset, limit int) ([]*ms.MessageFormated, error)
+	GetMessageCount(conditions *ms.ConditionsT) (int64, error)
 }

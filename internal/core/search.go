@@ -5,6 +5,7 @@
 package core
 
 import (
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 )
 
@@ -33,12 +34,12 @@ type (
 	}
 
 	QueryResp struct {
-		Items []*PostFormated
+		Items []*ms.PostFormated
 		Total int64
 	}
 
 	TsDocItem struct {
-		Post    *Post
+		Post    *ms.Post
 		Content string
 	}
 )
@@ -48,5 +49,5 @@ type TweetSearchService interface {
 	IndexName() string
 	AddDocuments(data []TsDocItem, primaryKey ...string) (bool, error)
 	DeleteDocuments(identifiers []string) error
-	Search(user *User, q *QueryReq, offset, limit int) (*QueryResp, error)
+	Search(user *ms.User, q *QueryReq, offset, limit int) (*QueryResp, error)
 }

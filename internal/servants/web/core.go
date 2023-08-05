@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
@@ -85,7 +86,7 @@ func (s *coreSrv) GetUnreadMsgCount(req *web.GetUnreadMsgCountReq) (*web.GetUnre
 }
 
 func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mir.Error) {
-	conditions := &core.ConditionsT{
+	conditions := &ms.ConditionsT{
 		"receiver_user_id": req.UserId,
 		"ORDER":            "id DESC",
 	}
@@ -98,7 +99,7 @@ func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mi
 			}
 		}
 		// 好友申请消息不需要获取其他信息
-		if mf.Type == core.MsgTypeRequestingFriend {
+		if mf.Type == ms.MsgTypeRequestingFriend {
 			continue
 		}
 		if mf.PostID > 0 {
@@ -157,10 +158,10 @@ func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 	}
 
 	// 创建私信
-	_, err := s.Ds.CreateMessage(&core.Message{
+	_, err := s.Ds.CreateMessage(&ms.Message{
 		SenderUserID:   req.Uid,
 		ReceiverUserID: req.UserID,
-		Type:           core.MsgTypeWhisper,
+		Type:           ms.MsgTypeWhisper,
 		Brief:          "给你发送新私信了",
 		Content:        req.Content,
 	})
@@ -187,7 +188,7 @@ func (s *coreSrv) GetCollections(req *web.GetCollectionsReq) (*web.GetCollection
 		return nil, web.ErrGetCollectionsFailed
 	}
 
-	var posts []*core.Post
+	var posts []*ms.Post
 	for _, collection := range collections {
 		posts = append(posts, collection.Post)
 	}
@@ -250,7 +251,7 @@ func (s *coreSrv) GetStars(req *web.GetStarsReq) (*web.GetStarsResp, mir.Error) 
 		return nil, web.ErrGetStarsFailed
 	}
 
-	var posts []*core.Post
+	var posts []*ms.Post
 	for _, star := range stars {
 		posts = append(posts, star.Post)
 	}

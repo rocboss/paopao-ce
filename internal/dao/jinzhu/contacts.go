@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -226,7 +227,7 @@ func (s *contactManageSrv) DeleteFriend(userId int64, friendId int64) (err error
 	return nil
 }
 
-func (s *contactManageSrv) GetContacts(userId int64, offset int, limit int) (*core.ContactList, error) {
+func (s *contactManageSrv) GetContacts(userId int64, offset int, limit int) (*ms.ContactList, error) {
 	contact := &dbr.Contact{}
 	condition := dbr.ConditionsT{
 		"user_id": userId,
@@ -240,13 +241,13 @@ func (s *contactManageSrv) GetContacts(userId int64, offset int, limit int) (*co
 	if err != nil {
 		return nil, err
 	}
-	resp := &core.ContactList{
-		Contacts: make([]core.ContactItem, 0, len(contacts)),
+	resp := &ms.ContactList{
+		Contacts: make([]ms.ContactItem, 0, len(contacts)),
 		Total:    total,
 	}
 	for _, c := range contacts {
 		if c.User != nil {
-			resp.Contacts = append(resp.Contacts, core.ContactItem{
+			resp.Contacts = append(resp.Contacts, ms.ContactItem{
 				UserId:   c.FriendId,
 				UserName: c.User.Username,
 				Nickname: c.User.Nickname,

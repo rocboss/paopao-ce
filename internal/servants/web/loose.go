@@ -10,6 +10,7 @@ import (
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
@@ -121,7 +122,7 @@ func (s *looseSrv) getSelfStarTweets(req *web.GetUserTweetsReq) (*web.GetUserTwe
 		logrus.Errorf("Ds.GetUserPostStars err: %s", err)
 		return nil, web.ErrGetStarsFailed
 	}
-	var posts []*core.Post
+	var posts []*ms.Post
 	for _, star := range stars {
 		posts = append(posts, star.Post)
 	}
@@ -151,7 +152,7 @@ func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq) (*web.GetUserTwe
 			visibilities = append(visibilities, core.PostVisitFriend)
 		}
 	}
-	conditions := &core.ConditionsT{
+	conditions := ms.ConditionsT{
 		"user_id":         other.ID,
 		"visibility IN ?": visibilities,
 		"ORDER":           "latest_replied_on DESC",
@@ -236,7 +237,7 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 	if req.SortStrategy == "newest" {
 		sort = "id DESC"
 	}
-	conditions := &core.ConditionsT{
+	conditions := &ms.ConditionsT{
 		"post_id": req.TweetId,
 		"ORDER":   sort,
 	}
@@ -290,7 +291,7 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 		}
 	}
 
-	commentsFormated := []*core.CommentFormated{}
+	commentsFormated := []*ms.CommentFormated{}
 	for _, comment := range comments {
 		commentFormated := comment.Format()
 		if thumbs, exist := commentThumbs[comment.ID]; exist {
