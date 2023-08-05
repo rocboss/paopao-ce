@@ -51,7 +51,7 @@ func newAuthorizationManageService() (ams core.AuthorizationManageService) {
 		ams = jinzhu.NewAuthorizationManageService()
 	} else if cfg.If("Sqlx") {
 		ams = sakila.NewAuthorizationManageService()
-	} else if cfg.If("Sqlc") && (cfg.If("Postgres") || cfg.If("PostgreSQL")) {
+	} else if cfg.If("Sqlc") && cfg.Any("Postgres", "PostgreSQL") {
 		ams = slonik.NewAuthorizationManageService()
 	} else {
 		ams = jinzhu.NewAuthorizationManageService()
@@ -76,7 +76,7 @@ func initDsX() {
 	} else if cfg.If("Sqlx") {
 		ds, dsVer = sakila.NewDataService()
 		webDsa, dsaVer = sakila.NewWebDataServantA()
-	} else if cfg.If("Sqlc") && (cfg.If("Postgres") || cfg.If("PostgreSQL")) {
+	} else if cfg.If("Sqlc") && cfg.Any("Postgres", "PostgreSQL") {
 		ds, dsVer = slonik.NewDataService()
 		webDsa, dsaVer = slonik.NewWebDataServantA()
 	} else {

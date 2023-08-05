@@ -58,7 +58,7 @@ CREATE TABLE p_comment_content (
 	id BIGSERIAL PRIMARY KEY,
 	comment_id BIGINT NOT NULL DEFAULT 0,
 	user_id BIGINT NOT NULL DEFAULT 0,
-	content VARCHAR(255) NOT NULL DEFAULT '',
+	content TEXT NOT NULL DEFAULT '',
 	"type" SMALLINT NOT NULL DEFAULT 2, -- 类型，1标题，2文字段落，3图片地址，4视频地址，5语音地址，6链接地址,
 	sort BIGINT NOT NULL DEFAULT 100,
 	created_on BIGINT NOT NULL DEFAULT 0,
@@ -77,7 +77,7 @@ CREATE TABLE p_comment_reply (
 	comment_id BIGINT NOT NULL DEFAULT 0,
 	user_id BIGINT NOT NULL DEFAULT 0,
 	at_user_id BIGINT NOT NULL DEFAULT 0,
-	content VARCHAR(255) NOT NULL DEFAULT '',
+	content TEXT NOT NULL DEFAULT '',
 	ip VARCHAR(64) NOT NULL DEFAULT '',
 	ip_loc VARCHAR(64) NOT NULL DEFAULT '',
 	thumbs_up_count int NOT NULL DEFAULT 0, -- 点赞数
@@ -186,7 +186,7 @@ CREATE TABLE p_post_content (
 	id BIGSERIAL PRIMARY KEY,
 	post_id BIGINT NOT NULL DEFAULT 0,
 	user_id BIGINT NOT NULL DEFAULT 0,
-	content VARCHAR(2000) NOT NULL DEFAULT '',
+	content TEXT NOT NULL DEFAULT '',
 	"type" SMALLINT NOT NULL DEFAULT 2, -- 类型，1标题，2文字段落，3图片地址，4视频地址，5语音地址，6链接地址，7附件资源，8收费资源
 	sort SMALLINT NOT NULL DEFAULT 100,
 	created_on BIGINT NOT NULL DEFAULT 0,

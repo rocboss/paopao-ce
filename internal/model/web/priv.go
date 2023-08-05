@@ -9,8 +9,13 @@ import (
 	"mime/multipart"
 	"strings"
 
+	"github.com/alimy/mir/v4"
+	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/servants/base"
+	"github.com/rocboss/paopao-ce/pkg/convert"
+	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
 
 type TweetCommentThumbsReq struct {
@@ -27,9 +32,9 @@ type TweetReplyThumbsReq struct {
 }
 
 type PostContentItem struct {
-	Content string            `json:"content"  binding:"required"`
-	Type    core.PostContentT `json:"type"  binding:"required"`
-	Sort    int64             `json:"sort"  binding:"required"`
+	Content string          `json:"content"  binding:"required"`
+	Type    ms.PostContentT `json:"type"  binding:"required"`
+	Sort    int64           `json:"sort"  binding:"required"`
 }
 
 type CreateTweetReq struct {
@@ -42,7 +47,7 @@ type CreateTweetReq struct {
 	ClientIP        string             `json:"-" binding:"-"`
 }
 
-type CreateTweetResp core.PostFormated
+type CreateTweetResp ms.PostFormated
 
 type DeleteTweetReq struct {
 	BaseInfo `json:"-" binding:"-"`
@@ -103,7 +108,7 @@ type CreateCommentReq struct {
 	ClientIP   string             `json:"-" binding:"-"`
 }
 
-type CreateCommentResp core.Comment
+type CreateCommentResp ms.Comment
 
 type CreateCommentReplyReq struct {
 	SimpleInfo `json:"-" binding:"-"`
@@ -113,7 +118,7 @@ type CreateCommentReplyReq struct {
 	ClientIP   string `json:"-" binding:"-"`
 }
 
-type CreateCommentReplyResp core.CommentReply
+type CreateCommentReplyResp ms.CommentReply
 
 type DeleteCommentReq struct {
 	BaseInfo `json:"-" binding:"-"`
@@ -138,7 +143,7 @@ type UploadAttachmentResp struct {
 	FileSize  int64             `json:"file_size"`
 	ImgWidth  int               `json:"img_width"`
 	ImgHeight int               `json:"img_height"`
-	Type      cs.AttachmentType `json:"type"`
+	Type      ms.AttachmentType `json:"type"`
 	Content   string            `json:"content"`
 }
 
@@ -182,16 +187,88 @@ type UnfollowTopicReq struct {
 // Check 检查PostContentItem属性
 func (p *PostContentItem) Check(acs core.AttachmentCheckService) error {
 	// 检查附件是否是本站资源
-	if p.Type == core.ContentTypeImage || p.Type == core.ContentTypeVideo || p.Type == core.ContentTypeAttachment {
+	if p.Type == ms.ContentTypeImage || p.Type == ms.ContentTypeVideo || p.Type == ms.ContentTypeAttachment {
 		if err := acs.CheckAttachment(p.Content); err != nil {
 			return err
 		}
 	}
 	// 检查链接是否合法
-	if p.Type == core.ContentTypeLink {
+	if p.Type == ms.ContentTypeLink {
 		if strings.Index(p.Content, "http://") != 0 && strings.Index(p.Content, "https://") != 0 {
 			return fmt.Errorf("链接不合法")
 		}
 	}
 	return nil
+}
+
+func (r *UploadAttachmentReq) Bind(c *gin.Context) (xerr mir.Error) {
+	userId, exist := base.UserIdFrom(c)
+	if !exist {
+		return xerror.UnauthorizedAuthNotExist
+	}
+
+	uploadType := c.Request.FormValue("type")
+	file, fileHeader, err := c.Request.FormFile("file")
+	if err != nil {
+		return ErrFileUploadFailed
+	}
+	defer func() {
+		if xerr != nil {
+			file.Close()
+		}
+	}()
+
+	if err := fileCheck(uploadType, fileHeader.Size); err != nil {
+		return err
+	}
+	contentType := fileHeader.Header.Get("Content-Type")
+	fileExt, xerr := getFileExt(contentType)
+	if xerr != nil {
+		return xerr
+	}
+	r.SimpleInfo = SimpleInfo{
+		Uid: userId,
+	}
+	r.UploadType, r.ContentType = uploadType, contentType
+	r.File, r.FileSize, r.FileExt = file, fileHeader.Size, fileExt
+	return nil
+}
+
+func (r *DownloadAttachmentPrecheckReq) Bind(c *gin.Context) mir.Error {
+	user, exist := base.UserFrom(c)
+	if !exist {
+		return xerror.UnauthorizedAuthNotExist
+	}
+	r.BaseInfo = BaseInfo{
+		User: user,
+	}
+	r.ContentID = convert.StrTo(c.Query("id")).MustInt64()
+	return nil
+}
+
+func (r *DownloadAttachmentReq) Bind(c *gin.Context) mir.Error {
+	user, exist := base.UserFrom(c)
+	if !exist {
+		return xerror.UnauthorizedAuthNotExist
+	}
+	r.BaseInfo = BaseInfo{
+		User: user,
+	}
+	r.ContentID = convert.StrTo(c.Query("id")).MustInt64()
+	return nil
+}
+
+func (r *CreateTweetReq) Bind(c *gin.Context) mir.Error {
+	r.ClientIP = c.ClientIP()
+	return bindAny(c, r)
+}
+
+func (r *CreateCommentReplyReq) Bind(c *gin.Context) mir.Error {
+	r.ClientIP = c.ClientIP()
+	return bindAny(c, r)
+}
+
+func (r *CreateCommentReq) Bind(c *gin.Context) mir.Error {
+	r.ClientIP = c.ClientIP()
+	return bindAny(c, r)
 }

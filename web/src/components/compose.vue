@@ -37,6 +37,7 @@
                 :data="{
                     type: uploadType,
                 }"
+                :file-list="fileQueue"
                 @before-upload="beforeUpload"
                 @finish="finishUpload"
                 @error="failUpload"
@@ -402,15 +403,24 @@ const handleSearch = (k: string, prefix: string) => {
 };
 const changeContent = (v: string) => {
     if (v.length > defaultTweetMaxLength) {
-        return;
+        content.value = v.substring(0, defaultTweetMaxLength);
+    } else {
+        content.value = v;
     }
-    content.value = v;
 };
 const setUploadType = (type: string) => {
     uploadType.value = type;
 };
 
 const updateUpload = (list: UploadFileInfo[]) => {
+    for (let i = 0; i < list.length; i++) {
+        var name = list[i].name;
+        var basename: string = name.split('.').slice(0, -1).join('.');
+        var ext: string = name.split('.').pop()!;
+        if (basename.length > 30) {
+            list[i].name = basename.substring(0, 18) + "..." + basename.substring(basename.length-9) + "." + ext;
+        }
+    }
     fileQueue.value = list;
 };
 const beforeUpload = async (data: any) => {

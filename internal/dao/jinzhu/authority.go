@@ -6,6 +6,7 @@ package jinzhu
 
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/pkg/types"
 	"gorm.io/gorm"
@@ -25,7 +26,7 @@ func newAuthorizationManageService(db *gorm.DB) core.AuthorizationManageService 
 	}
 }
 
-func (s *authorizationManageSrv) IsAllow(user *core.User, action *core.Action) bool {
+func (s *authorizationManageSrv) IsAllow(user *ms.User, action *ms.Action) bool {
 	// user is activation if had bind phone
 	isActivation := (len(user.Phone) != 0)
 	isFriend := s.isFriend(user.ID, action.UserId)
@@ -33,26 +34,26 @@ func (s *authorizationManageSrv) IsAllow(user *core.User, action *core.Action) b
 	return action.Act.IsAllow(user, action.UserId, isFriend, isActivation)
 }
 
-func (s *authorizationManageSrv) MyFriendSet(userId int64) core.FriendSet {
+func (s *authorizationManageSrv) MyFriendSet(userId int64) ms.FriendSet {
 	ids, err := (&dbr.Contact{UserId: userId}).MyFriendIds(s.db)
 	if err != nil {
-		return core.FriendSet{}
+		return ms.FriendSet{}
 	}
 
-	resp := make(core.FriendSet, len(ids))
+	resp := make(ms.FriendSet, len(ids))
 	for _, id := range ids {
 		resp[id] = types.Empty{}
 	}
 	return resp
 }
 
-func (s *authorizationManageSrv) BeFriendFilter(userId int64) core.FriendFilter {
+func (s *authorizationManageSrv) BeFriendFilter(userId int64) ms.FriendFilter {
 	ids, err := (&dbr.Contact{FriendId: userId}).BeFriendIds(s.db)
 	if err != nil {
-		return core.FriendFilter{}
+		return ms.FriendFilter{}
 	}
 
-	resp := make(core.FriendFilter, len(ids))
+	resp := make(ms.FriendFilter, len(ids))
 	for _, id := range ids {
 		resp[id] = types.Empty{}
 	}

@@ -7,6 +7,7 @@ package jinzhu
 import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
 )
@@ -25,7 +26,7 @@ func newWalletService(db *gorm.DB) core.WalletService {
 	}
 }
 
-func (s *walletSrv) GetRechargeByID(id int64) (*core.WalletRecharge, error) {
+func (s *walletSrv) GetRechargeByID(id int64) (*ms.WalletRecharge, error) {
 	recharge := &dbr.WalletRecharge{
 		Model: &dbr.Model{
 			ID: id,
@@ -34,7 +35,7 @@ func (s *walletSrv) GetRechargeByID(id int64) (*core.WalletRecharge, error) {
 
 	return recharge.Get(s.db)
 }
-func (s *walletSrv) CreateRecharge(userId, amount int64) (*core.WalletRecharge, error) {
+func (s *walletSrv) CreateRecharge(userId, amount int64) (*ms.WalletRecharge, error) {
 	recharge := &dbr.WalletRecharge{
 		UserID: userId,
 		Amount: amount,
@@ -43,7 +44,7 @@ func (s *walletSrv) CreateRecharge(userId, amount int64) (*core.WalletRecharge, 
 	return recharge.Create(s.db)
 }
 
-func (s *walletSrv) GetUserWalletBills(userID int64, offset, limit int) ([]*core.WalletStatement, error) {
+func (s *walletSrv) GetUserWalletBills(userID int64, offset, limit int) ([]*ms.WalletStatement, error) {
 	statement := &dbr.WalletStatement{
 		UserID: userID,
 	}
@@ -60,7 +61,7 @@ func (s *walletSrv) GetUserWalletBillCount(userID int64) (int64, error) {
 	return statement.Count(s.db, &dbr.ConditionsT{})
 }
 
-func (s *walletSrv) HandleRechargeSuccess(recharge *core.WalletRecharge, tradeNo string) error {
+func (s *walletSrv) HandleRechargeSuccess(recharge *ms.WalletRecharge, tradeNo string) error {
 	user, _ := (&dbr.User{
 		Model: &dbr.Model{
 			ID: recharge.UserID,
@@ -97,7 +98,7 @@ func (s *walletSrv) HandleRechargeSuccess(recharge *core.WalletRecharge, tradeNo
 	})
 }
 
-func (s *walletSrv) HandlePostAttachmentBought(post *core.Post, user *core.User) error {
+func (s *walletSrv) HandlePostAttachmentBought(post *ms.Post, user *ms.User) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// 扣除金额
 		if err := tx.Model(user).Update("balance", gorm.Expr("balance - ?", post.AttachmentPrice)).Error; err != nil {

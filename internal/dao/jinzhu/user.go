@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
 )
@@ -26,7 +27,7 @@ func newUserManageService(db *gorm.DB) core.UserManageService {
 	}
 }
 
-func (s *userManageSrv) GetUserByID(id int64) (*core.User, error) {
+func (s *userManageSrv) GetUserByID(id int64) (*ms.User, error) {
 	user := &dbr.User{
 		Model: &dbr.Model{
 			ID: id,
@@ -35,28 +36,28 @@ func (s *userManageSrv) GetUserByID(id int64) (*core.User, error) {
 	return user.Get(s.db)
 }
 
-func (s *userManageSrv) GetUserByUsername(username string) (*core.User, error) {
+func (s *userManageSrv) GetUserByUsername(username string) (*ms.User, error) {
 	user := &dbr.User{
 		Username: username,
 	}
 	return user.Get(s.db)
 }
 
-func (s *userManageSrv) GetUserByPhone(phone string) (*core.User, error) {
+func (s *userManageSrv) GetUserByPhone(phone string) (*ms.User, error) {
 	user := &dbr.User{
 		Phone: phone,
 	}
 	return user.Get(s.db)
 }
 
-func (s *userManageSrv) GetUsersByIDs(ids []int64) ([]*core.User, error) {
+func (s *userManageSrv) GetUsersByIDs(ids []int64) ([]*ms.User, error) {
 	user := &dbr.User{}
 	return user.List(s.db, &dbr.ConditionsT{
 		"id IN ?": ids,
 	}, 0, 0)
 }
 
-func (s *userManageSrv) GetUsersByKeyword(keyword string) ([]*core.User, error) {
+func (s *userManageSrv) GetUsersByKeyword(keyword string) ([]*ms.User, error) {
 	user := &dbr.User{}
 	keyword = strings.Trim(keyword, " ") + "%"
 	if keyword == "%" {
@@ -70,10 +71,10 @@ func (s *userManageSrv) GetUsersByKeyword(keyword string) ([]*core.User, error) 
 	}
 }
 
-func (s *userManageSrv) CreateUser(user *dbr.User) (*core.User, error) {
+func (s *userManageSrv) CreateUser(user *dbr.User) (*ms.User, error) {
 	return user.Create(s.db)
 }
 
-func (s *userManageSrv) UpdateUser(user *core.User) error {
+func (s *userManageSrv) UpdateUser(user *ms.User) error {
 	return user.Update(s.db)
 }

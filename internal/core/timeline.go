@@ -6,19 +6,15 @@ package core
 
 import (
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 )
-
-type IndexTweetList struct {
-	Tweets []*PostFormated
-	Total  int64
-}
 
 // IndexPostsService 广场首页推文列表服务
 type IndexPostsService interface {
-	IndexPosts(user *User, offset int, limit int) (*IndexTweetList, error)
+	IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error)
 }
 
 // IndexPostsServantA 广场首页推文列表服务(版本A)
 type IndexPostsServantA interface {
-	IndexPosts(user *User, limit int, offset int) (*cs.TweetBox, error)
+	IndexPosts(user *ms.User, limit int, offset int) (*cs.TweetBox, error)
 }

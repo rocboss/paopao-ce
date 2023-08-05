@@ -20,9 +20,11 @@
                     <div class="uid">UID. {{ store.state.userInfo.id }}</div>
                 </div>
             </div>
-            <n-tabs class="profile-tabs-wrap" animated>
+            <n-tabs class="profile-tabs-wrap" type="line" animated @update:value="changeTab">
                 <n-tab-pane name="post" tab="泡泡"> </n-tab-pane>
-                <!-- <n-tab-pane name="comment" tab="评论"> </n-tab-pane> -->
+                <n-tab-pane name="comment" tab="评论"> </n-tab-pane>
+                <n-tab-pane name="media" tab="图文"> </n-tab-pane>
+                <n-tab-pane name="star" tab="喜欢"> </n-tab-pane>
             </n-tabs>
             <div v-if="loading" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />
@@ -32,9 +34,16 @@
                     <n-empty size="large" description="暂无数据" />
                 </div>
 
-                <n-list-item v-for="post in list" :key="post.id">
-                    <post-item :post="post" />
-                </n-list-item>
+                <div v-if="store.state.desktopModelShow">
+                    <n-list-item v-for="post in list" :key="post.id">
+                        <post-item :post="post" />
+                    </n-list-item>
+                </div>
+                <div v-else>
+                    <n-list-item v-for="post in list" :key="post.id">
+                        <mobile-post-item :post="post" />
+                    </n-list-item>
+                </div>
             </div>
         </n-list>
 
@@ -50,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import { getUserPosts } from '@/api/user';
@@ -60,35 +69,174 @@ const route = useRoute();
 
 const loading = ref(false);
 const list = ref<Item.PostProps[]>([]);
+const pageType = ref<"post" | "comment" | "media" | "star">('post');
+const postPage = ref(+(route.query.p as string) || 1);
+const commentPage = ref(1)
+const mediaPage = ref(1)
+const starPage = ref(1);
 const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 
+const loadPage = () => {
+    switch(pageType.value) {
+        case "post":
+            loadPosts();
+            break;
+        case "comment":
+            loadCommentPosts();
+            break;
+        case "media":
+            loadMediaPosts();
+            break;
+        case "star":
+            loadStarPosts();
+            break;
+    } 
+};
 const loadPosts = () => {
     loading.value = true;
     getUserPosts({
         username: store.state.userInfo.username,
+        style: "post",
         page: page.value,
         page_size: pageSize.value,
     })
         .then((rsp) => {
             loading.value = false;
-            list.value = rsp.list;
+            list.value = rsp.list || [];
             totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-
             window.scrollTo(0, 0);
         })
         .catch((err) => {
+            list.value = []
             loading.value = false;
         });
 };
+const loadCommentPosts = () => {
+    loading.value = true;
+    getUserPosts({
+        username: store.state.userInfo.username,
+        style: "comment",
+        page: page.value,
+        page_size: pageSize.value,
+    })
+        .then((rsp) => {
+            loading.value = false;
+            list.value = rsp.list || [];
+            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+            window.scrollTo(0, 0);
+        })
+        .catch((err) => {
+            list.value = []
+            loading.value = false;
+        });
+};
+const loadMediaPosts = () => {
+    loading.value = true;
+    getUserPosts({
+        username: store.state.userInfo.username,
+        style: "media",
+        page: page.value,
+        page_size: pageSize.value,
+    })
+        .then((rsp) => {
+            loading.value = false;
+            list.value = rsp.list || [];
+            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+            window.scrollTo(0, 0);
+        })
+        .catch((err) => {
+            list.value = []
+            loading.value = false;
+        });
+};
+const loadStarPosts = () => {
+    loading.value = true;
+    getUserPosts({
+        username: store.state.userInfo.username,
+        style: "star",
+        page: page.value,
+        page_size: pageSize.value,
+    })
+        .then((rsp) => {
+            loading.value = false;
+            list.value = rsp.list || [];
+            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+            window.scrollTo(0, 0);
+        })
+        .catch((err) => {
+            list.value = []
+            loading.value = false;
+        });
+};
+const changeTab = (tab: "post" | "comment" | "media" | "star") => {
+    pageType.value = tab;
+    switch(pageType.value) {
+        case "post":
+            page.value = postPage.value
+            loadPosts();
+            break;
+        case "comment":
+            page.value = commentPage.value
+            loadCommentPosts();
+            break;
+        case "media":
+            page.value = mediaPage.value
+            loadMediaPosts();
+            break;
+        case "star":
+            page.value = starPage.value
+            loadStarPosts();
+            break;
+    }
+};
 const updatePage = (p: number) => {
     page.value = p;
-    loadPosts();
+    switch(pageType.value) {
+        case "post":
+            postPage.value = p
+            loadPosts();
+            break;
+        case "comment":
+            commentPage.value = page.value
+            loadCommentPosts();
+            break;
+        case "media":
+            mediaPage.value = page.value
+            loadMediaPosts();
+            break;
+        case "star":
+            starPage.value = page.value
+            loadStarPosts();
+            break;
+    }
 };
 onMounted(() => {
-    loadPosts();
+    loadPage();
 });
+watch(
+    () => ({
+        path: route.path,
+        query: route.query,
+        refresh: store.state.refresh,
+    }),
+    (to, from) => {
+        if (to.refresh !== from.refresh) {
+            page.value = +(route.query.p as string) || 1;
+            setTimeout(() => {
+                loadPage();
+            }, 0);
+            return;
+        }
+        if (from.path !== '/post' && to.path === '/profile') {
+            page.value = +(route.query.p as string) || 1;
+            setTimeout(() => {
+                loadPage();
+            }, 0);
+        }
+    }
+);
 </script>
 
 <style lang="less" scoped>

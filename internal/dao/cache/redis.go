@@ -11,8 +11,8 @@ import (
 	"unsafe"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/redis/rueidis"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rueian/rueidis"
 )
 
 var (
