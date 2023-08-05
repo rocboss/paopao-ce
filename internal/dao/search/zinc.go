@@ -101,7 +101,7 @@ func (s *zincTweetSearchServant) queryByContent(user *core.User, q *core.QueryRe
 				"content": q.Query,
 			},
 		},
-		"sort": []string{"is_top:desc", "-upvote_count", "-collection_count", "-latest_replied_on"},
+		"sort": []string{"-is_top", "-upvote_count", "-collection_count", "-latest_replied_on"},
 		"from": offset,
 		"size": limit,
 	})

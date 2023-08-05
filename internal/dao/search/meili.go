@@ -103,7 +103,7 @@ func (s *meiliTweetSearchServant) queryByContent(user *core.User, q *core.QueryR
 	request := &meilisearch.SearchRequest{
 		Offset: int64(offset),
 		Limit:  int64(limit),
-		Sort:   []string{"is_top:desc", "-upvote_count", "-collection_count", "latest_replied_on:desc"},
+		Sort:   []string{"is_top:desc", "upvote_count:desc", "collection_count:desc", "latest_replied_on:desc"},
 	}
 
 	filter := s.filterList(user)

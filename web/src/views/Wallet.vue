@@ -181,7 +181,7 @@ const openAmounts = ref([3000,18500,36500]);
 const timecal = (timestamp: number) => {
   const timestampInSeconds = Math.floor(Date.now() / 1000);
   const timeDifference = timestamp - timestampInSeconds;
-  const days = Math.floor(timeDifference / (24 * 3600));
+  const days = Math.floor(timeDifference / (24 * 3600)) + 1;
   return Math.max(0, days); // 确保返回值不会是负数
 };
 ////获取时间差

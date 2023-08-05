@@ -11,6 +11,7 @@ import (
 	"image/color"
 	"image/png"
 	"regexp"
+	"time"
 	"unicode/utf8"
 
 	"github.com/afocus/captcha"
@@ -132,6 +133,9 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
 	}
 	password, salt := encryptPasswordAndSalt(req.Password)
 	//password, salt := encryptPasswordAndSalt(req.Password, req.Username)
+	//当前时间戳加15天
+	balance := time.Now().AddDate(0, 0, 15).Unix()
+
 	user := &core.User{
 		Nickname: req.Username,
 		Username: req.Username,
@@ -139,6 +143,7 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
 		Avatar:   getRandomAvatar(),
 		Salt:     salt,
 		Status:   core.UserStatusNormal,
+		Balance:  balance,
 	}
 	user, err := s.Ds.CreateUser(user)
 	if err != nil {
