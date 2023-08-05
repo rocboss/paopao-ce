@@ -23,7 +23,7 @@ import (
 
 //go:generate go run $GOFILE
 func main() {
-	log.Println("generate code start")
+	log.Println("[Mir] generate code start")
 	opts := Options{
 		UseGin(),
 		SinkPath("../auto"),
@@ -34,5 +34,5 @@ func main() {
 	if err := Generate(opts); err != nil {
 		log.Fatal(err)
 	}
-	log.Println("generate code finish")
+	log.Println("[Mir] generate code finish")
 }

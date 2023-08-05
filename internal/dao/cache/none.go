@@ -8,6 +8,7 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -20,7 +21,7 @@ type noneCacheIndexServant struct {
 	ips core.IndexPostsService
 }
 
-func (s *noneCacheIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *noneCacheIndexServant) IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
 	return s.ips.IndexPosts(user, offset, limit)
 }
 
@@ -29,7 +30,7 @@ func (s *noneCacheIndexServant) TweetTimeline(userId int64, offset int, limit in
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *noneCacheIndexServant) SendAction(_act core.IdxAct, _post *core.Post) {
+func (s *noneCacheIndexServant) SendAction(_act core.IdxAct, _post *ms.Post) {
 	// empty
 }
 

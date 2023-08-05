@@ -7,6 +7,7 @@ package jinzhu
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/sirupsen/logrus"
@@ -42,7 +43,7 @@ type simpleIndexPostsSrv struct {
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *friendIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *friendIndexSrv) IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
 	predicates := dbr.Predicates{
 		"ORDER": []any{"is_top DESC, latest_replied_on DESC"},
 	}
@@ -70,7 +71,7 @@ func (s *friendIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*co
 		return nil, err
 	}
 
-	return &core.IndexTweetList{
+	return &ms.IndexTweetList{
 		Tweets: formatPosts,
 		Total:  total,
 	}, nil
@@ -82,7 +83,7 @@ func (s *friendIndexSrv) TweetTimeline(userId int64, offset int, limit int) (*cs
 }
 
 // IndexPosts 根据userId查询广场推文列表
-func (s *followIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *followIndexSrv) IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
@@ -93,7 +94,7 @@ func (s *followIndexSrv) TweetTimeline(userId int64, offset int, limit int) (*cs
 }
 
 // IndexPosts 根据userId查询广场推文列表，获取公开可见Tweet或者所属用户的私有Tweet
-func (s *lightIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *lightIndexSrv) IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
 	predicates := dbr.Predicates{
 		"ORDER": []any{"is_top DESC, latest_replied_on DESC"},
 	}
@@ -119,7 +120,7 @@ func (s *lightIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*cor
 		return nil, err
 	}
 
-	return &core.IndexTweetList{
+	return &ms.IndexTweetList{
 		Tweets: formatPosts,
 		Total:  total,
 	}, nil
@@ -131,7 +132,7 @@ func (s *lightIndexSrv) TweetTimeline(userId int64, offset int, limit int) (*cs.
 }
 
 // simpleCacheIndexGetPosts simpleCacheIndex 专属获取广场推文列表函数
-func (s *simpleIndexPostsSrv) IndexPosts(_user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *simpleIndexPostsSrv) IndexPosts(_user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
 	predicates := dbr.Predicates{
 		"visibility = ?": []any{dbr.PostVisitPublic},
 		"ORDER":          []any{"is_top DESC, latest_replied_on DESC"},
@@ -153,7 +154,7 @@ func (s *simpleIndexPostsSrv) IndexPosts(_user *core.User, offset int, limit int
 		return nil, err
 	}
 
-	return &core.IndexTweetList{
+	return &ms.IndexTweetList{
 		Tweets: formatPosts,
 		Total:  total,
 	}, nil

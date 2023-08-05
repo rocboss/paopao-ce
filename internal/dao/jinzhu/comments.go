@@ -9,6 +9,7 @@ import (
 
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/pkg/types"
 	"gorm.io/gorm"
@@ -59,11 +60,11 @@ func (s *commentSrv) GetCommentThumbsMap(userId int64, tweetId int64) (cs.Commen
 	return commentThumbs, replyThumbs, nil
 }
 
-func (s *commentSrv) GetComments(conditions *core.ConditionsT, offset, limit int) ([]*core.Comment, error) {
+func (s *commentSrv) GetComments(conditions *ms.ConditionsT, offset, limit int) ([]*ms.Comment, error) {
 	return (&dbr.Comment{}).List(s.db, conditions, offset, limit)
 }
 
-func (s *commentSrv) GetCommentByID(id int64) (*core.Comment, error) {
+func (s *commentSrv) GetCommentByID(id int64) (*ms.Comment, error) {
 	comment := &dbr.Comment{
 		Model: &dbr.Model{
 			ID: id,
@@ -72,7 +73,7 @@ func (s *commentSrv) GetCommentByID(id int64) (*core.Comment, error) {
 	return comment.Get(s.db)
 }
 
-func (s *commentSrv) GetCommentReplyByID(id int64) (*core.CommentReply, error) {
+func (s *commentSrv) GetCommentReplyByID(id int64) (*ms.CommentReply, error) {
 	reply := &dbr.CommentReply{
 		Model: &dbr.Model{
 			ID: id,
@@ -81,18 +82,18 @@ func (s *commentSrv) GetCommentReplyByID(id int64) (*core.CommentReply, error) {
 	return reply.Get(s.db)
 }
 
-func (s *commentSrv) GetCommentCount(conditions *core.ConditionsT) (int64, error) {
+func (s *commentSrv) GetCommentCount(conditions *ms.ConditionsT) (int64, error) {
 	return (&dbr.Comment{}).Count(s.db, conditions)
 }
 
-func (s *commentSrv) GetCommentContentsByIDs(ids []int64) ([]*core.CommentContent, error) {
+func (s *commentSrv) GetCommentContentsByIDs(ids []int64) ([]*ms.CommentContent, error) {
 	commentContent := &dbr.CommentContent{}
 	return commentContent.List(s.db, &dbr.ConditionsT{
 		"comment_id IN ?": ids,
 	}, 0, 0)
 }
 
-func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*core.CommentReplyFormated, error) {
+func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*ms.CommentReplyFormated, error) {
 	CommentReply := &dbr.CommentReply{}
 	replies, err := CommentReply.List(s.db, &dbr.ConditionsT{
 		"comment_id IN ?": ids,
@@ -112,7 +113,7 @@ func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*core.CommentReplyFor
 	if err != nil {
 		return nil, err
 	}
-	repliesFormated := []*core.CommentReplyFormated{}
+	repliesFormated := []*ms.CommentReplyFormated{}
 	for _, reply := range replies {
 		replyFormated := reply.Format()
 		for _, user := range users {
@@ -130,7 +131,7 @@ func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*core.CommentReplyFor
 	return repliesFormated, nil
 }
 
-func (s *commentManageSrv) DeleteComment(comment *core.Comment) error {
+func (s *commentManageSrv) DeleteComment(comment *ms.Comment) error {
 	db := s.db.Begin()
 	defer db.Rollback()
 
@@ -149,15 +150,15 @@ func (s *commentManageSrv) DeleteComment(comment *core.Comment) error {
 	return nil
 }
 
-func (s *commentManageSrv) CreateComment(comment *core.Comment) (*core.Comment, error) {
+func (s *commentManageSrv) CreateComment(comment *ms.Comment) (*ms.Comment, error) {
 	return comment.Create(s.db)
 }
 
-func (s *commentManageSrv) CreateCommentReply(reply *core.CommentReply) (*core.CommentReply, error) {
+func (s *commentManageSrv) CreateCommentReply(reply *ms.CommentReply) (*ms.CommentReply, error) {
 	return reply.Create(s.db)
 }
 
-func (s *commentManageSrv) DeleteCommentReply(reply *core.CommentReply) (err error) {
+func (s *commentManageSrv) DeleteCommentReply(reply *ms.CommentReply) (err error) {
 	db := s.db.Begin()
 	defer db.Rollback()
 
@@ -177,7 +178,7 @@ func (s *commentManageSrv) DeleteCommentReply(reply *core.CommentReply) (err err
 	return
 }
 
-func (s *commentManageSrv) CreateCommentContent(content *core.CommentContent) (*core.CommentContent, error) {
+func (s *commentManageSrv) CreateCommentContent(content *ms.CommentContent) (*ms.CommentContent, error) {
 	return content.Create(s.db)
 }
 
