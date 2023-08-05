@@ -7,6 +7,7 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -18,43 +19,43 @@ type userManageSrv struct {
 	*pgxSrv
 }
 
-func (s *userManageSrv) GetUserByID(id int64) (*core.User, error) {
+func (s *userManageSrv) GetUserByID(id int64) (*ms.User, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *userManageSrv) GetUserByUsername(username string) (*core.User, error) {
+func (s *userManageSrv) GetUserByUsername(username string) (*ms.User, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *userManageSrv) GetUserByPhone(phone string) (*core.User, error) {
+func (s *userManageSrv) GetUserByPhone(phone string) (*ms.User, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *userManageSrv) GetUsersByIDs(ids []int64) ([]*core.User, error) {
+func (s *userManageSrv) GetUsersByIDs(ids []int64) ([]*ms.User, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *userManageSrv) GetUsersByKeyword(keyword string) ([]*core.User, error) {
+func (s *userManageSrv) GetUsersByKeyword(keyword string) ([]*ms.User, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *userManageSrv) CreateUser(user *core.User) (*core.User, error) {
+func (s *userManageSrv) CreateUser(user *ms.User) (*ms.User, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *userManageSrv) UpdateUser(user *core.User) error {
+func (s *userManageSrv) UpdateUser(user *ms.User) error {
 	// TODO
 	debug.NotImplemented()
 	return nil

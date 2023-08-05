@@ -7,6 +7,7 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -19,14 +20,14 @@ type securitySrv struct {
 }
 
 // GetLatestPhoneCaptcha 获取最新短信验证码
-func (s *securitySrv) GetLatestPhoneCaptcha(phone string) (*core.Captcha, error) {
+func (s *securitySrv) GetLatestPhoneCaptcha(phone string) (*ms.Captcha, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
 // UsePhoneCaptcha 更新短信验证码
-func (s *securitySrv) UsePhoneCaptcha(captcha *core.Captcha) error {
+func (s *securitySrv) UsePhoneCaptcha(captcha *ms.Captcha) error {
 	// TODO
 	debug.NotImplemented()
 	return nil

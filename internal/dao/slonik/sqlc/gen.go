@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	sqlc "github.com/kyleconroy/sqlc/pkg/cli"
+	sqlc "github.com/sqlc-dev/sqlc/pkg/cli"
 )
 
 //go:generate go run $GOFILE generate -x

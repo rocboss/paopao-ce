@@ -7,6 +7,7 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -42,7 +43,7 @@ func (s *contactManageSrv) DeleteFriend(userId int64, friendId int64) (err error
 	return nil
 }
 
-func (s *contactManageSrv) GetContacts(userId int64, offset int, limit int) (*core.ContactList, error) {
+func (s *contactManageSrv) GetContacts(userId int64, offset int, limit int) (*ms.ContactList, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
