@@ -521,32 +521,38 @@ UPDATE @tag SET quote_num=quote_num+1, is_del=0, modified_on=? WHERE id IN (?);
 
 -- name: get_user_by_id@user_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @user WHERE id=? AND is_del=0;
 
 -- name: get_user_by_username@user_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @user WHERE username=? AND is_del=0;
 
 -- name: get_user_by_phone@user_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @user WHERE phone=? AND is_del=0;
 
 -- name: get_users_by_ids@user_manage
 -- prepare: raw
 -- clause: in
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @user WHERE id IN ? AND is_del=0;
 
 -- name: get_users_by_keyword@user_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @user WHERE username LIKE ? AND is_del=0 limit 6;
 
--- name: add_user@user_manage
+-- name: get_any_users@user_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @user WHERE is_del=0 ORDER BY id ASC limit 6;
+
+-- name: create_user@user_manage
+-- prepare: named_stmt
+INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on) VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on);
 
 -- name: update_user@user_manage
--- prepare: stmt
-SELECT * FROM @user WHERE username=?
+-- prepare: named_stmt
+UPDATE @user SET username=:username, nickname=:nickname, phone=:phone,
+    password=:password, salt=:salt, status=:status, avatar=:avatar, balance=:balance,
+    is_admin=:is_admin, modified_on=:modified_on WHERE id=? AND is_del=0;
 
 --------------------------------------------------------------------------------
 -- wallet sql dml

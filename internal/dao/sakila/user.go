@@ -5,6 +5,9 @@
 package sakila
 
 import (
+	"strings"
+	"time"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -21,48 +24,50 @@ type userManageSrv struct {
 	q *cc.UserManage
 }
 
-func (s *userManageSrv) GetUserByID(id int64) (*ms.User, error) {
-	res := &ms.User{}
-	err := s.q.GetUserById.Get(res, id)
-	return res, err
+func (s *userManageSrv) GetUserByID(id int64) (res *ms.User, err error) {
+	err = s.q.GetUserById.Get(res, id)
+	return
 }
 
-func (s *userManageSrv) GetUserByUsername(username string) (*ms.User, error) {
-	res := &ms.User{}
-	err := s.q.GetUserByUsername.Get(res, username)
-	return res, err
+func (s *userManageSrv) GetUserByUsername(username string) (res *ms.User, err error) {
+	err = s.q.GetUserByUsername.Get(res, username)
+	return
 }
 
-func (s *userManageSrv) GetUserByPhone(phone string) (*ms.User, error) {
-	res := &ms.User{}
-	err := s.q.GetUserByPhone.Get(res, phone)
-	return res, err
+func (s *userManageSrv) GetUserByPhone(phone string) (res *ms.User, err error) {
+	err = s.q.GetUserByPhone.Get(res, phone)
+	return
 }
 
-func (s *userManageSrv) GetUsersByIDs(ids []int64) ([]*ms.User, error) {
-	res := []*ms.User{}
-	err := s.inSelect(&res, s.q.GetUsersByIds, ids)
-	return res, err
+func (s *userManageSrv) GetUsersByIDs(ids []int64) (res []*ms.User, err error) {
+	err = s.inSelect(&res, s.q.GetUsersByIds, ids)
+	return
 }
 
-func (s *userManageSrv) GetUsersByKeyword(keyword string) ([]*ms.User, error) {
-	res := []*ms.User{}
-	err := s.q.GetUsersByKeyword.Select(&res, keyword)
-	return res, err
+func (s *userManageSrv) GetUsersByKeyword(keyword string) (res []*ms.User, err error) {
+	keyword = strings.Trim(keyword, " ") + "%"
+	if keyword == "%" {
+		err = s.q.GetAnyUsers.Get(&res)
+	} else {
+		err = s.q.GetUsersByKeyword.Select(&res, keyword)
+	}
+	return
 }
 
 func (s *userManageSrv) CreateUser(r *ms.User) (*ms.User, error) {
-	res, err := s.q.AddUser.Exec(r.Username, r.Nickname, r.Password, r.Salt, r.Avatar)
+	r.Model = &ms.Model{
+		CreatedOn: time.Now().Unix(),
+	}
+	res, err := s.q.CreateUser.Exec(r)
 	if err != nil {
 		return nil, err
 	}
-	r.Model = &dbr.Model{}
 	r.ID, err = res.LastInsertId()
 	return r, err
 }
 
 func (s *userManageSrv) UpdateUser(r *ms.User) error {
-	_, err := s.q.UpdateUser.Exec(r.Nickname, r.Password, r.Salt, r.Phone, r.Status)
+	_, err := s.q.UpdateUser.Exec(r)
 	return err
 }
 

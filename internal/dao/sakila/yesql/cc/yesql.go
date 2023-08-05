@@ -61,7 +61,7 @@ const (
 	_Message_GetUnreadCount                  = `SELECT count(*) FROM @message WHERE receiver_user_id=? AND is_read=0 AND is_del=0`
 	_Message_ReadMessage                     = `UPDATE @message SET is_read=1, modified_on=? WHERE id=?`
 	_Security_CreatePhoneCaptcha             = `INSERT INTO @captcha (phone, captcha, expired_on, created_on) VALUES (:phone, :captcha, :expired_on, :created_on)`
-	_Security_GetLatestPhoneCaptcha          = `SELECT * FROM @captcha WHERE phone=:phone AND is_del=0`
+	_Security_GetLatestPhoneCaptcha          = `SELECT * FROM @captcha WHERE phone=? AND is_del=0`
 	_Security_UsePhoneCaptcha                = `UPDATE @captcha SET use_times=use_times+1, modified_on=? WHERE id=? AND is_del=0`
 	_SimpleIndexA_UserInfo                   = `SELECT * FROM @user WHERE username=?`
 	_SimpleIndex_UserInfo                    = `SELECT * FROM @user WHERE username=?`
@@ -115,13 +115,14 @@ const (
 	_TweetManage_StickPost                   = `SELECT * FROM @user WHERE username=?`
 	_TweetManage_UpdatePost                  = `SELECT * FROM @user WHERE username=?`
 	_TweetManage_VisiblePost                 = `SELECT * FROM @user WHERE username=?`
-	_UserManage_AddUser                      = `SELECT * FROM @user WHERE username=?`
-	_UserManage_GetUserById                  = `SELECT * FROM @user WHERE username=?`
-	_UserManage_GetUserByPhone               = `SELECT * FROM @user WHERE username=?`
-	_UserManage_GetUserByUsername            = `SELECT * FROM @user WHERE username=?`
-	_UserManage_GetUsersByIds                = `SELECT * FROM @user WHERE username=?`
-	_UserManage_GetUsersByKeyword            = `SELECT * FROM @user WHERE username=?`
-	_UserManage_UpdateUser                   = `SELECT * FROM @user WHERE username=?`
+	_UserManage_CreateUser                   = `INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on) VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on)`
+	_UserManage_GetAnyUsers                  = `SELECT * FROM @user WHERE is_del=0 ORDER BY id ASC limit 6`
+	_UserManage_GetUserById                  = `SELECT * FROM @user WHERE id=? AND is_del=0`
+	_UserManage_GetUserByPhone               = `SELECT * FROM @user WHERE phone=? AND is_del=0`
+	_UserManage_GetUserByUsername            = `SELECT * FROM @user WHERE username=? AND is_del=0`
+	_UserManage_GetUsersByIds                = `SELECT * FROM @user WHERE id IN ? AND is_del=0`
+	_UserManage_GetUsersByKeyword            = `SELECT * FROM @user WHERE username LIKE ? AND is_del=0 limit 6`
+	_UserManage_UpdateUser                   = `UPDATE @user SET username=:username, nickname=:nickname, phone=:phone, password=:password, salt=:salt, status=:status, avatar=:avatar, balance=:balance, is_admin=:is_admin, modified_on=:modified_on WHERE id=? AND is_del=0`
 	_Wallet_CreateRecharge                   = `SELECT * FROM @user WHERE username=?`
 	_Wallet_GetRechargeById                  = `SELECT * FROM @user WHERE username=?`
 	_Wallet_GetUserWalletBillCount           = `SELECT * FROM @user WHERE username=?`
@@ -319,13 +320,14 @@ type TweetManageA struct {
 
 type UserManage struct {
 	yesql.Namespace   `yesql:"user_manage"`
-	GetUsersByIds     string     `yesql:"get_users_by_ids"`
-	AddUser           *sqlx.Stmt `yesql:"add_user"`
-	GetUserById       *sqlx.Stmt `yesql:"get_user_by_id"`
-	GetUserByPhone    *sqlx.Stmt `yesql:"get_user_by_phone"`
-	GetUserByUsername *sqlx.Stmt `yesql:"get_user_by_username"`
-	GetUsersByKeyword *sqlx.Stmt `yesql:"get_users_by_keyword"`
-	UpdateUser        *sqlx.Stmt `yesql:"update_user"`
+	GetUsersByIds     string          `yesql:"get_users_by_ids"`
+	GetAnyUsers       *sqlx.Stmt      `yesql:"get_any_users"`
+	GetUserById       *sqlx.Stmt      `yesql:"get_user_by_id"`
+	GetUserByPhone    *sqlx.Stmt      `yesql:"get_user_by_phone"`
+	GetUserByUsername *sqlx.Stmt      `yesql:"get_user_by_username"`
+	GetUsersByKeyword *sqlx.Stmt      `yesql:"get_users_by_keyword"`
+	CreateUser        *sqlx.NamedStmt `yesql:"create_user"`
+	UpdateUser        *sqlx.NamedStmt `yesql:"update_user"`
 }
 
 type Wallet struct {
@@ -862,7 +864,7 @@ func BuildUserManage(p yesql.PreparexBuilder, ctx ...context.Context) (obj *User
 	obj = &UserManage{
 		GetUsersByIds: p.QueryHook(_UserManage_GetUsersByIds),
 	}
-	if obj.AddUser, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserManage_AddUser))); err != nil {
+	if obj.GetAnyUsers, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserManage_GetAnyUsers))); err != nil {
 		return
 	}
 	if obj.GetUserById, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserManage_GetUserById))); err != nil {
@@ -877,7 +879,10 @@ func BuildUserManage(p yesql.PreparexBuilder, ctx ...context.Context) (obj *User
 	if obj.GetUsersByKeyword, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserManage_GetUsersByKeyword))); err != nil {
 		return
 	}
-	if obj.UpdateUser, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserManage_UpdateUser))); err != nil {
+	if obj.CreateUser, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_UserManage_CreateUser))); err != nil {
+		return
+	}
+	if obj.UpdateUser, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_UserManage_UpdateUser))); err != nil {
 		return
 	}
 	return
