@@ -4,6 +4,28 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET escape_string_warning = off;
 
+-- create or replace function set_modified_on()
+--     returns trigger as
+-- $$
+-- begin
+--     NEW.modified_on = now();
+--     return NEW;
+-- end;
+-- $$ language plpgsql;
+
+-- create or replace function trigger_modified_on(tablename regclass)
+--     returns void as
+-- $$
+-- begin
+--     execute format('CREATE TRIGGER set_modified_on
+--         BEFORE UPDATE
+--         ON %s
+--         FOR EACH ROW
+--         WHEN (OLD is distinct from NEW)
+--     EXECUTE FUNCTION set_modified_on();', tablename);
+-- end;
+-- $$ language plpgsql;
+
 DROP TABLE IF EXISTS p_attachment;
 CREATE TABLE p_attachment (
 	id BIGSERIAL PRIMARY KEY,
