@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	_NewPostAttachmentBill                   = `INSERT INTO @post_attachment_bill (post_id, user_id, paid_amount) VALUES (?, ?, ?)`
 	_AuthorizationManage_BeFriendIds         = `SELECT user_id FROM @contact WHERE friend_id=? AND status=2 AND is_del=0`
 	_AuthorizationManage_IsFriend            = `SELECT status FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0`
 	_AuthorizationManage_MyFriendSet         = `SELECT friend_id FROM @contact WHERE user_id=? AND status=2 AND is_del=0`
@@ -123,13 +124,22 @@ const (
 	_UserManage_GetUsersByIds                = `SELECT * FROM @user WHERE id IN ? AND is_del=0`
 	_UserManage_GetUsersByKeyword            = `SELECT * FROM @user WHERE username LIKE ? AND is_del=0 limit 6`
 	_UserManage_UpdateUser                   = `UPDATE @user SET username=:username, nickname=:nickname, phone=:phone, password=:password, salt=:salt, status=:status, avatar=:avatar, balance=:balance, is_admin=:is_admin, modified_on=:modified_on WHERE id=? AND is_del=0`
-	_Wallet_CreateRecharge                   = `SELECT * FROM @user WHERE username=?`
-	_Wallet_GetRechargeById                  = `SELECT * FROM @user WHERE username=?`
-	_Wallet_GetUserWalletBillCount           = `SELECT * FROM @user WHERE username=?`
-	_Wallet_GetUserWalletBills               = `SELECT * FROM @user WHERE username=?`
-	_Wallet_HandlePostAttachementBought      = `SELECT * FROM @user WHERE username=?`
-	_Wallet_HandleRechargeSuccess            = `SELECT * FROM @user WHERE username=?`
+	_Wallet_AddUserBalance                   = `UPDATE @user SET balance=balance+?, modified_on=? WHERE id=? AND is_del=0`
+	_Wallet_CreateRecharge                   = `INSERT INTO @wallet_recharge (user_id, amount, created_on) VALUES (?, ?, ?)`
+	_Wallet_CreateWalletStatement            = `INSERT INTO @wallet_statement (user_id, change_amount, balance_snapshot, reason, created_on) VALUES (?, ?, ?, ?, ?)`
+	_Wallet_GetRechargeById                  = `SELECT * FROM @wallet_recharge WHERE id=? AND is_del=?`
+	_Wallet_GetUserBalance                   = `SELECT balance FROM @user WHERE id=? AND is_del=0`
+	_Wallet_GetUserByUid                     = `SELECT * FROM @user WHERE id=? AND is_del=0`
+	_Wallet_GetUserWalletBillCount           = `SELECT count(*) FROM @wallet_statement WHERE user_id=? AND is_del=0`
+	_Wallet_GetUserWalletBills               = `SELECT * FROM @wallet_statement WHERE user_id=? AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?`
+	_Wallet_MarkSuccessRecharge              = `UPDATE @wallet_recharge SET trade_no=?, trade_status='TRADE_SUCCESS', modified_on=? WHERE id=? AND is_del=0`
+	_Wallet_MinusUserBalance                 = `UPDATE @user SET balance=balance-?, modified_on=? WHERE id=? AND is_del=0`
+	_Wallet_NewPostBill                      = `INSERT INTO @wallet_statement (post_id, user_id, change_amount, balance_snapshot, reason, created_on) VALUES (?, ?, ?, ?, ?, ?)`
 )
+
+type Yesql struct {
+	NewPostAttachmentBill *sqlx.Stmt `yesql:"new_post_attachment_bill"`
+}
 
 type AuthorizationManage struct {
 	yesql.Namespace `yesql:"authorization_manage"`
@@ -331,13 +341,32 @@ type UserManage struct {
 }
 
 type Wallet struct {
-	yesql.Namespace             `yesql:"wallet"`
-	CreateRecharge              *sqlx.Stmt `yesql:"create_recharge"`
-	GetRechargeById             *sqlx.Stmt `yesql:"get_recharge_by_id"`
-	GetUserWalletBillCount      *sqlx.Stmt `yesql:"get_user_wallet_bill_count"`
-	GetUserWalletBills          *sqlx.Stmt `yesql:"get_user_wallet_bills"`
-	HandlePostAttachementBought *sqlx.Stmt `yesql:"handle_post_attachement_bought"`
-	HandleRechargeSuccess       *sqlx.Stmt `yesql:"handle_recharge_success"`
+	yesql.Namespace        `yesql:"wallet"`
+	AddUserBalance         *sqlx.Stmt `yesql:"add_user_balance"`
+	CreateRecharge         *sqlx.Stmt `yesql:"create_recharge"`
+	CreateWalletStatement  *sqlx.Stmt `yesql:"create_wallet_statement"`
+	GetRechargeById        *sqlx.Stmt `yesql:"get_recharge_by_id"`
+	GetUserBalance         *sqlx.Stmt `yesql:"get_user_balance"`
+	GetUserByUid           *sqlx.Stmt `yesql:"get_user_by_uid"`
+	GetUserWalletBillCount *sqlx.Stmt `yesql:"get_user_wallet_bill_count"`
+	GetUserWalletBills     *sqlx.Stmt `yesql:"get_user_wallet_bills"`
+	MarkSuccessRecharge    *sqlx.Stmt `yesql:"mark_success_recharge"`
+	MinusUserBalance       *sqlx.Stmt `yesql:"minus_user_balance"`
+	NewPostBill            *sqlx.Stmt `yesql:"new_post_bill"`
+}
+
+func BuildYesql(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Yesql, err error) {
+	var c context.Context
+	if len(ctx) > 0 && ctx[0] != nil {
+		c = ctx[0]
+	} else {
+		c = context.Background()
+	}
+	obj = &Yesql{}
+	if obj.NewPostAttachmentBill, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_NewPostAttachmentBill))); err != nil {
+		return
+	}
+	return
 }
 
 func BuildAuthorizationManage(p yesql.PreparexBuilder, ctx ...context.Context) (obj *AuthorizationManage, err error) {
@@ -896,10 +925,22 @@ func BuildWallet(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Wallet, 
 		c = context.Background()
 	}
 	obj = &Wallet{}
+	if obj.AddUserBalance, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_AddUserBalance))); err != nil {
+		return
+	}
 	if obj.CreateRecharge, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_CreateRecharge))); err != nil {
 		return
 	}
+	if obj.CreateWalletStatement, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_CreateWalletStatement))); err != nil {
+		return
+	}
 	if obj.GetRechargeById, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_GetRechargeById))); err != nil {
+		return
+	}
+	if obj.GetUserBalance, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_GetUserBalance))); err != nil {
+		return
+	}
+	if obj.GetUserByUid, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_GetUserByUid))); err != nil {
 		return
 	}
 	if obj.GetUserWalletBillCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_GetUserWalletBillCount))); err != nil {
@@ -908,10 +949,13 @@ func BuildWallet(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Wallet, 
 	if obj.GetUserWalletBills, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_GetUserWalletBills))); err != nil {
 		return
 	}
-	if obj.HandlePostAttachementBought, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_HandlePostAttachementBought))); err != nil {
+	if obj.MarkSuccessRecharge, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_MarkSuccessRecharge))); err != nil {
 		return
 	}
-	if obj.HandleRechargeSuccess, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_HandleRechargeSuccess))); err != nil {
+	if obj.MinusUserBalance, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_MinusUserBalance))); err != nil {
+		return
+	}
+	if obj.NewPostBill, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_NewPostBill))); err != nil {
 		return
 	}
 	return

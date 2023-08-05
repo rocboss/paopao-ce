@@ -560,24 +560,48 @@ UPDATE @user SET username=:username, nickname=:nickname, phone=:phone,
 
 -- name: get_user_wallet_bills@wallet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @wallet_statement WHERE user_id=? AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?;
 
 -- name: get_user_wallet_bill_count@wallet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT count(*) FROM @wallet_statement WHERE user_id=? AND is_del=0;
 
 -- name: get_recharge_by_id@wallet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @wallet_recharge WHERE id=? AND is_del=?;
 
 -- name: create_recharge@wallet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+INSERT INTO @wallet_recharge (user_id, amount, created_on) VALUES (?, ?, ?);
 
--- name: handle_recharge_success@wallet
+-- name: get_user_by_uid@wallet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @user WHERE id=? AND is_del=0;
 
--- name: handle_post_attachement_bought@wallet
+-- name: add_user_balance@wallet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @user SET balance=balance+?, modified_on=? WHERE id=? AND is_del=0;
+
+-- name: minus_user_balance@wallet
+-- prepare: stmt
+UPDATE @user SET balance=balance-?, modified_on=? WHERE id=? AND is_del=0;
+
+-- name: create_wallet_statement@wallet
+-- prepare: stmt
+INSERT INTO @wallet_statement (user_id, change_amount, balance_snapshot, reason, created_on) VALUES (?, ?, ?, ?, ?);
+
+-- name: get_user_balance@wallet
+-- prepare: stmt
+SELECT balance FROM @user WHERE id=? AND is_del=0;
+
+-- name: mark_success_recharge@wallet
+-- prepare: stmt
+UPDATE @wallet_recharge SET trade_no=?, trade_status='TRADE_SUCCESS', modified_on=? WHERE id=? AND is_del=0;
+
+-- name: new_post_attachment_bill
+-- prepare: stmt
+INSERT INTO @post_attachment_bill (post_id, user_id, paid_amount) VALUES (?, ?, ?);
+
+-- name: new_post_bill@wallet
+-- prepare: stmt
+INSERT INTO @wallet_statement (post_id, user_id, change_amount, balance_snapshot, reason, created_on) VALUES (?, ?, ?, ?, ?, ?);
