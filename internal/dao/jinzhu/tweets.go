@@ -370,11 +370,11 @@ func (s *tweetSrv) GetPostByID(id int64) (*ms.Post, error) {
 	return post.Get(s.db)
 }
 
-func (s *tweetSrv) GetPosts(conditions *ms.ConditionsT, offset, limit int) ([]*ms.Post, error) {
+func (s *tweetSrv) GetPosts(conditions ms.ConditionsT, offset, limit int) ([]*ms.Post, error) {
 	return (&dbr.Post{}).List(s.db, conditions, offset, limit)
 }
 
-func (s *tweetSrv) GetPostCount(conditions *ms.ConditionsT) (int64, error) {
+func (s *tweetSrv) GetPostCount(conditions ms.ConditionsT) (int64, error) {
 	return (&dbr.Post{}).Count(s.db, conditions)
 }
 

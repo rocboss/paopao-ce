@@ -152,7 +152,7 @@ func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq) (*web.GetUserTwe
 			visibilities = append(visibilities, core.PostVisitFriend)
 		}
 	}
-	conditions := &ms.ConditionsT{
+	conditions := ms.ConditionsT{
 		"user_id":         other.ID,
 		"visibility IN ?": visibilities,
 		"ORDER":           "latest_replied_on DESC",

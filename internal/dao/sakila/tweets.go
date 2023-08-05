@@ -5,6 +5,9 @@
 package sakila
 
 import (
+	"strings"
+	"time"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
@@ -123,20 +126,19 @@ func (s *tweetHelpSrv) RevampPosts(posts []*ms.PostFormated) ([]*ms.PostFormated
 	return posts, nil
 }
 
-func (s *tweetHelpSrv) getPostContentsByIDs(ids []int64) ([]*dbr.PostContentFormated, error) {
-	res := []*dbr.PostContentFormated{}
-	err := s.inSelect(&res, s.q.GetPostContentByIds, ids)
-	return res, err
+func (s *tweetHelpSrv) getPostContentsByIDs(ids []int64) (res []*dbr.PostContentFormated, err error) {
+	err = s.inSelect(&res, s.q.GetPostContentByIds, ids)
+	return
 }
 
-func (s *tweetHelpSrv) getUsersByIDs(ids []int64) ([]*dbr.UserFormated, error) {
-	res := []*dbr.UserFormated{}
-	err := s.inSelect(&res, s.q.GetUsersByIds, ids)
-	return res, err
+func (s *tweetHelpSrv) getUsersByIDs(ids []int64) (res []*dbr.UserFormated, err error) {
+	err = s.inSelect(&res, s.q.GetUsersByIds, ids)
+	return
 }
 
 func (s *tweetManageSrv) CreatePostCollection(postID, userID int64) (*ms.PostCollection, error) {
-	res, err := s.q.AddPostCollection.Exec(postID, userID)
+	now := time.Now().Unix()
+	res, err := s.q.AddPostCollection.Exec(postID, userID, now)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +148,8 @@ func (s *tweetManageSrv) CreatePostCollection(postID, userID int64) (*ms.PostCol
 	}
 	return &ms.PostCollection{
 		Model: &dbr.Model{
-			ID: id,
+			ID:        id,
+			CreatedOn: now,
 		},
 		PostID: postID,
 		UserID: userID,
@@ -154,16 +157,16 @@ func (s *tweetManageSrv) CreatePostCollection(postID, userID int64) (*ms.PostCol
 }
 
 func (s *tweetManageSrv) DeletePostCollection(r *ms.PostCollection) error {
-	_, err := s.q.DelPostCollection.Exec(r.ID)
+	_, err := s.q.DelPostCollection.Exec(time.Now().Unix(), r.ID)
 	return err
 }
 
 func (s *tweetManageSrv) CreatePostContent(r *ms.PostContent) (*ms.PostContent, error) {
-	res, err := s.q.AddPostContent.Exec(r.PostID, r.UserID, r.Content, r.Type, r.Sort)
+	r.Model = &ms.Model{CreatedOn: time.Now().Unix()}
+	res, err := s.q.AddPostContent.Exec(r)
 	if err != nil {
 		return nil, err
 	}
-	r.Model = &dbr.Model{}
 	r.ID, err = res.LastInsertId()
 	if err != nil {
 		return nil, err
@@ -172,7 +175,8 @@ func (s *tweetManageSrv) CreatePostContent(r *ms.PostContent) (*ms.PostContent, 
 }
 
 func (s *tweetManageSrv) CreateAttachment(r *ms.Attachment) (int64, error) {
-	res, err := s.q.AddAttachment.Exec(r.UserID, r.FileSize, r.ImgWidth, r.ImgHeight, r.Type, r.Content)
+	args := []any{r.UserID, r.FileSize, r.ImgWidth, r.ImgHeight, r.Type, r.Content, time.Now().Unix()}
+	res, err := s.q.AddAttachment.Exec(args...)
 	if err != nil {
 		return 0, err
 	}
@@ -180,43 +184,96 @@ func (s *tweetManageSrv) CreateAttachment(r *ms.Attachment) (int64, error) {
 }
 
 func (s *tweetManageSrv) CreatePost(r *ms.Post) (*ms.Post, error) {
-	res, err := s.q.AddPost.Exec(r.UserID, r.Visibility, r.Tags, r.AttachmentPrice, r.IP, r.IPLoc)
+	now := time.Now().Unix()
+	r.Model = &dbr.Model{CreatedOn: now}
+	r.LatestRepliedOn = now
+	res, err := s.q.AddPost.Exec(r)
 	if err != nil {
 		return nil, err
 	}
-	if id, err := res.LastInsertId(); err == nil {
-		r.Model = &dbr.Model{
-			ID: id,
-		}
-	} else {
+	if r.ID, err = res.LastInsertId(); err != nil {
 		return nil, err
 	}
+	s.cis.SendAction(core.IdxActCreatePost, r)
 	return r, nil
 }
 
-func (s *tweetManageSrv) DeletePost(post *ms.Post) ([]string, error) {
+func (s *tweetManageSrv) DeletePost(post *ms.Post) (mediaContents []string, err error) {
+	s.with(func(tx *sqlx.Tx) error {
+		// 获取多媒体内容
+		if err = tx.Stmtx(s.q.MediaContentByPostId).Get(&mediaContents, post.ID); err != nil {
+			return err
+		}
+		// 删推文
+		now := time.Now().Unix()
+		if _, err = tx.Stmtx(s.q.DelPostById).Exec(now, post.ID); err != nil {
+			return err
+		}
+		// 删评论
+		contents, err := s.deleteCommentByPostId(tx, post.ID)
+		if err != nil {
+			return err
+		}
+		mediaContents = append(mediaContents, contents...)
+		if tags := strings.Split(post.Tags, ","); len(tags) > 0 {
+			// 删tag，宽松处理错误，有错误不会回滚
+			s.deleteTags(tx, tags)
+		}
+		return nil
+	})
+	s.cis.SendAction(core.IdxActDeletePost, post)
+	return
+}
+
+func (s *tweetManageSrv) deleteCommentByPostId(tx *sqlx.Tx, postId int64) ([]string, error) {
 	// TODO
-	debug.NotImplemented()
 	return nil, nil
 }
 
 func (s *tweetManageSrv) LockPost(r *ms.Post) error {
-	_, err := s.q.LockPost.Exec(r.ID)
+	_, err := s.q.LockPost.Exec(time.Now().Unix(), r.ID)
 	return err
 }
 
 func (s *tweetManageSrv) StickPost(r *ms.Post) error {
-	_, err := s.q.StickPost.Exec(r.ID)
+	_, err := s.q.StickPost.Exec(time.Now().Unix(), r.ID)
 	return err
 }
 
-func (s *tweetManageSrv) VisiblePost(r *ms.Post, visibility core.PostVisibleT) error {
-	_, err := s.q.VisiblePost.Exec(r.ID, visibility)
-	return err
+func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT) (err error) {
+	oldVisibility := post.Visibility
+	post.Visibility = visibility
+	// TODO: 这个判断是否可以不要呢
+	if oldVisibility == visibility {
+		return nil
+	}
+	// 私密推文 特殊处理
+	if visibility == ms.PostVisitPrivate {
+		// 强制取消置顶
+		// TODO: 置顶推文用户是否有权设置成私密？ 后续完善
+		post.IsTop = 0
+	}
+	s.with(func(tx *sqlx.Tx) error {
+		_, err = s.q.VisiblePost.Exec(visibility, post.IsTop, time.Now().Unix(), post.ID)
+		// tag处理
+		tags := strings.Split(post.Tags, ",")
+		// TODO: 暂时宽松不处理错误，这里或许可以有优化，后续完善
+		if oldVisibility == dbr.PostVisitPrivate {
+			// 从私密转为非私密才需要重新创建tag
+			s.createTags(tx, post.UserID, tags)
+		} else if visibility == dbr.PostVisitPrivate {
+			// 从非私密转为私密才需要删除tag
+			s.deleteTags(tx, tags)
+		}
+		return nil
+	})
+	s.cis.SendAction(core.IdxActVisiblePost, post)
+	return
 }
 
 func (s *tweetManageSrv) UpdatePost(r *ms.Post) error {
-	if _, err := s.q.UpdatePost.Exec(r.CommentCount, r.UpvoteCount, r.ID); err != nil {
+	r.ModifiedOn = time.Now().Unix()
+	if _, err := s.q.UpdatePost.Exec(r); err != nil {
 		return err
 	}
 	s.cis.SendAction(core.IdxActUpdatePost, r)
@@ -224,7 +281,8 @@ func (s *tweetManageSrv) UpdatePost(r *ms.Post) error {
 }
 
 func (s *tweetManageSrv) CreatePostStar(postID, userID int64) (*ms.PostStar, error) {
-	res, err := s.q.AddPostStar.Exec(postID, userID)
+	now := time.Now().Unix()
+	res, err := s.q.AddPostStar.Exec(postID, userID, now)
 	if err != nil {
 		return nil, err
 	}
@@ -234,7 +292,8 @@ func (s *tweetManageSrv) CreatePostStar(postID, userID int64) (*ms.PostStar, err
 	}
 	return &ms.PostStar{
 		Model: &dbr.Model{
-			ID: id,
+			ID:        id,
+			CreatedOn: now,
 		},
 		PostID: postID,
 		UserID: userID,
@@ -242,26 +301,35 @@ func (s *tweetManageSrv) CreatePostStar(postID, userID int64) (*ms.PostStar, err
 }
 
 func (s *tweetManageSrv) DeletePostStar(r *ms.PostStar) error {
-	_, err := s.q.DelPostStar.Exec(r.ID)
+	_, err := s.q.DelPostStar.Exec(time.Now().Unix(), r.ID)
 	return err
 }
 
-func (s *tweetSrv) GetPostByID(id int64) (*ms.Post, error) {
-	res := &ms.Post{}
-	err := s.q.GetPostById.Get(res, id)
-	return res, err
+func (s *tweetSrv) GetPostByID(id int64) (res *ms.Post, err error) {
+	err = s.q.GetPostById.Get(res, id)
+	return
 }
 
-func (s *tweetSrv) GetPosts(conditions *ms.ConditionsT, offset, limit int) ([]*ms.Post, error) {
-	// TODO 需要精细化接口
-	debug.NotImplemented()
-	return nil, nil
+func (s *tweetSrv) GetPosts(c ms.ConditionsT, offset, limit int) (res []*ms.Post, err error) {
+	userId, exist := c["user_id"]
+	visibility := c["visibility IN ?"]
+	if exist {
+		err = s.inSelect(&res, s.q.GetUserPosts, userId, visibility, limit, offset)
+	} else {
+		err = s.inSelect(&res, s.q.GetAnyPosts, visibility, limit, offset)
+	}
+	return
 }
 
-func (s *tweetSrv) GetPostCount(conditions *ms.ConditionsT) (int64, error) {
-	// TODO 需要精细化接口
-	debug.NotImplemented()
-	return 0, nil
+func (s *tweetSrv) GetPostCount(c ms.ConditionsT) (res int64, err error) {
+	userId, exist := c["user_id"]
+	visibility := c["visibility IN ?"]
+	if exist {
+		err = s.inGet(&res, s.q.GetUserPostCount, userId, visibility)
+	} else {
+		err = s.inGet(&res, s.q.GetAnyPostCount, visibility)
+	}
+	return
 }
 
 func (s *tweetSrv) GetUserPostStar(postID, userID int64) (*ms.PostStar, error) {
@@ -304,10 +372,9 @@ func (s *tweetSrv) GetPostAttatchmentBill(postID, userID int64) (*ms.PostAttachm
 	return res, err
 }
 
-func (s *tweetSrv) GetPostContentsByIDs(ids []int64) ([]*ms.PostContent, error) {
-	res := []*ms.PostContent{}
-	err := s.inSelect(&res, s.q.GetPostContetnsByIds, ids)
-	return res, err
+func (s *tweetSrv) GetPostContentsByIDs(ids []int64) (res []*ms.PostContent, err error) {
+	err = s.inSelect(&res, s.q.GetPostContentsByIds, ids)
+	return
 }
 
 func (s *tweetSrv) GetPostContentByID(id int64) (*ms.PostContent, error) {

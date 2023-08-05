@@ -24,6 +24,13 @@ const (
 	ContentTypeChargeAttachment = dbr.ContentTypeChargeAttachment
 )
 
+const (
+	PostVisitPublic PostVisibleT = iota
+	PostVisitPrivate
+	PostVisitFriend
+	PostVisitInvalid
+)
+
 type (
 	PostStar           = dbr.PostStar
 	PostCollection     = dbr.PostCollection
@@ -32,4 +39,5 @@ type (
 	Attachment         = dbr.Attachment
 	AttachmentType     = dbr.AttachmentType
 	PostContentT       = dbr.PostContentT
+	PostVisibleT       = dbr.PostVisibleT
 )

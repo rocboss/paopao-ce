@@ -12,17 +12,19 @@ import (
 )
 
 const (
+	_TagsFromNames                           = `SELECT * FROM @tag WHERE tag IN (?) AND is_del=0`
+	_UpdateTagQuote                          = `UPDATE @tag SET quote_num=?, modified_on=? WHERE id=? AND is_del=0`
 	_AuthorizationManage_BeFriendIds         = `SELECT user_id FROM @contact WHERE friend_id=? AND status=2 AND is_del=0`
 	_AuthorizationManage_IsFriend            = `SELECT status FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0`
 	_AuthorizationManage_MyFriendSet         = `SELECT friend_id FROM @contact WHERE user_id=? AND status=2 AND is_del=0`
 	_Comment_GetCommentById                  = `SELECT * FROM @comment WHERE id=? AND is_del=0`
-	_Comment_GetCommentContentsByIds         = `SELECT * FROM @comment_content WHERE comment_id IN ?`
+	_Comment_GetCommentContentsByIds         = `SELECT * FROM @comment_content WHERE comment_id IN (?)`
 	_Comment_GetCommentCount                 = `SELECT count(*) FROM @comment WHERE post_id=:post_id AND is_del=0`
 	_Comment_GetCommentReplyById             = `SELECT * FROM @comment_reply WHERE id=? AND is_del=0`
 	_Comment_GetCommentThumbs                = `SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=?`
 	_Comment_GetComments                     = `SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY %order% LIMIT ? OFFSET ?`
-	_Comment_GetCommmentRepliesByIds         = `SELECT * FROM @comment_reply WHERE comment_id IN ? ORDER BY id ASC`
-	_Comment_GetUsersByIds                   = `SELECT id, nickname, username, status, avatar, is_admin FROM @user WHERE id IN ?`
+	_Comment_GetCommmentRepliesByIds         = `SELECT * FROM @comment_reply WHERE comment_id IN (?) ORDER BY id ASC`
+	_Comment_GetUsersByIds                   = `SELECT id, nickname, username, status, avatar, is_admin FROM @user WHERE id IN (?)`
 	_CommentManage_CreateComment             = `INSERT INTO @comment (post_id, user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?)`
 	_CommentManage_CreateCommentContent      = `INSERT INTO @comment_content (comment_id, user_id, content, type, sort, created_on) VALUES (?, ?, ?, ?, ?, ?)`
 	_CommentManage_CreateCommentReply        = `INSERT INTO @comment_reply (comment_id, user_id, content, at_user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?, ?, ?)`
@@ -87,40 +89,43 @@ const (
 	_TweetA_UserTweetsByFriend               = `SELECT * FROM @user WHERE username=?`
 	_TweetA_UserTweetsByGuest                = `SELECT * FROM @user WHERE username=?`
 	_TweetA_UserTweetsBySelf                 = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetAnyPostCount                   = `SELECT count(*) FROM @post WHERE visibility IN (?)`
+	_Tweet_GetAnyPosts                       = `SELECT * FROM @post WHERE visibility IN (?) AND is_del=0 LIMIT ? OFFSET ?`
 	_Tweet_GetPostAttachmentBill             = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetPostById                       = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetPostById                       = `SELECT * FROM @post WHERE id=? AND is_del=0`
 	_Tweet_GetPostContentById                = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetPostContetnsByIds              = `SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?)`
-	_Tweet_GetPostCount                      = `SELECT * FROM @user WHERE username=?`
-	_Tweet_GetPosts                          = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetPostContentsByIds              = `SELECT * FROM @post_content WHERE post_id IN (?) AND is_del=0`
 	_Tweet_GetUserPostCollection             = `SELECT * FROM @user WHERE username=?`
 	_Tweet_GetUserPostCollectionCount        = `SELECT * FROM @user WHERE username=?`
 	_Tweet_GetUserPostCollections            = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetUserPostCount                  = `SELECT count(*) FROM @post WHERE user_id=? AND visibility IN (?)`
 	_Tweet_GetUserPostStar                   = `SELECT * FROM @user WHERE username=?`
 	_Tweet_GetUserPostStarCount              = `SELECT * FROM @user WHERE username=?`
 	_Tweet_GetUserPostStars                  = `SELECT * FROM @user WHERE username=?`
+	_Tweet_GetUserPosts                      = `SELECT * FROM @post WHERE user_id=? AND visibility IN (?) ORDER BY latest_replies_on DESC LIMIT ? OFFSET ?`
 	_TweetHelpA_UserInfo                     = `SELECT * FROM @user WHERE username=?`
-	_TweetHelp_GetPostContentByIds           = `SELECT * FROM @user WHERE username=?`
-	_TweetHelp_GetUsersByIds                 = `SELECT * FROM @user WHERE username=?`
+	_TweetHelp_GetPostContentByIds           = `SELECT id, post_id, content, type, sort FROM @post_content WHERE post_id IN (?) AND is_del=0`
+	_TweetHelp_GetUsersByIds                 = `SELECT id, username, nickname, status, avatar, is_admin FROM @user WHERE id IN (?) AND is_del=0`
 	_TweetManageA_UserInfo                   = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_AddAttachment               = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_AddPost                     = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_AddPostCollection           = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_AddPostContent              = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_AddPostStar                 = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_DelPost                     = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_DelPostCollection           = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_DelPostStar                 = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_LockPost                    = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_StickPost                   = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_UpdatePost                  = `SELECT * FROM @user WHERE username=?`
-	_TweetManage_VisiblePost                 = `SELECT * FROM @user WHERE username=?`
+	_TweetManage_AddAttachment               = `INSERT INTO @attachment (user_id, file_size, img_width, img_height, type, content, created_on) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	_TweetManage_AddPost                     = `INSERT INTO @post (user_id, tags, ip, ip_loc, attachment_price, visibility, latest_replies_on, created_on) VALUES (:user_id, :tags, :ip, :ip_loc, :attachment_price, :visibility, :latest_replies_on, :created_on)`
+	_TweetManage_AddPostCollection           = `INSERT INTO @post_collection (post_id, user_id, created_on) VALUES (?, ?, ?)`
+	_TweetManage_AddPostContent              = `INSERT INTO @post_content (post_id, user_id, content, type, sort, created_on) VALUES (:post_id, :user_id, :content, :type, :sort, :created_on)`
+	_TweetManage_AddPostStar                 = `INSERT INTO @post_star (post_id, user_id, created_on) VALUES (?, ?, ?)`
+	_TweetManage_DelPostById                 = `UPDATE @post SET is_del=1, deleted_on=? WHERE id=? AND is_del=0`
+	_TweetManage_DelPostCollection           = `UPDATE @post_collection SET is_del=1, deleted_on=? WHERE id=? AND is_del=0`
+	_TweetManage_DelPostStar                 = `UPDATE @post_star SET is_del=1, deleted_on=? WHERE id=? AND is_del=0`
+	_TweetManage_LockPost                    = `UPDATE @post SET is_lock=1-is_lock, modified_on=? WHERE id=? AND is_del=0`
+	_TweetManage_MediaContentByPostId        = `SELECT content FROM post_content WHERE post_id=? AND is_del=0 AND type IN (3, 4, 5, 7, 8)`
+	_TweetManage_StickPost                   = `UPDATE @post SET is_top=1-is_top, modified_on=? WHERE id=? AND is_del=0`
+	_TweetManage_UpdatePost                  = `UPDATE @post SET comment_count=:comment_count, upvote_count=:upvote_count, collection_count=:collection_count, latest_replies_on=:latest_replies_on, modified_on=:modified_on WHERE id=:id AND is_del=0`
+	_TweetManage_VisiblePost                 = `UPDATE @post SET visibility=?, is_top=?, modified_on=? WHERE id=? AND is_del=0`
 	_UserManage_CreateUser                   = `INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on) VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on)`
 	_UserManage_GetAnyUsers                  = `SELECT * FROM @user WHERE is_del=0 ORDER BY id ASC limit 6`
 	_UserManage_GetUserById                  = `SELECT * FROM @user WHERE id=? AND is_del=0`
 	_UserManage_GetUserByPhone               = `SELECT * FROM @user WHERE phone=? AND is_del=0`
 	_UserManage_GetUserByUsername            = `SELECT * FROM @user WHERE username=? AND is_del=0`
-	_UserManage_GetUsersByIds                = `SELECT * FROM @user WHERE id IN ? AND is_del=0`
+	_UserManage_GetUsersByIds                = `SELECT * FROM @user WHERE id IN (?) AND is_del=0`
 	_UserManage_GetUsersByKeyword            = `SELECT * FROM @user WHERE username LIKE ? AND is_del=0 limit 6`
 	_UserManage_UpdateUser                   = `UPDATE @user SET username=:username, nickname=:nickname, phone=:phone, password=:password, salt=:salt, status=:status, avatar=:avatar, balance=:balance, is_admin=:is_admin, modified_on=:modified_on WHERE id=? AND is_del=0`
 	_Wallet_AddUserBalance                   = `UPDATE @user SET balance=balance+?, modified_on=? WHERE id=? AND is_del=0`
@@ -136,6 +141,11 @@ const (
 	_Wallet_NewPostAttachmentBill            = `INSERT INTO @post_attachment_bill (post_id, user_id, paid_amount, created_on) VALUES (?, ?, ?, ?)`
 	_Wallet_NewPostBill                      = `INSERT INTO @wallet_statement (post_id, user_id, change_amount, balance_snapshot, reason, created_on) VALUES (?, ?, ?, ?, ?, ?)`
 )
+
+type Yesql struct {
+	TagsFromNames  string     `yesql:"tags_from_names"`
+	UpdateTagQuote *sqlx.Stmt `yesql:"update_tag_quote"`
+}
 
 type AuthorizationManage struct {
 	yesql.Namespace `yesql:"authorization_manage"`
@@ -262,12 +272,14 @@ type TopicA struct {
 
 type Tweet struct {
 	yesql.Namespace            `yesql:"tweet"`
-	GetPostContetnsByIds       string     `yesql:"get_post_contetns_by_ids"`
+	GetAnyPostCount            string     `yesql:"get_any_post_count"`
+	GetAnyPosts                string     `yesql:"get_any_posts"`
+	GetPostContentsByIds       string     `yesql:"get_post_contents_by_ids"`
+	GetUserPostCount           string     `yesql:"get_user_post_count"`
+	GetUserPosts               string     `yesql:"get_user_posts"`
 	GetPostAttachmentBill      *sqlx.Stmt `yesql:"get_post_attachment_bill"`
 	GetPostById                *sqlx.Stmt `yesql:"get_post_by_id"`
 	GetPostContentById         *sqlx.Stmt `yesql:"get_post_content_by_id"`
-	GetPostCount               *sqlx.Stmt `yesql:"get_post_count"`
-	GetPosts                   *sqlx.Stmt `yesql:"get_posts"`
 	GetUserPostCollection      *sqlx.Stmt `yesql:"get_user_post_collection"`
 	GetUserPostCollectionCount *sqlx.Stmt `yesql:"get_user_post_collection_count"`
 	GetUserPostCollections     *sqlx.Stmt `yesql:"get_user_post_collections"`
@@ -304,19 +316,20 @@ type TweetHelpA struct {
 }
 
 type TweetManage struct {
-	yesql.Namespace   `yesql:"tweet_manage"`
-	AddAttachment     *sqlx.Stmt `yesql:"add_attachment"`
-	AddPost           *sqlx.Stmt `yesql:"add_post"`
-	AddPostCollection *sqlx.Stmt `yesql:"add_post_collection"`
-	AddPostContent    *sqlx.Stmt `yesql:"add_post_content"`
-	AddPostStar       *sqlx.Stmt `yesql:"add_post_star"`
-	DelPost           *sqlx.Stmt `yesql:"del_post"`
-	DelPostCollection *sqlx.Stmt `yesql:"del_post_collection"`
-	DelPostStar       *sqlx.Stmt `yesql:"del_post_star"`
-	LockPost          *sqlx.Stmt `yesql:"lock_post"`
-	StickPost         *sqlx.Stmt `yesql:"stick_post"`
-	UpdatePost        *sqlx.Stmt `yesql:"update_post"`
-	VisiblePost       *sqlx.Stmt `yesql:"visible_post"`
+	yesql.Namespace      `yesql:"tweet_manage"`
+	AddAttachment        *sqlx.Stmt      `yesql:"add_attachment"`
+	AddPostCollection    *sqlx.Stmt      `yesql:"add_post_collection"`
+	AddPostStar          *sqlx.Stmt      `yesql:"add_post_star"`
+	DelPostById          *sqlx.Stmt      `yesql:"del_post_by_id"`
+	DelPostCollection    *sqlx.Stmt      `yesql:"del_post_collection"`
+	DelPostStar          *sqlx.Stmt      `yesql:"del_post_star"`
+	LockPost             *sqlx.Stmt      `yesql:"lock_post"`
+	MediaContentByPostId *sqlx.Stmt      `yesql:"media_content_by_post_id"`
+	StickPost            *sqlx.Stmt      `yesql:"stick_post"`
+	VisiblePost          *sqlx.Stmt      `yesql:"visible_post"`
+	AddPost              *sqlx.NamedStmt `yesql:"add_post"`
+	AddPostContent       *sqlx.NamedStmt `yesql:"add_post_content"`
+	UpdatePost           *sqlx.NamedStmt `yesql:"update_post"`
 }
 
 type TweetManageA struct {
@@ -350,6 +363,22 @@ type Wallet struct {
 	MinusUserBalance       *sqlx.Stmt `yesql:"minus_user_balance"`
 	NewPostAttachmentBill  *sqlx.Stmt `yesql:"new_post_attachment_bill"`
 	NewPostBill            *sqlx.Stmt `yesql:"new_post_bill"`
+}
+
+func BuildYesql(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Yesql, err error) {
+	var c context.Context
+	if len(ctx) > 0 && ctx[0] != nil {
+		c = ctx[0]
+	} else {
+		c = context.Background()
+	}
+	obj = &Yesql{
+		TagsFromNames: p.QueryHook(_TagsFromNames),
+	}
+	if obj.UpdateTagQuote, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UpdateTagQuote))); err != nil {
+		return
+	}
+	return
 }
 
 func BuildAuthorizationManage(p yesql.PreparexBuilder, ctx ...context.Context) (obj *AuthorizationManage, err error) {
@@ -698,7 +727,11 @@ func BuildTweet(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Tweet, er
 		c = context.Background()
 	}
 	obj = &Tweet{
-		GetPostContetnsByIds: p.QueryHook(_Tweet_GetPostContetnsByIds),
+		GetAnyPostCount:      p.QueryHook(_Tweet_GetAnyPostCount),
+		GetAnyPosts:          p.QueryHook(_Tweet_GetAnyPosts),
+		GetPostContentsByIds: p.QueryHook(_Tweet_GetPostContentsByIds),
+		GetUserPostCount:     p.QueryHook(_Tweet_GetUserPostCount),
+		GetUserPosts:         p.QueryHook(_Tweet_GetUserPosts),
 	}
 	if obj.GetPostAttachmentBill, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_GetPostAttachmentBill))); err != nil {
 		return
@@ -707,12 +740,6 @@ func BuildTweet(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Tweet, er
 		return
 	}
 	if obj.GetPostContentById, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_GetPostContentById))); err != nil {
-		return
-	}
-	if obj.GetPostCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_GetPostCount))); err != nil {
-		return
-	}
-	if obj.GetPosts, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_GetPosts))); err != nil {
 		return
 	}
 	if obj.GetUserPostCollection, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_GetUserPostCollection))); err != nil {
@@ -816,19 +843,13 @@ func BuildTweetManage(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Twe
 	if obj.AddAttachment, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_AddAttachment))); err != nil {
 		return
 	}
-	if obj.AddPost, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_AddPost))); err != nil {
-		return
-	}
 	if obj.AddPostCollection, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_AddPostCollection))); err != nil {
-		return
-	}
-	if obj.AddPostContent, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_AddPostContent))); err != nil {
 		return
 	}
 	if obj.AddPostStar, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_AddPostStar))); err != nil {
 		return
 	}
-	if obj.DelPost, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_DelPost))); err != nil {
+	if obj.DelPostById, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_DelPostById))); err != nil {
 		return
 	}
 	if obj.DelPostCollection, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_DelPostCollection))); err != nil {
@@ -840,13 +861,22 @@ func BuildTweetManage(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Twe
 	if obj.LockPost, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_LockPost))); err != nil {
 		return
 	}
+	if obj.MediaContentByPostId, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_MediaContentByPostId))); err != nil {
+		return
+	}
 	if obj.StickPost, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_StickPost))); err != nil {
 		return
 	}
-	if obj.UpdatePost, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_UpdatePost))); err != nil {
+	if obj.VisiblePost, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_VisiblePost))); err != nil {
 		return
 	}
-	if obj.VisiblePost, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_VisiblePost))); err != nil {
+	if obj.AddPost, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_TweetManage_AddPost))); err != nil {
+		return
+	}
+	if obj.AddPostContent, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_TweetManage_AddPostContent))); err != nil {
+		return
+	}
+	if obj.UpdatePost, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_TweetManage_UpdatePost))); err != nil {
 		return
 	}
 	return

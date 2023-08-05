@@ -12,8 +12,8 @@ import (
 // TweetService 推文检索服务
 type TweetService interface {
 	GetPostByID(id int64) (*ms.Post, error)
-	GetPosts(conditions *ms.ConditionsT, offset, limit int) ([]*ms.Post, error)
-	GetPostCount(conditions *ms.ConditionsT) (int64, error)
+	GetPosts(conditions ms.ConditionsT, offset, limit int) ([]*ms.Post, error)
+	GetPostCount(conditions ms.ConditionsT) (int64, error)
 	GetUserPostStar(postID, userID int64) (*ms.PostStar, error)
 	GetUserPostStars(userID int64, offset, limit int) ([]*ms.PostStar, error)
 	GetUserPostStarCount(userID int64) (int64, error)

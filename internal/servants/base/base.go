@@ -207,13 +207,14 @@ func (s *DaoServant) PushPostsToSearch(c context.Context) {
 		defer s.Redis.DelPushToSearchJob(c)
 
 		splitNum := 1000
-		totalRows, _ := s.Ds.GetPostCount(&ms.ConditionsT{
+		conditions := ms.ConditionsT{
 			"visibility IN ?": []core.PostVisibleT{core.PostVisitPublic, core.PostVisitFriend},
-		})
+		}
+		totalRows, _ := s.Ds.GetPostCount(conditions)
 		pages := math.Ceil(float64(totalRows) / float64(splitNum))
 		nums := int(pages)
 		for i := 0; i < nums; i++ {
-			posts, postsFormated, err := s.GetTweetList(&ms.ConditionsT{}, i*splitNum, splitNum)
+			posts, postsFormated, err := s.GetTweetList(conditions, i*splitNum, splitNum)
 			if err != nil || len(posts) != len(postsFormated) {
 				continue
 			}
@@ -264,7 +265,7 @@ func (s *DaoServant) DeleteSearchPost(post *ms.Post) error {
 	return s.Ts.DeleteDocuments([]string{fmt.Sprintf("%d", post.ID)})
 }
 
-func (s *DaoServant) GetTweetList(conditions *ms.ConditionsT, offset, limit int) ([]*ms.Post, []*ms.PostFormated, error) {
+func (s *DaoServant) GetTweetList(conditions ms.ConditionsT, offset, limit int) ([]*ms.Post, []*ms.PostFormated, error) {
 	posts, err := s.Ds.GetPosts(conditions, offset, limit)
 	if err != nil {
 		return nil, nil, err

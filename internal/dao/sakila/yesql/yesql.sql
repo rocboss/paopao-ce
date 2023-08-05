@@ -1,4 +1,18 @@
 --------------------------------------------------------------------------------
+-- global sql dml
+--------------------------------------------------------------------------------
+
+-- name: tags_from_names
+-- prepare: raw
+-- clause: in
+SELECT * FROM @tag WHERE tag IN (?) AND is_del=0;
+
+-- name: update_tag_quote
+-- prepare: stmt
+UPDATE @tag SET quote_num=?, modified_on=?
+WHERE id=? AND is_del=0;
+
+--------------------------------------------------------------------------------
 -- authorization_manage sql dml
 --------------------------------------------------------------------------------
 
@@ -37,17 +51,17 @@ SELECT * FROM @comment_reply WHERE id=? AND is_del=0;
 -- name: get_comment_contents_by_ids@comment
 -- prepare: raw
 -- clause: in
-SELECT * FROM @comment_content WHERE comment_id IN ?;
+SELECT * FROM @comment_content WHERE comment_id IN (?);
 
 -- name: get_commment_replies_by_ids@comment
 -- prepare: raw
 -- clause: in
-SELECT * FROM @comment_reply WHERE comment_id IN ? ORDER BY id ASC;
+SELECT * FROM @comment_reply WHERE comment_id IN (?) ORDER BY id ASC;
 
 -- name: get_users_by_ids@comment
 -- prepare: raw
 -- clause: in
-SELECT id, nickname, username, status, avatar, is_admin FROM @user WHERE id IN ?;
+SELECT id, nickname, username, status, avatar, is_admin FROM @user WHERE id IN (?);
 
 -- name: get_comment_thumbs@comment
 -- prepare: stmt
@@ -317,15 +331,30 @@ SELECT * FROM @user WHERE username=?
 
 -- name: get_post_by_id@tweet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @post WHERE id=? AND is_del=0;
 
--- name: get_posts@tweet
--- prepare: stmt
-SELECT * FROM @user WHERE username=?
+-- name: get_user_posts@tweet
+-- prepare: raw
+-- clause: in
+SELECT * FROM @post
+WHERE user_id=? AND visibility IN (?)
+ORDER BY latest_replies_on DESC
+LIMIT ? OFFSET ?;
 
--- name: get_post_count@tweet
--- prepare: stmt
-SELECT * FROM @user WHERE username=?
+-- name: get_any_posts@tweet
+-- prepare: raw
+-- clause: in
+SELECT * FROM @post WHERE visibility IN (?) AND is_del=0 LIMIT ? OFFSET ?;
+
+-- name: get_user_post_count@tweet
+-- prepare: raw
+-- clause: in
+SELECT count(*) FROM @post WHERE user_id=? AND visibility IN (?);
+
+-- name: get_any_post_count@tweet
+-- prepare: raw
+-- clause: in
+SELECT count(*) FROM @post WHERE visibility IN (?);
 
 -- name: get_user_post_star@tweet
 -- prepare: stmt
@@ -355,10 +384,11 @@ SELECT * FROM @user WHERE username=?
 -- prepare: stmt
 SELECT * FROM @user WHERE username=?
 
--- name: get_post_contetns_by_ids@tweet
+-- name: get_post_contents_by_ids@tweet
 -- prepare: raw
 -- clause: in
-SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?);
+SELECT * FROM @post_content 
+WHERE post_id IN (?) AND is_del=0;
 
 -- name: get_post_content_by_id@tweet
 -- prepare: stmt
@@ -369,52 +399,66 @@ SELECT * FROM @user WHERE username=?
 --------------------------------------------------------------------------------
 
 -- name: add_post@tweet_manage
--- prepare: stmt
-SELECT * FROM @user WHERE username=?
+-- prepare: named_stmt
+INSERT INTO @post (user_id, tags, ip, ip_loc, attachment_price, visibility, latest_replies_on, created_on)
+VALUES (:user_id, :tags, :ip, :ip_loc, :attachment_price, :visibility, :latest_replies_on, :created_on);
 
--- name: del_post@tweet_manage
+-- name: media_content_by_post_id@tweet_manage
+-- prepare stmt
+SELECT content FROM post_content WHERE post_id=? AND is_del=0 AND type IN (3, 4, 5, 7, 8);
+
+-- name: del_post_by_id@tweet_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @post SET is_del=1, deleted_on=? WHERE id=? AND is_del=0;
 
 -- name: lock_post@tweet_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @post SET is_lock=1-is_lock, modified_on=? WHERE id=? AND is_del=0;
 
 -- name: stick_post@tweet_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @post SET is_top=1-is_top, modified_on=? WHERE id=? AND is_del=0;
 
 -- name: visible_post@tweet_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @post SET visibility=?, is_top=?, modified_on=? WHERE id=? AND is_del=0;
 
 -- name: update_post@tweet_manage
--- prepare: stmt
-SELECT * FROM @user WHERE username=?
+-- prepare: named_stmt
+UPDATE @post SET comment_count=:comment_count, 
+    upvote_count=:upvote_count,
+    collection_count=:collection_count,
+    latest_replies_on=:latest_replies_on,
+    modified_on=:modified_on
+WHERE id=:id AND is_del=0;
 
 -- name: add_post_star@tweet_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+INSERT INTO @post_star (post_id, user_id, created_on)
+VALUES (?, ?, ?);
 
 -- name: del_post_star@tweet_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @post_star SET is_del=1, deleted_on=? WHERE id=? AND is_del=0;
 
 -- name: add_post_collection@tweet_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+INSERT INTO @post_collection (post_id, user_id, created_on)
+VALUES (?, ?, ?);
 
 -- name: del_post_collection@tweet_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @post_collection SET is_del=1, deleted_on=? WHERE id=? AND is_del=0;
 
 -- name: add_post_content@tweet_manage
--- prepare: stmt
-SELECT * FROM @user WHERE username=?
+-- prepare: named_stmt
+INSERT INTO @post_content (post_id, user_id, content, type, sort, created_on)
+VALUES (:post_id, :user_id, :content, :type, :sort, :created_on);
 
 -- name: add_attachment@tweet_manage
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+INSERT INTO @attachment (user_id, file_size, img_width, img_height, type, content, created_on)
+VALUES (?, ?, ?, ?, ?, ?, ?);
 
 --------------------------------------------------------------------------------
 -- tweet_help sql dml
@@ -423,12 +467,16 @@ SELECT * FROM @user WHERE username=?
 -- name: get_post_content_by_ids@tweet_help
 -- prepare: raw
 -- clause: in
-SELECT * FROM @user WHERE username=?
+SELECT id, post_id, content, type, sort 
+FROM @post_content
+WHERE post_id IN (?) AND is_del=0;
 
 -- name: get_users_by_ids@tweet_help
 -- prepare: raw
 -- clause: in
-SELECT * FROM @user WHERE username=?
+SELECT id, username, nickname, status, avatar, is_admin
+FROM @user
+WHERE id IN (?) AND is_del=0;
 
 --------------------------------------------------------------------------------
 -- tweet_a sql dml
@@ -584,7 +632,7 @@ SELECT * FROM @user WHERE phone=? AND is_del=0;
 -- name: get_users_by_ids@user_manage
 -- prepare: raw
 -- clause: in
-SELECT * FROM @user WHERE id IN ? AND is_del=0;
+SELECT * FROM @user WHERE id IN (?) AND is_del=0;
 
 -- name: get_users_by_keyword@user_manage
 -- prepare: stmt

@@ -13,6 +13,7 @@ import (
 	"github.com/alimy/yesql"
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -23,6 +24,7 @@ var (
 
 type sqlxSrv struct {
 	db *sqlx.DB
+	y  *cc.Yesql
 }
 
 func (s *sqlxSrv) with(handle func(tx *sqlx.Tx) error) error {
@@ -111,6 +113,7 @@ func (s *sqlxSrv) inGetx(queryer sqlx.Queryer, dest any, query string, args ...a
 func newSqlxSrv(db *sqlx.DB) *sqlxSrv {
 	return &sqlxSrv{
 		db: db,
+		y:  mustBuild(db, cc.BuildYesql),
 	}
 }
 
