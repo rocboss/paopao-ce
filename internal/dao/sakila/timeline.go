@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
@@ -75,49 +76,49 @@ type simpleIndexPostsSrvA struct {
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *friendIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *friendIndexSrv) IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *followIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *followIndexSrv) IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *lightIndexSrv) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *lightIndexSrv) IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
 // simpleCacheIndexGetPosts simpleCacheIndex 专属获取广场推文列表函数
-func (s *simpleIndexPostsSrv) IndexPosts(_user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
+func (s *simpleIndexPostsSrv) IndexPosts(_user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *friendIndexSrvA) IndexPosts(user *core.User, limit int, offset int) (*cs.TweetBox, error) {
+func (s *friendIndexSrvA) IndexPosts(user *ms.User, limit int, offset int) (*cs.TweetBox, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *followIndexSrvA) IndexPosts(user *core.User, limit int, offset int) (*cs.TweetBox, error) {
+func (s *followIndexSrvA) IndexPosts(user *ms.User, limit int, offset int) (*cs.TweetBox, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *lightIndexSrvA) IndexPosts(user *core.User, limit int, offset int) (*cs.TweetBox, error) {
+func (s *lightIndexSrvA) IndexPosts(user *ms.User, limit int, offset int) (*cs.TweetBox, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
 
 // IndexPosts simpleCacheIndex 专属获取广场推文列表函数
-func (s *simpleIndexPostsSrvA) IndexPosts(_user *core.User, limit int, offset int) (*cs.TweetBox, error) {
+func (s *simpleIndexPostsSrvA) IndexPosts(_user *ms.User, limit int, offset int) (*cs.TweetBox, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }

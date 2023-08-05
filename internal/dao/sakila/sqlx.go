@@ -13,6 +13,7 @@ import (
 	"github.com/alimy/yesql"
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -23,6 +24,7 @@ var (
 
 type sqlxSrv struct {
 	db *sqlx.DB
+	y  *cc.Yesql
 }
 
 func (s *sqlxSrv) with(handle func(tx *sqlx.Tx) error) error {
@@ -57,7 +59,32 @@ func (s *sqlxSrv) in(query string, args ...any) (string, []any, error) {
 	return s.db.Rebind(q), params, nil
 }
 
-func (s *sqlxSrv) inExec(execer sqlx.Execer, query string, args ...any) (sql.Result, error) {
+func (s *sqlxSrv) inExec(query string, args ...any) (sql.Result, error) {
+	q, params, err := sqlx.In(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	return s.db.Exec(s.db.Rebind(q), params...)
+}
+
+func (s *sqlxSrv) inSelect(dest any, query string, args ...any) error {
+	q, params, err := sqlx.In(query, args...)
+	if err != nil {
+		return err
+	}
+	return sqlx.Select(s.db, dest, s.db.Rebind(q), params...)
+}
+
+func (s *sqlxSrv) inGet(dest any, query string, args ...any) error {
+	q, params, err := sqlx.In(query, args...)
+	if err != nil {
+		return err
+	}
+	return sqlx.Get(s.db, dest, s.db.Rebind(q), params...)
+}
+
+// inExecx execute for in clause with Transcation
+func (s *sqlxSrv) inExecx(execer sqlx.Execer, query string, args ...any) (sql.Result, error) {
 	q, params, err := sqlx.In(query, args...)
 	if err != nil {
 		return nil, err
@@ -65,7 +92,8 @@ func (s *sqlxSrv) inExec(execer sqlx.Execer, query string, args ...any) (sql.Res
 	return execer.Exec(s.db.Rebind(q), params...)
 }
 
-func (s *sqlxSrv) inSelect(queryer sqlx.Queryer, dest any, query string, args ...any) error {
+// inSelectx select for in clause with Transcation
+func (s *sqlxSrv) inSelectx(queryer sqlx.Queryer, dest any, query string, args ...any) error {
 	q, params, err := sqlx.In(query, args...)
 	if err != nil {
 		return err
@@ -73,7 +101,8 @@ func (s *sqlxSrv) inSelect(queryer sqlx.Queryer, dest any, query string, args ..
 	return sqlx.Select(queryer, dest, s.db.Rebind(q), params...)
 }
 
-func (s *sqlxSrv) inGet(queryer sqlx.Queryer, dest any, query string, args ...any) error {
+// inGetx get for in clause with Transcation
+func (s *sqlxSrv) inGetx(queryer sqlx.Queryer, dest any, query string, args ...any) error {
 	q, params, err := sqlx.In(query, args...)
 	if err != nil {
 		return err
@@ -84,6 +113,7 @@ func (s *sqlxSrv) inGet(queryer sqlx.Queryer, dest any, query string, args ...an
 func newSqlxSrv(db *sqlx.DB) *sqlxSrv {
 	return &sqlxSrv{
 		db: db,
+		y:  mustBuild(db, cc.BuildYesql),
 	}
 }
 
@@ -143,6 +173,15 @@ func yesqlScan[T any](query yesql.SQLQuery, obj T) T {
 }
 
 func mustBuild[T any](db *sqlx.DB, fn func(yesql.PreparexBuilder, ...context.Context) (T, error)) T {
+	p := yesql.NewPreparexBuilder(db, t)
+	obj, err := fn(p)
+	if err != nil {
+		logrus.Fatalf("build object failure: %s", err)
+	}
+	return obj
+}
+
+func mustBuildFn[T any](db *sqlx.DB, fn func(yesql.PreparexBuilder) (T, error)) T {
 	p := yesql.NewPreparexBuilder(db, t)
 	obj, err := fn(p)
 	if err != nil {

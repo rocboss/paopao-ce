@@ -5,10 +5,13 @@
 package sakila
 
 import (
+	"time"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
-	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
 var (
@@ -20,40 +23,53 @@ type messageSrv struct {
 	q *cc.Message
 }
 
-func (s *messageSrv) CreateMessage(msg *core.Message) (*core.Message, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *messageSrv) CreateMessage(r *ms.Message) (*ms.Message, error) {
+	r.Model = &dbr.Model{
+		CreatedOn: time.Now().Unix(),
+	}
+	res, err := s.q.CreateMessage.Exec(r)
+	if err != nil {
+		return nil, err
+	}
+	r.ID, err = res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
-func (s *messageSrv) GetUnreadCount(userID int64) (int64, error) {
-	// TODO
-	debug.NotImplemented()
-	return 0, nil
+func (s *messageSrv) GetUnreadCount(userID int64) (res int64, err error) {
+	err = s.q.GetUnreadCount.Get(&res)
+	return
 }
 
-func (s *messageSrv) GetMessageByID(id int64) (*core.Message, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *messageSrv) GetMessageByID(id int64) (res *ms.Message, err error) {
+	err = s.q.GetMessageById.Get(res, id)
+	return
 }
 
-func (s *messageSrv) ReadMessage(message *core.Message) error {
-	// TODO
-	debug.NotImplemented()
-	return nil
+func (s *messageSrv) ReadMessage(r *ms.Message) (err error) {
+	_, err = s.q.ReadMessage.Exec(time.Now().Unix(), r.ID)
+	return
 }
 
-func (s *messageSrv) GetMessages(conditions *core.ConditionsT, offset, limit int) ([]*core.MessageFormated, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *messageSrv) GetMessages(r *ms.ConditionsT, offset, limit int) ([]*ms.MessageFormated, error) {
+	var messages []*ms.Message
+	(*r)["limit"], (*r)["offset"] = limit, offset
+	if err := s.q.GetMessages.Select(&messages, r); err != nil {
+		return nil, err
+	}
+	mfs := make([]*dbr.MessageFormated, 0, len(messages))
+	for _, message := range messages {
+		mf := message.Format()
+		mfs = append(mfs, mf)
+	}
+	return mfs, nil
 }
 
-func (s *messageSrv) GetMessageCount(conditions *core.ConditionsT) (int64, error) {
-	// TODO
-	debug.NotImplemented()
-	return 0, nil
+func (s *messageSrv) GetMessageCount(r *ms.ConditionsT) (res int64, err error) {
+	err = s.q.GetMessageCount.Get(&res, r)
+	return
 }
 
 func newMessageService(db *sqlx.DB) core.MessageService {

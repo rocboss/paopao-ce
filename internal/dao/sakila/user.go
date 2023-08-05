@@ -5,10 +5,13 @@
 package sakila
 
 import (
+	"strings"
+	"time"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
-	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
 var (
@@ -20,46 +23,51 @@ type userManageSrv struct {
 	q *cc.UserManage
 }
 
-func (s *userManageSrv) GetUserByID(id int64) (*core.User, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *userManageSrv) GetUserByID(id int64) (res *ms.User, err error) {
+	err = s.q.GetUserById.Get(res, id)
+	return
 }
 
-func (s *userManageSrv) GetUserByUsername(username string) (*core.User, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *userManageSrv) GetUserByUsername(username string) (res *ms.User, err error) {
+	err = s.q.GetUserByUsername.Get(res, username)
+	return
 }
 
-func (s *userManageSrv) GetUserByPhone(phone string) (*core.User, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *userManageSrv) GetUserByPhone(phone string) (res *ms.User, err error) {
+	err = s.q.GetUserByPhone.Get(res, phone)
+	return
 }
 
-func (s *userManageSrv) GetUsersByIDs(ids []int64) ([]*core.User, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *userManageSrv) GetUsersByIDs(ids []int64) (res []*ms.User, err error) {
+	err = s.inSelect(&res, s.q.GetUsersByIds, ids)
+	return
 }
 
-func (s *userManageSrv) GetUsersByKeyword(keyword string) ([]*core.User, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *userManageSrv) GetUsersByKeyword(keyword string) (res []*ms.User, err error) {
+	keyword = strings.Trim(keyword, " ") + "%"
+	if keyword == "%" {
+		err = s.q.GetAnyUsers.Get(&res)
+	} else {
+		err = s.q.GetUsersByKeyword.Select(&res, keyword)
+	}
+	return
 }
 
-func (s *userManageSrv) CreateUser(user *core.User) (*core.User, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *userManageSrv) CreateUser(r *ms.User) (*ms.User, error) {
+	r.Model = &ms.Model{
+		CreatedOn: time.Now().Unix(),
+	}
+	res, err := s.q.CreateUser.Exec(r)
+	if err != nil {
+		return nil, err
+	}
+	r.ID, err = res.LastInsertId()
+	return r, err
 }
 
-func (s *userManageSrv) UpdateUser(user *core.User) error {
-	// TODO
-	debug.NotImplemented()
-	return nil
+func (s *userManageSrv) UpdateUser(r *ms.User) error {
+	_, err := s.q.UpdateUser.Exec(r)
+	return err
 }
 
 func newUserManageService(db *sqlx.DB) core.UserManageService {
