@@ -60,10 +60,9 @@ const (
 	_Message_GetMessages                     = `SELECT * FROM @message WHERE receiver_user_id=:recerver_user_id AND is_del=0 ORDER BY id DESC LIMIT :limit OFFSET :offset`
 	_Message_GetUnreadCount                  = `SELECT count(*) FROM @message WHERE receiver_user_id=? AND is_read=0 AND is_del=0`
 	_Message_ReadMessage                     = `UPDATE @message SET is_read=1, modified_on=? WHERE id=?`
-	_Security_CreatePhoneCaptcha             = `SELECT * FROM @user WHERE username=?`
-	_Security_GetLatestPhoneCaptcha          = `SELECT * FROM @user WHERE username=?`
-	_Security_SendPhoneCaptcha               = `SELECT * FROM @user WHERE username=?`
-	_Security_UsePhoneCaptcha                = `SELECT * FROM @user WHERE username=?`
+	_Security_CreatePhoneCaptcha             = `INSERT INTO @captcha (phone, captcha, expired_on, created_on) VALUES (:phone, :captcha, :expired_on, :created_on)`
+	_Security_GetLatestPhoneCaptcha          = `SELECT * FROM @captcha WHERE phone=:phone AND is_del=0`
+	_Security_UsePhoneCaptcha                = `UPDATE @captcha SET use_times=use_times+1, modified_on=? WHERE id=? AND is_del=0`
 	_SimpleIndexA_UserInfo                   = `SELECT * FROM @user WHERE username=?`
 	_SimpleIndex_UserInfo                    = `SELECT * FROM @user WHERE username=?`
 	_TopicA_DecrTagsById                     = `UPDATE @tag SET quote_num=quote_num-1, modified_on=? WHERE id IN (?)`
@@ -226,9 +225,8 @@ type Message struct {
 type Security struct {
 	yesql.Namespace       `yesql:"security"`
 	GetLatestPhoneCaptcha *sqlx.Stmt      `yesql:"get_latest_phone_captcha"`
-	SendPhoneCaptcha      *sqlx.Stmt      `yesql:"send_phone_captcha"`
+	UsePhoneCaptcha       *sqlx.Stmt      `yesql:"use_phone_captcha"`
 	CreatePhoneCaptcha    *sqlx.NamedStmt `yesql:"create_phone_captcha"`
-	UsePhoneCaptcha       *sqlx.NamedStmt `yesql:"use_phone_captcha"`
 }
 
 type SimpleIndex struct {
@@ -609,13 +607,10 @@ func BuildSecurity(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Securi
 	if obj.GetLatestPhoneCaptcha, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Security_GetLatestPhoneCaptcha))); err != nil {
 		return
 	}
-	if obj.SendPhoneCaptcha, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Security_SendPhoneCaptcha))); err != nil {
+	if obj.UsePhoneCaptcha, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Security_UsePhoneCaptcha))); err != nil {
 		return
 	}
 	if obj.CreatePhoneCaptcha, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_Security_CreatePhoneCaptcha))); err != nil {
-		return
-	}
-	if obj.UsePhoneCaptcha, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_Security_UsePhoneCaptcha))); err != nil {
 		return
 	}
 	return

@@ -21,12 +21,14 @@ var (
 
 type securitySrv struct {
 	db          *gorm.DB
+	rand        *rand.Rand
 	phoneVerify core.PhoneVerifyService
 }
 
 func newSecurityService(db *gorm.DB, phoneVerify core.PhoneVerifyService) core.SecurityService {
 	return &securitySrv{
 		db:          db,
+		rand:        rand.New(rand.NewSource(time.Now().UnixNano())),
 		phoneVerify: phoneVerify,
 	}
 }
@@ -49,8 +51,7 @@ func (s *securitySrv) SendPhoneCaptcha(phone string) error {
 	expire := time.Duration(5)
 
 	// 发送验证码
-	rand.Seed(time.Now().UnixNano())
-	captcha := strconv.Itoa(rand.Intn(900000) + 100000)
+	captcha := strconv.Itoa(s.rand.Intn(900000) + 100000)
 	if err := s.phoneVerify.SendPhoneCaptcha(phone, captcha, expire); err != nil {
 		return err
 	}

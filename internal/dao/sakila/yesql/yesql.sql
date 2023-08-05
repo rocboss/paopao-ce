@@ -195,19 +195,15 @@ SELECT count(*) FROM @message WHERE receiver_user_id=:recerver_user_id AND is_de
 
 -- name: get_latest_phone_captcha@security
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @captcha WHERE phone=? AND is_del=0;
 
 -- name: use_phone_captcha@security
--- prepare: named_stmt
-SELECT * FROM @user WHERE username=?
-
--- name: send_phone_captcha@security
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+UPDATE @captcha SET use_times=use_times+1, modified_on=? WHERE id=? AND is_del=0;
 
 -- name: create_phone_captcha@security
 -- prepare: named_stmt
-SELECT * FROM @user WHERE username=?
+INSERT INTO @captcha (phone, captcha, expired_on, created_on) VALUES (:phone, :captcha, :expired_on, :created_on);
 
 --------------------------------------------------------------------------------
 -- friend_index sql dml

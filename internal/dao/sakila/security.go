@@ -23,20 +23,19 @@ var (
 type securitySrv struct {
 	*sqlxSrv
 	q           *cc.Security
+	rand        *rand.Rand
 	phoneVerify core.PhoneVerifyService
 }
 
 // GetLatestPhoneCaptcha 获取最新短信验证码
-func (s *securitySrv) GetLatestPhoneCaptcha(phone string) (*ms.Captcha, error) {
-	res := &ms.Captcha{}
-	err := s.q.GetLatestPhoneCaptcha.Get(res, phone)
-	return res, err
+func (s *securitySrv) GetLatestPhoneCaptcha(phone string) (res *ms.Captcha, err error) {
+	err = s.q.GetLatestPhoneCaptcha.Get(res, phone)
+	return
 }
 
 // UsePhoneCaptcha 更新短信验证码
 func (s *securitySrv) UsePhoneCaptcha(r *ms.Captcha) error {
-	r.UseTimes++
-	_, err := s.q.UsePhoneCaptcha.Exec(r)
+	_, err := s.q.UsePhoneCaptcha.Exec(time.Now().Unix(), r.ID)
 	return err
 }
 
@@ -44,13 +43,15 @@ func (s *securitySrv) UsePhoneCaptcha(r *ms.Captcha) error {
 func (s *securitySrv) SendPhoneCaptcha(phone string) error {
 	expire := time.Duration(5)
 	// 发送验证码
-	rand.Seed(time.Now().UnixNano())
-	captcha := strconv.Itoa(rand.Intn(900000) + 100000)
+	captcha := strconv.Itoa(s.rand.Intn(900000) + 100000)
 	if err := s.phoneVerify.SendPhoneCaptcha(phone, captcha, expire); err != nil {
 		return err
 	}
 	// 写入表
 	phoneCaptcha := &dbr.Captcha{
+		Model: &ms.Model{
+			CreatedOn: time.Now().Unix(),
+		},
 		Phone:     phone,
 		Captcha:   captcha,
 		ExpiredOn: time.Now().Add(expire * time.Minute).Unix(),
@@ -63,6 +64,7 @@ func newSecurityService(db *sqlx.DB, phoneVerify core.PhoneVerifyService) core.S
 	return &securitySrv{
 		sqlxSrv:     newSqlxSrv(db),
 		q:           mustBuild(db, cc.BuildSecurity),
+		rand:        rand.New(rand.NewSource(time.Now().UnixNano())),
 		phoneVerify: phoneVerify,
 	}
 }
