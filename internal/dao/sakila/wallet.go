@@ -100,7 +100,7 @@ func (s *walletSrv) HandlePostAttachmentBought(post *ms.Post, user *ms.User) err
 		}
 		// 新增附件购买记录
 		args = []any{post.ID, user.ID, post.AttachmentPrice, now}
-		if _, err = tx.Stmtx(s.q.NewPostBill).Exec(args...); err != nil {
+		if _, err = tx.Stmtx(s.q.NewPostAttachmentBill).Exec(args...); err != nil {
 			return err
 		}
 		// 对附件主新增账单

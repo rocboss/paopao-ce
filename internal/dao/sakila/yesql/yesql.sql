@@ -665,9 +665,10 @@ UPDATE @wallet_recharge
 SET trade_no=?, trade_status='TRADE_SUCCESS', modified_on=? 
 WHERE id=? AND is_del=0;
 
--- name: new_post_attachment_bill
+-- name: new_post_attachment_bill@wallet
 -- prepare: stmt
-INSERT INTO @post_attachment_bill (post_id, user_id, paid_amount) VALUES (?, ?, ?);
+INSERT INTO @post_attachment_bill (post_id, user_id, paid_amount, created_on)
+VALUES (?, ?, ?, ?);
 
 -- name: new_post_bill@wallet
 -- prepare: stmt

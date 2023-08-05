@@ -12,7 +12,6 @@ import (
 )
 
 const (
-	_NewPostAttachmentBill                   = `INSERT INTO @post_attachment_bill (post_id, user_id, paid_amount) VALUES (?, ?, ?)`
 	_AuthorizationManage_BeFriendIds         = `SELECT user_id FROM @contact WHERE friend_id=? AND status=2 AND is_del=0`
 	_AuthorizationManage_IsFriend            = `SELECT status FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0`
 	_AuthorizationManage_MyFriendSet         = `SELECT friend_id FROM @contact WHERE user_id=? AND status=2 AND is_del=0`
@@ -134,12 +133,9 @@ const (
 	_Wallet_GetUserWalletBills               = `SELECT * FROM @wallet_statement WHERE user_id=? AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?`
 	_Wallet_MarkSuccessRecharge              = `UPDATE @wallet_recharge SET trade_no=?, trade_status='TRADE_SUCCESS', modified_on=? WHERE id=? AND is_del=0`
 	_Wallet_MinusUserBalance                 = `UPDATE @user SET balance=balance-?, modified_on=? WHERE id=? AND is_del=0`
+	_Wallet_NewPostAttachmentBill            = `INSERT INTO @post_attachment_bill (post_id, user_id, paid_amount, created_on) VALUES (?, ?, ?, ?)`
 	_Wallet_NewPostBill                      = `INSERT INTO @wallet_statement (post_id, user_id, change_amount, balance_snapshot, reason, created_on) VALUES (?, ?, ?, ?, ?, ?)`
 )
-
-type Yesql struct {
-	NewPostAttachmentBill *sqlx.Stmt `yesql:"new_post_attachment_bill"`
-}
 
 type AuthorizationManage struct {
 	yesql.Namespace `yesql:"authorization_manage"`
@@ -352,21 +348,8 @@ type Wallet struct {
 	GetUserWalletBills     *sqlx.Stmt `yesql:"get_user_wallet_bills"`
 	MarkSuccessRecharge    *sqlx.Stmt `yesql:"mark_success_recharge"`
 	MinusUserBalance       *sqlx.Stmt `yesql:"minus_user_balance"`
+	NewPostAttachmentBill  *sqlx.Stmt `yesql:"new_post_attachment_bill"`
 	NewPostBill            *sqlx.Stmt `yesql:"new_post_bill"`
-}
-
-func BuildYesql(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Yesql, err error) {
-	var c context.Context
-	if len(ctx) > 0 && ctx[0] != nil {
-		c = ctx[0]
-	} else {
-		c = context.Background()
-	}
-	obj = &Yesql{}
-	if obj.NewPostAttachmentBill, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_NewPostAttachmentBill))); err != nil {
-		return
-	}
-	return
 }
 
 func BuildAuthorizationManage(p yesql.PreparexBuilder, ctx ...context.Context) (obj *AuthorizationManage, err error) {
@@ -953,6 +936,9 @@ func BuildWallet(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Wallet, 
 		return
 	}
 	if obj.MinusUserBalance, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_MinusUserBalance))); err != nil {
+		return
+	}
+	if obj.NewPostAttachmentBill, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_NewPostAttachmentBill))); err != nil {
 		return
 	}
 	if obj.NewPostBill, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Wallet_NewPostBill))); err != nil {
