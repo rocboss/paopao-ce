@@ -233,9 +233,14 @@ import {
     BookmarkOutline,
     ShareSocialOutline,
     ChatboxOutline,
+    PushOutline,
+    TrashOutline,
+    LockClosedOutline,
+    LockOpenOutline,
     EyeOutline,
+    EyeOffOutline,
+    PersonOutline,
     FlameOutline,
-    Pencil as EditIcon,
 } from '@vicons/ionicons5';
 import { MoreHorizFilled } from '@vicons/material';
 import {
@@ -330,20 +335,20 @@ const adminOptions = computed(() => {
         {
             label: '删除',
             key: 'delete',
-            icon: renderIcon(EditIcon)
+            icon: renderIcon(TrashOutline)
         },
     ];
     if (post.value.is_lock === 0) {
         options.push({
             label: '锁定',
             key: 'lock',
-            icon: renderIcon(EditIcon)
+            icon: renderIcon(LockClosedOutline)
         });
     } else {
         options.push({
             label: '解锁',
             key: 'unlock',
-            icon: renderIcon(EditIcon)
+            icon: renderIcon(LockOpenOutline)
         });
     }
     if (store.state.userInfo.is_admin) {
@@ -351,13 +356,13 @@ const adminOptions = computed(() => {
             options.push({
                 label: '置顶',
                 key: 'stick',
-                icon: renderIcon(EditIcon)
+                icon: renderIcon(PushOutline)
             });
         } else {
             options.push({
                 label: '取消置顶',
                 key: 'unstick',
-                icon: renderIcon(EditIcon)
+                icon: renderIcon(PushOutline)
             });
         }
     }
@@ -380,28 +385,28 @@ const adminOptions = computed(() => {
             key: 'vpublic',
             icon: renderIcon(EyeOutline),
             children: [
-                { label: '私密', key: 'vprivate', icon: renderIcon(EditIcon)}
-                , { label: '好友可见', key: 'vfriend', icon: renderIcon(EditIcon) }
+                { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline)}
+                , { label: '好友可见', key: 'vfriend', icon: renderIcon(PersonOutline) }
             ]
         })
     } else if (post.value.visibility === VisibilityEnum.PRIVATE) {
         options.push({
             label: '私密',
             key: 'vprivate',
-            icon: renderIcon(EyeOutline),
+            icon: renderIcon(EyeOffOutline),
             children: [
-                { label: '公开', key: 'vpublic', icon: renderIcon(EditIcon) }
-                , { label: '好友可见', key: 'vfriend', icon: renderIcon(EditIcon) }
+                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) }
+                , { label: '好友可见', key: 'vfriend', icon: renderIcon(PersonOutline) }
             ]
         })
     } else {
         options.push({
             label: '好友可见',
             key: 'vfriend',
-            icon: renderIcon(EyeOutline),
+            icon: renderIcon(PersonOutline),
             children: [
-                { label: '公开', key: 'vpublic', icon: renderIcon(EditIcon) }
-                , { label: '私密', key: 'vprivate', icon: renderIcon(EditIcon) }
+                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) }
+                , { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline) }
             ]
         })
     }
