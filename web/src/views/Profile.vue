@@ -20,7 +20,7 @@
                     <div class="uid">UID. {{ store.state.userInfo.id }}</div>
                 </div>
             </div>
-            <n-tabs class="profile-tabs-wrap" type="line" animated justify-content="space-evenly" @update:value="changeTab">
+            <n-tabs class="profile-tabs-wrap" type="line" animated @update:value="changeTab">
                 <n-tab-pane name="post" tab="泡泡"> </n-tab-pane>
                 <n-tab-pane name="comment" tab="评论"> </n-tab-pane>
                 <n-tab-pane name="highlight" tab="亮点"> </n-tab-pane>
