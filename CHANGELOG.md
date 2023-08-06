@@ -11,6 +11,10 @@ All notable changes to paopao-ce are documented in this file.
 ### Changed
 - change man content width to 600px and optimize tweet/comment/replay text length. [#333](https://github.com/rocboss/paopao-ce/pull/333)  
 
+## 0.3.1
+### Fixed
+- fixed: video player assets cdn error. [&caff8c0](https://github.com/rocboss/paopao-ce/commit/caff8c052be6c8d59576011192f830fd98e17ab3 'commit caff8c0')  
+
 ## 0.3.0
 ### Added
 
