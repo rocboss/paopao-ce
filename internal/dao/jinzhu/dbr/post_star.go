@@ -13,7 +13,7 @@ import (
 
 type PostStar struct {
 	*Model
-	Post   *Post `json:"-"`
+	Post   *Post `db:"post" json:"-"`
 	PostID int64 `json:"post_id"`
 	UserID int64 `json:"user_id"`
 }

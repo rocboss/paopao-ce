@@ -110,6 +110,21 @@
                     negative-text="取消"
                     @positive-click="execStickAction"
                 />
+                <!-- 亮点确认 -->
+                <n-modal
+                    v-model:show="showHighlightModal"
+                    :mask-closable="false"
+                    preset="dialog"
+                    title="提示"
+                    :content="
+                        '确定将该泡泡动态' +
+                        (post.is_essence ? '取消亮点' : '设为亮点') +
+                        '吗？'
+                    "
+                    positive-text="确认"
+                    negative-text="取消"
+                    @positive-click="execHighlightAction"
+                />
                 <!-- 修改可见度确认 -->
                 <n-modal
                     v-model:show="showVisibilityModal"
@@ -204,7 +219,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { h, ref, onMounted, computed } from 'vue';
+import type { Component } from 'vue'
+import { NIcon } from 'naive-ui'
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { formatPrettyTime } from '@/utils/formatTime';
@@ -216,6 +233,9 @@ import {
     BookmarkOutline,
     ShareSocialOutline,
     ChatboxOutline,
+    EyeOutline,
+    FlameOutline,
+    Pencil as EditIcon,
 } from '@vicons/ionicons5';
 import { MoreHorizFilled } from '@vicons/material';
 import {
@@ -226,6 +246,7 @@ import {
     deletePost,
     lockPost,
     stickPost,
+    highlightPost,
     visibilityPost
 } from '@/api/post';
 import type { DropdownOption } from 'naive-ui';
@@ -245,6 +266,7 @@ const props = withDefaults(
 const showDelModal = ref(false);
 const showLockModal = ref(false);
 const showStickModal = ref(false);
+const showHighlightModal = ref(false);
 const showVisibilityModal = ref(false);
 const loading = ref(false);
 const tempVisibility = ref<VisibilityEnum>(VisibilityEnum.PUBLIC);
@@ -295,22 +317,33 @@ const post = computed({
     },
 });
 
+const renderIcon = (icon: Component) => {
+  return () => {
+    return h(NIcon, null, {
+      default: () => h(icon)
+    })
+  }
+}
+
 const adminOptions = computed(() => {
     let options: DropdownOption[] = [
         {
             label: '删除',
             key: 'delete',
+            icon: renderIcon(EditIcon)
         },
     ];
     if (post.value.is_lock === 0) {
         options.push({
             label: '锁定',
             key: 'lock',
+            icon: renderIcon(EditIcon)
         });
     } else {
         options.push({
             label: '解锁',
             key: 'unlock',
+            icon: renderIcon(EditIcon)
         });
     }
     if (store.state.userInfo.is_admin) {
@@ -318,39 +351,57 @@ const adminOptions = computed(() => {
             options.push({
                 label: '置顶',
                 key: 'stick',
+                icon: renderIcon(EditIcon)
             });
         } else {
             options.push({
                 label: '取消置顶',
                 key: 'unstick',
+                icon: renderIcon(EditIcon)
             });
         }
+    }
+    if (post.value.is_essence === 0) {
+        options.push({
+            label: '设为亮点',
+            key: 'highlight',
+            icon: renderIcon(FlameOutline)
+        });
+    } else {
+        options.push({
+            label: '取消亮点',
+            key: 'unhighlight',
+            icon: renderIcon(FlameOutline)
+        });
     }
     if (post.value.visibility === VisibilityEnum.PUBLIC) {
         options.push({
             label: '公开',
             key: 'vpublic',
+            icon: renderIcon(EyeOutline),
             children: [
-                { label: '私密', key: 'vprivate' }
-                , { label: '好友可见', key: 'vfriend' }
+                { label: '私密', key: 'vprivate', icon: renderIcon(EditIcon)}
+                , { label: '好友可见', key: 'vfriend', icon: renderIcon(EditIcon) }
             ]
         })
     } else if (post.value.visibility === VisibilityEnum.PRIVATE) {
         options.push({
             label: '私密',
             key: 'vprivate',
+            icon: renderIcon(EyeOutline),
             children: [
-                { label: '公开', key: 'vpublic' }
-                , { label: '好友可见', key: 'vfriend' }
+                { label: '公开', key: 'vpublic', icon: renderIcon(EditIcon) }
+                , { label: '好友可见', key: 'vfriend', icon: renderIcon(EditIcon) }
             ]
         })
     } else {
         options.push({
             label: '好友可见',
             key: 'vfriend',
+            icon: renderIcon(EyeOutline),
             children: [
-                { label: '公开', key: 'vpublic' }
-                , { label: '私密', key: 'vprivate' }
+                { label: '公开', key: 'vpublic', icon: renderIcon(EditIcon) }
+                , { label: '私密', key: 'vprivate', icon: renderIcon(EditIcon) }
             ]
         })
     }
@@ -392,7 +443,7 @@ const doClickText = (e: MouseEvent, id: number) => {
     goPostDetail(id);
 };
 const handlePostAction = (
-    item: 'delete' | 'lock' | 'unlock' | 'stick' | 'unstick' | 'vpublic' | 'vprivate' | 'vfriend'
+    item: 'delete' | 'lock' | 'unlock' | 'stick' | 'unstick' | 'highlight' | 'unhighlight' | 'vpublic' | 'vprivate' | 'vfriend'
 ) => {
     switch (item) {
         case 'delete':
@@ -405,6 +456,10 @@ const handlePostAction = (
         case 'stick':
         case 'unstick':
             showStickModal.value = true;
+            break;
+        case 'highlight':
+        case 'unhighlight':
+            showHighlightModal.value = true;
             break;
         case 'vpublic':
             tempVisibility.value = 0;
@@ -464,6 +519,22 @@ const execStickAction = () => {
                 window.$message.success('置顶成功');
             } else {
                 window.$message.success('取消置顶成功');
+            }
+        })
+        .catch((err) => {
+            loading.value = false;
+        });
+};
+const execHighlightAction = () => {
+    highlightPost({
+        id: post.value.id,
+    })
+        .then((res) => {
+            emit('reload');
+            if (res.highlight_status === 1) {
+                window.$message.success('设为亮点成功');
+            } else {
+                window.$message.success('取消亮点成功');
             }
         })
         .catch((err) => {

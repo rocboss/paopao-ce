@@ -30,6 +30,7 @@ type Priv interface {
 	DeleteComment(*web.DeleteCommentReq) mir.Error
 	CreateComment(*web.CreateCommentReq) (*web.CreateCommentResp, mir.Error)
 	VisibleTweet(*web.VisibleTweetReq) (*web.VisibleTweetResp, mir.Error)
+	HighlightTweet(*web.HighlightTweetReq) (*web.HighlightTweetResp, mir.Error)
 	StickTweet(*web.StickTweetReq) (*web.StickTweetResp, mir.Error)
 	LockTweet(*web.LockTweetReq) (*web.LockTweetResp, mir.Error)
 	CollectionTweet(*web.CollectionTweetReq) (*web.CollectionTweetResp, mir.Error)
@@ -211,6 +212,20 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		}
 		resp, err := s.VisibleTweet(req)
+		s.Render(c, resp, err)
+	})
+	router.Handle("POST", "/post/highlight", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.HighlightTweetReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.HighlightTweet(req)
 		s.Render(c, resp, err)
 	})
 	router.Handle("POST", "/post/stick", func(c *gin.Context) {
@@ -396,6 +411,10 @@ func (UnimplementedPrivServant) CreateComment(req *web.CreateCommentReq) (*web.C
 }
 
 func (UnimplementedPrivServant) VisibleTweet(req *web.VisibleTweetReq) (*web.VisibleTweetResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) HighlightTweet(req *web.HighlightTweetReq) (*web.HighlightTweetResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 

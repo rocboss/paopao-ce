@@ -49,6 +49,7 @@
             <n-tabs class="profile-tabs-wrap" type="line" animated @update:value="changeTab">
                 <n-tab-pane name="post" tab="泡泡"> </n-tab-pane>
                 <n-tab-pane name="comment" tab="评论"> </n-tab-pane>
+                <n-tab-pane name="highlight" tab="亮点"> </n-tab-pane>
                 <n-tab-pane name="media" tab="图文"> </n-tab-pane>
                 <n-tab-pane name="star" tab="喜欢"> </n-tab-pane>
             </n-tabs>
@@ -111,9 +112,10 @@ const showAddFriendWhisper = ref(false);
 const list = ref<Item.PostProps[]>([]);
 const username = ref(route.query.username || '');
 const page = ref(+(route.query.p as string) || 1);
-const pageType = ref<"post" | "comment" | "media" | "star">('post');
+const pageType = ref<"post" | "comment" | "highlight" | "media" | "star">('post');
 const postPage = ref(+(route.query.p as string) || 1);
 const commentPage = ref(1)
+const highlightPage = ref(1)
 const mediaPage = ref(1)
 const starPage = ref(1);
 const pageSize = ref(20);
@@ -126,6 +128,9 @@ const loadPage = () => {
             break;
         case "comment":
             loadCommentPosts();
+            break;
+        case "highlight":
+            loadHighlightPosts();
             break;
         case "media":
             loadMediaPosts();
@@ -159,6 +164,25 @@ const loadCommentPosts = () => {
     getUserPosts({
         username: username.value as string,
         style: "comment",
+        page: page.value,
+        page_size: pageSize.value,
+    })
+        .then((rsp) => {
+            loading.value = false;
+            list.value = rsp.list || [];
+            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+            window.scrollTo(0, 0);
+        })
+        .catch((err) => {
+            list.value = []
+            loading.value = false;
+        });
+};
+const loadHighlightPosts = () => {
+    loading.value = true;
+    getUserPosts({
+        username: username.value as string,
+        style: "highlight",
         page: page.value,
         page_size: pageSize.value,
     })
@@ -211,7 +235,7 @@ const loadStarPosts = () => {
             loading.value = false;
         });
 };
-const changeTab = (tab: "post" | "comment" | "media" | "star") => {
+const changeTab = (tab: "post" | "comment" | "highlight" | "media" | "star") => {
     pageType.value = tab;
     switch(pageType.value) {
         case "post":
@@ -221,6 +245,10 @@ const changeTab = (tab: "post" | "comment" | "media" | "star") => {
         case "comment":
             page.value = commentPage.value
             loadCommentPosts();
+            break;
+        case "highlight":
+            page.value = highlightPage.value
+            loadHighlightPosts();
             break;
         case "media":
             page.value = mediaPage.value
@@ -263,6 +291,10 @@ const updatePage = (p: number) => {
         case "comment":
             commentPage.value = page.value
             loadCommentPosts();
+            break;
+        case "highlight":
+            highlightPage.value = page.value
+            loadHighlightPosts();
             break;
         case "media":
             mediaPage.value = page.value

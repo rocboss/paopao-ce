@@ -90,4 +90,6 @@ var (
 	ErrFileUploadFailed = xerror.NewError(10200, "文件上传失败")
 	ErrFileInvalidExt   = xerror.NewError(10201, "文件类型不合法")
 	ErrFileInvalidSize  = xerror.NewError(10202, "文件大小超限")
+
+	ErrNotImplemented = xerror.NewError(10501, "功能未实现")
 )
