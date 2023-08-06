@@ -78,6 +78,11 @@
                 </n-space>
             </div>
         </n-card>
+        <n-card class="hottopic-wrap" title="排行榜" embedded :bordered="false" size="small">
+            <n-spin :show="loading">
+                功能即将推出，请耐心等待~
+            </n-spin>
+        </n-card>
     </div>
 </template>
 
@@ -192,6 +197,7 @@ onMounted(() => {
 
     .hottopic-wrap {
         margin-bottom: 10px;
+        margin-top: 10px;
     }
 
     .copyright-wrap {

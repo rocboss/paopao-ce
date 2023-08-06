@@ -136,6 +136,9 @@
                                 />
                             </n-form-item-row>
                         </n-form>
+                        <p style=" font-size: 12px; color: #ef0808;">
+                            注册完成后请及时进入个人中心绑定手机号，成功绑定手机后，才能进行换头像、发动态、回复等交互，并将赠送14天的Aimo订阅！
+                        </p>
                         <n-button
                             type="primary"
                             block

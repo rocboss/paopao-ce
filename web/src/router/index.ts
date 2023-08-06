@@ -94,7 +94,7 @@ const routes = [
         path: '/sharekey',
         name: 'sharekey',
         meta: {
-            title: '密钥',
+            title: '我的分享码',
         },
         component: () => import('@/views/ShareKey.vue'),
     },
@@ -105,6 +105,22 @@ const routes = [
             title: '404',
         },
         component: () => import('@/views/404.vue'),
+    },
+    {
+        path: '/community',
+        name: 'community',
+        meta: {
+            title: '社区公约',
+        },
+        component: () => import('@/views/community.vue'),
+    },
+    {
+        path: '/notification',
+        name: 'notification',
+        meta: {
+            title: 'AiMo协议（草案）',
+        },
+        component: () => import('@/views/notification.vue'),
     },
     {
         path: '/:pathMatch(.*)',

@@ -29,7 +29,7 @@ func NewMeiliTweetSearchService(ams core.AuthorizationManageService) (core.Tweet
 		}); err == nil {
 			settings := meilisearch.Settings{
 				SearchableAttributes: []string{"content", "tags"},
-				SortableAttributes:   []string{"is_top", "latest_replied_on", "upvote_count", "collection_count"},
+				SortableAttributes:   []string{"is_top", "collection_count", "upvote_count:desc", "collection_count:desc"},
 				FilterableAttributes: []string{"tags", "visibility", "user_id"},
 			}
 			if _, err = client.Index(s.Index).UpdateSettings(&settings); err != nil {

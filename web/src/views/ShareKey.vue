@@ -133,9 +133,14 @@ const loadKeys = () => {
         })
         .catch((err) => {
             loading.value = false;
+            store.commit('triggerAuth', true);
+            store.commit('userLogout');
         });
+    } else {
+        loading.value = false;
+        store.commit('triggerAuth', true);
+        store.commit('userLogout');
     }
-    
 };
 const isDelete = (sharekey: Item.ShareKeyProps) => {
     selectedShareKey.value = sharekey;
@@ -159,7 +164,13 @@ const deleteShareKey = (keyToDelete: string) => {
         })
         .catch((err) => {
             loading.value = false;
+            store.commit('triggerAuth', true);
+            store.commit('userLogout');
         });
+    } else {
+        loading.value = false;
+        store.commit('triggerAuth', true);
+        store.commit('userLogout');
     }
     showRecharge.value = false;
 };

@@ -6,6 +6,7 @@ package jinzhu
 
 import (
 	"strings"
+	"time"
 
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
@@ -90,5 +91,52 @@ func (s *userManageServant) CreateUser(user *dbr.User) (*core.User, error) {
 }
 
 func (s *userManageServant) UpdateUser(user *core.User) error {
-	return user.Update(s.db)
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		//获取用户的账单，判断是否赠送过
+		bills, err := (&dbr.WalletStatement{}).List(tx, &dbr.ConditionsT{
+			"user_id = ?": user.ID,
+			"reason = ?":  "手机号绑定赠送",
+		}, 0, 1)
+		if err != nil {
+			return err
+		}
+		if len(bills) > 0 {
+			err = user.Update(s.db)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+
+		//查询当前用户的balance
+		oldUser, err := s.GetUserByID(user.ID)
+		if err != nil {
+			return err
+		}
+		if oldUser.Balance == 0 || oldUser.Balance <= time.Now().Unix() {
+			//更新当前用户的balance时间戳，增加14天
+			//获取当前时间戳并加上14天
+			user.Balance = time.Now().Unix() + 1209600
+		} else {
+			user.Balance = oldUser.Balance + user.Balance
+		}
+
+		err = user.Update(s.db)
+		if err != nil {
+			return err
+		}
+
+		// 新增账单
+		if err := tx.Create(&dbr.WalletStatement{
+			UserID:          user.ID,
+			ChangeAmount:    1400,
+			BalanceSnapshot: user.Balance,
+			Reason:          "手机号绑定赠送",
+		}).Error; err != nil {
+			return err
+		}
+
+		//返回nil，事务会被提交
+		return nil
+	})
 }
