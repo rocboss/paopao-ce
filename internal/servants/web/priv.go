@@ -634,6 +634,11 @@ func (s *privSrv) StickTweet(req *web.StickTweetReq) (*web.StickTweetResp, mir.E
 	}, nil
 }
 
+func (s *privSrv) HighlightTweet(req *web.HighlightTweetReq) (*web.HighlightTweetResp, mir.Error) {
+	// TODO
+	return nil, web.ErrNotImplemented
+}
+
 func (s *privSrv) LockTweet(req *web.LockTweetReq) (*web.LockTweetResp, mir.Error) {
 	post, err := s.Ds.GetPostByID(req.ID)
 	if err != nil {
