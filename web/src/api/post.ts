@@ -143,6 +143,17 @@ export const stickPost = (
   });
 };
 
+/** 设为亮点/取消亮点动态 */
+export const highlightPost = (
+  data: NetParams.PostHighlightPost
+): Promise<NetReq.PostHighlightPost> => {
+  return request({
+    method: "post",
+    url: "/v1/post/highlight",
+    data,
+  });
+};
+
 /** 置顶/取消置顶动态 */
 export const visibilityPost = (
   data: NetParams.PostVisibilityPost

@@ -21,10 +21,11 @@ const (
 )
 
 const (
-	UserPostsStylePost    = "post"
-	UserPostsStyleComment = "comment"
-	UserPostsStyleMedia   = "media"
-	UserPostsStyleStar    = "star"
+	UserPostsStylePost      = "post"
+	UserPostsStyleComment   = "comment"
+	UserPostsStyleHighlight = "highlight"
+	UserPostsStyleMedia     = "media"
+	UserPostsStyleStar      = "star"
 )
 
 type TagType = cs.TagType

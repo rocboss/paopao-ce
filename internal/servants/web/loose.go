@@ -66,6 +66,8 @@ func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTwe
 	switch req.Style {
 	case web.UserPostsStyleComment:
 		res, err = s.getUserCommentTweets(req, isSelf)
+	case web.UserPostsStyleHighlight:
+		res, err = s.getUserHighlightTweets(req, isSelf)
 	case web.UserPostsStyleMedia:
 		res, err = s.getUserMediaTweets(req, isSelf)
 	case web.UserPostsStyleStar:
@@ -79,6 +81,12 @@ func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTwe
 }
 
 func (s *looseSrv) getUserCommentTweets(req *web.GetUserTweetsReq, isSelf bool) (*web.GetUserTweetsResp, mir.Error) {
+	// TODO: add implement logic
+	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) getUserHighlightTweets(req *web.GetUserTweetsReq, isSelf bool) (*web.GetUserTweetsResp, mir.Error) {
 	// TODO: add implement logic
 	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
 	return (*web.GetUserTweetsResp)(resp), nil
