@@ -86,8 +86,17 @@ type StickTweetReq struct {
 	ID       int64 `json:"id" binding:"required"`
 }
 
+type HighlightTweetReq struct {
+	BaseInfo `json:"-" binding:"-"`
+	ID       int64 `json:"id" binding:"required"`
+}
+
 type StickTweetResp struct {
 	StickStatus int `json:"top_status"`
+}
+
+type HighlightTweetResp struct {
+	HighlightStatus int `json:"highlight_status"`
 }
 
 type VisibleTweetReq struct {
