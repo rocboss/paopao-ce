@@ -358,41 +358,180 @@ SELECT count(*) FROM @post WHERE visibility IN (?);
 
 -- name: get_user_post_star@tweet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT
+	s.*,
+	P.ID "post.id",
+	P.user_id "post.user_id",
+	P.comment_count "post.comment_count",
+	P.collection_count "post.collection_count",
+	P.upvote_count "post.upvote_count",
+	P.share_count "post.share_count",
+	P.visibility "post.visibility",
+	P.is_top "post.is_top",
+	P.is_essence "post.is_essence",
+	P.is_lock "post.is_lock",
+	P.latest_replied_on "post.latest_replied_on",
+	P.tags "post.tags",
+	P.attachment_price "post.attachment_price",
+	P.ip "post.ip",
+	P.ip_loc "post.ip_loc",
+	P.is_del "post.is_del",
+	P.created_on "post.created_on",
+	P.modified_on "post.modified_on",
+	P.deleted_on "post.deleted_on" 
+FROM
+	@post_star s
+	JOIN @post P ON s.post_id = P.ID 
+WHERE
+	s.post_id = ? 
+	AND s.user_id = ? 
+	AND s.is_del = 0 
+	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) ) 
+ORDER BY
+	P.ID DESC;
 
 -- name: get_user_post_stars@tweet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT
+	s.*,
+	P.ID "post.id",
+	P.user_id "post.user_id",
+	P.comment_count "post.comment_count",
+	P.collection_count "post.collection_count",
+	P.upvote_count "post.upvote_count",
+	P.share_count "post.share_count",
+	P.visibility "post.visibility",
+	P.is_top "post.is_top",
+	P.is_essence "post.is_essence",
+	P.is_lock "post.is_lock",
+	P.latest_replied_on "post.latest_replied_on",
+	P.tags "post.tags",
+	P.attachment_price "post.attachment_price",
+	P.ip "post.ip",
+	P.ip_loc "post.ip_loc",
+	P.is_del "post.is_del",
+	P.created_on "post.created_on",
+	P.modified_on "post.modified_on",
+	P.deleted_on "post.deleted_on" 
+FROM
+	@post_star s
+	JOIN @post P ON s.post_id = P.ID 
+WHERE
+	s.user_id = ? 
+	AND s.is_del = 0 
+	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) ) 
+ORDER BY
+    s.ID DESC,
+	P.ID DESC
+LIMIT ? OFFSET ?;
 
 -- name: get_user_post_star_count@tweet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT
+    count(*) 
+FROM
+	@post_star s
+	JOIN @post P ON s.post_id = P.ID 
+WHERE
+	s.user_id = ? 
+	AND s.is_del = 0 
+	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) );
 
 -- name: get_user_post_collection@tweet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT
+	s.*,
+	P.ID "post.id",
+	P.user_id "post.user_id",
+	P.comment_count "post.comment_count",
+	P.collection_count "post.collection_count",
+	P.upvote_count "post.upvote_count",
+	P.share_count "post.share_count",
+	P.visibility "post.visibility",
+	P.is_top "post.is_top",
+	P.is_essence "post.is_essence",
+	P.is_lock "post.is_lock",
+	P.latest_replied_on "post.latest_replied_on",
+	P.tags "post.tags",
+	P.attachment_price "post.attachment_price",
+	P.ip "post.ip",
+	P.ip_loc "post.ip_loc",
+	P.is_del "post.is_del",
+	P.created_on "post.created_on",
+	P.modified_on "post.modified_on",
+	P.deleted_on "post.deleted_on" 
+FROM
+	@post_collection s
+	JOIN @post P ON s.post_id = P.ID 
+WHERE
+	s.post_id = ? 
+	AND s.user_id = ? 
+	AND s.is_del = 0 
+	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) ) 
+ORDER BY
+	P.ID DESC;
 
 -- name: get_user_post_collections@tweet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT
+	s.*,
+	P.ID "post.id",
+	P.user_id "post.user_id",
+	P.comment_count "post.comment_count",
+	P.collection_count "post.collection_count",
+	P.upvote_count "post.upvote_count",
+	P.share_count "post.share_count",
+	P.visibility "post.visibility",
+	P.is_top "post.is_top",
+	P.is_essence "post.is_essence",
+	P.is_lock "post.is_lock",
+	P.latest_replied_on "post.latest_replied_on",
+	P.tags "post.tags",
+	P.attachment_price "post.attachment_price",
+	P.ip "post.ip",
+	P.ip_loc "post.ip_loc",
+	P.is_del "post.is_del",
+	P.created_on "post.created_on",
+	P.modified_on "post.modified_on",
+	P.deleted_on "post.deleted_on" 
+FROM
+	@post_collection s
+	JOIN @post P ON s.post_id = P.ID 
+WHERE
+	s.user_id = ? 
+	AND s.is_del = 0 
+	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) ) 
+ORDER BY
+    s.ID DESC,
+	P.ID DESC
+LIMIT ? OFFSET ?;
 
 -- name: get_user_post_collection_count@tweet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT
+    count(*) 
+FROM
+	@post_collection s
+	JOIN @post P ON s.post_id = P.ID 
+WHERE
+	s.user_id = ? 
+	AND s.is_del = 0 
+	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) );
 
 -- name: get_post_attachment_bill@tweet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @post_attachment_bill WHERE post_id=? AND user_id=? AND is_del=0;
 
 -- name: get_post_contents_by_ids@tweet
 -- prepare: raw
 -- clause: in
-SELECT * FROM @post_content 
+SELECT * 
+FROM @post_content 
 WHERE post_id IN (?) AND is_del=0;
 
 -- name: get_post_content_by_id@tweet
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * FROM @post_content WHERE id=? AND is_del=0;
 
 --------------------------------------------------------------------------------
 -- tweet_manage sql dml
@@ -459,6 +598,29 @@ VALUES (:post_id, :user_id, :content, :type, :sort, :created_on);
 -- prepare: stmt
 INSERT INTO @attachment (user_id, file_size, img_width, img_height, type, content, created_on)
 VALUES (?, ?, ?, ?, ?, ?, ?);
+
+-- name: comment_ids_by_post_id@tweet_manage
+-- prepare: stmt
+SELECT id FROM @comment WHERE post_id=? AND is_del=0;
+
+-- name: comment_media_from_comment_ids@tweet_manage
+-- prepare: raw
+-- clause: in
+SELECT content FROM @comment_content WHERE comment_id IN (?) AND type=3 AND is_del=0;
+
+-- name: del_comment_by_post_id@tweet_manage
+-- prepare: stmt
+UPDATE @comment SET deleted_on=?, is_del=1 WHERE post_id=? AND is_del=0;
+
+-- name: del_comment_content_by_comment_ids@tweet_manage
+-- prepare: raw
+-- clause: in
+UPDATE @comment_content SET deleted_on=?, is_del=1 WHERE comment_id IN (?) AND is_del=0;
+
+-- name: del_reply_by_comment_ids@tweet_manage
+-- prepare: raw
+-- clause: in
+UPDATE @comment_reply SET deleted_on=?, is_del=1 WHERE comment_id IN (?) AND is_del=0;
 
 --------------------------------------------------------------------------------
 -- tweet_help sql dml

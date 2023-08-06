@@ -225,9 +225,32 @@ func (s *tweetManageSrv) DeletePost(post *ms.Post) (mediaContents []string, err 
 	return
 }
 
-func (s *tweetManageSrv) deleteCommentByPostId(tx *sqlx.Tx, postId int64) ([]string, error) {
-	// TODO
-	return nil, nil
+func (s *tweetManageSrv) deleteCommentByPostId(tx *sqlx.Tx, postId int64) (mediaContents []string, err error) {
+	var commentIds []int64
+	// 获取推文的所有评论id
+	err = tx.Stmtx(s.q.CommentIdsByPostId).Select(&commentIds, postId)
+	if err != nil {
+		return nil, err
+	}
+	// 获取评论的媒体内容
+	err = s.inSelectx(tx, &mediaContents, s.q.CommentMediaFromCommentIds, commentIds)
+	if err != nil {
+		return nil, err
+	}
+	// 删评论
+	now := time.Now().Unix()
+	if _, err = tx.Stmtx(s.q.DelCommentByPostId).Exec(now, postId); err != nil {
+		return nil, err
+	}
+	// 删评论内容
+	if _, err = s.inExecx(tx, s.q.DelCommentContentByCommentIds, now, commentIds); err != nil {
+		return nil, err
+	}
+	// 删评论的评论
+	if _, err = s.inExecx(tx, s.q.DelReplyByCommentIds, now, commentIds); err != nil {
+		return nil, err
+	}
+	return
 }
 
 func (s *tweetManageSrv) LockPost(r *ms.Post) error {
@@ -332,44 +355,39 @@ func (s *tweetSrv) GetPostCount(c ms.ConditionsT) (res int64, err error) {
 	return
 }
 
-func (s *tweetSrv) GetUserPostStar(postID, userID int64) (*ms.PostStar, error) {
-	res := &ms.PostStar{}
-	err := s.q.GetUserPostStar.Get(res, postID, userID)
-	return res, err
-}
-
-func (s *tweetSrv) GetUserPostStars(userID int64, offset, limit int) ([]*ms.PostStar, error) {
-	res := []*ms.PostStar{}
-	err := s.q.GetUserPostStar.Select(&res, userID, limit, offset)
-	return res, err
-}
-
-func (s *tweetSrv) GetUserPostStarCount(userID int64) (res int64, err error) {
-	err = s.q.GetUserPostStarCount.Get(&res, userID)
+func (s *tweetSrv) GetUserPostStar(postID, userID int64) (res *ms.PostStar, err error) {
+	err = s.q.GetUserPostStar.Get(res, postID, userID, userID)
 	return
 }
 
-func (s *tweetSrv) GetUserPostCollection(postID, userID int64) (*ms.PostCollection, error) {
-	res := &ms.PostCollection{}
-	err := s.q.GetUserPostCollection.Get(res, postID, userID)
-	return res, err
+func (s *tweetSrv) GetUserPostStars(userID int64, offset, limit int) (res []*ms.PostStar, err error) {
+	err = s.q.GetUserPostStar.Select(&res, userID, userID, limit, offset)
+	return
 }
 
-func (s *tweetSrv) GetUserPostCollections(userID int64, offset, limit int) ([]*ms.PostCollection, error) {
-	res := []*ms.PostCollection{}
-	err := s.q.GetUserPostCollections.Select(&res, userID, limit, offset)
+func (s *tweetSrv) GetUserPostStarCount(userID int64) (res int64, err error) {
+	err = s.q.GetUserPostStarCount.Get(&res, userID, userID)
+	return
+}
+
+func (s *tweetSrv) GetUserPostCollection(postID, userID int64) (res *ms.PostCollection, err error) {
+	err = s.q.GetUserPostCollection.Get(res, postID, userID, userID)
+	return
+}
+
+func (s *tweetSrv) GetUserPostCollections(userID int64, offset, limit int) (res []*ms.PostCollection, err error) {
+	err = s.q.GetUserPostCollections.Select(&res, userID, userID, limit, offset)
 	return res, err
 }
 
 func (s *tweetSrv) GetUserPostCollectionCount(userID int64) (res int64, err error) {
-	err = s.q.GetUserPostCollectionCount.Get(&res)
+	err = s.q.GetUserPostCollectionCount.Get(&res, userID, userID)
 	return
 }
 
-func (s *tweetSrv) GetPostAttatchmentBill(postID, userID int64) (*ms.PostAttachmentBill, error) {
-	res := &ms.PostAttachmentBill{}
-	err := s.q.GetPostAttachmentBill.Get(res, postID, userID)
-	return res, err
+func (s *tweetSrv) GetPostAttatchmentBill(postID, userID int64) (res *ms.PostAttachmentBill, err error) {
+	err = s.q.GetPostAttachmentBill.Get(res, postID, userID)
+	return
 }
 
 func (s *tweetSrv) GetPostContentsByIDs(ids []int64) (res []*ms.PostContent, err error) {
@@ -377,10 +395,9 @@ func (s *tweetSrv) GetPostContentsByIDs(ids []int64) (res []*ms.PostContent, err
 	return
 }
 
-func (s *tweetSrv) GetPostContentByID(id int64) (*ms.PostContent, error) {
-	res := &ms.PostContent{}
-	err := s.q.GetPostContentById.Get(res, id)
-	return res, err
+func (s *tweetSrv) GetPostContentByID(id int64) (res *ms.PostContent, err error) {
+	err = s.q.GetPostContentById.Get(res, id)
+	return
 }
 
 func (s *tweetSrvA) TweetInfoById(id int64) (*cs.TweetInfo, error) {

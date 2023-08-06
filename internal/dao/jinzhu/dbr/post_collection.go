@@ -13,7 +13,7 @@ import (
 
 type PostCollection struct {
 	*Model
-	Post   *Post `json:"-"`
+	Post   *Post `db:"post" json:"-"`
 	PostID int64 `db:"post_id" json:"post_id"`
 	UserID int64 `db:"user_id" json:"user_id"`
 }
