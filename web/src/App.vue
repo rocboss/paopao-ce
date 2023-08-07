@@ -1,5 +1,5 @@
 <template>
-    <n-config-provider :theme="theme">
+    <n-config-provider :theme="theme" :theme-overrides="theme === null ? lightThemeOverrides : darkThemeOverrides">
         <n-message-provider>
             <n-dialog-provider>
                 <div
@@ -47,8 +47,34 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { darkTheme } from 'naive-ui';
 
+const lightThemeOverrides = {
+    common: {
+        primaryColor: '#063c62',
+        quaternaryColor: '#063c62',
+        primaryColorHover: '#063c62',
+        primaryColorPressed: '#063c62',
+        primaryColorPressedHover: '#063c62',
+    },
+    Button: {
+        color: '#fff',
+        colorDisabled: '#fff',
+    },
+  }
+
+  const darkThemeOverrides = {
+    common: {
+      primaryColor: '#2080f0',
+      quaternaryColor: '#2080f0',
+      primaryColorHover: '#2080f0',
+      primaryColorPressed: '#2080f0',
+      primaryColorPressedHover: '#2080f0',
+    }
+  }
+
 const store = useStore();
+
 const theme = computed(() => (store.state.theme === 'dark' ? darkTheme : null));
+
 </script>
 
 <style lang="less">

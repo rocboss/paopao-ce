@@ -47,7 +47,7 @@
                 <whisper-add-friend :show="showAddFriendWhisper" :user="user" @success="addFriendWhisperSuccess" />
             </n-spin>
             <n-tabs class="profile-tabs-wrap" type="line" animated @update:value="changeTab">
-                <n-tab-pane name="post" tab="泡泡"> </n-tab-pane>
+                <n-tab-pane name="post" tab="Aimo"> </n-tab-pane>
                 <n-tab-pane name="comment" tab="评论"> </n-tab-pane>
                 <n-tab-pane name="media" tab="图文"> </n-tab-pane>
                 <n-tab-pane name="star" tab="喜欢"> </n-tab-pane>

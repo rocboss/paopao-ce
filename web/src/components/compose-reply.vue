@@ -201,7 +201,7 @@ defineExpose({ switchReply });
         }
 
         .show {
-            color: #18a058;
+            color: #063c62;
             cursor: pointer;
             opacity: 0.75;
            
@@ -220,7 +220,7 @@ defineExpose({ switchReply });
 
         .reply-switch {
             .show {
-                color: #63e2b7;
+                color: #2080f0;
             }
         }
     }

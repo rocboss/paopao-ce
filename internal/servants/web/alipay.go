@@ -93,11 +93,11 @@ func (s *alipayPrivSrv) UserRechargeLink(req *web.UserRechargeLinkReq) (*web.Use
 	//定义一个整型变量，单价
 	p := alipay.TradePreCreate{}
 	p.OutTradeNo = fmt.Sprintf("%d", recharge.ID)
-	p.Subject = "PaoPao用户钱包充值"
+	p.Subject = "Aimo用户钱包充值"
 	p.TotalAmount = fmt.Sprintf("%.2f", float64(recharge.Amount)/100.0*a)
-	//p.NotifyURL = "http://" + req.Host + "/v1/alipay/notify"
+	p.NotifyURL = "https://" + req.Host + "/v1/alipay/notify"
 	//支付宝回调，如果是内网环境的话，需要增加内网穿透
-	p.NotifyURL = "http://uszkjc.natappfree.cc/v1/alipay/notify"
+	//p.NotifyURL = "http://uszkjc.natappfree.cc/v1/alipay/notify"
 	rsp, err := s.alipayClient.TradePreCreate(p)
 	if err != nil {
 		logrus.Errorf("client.TradePreCreate err: %v\n", err)

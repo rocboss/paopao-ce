@@ -24,7 +24,7 @@
                     @focus="focusComment"
                     :placeholder="
                         props.lock === 1
-                            ? '泡泡已被锁定，回复功能已关闭'
+                            ? 'Aimo已被锁定，回复功能已关闭'
                             : '快来评论两句吧...'
                     "
                 />

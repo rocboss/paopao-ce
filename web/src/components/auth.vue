@@ -136,9 +136,6 @@
                                 />
                             </n-form-item-row>
                         </n-form>
-                        <p style=" font-size: 12px; color: #ef0808;">
-                            注册完成后请及时进入个人中心绑定手机号，成功绑定手机后，才能进行换头像、发动态、回复等交互，并将赠送14天的Aimo订阅！
-                        </p>
                         <n-button
                             type="primary"
                             block
@@ -161,6 +158,7 @@ import { ref, reactive, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { userLogin, userRegister, userInfo } from '@/api/auth';
 import type { FormInst, FormItemRule } from 'naive-ui';
+import router from '@/router';
 
 const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
 const store = useStore();
@@ -274,6 +272,10 @@ const handleRegister = (e: Event) => {
                     registerForm.username = '';
                     registerForm.password = '';
                     registerForm.repassword = '';
+                    //跳转到setting页面
+                    router.push({
+                        name: 'setting',
+                    });
                 })
                 .catch((err) => {
                     loading.value = false;

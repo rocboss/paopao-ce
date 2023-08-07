@@ -260,7 +260,7 @@ const execDelAction = () => {
              }
 
             .show {
-                color: #18a058;
+                color: #063c62;
                 cursor: pointer;
             }
 
@@ -280,7 +280,7 @@ const execDelAction = () => {
         .base-wrap {
             .reply-switch {
                 .show {
-                    color: #63e2b7;
+                    color: #2080f0;
                 }
             }
         }

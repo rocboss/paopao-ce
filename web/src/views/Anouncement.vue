@@ -93,7 +93,7 @@ onMounted(() => {
     }
 
     .income {
-        color: #18a058;
+        color: #063c62;
     }
 }
 
@@ -125,7 +125,7 @@ onMounted(() => {
 
 .dark {
     .income {
-        color: #63e2b7;
+        color: #2080f0;
     }
 }
 </style>

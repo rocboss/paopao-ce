@@ -3,7 +3,7 @@
         <n-grid :x-gap="4" :y-gap="4" :cols="full ? 1 : 5">
             <n-gi :span="full ? 1 : 3">
                 <paopao-video-player @click.stop v-for="video in props.videos" :key="video.id" :src="video.content"
-                    :colors="['#18a058', '#2aca75']" :hoverable="true" theme="gradient" />
+                    :colors="['#063c62', '#2aca75']" :hoverable="true" theme="gradient" />
             </n-gi>
         </n-grid>
     </div>

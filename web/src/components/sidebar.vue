@@ -1,7 +1,7 @@
 <template>
     <div class="sidebar-wrap">
         <div class="logo-wrap">
-            <n-image class="logo-img" width="36" :src="LOGO" :preview-disabled="true" @click="goHome" />
+            <n-image class="logo-img" width="160" :src="LOGO" :preview-disabled="true" @click="goHome" />
         </div>
         <n-menu :accordion="true" :icon-size="24"
             :options="menuOptions" :render-label="renderMenuLabel" :render-icon="renderMenuIcon" :value="selectedPath"

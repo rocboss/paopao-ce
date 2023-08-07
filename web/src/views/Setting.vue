@@ -57,6 +57,7 @@
                     )
                     "
                     @click="handleNicknameShow"
+                    :style="{color : buttonStyle}"
                 >
                     <template #icon>
                         <n-icon>
@@ -87,13 +88,14 @@
                     type="success"
                     v-if="!showPhoneBind && store.state.userInfo.status == 1"
                     @click="showPhoneBind = true"
+                    :style="{color : buttonStyle}"
                 >
                     换绑手机
                 </n-button>
             </div>
             <div v-else>
                 <n-alert title="手机绑定提示" type="warning">
-                    成功绑定手机后，才能进行换头像、发动态、回复等交互~<br />
+                    点赞和评论，请绑定手机号，并将赠送14天的Aimo订阅。<br />
                     <a
                         class="hash-link"
                         @click="showPhoneBind = true"
@@ -275,8 +277,9 @@
                 type="success"
                 v-if="!showPasswordSetting"
                 @click="showPasswordSetting = true"
+                :style="{color : buttonStyle}"
             >
-                重置密码
+                点击重置密码
             </n-button>
             <div class="phone-bind-wrap" v-if="showPasswordSetting">
                 <n-form ref="formRef" :model="modelData" :rules="passwordRules">
@@ -340,7 +343,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, reactive } from 'vue';
+import { onMounted, ref, reactive, computed } from 'vue';
 import { useStore } from 'vuex';
 import { Edit } from '@vicons/tabler';
 import {
@@ -360,6 +363,8 @@ import type {
     InputInst,
 } from 'naive-ui';
 
+
+
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
 const uploadType = ref('public/avatar');
@@ -368,6 +373,9 @@ const allowPhoneBind = (import.meta.env.VITE_ALLOW_PHONE_BIND.toLowerCase() === 
 const allowActivation = (import.meta.env.VITE_ALLOW_ACTIVATION.toLowerCase() === 'true')
 
 const store = useStore();
+const buttonStyle = computed(() => {
+    return store.state.theme === 'dark' ? "#2080f0" : "#063c62";
+});
 const sending = ref(false);
 const binding = ref(false);
 const activating = ref(false)

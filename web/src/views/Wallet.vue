@@ -311,7 +311,7 @@ onMounted(() => {
     }
 
     .income {
-        color: #18a058;
+        color: #063c62;
     }
 }
 .pagination-wrap {
@@ -340,7 +340,7 @@ onMounted(() => {
 
 .dark {
     .income {
-        color: #63e2b7;
+        color: #2080f0;
     }
     .main-content-wrap {
         background-color: rgba(16, 16, 20, 0.75);

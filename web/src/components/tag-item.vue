@@ -160,6 +160,7 @@ onMounted(() => {
 <style lang="less">
 .tag-item {
     .tag-quote {
+        color: #063c62;
         margin-left: 12px;
         font-size: 14px;
         opacity: 0.75;
