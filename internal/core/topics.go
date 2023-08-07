@@ -5,24 +5,27 @@
 package core
 
 import (
-	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
-)
-
-type (
-	Tag         = dbr.Tag
-	TagFormated = dbr.TagFormated
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 )
 
 // TopicService 话题服务
 type TopicService interface {
-	CreateTag(tag *Tag) (*Tag, error)
-	DeleteTag(tag *Tag) error
-	GetTags(conditions *ConditionsT, offset, limit int) ([]*Tag, error)
-	GetHotTags(userId int64, limit int, offset int) ([]*TagFormated, error)
-	GetNewestTags(userId int64, limit int, offset int) ([]*TagFormated, error)
-	GetFollowTags(userId int64, limit int, offset int) ([]*TagFormated, error)
-	GetTagsByKeyword(keyword string) ([]*Tag, error)
+	UpsertTags(userId int64, tags []string) (cs.TagInfoList, error)
+	DecrTagsById(ids []int64) error
+	ListTags(typ cs.TagType, limit int, offset int) (cs.TagList, error)
+	TagsByKeyword(keyword string) (cs.TagInfoList, error)
+	GetHotTags(userId int64, limit int, offset int) (cs.TagList, error)
+	GetNewestTags(userId int64, limit int, offset int) (cs.TagList, error)
+	GetFollowTags(userId int64, limit int, offset int) (cs.TagList, error)
 	FollowTopic(userId int64, topicId int64) error
 	UnfollowTopic(userId int64, topicId int64) error
 	StickTopic(userId int64, topicId int64) (int8, error)
+}
+
+// TopicServantA 话题服务(版本A)
+type TopicServantA interface {
+	UpsertTags(userId int64, tags []string) (cs.TagInfoList, error)
+	DecrTagsById(ids []int64) error
+	ListTags(typ cs.TagType, limit int, offset int) (cs.TagList, error)
+	TagsByKeyword(keyword string) (cs.TagInfoList, error)
 }

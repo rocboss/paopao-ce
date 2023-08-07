@@ -14,6 +14,7 @@ import (
 	"github.com/alimy/mir/v4"
 	"github.com/gofrs/uuid/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
@@ -120,11 +121,11 @@ func persistMediaContents(oss core.ObjectStorageService, contents []*web.PostCon
 	items = make([]string, 0, len(contents))
 	for _, item := range contents {
 		switch item.Type {
-		case core.ContentTypeImage,
-			core.ContentTypeVideo,
-			core.ContentTypeAudio,
-			core.ContentTypeAttachment,
-			core.ContentTypeChargeAttachment:
+		case ms.ContentTypeImage,
+			ms.ContentTypeVideo,
+			ms.ContentTypeAudio,
+			ms.ContentTypeAttachment,
+			ms.ContentTypeChargeAttachment:
 			items = append(items, item.Content)
 			if err != nil {
 				continue
@@ -201,7 +202,7 @@ func tagsFrom(originTags []string) []string {
 }
 
 // checkPermision 检查是否拥有者或管理员
-func checkPermision(user *core.User, targetUserId int64) mir.Error {
+func checkPermision(user *ms.User, targetUserId int64) mir.Error {
 	if user == nil || (user.ID != targetUserId && !user.IsAdmin) {
 		return web.ErrNoPermission
 	}

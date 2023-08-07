@@ -7,6 +7,8 @@ package core
 import (
 	"context"
 
+	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 )
 
@@ -24,6 +26,11 @@ type IdxAct uint8
 type IndexAction struct {
 	Act  IdxAct
 	Post *dbr.Post
+}
+
+type IndexActionA struct {
+	Act   IdxAct
+	Tweet *cs.TweetInfo
 }
 
 func (a IdxAct) String() string {
@@ -45,10 +52,17 @@ func (a IdxAct) String() string {
 	}
 }
 
-func NewIndexAction(act IdxAct, post *dbr.Post) *IndexAction {
+func NewIndexAction(act IdxAct, post *ms.Post) *IndexAction {
 	return &IndexAction{
 		Act:  act,
 		Post: post,
+	}
+}
+
+func NewIndexActionA(act IdxAct, tweet *cs.TweetInfo) *IndexActionA {
+	return &IndexActionA{
+		Act:   act,
+		Tweet: tweet,
 	}
 }
 
@@ -57,6 +71,13 @@ type CacheIndexService interface {
 	IndexPostsService
 
 	SendAction(act IdxAct, post *dbr.Post)
+}
+
+// CacheIndexServantA cache index service interface
+type CacheIndexServantA interface {
+	IndexPostsServantA
+
+	SendAction(act IdxAct, tweet *cs.TweetInfo)
 }
 
 // RedisCache memory cache by Redis

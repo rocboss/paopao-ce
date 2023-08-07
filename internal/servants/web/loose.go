@@ -10,6 +10,7 @@ import (
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
@@ -65,6 +66,8 @@ func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTwe
 	switch req.Style {
 	case web.UserPostsStyleComment:
 		res, err = s.getUserCommentTweets(req, isSelf)
+	case web.UserPostsStyleHighlight:
+		res, err = s.getUserHighlightTweets(req, isSelf)
 	case web.UserPostsStyleMedia:
 		res, err = s.getUserMediaTweets(req, isSelf)
 	case web.UserPostsStyleStar:
@@ -78,6 +81,12 @@ func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTwe
 }
 
 func (s *looseSrv) getUserCommentTweets(req *web.GetUserTweetsReq, isSelf bool) (*web.GetUserTweetsResp, mir.Error) {
+	// TODO: add implement logic
+	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) getUserHighlightTweets(req *web.GetUserTweetsReq, isSelf bool) (*web.GetUserTweetsResp, mir.Error) {
 	// TODO: add implement logic
 	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
 	return (*web.GetUserTweetsResp)(resp), nil
@@ -121,7 +130,7 @@ func (s *looseSrv) getSelfStarTweets(req *web.GetUserTweetsReq) (*web.GetUserTwe
 		logrus.Errorf("Ds.GetUserPostStars err: %s", err)
 		return nil, web.ErrGetStarsFailed
 	}
-	var posts []*core.Post
+	var posts []*ms.Post
 	for _, star := range stars {
 		posts = append(posts, star.Post)
 	}
@@ -151,7 +160,7 @@ func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq) (*web.GetUserTwe
 			visibilities = append(visibilities, core.PostVisitFriend)
 		}
 	}
-	conditions := &core.ConditionsT{
+	conditions := ms.ConditionsT{
 		"user_id":         other.ID,
 		"visibility IN ?": visibilities,
 		"ORDER":           "latest_replied_on DESC",
@@ -198,7 +207,7 @@ func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfi
 
 func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error) {
 	var (
-		tags, extralTags []*core.TagFormated
+		tags, extralTags cs.TagList
 		err              error
 	)
 	num := req.Num
@@ -236,7 +245,7 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 	if req.SortStrategy == "newest" {
 		sort = "id DESC"
 	}
-	conditions := &core.ConditionsT{
+	conditions := &ms.ConditionsT{
 		"post_id": req.TweetId,
 		"ORDER":   sort,
 	}
@@ -290,7 +299,7 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 		}
 	}
 
-	commentsFormated := []*core.CommentFormated{}
+	commentsFormated := []*ms.CommentFormated{}
 	for _, comment := range comments {
 		commentFormated := comment.Format()
 		if thumbs, exist := commentThumbs[comment.ID]; exist {

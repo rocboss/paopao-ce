@@ -5,7 +5,7 @@
 package web
 
 import (
-	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/pkg/version"
 )
 
@@ -13,7 +13,7 @@ type TweetDetailReq struct {
 	TweetId int64 `form:"id"`
 }
 
-type TweetDetailResp core.PostFormated
+type TweetDetailResp ms.PostFormated
 
 type GetCaptchaResp struct {
 	Id      string `json:"id"`

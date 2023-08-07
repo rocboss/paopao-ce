@@ -153,6 +153,10 @@ declare module NetParams {
     id: number;
   }
 
+  interface PostHighlightPost {
+    id: number;
+  }
+
   interface PostVisibilityPost {
     id: number;
     /** 可见性：0为公开，1为私密，2为好友可见 */

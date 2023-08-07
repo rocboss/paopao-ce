@@ -7,17 +7,13 @@ package core
 import (
 	"time"
 
-	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
-)
-
-type (
-	Captcha = dbr.Captcha
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 )
 
 // SecurityService 安全相关服务
 type SecurityService interface {
-	GetLatestPhoneCaptcha(phone string) (*Captcha, error)
-	UsePhoneCaptcha(captcha *Captcha) error
+	GetLatestPhoneCaptcha(phone string) (*ms.Captcha, error)
+	UsePhoneCaptcha(captcha *ms.Captcha) error
 	SendPhoneCaptcha(phone string) error
 }
 

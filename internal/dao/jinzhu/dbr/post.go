@@ -120,7 +120,7 @@ func (p *Post) Get(db *gorm.DB) (*Post, error) {
 	return &post, nil
 }
 
-func (p *Post) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]*Post, error) {
+func (p *Post) List(db *gorm.DB, conditions ConditionsT, offset, limit int) ([]*Post, error) {
 	var posts []*Post
 	var err error
 	if offset >= 0 && limit > 0 {
@@ -129,7 +129,7 @@ func (p *Post) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]
 	if p.UserID > 0 {
 		db = db.Where("user_id = ?", p.UserID)
 	}
-	for k, v := range *conditions {
+	for k, v := range conditions {
 		if k == "ORDER" {
 			db = db.Order(v)
 		} else {
@@ -178,12 +178,12 @@ func (p *Post) CountBy(db *gorm.DB, predicates Predicates) (count int64, err err
 	return
 }
 
-func (p *Post) Count(db *gorm.DB, conditions *ConditionsT) (int64, error) {
+func (p *Post) Count(db *gorm.DB, conditions ConditionsT) (int64, error) {
 	var count int64
 	if p.UserID > 0 {
 		db = db.Where("user_id = ?", p.UserID)
 	}
-	for k, v := range *conditions {
+	for k, v := range conditions {
 		if k != "ORDER" {
 			db = db.Where(k, v)
 		}

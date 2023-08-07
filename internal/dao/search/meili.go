@@ -11,6 +11,7 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/meilisearch/meilisearch-go"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/pkg/json"
 	"github.com/sirupsen/logrus"
 )
@@ -81,7 +82,7 @@ func (s *meiliTweetSearchServant) DeleteDocuments(identifiers []string) error {
 	return nil
 }
 
-func (s *meiliTweetSearchServant) Search(user *core.User, q *core.QueryReq, offset, limit int) (resp *core.QueryResp, err error) {
+func (s *meiliTweetSearchServant) Search(user *ms.User, q *core.QueryReq, offset, limit int) (resp *core.QueryResp, err error) {
 	if q.Type == core.SearchTypeDefault && q.Query != "" {
 		resp, err = s.queryByContent(user, q, offset, limit)
 	} else if q.Type == core.SearchTypeTag && q.Query != "" {
@@ -99,7 +100,7 @@ func (s *meiliTweetSearchServant) Search(user *core.User, q *core.QueryReq, offs
 	return
 }
 
-func (s *meiliTweetSearchServant) queryByContent(user *core.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
+func (s *meiliTweetSearchServant) queryByContent(user *ms.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
 	request := &meilisearch.SearchRequest{
 		Offset: int64(offset),
 		Limit:  int64(limit),
@@ -121,7 +122,7 @@ func (s *meiliTweetSearchServant) queryByContent(user *core.User, q *core.QueryR
 	return s.postsFrom(resp)
 }
 
-func (s *meiliTweetSearchServant) queryByTag(user *core.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
+func (s *meiliTweetSearchServant) queryByTag(user *ms.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
 	request := &meilisearch.SearchRequest{
 		Offset: int64(offset),
 		Limit:  int64(limit),
@@ -145,7 +146,7 @@ func (s *meiliTweetSearchServant) queryByTag(user *core.User, q *core.QueryReq, 
 	return s.postsFrom(resp)
 }
 
-func (s *meiliTweetSearchServant) queryAny(user *core.User, offset, limit int) (*core.QueryResp, error) {
+func (s *meiliTweetSearchServant) queryAny(user *ms.User, offset, limit int) (*core.QueryResp, error) {
 	request := &meilisearch.SearchRequest{
 		Offset: int64(offset),
 		Limit:  int64(limit),
@@ -165,7 +166,7 @@ func (s *meiliTweetSearchServant) queryAny(user *core.User, offset, limit int) (
 	return s.postsFrom(resp)
 }
 
-func (s *meiliTweetSearchServant) filterList(user *core.User) string {
+func (s *meiliTweetSearchServant) filterList(user *ms.User) string {
 	if user == nil {
 		return s.publicFilter
 	}
@@ -178,7 +179,7 @@ func (s *meiliTweetSearchServant) filterList(user *core.User) string {
 }
 
 func (s *meiliTweetSearchServant) postsFrom(resp *meilisearch.SearchResponse) (*core.QueryResp, error) {
-	posts := make([]*core.PostFormated, 0, len(resp.Hits))
+	posts := make([]*ms.PostFormated, 0, len(resp.Hits))
 	for _, hit := range resp.Hits {
 		raw, err := json.Marshal(hit)
 		if err != nil {
@@ -188,7 +189,7 @@ func (s *meiliTweetSearchServant) postsFrom(resp *meilisearch.SearchResponse) (*
 		if err = json.Unmarshal(raw, p); err != nil {
 			return nil, err
 		}
-		posts = append(posts, &core.PostFormated{
+		posts = append(posts, &ms.PostFormated{
 			ID:              p.ID,
 			UserID:          p.UserID,
 			CommentCount:    p.CommentCount,

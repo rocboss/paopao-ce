@@ -12,6 +12,7 @@ import (
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
@@ -31,9 +32,9 @@ type TweetReplyThumbsReq struct {
 }
 
 type PostContentItem struct {
-	Content string            `json:"content"  binding:"required"`
-	Type    core.PostContentT `json:"type"  binding:"required"`
-	Sort    int64             `json:"sort"  binding:"required"`
+	Content string          `json:"content"  binding:"required"`
+	Type    ms.PostContentT `json:"type"  binding:"required"`
+	Sort    int64           `json:"sort"  binding:"required"`
 }
 
 type CreateTweetReq struct {
@@ -46,7 +47,7 @@ type CreateTweetReq struct {
 	ClientIP        string             `json:"-" binding:"-"`
 }
 
-type CreateTweetResp core.PostFormated
+type CreateTweetResp ms.PostFormated
 
 type DeleteTweetReq struct {
 	BaseInfo `json:"-" binding:"-"`
@@ -85,8 +86,17 @@ type StickTweetReq struct {
 	ID       int64 `json:"id" binding:"required"`
 }
 
+type HighlightTweetReq struct {
+	BaseInfo `json:"-" binding:"-"`
+	ID       int64 `json:"id" binding:"required"`
+}
+
 type StickTweetResp struct {
 	StickStatus int `json:"top_status"`
+}
+
+type HighlightTweetResp struct {
+	HighlightStatus int `json:"highlight_status"`
 }
 
 type VisibleTweetReq struct {
@@ -107,7 +117,7 @@ type CreateCommentReq struct {
 	ClientIP   string             `json:"-" binding:"-"`
 }
 
-type CreateCommentResp core.Comment
+type CreateCommentResp ms.Comment
 
 type CreateCommentReplyReq struct {
 	SimpleInfo `json:"-" binding:"-"`
@@ -117,7 +127,7 @@ type CreateCommentReplyReq struct {
 	ClientIP   string `json:"-" binding:"-"`
 }
 
-type CreateCommentReplyResp core.CommentReply
+type CreateCommentReplyResp ms.CommentReply
 
 type DeleteCommentReq struct {
 	BaseInfo `json:"-" binding:"-"`
@@ -138,12 +148,12 @@ type UploadAttachmentReq struct {
 }
 
 type UploadAttachmentResp struct {
-	UserID    int64               `json:"user_id"`
-	FileSize  int64               `json:"file_size"`
-	ImgWidth  int                 `json:"img_width"`
-	ImgHeight int                 `json:"img_height"`
-	Type      core.AttachmentType `json:"type"`
-	Content   string              `json:"content"`
+	UserID    int64             `json:"user_id"`
+	FileSize  int64             `json:"file_size"`
+	ImgWidth  int               `json:"img_width"`
+	ImgHeight int               `json:"img_height"`
+	Type      ms.AttachmentType `json:"type"`
+	Content   string            `json:"content"`
 }
 
 type DownloadAttachmentPrecheckReq struct {
@@ -186,13 +196,13 @@ type UnfollowTopicReq struct {
 // Check 检查PostContentItem属性
 func (p *PostContentItem) Check(acs core.AttachmentCheckService) error {
 	// 检查附件是否是本站资源
-	if p.Type == core.ContentTypeImage || p.Type == core.ContentTypeVideo || p.Type == core.ContentTypeAttachment {
+	if p.Type == ms.ContentTypeImage || p.Type == ms.ContentTypeVideo || p.Type == ms.ContentTypeAttachment {
 		if err := acs.CheckAttachment(p.Content); err != nil {
 			return err
 		}
 	}
 	// 检查链接是否合法
-	if p.Type == core.ContentTypeLink {
+	if p.Type == ms.ContentTypeLink {
 		if strings.Index(p.Content, "http://") != 0 && strings.Index(p.Content, "https://") != 0 {
 			return fmt.Errorf("链接不合法")
 		}
