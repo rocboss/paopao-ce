@@ -5,29 +5,29 @@
 package jinzhu
 
 import (
-	"strings"
-	"time"
-
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
+	"strings"
+	"time"
 )
 
 var (
-	_ core.UserManageService = (*userManageServant)(nil)
+	_ core.UserManageService = (*userManageSrv)(nil)
 )
 
-type userManageServant struct {
+type userManageSrv struct {
 	db *gorm.DB
 }
 
 func newUserManageService(db *gorm.DB) core.UserManageService {
-	return &userManageServant{
+	return &userManageSrv{
 		db: db,
 	}
 }
 
-func (s *userManageServant) GetUserByID(id int64) (*core.User, error) {
+func (s *userManageSrv) GetUserByID(id int64) (*ms.User, error) {
 	user := &dbr.User{
 		Model: &dbr.Model{
 			ID: id,
@@ -36,28 +36,28 @@ func (s *userManageServant) GetUserByID(id int64) (*core.User, error) {
 	return user.Get(s.db)
 }
 
-func (s *userManageServant) GetUserByUsername(username string) (*core.User, error) {
+func (s *userManageSrv) GetUserByUsername(username string) (*ms.User, error) {
 	user := &dbr.User{
 		Username: username,
 	}
 	return user.Get(s.db)
 }
 
-func (s *userManageServant) GetUserByPhone(phone string) (*core.User, error) {
+func (s *userManageSrv) GetUserByPhone(phone string) (*ms.User, error) {
 	user := &dbr.User{
 		Phone: phone,
 	}
 	return user.Get(s.db)
 }
 
-func (s *userManageServant) GetUsersByIDs(ids []int64) ([]*core.User, error) {
+func (s *userManageSrv) GetUsersByIDs(ids []int64) ([]*ms.User, error) {
 	user := &dbr.User{}
 	return user.List(s.db, &dbr.ConditionsT{
 		"id IN ?": ids,
 	}, 0, 0)
 }
 
-func (s *userManageServant) GetUsersByKeyword(keyword string) ([]*core.User, error) {
+func (s *userManageSrv) GetUsersByKeyword(keyword string) ([]*ms.User, error) {
 	user := &dbr.User{}
 	keyword = strings.Trim(keyword, " ") + "%"
 	if keyword == "%" {
@@ -71,26 +71,11 @@ func (s *userManageServant) GetUsersByKeyword(keyword string) ([]*core.User, err
 	}
 }
 
-func (s *userManageServant) GetTagsByKeyword(keyword string) ([]*core.Tag, error) {
-	tag := &dbr.Tag{}
-	keyword = "%" + strings.Trim(keyword, " ") + "%"
-	if keyword == "%%" {
-		return tag.List(s.db, &dbr.ConditionsT{
-			"ORDER": "quote_num DESC",
-		}, 0, 6)
-	} else {
-		return tag.List(s.db, &dbr.ConditionsT{
-			"tag LIKE ?": keyword,
-			"ORDER":      "quote_num DESC",
-		}, 0, 6)
-	}
-}
-
-func (s *userManageServant) CreateUser(user *dbr.User) (*core.User, error) {
+func (s *userManageSrv) CreateUser(user *dbr.User) (*ms.User, error) {
 	return user.Create(s.db)
 }
 
-func (s *userManageServant) UpdateUser(user *core.User) error {
+func (s *userManageSrv) UpdateUser(user *ms.User) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		//获取用户的账单，判断是否赠送过
 		bills, err := (&dbr.WalletStatement{}).List(tx, &dbr.ConditionsT{

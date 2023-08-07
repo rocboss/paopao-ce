@@ -96,4 +96,6 @@ var (
 	ErrUserNameEmpty              = xerror.NewError(11003, "用户名为空")
 	ErrDeleteUserKeyFailed        = xerror.NewError(11004, "删除用户Share Key失败")
 	ErrGetUserShareKeyCountFailed = xerror.NewError(11005, "获取用户Share Key数量失败")
+
+	ErrNotImplemented = xerror.NewError(10501, "功能未实现")
 )
