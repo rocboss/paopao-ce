@@ -414,28 +414,15 @@ func (s *tweetSrv) GetUserPostStars(userID int64, limit int, offset int) ([]*ms.
 }
 
 func (s *tweetSrv) ListUserStarTweets(user *cs.VistUser, limit int, offset int) (res []*ms.PostStar, total int64, err error) {
-	var userId int64
-	typ := user.RelTyp
-	if typ == cs.RelationSelf {
-		userId = user.UserId
-	} else {
-		user := &dbr.User{
-			Username: user.Username,
-		}
-		if user, err = user.Get(s.db); err != nil {
-			return
-		}
-		userId = user.ID
-	}
 	star := &dbr.PostStar{
-		UserID: userId,
+		UserID: user.UserId,
 	}
-	if total, err = star.Count(s.db, typ, &dbr.ConditionsT{}); err != nil {
+	if total, err = star.Count(s.db, user.RelTyp, &dbr.ConditionsT{}); err != nil {
 		return
 	}
 	res, err = star.List(s.db, &dbr.ConditionsT{
 		"ORDER": s.db.NamingStrategy.TableName("PostStar") + ".id DESC",
-	}, typ, limit, offset)
+	}, user.RelTyp, limit, offset)
 	return
 }
 

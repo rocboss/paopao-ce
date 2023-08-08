@@ -275,18 +275,35 @@ func (s *DaoServant) GetTweetList(conditions ms.ConditionsT, offset, limit int) 
 	return posts, postFormated, err
 }
 
-func (s *DaoServant) RelationTypFrom(me *ms.User, username string) cs.RelationTyp {
+func (s *DaoServant) RelationTypFrom(me *ms.User, username string) (res *cs.VistUser, err error) {
+	res = &cs.VistUser{
+		RelTyp:   cs.RelationSelf,
+		Username: username,
+	}
+	// visit by self
+	if me != nil && me.Username == username {
+		res.UserId = me.ID
+		return
+	}
+	he, xerr := s.Ds.GetUserByUsername(username)
+	if xerr != nil || (he.Model != nil && he.ID <= 0) {
+		return nil, errors.New("get user failed with username: " + username)
+	}
+	res.UserId = he.ID
+	// visit by guest
 	if me == nil {
-		return cs.RelationGuest
+		res.RelTyp = cs.RelationGuest
+		return
 	}
+	// visit by admin/friend/other
 	if me.IsAdmin {
-		return cs.RelationAdmin
-	} else if me.Username == username {
-		return cs.RelationSelf
+		res.RelTyp = cs.RelationAdmin
+	} else if s.Ds.IsFriend(me.ID, he.ID) {
+		res.RelTyp = cs.RelationFriend
+	} else {
+		res.RelTyp = cs.RelationGuest
 	}
-	// TODO: other releation detect logic
-	// but return guest to all for now
-	return cs.RelationGuest
+	return
 }
 
 func NewBindAnyFn() func(c *gin.Context, obj any) mir.Error {
