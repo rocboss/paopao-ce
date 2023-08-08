@@ -329,7 +329,7 @@ const renderIcon = (icon: Component) => {
       default: () => h(icon)
     })
   }
-}
+};
 
 const adminOptions = computed(() => {
     let options: DropdownOption[] = [
