@@ -31,6 +31,7 @@ type TweetManageService interface {
 	DeletePost(post *ms.Post) ([]string, error)
 	LockPost(post *ms.Post) error
 	StickPost(post *ms.Post) error
+	HighlightPost(userId, postId int64) (int, error)
 	VisiblePost(post *ms.Post, visibility PostVisibleT) error
 	UpdatePost(post *ms.Post) error
 	CreatePostStar(postID, userID int64) (*ms.PostStar, error)

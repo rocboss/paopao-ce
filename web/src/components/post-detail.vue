@@ -319,6 +319,7 @@ const post = computed({
         props.post.upvote_count = newVal.upvote_count;
         props.post.comment_count = newVal.comment_count;
         props.post.collection_count = newVal.collection_count;
+        props.post.is_essence = newVal.is_essence;
     },
 });
 
@@ -486,7 +487,7 @@ const execDelAction = () => {
     deletePost({
         id: post.value.id,
     })
-        .then((res) => {
+        .then((_res) => {
             window.$message.success('删除成功');
             router.replace('/');
 
@@ -494,7 +495,7 @@ const execDelAction = () => {
                 store.commit('refresh');
             }, 50);
         })
-        .catch((err) => {
+        .catch((_err) => {
             loading.value = false;
         });
 };
@@ -510,7 +511,7 @@ const execLockAction = () => {
                 window.$message.success('解锁成功');
             }
         })
-        .catch((err) => {
+        .catch((_err) => {
             loading.value = false;
         });
 };
@@ -526,7 +527,7 @@ const execStickAction = () => {
                 window.$message.success('取消置顶成功');
             }
         })
-        .catch((err) => {
+        .catch((_err) => {
             loading.value = false;
         });
 };
@@ -535,14 +536,17 @@ const execHighlightAction = () => {
         id: post.value.id,
     })
         .then((res) => {
-            emit('reload');
+            post.value = {
+                    ...post.value,
+                    is_essence: res.highlight_status,
+            };
             if (res.highlight_status === 1) {
                 window.$message.success('设为亮点成功');
             } else {
                 window.$message.success('取消亮点成功');
             }
         })
-        .catch((err) => {
+        .catch((_err) => {
             loading.value = false;
         });
 };
@@ -555,7 +559,7 @@ const execVisibilityAction = () => {
             emit('reload');
             window.$message.success('修改可见性成功');
         })
-        .catch((err) => {
+        .catch((_err) => {
             loading.value = false;
         });
 };

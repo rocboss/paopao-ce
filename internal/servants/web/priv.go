@@ -634,9 +634,19 @@ func (s *privSrv) StickTweet(req *web.StickTweetReq) (*web.StickTweetResp, mir.E
 	}, nil
 }
 
-func (s *privSrv) HighlightTweet(req *web.HighlightTweetReq) (*web.HighlightTweetResp, mir.Error) {
-	// TODO
-	return nil, web.ErrNotImplemented
+func (s *privSrv) HighlightTweet(req *web.HighlightTweetReq) (res *web.HighlightTweetResp, err mir.Error) {
+	if status, xerr := s.Ds.HighlightPost(req.User.ID, req.ID); xerr == nil {
+		res = &web.HighlightTweetResp{
+			HighlightStatus: status,
+		}
+	} else if xerr == cs.ErrNoPermission {
+		err = web.ErrNoPermission
+		logrus.Warnf("highlight tweet occurs no permision error with userId=%d postId=%d", req.User.ID, req.ID)
+	} else {
+		err = web.ErrHighlightPostFailed
+		logrus.Warnf("highlight tweet err: %s with userId=%d postId=%d", xerr, req.User.ID, req.ID)
+	}
+	return
 }
 
 func (s *privSrv) LockTweet(req *web.LockTweetReq) (*web.LockTweetResp, mir.Error) {

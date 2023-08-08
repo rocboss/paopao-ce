@@ -307,7 +307,26 @@ func (s *tweetManageSrv) StickPost(post *ms.Post) error {
 	return nil
 }
 
-func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT) error {
+func (s *tweetManageSrv) HighlightPost(userId int64, postId int64) (res int, err error) {
+	var post dbr.Post
+	tx := s.db.Begin()
+	defer tx.Rollback()
+	post.Get(tx)
+	if err = tx.Where("id = ? AND is_del = 0", postId).First(&post).Error; err != nil {
+		return
+	}
+	if post.UserID != userId {
+		return 0, cs.ErrNoPermission
+	}
+	post.IsEssence = 1 - post.IsEssence
+	if err = post.Update(tx); err != nil {
+		return
+	}
+	tx.Commit()
+	return post.IsEssence, nil
+}
+
+func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT) (err error) {
 	oldVisibility := post.Visibility
 	post.Visibility = visibility
 	// TODO: 这个判断是否可以不要呢
@@ -320,33 +339,32 @@ func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT
 		// TODO: 置顶推文用户是否有权设置成私密？ 后续完善
 		post.IsTop = 0
 	}
-	db := s.db.Begin()
-	err := post.Update(db)
-	if err != nil {
-		db.Rollback()
-		return err
+	tx := s.db.Begin()
+	defer tx.Rollback()
+	if err = post.Update(tx); err != nil {
+		return
 	}
 	// tag处理
 	tags := strings.Split(post.Tags, ",")
 	// TODO: 暂时宽松不处理错误，这里或许可以有优化，后续完善
 	if oldVisibility == dbr.PostVisitPrivate {
 		// 从私密转为非私密才需要重新创建tag
-		createTags(db, post.UserID, tags)
+		createTags(tx, post.UserID, tags)
 	} else if visibility == dbr.PostVisitPrivate {
 		// 从非私密转为私密才需要删除tag
-		deleteTags(db, tags)
+		deleteTags(tx, tags)
 	}
-	db.Commit()
+	tx.Commit()
 	s.cacheIndex.SendAction(core.IdxActVisiblePost, post)
-	return nil
+	return
 }
 
-func (s *tweetManageSrv) UpdatePost(post *ms.Post) error {
-	if err := post.Update(s.db); err != nil {
-		return err
+func (s *tweetManageSrv) UpdatePost(post *ms.Post) (err error) {
+	if err = post.Update(s.db); err != nil {
+		return
 	}
 	s.cacheIndex.SendAction(core.IdxActUpdatePost, post)
-	return nil
+	return
 }
 
 func (s *tweetManageSrv) CreatePostStar(postID, userID int64) (*ms.PostStar, error) {
