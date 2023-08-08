@@ -17,6 +17,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
@@ -272,6 +273,37 @@ func (s *DaoServant) GetTweetList(conditions ms.ConditionsT, offset, limit int) 
 	}
 	postFormated, err := s.Ds.MergePosts(posts)
 	return posts, postFormated, err
+}
+
+func (s *DaoServant) RelationTypFrom(me *ms.User, username string) (res *cs.VistUser, err error) {
+	res = &cs.VistUser{
+		RelTyp:   cs.RelationSelf,
+		Username: username,
+	}
+	// visit by self
+	if me != nil && me.Username == username {
+		res.UserId = me.ID
+		return
+	}
+	he, xerr := s.Ds.GetUserByUsername(username)
+	if xerr != nil || (he.Model != nil && he.ID <= 0) {
+		return nil, errors.New("get user failed with username: " + username)
+	}
+	res.UserId = he.ID
+	// visit by guest
+	if me == nil {
+		res.RelTyp = cs.RelationGuest
+		return
+	}
+	// visit by admin/friend/other
+	if me.IsAdmin {
+		res.RelTyp = cs.RelationAdmin
+	} else if s.Ds.IsFriend(me.ID, he.ID) {
+		res.RelTyp = cs.RelationFriend
+	} else {
+		res.RelTyp = cs.RelationGuest
+	}
+	return
 }
 
 func NewBindAnyFn() func(c *gin.Context, obj any) mir.Error {

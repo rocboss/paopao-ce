@@ -7,6 +7,7 @@ All notable changes to paopao-ce are documented in this file.
 - use compiler profile-guided optimization (PGO) to further optimize builds. [#327](https://github.com/rocboss/paopao-ce/pull/327)  
 - frontend: re-add stars page embed to  profile page. [#339](https://github.com/rocboss/paopao-ce/pull/339)  
 - simple support for user posts filter by style(post/comment/media/star). [#345](https://github.com/rocboss/paopao-ce/pull/345)  
+- add user highlight tweet support include custom tweet set to highlight and list in user/profile page.
 
 ### Changed
 - change man content width to 600px and optimize tweet/comment/replay text length. [#333](https://github.com/rocboss/paopao-ce/pull/333)  

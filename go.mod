@@ -15,7 +15,7 @@ require (
 	github.com/cockroachdb/errors v1.10.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.15.0
-	github.com/getsentry/sentry-go v0.22.0
+	github.com/getsentry/sentry-go v0.23.0
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-resty/resty/v2 v2.7.0
@@ -31,7 +31,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.10
 	github.com/pyroscope-io/client v0.7.1
-	github.com/redis/rueidis v1.0.13
+	github.com/redis/rueidis v1.0.14
 	github.com/sirupsen/logrus v1.9.3
 	github.com/smartwalle/alipay/v3 v3.2.15
 	github.com/sourcegraph/conc v0.3.0
@@ -49,7 +49,7 @@ require (
 	gorm.io/gorm v1.25.2
 	gorm.io/plugin/dbresolver v1.4.2
 	gorm.io/plugin/soft_delete v1.2.1
-	modernc.org/sqlite v1.24.0
+	modernc.org/sqlite v1.25.0
 )
 
 replace github.com/jmoiron/sqlx => github.com/bitbus/sqlx v1.4.0
@@ -138,9 +138,9 @@ require (
 	lukechampine.com/uint128 v1.2.0 // indirect
 	modernc.org/cc/v3 v3.40.0 // indirect
 	modernc.org/ccgo/v3 v3.16.13 // indirect
-	modernc.org/libc v1.22.5 // indirect
+	modernc.org/libc v1.24.1 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
-	modernc.org/memory v1.5.0 // indirect
+	modernc.org/memory v1.6.0 // indirect
 	modernc.org/opt v0.1.3 // indirect
 	modernc.org/strutil v1.1.3 // indirect
 	modernc.org/token v1.0.1 // indirect
