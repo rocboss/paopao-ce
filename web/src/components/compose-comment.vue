@@ -279,15 +279,88 @@ const beforeUpload = async (data: any) => {
         window.$message.warning('图片大小不能超过10MB');
         return false;
     }
-
+    if(uploadType.value === 'public/image') {
+        const compressedFile = await compressionFile(data.file.file);
+        data.file.file = compressedFile;
+    }
     return true;
 };
+
+/**
+ * 图片压缩方法
+ * @param {Object} file 图片文件
+ * @param {String} type 想压缩成的文件类型 
+ * @param {Number} quality 压缩质量参数
+ * @returns 压缩后的新图片
+ */
+ const compressionFile = async (
+    file: Blob, 
+    type: string = 'image/jpeg',
+    quality: number = 0.4,
+    maxWidth: number = 1920,  // 设置压缩后的最大宽度
+    maxHeight: number = 1920  // 设置压缩后的最大高度
+    ) => {
+    const fileName = file.name;
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+    
+    const base64 = await fileToDataURL(file);
+    const img = await dataURLToImage(base64);
+
+    // 计算新的宽度和高度，以实现像素压缩
+    let newWidth = img.width;
+    let newHeight = img.height;
+    if (img.width > maxWidth) {
+        newWidth = maxWidth;
+        newHeight = (img.height * maxWidth) / img.width;
+    }
+    if (newHeight > maxHeight) {
+        newHeight = maxHeight;
+        newWidth = (img.width * maxHeight) / img.height;
+    }
+
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+
+    context.clearRect(0, 0, newWidth, newHeight);
+    context.drawImage(img, 0, 0, newWidth, newHeight);
+    
+    const blob = (await canvasToFile(canvas, type, quality)) as Blob;
+
+    // quality:0.5可根据实际情况计算
+    const newFile = new File([blob], fileName, {type});
+
+    return newFile;
+}
+const fileToDataURL = (file: Blob): Promise<any> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = (e) => resolve((e.target as FileReader).result);
+    reader.readAsDataURL(file); 
+  });
+}
+
+const dataURLToImage = (dataURL: string): Promise<HTMLImageElement> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.src = dataURL;
+  });
+}
+
+const canvasToFile = (canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob | null> => {
+  return new Promise((resolve) => 
+    canvas.toBlob((blob) => resolve(blob), type, quality)
+  );
+}
+
 const finishUpload = ({ file, event }: any): any => {
     try {
         let data = JSON.parse(event.target?.response);
 
         if (data.code === 0) {
             if (uploadType.value === 'public/image') {
+                
                 imageContents.value.push({
                     id: file.id,
                     content: data.data.content,

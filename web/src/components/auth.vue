@@ -175,11 +175,31 @@ const registerForm = reactive({
     password: '',
     repassword: '',
 });
+const forbiddenUsernames = [
+    'aimo', 'zhaizhai', 'admin', 'test', 'service', 'user',
+    'tw', 'hk', 'zhongguo', 'china', 'chinese', 'taiwan',
+    'xianggang', 'fuck', 'suck'
+];
+
 const registerRule = {
-    username: {
-        required: true,
-        message: '请输入账户名',
-    },
+    username: [
+        {
+            required: true,
+            message: '请输入账户名',
+        },
+        {
+            validator: (rule: FormItemRule, value: any) => {
+                const lowercaseValue = value.toLowerCase(); // 转换为小写
+                const isForbidden = forbiddenUsernames.some(keyword => lowercaseValue.includes(keyword));
+                if (isForbidden) {
+                    return Promise.reject('用户名已被注册');
+                } else {
+                    return Promise.resolve();
+                }
+            },
+            trigger: 'blur',
+        },
+    ],
     password: {
         required: true,
         message: '请输入密码',
