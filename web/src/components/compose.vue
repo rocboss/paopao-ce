@@ -20,7 +20,7 @@
                     :options="optionsRef"
                     @search="handleSearch"
                     @update:value="changeContent"
-                    placeholder="讲讲今天和AI聊的工具吧"
+                    placeholder="讲讲今天和AiMo AI聊天的新发现吧"
                 />
             </div>
 
@@ -147,7 +147,7 @@
                             </template>
                         </n-button>
 
-                         <n-button
+                         <!-- <n-button
                             v-if="allowTweetVisibility"
                             quaternary
                             circle
@@ -159,7 +159,7 @@
                                     <eye-outline />
                                 </n-icon>
                             </template>
-                        </n-button>
+                        </n-button> -->
                     </div>
 
                     <div class="submit-wrap">

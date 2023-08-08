@@ -6,7 +6,7 @@
             <div class="balance-wrap">
                 <div class="balance-line">
                   <!-- 账户余额 (元) -->
-                    <n-statistic label="会员有效期 (天)"
+                    <n-statistic label="订阅有效期 (天)"
                         ><n-number-animation
                             :from="0.0"
                             :to="timecal(store.state.userInfo.balance) || 0 "

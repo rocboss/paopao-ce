@@ -336,17 +336,17 @@ const userOptions = computed(() => {
             });
         }
     }
-    if (user.is_friend) {
-        options.push({
-            label: '删除好友',
-            key: 'delete',
-        });
-    } else {
-        options.push({
-            label: '添加朋友',
-            key: 'requesting',
-        });
-    }
+    // if (user.is_friend) {
+    //     options.push({
+    //         label: '删除好友',
+    //         key: 'delete',
+    //     });
+    // } else {
+    //     options.push({
+    //         label: '添加朋友',
+    //         key: 'requesting',
+    //     });
+    // }
     return options;
 });
 const handleUserAction = (
