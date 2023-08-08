@@ -404,21 +404,46 @@ func (s *tweetSrv) GetUserPostStar(postID, userID int64) (*ms.PostStar, error) {
 	return star.Get(s.db)
 }
 
-func (s *tweetSrv) GetUserPostStars(userID int64, offset, limit int) ([]*ms.PostStar, error) {
+func (s *tweetSrv) GetUserPostStars(userID int64, limit int, offset int) ([]*ms.PostStar, error) {
 	star := &dbr.PostStar{
 		UserID: userID,
 	}
-
 	return star.List(s.db, &dbr.ConditionsT{
 		"ORDER": s.db.NamingStrategy.TableName("PostStar") + ".id DESC",
-	}, offset, limit)
+	}, cs.RelationSelf, limit, offset)
+}
+
+func (s *tweetSrv) ListUserStarTweets(user *cs.VistUser, limit int, offset int) (res []*ms.PostStar, total int64, err error) {
+	var userId int64
+	typ := user.RelTyp
+	if typ == cs.RelationSelf {
+		userId = user.UserId
+	} else {
+		user := &dbr.User{
+			Username: user.Username,
+		}
+		if user, err = user.Get(s.db); err != nil {
+			return
+		}
+		userId = user.ID
+	}
+	star := &dbr.PostStar{
+		UserID: userId,
+	}
+	if total, err = star.Count(s.db, typ, &dbr.ConditionsT{}); err != nil {
+		return
+	}
+	res, err = star.List(s.db, &dbr.ConditionsT{
+		"ORDER": s.db.NamingStrategy.TableName("PostStar") + ".id DESC",
+	}, typ, limit, offset)
+	return
 }
 
 func (s *tweetSrv) GetUserPostStarCount(userID int64) (int64, error) {
 	star := &dbr.PostStar{
 		UserID: userID,
 	}
-	return star.Count(s.db, &dbr.ConditionsT{})
+	return star.Count(s.db, cs.RelationSelf, &dbr.ConditionsT{})
 }
 
 func (s *tweetSrv) GetUserPostCollection(postID, userID int64) (*ms.PostCollection, error) {

@@ -17,6 +17,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
@@ -272,6 +273,20 @@ func (s *DaoServant) GetTweetList(conditions ms.ConditionsT, offset, limit int) 
 	}
 	postFormated, err := s.Ds.MergePosts(posts)
 	return posts, postFormated, err
+}
+
+func (s *DaoServant) RelationTypFrom(me *ms.User, username string) cs.RelationTyp {
+	if me == nil {
+		return cs.RelationGuest
+	}
+	if me.IsAdmin {
+		return cs.RelationAdmin
+	} else if me.Username == username {
+		return cs.RelationSelf
+	}
+	// TODO: other releation detect logic
+	// but return guest to all for now
+	return cs.RelationGuest
 }
 
 func NewBindAnyFn() func(c *gin.Context, obj any) mir.Error {
