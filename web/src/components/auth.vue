@@ -178,7 +178,7 @@ const registerForm = reactive({
 const forbiddenUsernames = [
     'aimo', 'zhaizhai', 'admin', 'test', 'service', 'user',
     'tw', 'hk', 'zhongguo', 'china', 'chinese', 'taiwan',
-    'xianggang', 'fuck', 'suck'
+    'xianggang', 'fuck', 'suck','dick', 'pussy', 'jiba', 'nigger'
 ];
 
 const registerRule = {
