@@ -17,7 +17,11 @@
                         <strong>{{ store.state.userInfo.nickname }}</strong>
                         <span> @{{ store.state.userInfo.username }} </span>
                     </div>
-                    <div class="uid">UID. {{ store.state.userInfo.id }}</div>
+                    <div class="userinfo">
+                        <span class="info-item">UID. {{ store.state.userInfo.id }} </span>
+                        <span class="info-item">关注&nbsp;&nbsp;{{ store.state.userInfo.follows }}</span>
+                        <span class="info-item">粉丝&nbsp;&nbsp;{{ store.state.userInfo.followings }}</span>
+                    </div>
                 </div>
             </div>
             <n-tabs class="profile-tabs-wrap" type="line" animated @update:value="changeTab">
@@ -288,11 +292,14 @@ watch(
             font-size: 16px;
         }
 
-        .uid {
+        .userinfo {
             font-size: 14px;
             line-height: 14px;
             margin-top: 10px;
             opacity: 0.75;
+            .info-item {
+                margin-right: 12px;
+            }
         }
     }
 }

@@ -4,24 +4,31 @@
 
 package web
 
-import "github.com/rocboss/paopao-ce/internal/servants/base"
+import (
+	"github.com/rocboss/paopao-ce/internal/model/joint"
+	"github.com/rocboss/paopao-ce/internal/servants/base"
+)
 
-type AddFollowingReq struct {
+type FollowUserReq struct {
 	BaseInfo `json:"-" binding:"-"`
+	UserId   int64 `json:"user_id" binding:"required"`
 }
 
-type DeleteFollowingReq struct {
+type UnfollowUserReq struct {
 	BaseInfo `json:"-" binding:"-"`
+	UserId   int64 `json:"user_id" binding:"required"`
 }
+
+type ListFollowsReq struct {
+	BaseInfo `json:"-" binding:"-"`
+	joint.BasePageInfo
+}
+
+type ListFollowsResp base.PageResp
 
 type ListFollowingsReq struct {
-	BaseInfo `json:"-" binding:"-"`
+	BaseInfo `form:"-" binding:"-"`
+	joint.BasePageInfo
 }
 
 type ListFollowingsResp base.PageResp
-
-type ListFollowersReq struct {
-	BaseInfo `form:"-" binding:"-"`
-}
-
-type ListFollowersResp base.PageResp

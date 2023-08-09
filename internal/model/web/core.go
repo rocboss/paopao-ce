@@ -27,14 +27,16 @@ type UserInfoReq struct {
 }
 
 type UserInfoResp struct {
-	Id       int64  `json:"id"`
-	Nickname string `json:"nickname"`
-	Username string `json:"username"`
-	Status   int    `json:"status"`
-	Avatar   string `json:"avatar"`
-	Balance  int64  `json:"balance"`
-	Phone    string `json:"phone"`
-	IsAdmin  bool   `json:"is_admin"`
+	Id        int64  `json:"id"`
+	Nickname  string `json:"nickname"`
+	Username  string `json:"username"`
+	Status    int    `json:"status"`
+	Avatar    string `json:"avatar"`
+	Balance   int64  `json:"balance"`
+	Phone     string `json:"phone"`
+	IsAdmin   bool   `json:"is_admin"`
+	Follows   int    `json:"follows"`
+	Following int    `json:"followings"`
 }
 
 type GetUnreadMsgCountReq struct {

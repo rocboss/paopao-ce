@@ -1,4 +1,4 @@
-.PHONY: all build run test clean fmt pre-commit help
+.PHONY: all build build-web run test clean fmt pre-commit help
 
 TARGET = paopao-ce
 ifeq ($(OS),Windows_NT)
@@ -33,6 +33,9 @@ build:
 	@go mod download
 	@echo Build paopao-ce
 	@go build -pgo=auto -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_ROOT)/$(TARGET)
+
+build-web:
+	@cd web && rm -rf dist/* && yarn build && cd -
 
 run:
 	@go run -pgo=auto -trimpath -gcflags "all=-N -l" -tags '$(TAGS)' -ldflags '$(LDFLAGS)' .

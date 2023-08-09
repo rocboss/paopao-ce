@@ -63,6 +63,14 @@ declare module NetParams {
     status: number;
   }
 
+  interface FollowUserReq {
+    user_id: number;
+  }
+
+  interface UnfollowUserReq {
+    user_id: number;
+  }
+
   interface UserReqRecharge {
     amount: number;
   }
@@ -107,6 +115,18 @@ declare module NetParams {
   }
 
   interface GetContacts {
+    page: number;
+    page_size: number;
+  }
+
+  interface GetUserFollows {
+    user_id: number;
+    page: number;
+    page_size: number;
+  }
+
+  interface GetUserFollowings {
+    user_id: number;
     page: number;
     page_size: number;
   }
