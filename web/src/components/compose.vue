@@ -456,9 +456,9 @@ const beforeUpload = async (data: any) => {
 
     if (
         uploadType.value === 'public/video' &&
-        data.file.file?.size > 104857600
+        data.file.file?.size > 8388608 
     ) {
-        window.$message.warning('视频大小不能超过100MB');
+        window.$message.warning('视频大小不能超过8MB');
         return false;
     }
     // 附件类型校验
