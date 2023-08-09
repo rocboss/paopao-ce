@@ -6,17 +6,18 @@ package service
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/pkg/util"
+	util "github.com/rocboss/paopao-ce/pkg/utils"
+	"github.com/sourcegraph/conc"
 )
 
 var (
-	httpServers = newServerPool[*httpServer]()
-	grpcServers = newServerPool[*grpcServer]()
+	httpServers    = newServerPool[*httpServer]()
+	grpcServers    = newServerPool[*grpcServer]()
+	connectServers = newServerPool[*connectServer]()
 )
 
 const (
@@ -50,21 +51,19 @@ func (p *serverPool[T]) from(addr string, newServer func() T) T {
 	return s
 }
 
-func (p *serverPool[T]) startServer(wg *sync.WaitGroup, maxSidSize int) {
+func (p *serverPool[T]) startServer(wg *conc.WaitGroup, maxSidSize int) {
 	for _, srv := range p.servers {
-		wg.Add(1)
-		go func(t T) {
-			ss := t.services()
-			if len(ss) < 1 {
-				return
-			}
+		ss := srv.services()
+		if len(ss) == 0 {
+			continue
+		}
+		startSrv := srv.start
+		wg.Go(func() {
 			for _, s := range ss {
 				colorPrint(actOnStart, s.OnStart(), maxSidSize, s)
 			}
-			colorPrint(actStart, t.start(), maxSidSize, ss...)
-			// remember to done sync.WaitGroup
-			wg.Done()
-		}(srv)
+			colorPrint(actStart, startSrv(), maxSidSize, ss...)
+		})
 	}
 }
 
@@ -118,6 +117,7 @@ func checkServices() (int, int) {
 	var ss []Service
 	ss = append(ss, httpServers.allServices()...)
 	ss = append(ss, grpcServers.allServices()...)
+	ss = append(ss, connectServers.allServices()...)
 	return len(ss), maxSidSize(ss)
 }
 
@@ -164,7 +164,7 @@ func colorPrint(act byte, err error, l int, ss ...Service) {
 }
 
 // Start start all servers
-func Start(wg *sync.WaitGroup) {
+func Start(wg *conc.WaitGroup) {
 	srvSize, maxSidSize := checkServices()
 	if srvSize < 1 {
 		return
@@ -176,6 +176,7 @@ func Start(wg *sync.WaitGroup) {
 	// start servers
 	httpServers.startServer(wg, maxSidSize)
 	grpcServers.startServer(wg, maxSidSize)
+	connectServers.startServer(wg, maxSidSize)
 }
 
 // Stop stop all servers
@@ -187,4 +188,5 @@ func Stop() {
 	// stop servers
 	httpServers.stopServer(maxSidSize)
 	grpcServers.stopServer(maxSidSize)
+	connectServers.stopServer(maxSidSize)
 }

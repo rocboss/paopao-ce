@@ -6,15 +6,9 @@ package internal
 
 import (
 	"github.com/rocboss/paopao-ce/internal/migration"
-	"github.com/rocboss/paopao-ce/internal/servants/web/broker"
-	"github.com/rocboss/paopao-ce/internal/servants/web/routers/api"
 )
 
-func Initialize() {
+func Initial() {
 	// migrate database if needed
 	migration.Run()
-
-	// initialize service
-	broker.Initialize()
-	api.Initialize()
 }

@@ -11,9 +11,9 @@ services:
       MYSQL_RANDOM_ROOT_PASSWORD: yes
     volumes:
       - ./scripts/paopao-mysql.sql:/docker-entrypoint-initdb.d/paopao.sql
-      - ./data/mysql/data:/var/lib/mysql
+      - ./custom/data/mysql/data:/var/lib/mysql
     ports:
-      - 127.0.0.1::3306
+      - 3306:3306
     networks:
       - paopao-network
 
@@ -28,15 +28,26 @@ services:
   #     - 9000:9000
   #     - 9001:9001
   #   volumes:
-  #     - ./data/minio/data:/data
+  #     - ./custom/data/minio/data:/data
+  #   networks:
+  #     - paopao-network
+
+  # redis:
+  #   image: redis:7.0-alpine
+  #   restart: always
+  #   ports:
+  #     - 6379:6379
   #   networks:
   #     - paopao-network
 
   redis:
-    image: redis:7.0-alpine
+    image: redis/redis-stack:7.0.6-RC8
     restart: always
     ports:
       - 6379:6379
+      - 8001:8001
+    environment:
+      REDISEARCH_ARGS: "MAXSEARCHRESULTS 5"
     networks:
       - paopao-network
   
@@ -47,7 +58,7 @@ services:
     ports:
       - 4080:4080
     volumes:
-      - ./data/zinc/data:/data
+      - ./custom/data/zinc/data:/data
     environment:
       ZINC_FIRST_ADMIN_USER: admin
       ZINC_FIRST_ADMIN_PASSWORD: admin
@@ -56,23 +67,24 @@ services:
       - paopao-network
 
   # meili:
-  #   image: getmeili/meilisearch:v0.29.0
+  #   image: getmeili/meilisearch:v1.2
   #   restart: always
   #   ports:
   #     - 7700:7700
   #   volumes:
-  #     - ./data/meili/data:/meili_data
+  #     - ./custom/data/meili/data:/meili_data
   #   environment:
   #     - MEILI_MASTER_KEY=paopao-meilisearch
   #   networks:
   #     - paopao-network
-  
-  # # a ui for managing your meilisearch instances
-  # uirecord:
-  #   image: bitriory/uirecord:latest
+
+  # pyroscope:
+  #   image: pyroscope/pyroscope:latest
   #   restart: always
   #   ports:
-  #     - 7701:3000
+  #     - 4040:4040
+  #   command:
+  #     - 'server'
   #   networks:
   #     - paopao-network
 
@@ -90,8 +102,7 @@ services:
       - paopao-network
 
   backend:
-    build:
-      context: .
+    image: bitbus/paopao-ce:0.3
     restart: always
     depends_on:
       - db
@@ -100,7 +111,7 @@ services:
     # modify below to reflect your custom configure
     volumes:
       - ./config.yaml.sample:/app/paopao-ce/config.yaml
-      - ./data/paopao-ce/data:/app/paopao-ce/data
+      - ./custom:/app/paopao-ce/custom
     ports:
       - 8008:8008
     networks:

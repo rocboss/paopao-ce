@@ -5,52 +5,26 @@
 package web
 
 import (
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
-	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/sirupsen/logrus"
 )
 
 var (
-	_ api.Loose        = (*looseSrv)(nil)
-	_ api.LooseBinding = (*looseBinding)(nil)
-	_ api.LooseRender  = (*looseRender)(nil)
+	_ api.Loose = (*looseSrv)(nil)
 )
 
 type looseSrv struct {
 	api.UnimplementedLooseServant
 	*base.DaoServant
-}
-
-type looseBinding struct {
-	*api.UnimplementedLooseBinding
-}
-
-type looseRender struct {
-	*api.UnimplementedLooseRender
-}
-
-func (s *looseBinding) BindTimeline(c *gin.Context) (*web.TimelineReq, mir.Error) {
-	user, _ := base.UserFrom(c)
-	page, pageSize := app.GetPageInfo(c)
-	v := &web.TimelineReq{
-		BaseInfo: web.BaseInfo{
-			User: user,
-		},
-		Query:    c.Query("query"),
-		Type:     "search",
-		Page:     page,
-		PageSize: pageSize,
-	}
-	if c.Query("type") == "tag" {
-		v.Type = "tag"
-	}
-	return v, nil
 }
 
 func (s *looseSrv) Chain() gin.HandlersChain {
@@ -64,7 +38,7 @@ func (s *looseSrv) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error)
 		res, err := s.Ds.IndexPosts(req.User, offset, limit)
 		if err != nil {
 			logrus.Errorf("Ds.IndexPosts err: %s", err)
-			return nil, _errGetPostsFailed
+			return nil, web.ErrGetPostsFailed
 		}
 		resp = base.PageRespFrom(res.Tweets, req.Page, req.PageSize, res.Total)
 	} else {
@@ -75,51 +49,116 @@ func (s *looseSrv) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error)
 		res, err := s.Ts.Search(req.User, q, offset, limit)
 		if err != nil {
 			logrus.Errorf("Ts.Search err: %s", err)
-			return nil, _errGetPostsFailed
+			return nil, web.ErrGetPostsFailed
 		}
 		posts, err := s.Ds.RevampPosts(res.Items)
 		if err != nil {
 			logrus.Errorf("Ds.RevampPosts err: %s", err)
-			return nil, _errGetPostsFailed
+			return nil, web.ErrGetPostsFailed
 		}
 		resp = base.PageRespFrom(posts, req.Page, req.PageSize, res.Total)
 	}
 	return (*web.TimelineResp)(resp), nil
 }
 
-func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (*web.GetUserTweetsResp, mir.Error) {
-	other, xerr := s.GetUserProfile(&web.GetUserProfileReq{
-		BaseInfo: req.BaseInfo,
-		Username: req.Username,
-	})
+func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTweetsResp, err mir.Error) {
+	user, xerr := s.RelationTypFrom(req.User, req.Username)
 	if xerr != nil {
-		return nil, xerr
+		return nil, err
 	}
 
-	visibilities := []core.PostVisibleT{core.PostVisitPublic}
-	if req.User != nil {
-		if req.User.ID == other.ID || req.User.IsAdmin {
-			visibilities = append(visibilities, core.PostVisitPrivate, core.PostVisitFriend)
-		} else if other.IsFriend {
-			visibilities = append(visibilities, core.PostVisitFriend)
+	switch req.Style {
+	case web.UserPostsStyleComment:
+		res, err = s.getUserCommentTweets(req, user)
+	case web.UserPostsStyleHighlight:
+		res, err = s.getUserPostTweets(req, user, true)
+	case web.UserPostsStyleMedia:
+		res, err = s.getUserMediaTweets(req, user)
+	case web.UserPostsStyleStar:
+		res, err = s.getUserStarTweets(req, user)
+	case web.UserPostsStylePost:
+		fallthrough
+	default:
+		res, err = s.getUserPostTweets(req, user, false)
+	}
+	return
+}
+
+func (s *looseSrv) getUserCommentTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
+	// TODO: add implement logic
+	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) getUserHighlightTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
+	// TODO: add implement logic
+	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) getUserMediaTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
+	// TODO: add implement logic
+	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) getSelfMediaTweets(req *web.GetUserTweetsReq) (*web.GetUserTweetsResp, mir.Error) {
+	// TODO: add implement logic
+	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
+	stars, totalRows, err := s.Ds.ListUserStarTweets(user, req.PageSize, (req.Page-1)*req.PageSize)
+	if err != nil {
+		logrus.Errorf("Ds.GetUserPostStars err: %s", err)
+		return nil, web.ErrGetStarsFailed
+	}
+	var posts []*ms.Post
+	for _, star := range stars {
+		if star.Post != nil {
+			posts = append(posts, star.Post)
 		}
 	}
-	conditions := &core.ConditionsT{
-		"user_id":         other.ID,
+	postsFormated, err := s.Ds.MergePosts(posts)
+	if err != nil {
+		logrus.Errorf("Ds.MergePosts err: %s", err)
+		return nil, web.ErrGetStarsFailed
+	}
+	resp := base.PageRespFrom(postsFormated, req.Page, req.PageSize, totalRows)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq, user *cs.VistUser, isHighlight bool) (*web.GetUserTweetsResp, mir.Error) {
+	visibilities := []core.PostVisibleT{core.PostVisitPublic}
+	switch user.RelTyp {
+	case cs.RelationAdmin, cs.RelationSelf:
+		visibilities = append(visibilities, core.PostVisitPrivate, core.PostVisitFriend)
+	case cs.RelationFriend:
+		visibilities = append(visibilities, core.PostVisitFriend)
+	case cs.RelationGuest:
+		fallthrough
+	default:
+		// nothing
+	}
+	conditions := ms.ConditionsT{
+		"user_id":         user.UserId,
 		"visibility IN ?": visibilities,
 		"ORDER":           "latest_replied_on DESC",
+	}
+	if isHighlight {
+		conditions["is_essence"] = 1
 	}
 	_, posts, err := s.GetTweetList(conditions, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
 		logrus.Errorf("s.GetTweetList err: %s", err)
-		return nil, _errGetPostsFailed
+		return nil, web.ErrGetPostsFailed
 	}
 	totalRows, err := s.Ds.GetPostCount(conditions)
 	if err != nil {
 		logrus.Errorf("s.GetPostCount err: %s", err)
-		return nil, _errGetPostsFailed
+		return nil, web.ErrGetPostsFailed
 	}
-
 	resp := base.PageRespFrom(posts, req.Page, req.PageSize, totalRows)
 	return (*web.GetUserTweetsResp)(resp), nil
 }
@@ -128,10 +167,10 @@ func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfi
 	he, err := s.Ds.GetUserByUsername(req.Username)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserByUsername err: %s", err)
-		return nil, _errNoExistUsername
+		return nil, web.ErrNoExistUsername
 	}
 	if he.Model == nil && he.ID <= 0 {
-		return nil, _errNoExistUsername
+		return nil, web.ErrNoExistUsername
 	}
 	// 设定自己不是自己的朋友
 	isFriend := !(req.User == nil || req.User.ID == he.ID)
@@ -149,24 +188,130 @@ func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfi
 	}, nil
 }
 
+func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error) {
+	var (
+		tags, extralTags cs.TagList
+		err              error
+	)
+	num := req.Num
+	switch req.Type {
+	case web.TagTypeHot:
+		tags, err = s.Ds.GetHotTags(req.Uid, num, 0)
+	case web.TagTypeNew:
+		tags, err = s.Ds.GetNewestTags(req.Uid, num, 0)
+	case web.TagTypeFollow:
+		tags, err = s.Ds.GetFollowTags(req.Uid, num, 0)
+	case web.TagTypeHotExtral:
+		extralNum := req.ExtralNum
+		if extralNum <= 0 {
+			extralNum = num
+		}
+		tags, err = s.Ds.GetHotTags(req.Uid, num, 0)
+		if err == nil {
+			extralTags, err = s.Ds.GetFollowTags(req.Uid, extralNum, 0)
+		}
+	default:
+		// TODO: return good error
+		err = web.ErrGetPostTagsFailed
+	}
+	if err != nil {
+		return nil, web.ErrGetPostTagsFailed
+	}
+	return &web.TopicListResp{
+		Topics:       tags,
+		ExtralTopics: extralTags,
+	}, nil
+}
+
+func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsResp, mir.Error) {
+	sort := "id ASC"
+	if req.SortStrategy == "newest" {
+		sort = "id DESC"
+	}
+	conditions := &ms.ConditionsT{
+		"post_id": req.TweetId,
+		"ORDER":   sort,
+	}
+
+	comments, err := s.Ds.GetComments(conditions, (req.Page-1)*req.PageSize, req.PageSize)
+	if err != nil {
+		return nil, web.ErrGetCommentsFailed
+	}
+
+	userIDs := []int64{}
+	commentIDs := []int64{}
+	for _, comment := range comments {
+		userIDs = append(userIDs, comment.UserID)
+		commentIDs = append(commentIDs, comment.ID)
+	}
+
+	users, err := s.Ds.GetUsersByIDs(userIDs)
+	if err != nil {
+		return nil, web.ErrGetCommentsFailed
+	}
+
+	contents, err := s.Ds.GetCommentContentsByIDs(commentIDs)
+	if err != nil {
+		return nil, web.ErrGetCommentsFailed
+	}
+
+	replies, err := s.Ds.GetCommentRepliesByID(commentIDs)
+	if err != nil {
+		return nil, web.ErrGetCommentsFailed
+	}
+
+	var commentThumbs, replyThumbs cs.CommentThumbsMap
+	if req.Uid > 0 {
+		commentThumbs, replyThumbs, err = s.Ds.GetCommentThumbsMap(req.Uid, req.TweetId)
+		if err != nil {
+			return nil, web.ErrGetCommentsFailed
+		}
+	}
+
+	replyMap := make(map[int64][]*dbr.CommentReplyFormated)
+	if len(replyThumbs) > 0 {
+		for _, reply := range replies {
+			if thumbs, exist := replyThumbs[reply.ID]; exist {
+				reply.IsThumbsUp, reply.IsThumbsDown = thumbs.IsThumbsUp, thumbs.IsThumbsDown
+			}
+			replyMap[reply.CommentID] = append(replyMap[reply.CommentID], reply)
+		}
+	} else {
+		for _, reply := range replies {
+			replyMap[reply.CommentID] = append(replyMap[reply.CommentID], reply)
+		}
+	}
+
+	commentsFormated := []*ms.CommentFormated{}
+	for _, comment := range comments {
+		commentFormated := comment.Format()
+		if thumbs, exist := commentThumbs[comment.ID]; exist {
+			commentFormated.IsThumbsUp, commentFormated.IsThumbsDown = thumbs.IsThumbsUp, thumbs.IsThumbsDown
+		}
+		for _, content := range contents {
+			if content.CommentID == comment.ID {
+				commentFormated.Contents = append(commentFormated.Contents, content)
+			}
+		}
+		if replySlice, exist := replyMap[commentFormated.ID]; exist {
+			commentFormated.Replies = replySlice
+		}
+		for _, user := range users {
+			if user.ID == comment.UserID {
+				commentFormated.User = user.Format()
+			}
+		}
+		commentsFormated = append(commentsFormated, commentFormated)
+	}
+
+	// 获取总量
+	totalRows, _ := s.Ds.GetCommentCount(conditions)
+	resp := base.PageRespFrom(commentsFormated, req.Page, req.PageSize, totalRows)
+	return (*web.TweetCommentsResp)(resp), nil
+}
+
 func newLooseSrv(s *base.DaoServant) api.Loose {
 	return &looseSrv{
 		DaoServant: s,
-	}
-}
-
-func newLooseBinding() api.LooseBinding {
-	return &looseBinding{
-		UnimplementedLooseBinding: &api.UnimplementedLooseBinding{
-			BindAny: base.BindAny,
-		},
-	}
-}
-
-func newLooseRender() api.LooseRender {
-	return &looseRender{
-		UnimplementedLooseRender: &api.UnimplementedLooseRender{
-			RenderAny: base.RenderAny,
-		},
 	}
 }

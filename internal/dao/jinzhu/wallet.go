@@ -7,67 +7,68 @@ package jinzhu
 import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
 )
 
 var (
-	_ core.WalletService = (*walletServant)(nil)
+	_ core.WalletService = (*walletSrv)(nil)
 )
 
-type walletServant struct {
+type walletSrv struct {
 	db *gorm.DB
 }
 
 func newWalletService(db *gorm.DB) core.WalletService {
-	return &walletServant{
+	return &walletSrv{
 		db: db,
 	}
 }
 
-func (d *walletServant) GetRechargeByID(id int64) (*core.WalletRecharge, error) {
+func (s *walletSrv) GetRechargeByID(id int64) (*ms.WalletRecharge, error) {
 	recharge := &dbr.WalletRecharge{
 		Model: &dbr.Model{
 			ID: id,
 		},
 	}
 
-	return recharge.Get(d.db)
+	return recharge.Get(s.db)
 }
-func (d *walletServant) CreateRecharge(userId, amount int64) (*core.WalletRecharge, error) {
+func (s *walletSrv) CreateRecharge(userId, amount int64) (*ms.WalletRecharge, error) {
 	recharge := &dbr.WalletRecharge{
 		UserID: userId,
 		Amount: amount,
 	}
 
-	return recharge.Create(d.db)
+	return recharge.Create(s.db)
 }
 
-func (d *walletServant) GetUserWalletBills(userID int64, offset, limit int) ([]*core.WalletStatement, error) {
+func (s *walletSrv) GetUserWalletBills(userID int64, offset, limit int) ([]*ms.WalletStatement, error) {
 	statement := &dbr.WalletStatement{
 		UserID: userID,
 	}
 
-	return statement.List(d.db, &dbr.ConditionsT{
+	return statement.List(s.db, &dbr.ConditionsT{
 		"ORDER": "id DESC",
 	}, offset, limit)
 }
 
-func (d *walletServant) GetUserWalletBillCount(userID int64) (int64, error) {
+func (s *walletSrv) GetUserWalletBillCount(userID int64) (int64, error) {
 	statement := &dbr.WalletStatement{
 		UserID: userID,
 	}
-	return statement.Count(d.db, &dbr.ConditionsT{})
+	return statement.Count(s.db, &dbr.ConditionsT{})
 }
 
-func (d *walletServant) HandleRechargeSuccess(recharge *core.WalletRecharge, tradeNo string) error {
+func (s *walletSrv) HandleRechargeSuccess(recharge *ms.WalletRecharge, tradeNo string) error {
 	user, _ := (&dbr.User{
 		Model: &dbr.Model{
 			ID: recharge.UserID,
 		},
-	}).Get(d.db)
+	}).Get(s.db)
 
-	return d.db.Transaction(func(tx *gorm.DB) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
 		// 扣除金额
 		if err := tx.Model(user).Update("balance", gorm.Expr("balance + ?", recharge.Amount)).Error; err != nil {
 			// 返回任何错误都会回滚事务
@@ -97,8 +98,8 @@ func (d *walletServant) HandleRechargeSuccess(recharge *core.WalletRecharge, tra
 	})
 }
 
-func (d *walletServant) HandlePostAttachmentBought(post *core.Post, user *core.User) error {
-	return d.db.Transaction(func(tx *gorm.DB) error {
+func (s *walletSrv) HandlePostAttachmentBought(post *ms.Post, user *ms.User) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
 		// 扣除金额
 		if err := tx.Model(user).Update("balance", gorm.Expr("balance - ?", post.AttachmentPrice)).Error; err != nil {
 			// 返回任何错误都会回滚事务
@@ -133,7 +134,7 @@ func (d *walletServant) HandlePostAttachmentBought(post *core.Post, user *core.U
 					ID: post.UserID,
 				},
 			}
-			master, _ = master.Get(d.db)
+			master, _ = master.Get(s.db)
 
 			if err := tx.Model(master).Update("balance", gorm.Expr("balance + ?", income)).Error; err != nil {
 				// 返回任何错误都会回滚事务

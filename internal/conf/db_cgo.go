@@ -18,8 +18,9 @@ const (
 	sqlite3InCgoEnabled = true
 )
 
-func OpenSqlite3() (*sql.DB, error) {
-	return sql.Open("sqlite3", Sqlite3Setting.Dsn("sqlite3"))
+func OpenSqlite3() (string, *sql.DB, error) {
+	db, err := sql.Open("sqlite3", Sqlite3Setting.Dsn("sqlite3"))
+	return "sqlite3", db, err
 }
 
 func gormOpenSqlite3(opts ...gorm.Option) (*gorm.DB, error) {

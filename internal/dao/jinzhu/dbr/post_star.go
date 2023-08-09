@@ -7,7 +7,9 @@ package dbr
 import (
 	"time"
 
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type PostStar struct {
@@ -31,7 +33,7 @@ func (p *PostStar) Get(db *gorm.DB) (*PostStar, error) {
 		db = db.Where(tn+"user_id = ?", p.UserID)
 	}
 
-	db = db.Joins("Post").Where("Post.visibility <> ?", PostVisitPrivate).Order("Post.id DESC")
+	db = db.Joins("Post").Where("visibility <> ? OR (visibility = ? AND ? = ?)", PostVisitPrivate, PostVisitPrivate, clause.Column{Table: "Post", Name: "user_id"}, p.UserID).Order(clause.OrderByColumn{Column: clause.Column{Table: "Post", Name: "id"}, Desc: true})
 	if err := db.First(&star).Error; err != nil {
 		return nil, err
 	}
@@ -51,18 +53,14 @@ func (p *PostStar) Delete(db *gorm.DB) error {
 	}).Error
 }
 
-func (p *PostStar) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]*PostStar, error) {
-	var stars []*PostStar
-	var err error
+func (p *PostStar) List(db *gorm.DB, conditions *ConditionsT, typ cs.RelationTyp, limit int, offset int) (res []*PostStar, err error) {
 	tn := db.NamingStrategy.TableName("PostStar") + "."
-
 	if offset >= 0 && limit > 0 {
 		db = db.Offset(offset).Limit(limit)
 	}
 	if p.UserID > 0 {
 		db = db.Where(tn+"user_id = ?", p.UserID)
 	}
-
 	for k, v := range *conditions {
 		if k == "ORDER" {
 			db = db.Order(v)
@@ -70,18 +68,24 @@ func (p *PostStar) List(db *gorm.DB, conditions *ConditionsT, offset, limit int)
 			db = db.Where(tn+k, v)
 		}
 	}
-
-	db = db.Joins("Post").Where("Post.visibility <> ?", PostVisitPrivate).Order("Post.id DESC")
-	if err = db.Find(&stars).Error; err != nil {
-		return nil, err
+	db = db.Joins("Post")
+	switch typ {
+	case cs.RelationAdmin:
+		// admin have all permition to visit all type tweets
+	case cs.RelationFriend:
+		db = db.Where("visibility = ? OR visibility = ?", PostVisitPublic, PostVisitFriend)
+	case cs.RelationSelf:
+		db = db.Where("visibility <> ? OR (visibility = ? AND ? = ?)", PostVisitPrivate, PostVisitPrivate, clause.Column{Table: "Post", Name: "user_id"}, p.UserID)
+	default:
+		db = db.Where("visibility=?", PostVisitPublic)
 	}
-	return stars, nil
+	db = db.Order(clause.OrderByColumn{Column: clause.Column{Table: "Post", Name: "id"}, Desc: true})
+	err = db.Find(&res).Error
+	return
 }
 
-func (p *PostStar) Count(db *gorm.DB, conditions *ConditionsT) (int64, error) {
-	var count int64
+func (p *PostStar) Count(db *gorm.DB, typ cs.RelationTyp, conditions *ConditionsT) (res int64, err error) {
 	tn := db.NamingStrategy.TableName("PostStar") + "."
-
 	if p.PostID > 0 {
 		db = db.Where(tn+"post_id = ?", p.PostID)
 	}
@@ -93,10 +97,17 @@ func (p *PostStar) Count(db *gorm.DB, conditions *ConditionsT) (int64, error) {
 			db = db.Where(tn+k, v)
 		}
 	}
-
-	db = db.Joins("Post").Where("Post.visibility <> ?", PostVisitPrivate)
-	if err := db.Model(p).Count(&count).Error; err != nil {
-		return 0, err
+	db = db.Joins("Post")
+	switch typ {
+	case cs.RelationAdmin:
+		// admin have all permition to visit all type tweets
+	case cs.RelationFriend:
+		db = db.Where("visibility = ? OR visibility = ?", PostVisitPublic, PostVisitFriend)
+	case cs.RelationSelf:
+		db = db.Where("visibility <> ? OR (visibility = ? AND ? = ?)", PostVisitPrivate, PostVisitPrivate, clause.Column{Table: "Post", Name: "user_id"}, p.UserID)
+	default:
+		db = db.Where("visibility=?", PostVisitPublic)
 	}
-	return count, nil
+	err = db.Model(p).Count(&res).Error
+	return
 }

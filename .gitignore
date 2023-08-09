@@ -1,5 +1,6 @@
+.DS_Store
 .idea
-.vscode
+__debug_bin
 !*.example
 /config.yaml
 *.log
@@ -7,3 +8,4 @@ paopao-ce*
 /release
 /data
 /custom
+/.custom

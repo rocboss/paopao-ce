@@ -5,52 +5,54 @@
                 <n-avatar round :size="30" :src="post.user.avatar" />
             </template>
             <template #header>
-                <span class="nickname-wrap">
-                    <router-link
-                        @click.stop
-                        class="username-link"
-                        :to="{
-                            name: 'user',
-                            query: { username: post.user.username },
-                        }"
+                    <span class="nickname-wrap">
+                        <router-link
+                            @click.stop
+                            class="username-link"
+                            :to="{
+                                name: 'user',
+                                query: { username: post.user.username },
+                            }"
+                        >
+                            {{ post.user.nickname }}
+                        </router-link>
+                    </span>
+                    <span class="username-wrap"> @{{ post.user.username }} </span>
+                    <n-tag
+                        v-if="post.is_top"
+                        class="top-tag"
+                        type="warning"
+                        size="small"
+                        round
                     >
-                        {{ post.user.nickname }}
-                    </router-link>
-                </span>
-                <span class="username-wrap"> @{{ post.user.username }} </span>
-                <n-tag
-                    v-if="post.is_top"
-                    class="top-tag"
-                    type="warning"
-                    size="small"
-                    round
-                >
-                    置顶
-                </n-tag>
-                <n-tag
-                    v-if="post.visibility == 1"
-                    class="top-tag"
-                    type="error"
-                    size="small"
-                    round
-                >
-                    私密
-                </n-tag>
-                <n-tag
-                    v-if="post.visibility == 2"
-                    class="top-tag"
-                    type="info"
-                    size="small"
-                    round
-                >
-                    好友可见
-                </n-tag>
+                        置顶
+                    </n-tag>
+                    <n-tag
+                        v-if="post.visibility == 1"
+                        class="top-tag"
+                        type="error"
+                        size="small"
+                        round
+                    >
+                        私密
+                    </n-tag>
+                    <n-tag
+                        v-if="post.visibility == 2"
+                        class="top-tag"
+                        type="info"
+                        size="small"
+                        round
+                    >
+                        好友可见
+                    </n-tag>
             </template>
             <template #header-extra>
-                <span class="timestamp">
-                    {{ post.ip_loc ? post.ip_loc + ' · ' : post.ip_loc }}
-                    {{ formatRelativeTime(post.created_on) }}
-                </span>
+                <div class="item-header-extra">
+                    <span class="timestamp">
+                        {{ post.ip_loc ? post.ip_loc + ' · ' : post.ip_loc }}
+                        {{ formatPrettyDate(post.created_on) }}
+                    </span>
+                </div>
             </template>
             <template #description v-if="post.texts.length > 0">
                 <span
@@ -59,8 +61,7 @@
                     class="post-text"
                     @click.stop="doClickText($event, post.id)"
                     v-html="parsePostTag(content.content).content"
-                >
-                </span>
+                ></span>
             </template>
 
             <template #footer>
@@ -90,7 +91,7 @@
                         </n-icon>
                         {{ post.upvote_count }}
                     </div>
-                    <div class="opt-item">
+                    <div class="opt-item" @click.stop="goPostDetail(post.id)">
                         <n-icon size="18" class="opt-item-icon">
                             <chatbox-outline />
                         </n-icon>
@@ -111,8 +112,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-import { useRoute, useRouter } from 'vue-router';
-import { formatRelativeTime } from '@/utils/formatTime';
+import { useRouter } from 'vue-router';
+import { formatPrettyDate } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
 import {
     HeartOutline,
@@ -120,7 +121,6 @@ import {
     ChatboxOutline,
 } from '@vicons/ionicons5';
 
-const route = useRoute();
 const router = useRouter();
 const store = useStore();
 const props = withDefaults(defineProps<{
@@ -214,9 +214,13 @@ const doClickText = (e: MouseEvent, id: number) => {
     .top-tag {
         transform: scale(0.75);
     }
-    .timestamp {
+    .item-header-extra {
+        display: flex;
+        align-items: center;
         opacity: 0.75;
-        font-size: 12px;
+        .timestamp {
+            font-size: 12px;
+        }
     }
     .post-text {
         text-align: justify;
@@ -251,6 +255,7 @@ const doClickText = (e: MouseEvent, id: number) => {
         &:hover {
             background: #18181c;
         }
+        background-color: rgba(16, 16, 20, 0.75);
     }
 }
 </style>

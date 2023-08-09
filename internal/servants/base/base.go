@@ -9,28 +9,35 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"time"
 
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
+	"github.com/cockroachdb/errors"
+	"github.com/getsentry/sentry-go"
+	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao"
+	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/pkg/app"
-	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
+	"github.com/sirupsen/logrus"
 )
 
-type BaseServant types.Empty
-
-type DaoServant struct {
-	Redis *redis.Client
-	Ds    core.DataService
-	Ts    core.TweetSearchService
+type BaseServant struct {
+	bindAny func(c *gin.Context, obj any) mir.Error
 }
 
-type BaseBinding types.Empty
+type DaoServant struct {
+	*BaseServant
 
-type BaseRender types.Empty
+	Dsa   core.WebDataServantA
+	Ds    core.DataService
+	Ts    core.TweetSearchService
+	Redis core.RedisCache
+}
 
 type JsonResp struct {
 	Code int    `json:"code"`
@@ -38,8 +45,12 @@ type JsonResp struct {
 	Data any    `json:"data,omitempty"`
 }
 
+type SentryHubSetter interface {
+	SetSentryHub(hub *sentry.Hub)
+}
+
 type UserSetter interface {
-	SetUser(*core.User)
+	SetUser(*ms.User)
 }
 
 type UserIdSetter interface {
@@ -50,9 +61,9 @@ type PageInfoSetter interface {
 	SetPageInfo(page, pageSize int)
 }
 
-func UserFrom(c *gin.Context) (*core.User, bool) {
+func UserFrom(c *gin.Context) (*ms.User, bool) {
 	if u, exists := c.Get("USER"); exists {
-		user, ok := u.(*core.User)
+		user, ok := u.(*ms.User)
 		return user, ok
 	}
 	return nil, false
@@ -74,7 +85,7 @@ func UserNameFrom(c *gin.Context) (string, bool) {
 	return "", false
 }
 
-func BindAny(c *gin.Context, obj any) mir.Error {
+func bindAny(c *gin.Context, obj any) mir.Error {
 	var errs xerror.ValidErrors
 	err := c.ShouldBind(obj)
 	if err != nil {
@@ -98,6 +109,40 @@ func BindAny(c *gin.Context, obj any) mir.Error {
 	return nil
 }
 
+func bindAnySentry(c *gin.Context, obj any) mir.Error {
+	hub := sentrygin.GetHubFromContext(c)
+	var errs xerror.ValidErrors
+	err := c.ShouldBind(obj)
+	if err != nil {
+		xerr := mir.NewError(xerror.InvalidParams.StatusCode(), xerror.InvalidParams.WithDetails(errs.Error()))
+		if hub != nil {
+			hub.CaptureException(errors.Wrap(xerr, "bind object"))
+		}
+		return xerr
+	}
+	// setup sentry hub if needed
+	if setter, ok := obj.(SentryHubSetter); ok && hub != nil {
+		setter.SetSentryHub(hub)
+	}
+	// setup *core.User if needed
+	if setter, ok := obj.(UserSetter); ok {
+		user, _ := UserFrom(c)
+		setter.SetUser(user)
+	}
+	// setup UserId if needed
+	if setter, ok := obj.(UserIdSetter); ok {
+		uid, _ := UserIdFrom(c)
+		setter.SetUserId(uid)
+	}
+	// setup PageInfo if needed
+	if setter, ok := obj.(PageInfoSetter); ok {
+		page, pageSize := app.GetPageInfo(c)
+		setter.SetPageInfo(page, pageSize)
+	}
+	return nil
+
+}
+
 func RenderAny(c *gin.Context, data any, err mir.Error) {
 	if err == nil {
 		c.JSON(http.StatusOK, &JsonResp{
@@ -113,7 +158,26 @@ func RenderAny(c *gin.Context, data any, err mir.Error) {
 	}
 }
 
-func (s *DaoServant) GetTweetBy(id int64) (*core.PostFormated, error) {
+func (s *BaseServant) Bind(c *gin.Context, obj any) mir.Error {
+	return s.bindAny(c, obj)
+}
+
+func (s *BaseServant) Render(c *gin.Context, data any, err mir.Error) {
+	if err == nil {
+		c.JSON(http.StatusOK, &JsonResp{
+			Code: 0,
+			Msg:  "success",
+			Data: data,
+		})
+	} else {
+		c.JSON(xerror.HttpStatusCode(err), &JsonResp{
+			Code: err.StatusCode(),
+			Msg:  err.Error(),
+		})
+	}
+}
+
+func (s *DaoServant) GetTweetBy(id int64) (*ms.PostFormated, error) {
 	post, err := s.Ds.GetPostByID(id)
 	if err != nil {
 		return nil, err
@@ -140,24 +204,25 @@ func (s *DaoServant) GetTweetBy(id int64) (*core.PostFormated, error) {
 }
 
 func (s *DaoServant) PushPostsToSearch(c context.Context) {
-	if ok, _ := s.Redis.SetNX(c, "JOB_PUSH_TO_SEARCH", 1, time.Hour).Result(); ok {
-		defer s.Redis.Del(c, "JOB_PUSH_TO_SEARCH")
+	if err := s.Redis.SetPushToSearchJob(c); err == nil {
+		defer s.Redis.DelPushToSearchJob(c)
 
 		splitNum := 1000
-		totalRows, _ := s.Ds.GetPostCount(&core.ConditionsT{
+		conditions := ms.ConditionsT{
 			"visibility IN ?": []core.PostVisibleT{core.PostVisitPublic, core.PostVisitFriend},
-		})
+		}
+		totalRows, _ := s.Ds.GetPostCount(conditions)
 		pages := math.Ceil(float64(totalRows) / float64(splitNum))
 		nums := int(pages)
 		for i := 0; i < nums; i++ {
-			posts, postsFormated, err := s.GetTweetList(&core.ConditionsT{}, i*splitNum, splitNum)
+			posts, postsFormated, err := s.GetTweetList(conditions, i*splitNum, splitNum)
 			if err != nil || len(posts) != len(postsFormated) {
 				continue
 			}
 			for i, pf := range postsFormated {
 				contentFormated := ""
 				for _, content := range pf.Contents {
-					if content.Type == core.ContentTypeText || content.Type == core.ContentTypeTitle {
+					if content.Type == ms.ContentTypeText || content.Type == ms.ContentTypeTitle {
 						contentFormated = contentFormated + content.Content + "\n"
 					}
 				}
@@ -168,12 +233,14 @@ func (s *DaoServant) PushPostsToSearch(c context.Context) {
 				s.Ts.AddDocuments(docs, fmt.Sprintf("%d", posts[i].ID))
 			}
 		}
+	} else {
+		logrus.Errorf("redis: set JOB_PUSH_TO_SEARCH error: %s", err)
 	}
 }
 
-func (s *DaoServant) PushPostToSearch(post *core.Post) {
+func (s *DaoServant) PushPostToSearch(post *ms.Post) {
 	postFormated := post.Format()
-	postFormated.User = &core.UserFormated{
+	postFormated.User = &ms.UserFormated{
 		ID: post.UserID,
 	}
 	contents, _ := s.Ds.GetPostContentsByIDs([]int64{post.ID})
@@ -183,7 +250,7 @@ func (s *DaoServant) PushPostToSearch(post *core.Post) {
 
 	contentFormated := ""
 	for _, content := range postFormated.Contents {
-		if content.Type == core.ContentTypeText || content.Type == core.ContentTypeTitle {
+		if content.Type == ms.ContentTypeText || content.Type == ms.ContentTypeTitle {
 			contentFormated = contentFormated + content.Content + "\n"
 		}
 	}
@@ -195,15 +262,69 @@ func (s *DaoServant) PushPostToSearch(post *core.Post) {
 	s.Ts.AddDocuments(docs, fmt.Sprintf("%d", post.ID))
 }
 
-func (s *DaoServant) DeleteSearchPost(post *core.Post) error {
+func (s *DaoServant) DeleteSearchPost(post *ms.Post) error {
 	return s.Ts.DeleteDocuments([]string{fmt.Sprintf("%d", post.ID)})
 }
 
-func (s *DaoServant) GetTweetList(conditions *core.ConditionsT, offset, limit int) ([]*core.Post, []*core.PostFormated, error) {
+func (s *DaoServant) GetTweetList(conditions ms.ConditionsT, offset, limit int) ([]*ms.Post, []*ms.PostFormated, error) {
 	posts, err := s.Ds.GetPosts(conditions, offset, limit)
 	if err != nil {
 		return nil, nil, err
 	}
 	postFormated, err := s.Ds.MergePosts(posts)
 	return posts, postFormated, err
+}
+
+func (s *DaoServant) RelationTypFrom(me *ms.User, username string) (res *cs.VistUser, err error) {
+	res = &cs.VistUser{
+		RelTyp:   cs.RelationSelf,
+		Username: username,
+	}
+	// visit by self
+	if me != nil && me.Username == username {
+		res.UserId = me.ID
+		return
+	}
+	he, xerr := s.Ds.GetUserByUsername(username)
+	if xerr != nil || (he.Model != nil && he.ID <= 0) {
+		return nil, errors.New("get user failed with username: " + username)
+	}
+	res.UserId = he.ID
+	// visit by guest
+	if me == nil {
+		res.RelTyp = cs.RelationGuest
+		return
+	}
+	// visit by admin/friend/other
+	if me.IsAdmin {
+		res.RelTyp = cs.RelationAdmin
+	} else if s.Ds.IsFriend(me.ID, he.ID) {
+		res.RelTyp = cs.RelationFriend
+	} else {
+		res.RelTyp = cs.RelationGuest
+	}
+	return
+}
+
+func NewBindAnyFn() func(c *gin.Context, obj any) mir.Error {
+	if conf.UseSentryGin() {
+		return bindAnySentry
+	}
+	return bindAny
+}
+
+func NewBaseServant() *BaseServant {
+	return &BaseServant{
+		bindAny: NewBindAnyFn(),
+	}
+}
+
+func NewDaoServant() *DaoServant {
+	return &DaoServant{
+		BaseServant: NewBaseServant(),
+		Redis:       cache.NewRedisCache(),
+		Dsa:         dao.WebDataServantA(),
+		Ds:          dao.DataService(),
+		Ts:          dao.TweetSearchService(),
+	}
 }

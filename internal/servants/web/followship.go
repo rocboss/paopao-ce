@@ -12,22 +12,12 @@ import (
 )
 
 var (
-	_ api.Followship        = (*followshipSrv)(nil)
-	_ api.FollowshipBinding = (*followshipBinding)(nil)
-	_ api.FollowshipRender  = (*followshipRender)(nil)
+	_ api.Followship = (*followshipSrv)(nil)
 )
 
 type followshipSrv struct {
 	api.UnimplementedFollowshipServant
 	*base.DaoServant
-}
-
-type followshipBinding struct {
-	*api.UnimplementedFollowshipBinding
-}
-
-type followshipRender struct {
-	*api.UnimplementedFollowshipRender
 }
 
 func (s *followshipSrv) Chain() gin.HandlersChain {
@@ -36,20 +26,4 @@ func (s *followshipSrv) Chain() gin.HandlersChain {
 
 func newFollowshipSrv(s *base.DaoServant) api.Followship {
 	return &followshipSrv{}
-}
-
-func newFollowshipBinding() api.FollowshipBinding {
-	return &followshipBinding{
-		UnimplementedFollowshipBinding: &api.UnimplementedFollowshipBinding{
-			BindAny: base.BindAny,
-		},
-	}
-}
-
-func newFollowshipRender() api.FollowshipRender {
-	return &followshipRender{
-		UnimplementedFollowshipRender: &api.UnimplementedFollowshipRender{
-			RenderAny: base.RenderAny,
-		},
-	}
 }

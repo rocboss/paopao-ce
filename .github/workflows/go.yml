@@ -7,7 +7,9 @@ on:
       - dev
       - 'jc/**'
       - 'feature/**'
+      - 'r/**'
       - 'x/**'
+      - 't/**'
     paths:
       - '**.go'
       - 'go.mod'
@@ -45,7 +47,7 @@ jobs:
     name: Test
     strategy:
       matrix:
-        go-version: [ 1.18.x, 1.19.x ]
+        go-version: [ 1.20.x ]
         platform: [ ubuntu-latest, macos-latest ]
     runs-on: ${{ matrix.platform }}
     steps:
@@ -64,7 +66,7 @@ jobs:
     name: TestOnWindows
     strategy:
       matrix:
-        go-version: [ 1.18.x, 1.19.x ]
+        go-version: [ 1.20.x ]
         platform: [ windows-latest ]
     runs-on: ${{ matrix.platform }}
     steps:

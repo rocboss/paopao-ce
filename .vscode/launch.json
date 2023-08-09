@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "paopao-ce [debug]",
+            "type": "go",
+            "request": "launch",
+            "mode": "exec",
+            "program": "${workspaceFolder}/.vscode/__debug_bin",
+            "preLaunchTask": "go: build (debug)",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

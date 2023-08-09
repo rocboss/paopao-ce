@@ -1,12 +1,12 @@
 package v1
 
 import (
-	. "github.com/alimy/mir/v3"
-	. "github.com/alimy/mir/v3/engine"
+	. "github.com/alimy/mir/v4"
+	. "github.com/alimy/mir/v4/engine"
 )
 
 func init() {
-	AddEntry(new(User))
+	Entry[User]()
 }
 
 type AgentInfo struct {
@@ -35,8 +35,8 @@ type LoginResp struct {
 }
 
 type User struct {
-	Chain  Chain                          `mir:"-"`
-	Group  Group                          `mir:"m/v1"`
+	Chain  `mir:"-"`
+	Group  `mir:"m/v1"`
 	Login  func(Post, LoginReq) LoginResp `mir:"/user/login/"`
 	Logout func(Post)                     `mir:"/user/logout/"`
 }

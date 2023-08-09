@@ -42,7 +42,7 @@
 * `Frontend:EmbedWeb` 开启内嵌于后端Web API服务中的前端服务(目前状态: 内测)
     * [ ] 提按文档
     * [x] 服务初始化逻辑
-* `Deprecated:OldWeb`  开启旧的Web服务(目前状态: 内测)
+* `Deprecated:OldWeb`  开启旧的Web服务(目前状态: 已弃，不可用)
     * [ ] 提按文档
     * [x] 服务初始化逻辑
 
@@ -97,11 +97,15 @@
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现 
-* `SimpleCacheIndex` 提供简单的 广场推文列表 的缓存功能能； 
+* `SimpleCacheIndex` 提供简单的 广场推文列表 的缓存功能能(目前状态: Deprecated)； 
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现   
 * `BigCacheIndex` 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(推荐使用)；  
+    * [ ] 提按文档  
+    * [x] 接口定义
+    * [x] 业务逻辑实现 
+* `RedisCacheIndex` 使用Redis缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(目前状态: 内测阶段，推荐使用)；  
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现 
@@ -119,6 +123,7 @@
     * [ ] 提按文档  
     * [ ] 接口定义
     * [ ] 业务逻辑实现  
+
 #### 日志:
 * `LoggerFile` 使用文件写日志(目前状态: 稳定); 
     * [ ] 提按文档  
@@ -133,15 +138,25 @@
     * [x] 接口定义
     * [x] 业务逻辑实现 
 
+#### 监控:
+* `Sentry` 使用Sentry进行错误跟踪与性能监控(目前状态: 内测); 
+    * [x] [提按文档](docs/proposal/23040412-关于使用sentry用于错误追踪与性能检测的设计.md)  
+    * [x] 接口定义
+    * [x] 业务逻辑实现   
+
 #### 关系模式:    
-* `Friendship` 弱关系好友模式，类似微信朋友圈(目前状态: 开发阶段); 
-    * [x] 提按文档
+* `Friendship` 弱关系好友模式，类似微信朋友圈(目前状态: 内测); 
+    * [x] [提按文档](docs/proposal/22110410-关于Friendship功能项的设计.md)
     * [x] 接口定义
     * [x] 业务逻辑实现     
 * `Followship` 关注者模式，类似Twitter的Follow模式(目前状态: WIP);  
-    * [ ] 提按文档
+    * [ ] [提按文档](docs/proposal/22110409-关于Followship功能项的设计.md)
     * [ ] 接口定义
     * [ ] 业务逻辑实现   
+* `Lightship` 开放模式，所有推文都公开可见(目前状态: 内测、默认);  
+    * [x] [提按文档](docs/proposal/22121409-关于Lightship功能项的设计.md)
+    * [x] 接口定义
+    * [x] 业务逻辑实现 
 
 ### 支付:  
 * `Alipay`  开启基于[支付宝开放平台](https://open.alipay.com/)的钱包功能； 
@@ -160,13 +175,27 @@
     * [x] 业务逻辑实现 
 
 ### 开发文档:  
-* `Docs:OpenAPI` 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi)；  
+* `Docs:OpenAPI` 开启openapi文档功能，提供web api文档说明(visit http://127.0.0.1:8008/docs/openapi);  
     * [ ] 提按文档  
     * [x] 接口定义
-    * [x] 业务逻辑实现      
- 
+    * [x] 业务逻辑实现   
+
+### 性能优化
+* [`Pyroscope`](docs/proposal/23021510-关于使用pyroscope用于性能调试的设计.md) 开启Pyroscope功能用于性能调试(目前状态: 内测);  
+    * [x] 提按文档  
+    * [x] 业务逻辑实现  
+* [`Pprof`](docs/proposal/23062905-添加Pprof功能特性用于获取Profile.md) 开启Pprof功能收集Profile信息(目前状态: 内测);  
+    * [x] 提按文档  
+    * [x] 业务逻辑实现  
+
 ### 其他:    
 * `PhoneBind` 手机绑定功能； 
     * [ ] 提按文档  
     * [x] 接口定义
-    * [x] 业务逻辑实现       
+    * [x] 业务逻辑实现    
+
+### 功能特性:
+* `Web:DisallowUserRegister` 不允许用户注册；       
+    * [ ] 提按文档  
+    * [x] 接口定义
+    * [x] 业务逻辑实现   

@@ -323,5 +323,8 @@ onMounted(() => {
     .income {
         color: #63e2b7;
     }
+    .main-content-wrap {
+        background-color: rgba(16, 16, 20, 0.75);
+    }
 }
 </style>

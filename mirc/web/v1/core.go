@@ -1,19 +1,19 @@
 package v1
 
 import (
-	. "github.com/alimy/mir/v3"
-	. "github.com/alimy/mir/v3/engine"
+	. "github.com/alimy/mir/v4"
+	. "github.com/alimy/mir/v4/engine"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
 func init() {
-	AddEntry(new(Core))
+	Entry[Core]()
 }
 
 // Core 核心服务，需要授权访问
 type Core struct {
-	Chain Chain `mir:"-"`
-	Group Group `mir:"v1"`
+	Chain `mir:"-"`
+	Group `mir:"v1"`
 
 	// SyncSearchIndex 同步索引
 	SyncSearchIndex func(Get, web.SyncSearchIndexReq) `mir:"/sync/index"`

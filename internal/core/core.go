@@ -35,3 +35,14 @@ type DataService interface {
 	SecurityService
 	AttachmentCheckService
 }
+
+// WebDataServantA Web数据服务集成(版本A)
+type WebDataServantA interface {
+	// 话题服务
+	TopicServantA
+
+	// 推文服务
+	TweetServantA
+	TweetManageServantA
+	TweetHelpServantA
+}

@@ -5,16 +5,20 @@
 package web
 
 import (
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
 
+var (
+	bindAny = base.NewBindAnyFn()
+)
+
 type BaseInfo struct {
-	User *core.User
+	User *ms.User
 }
 
 type SimpleInfo struct {
@@ -27,7 +31,7 @@ type BasePageReq struct {
 	PageSize int
 }
 
-func (b *BaseInfo) SetUser(user *core.User) {
+func (b *BaseInfo) SetUser(user *ms.User) {
 	b.User = user
 }
 
@@ -46,4 +50,14 @@ func BasePageReqFrom(c *gin.Context) (*BasePageReq, mir.Error) {
 		Page:     page,
 		PageSize: pageSize,
 	}, nil
+}
+
+func (r *BasePageReq) Bind(c *gin.Context) mir.Error {
+	uid, ok := base.UserIdFrom(c)
+	if !ok {
+		return xerror.UnauthorizedTokenError
+	}
+	r.UserId = uid
+	r.Page, r.PageSize = app.GetPageInfo(c)
+	return nil
 }

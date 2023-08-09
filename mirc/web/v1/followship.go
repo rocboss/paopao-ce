@@ -1,19 +1,19 @@
 package v1
 
 import (
-	. "github.com/alimy/mir/v3"
-	. "github.com/alimy/mir/v3/engine"
+	. "github.com/alimy/mir/v4"
+	. "github.com/alimy/mir/v4/engine"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
 func init() {
-	AddEntry(new(Followship))
+	Entry[Followship]()
 }
 
 // Followship 关注者模式 服务
 type Followship struct {
-	Chain Chain `mir:"-"`
-	Group Group `mir:"v1"`
+	Chain `mir:"-"`
+	Group `mir:"v1"`
 
 	// AddFollowing 添加关注
 	AddFollowing func(Post, web.AddFollowingReq) `mir:"/following/add"`

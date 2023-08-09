@@ -72,8 +72,8 @@ func newService() (ss []Service) {
 		"Docs": func() {
 			ss = append(ss, newDocsService())
 		},
-		"Deprecated:OldWeb": func() {
-			ss = append(ss, newOldWebService())
+		"Pprof": func() {
+			ss = append(ss, newPprofService())
 		},
 	})
 	return

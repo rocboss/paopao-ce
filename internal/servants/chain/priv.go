@@ -7,20 +7,19 @@ package chain
 import (
 	"github.com/alimy/cfg"
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/pkg/app"
-	"github.com/rocboss/paopao-ce/pkg/errcode"
 )
 
 func Priv() gin.HandlerFunc {
 	if cfg.If("PhoneBind") {
 		return func(c *gin.Context) {
 			if u, exist := c.Get("USER"); exist {
-				if user, ok := u.(*core.User); ok {
-					if user.Status == core.UserStatusNormal {
+				if user, ok := u.(*ms.User); ok {
+					if user.Status == ms.UserStatusNormal {
 						if user.Phone == "" {
 							response := app.NewResponse(c)
-							response.ToErrorResponse(errcode.AccountNoPhoneBind)
+							response.ToErrorResponse(_errAccountNoPhoneBind)
 							c.Abort()
 							return
 						}
@@ -30,19 +29,19 @@ func Priv() gin.HandlerFunc {
 				}
 			}
 			response := app.NewResponse(c)
-			response.ToErrorResponse(errcode.UserHasBeenBanned)
+			response.ToErrorResponse(_errUserHasBeenBanned)
 			c.Abort()
 		}
 	} else {
 		return func(c *gin.Context) {
 			if u, exist := c.Get("USER"); exist {
-				if user, ok := u.(*core.User); ok && user.Status == core.UserStatusNormal {
+				if user, ok := u.(*ms.User); ok && user.Status == ms.UserStatusNormal {
 					c.Next()
 					return
 				}
 			}
 			response := app.NewResponse(c)
-			response.ToErrorResponse(errcode.UserHasBeenBanned)
+			response.ToErrorResponse(_errUserHasBeenBanned)
 			c.Abort()
 		}
 	}

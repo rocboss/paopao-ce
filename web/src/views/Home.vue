@@ -3,16 +3,6 @@
         <main-nav :title="title" />
 
         <n-list class="main-content-wrap" bordered>
-            <template #footer>
-                <div class="pagination-wrap" v-if="totalPage > 1">
-                    <n-pagination
-                        :page="page"
-                        @update:page="updatePage"
-                        :page-slot="!store.state.collapsedRight ? 8 : 5"
-                        :page-count="totalPage"
-                    />
-                </div>
-            </template>
             <n-list-item>
                 <!-- 发布器 -->
                 <compose @post-success="onPostSuccess" />
@@ -25,12 +15,27 @@
                 <div class="empty-wrap" v-if="list.length === 0">
                     <n-empty size="large" description="暂无数据" />
                 </div>
-
-                <n-list-item v-for="post in list" :key="post.id">
-                    <post-item :post="post" />
-                </n-list-item>
+                <div v-if="store.state.desktopModelShow">
+                    <n-list-item v-for="post in list" :key="post.id">
+                        <post-item :post="post" />
+                    </n-list-item>
+                </div>
+                <div v-else>
+                    <n-list-item v-for="post in list" :key="post.id">
+                        <mobile-post-item :post="post" />
+                    </n-list-item>
+                </div>
             </div>
         </n-list>
+
+        <div class="pagination-wrap" v-if="totalPage > 0">
+            <n-pagination
+                :page="page"
+                @update:page="updatePage"
+                :page-slot="!store.state.collapsedRight ? 8 : 5"
+                :page-count="totalPage"
+            />
+        </div>
     </div>
 </template>
 
@@ -159,5 +164,10 @@ watch(
     display: flex;
     justify-content: center;
     overflow: hidden;
+}
+.dark {
+    .main-content-wrap, .pagination-wrap, .empty-wrap, .skeleton-wrap {
+        background-color: rgba(16, 16, 20, 0.75);
+    }
 }
 </style>

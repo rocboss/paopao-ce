@@ -44,6 +44,7 @@
                 :data="{
                     type: uploadType,
                 }"
+                :file-list="fileQueue"
                 @before-upload="beforeUpload"
                 @finish="finishUpload"
                 @error="failUpload"
@@ -88,10 +89,10 @@
                                     :show-indicator="false"
                                     status="success"
                                     :stroke-width="10"
-                                    :percentage="(content.length / 200) * 100"
+                                    :percentage="(content.length / defaultCommentMaxLength) * 100"
                                 />
                             </template>
-                            {{ content.length }} / 200
+                            {{ content.length }} / {{ defaultCommentMaxLength }}
                         </n-tooltip>
                     </div>
 
@@ -129,7 +130,18 @@
             <div class="login-wrap">
                 <span class="login-banner"> 登录后，精彩更多</span>
             </div>
-            <div class="login-wrap">
+            <div v-if="!allowUserRegister" class="login-only-wrap">
+                <n-button
+                    strong
+                    secondary
+                    round
+                    type="primary"
+                    @click="triggerAuth('signin')"
+                >
+                    登录
+                </n-button>
+            </div>
+            <div v-if="allowUserRegister" class="login-wrap">
                 <n-button
                     strong
                     secondary
@@ -191,6 +203,8 @@ const uploadRef = ref<UploadInst>();
 const uploadType = ref('public/image');
 const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
+const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
+const defaultCommentMaxLength = Number(import.meta.env.VITE_DEFAULT_COMMENT_MAX_LENGTH)
 
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = ref();
@@ -226,15 +240,24 @@ const handleSearch = (k: string, prefix: string) => {
     }
 };
 const changeContent = (v: string) => {
-    if (v.length > 200) {
-        return;
+    if (v.length > defaultCommentMaxLength) {
+        content.value = v.substring(0, defaultCommentMaxLength);
+    } else {
+        content.value = v;
     }
-    content.value = v;
 };
 const setUploadType = (type: string) => {
     uploadType.value = type;
 };
 const updateUpload = (list: UploadFileInfo[]) => {
+    for (let i = 0; i < list.length; i++) {
+        var name = list[i].name;
+        var basename: string = name.split('.').slice(0, -1).join('.');
+        var ext: string = name.split('.').pop()!;
+        if (basename.length > 30) {
+            list[i].name = basename.substring(0, 18) + "..." + basename.substring(basename.length-9) + "." + ext;
+        }
+    }
     fileQueue.value = list;
 };
 const beforeUpload = async (data: any) => {
@@ -398,6 +421,15 @@ onMounted(() => {
             }
         }
     }
+    .login-only-wrap {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        button {
+            margin: 0 4px;
+            width: 50%
+        }
+    }
     .login-wrap {
         display: flex;
         justify-content: center;
@@ -426,6 +458,14 @@ onMounted(() => {
     margin-left: 42px;
     .n-upload-file-info__thumbnail {
         overflow: hidden;
+    }
+}
+.dark {
+    .compose-mention {
+        background-color: rgba(16, 16, 20, 0.75);
+    }
+    .compose-wrap {
+        background-color: rgba(16, 16, 20, 0.75);
     }
 }
 </style>

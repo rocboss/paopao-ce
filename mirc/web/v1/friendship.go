@@ -1,19 +1,19 @@
 package v1
 
 import (
-	. "github.com/alimy/mir/v3"
-	. "github.com/alimy/mir/v3/engine"
+	. "github.com/alimy/mir/v4"
+	. "github.com/alimy/mir/v4/engine"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
 func init() {
-	AddEntry(new(Friendship))
+	Entry[Friendship]()
 }
 
 // Friendship 好友模式 服务
 type Friendship struct {
-	Chain Chain `mir:"-"`
-	Group Group `mir:"v1"`
+	Chain `mir:"-"`
+	Group `mir:"v1"`
 
 	// 	RequestingFriend 请求添加朋友
 	RequestingFriend func(Post, web.RequestingFriendReq) `mir:"/friend/requesting"`
