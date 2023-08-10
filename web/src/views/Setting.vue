@@ -608,6 +608,15 @@ const handleNicknameChange = () => {
 };
 
 const sendPhoneCaptcha = () => {
+    if (modelData.phone === '') {
+        window.$message.warning('请输入手机号');
+        return;
+    }
+    //手机号有误需要重新编写
+    if (!/^[1]+[3-9]{1}\d{9}$/.test(modelData.phone)) {
+        window.$message.warning('手机号格式错误');
+        return;
+    }
     if (smsCounter.value > 0 && smsDisabled.value) {
         return;
     }
