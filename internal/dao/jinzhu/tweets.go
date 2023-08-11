@@ -426,6 +426,39 @@ func (s *tweetSrv) ListUserStarTweets(user *cs.VistUser, limit int, offset int) 
 	return
 }
 
+func (s *tweetSrv) getUserTweets(db *gorm.DB, user *cs.VistUser, limit int, offset int) (res []*ms.Post, total int64, err error) {
+	visibilities := []core.PostVisibleT{core.PostVisitPublic}
+	switch user.RelTyp {
+	case cs.RelationAdmin, cs.RelationSelf:
+		visibilities = append(visibilities, core.PostVisitPrivate, core.PostVisitFriend)
+	case cs.RelationFriend:
+		visibilities = append(visibilities, core.PostVisitFriend)
+	case cs.RelationGuest:
+		fallthrough
+	default:
+		// nothing
+	}
+	db = db.Where("user_id=? AND visibility IN ? AND is_del=0", user.UserId, visibilities).Order("latest_replied_on DESC")
+	if offset >= 0 && limit > 0 {
+		db = db.Offset(offset).Limit(limit)
+	}
+	if err = db.Find(&res).Error; err != nil {
+		return
+	}
+	err = db.Count(&total).Error
+	return
+}
+
+func (s *tweetSrv) ListUserMediaTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
+	db := s.db.Table(_post_by_media_)
+	return s.getUserTweets(db, user, limit, offset)
+}
+
+func (s *tweetSrv) ListUserCommentTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
+	db := s.db.Table(_post_by_comment_)
+	return s.getUserTweets(db, user, limit, offset)
+}
+
 func (s *tweetSrv) GetUserPostStarCount(userID int64) (int64, error) {
 	star := &dbr.PostStar{
 		UserID: userID,

@@ -7,6 +7,38 @@ All notable changes to paopao-ce are documented in this file.
 - use compiler profile-guided optimization (PGO) to further optimize builds. [#327](https://github.com/rocboss/paopao-ce/pull/327)  
 - frontend: re-add stars page embed to  profile page. [#339](https://github.com/rocboss/paopao-ce/pull/339)  
 - simple support for user posts filter by style(post/comment/media/star). [#345](https://github.com/rocboss/paopao-ce/pull/345)  
+  mirgration database first(sql ddl file in `scripts/migration/**/*_create_view_post_filter.up.sql`):
+    ```sql
+      CREATE VIEW p_post_by_media AS 
+      SELECT post.* 
+      FROM
+	    ( SELECT DISTINCT post_id FROM p_post_content WHERE ( TYPE = 3 OR TYPE = 4 OR TYPE = 7 OR TYPE = 8 ) AND is_del = 0 ) media
+	    JOIN p_post post ON media.post_id = post.ID 
+      WHERE
+	    post.is_del = 0;
+
+      CREATE VIEW p_post_by_comment AS 
+      SELECT P.* 
+      FROM
+	    (
+	      SELECT
+		      post_id 
+	      FROM
+		      p_comment 
+	      WHERE
+		      is_del = 0 UNION
+	      SELECT
+		      post_id 
+      	FROM
+		      p_comment_reply reply
+		    JOIN p_comment COMMENT ON reply.comment_id = COMMENT.ID 
+	      WHERE
+		      reply.is_del = 0 AND COMMENT.is_del = 0 
+	    )
+	    C JOIN p_post P ON C.post_id = P.ID 
+      WHERE
+	    P.is_del = 0;
+    ```
 - add user highlight tweet support include custom tweet set to highlight and list in user/profile page.
 
 ### Changed

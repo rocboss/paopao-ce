@@ -24,6 +24,8 @@ type TweetService interface {
 	GetPostContentsByIDs(ids []int64) ([]*ms.PostContent, error)
 	GetPostContentByID(id int64) (*ms.PostContent, error)
 	ListUserStarTweets(user *cs.VistUser, limit int, offset int) ([]*ms.PostStar, int64, error)
+	ListUserMediaTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error)
+	ListUserCommentTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error)
 }
 
 // TweetManageService 推文管理服务，包括创建/删除/更新推文

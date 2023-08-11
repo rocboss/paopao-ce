@@ -28,7 +28,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.61
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.10
-	github.com/pyroscope-io/client v0.7.1
+	github.com/pyroscope-io/client v0.7.2-0.20230804044655-36760e422a95
 	github.com/redis/rueidis v1.0.14
 	github.com/sirupsen/logrus v1.9.3
 	github.com/smartwalle/alipay/v3 v3.2.15
@@ -102,7 +102,7 @@ require (
 	github.com/mozillazg/go-httpheader v0.2.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/pyroscope-io/godeltaprof v0.1.0 // indirect
+	github.com/pyroscope-io/godeltaprof v0.1.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/rs/xid v1.5.0 // indirect
