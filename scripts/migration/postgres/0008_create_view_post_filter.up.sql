@@ -7,17 +7,19 @@ WHERE
 	post.is_del = 0;
 
 CREATE VIEW p_post_by_comment AS 
-SELECT P.* 
+SELECT P.*, C.user_id comment_user_id
 FROM
 	(
 	SELECT
-		post_id 
+		post_id,
+		user_id
 	FROM
 		p_comment 
 	WHERE
 		is_del = 0 UNION
 	SELECT
-		post_id 
+		post_id,
+		reply.user_id user_id
 	FROM
 		p_comment_reply reply
 		JOIN p_comment COMMENT ON reply.comment_id = COMMENT.ID 

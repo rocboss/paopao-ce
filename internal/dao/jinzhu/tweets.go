@@ -438,7 +438,7 @@ func (s *tweetSrv) getUserTweets(db *gorm.DB, user *cs.VistUser, limit int, offs
 	default:
 		// nothing
 	}
-	db = db.Where("user_id=? AND visibility IN ? AND is_del=0", user.UserId, visibilities)
+	db = db.Where("visibility IN ? AND is_del=0", visibilities)
 	err = db.Count(&total).Error
 	if err != nil {
 		return
@@ -451,12 +451,12 @@ func (s *tweetSrv) getUserTweets(db *gorm.DB, user *cs.VistUser, limit int, offs
 }
 
 func (s *tweetSrv) ListUserMediaTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
-	db := s.db.Table(_post_by_media_)
+	db := s.db.Table(_post_by_media_).Where("user_id=?", user.UserId)
 	return s.getUserTweets(db, user, limit, offset)
 }
 
 func (s *tweetSrv) ListUserCommentTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
-	db := s.db.Table(_post_by_comment_)
+	db := s.db.Table(_post_by_comment_).Where("comment_user_id=?", user.UserId)
 	return s.getUserTweets(db, user, limit, offset)
 }
 
