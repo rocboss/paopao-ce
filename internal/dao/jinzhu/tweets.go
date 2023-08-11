@@ -438,14 +438,15 @@ func (s *tweetSrv) getUserTweets(db *gorm.DB, user *cs.VistUser, limit int, offs
 	default:
 		// nothing
 	}
-	db = db.Where("user_id=? AND visibility IN ? AND is_del=0", user.UserId, visibilities).Order("latest_replied_on DESC")
+	db = db.Where("user_id=? AND visibility IN ? AND is_del=0", user.UserId, visibilities)
+	err = db.Count(&total).Error
+	if err != nil {
+		return
+	}
 	if offset >= 0 && limit > 0 {
 		db = db.Offset(offset).Limit(limit)
 	}
-	if err = db.Find(&res).Error; err != nil {
-		return
-	}
-	err = db.Count(&total).Error
+	err = db.Order("latest_replied_on DESC").Find(&res).Error
 	return
 }
 
