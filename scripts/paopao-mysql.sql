@@ -70,7 +70,7 @@ CREATE TABLE `p_comment_content` (
 	`id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '内容ID',
 	`comment_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '评论ID',
 	`user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
-	`content` varchar(65535) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
+	`content` varchar(4000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
 	`type` tinyint unsigned NOT NULL DEFAULT '2' COMMENT '类型，1标题，2文字段落，3图片地址，4视频地址，5语音地址，6链接地址',
 	`sort` bigint unsigned NOT NULL DEFAULT '100' COMMENT '排序，越小越靠前',
 	`created_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
@@ -93,7 +93,7 @@ CREATE TABLE `p_comment_reply` (
 	`comment_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '评论ID',
 	`user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
 	`at_user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '@用户ID',
-	`content` varchar(65535) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
+	`content` varchar(4000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
 	`ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'IP地址',
 	`ip_loc` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'IP城市地址',
 	`thumbs_up_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点赞数',
@@ -224,7 +224,7 @@ CREATE TABLE `p_post_content` (
 	`id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '内容ID',
 	`post_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'POST ID',
 	`user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
-	`content` varchar(65535) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
+	`content` varchar(4000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
 	`type` tinyint unsigned NOT NULL DEFAULT '2' COMMENT '类型，1标题，2文字段落，3图片地址，4视频地址，5语音地址，6链接地址，7附件资源，8收费资源',
 	`sort` int unsigned NOT NULL DEFAULT '100' COMMENT '排序，越小越靠前',
 	`created_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
@@ -394,5 +394,40 @@ CREATE TABLE `p_wallet_statement` (
 	PRIMARY KEY (`id`) USING BTREE,
 	KEY `idx_wallet_statement_user_id` (`user_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=10010 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='钱包流水';
+
+DROP VIEW IF EXISTS p_post_by_media;
+CREATE VIEW p_post_by_media AS 
+SELECT post.* 
+FROM
+	( SELECT DISTINCT post_id FROM p_post_content WHERE ( TYPE = 3 OR TYPE = 4 OR TYPE = 7 OR TYPE = 8 ) AND is_del = 0 ) media
+	JOIN p_post post ON media.post_id = post.ID 
+WHERE
+	post.is_del = 0;
+
+DROP VIEW IF EXISTS p_post_by_comment;
+CREATE VIEW p_post_by_comment AS 
+SELECT P.*, C.user_id comment_user_id
+FROM
+	(
+	SELECT
+		post_id,
+		user_id
+	FROM
+		p_comment 
+	WHERE
+		is_del = 0 UNION
+	SELECT
+		post_id,
+		reply.user_id user_id
+	FROM
+		p_comment_reply reply
+		JOIN p_comment COMMENT ON reply.comment_id = COMMENT.ID 
+	WHERE
+		reply.is_del = 0 
+		AND COMMENT.is_del = 0 
+	)
+	C JOIN p_post P ON C.post_id = P.ID 
+WHERE
+	P.is_del = 0;
 
 SET FOREIGN_KEY_CHECKS = 1;

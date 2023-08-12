@@ -66,14 +66,11 @@ func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTwe
 	if xerr != nil {
 		return nil, err
 	}
-
 	switch req.Style {
-	case web.UserPostsStyleComment:
-		res, err = s.getUserCommentTweets(req, user)
+	case web.UserPostsStyleComment, web.UserPostsStyleMedia:
+		res, err = s.listUserTweets(req, user)
 	case web.UserPostsStyleHighlight:
 		res, err = s.getUserPostTweets(req, user, true)
-	case web.UserPostsStyleMedia:
-		res, err = s.getUserMediaTweets(req, user)
 	case web.UserPostsStyleStar:
 		res, err = s.getUserStarTweets(req, user)
 	case web.UserPostsStylePost:
@@ -82,30 +79,6 @@ func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTwe
 		res, err = s.getUserPostTweets(req, user, false)
 	}
 	return
-}
-
-func (s *looseSrv) getUserCommentTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
-	// TODO: add implement logic
-	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
-	return (*web.GetUserTweetsResp)(resp), nil
-}
-
-func (s *looseSrv) getUserHighlightTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
-	// TODO: add implement logic
-	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
-	return (*web.GetUserTweetsResp)(resp), nil
-}
-
-func (s *looseSrv) getUserMediaTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
-	// TODO: add implement logic
-	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
-	return (*web.GetUserTweetsResp)(resp), nil
-}
-
-func (s *looseSrv) getSelfMediaTweets(req *web.GetUserTweetsReq) (*web.GetUserTweetsResp, mir.Error) {
-	// TODO: add implement logic
-	resp := base.PageRespFrom(nil, req.Page, req.PageSize, 0)
-	return (*web.GetUserTweetsResp)(resp), nil
 }
 
 func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
@@ -126,6 +99,33 @@ func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUse
 		return nil, web.ErrGetStarsFailed
 	}
 	resp := base.PageRespFrom(postsFormated, req.Page, req.PageSize, totalRows)
+	return (*web.GetUserTweetsResp)(resp), nil
+}
+
+func (s *looseSrv) listUserTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
+	var (
+		tweets []*ms.Post
+		total  int64
+		err    error
+	)
+	if req.Style == web.UserPostsStyleComment {
+		tweets, total, err = s.Ds.ListUserCommentTweets(user, req.PageSize, (req.Page-1)*req.PageSize)
+	} else if req.Style == web.UserPostsStyleMedia {
+		tweets, total, err = s.Ds.ListUserMediaTweets(user, req.PageSize, (req.Page-1)*req.PageSize)
+	} else {
+		logrus.Errorf("s.listUserTweets unknow style: %s", req.Style)
+		return nil, web.ErrGetPostsFailed
+	}
+	if err != nil {
+		logrus.Errorf("s.listUserTweets err: %s", err)
+		return nil, web.ErrGetPostsFailed
+	}
+	postFormated, err := s.Ds.MergePosts(tweets)
+	if err != nil {
+		logrus.Errorf("s.listUserTweets err: %s", err)
+		return nil, web.ErrGetPostsFailed
+	}
+	resp := base.PageRespFrom(postFormated, req.Page, req.PageSize, total)
 	return (*web.GetUserTweetsResp)(resp), nil
 }
 

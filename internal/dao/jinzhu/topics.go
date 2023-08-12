@@ -143,7 +143,7 @@ func (s *topicSrv) GetFollowTags(userId int64, limit int, offset int) (cs.TagLis
 	}
 	// 置顶排序后处理
 	// TODO: 垃圾办法，最好是topic_user join tag 一次查询，但是gorm的join真他喵的别扭，F*K
-	res := make(cs.TagList, len(topicIds), len(topicIds))
+	res := make(cs.TagList, len(topicIds))
 	for _, tag := range formtedTags {
 		res[topicIdsMap[tag.ID]] = tag
 	}
@@ -217,10 +217,8 @@ func (s *topicSrv) tagsFormatA(userId int64, tags cs.TagList) (cs.TagList, error
 func (s *topicSrv) tagsFormatB(userTopicsMap map[int64]*topicInfo, tags cs.TagInfoList) (cs.TagList, error) {
 	// 获取创建者User IDs
 	userIds := []int64{}
-	tagIds := []int64{}
 	for _, tag := range tags {
 		userIds = append(userIds, tag.UserID)
-		tagIds = append(tagIds, tag.ID)
 	}
 	users, err := (&dbr.User{}).ListUserInfoById(s.db, userIds)
 	if err != nil {
