@@ -13,10 +13,18 @@ All notable changes to paopao-ce are documented in this file.
     CREATE VIEW p_post_by_comment AS SELECT P.*,C.user_id comment_user_id FROM (SELECT post_id,user_id FROM p_comment WHERE is_del=0 UNION SELECT post_id,reply.user_id user_id FROM p_comment_reply reply JOIN p_comment COMMENT ON reply.comment_id=COMMENT.ID WHERE reply.is_del=0 AND COMMENT.is_del=0) C JOIN p_post P ON C.post_id=P.ID WHERE P.is_del=0;
     ```
 - add user highlight tweet support include custom tweet set to highlight and list in user/profile page.
+- add cli subcommand to start paopao-ce serve or other task. [#354](https://github.com/rocboss/paopao-ce/pull/354)  
 
 ### Changed
-- change man content width to 600px and optimize tweet/comment/replay text length. [#333](https://github.com/rocboss/paopao-ce/pull/333)  
-
+- change man content width to 600px and optimize tweet/comment/replay text length. [#333](https://github.com/rocboss/paopao-ce/pull/333) 
+- optimize embed web ui to paopao execute binary file logic. [#354](https://github.com/rocboss/paopao-ce/pull/354)   
+  ```sh
+  # embed web ui to execute file default
+  make build 
+  # use slim model to disable embed web ui to exectute file
+  make build TAGS='slim embed'
+  ```
+  
 ## 0.3.1
 ### Fixed
 - fixed: video player assets cdn error. [&caff8c0](https://github.com/rocboss/paopao-ce/commit/caff8c052be6c8d59576011192f830fd98e17ab3 'commit caff8c0')  

@@ -1,6 +1,7 @@
 .PHONY: all build run test clean fmt pre-commit help
 
-TARGET = paopao-ce
+PROJECT = paopao-ce
+TARGET = paopao
 ifeq ($(OS),Windows_NT)
 TARGET := $(TARGET).exe
 endif
@@ -12,10 +13,10 @@ endif
 
 RELEASE_ROOT = release
 RELEASE_FILES = LICENSE README.md CHANGELOG.md config.yaml.sample docker-compose.yaml scripts docs
-RELEASE_LINUX_AMD64 = $(RELEASE_ROOT)/linux-amd64/$(TARGET)
-RELEASE_DARWIN_AMD64 = $(RELEASE_ROOT)/darwin-amd64/$(TARGET)
-RELEASE_DARWIN_ARM64 = $(RELEASE_ROOT)/darwin-arm64/$(TARGET)
-RELEASE_WINDOWS_AMD64 = $(RELEASE_ROOT)/windows-amd64/$(TARGET)
+RELEASE_LINUX_AMD64 = $(RELEASE_ROOT)/linux-amd64/$(PROJECT)
+RELEASE_DARWIN_AMD64 = $(RELEASE_ROOT)/darwin-amd64/$(PROJECT)
+RELEASE_DARWIN_ARM64 = $(RELEASE_ROOT)/darwin-arm64/$(PROJECT)
+RELEASE_WINDOWS_AMD64 = $(RELEASE_ROOT)/windows-amd64/$(PROJECT)
 
 BUILD_VERSION := $(shell git describe --tags --always | cut -f1 -f2 -d "-")
 BUILD_DATE := $(shell date +'%Y-%m-%d %H:%M:%S')
@@ -35,7 +36,7 @@ build:
 	@go build -pgo=auto -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_ROOT)/$(TARGET)
 
 run:
-	@go run -pgo=auto -trimpath -gcflags "all=-N -l" -tags '$(TAGS)' -ldflags '$(LDFLAGS)' .
+	@go run -pgo=auto -trimpath -gcflags "all=-N -l" -tags '$(TAGS)' -ldflags '$(LDFLAGS)' . serve
 
 .PHONY: release
 release: linux-amd64 darwin-amd64 darwin-arm64 windows-x64
@@ -44,10 +45,10 @@ release: linux-amd64 darwin-amd64 darwin-arm64 windows-x64
 	@cp -rf $(RELEASE_FILES) $(RELEASE_DARWIN_AMD64)
 	@cp -rf $(RELEASE_FILES) $(RELEASE_DARWIN_ARM64)
 	@cp -rf $(RELEASE_FILES) $(RELEASE_WINDOWS_AMD64)
-	@cd $(RELEASE_LINUX_AMD64)/.. && rm -f *.zip && zip -r $(TARGET)-linux_amd64.zip $(TARGET) && cd -
-	@cd $(RELEASE_DARWIN_AMD64)/.. && rm -f *.zip && zip -r $(TARGET)-darwin_amd64.zip $(TARGET) && cd -
-	@cd $(RELEASE_DARWIN_ARM64)/.. && rm -f *.zip && zip -r $(TARGET)-darwin_arm64.zip $(TARGET) && cd -
-	@cd $(RELEASE_WINDOWS_AMD64)/.. && rm -f *.zip && zip -r $(TARGET)-windows_amd64.zip $(TARGET) && cd -
+	@cd $(RELEASE_LINUX_AMD64)/.. && rm -f *.zip && zip -r $(PROJECT)-linux_amd64.zip $(PROJECT) && cd -
+	@cd $(RELEASE_DARWIN_AMD64)/.. && rm -f *.zip && zip -r $(PROJECT)-darwin_amd64.zip $(PROJECT) && cd -
+	@cd $(RELEASE_DARWIN_ARM64)/.. && rm -f *.zip && zip -r $(PROJECT)-darwin_arm64.zip $(PROJECT) && cd -
+	@cd $(RELEASE_WINDOWS_AMD64)/.. && rm -f *.zip && zip -r $(PROJECT)-windows_amd64.zip $(PROJECT) && cd -
 
 .PHONY: linux-amd64
 linux-amd64:

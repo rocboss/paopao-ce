@@ -4,7 +4,10 @@ __debug_bin
 !*.example
 /config.yaml
 *.log
-paopao-ce*
+/paopao-ce
+/paopao
+/.env
+/.envrc
 /release
 /data
 /custom
