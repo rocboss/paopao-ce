@@ -375,6 +375,16 @@ func (s *tweetSrv) ListUserStarTweets(user *cs.VistUser, limit int, offset int) 
 	return nil, 0, cs.ErrNotImplemented
 }
 
+func (s *tweetSrv) ListUserMediaTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, cs.ErrNotImplemented
+}
+
+func (s *tweetSrv) ListUserCommentTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, cs.ErrNotImplemented
+}
+
 func (s *tweetSrv) GetUserPostStarCount(userID int64) (res int64, err error) {
 	err = s.q.GetUserPostStarCount.Get(&res, userID, userID)
 	return
