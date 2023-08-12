@@ -233,9 +233,14 @@ import {
     BookmarkOutline,
     ShareSocialOutline,
     ChatboxOutline,
+    PushOutline,
+    TrashOutline,
+    LockClosedOutline,
+    LockOpenOutline,
     EyeOutline,
+    EyeOffOutline,
+    PersonOutline,
     FlameOutline,
-    Pencil as EditIcon,
 } from '@vicons/ionicons5';
 import { MoreHorizFilled } from '@vicons/material';
 import {
@@ -314,6 +319,7 @@ const post = computed({
         props.post.upvote_count = newVal.upvote_count;
         props.post.comment_count = newVal.comment_count;
         props.post.collection_count = newVal.collection_count;
+        props.post.is_essence = newVal.is_essence;
     },
 });
 
@@ -323,27 +329,27 @@ const renderIcon = (icon: Component) => {
       default: () => h(icon)
     })
   }
-}
+};
 
 const adminOptions = computed(() => {
     let options: DropdownOption[] = [
         {
             label: '删除',
             key: 'delete',
-            icon: renderIcon(EditIcon)
+            icon: renderIcon(TrashOutline)
         },
     ];
     if (post.value.is_lock === 0) {
         options.push({
             label: '锁定',
             key: 'lock',
-            icon: renderIcon(EditIcon)
+            icon: renderIcon(LockClosedOutline)
         });
     } else {
         options.push({
             label: '解锁',
             key: 'unlock',
-            icon: renderIcon(EditIcon)
+            icon: renderIcon(LockOpenOutline)
         });
     }
     if (store.state.userInfo.is_admin) {
@@ -351,13 +357,13 @@ const adminOptions = computed(() => {
             options.push({
                 label: '置顶',
                 key: 'stick',
-                icon: renderIcon(EditIcon)
+                icon: renderIcon(PushOutline)
             });
         } else {
             options.push({
                 label: '取消置顶',
                 key: 'unstick',
-                icon: renderIcon(EditIcon)
+                icon: renderIcon(PushOutline)
             });
         }
     }
@@ -380,28 +386,28 @@ const adminOptions = computed(() => {
             key: 'vpublic',
             icon: renderIcon(EyeOutline),
             children: [
-                { label: '私密', key: 'vprivate', icon: renderIcon(EditIcon)}
-                , { label: '好友可见', key: 'vfriend', icon: renderIcon(EditIcon) }
+                { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline)}
+                , { label: '好友可见', key: 'vfriend', icon: renderIcon(PersonOutline) }
             ]
         })
     } else if (post.value.visibility === VisibilityEnum.PRIVATE) {
         options.push({
             label: '私密',
             key: 'vprivate',
-            icon: renderIcon(EyeOutline),
+            icon: renderIcon(EyeOffOutline),
             children: [
-                { label: '公开', key: 'vpublic', icon: renderIcon(EditIcon) }
-                , { label: '好友可见', key: 'vfriend', icon: renderIcon(EditIcon) }
+                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) }
+                , { label: '好友可见', key: 'vfriend', icon: renderIcon(PersonOutline) }
             ]
         })
     } else {
         options.push({
             label: '好友可见',
             key: 'vfriend',
-            icon: renderIcon(EyeOutline),
+            icon: renderIcon(PersonOutline),
             children: [
-                { label: '公开', key: 'vpublic', icon: renderIcon(EditIcon) }
-                , { label: '私密', key: 'vprivate', icon: renderIcon(EditIcon) }
+                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) }
+                , { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline) }
             ]
         })
     }
@@ -481,7 +487,7 @@ const execDelAction = () => {
     deletePost({
         id: post.value.id,
     })
-        .then((res) => {
+        .then((_res) => {
             window.$message.success('删除成功');
             router.replace('/');
 
@@ -489,7 +495,7 @@ const execDelAction = () => {
                 store.commit('refresh');
             }, 50);
         })
-        .catch((err) => {
+        .catch((_err) => {
             loading.value = false;
         });
 };
@@ -505,7 +511,7 @@ const execLockAction = () => {
                 window.$message.success('解锁成功');
             }
         })
-        .catch((err) => {
+        .catch((_err) => {
             loading.value = false;
         });
 };
@@ -521,7 +527,7 @@ const execStickAction = () => {
                 window.$message.success('取消置顶成功');
             }
         })
-        .catch((err) => {
+        .catch((_err) => {
             loading.value = false;
         });
 };
@@ -530,14 +536,17 @@ const execHighlightAction = () => {
         id: post.value.id,
     })
         .then((res) => {
-            emit('reload');
+            post.value = {
+                    ...post.value,
+                    is_essence: res.highlight_status,
+            };
             if (res.highlight_status === 1) {
                 window.$message.success('设为亮点成功');
             } else {
                 window.$message.success('取消亮点成功');
             }
         })
-        .catch((err) => {
+        .catch((_err) => {
             loading.value = false;
         });
 };
@@ -550,7 +559,7 @@ const execVisibilityAction = () => {
             emit('reload');
             window.$message.success('修改可见性成功');
         })
-        .catch((err) => {
+        .catch((_err) => {
             loading.value = false;
         });
 };

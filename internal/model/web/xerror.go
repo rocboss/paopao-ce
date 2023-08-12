@@ -46,6 +46,7 @@ var (
 	ErrDownloadExecFail        = xerror.NewError(30010, "附件下载失败:扣费失败")
 	ErrStickPostFailed         = xerror.NewError(30011, "动态置顶失败")
 	ErrVisblePostFailed        = xerror.NewError(30012, "更新可见性失败")
+	ErrHighlightPostFailed     = xerror.NewError(30013, "动态设为亮点失败")
 
 	ErrGetCommentsFailed   = xerror.NewError(40001, "获取评论列表失败")
 	ErrCreateCommentFailed = xerror.NewError(40002, "评论发布失败")

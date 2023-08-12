@@ -263,6 +263,11 @@ func (s *tweetManageSrv) StickPost(r *ms.Post) error {
 	return err
 }
 
+func (s *tweetManageSrv) HighlightPost(userId, postId int64) (int, error) {
+	// TODO
+	return 0, cs.ErrNotImplemented
+}
+
 func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT) (err error) {
 	oldVisibility := post.Visibility
 	post.Visibility = visibility
@@ -360,9 +365,24 @@ func (s *tweetSrv) GetUserPostStar(postID, userID int64) (res *ms.PostStar, err 
 	return
 }
 
-func (s *tweetSrv) GetUserPostStars(userID int64, offset, limit int) (res []*ms.PostStar, err error) {
+func (s *tweetSrv) GetUserPostStars(userID int64, limit int, offset int) (res []*ms.PostStar, err error) {
 	err = s.q.GetUserPostStar.Select(&res, userID, userID, limit, offset)
 	return
+}
+
+func (s *tweetSrv) ListUserStarTweets(user *cs.VistUser, limit int, offset int) ([]*ms.PostStar, int64, error) {
+	// TODO
+	return nil, 0, cs.ErrNotImplemented
+}
+
+func (s *tweetSrv) ListUserMediaTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, cs.ErrNotImplemented
+}
+
+func (s *tweetSrv) ListUserCommentTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, cs.ErrNotImplemented
 }
 
 func (s *tweetSrv) GetUserPostStarCount(userID int64) (res int64, err error) {

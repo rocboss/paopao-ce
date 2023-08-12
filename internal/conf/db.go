@@ -29,6 +29,8 @@ const (
 	TableContactGroup       = "contact_group"
 	TableMessage            = "message"
 	TablePost               = "post"
+	TablePostByComment      = "post_by_comment"
+	TablePostByMedia        = "post_by_media"
 	TablePostAttachmentBill = "post_attachment_bill"
 	TablePostCollection     = "post_collection"
 	TablePostContent        = "post_content"

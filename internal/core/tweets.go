@@ -15,7 +15,7 @@ type TweetService interface {
 	GetPosts(conditions ms.ConditionsT, offset, limit int) ([]*ms.Post, error)
 	GetPostCount(conditions ms.ConditionsT) (int64, error)
 	GetUserPostStar(postID, userID int64) (*ms.PostStar, error)
-	GetUserPostStars(userID int64, offset, limit int) ([]*ms.PostStar, error)
+	GetUserPostStars(userID int64, limit int, offset int) ([]*ms.PostStar, error)
 	GetUserPostStarCount(userID int64) (int64, error)
 	GetUserPostCollection(postID, userID int64) (*ms.PostCollection, error)
 	GetUserPostCollections(userID int64, offset, limit int) ([]*ms.PostCollection, error)
@@ -23,6 +23,9 @@ type TweetService interface {
 	GetPostAttatchmentBill(postID, userID int64) (*ms.PostAttachmentBill, error)
 	GetPostContentsByIDs(ids []int64) ([]*ms.PostContent, error)
 	GetPostContentByID(id int64) (*ms.PostContent, error)
+	ListUserStarTweets(user *cs.VistUser, limit int, offset int) ([]*ms.PostStar, int64, error)
+	ListUserMediaTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error)
+	ListUserCommentTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error)
 }
 
 // TweetManageService 推文管理服务，包括创建/删除/更新推文
@@ -31,6 +34,7 @@ type TweetManageService interface {
 	DeletePost(post *ms.Post) ([]string, error)
 	LockPost(post *ms.Post) error
 	StickPost(post *ms.Post) error
+	HighlightPost(userId, postId int64) (int, error)
 	VisiblePost(post *ms.Post, visibility PostVisibleT) error
 	UpdatePost(post *ms.Post) error
 	CreatePostStar(postID, userID int64) (*ms.PostStar, error)

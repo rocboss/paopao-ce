@@ -21,6 +21,9 @@ func VersionInfo() string {
 }
 
 func ReadBuildInfo() *BuildInfo {
+	if version == "" {
+		version = "unknow"
+	}
 	return &BuildInfo{
 		Version:   version,
 		Sum:       commitID,
