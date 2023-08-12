@@ -97,11 +97,15 @@ PaoPao主要由以下优秀的开源项目/工具构建
     ```
     编译api服务、内嵌web前端ui:
     ```sh
-    make build TAGS='embed'
+    make build
+    ```
+    也可以使用精简模式编译，不内嵌web前端ui:
+    ```sh
+    make build TAGS='slim embed'
     ```
     编译后在`release`目录可以找到对应可执行文件。
     ```sh
-    release/paopao-ce
+    release/paopao
     ```
 
 4. 直接运行后端    
