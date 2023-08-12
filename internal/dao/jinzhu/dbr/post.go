@@ -21,6 +21,10 @@ const (
 	PostVisitInvalid
 )
 
+type PostByMedia = Post
+
+type PostByComment = Post
+
 type Post struct {
 	*Model
 	UserID          int64        `json:"user_id"`

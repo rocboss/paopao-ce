@@ -84,13 +84,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted, computed } from 'vue';
+import { h, ref, reactive, watch, onMounted, computed } from 'vue';
+import { NIcon } from 'naive-ui'
+import type { Component } from 'vue'
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import { getUserProfile, getUserPosts, changeUserStatus, deleteFriend } from '@/api/user';
 import { useDialog, DropdownOption } from 'naive-ui';
 import WhisperAddFriend from '../components/whisper-add-friend.vue';
 import { MoreHorizFilled } from '@vicons/material';
+import {
+    PaperPlaneOutline,
+    PersonAddOutline,
+    PersonRemoveOutline,
+    CubeOutline,
+    TrashOutline,
+} from '@vicons/ionicons5';
 
 const dialog = useDialog();
 const store = useStore();
@@ -318,21 +327,31 @@ const whisperSuccess = () => {
 const addFriendWhisperSuccess = () => {
     showAddFriendWhisper.value = false;
 };
+const renderIcon = (icon: Component) => {
+  return () => {
+    return h(NIcon, null, {
+      default: () => h(icon)
+    })
+  }
+};
 const userOptions = computed(() => {
     let options: DropdownOption[] = [{
         label: '私信',
         key: 'whisper',
+        icon: renderIcon(PaperPlaneOutline)
     }];
     if (store.state.userInfo.is_admin) {
         if (user.status === 1) {
             options.push({
                 label: '禁言',
                 key: 'banned',
+                icon: renderIcon(CubeOutline)
             });
         } else {
             options.push({
                 label: '解封',
                 key: 'deblocking',
+                icon: renderIcon(CubeOutline)
             });
         }
     }
@@ -340,11 +359,13 @@ const userOptions = computed(() => {
         options.push({
             label: '删除好友',
             key: 'delete',
+            icon: renderIcon(PersonRemoveOutline)
         });
     } else {
         options.push({
             label: '添加朋友',
             key: 'requesting',
+            icon: renderIcon(PersonAddOutline)
         });
     }
     return options;
