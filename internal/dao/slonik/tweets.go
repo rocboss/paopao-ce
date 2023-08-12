@@ -115,6 +115,12 @@ func (s *tweetManageSrv) StickPost(post *ms.Post) error {
 	return nil
 }
 
+func (s *tweetManageSrv) HighlightPost(userId, postId int64) (res int, err error) {
+	// TODO
+	debug.NotImplemented()
+	return
+}
+
 func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT) error {
 	// TODO
 	debug.NotImplemented()
@@ -311,6 +317,21 @@ func (s *tweetSrv) UserFavorites(userId int64, limit int, offset int) (cs.Favori
 func (s *tweetSrv) AttachmentByTweetId(userId int64, tweetId int64) (*cs.AttachmentBill, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
+}
+
+func (s *tweetSrv) ListUserStarTweets(user *cs.VistUser, limit int, offset int) ([]*ms.PostStar, int64, error) {
+	// TODO
+	return nil, 0, debug.ErrNotImplemented
+}
+
+func (s *tweetSrv) ListUserMediaTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, debug.ErrNotImplemented
+}
+
+func (s *tweetSrv) ListUserCommentTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, debug.ErrNotImplemented
 }
 
 func newTweetService(db *pgx.Conn) core.TweetService {
