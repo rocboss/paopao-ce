@@ -7,7 +7,7 @@
             <n-spin :show="userLoading">
                 <div class="profile-baseinfo" v-if="user.id > 0">
                     <div class="avatar">
-                        <n-avatar size="large" :src="user.avatar" />
+                        <n-avatar :size="72" :src="user.avatar" />
                     </div>
                     <div class="base-info">
                         <div class="username">
@@ -24,6 +24,9 @@
                         </div>
                         <div class="userinfo">
                             <span class="info-item">UID. {{ user.id }} </span>
+                            <span class="info-item">{{ formatDate(user.created_on) }}&nbsp;加入</span>
+                        </div>
+                        <div class="userinfo">
                             <span class="info-item">关注&nbsp;&nbsp;{{ user.follows }}</span>
                             <span class="info-item">粉丝&nbsp;&nbsp;{{ user.followings }}</span>
                         </div>
@@ -96,6 +99,7 @@ import { getUserProfile, getUserPosts, changeUserStatus, deleteFriend, followUse
 import { useDialog, DropdownOption } from 'naive-ui';
 import WhisperAddFriend from '../components/whisper-add-friend.vue';
 import { MoreHorizFilled } from '@vicons/material';
+import { formatDate } from '@/utils/formatTime';
 import {
     PaperPlaneOutline,
     PersonAddOutline,
@@ -118,6 +122,7 @@ const user = reactive<Item.UserInfo>({
     is_admin: false,
     is_friend: true,
     is_following: false,
+    created_on: 0,
     follows: 0,
     followings: 0,
     status: 1,
@@ -289,6 +294,7 @@ const loadUser = () => {
             user.nickname = res.nickname;
             user.is_admin = res.is_admin;
             user.is_friend = res.is_friend;
+            user.created_on = res.created_on;
             user.is_following = res.is_following;
             user.follows = res.follows;
             user.followings = res.followings;
@@ -536,12 +542,13 @@ onMounted(() => {
     padding: 16px;
 
     .avatar {
-        width: 55px;
+        width: 72px;
     }
 
     .base-info {
         position: relative;
-        width: calc(100% - 55px);
+        margin-left: 12px;
+        width: calc(100% - 84px);
 
         .username {
             line-height: 16px;

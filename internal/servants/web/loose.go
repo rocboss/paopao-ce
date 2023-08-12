@@ -178,13 +178,16 @@ func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfi
 		isFriend = s.Ds.IsFriend(req.User.ID, he.ID)
 	}
 	return &web.GetUserProfileResp{
-		ID:       he.ID,
-		Nickname: he.Nickname,
-		Username: he.Username,
-		Status:   he.Status,
-		Avatar:   he.Avatar,
-		IsAdmin:  he.IsAdmin,
-		IsFriend: isFriend,
+		ID:         he.ID,
+		Nickname:   he.Nickname,
+		Username:   he.Username,
+		Status:     he.Status,
+		Avatar:     he.Avatar,
+		IsAdmin:    he.IsAdmin,
+		IsFriend:   isFriend,
+		CreatedOn:  he.CreatedOn,
+		Follows:    0, // TODO
+		Followings: 0, // TODO
 	}, nil
 }
 

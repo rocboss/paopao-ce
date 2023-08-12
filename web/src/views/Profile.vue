@@ -10,15 +10,21 @@
             <!-- 基础信息 -->
             <div class="profile-baseinfo">
                 <div class="avatar">
-                    <n-avatar size="large" :src="store.state.userInfo.avatar" />
+                    <n-avatar :size="72" :src="store.state.userInfo.avatar" />
                 </div>
                 <div class="base-info">
                     <div class="username">
                         <strong>{{ store.state.userInfo.nickname }}</strong>
                         <span> @{{ store.state.userInfo.username }} </span>
+                        <n-tag v-if="store.state.userInfo.is_admin" class="top-tag" type="error" size="small" round>
+                            管理员
+                        </n-tag>
                     </div>
                     <div class="userinfo">
                         <span class="info-item">UID. {{ store.state.userInfo.id }} </span>
+                        <span class="info-item">{{ formatDate(store.state.userInfo.created_on) }}&nbsp;加入</span>
+                    </div>
+                    <div class="userinfo">
                         <span class="info-item">关注&nbsp;&nbsp;{{ store.state.userInfo.follows }}</span>
                         <span class="info-item">粉丝&nbsp;&nbsp;{{ store.state.userInfo.followings }}</span>
                     </div>
@@ -68,6 +74,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import { getUserPosts } from '@/api/user';
+import { formatDate } from '@/utils/formatTime';
 
 const store = useStore();
 const route = useRoute();
@@ -280,12 +287,13 @@ watch(
     display: flex;
     padding: 16px;
     .avatar {
-        width: 55px;
+        width: 72px;
     }
 
     .base-info {
         position: relative;
-        width: calc(100% - 55px);
+        margin-left: 12px;
+        width: calc(100% - 84px);
 
         .username {
             line-height: 16px;
@@ -300,6 +308,10 @@ watch(
             .info-item {
                 margin-right: 12px;
             }
+        }
+
+        .top-tag {
+            transform: scale(0.75);
         }
     }
 }

@@ -75,6 +75,7 @@ type GetUserProfileResp struct {
 	IsAdmin     bool   `json:"is_admin"`
 	IsFriend    bool   `json:"is_friend"`
 	IsFollowing bool   `json:"is_following"`
+	CreatedOn   int64  `json:"created_on"`
 	Follows     int    `json:"follows"`
 	Followings  int    `json:"followings"`
 }
