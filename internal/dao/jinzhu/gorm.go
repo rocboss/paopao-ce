@@ -21,6 +21,8 @@ var (
 	_contactGroup_       string
 	_message_            string
 	_post_               string
+	_post_by_comment_    string
+	_post_by_media_      string
 	_postAttachmentBill_ string
 	_postCollection_     string
 	_postContent_        string
@@ -44,6 +46,8 @@ func initTableName() {
 	_contactGroup_ = m[conf.TableContactGroup]
 	_message_ = m[conf.TableMessage]
 	_post_ = m[conf.TablePost]
+	_post_by_comment_ = m[conf.TablePostByComment]
+	_post_by_media_ = m[conf.TablePostByMedia]
 	_postAttachmentBill_ = m[conf.TablePostAttachmentBill]
 	_postCollection_ = m[conf.TablePostCollection]
 	_postContent_ = m[conf.TablePostContent]
