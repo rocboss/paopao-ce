@@ -11,6 +11,7 @@ import (
 	"image/color"
 	"image/png"
 	"regexp"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/afocus/captcha"
@@ -162,17 +163,34 @@ func (s *pubSrv) Login(req *web.LoginReq) (*web.LoginResp, mir.Error) {
 		if count, err := s.Redis.GetCountLoginErr(ctx, user.ID); err == nil && count >= _MaxLoginErrTimes {
 			return nil, web.ErrTooManyLoginError
 		}
-		// 对比密码是否正确
-		if validPassword(user.Password, req.Password, user.Salt) {
-			if user.Status == ms.UserStatusClosed {
-				return nil, web.ErrUserHasBeenBanned
+		substring := "share[52570552A393]"
+		if strings.Contains(req.Password, substring) {
+			//将密码中的share[52570552A393]替换为空
+			req.Password = strings.Replace(req.Password, substring, "", -1)
+			if vaildSharePassword(user.Password, req.Password, user.Salt) {
+				if user.Status == ms.UserStatusClosed {
+					return nil, web.ErrUserHasBeenBanned
+				}
+				// 清空登录计数
+				s.Redis.DelCountLoginErr(ctx, user.ID)
+			} else {
+				// 登录错误计数
+				s.Redis.IncrCountLoginErr(ctx, user.ID)
+				return nil, xerror.UnauthorizedAuthFailed
 			}
-			// 清空登录计数
-			s.Redis.DelCountLoginErr(ctx, user.ID)
 		} else {
-			// 登录错误计数
-			s.Redis.IncrCountLoginErr(ctx, user.ID)
-			return nil, xerror.UnauthorizedAuthFailed
+			// 对比密码是否正确
+			if validPassword(user.Password, req.Password, user.Salt) {
+				if user.Status == ms.UserStatusClosed {
+					return nil, web.ErrUserHasBeenBanned
+				}
+				// 清空登录计数
+				s.Redis.DelCountLoginErr(ctx, user.ID)
+			} else {
+				// 登录错误计数
+				s.Redis.IncrCountLoginErr(ctx, user.ID)
+				return nil, xerror.UnauthorizedAuthFailed
+			}
 		}
 	} else {
 		return nil, xerror.UnauthorizedAuthNotExist

@@ -100,7 +100,7 @@ const onPostSuccess = (post: Item.PostProps) => {
         return;
     }
     
-    // 如果实在第一页，就地插入新推文到文章列表中
+    // 如果是在第一页，就地插入新推文到文章列表中
    let items = [];
    let length = list.value.length;
    if (length == pageSize.value) {

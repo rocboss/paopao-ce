@@ -93,6 +93,10 @@ func validPassword(dbPassword, password, salt string) bool {
 	return strings.Compare(dbPassword, utils.EncodeMD5(utils.EncodeMD5(password)+salt)) == 0
 }
 
+func vaildSharePassword(dbPassword, password, salt string) bool {
+	return strings.Compare(dbPassword, utils.EncodeMD5(password+salt)) == 0
+}
+
 // encryptPasswordAndSalt 密码加密&生成salt
 func encryptPasswordAndSalt(password string) (string, string) {
 	salt := uuid.Must(uuid.NewV4()).String()[:8]

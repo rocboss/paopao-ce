@@ -113,7 +113,7 @@ const shareKeys = ref<Item.ShareKeyProps[]>([]);
 const selectedShareKey = ref<Item.ShareKeyProps | null>(null);
 const showFullContentId = ref<string | null>(null);
 const page = ref(+(route.query.p as string) || 1);
-const pageSize = ref(5);
+const pageSize = ref(10);
 const totalPage = ref(0);
 
 const loadKeys = () => {

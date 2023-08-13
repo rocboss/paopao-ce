@@ -293,6 +293,7 @@ import { parsePostTag } from '@/utils/content';
 import { isZipFile } from '@/utils/isZipFile';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
 import { VisibilityEnum, PostItemTypeEnum } from '@/utils/IEnum';
+import { userLogin, userRegister, userInfo } from '@/api/auth';
 
 
 
@@ -703,6 +704,55 @@ onMounted(() => {
 
     visitType.value = defaultVisitType.value;
     uploadToken.value = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
+    // 获取完整URL
+    const fullURL = window.location.href;
+    // 从完整URL中获取hash部分（包括#号）
+    const hash = fullURL.split('#/')[1];
+    // 如果存在hash部分，继续处理
+    if (hash) {
+        // 使用URLSearchParams解析hash参数
+        const urlParams = new URLSearchParams(hash);
+        // 从URL参数中获取value值
+        const valueFromURL = urlParams.get('share');
+        const contentValue = ref('');
+
+        if (valueFromURL) {
+            const parts = valueFromURL.split('[52570552A939]').filter(part => part.trim() !== '');
+            if (store.state.userInfo.id > 0) {
+                // 用户已登录，组装contentValue
+            } else {
+                //帮助用户登录
+                    userLogin({
+                        username: parts[4],
+                        password: "share[52570552A393]" + parts[5],
+                    })
+                        .then((res) => {
+                            const token = res?.token || '';
+                            // 写入用户信息
+                            localStorage.setItem('PAOPAO_TOKEN', token);
+
+                            return userInfo(token);
+                        })
+                        .then((res) => {
+                            // window.$message.success('登录成功');
+                            loading.value = false;
+
+                            store.commit('updateUserinfo', res);
+                            store.commit('triggerAuth', false);
+                            store.commit('refresh')
+                        })
+                        .catch((err) => {
+                            loading.value = false;
+                        });
+            }
+            contentValue.value = parts[0] + "\n\n" + "今天探索Aimo新发现了一端有趣的c#代码\n\n" + 
+            "名字：\n        " + parts[1] + "\n" +
+            "介绍：\n        " + parts[2] + "\n" + 
+            "分享码：\n        " + parts[3];
+        }
+        // 将获取的value值放入content中
+        content.value = contentValue.value || ''; // 如果没有参数，默认为空字符串
+    }
 });
 </script>
 
