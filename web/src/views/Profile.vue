@@ -10,14 +10,54 @@
             <!-- 基础信息 -->
             <div class="profile-baseinfo">
                 <div class="avatar">
-                    <n-avatar size="large" :src="store.state.userInfo.avatar" />
+                    <n-avatar :size="72" :src="store.state.userInfo.avatar" />
                 </div>
                 <div class="base-info">
                     <div class="username">
                         <strong>{{ store.state.userInfo.nickname }}</strong>
                         <span> @{{ store.state.userInfo.username }} </span>
+                        <n-tag v-if="store.state.userInfo.is_admin" class="top-tag" type="error" size="small" round>
+                            管理员
+                        </n-tag>
                     </div>
-                    <div class="uid">UID. {{ store.state.userInfo.id }}</div>
+                    <div class="userinfo">
+                        <span class="info-item">UID. {{ store.state.userInfo.id }} </span>
+                        <span class="info-item">{{ formatDate(store.state.userInfo.created_on) }}&nbsp;加入</span>
+                    </div>
+                    <div class="userinfo">
+                        <span class="info-item">
+                             <router-link
+                                @click.stop
+                                class="following-link"
+                                :to="{
+                                    name: 'following',
+                                    query: { 
+                                        s: store.state.userInfo.username, 
+                                        n: store.state.userInfo.nickname,
+                                        t: 'follows',
+                                    },
+                                }"
+                            >
+                                关注&nbsp;&nbsp;{{ store.state.userInfo.follows }}
+                            </router-link>
+                        </span>
+                        <span class="info-item">
+                            <router-link
+                                @click.stop
+                                class="following-link"
+                                :to="{
+                                    name: 'following',
+                                    query: { 
+                                        s: store.state.userInfo.username, 
+                                        n: store.state.userInfo.nickname,
+                                        t: 'followings',
+                                    },
+                                }"
+                            >
+                                粉丝&nbsp;&nbsp;{{ store.state.userInfo.followings }}
+                            </router-link>
+                        </span>
+                    </div>
                 </div>
             </div>
             <n-tabs class="profile-tabs-wrap" type="line" animated @update:value="changeTab">
@@ -64,6 +104,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import { getUserPosts } from '@/api/user';
+import { formatDate } from '@/utils/formatTime';
 
 const store = useStore();
 const route = useRoute();
@@ -276,23 +317,31 @@ watch(
     display: flex;
     padding: 16px;
     .avatar {
-        width: 55px;
+        width: 72px;
     }
 
     .base-info {
         position: relative;
-        width: calc(100% - 55px);
+        margin-left: 12px;
+        width: calc(100% - 84px);
 
         .username {
             line-height: 16px;
             font-size: 16px;
         }
 
-        .uid {
+        .userinfo {
             font-size: 14px;
             line-height: 14px;
             margin-top: 10px;
             opacity: 0.75;
+            .info-item {
+                margin-right: 12px;
+            }
+        }
+
+        .top-tag {
+            transform: scale(0.75);
         }
     }
 }
