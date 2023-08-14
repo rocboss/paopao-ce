@@ -10,7 +10,7 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.8+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/bufbuild/connect-go v1.10.0
-	github.com/bytedance/sonic v1.9.2
+	github.com/bytedance/sonic v1.10.0
 	github.com/cockroachdb/errors v1.10.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.15.0
@@ -53,7 +53,8 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
-	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
+	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
+	github.com/chenzhuoyu/iasm v0.9.0 // indirect
 	github.com/clbanning/mxj v1.8.4 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
