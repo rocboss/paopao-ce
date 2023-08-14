@@ -14,7 +14,7 @@
                         <router-link @click.stop class="username-link" :to="{
                             name: 'user',
                             query: {
-                                username: message.sender_user.username,
+                                s: message.sender_user.username,
                             },
                         }">
                             {{ message.sender_user.nickname }}

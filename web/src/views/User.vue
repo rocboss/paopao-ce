@@ -131,7 +131,7 @@ const userLoading = ref(false);
 const showWhisper = ref(false);
 const showAddFriendWhisper = ref(false);
 const list = ref<Item.PostProps[]>([]);
-const username = ref(route.query.username || '');
+const username = ref(route.query.s || '');
 const page = ref(+(route.query.p as string) || 1);
 const pageType = ref<"post" | "comment" | "highlight" | "media" | "star">('post');
 const postPage = ref(+(route.query.p as string) || 1);
@@ -522,7 +522,7 @@ watch(
     }),
     (to, from) => {
         if (from.path === '/user' && to.path === '/user') {
-            username.value = route.query.username || '';
+            username.value = route.query.s || '';
             loadUser();
         }
     }
