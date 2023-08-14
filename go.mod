@@ -29,7 +29,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.10
 	github.com/pyroscope-io/client v0.7.2
-	github.com/redis/rueidis v1.0.14
+	github.com/redis/rueidis v1.0.15
 	github.com/sirupsen/logrus v1.9.3
 	github.com/smartwalle/alipay/v3 v3.2.15
 	github.com/sourcegraph/conc v0.3.0
@@ -45,7 +45,7 @@ require (
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/driver/sqlite v1.5.2
-	gorm.io/gorm v1.25.2
+	gorm.io/gorm v1.25.3
 	gorm.io/plugin/dbresolver v1.4.4
 	gorm.io/plugin/soft_delete v1.2.1
 	modernc.org/sqlite v1.25.0
