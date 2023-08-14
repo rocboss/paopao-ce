@@ -61,13 +61,16 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 		return nil, xerror.UnauthorizedAuthNotExist
 	}
 	resp := &web.UserInfoResp{
-		Id:       user.ID,
-		Nickname: user.Nickname,
-		Username: user.Username,
-		Status:   user.Status,
-		Avatar:   user.Avatar,
-		Balance:  user.Balance,
-		IsAdmin:  user.IsAdmin,
+		Id:         user.ID,
+		Nickname:   user.Nickname,
+		Username:   user.Username,
+		Status:     user.Status,
+		Avatar:     user.Avatar,
+		Balance:    user.Balance,
+		IsAdmin:    user.IsAdmin,
+		CreatedOn:  user.CreatedOn,
+		Follows:    0, // TODO
+		Followings: 0, // TODO
 	}
 	if user.Phone != "" && len(user.Phone) == 11 {
 		resp.Phone = user.Phone[0:3] + "****" + user.Phone[7:]

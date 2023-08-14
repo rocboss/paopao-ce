@@ -14,7 +14,7 @@ const routes = [
     path: "/post",
     name: "post",
     meta: {
-      title: "话题详情",
+      title: "泡泡详情",
     },
     component: () => import("@/views/Post.vue"),
   },
@@ -73,6 +73,14 @@ const routes = [
       title: "好友",
     },
     component: () => import("@/views/Contacts.vue"),
+  },
+  {
+    path: "/following",
+    name: "following",
+    meta: {
+      title: "关注",
+    },
+    component: () => import("@/views/Following.vue"),
   },
   {
     path: "/wallet",
