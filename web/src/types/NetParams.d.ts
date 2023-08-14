@@ -120,13 +120,13 @@ declare module NetParams {
   }
 
   interface GetUserFollows {
-    user_id: number;
+    username: string;
     page: number;
     page_size: number;
   }
 
   interface GetUserFollowings {
-    user_id: number;
+    username: string;
     page: number;
     page_size: number;
   }

@@ -25,8 +25,38 @@
                         <span class="info-item">{{ formatDate(store.state.userInfo.created_on) }}&nbsp;加入</span>
                     </div>
                     <div class="userinfo">
-                        <span class="info-item">关注&nbsp;&nbsp;{{ store.state.userInfo.follows }}</span>
-                        <span class="info-item">粉丝&nbsp;&nbsp;{{ store.state.userInfo.followings }}</span>
+                        <span class="info-item">
+                             <router-link
+                                @click.stop
+                                class="following-link"
+                                :to="{
+                                    name: 'following',
+                                    query: { 
+                                        s: store.state.userInfo.username, 
+                                        n: store.state.userInfo.nickname,
+                                        t: 'follows',
+                                    },
+                                }"
+                            >
+                                关注&nbsp;&nbsp;{{ store.state.userInfo.follows }}
+                            </router-link>
+                        </span>
+                        <span class="info-item">
+                            <router-link
+                                @click.stop
+                                class="following-link"
+                                :to="{
+                                    name: 'following',
+                                    query: { 
+                                        s: store.state.userInfo.username, 
+                                        n: store.state.userInfo.nickname,
+                                        t: 'followings',
+                                    },
+                                }"
+                            >
+                                粉丝&nbsp;&nbsp;{{ store.state.userInfo.followings }}
+                            </router-link>
+                        </span>
                     </div>
                 </div>
             </div>

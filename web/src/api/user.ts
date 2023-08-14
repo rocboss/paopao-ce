@@ -93,31 +93,31 @@ export const unfollowUser = (
 
 /**
  * 获取关注列表
- * @param {Object} data
+ * @param {Object} params
  * @returns Promise
  */
 export const getUserFollows = (
-  data: NetParams.GetUserFollows
+  params: NetParams.GetUserFollows
 ): Promise<NetReq.GetContacts> => {
   return request({
     method: "get",
     url: "/v1/user/follows",
-    data,
+    params,
   });
 };
 
 /**
  * 获取粉丝列表
- * @param {Object} data
+ * @param {Object} params
  * @returns Promise
  */
 export const getUserFollowings = (
-  data: NetParams.GetUserFollowings
+  params: NetParams.GetUserFollowings
 ): Promise<NetReq.GetContacts> => {
   return request({
     method: "get",
     url: "/v1/user/followings",
-    data,
+    params,
   });
 };
 

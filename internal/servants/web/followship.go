@@ -8,6 +8,7 @@ import (
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
@@ -28,12 +29,16 @@ func (s *followshipSrv) Chain() gin.HandlersChain {
 
 func (s *followshipSrv) ListFollowings(r *web.ListFollowingsReq) (*web.ListFollowingsResp, mir.Error) {
 	// TODO
-	return nil, web.ErrNotImplemented
+	res := ms.ContactList{}
+	resp := base.PageRespFrom(res.Contacts, r.Page, r.PageSize, res.Total)
+	return (*web.ListFollowingsResp)(resp), nil
 }
 
-func (s *followshipSrv) ListFollows(r *web.ListFollowingsReq) (*web.ListFollowingsResp, mir.Error) {
+func (s *followshipSrv) ListFollows(r *web.ListFollowsReq) (*web.ListFollowsResp, mir.Error) {
 	// TODO
-	return nil, web.ErrNotImplemented
+	res := ms.ContactList{}
+	resp := base.PageRespFrom(res.Contacts, r.Page, r.PageSize, res.Total)
+	return (*web.ListFollowsResp)(resp), nil
 }
 
 func (s *followshipSrv) UnfollowUser(r *web.UnfollowUserReq) mir.Error {

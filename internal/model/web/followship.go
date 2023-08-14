@@ -22,6 +22,7 @@ type UnfollowUserReq struct {
 type ListFollowsReq struct {
 	BaseInfo `json:"-" binding:"-"`
 	joint.BasePageInfo
+	Username string `form:"username" binding:"required"`
 }
 
 type ListFollowsResp base.PageResp
@@ -29,6 +30,7 @@ type ListFollowsResp base.PageResp
 type ListFollowingsReq struct {
 	BaseInfo `form:"-" binding:"-"`
 	joint.BasePageInfo
+	Username string `form:"username" binding:"required"`
 }
 
 type ListFollowingsResp base.PageResp

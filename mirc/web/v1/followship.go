@@ -22,7 +22,7 @@ type Followship struct {
 	UnfollowUser func(Post, web.UnfollowUserReq) `mir:"/user/unfollow"`
 
 	// ListFollows 获取用户的关注列表
-	ListFollows func(Get, web.ListFollowingsReq) web.ListFollowingsResp `mir:"/user/follows"`
+	ListFollows func(Get, web.ListFollowsReq) web.ListFollowsResp `mir:"/user/follows"`
 
 	// ListFollowings 获取用户的追随者列表
 	ListFollowings func(Get, web.ListFollowingsReq) web.ListFollowingsResp `mir:"/user/followings"`

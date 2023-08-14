@@ -19,7 +19,7 @@ type Followship interface {
 	Chain() gin.HandlersChain
 
 	ListFollowings(*web.ListFollowingsReq) (*web.ListFollowingsResp, mir.Error)
-	ListFollows(*web.ListFollowingsReq) (*web.ListFollowingsResp, mir.Error)
+	ListFollows(*web.ListFollowsReq) (*web.ListFollowsResp, mir.Error)
 	UnfollowUser(*web.UnfollowUserReq) mir.Error
 	FollowUser(*web.FollowUserReq) mir.Error
 
@@ -54,7 +54,7 @@ func RegisterFollowshipServant(e *gin.Engine, s Followship) {
 			return
 		default:
 		}
-		req := new(web.ListFollowingsReq)
+		req := new(web.ListFollowsReq)
 		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
@@ -101,7 +101,7 @@ func (UnimplementedFollowshipServant) ListFollowings(req *web.ListFollowingsReq)
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
-func (UnimplementedFollowshipServant) ListFollows(req *web.ListFollowingsReq) (*web.ListFollowingsResp, mir.Error) {
+func (UnimplementedFollowshipServant) ListFollows(req *web.ListFollowsReq) (*web.ListFollowsResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
