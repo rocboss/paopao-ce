@@ -24,6 +24,7 @@ All notable changes to paopao-ce are documented in this file.
   # use slim model to disable embed web ui to exectute file
   make build TAGS='slim embed'
   ```
+- frontend: optimize user profile page route path to domain/#/u/?s=username. [&c857142](https://github.com/rocboss/paopao-ce/commit/c857142565f0c28294344c7abc5c2df4e363b04c
   
 ## 0.3.1
 ### Fixed
