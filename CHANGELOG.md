@@ -14,7 +14,7 @@ All notable changes to paopao-ce are documented in this file.
   ```
 - add user highlight tweet support include custom tweet set to highlight and list in user/profile page.
 - add cli subcommand to start paopao-ce serve or other task. [#354](https://github.com/rocboss/paopao-ce/pull/354)  
-- add `Friendship` feature . [#355](https://github.com/rocboss/paopao-ce/pull/354)
+- add `Friendship` feature . [#355](https://github.com/rocboss/paopao-ce/pull/355)
   migration database first(sql ddl file in `scripts/migration/**/*_user_following.up.sql`):
   ```sql
   DROP TABLE IF EXISTS p_following; 
