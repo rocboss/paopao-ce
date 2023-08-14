@@ -26,3 +26,13 @@ type ContactManageService interface {
 	GetContacts(userId int64, offset int, limit int) (*ms.ContactList, error)
 	IsFriend(userID int64, friendID int64) bool
 }
+
+// FollowingManageService 关注管理服务
+type FollowingManageService interface {
+	FollowUser(userId int64, followId int64) error
+	UnfollowUser(userId int64, followId int64) error
+	ListFollows(userId int64, limit, offset int) (*ms.ContactList, error)
+	ListFollowings(userId int64, limit, offset int) (*ms.ContactList, error)
+	GetFollowCount(userId int64) (int64, int64, error)
+	IsFollow(userId int64, followId int64) bool
+}

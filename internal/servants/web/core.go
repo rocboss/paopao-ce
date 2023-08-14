@@ -60,6 +60,10 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 	if user.Model == nil || user.ID < 0 {
 		return nil, xerror.UnauthorizedAuthNotExist
 	}
+	follows, followings, err := s.Ds.GetFollowCount(user.ID)
+	if err != nil {
+		return nil, web.ErrGetFollowCountFailed
+	}
 	resp := &web.UserInfoResp{
 		Id:         user.ID,
 		Nickname:   user.Nickname,
@@ -69,8 +73,8 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 		Balance:    user.Balance,
 		IsAdmin:    user.IsAdmin,
 		CreatedOn:  user.CreatedOn,
-		Follows:    0, // TODO
-		Followings: 0, // TODO
+		Follows:    follows,
+		Followings: followings,
 	}
 	if user.Phone != "" && len(user.Phone) == 11 {
 		resp.Phone = user.Phone[0:3] + "****" + user.Phone[7:]

@@ -7,10 +7,11 @@ package ms
 type (
 	ContactItem struct {
 		UserId   int64  `json:"user_id"`
-		UserName string `db:"username" json:"username"`
+		Username string `db:"username" json:"username"`
 		Nickname string `json:"nickname"`
 		Avatar   string `json:"avatar"`
-		Phone    string `json:"phone"`
+		Phone    string `json:"phone,omitempty"`
+		IsFollow bool   `json:"is_follow,omitempty"`
 	}
 
 	ContactList struct {

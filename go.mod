@@ -11,7 +11,7 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.8+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/bufbuild/connect-go v1.10.0
-	github.com/bytedance/sonic v1.9.2
+	github.com/bytedance/sonic v1.10.0
 	github.com/cockroachdb/errors v1.10.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.15.0
@@ -30,8 +30,8 @@ require (
 	github.com/minio/minio-go/v7 v7.0.61
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.10
-	github.com/pyroscope-io/client v0.7.2-0.20230804044655-36760e422a95
-	github.com/redis/rueidis v1.0.14
+	github.com/pyroscope-io/client v0.7.2
+	github.com/redis/rueidis v1.0.15
 	github.com/sirupsen/logrus v1.9.3
 	github.com/smartwalle/alipay/v3 v3.2.15
 	github.com/sourcegraph/conc v0.3.0
@@ -47,8 +47,8 @@ require (
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/driver/sqlite v1.5.2
-	gorm.io/gorm v1.25.2
-	gorm.io/plugin/dbresolver v1.4.2
+	gorm.io/gorm v1.25.3
+	gorm.io/plugin/dbresolver v1.4.4
 	gorm.io/plugin/soft_delete v1.2.1
 	modernc.org/sqlite v1.25.0
 )
@@ -57,7 +57,8 @@ replace github.com/jmoiron/sqlx => github.com/bitbus/sqlx v1.4.0
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
-	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
+	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
+	github.com/chenzhuoyu/iasm v0.9.0 // indirect
 	github.com/clbanning/mxj v1.8.4 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
