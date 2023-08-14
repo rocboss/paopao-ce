@@ -142,6 +142,14 @@ SET thumbs_up_count=?, thumbs_down_count=?, modified_on=?
 WHERE id=? AND is_del=0;
 
 --------------------------------------------------------------------------------
+-- following_manager sql dml
+--------------------------------------------------------------------------------
+
+-- name: create_following@following_manager
+-- prepare: stmt
+INSERT INTO @following (user_id, follow_id, created_on) VALUES (?, ?, ?);
+
+--------------------------------------------------------------------------------
 -- contact_manager sql dml
 --------------------------------------------------------------------------------
 
