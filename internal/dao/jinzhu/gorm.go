@@ -17,6 +17,7 @@ var (
 	_comment_            string
 	_commentContent_     string
 	_commentReply_       string
+	_following_          string
 	_contact_            string
 	_contactGroup_       string
 	_message_            string
@@ -42,6 +43,7 @@ func initTableName() {
 	_comment_ = m[conf.TableComment]
 	_commentContent_ = m[conf.TableCommentContent]
 	_commentReply_ = m[conf.TableCommentReply]
+	_following_ = m[conf.TableFollowing]
 	_contact_ = m[conf.TableContact]
 	_contactGroup_ = m[conf.TableContactGroup]
 	_message_ = m[conf.TableMessage]

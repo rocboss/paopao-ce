@@ -35,3 +35,7 @@ export const formatPrettyDate = (time: number) => {
   }
   return mt.fromNow();
 };
+
+export const formatDate = (time: number) => {
+  return moment.unix(time).utc(true).format("YYYY年MM月");
+};

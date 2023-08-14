@@ -7,6 +7,9 @@
             "request": "launch",
             "mode": "exec",
             "program": "${workspaceFolder}/.vscode/__debug_bin",
+            "args":[
+                "serve"
+            ],
             "preLaunchTask": "go: build (debug)",
             "cwd": "${workspaceFolder}"
         }

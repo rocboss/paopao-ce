@@ -305,6 +305,7 @@ func (s *databaseConf) TableNames() (res TableNameMap) {
 		TableComment,
 		TableCommentContent,
 		TableCommentReply,
+		TableFollowing,
 		TableContact,
 		TableContactGroup,
 		TableMessage,

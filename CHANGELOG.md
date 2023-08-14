@@ -8,12 +8,28 @@ All notable changes to paopao-ce are documented in this file.
 - frontend: re-add stars page embed to  profile page. [#339](https://github.com/rocboss/paopao-ce/pull/339)  
 - simple support for user posts filter by style(post/comment/media/star). [#345](https://github.com/rocboss/paopao-ce/pull/345)  
   mirgration database first(sql ddl file in `scripts/migration/**/*_create_view_post_filter.up.sql`):
-    ```sql
-    CREATE VIEW p_post_by_media AS SELECT post.*FROM (SELECT DISTINCT post_id FROM p_post_content WHERE (TYPE=3 OR TYPE=4 OR TYPE=7 OR TYPE=8) AND is_del=0) media JOIN p_post post ON media.post_id=post.ID WHERE post.is_del=0;
-    CREATE VIEW p_post_by_comment AS SELECT P.*,C.user_id comment_user_id FROM (SELECT post_id,user_id FROM p_comment WHERE is_del=0 UNION SELECT post_id,reply.user_id user_id FROM p_comment_reply reply JOIN p_comment COMMENT ON reply.comment_id=COMMENT.ID WHERE reply.is_del=0 AND COMMENT.is_del=0) C JOIN p_post P ON C.post_id=P.ID WHERE P.is_del=0;
-    ```
+  ```sql
+  CREATE VIEW p_post_by_media AS SELECT post.*FROM (SELECT DISTINCT post_id FROM p_post_content WHERE (TYPE=3 OR TYPE=4 OR TYPE=7 OR TYPE=8) AND is_del=0) media JOIN p_post post ON media.post_id=post.ID WHERE post.is_del=0;
+  CREATE VIEW p_post_by_comment AS SELECT P.*,C.user_id comment_user_id FROM (SELECT post_id,user_id FROM p_comment WHERE is_del=0 UNION SELECT post_id,reply.user_id user_id FROM p_comment_reply reply JOIN p_comment COMMENT ON reply.comment_id=COMMENT.ID WHERE reply.is_del=0 AND COMMENT.is_del=0) C JOIN p_post P ON C.post_id=P.ID WHERE P.is_del=0;
+  ```
 - add user highlight tweet support include custom tweet set to highlight and list in user/profile page.
 - add cli subcommand to start paopao-ce serve or other task. [#354](https://github.com/rocboss/paopao-ce/pull/354)  
+- add `Friendship` feature . [#355](https://github.com/rocboss/paopao-ce/pull/354)
+  mirgration database first(sql ddl file in `scripts/migration/**/*_create_view_post_filter.up.sql`):
+  ```sql
+  DROP TABLE IF EXISTS p_following; 
+  CREATE TABLE p_following (ID BIGSERIAL PRIMARY KEY,user_id BIGINT NOT NULL,follow_id BIGINT NOT NULL,is_del SMALLINT NOT NULL DEFAULT 0,created_on BIGINT NOT NULL DEFAULT 0,modified_on BIGINT NOT NULL DEFAULT 0,deleted_on BIGINT NOT NULL DEFAULT 0); 
+  CREATE INDEX idx_following_user_follow ON p_following USING btree (user_id,follow_id);
+  ```
+  custom set config.yaml in `Features` section add `Followship` to enable Followship feature:
+  ```yaml
+  ...
+  # add Followship to enable this feature
+  Features:
+    Default: ["Meili", "LoggerMeili", "Base", "Sqlite3", "BigCacheIndex", "MinIO", "Followship"]
+    Base: ["Redis", "PhoneBind"]
+  ...
+  ```
 
 ### Changed
 - change man content width to 600px and optimize tweet/comment/replay text length. [#333](https://github.com/rocboss/paopao-ce/pull/333) 

@@ -177,14 +177,26 @@ func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfi
 	if req.User != nil && req.User.ID != he.ID {
 		isFriend = s.Ds.IsFriend(req.User.ID, he.ID)
 	}
+	isFollowing := false
+	if req.User != nil {
+		isFollowing = s.Ds.IsFollow(req.User.ID, he.ID)
+	}
+	follows, followings, err := s.Ds.GetFollowCount(he.ID)
+	if err != nil {
+		return nil, web.ErrGetPostsFailed
+	}
 	return &web.GetUserProfileResp{
-		ID:       he.ID,
-		Nickname: he.Nickname,
-		Username: he.Username,
-		Status:   he.Status,
-		Avatar:   he.Avatar,
-		IsAdmin:  he.IsAdmin,
-		IsFriend: isFriend,
+		ID:          he.ID,
+		Nickname:    he.Nickname,
+		Username:    he.Username,
+		Status:      he.Status,
+		Avatar:      he.Avatar,
+		IsAdmin:     he.IsAdmin,
+		IsFriend:    isFriend,
+		IsFollowing: isFollowing,
+		CreatedOn:   he.CreatedOn,
+		Follows:     follows,
+		Followings:  followings,
 	}, nil
 }
 
