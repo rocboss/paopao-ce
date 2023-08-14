@@ -36,8 +36,8 @@ type UserInfoResp struct {
 	Phone      string `json:"phone"`
 	IsAdmin    bool   `json:"is_admin"`
 	CreatedOn  int64  `json:"created_on"`
-	Follows    int    `json:"follows"`
-	Followings int    `json:"followings"`
+	Follows    int64  `json:"follows"`
+	Followings int64  `json:"followings"`
 }
 
 type GetUnreadMsgCountReq struct {

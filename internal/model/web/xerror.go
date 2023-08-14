@@ -79,6 +79,11 @@ var (
 	ErrDeleteFriendFailed         = xerror.NewError(80006, "删除好友失败")
 	ErrGetContactsFailed          = xerror.NewError(80007, "获取联系人列表失败")
 	ErrNoActionToSelf             = xerror.NewError(80008, "不允许对自己操作")
+	ErrFolloUserFailed            = xerror.NewError(80100, "关注失败")
+	ErrUnfollowUserFailed         = xerror.NewError(80101, "取消关注失败")
+	ErrListFollowsFailed          = xerror.NewError(80102, "获取关注列表失败")
+	ErrListFollowingsFailed       = xerror.NewError(80103, "获取粉丝列表列表失败")
+	ErrGetFollowCountFailed       = xerror.NewError(80104, "获取关注计数信息失败")
 
 	ErrFollowTopicFailed      = xerror.NewError(90001, "关注话题失败")
 	ErrUnfollowTopicFailed    = xerror.NewError(90002, "取消关注话题失败")
