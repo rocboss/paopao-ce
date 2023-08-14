@@ -114,6 +114,21 @@ CREATE TABLE "p_tweet_comment_thumbs" (
 );
 
 -- ----------------------------
+-- Table structure for p_following
+-- ----------------------------
+DROP TABLE IF EXISTS "p_following";
+CREATE TABLE "p_following" (
+	"id" integer NOT NULL,
+	"user_id" integer NOT NULL,
+	"follow_id" integer NOT NULL,
+	"is_del" integer NOT NULL,
+	"created_on" integer NOT NULL,
+	"modified_on" integer NOT NULL,
+	"deleted_on" integer NOT NULL,
+	PRIMARY KEY ("id")
+);
+
+-- ----------------------------
 -- Table structure for p_contact
 -- ----------------------------
 DROP TABLE IF EXISTS "p_contact";
@@ -462,6 +477,15 @@ CREATE INDEX "idx_tweet_comment_thumbs_uid_tid"
 ON "p_tweet_comment_thumbs"(
   "user_id" ASC,
   "tweet_id" ASC
+);
+
+-- ----------------------------
+-- Indexes structure for table p_following
+-- ----------------------------
+CREATE INDEX "idx_following_user_follow"
+ON "p_following" (
+  "user_id" ASC,
+  "follow_id" ASC
 );
 
 -- ----------------------------

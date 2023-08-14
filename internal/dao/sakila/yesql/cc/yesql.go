@@ -52,6 +52,7 @@ const (
 	_ContactManager_TotalFriendsById           = `SELECT count(*) FROM @contact WHERE user_id=? AND status=2 AND is_del=0`
 	_FollowIndexA_UserInfo                     = `SELECT * FROM @user WHERE username=?`
 	_FollowIndex_UserInfo                      = `SELECT * FROM @user WHERE username=?`
+	_FollowingManager_CreateFollowing          = `INSERT INTO @following (user_id, follow_id, created_on) VALUES (?, ?, ?)`
 	_FriendIndexA_UserInfo                     = `SELECT * FROM @user WHERE username=?`
 	_FriendIndex_UserInfo                      = `SELECT * FROM @user WHERE username=?`
 	_LightIndexA_UserInfo                      = `SELECT * FROM @user WHERE username=?`
@@ -212,6 +213,11 @@ type FollowIndex struct {
 type FollowIndexA struct {
 	yesql.Namespace `yesql:"follow_index_a"`
 	UserInfo        *sqlx.Stmt `yesql:"user_info"`
+}
+
+type FollowingManager struct {
+	yesql.Namespace `yesql:"following_manager"`
+	CreateFollowing *sqlx.Stmt `yesql:"create_following"`
 }
 
 type FriendIndex struct {
@@ -559,6 +565,20 @@ func BuildFollowIndexA(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Fo
 	}
 	obj = &FollowIndexA{}
 	if obj.UserInfo, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FollowIndexA_UserInfo))); err != nil {
+		return
+	}
+	return
+}
+
+func BuildFollowingManager(p yesql.PreparexBuilder, ctx ...context.Context) (obj *FollowingManager, err error) {
+	var c context.Context
+	if len(ctx) > 0 && ctx[0] != nil {
+		c = ctx[0]
+	} else {
+		c = context.Background()
+	}
+	obj = &FollowingManager{}
+	if obj.CreateFollowing, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FollowingManager_CreateFollowing))); err != nil {
 		return
 	}
 	return

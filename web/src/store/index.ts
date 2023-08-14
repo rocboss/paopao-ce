@@ -17,6 +17,9 @@ export default createStore({
       id: 0,
       username: "",
       nickname: "",
+      created_on: 0,
+      follows: 0,
+      followings: 0,
     },
   },
   mutations: {
@@ -51,7 +54,14 @@ export default createStore({
     },
     userLogout(state) {
       localStorage.removeItem("PAOPAO_TOKEN");
-      state.userInfo = { id: 0, nickname: "", username: "" };
+      state.userInfo = {
+        id: 0,
+        nickname: "",
+        username: "",
+        created_on: 0,
+        follows: 0,
+        followings: 0,
+      };
       state.userLogined = false;
     },
   },

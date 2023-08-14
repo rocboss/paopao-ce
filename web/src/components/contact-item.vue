@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<{
 const goUserProfile = (username: string) => {
     router.push({
         name: 'user',
-        query: { username: username },
+        query: { s: username },
     });
 };
 </script>
