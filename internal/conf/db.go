@@ -25,6 +25,7 @@ const (
 	TableComment            = "comment"
 	TableCommentContent     = "comment_content"
 	TableCommentReply       = "comment_reply"
+	TableFollowing          = "following"
 	TableContact            = "contact"
 	TableContactGroup       = "contact_group"
 	TableMessage            = "message"

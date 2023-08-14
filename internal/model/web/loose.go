@@ -76,8 +76,8 @@ type GetUserProfileResp struct {
 	IsFriend    bool   `json:"is_friend"`
 	IsFollowing bool   `json:"is_following"`
 	CreatedOn   int64  `json:"created_on"`
-	Follows     int    `json:"follows"`
-	Followings  int    `json:"followings"`
+	Follows     int64  `json:"follows"`
+	Followings  int64  `json:"followings"`
 }
 
 type TopicListReq struct {
