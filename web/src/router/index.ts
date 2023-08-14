@@ -78,7 +78,7 @@ const routes = [
     path: "/following",
     name: "following",
     meta: {
-      title: "粉丝",
+      title: "关注",
     },
     component: () => import("@/views/Following.vue"),
   },
