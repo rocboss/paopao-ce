@@ -14,9 +14,7 @@ var (
 )
 
 type bigCacheTweetsCache struct {
-	name    string
-	version *semver.Version
-	bc      *bigcache.BigCache
+	bc *bigcache.BigCache
 }
 
 func (s *bigCacheTweetsCache) getTweetsBytes(key string) ([]byte, error) {
