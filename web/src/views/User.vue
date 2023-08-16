@@ -18,6 +18,11 @@
                                 class="top-tag" type="info" size="small" round>
                                 好友
                             </n-tag>
+                            <n-tag
+                                v-if="store.state.userInfo.id > 0 && store.state.userInfo.username != user.username && user.is_following"
+                                class="top-tag" type="success" size="small" round>
+                                已关注
+                            </n-tag>
                             <n-tag v-if="user.is_admin" class="top-tag" type="error" size="small" round>
                                 管理员
                             </n-tag>
