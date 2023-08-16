@@ -620,9 +620,6 @@ onMounted(() => {
     overflow: hidden;
 }
 .dark {
-    .profile-baseinfo {
-        background-color: #18181c;
-    }
     .profile-wrap, .pagination-wrap {
         background-color: rgba(16, 16, 20, 0.75);
     }
