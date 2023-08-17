@@ -36,7 +36,7 @@ type KeyInfo struct {
 
 type GetUserKeysResp base.PageResp
 
-// 逻辑删除服务
+// DeleteKeyReq 逻辑删除服务
 type DeleteKeyReq struct {
 	ShareKey string `json:"share_key"`
 	UserId   int64

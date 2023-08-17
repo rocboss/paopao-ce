@@ -57,7 +57,6 @@ func RegisterKeyQueryServant(e *gin.Engine, s KeyQuery) {
 		resp, err := s.DeleteKeyDetail(req)
 		s.Render(c, resp, err)
 	})
-
 }
 
 type UnimplementedShareKeyServant struct{}

@@ -168,6 +168,11 @@ declare module NetReq {
     pager: Item.PagerProps;
   }
 
+  interface PostGetHighQuailty {
+    /** 帖子列表 */
+    list: Item.highqualityProps[];
+  }
+
   type PostCreatePost = Item.PostProps;
 
   interface PostDeletePost {}

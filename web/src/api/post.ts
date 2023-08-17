@@ -22,6 +22,14 @@ export const getTags = (
   });
 };
 
+/** 获取优质帖榜 */
+export const getHighQuailty = (): Promise<NetReq.PostGetHighQuailty> => {
+  return request({
+    method: "get",
+    url: "/v1/rank/highquality",
+  });
+}
+
 /** 获取动态详情 */
 export const getPost = (
   params: NetParams.PostGetPost

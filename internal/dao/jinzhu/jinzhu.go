@@ -45,6 +45,7 @@ type dataSrv struct {
 	core.SecurityService
 	core.AttachmentCheckService
 	core.ShareKeyService
+	core.RankService
 }
 
 type webDataSrvA struct {
@@ -114,6 +115,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		SecurityService:        newSecurityService(db, pvs),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
 		ShareKeyService:        NewShareKeyService(db),
+		RankService:            NewRankService(db),
 	}
 	return ds, ds
 }

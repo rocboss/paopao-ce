@@ -37,6 +37,9 @@ type DataService interface {
 
 	// share_key服务
 	ShareKeyService
+
+	//排行榜服务
+	RankService
 }
 
 // WebDataServantA Web数据服务集成(版本A)

@@ -334,4 +334,18 @@ declare module Item {
     //描述
     description: string;
   }
+
+  //优质榜参数
+  interface highqualityProps {
+    //用户名
+    name: string;
+    //头像
+    avatar: string;
+    //发帖数量
+    post_count: number;
+    //被赞数量
+    likes: number;
+    //总得分
+    comprehensive_score: number;
+  }
 }

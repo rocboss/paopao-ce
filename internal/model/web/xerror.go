@@ -97,5 +97,7 @@ var (
 	ErrDeleteUserKeyFailed        = xerror.NewError(11004, "删除用户Share Key失败")
 	ErrGetUserShareKeyCountFailed = xerror.NewError(11005, "获取用户Share Key数量失败")
 
+	ErrGetHighQualityRankingFailed = xerror.NewError(12001, "获取优质帖子排行榜失败")
+
 	ErrNotImplemented = xerror.NewError(10501, "功能未实现")
 )
