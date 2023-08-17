@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-// Core service implement base gorm+mysql/postgresql/sqlite3.
+// package jinzhu Core service implement base gorm+mysql/postgresql/sqlite3.
 // Jinzhu is the primary developer of gorm so use his name as
 // package name as a saluter.
 
@@ -60,24 +60,12 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	var (
 		v   core.VersionInfo
 		cis core.CacheIndexService
-		ips core.IndexPostsService
 	)
 	db := conf.MustGormDB()
 	pvs := security.NewPhoneVerifyService()
 	ams := NewAuthorizationManageService()
 	ths := newTweetHelpService(db)
-
-	// initialize core.IndexPostsService
-	if cfg.If("Friendship") {
-		ips = newFriendIndexService(db, ams, ths)
-	} else if cfg.If("Followship") {
-		ips = newFollowIndexService(db, ths)
-	} else if cfg.If("Lightship") {
-		ips = newLightIndexService(db, ths)
-	} else {
-		// default use lightship post index service
-		ips = newLightIndexService(db, ths)
-	}
+	ips := newShipIndexService(db, ams, ths)
 
 	// initialize core.CacheIndexService
 	cfg.On(cfg.Actions{
@@ -87,7 +75,6 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 			cis, v = cache.NewSimpleCacheIndexService(ips)
 		},
 		"BigCacheIndex": func() {
-			// TODO: make cache index post in different scence like friendship/followship/lightship
 			cis, v = cache.NewBigCacheIndexService(ips, ams)
 		},
 		"RedisCacheIndex": func() {
