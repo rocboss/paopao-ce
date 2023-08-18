@@ -84,6 +84,8 @@ var (
 	ErrListFollowsFailed          = xerror.NewError(80102, "获取关注列表失败")
 	ErrListFollowingsFailed       = xerror.NewError(80103, "获取粉丝列表列表失败")
 	ErrGetFollowCountFailed       = xerror.NewError(80104, "获取关注计数信息失败")
+	ErrNotAllowFollowSelf         = xerror.NewError(80105, "不能关注自己")
+	ErrNotAllowUnfollowSelf       = xerror.NewError(80106, "不能取消关注自己")
 
 	ErrFollowTopicFailed      = xerror.NewError(90001, "关注话题失败")
 	ErrUnfollowTopicFailed    = xerror.NewError(90002, "取消关注话题失败")
