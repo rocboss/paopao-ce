@@ -54,9 +54,9 @@ const (
 	_FollowingManager_CountFollows             = `SELECT count(*) FROM @following WHERE user_id=? AND is_del=0`
 	_FollowingManager_CreateFollowing          = `INSERT INTO @following (user_id, follow_id, created_on) VALUES (?, ?, ?)`
 	_FollowingManager_DeleteFollowing          = `UPDATE @following SET is_del=0, deleted_on=? WHERE user_id=? AND follow_id=? AND is_del=0`
-	_FollowingManager_ExistFollowing           = `SELECT 1 FROM @following WHERE user_id=? AND follow_id AND is_del=0`
-	_FollowingManager_ListFollowings           = `SELECT u.user_id user_id, 	u.username username, 	u.nickname nickname, 	u.avatar avatar FROM @following f JOIN @user u ON f.user_id=u.id WHERE f.follow_id=? AND f.is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
-	_FollowingManager_ListFollows              = `SELECT u.user_id user_id, 	u.username username, 	u.nickname nickname, 	u.avatar avatar FROM @following f JOIN @user u ON f.follow_id=u.id WHERE f.user_id=? AND f.is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
+	_FollowingManager_ExistFollowing           = `SELECT 1 FROM @following WHERE user_id=? AND follow_id=? AND is_del=0`
+	_FollowingManager_ListFollowings           = `SELECT u.user_id user_id, 	u.username username, 	u.nickname nickname, 	u.avatar avatar, 	u.created_on created_on FROM @following f JOIN @user u ON f.user_id=u.id WHERE f.follow_id=? AND f.is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
+	_FollowingManager_ListFollows              = `SELECT u.user_id user_id, 	u.username username, 	u.nickname nickname, 	u.avatar avatar, 	u.created_on created_on FROM @following f JOIN @user u ON f.follow_id=u.id WHERE f.user_id=? AND f.is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
 	_Message_CreateMessage                     = `INSERT INTO @message (sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, created_on) VALUES (:sender_user_id, :receiver_user_id, :type, :brief, :content, :post_id, :comment_id, :reply_id, :created_on)`
 	_Message_GetMessageById                    = `SELECT * FROM @message WHERE id=? AND is_del=0`
 	_Message_GetMessageCount                   = `SELECT count(*) FROM @message WHERE receiver_user_id=:recerver_user_id AND is_del=0`

@@ -58,11 +58,11 @@ func (s *followingManageSrv) ListFollows(userId int64, limit, offset int) (*ms.C
 	}
 	for _, f := range follows {
 		res.Contacts = append(res.Contacts, ms.ContactItem{
-			UserId:   f.User.ID,
-			Username: f.User.Username,
-			Nickname: f.User.Nickname,
-			Avatar:   f.User.Avatar,
-			IsFollow: true,
+			UserId:    f.User.ID,
+			Username:  f.User.Username,
+			Nickname:  f.User.Nickname,
+			Avatar:    f.User.Avatar,
+			CreatedOn: f.User.CreatedOn,
 		})
 	}
 	return res, nil
@@ -82,11 +82,11 @@ func (s *followingManageSrv) ListFollowings(userId int64, limit, offset int) (*m
 	}
 	for _, user := range followings {
 		res.Contacts = append(res.Contacts, ms.ContactItem{
-			UserId:   user.ID,
-			Username: user.Username,
-			Nickname: user.Nickname,
-			Avatar:   user.Avatar,
-			IsFollow: s.IsFollow(userId, user.ID),
+			UserId:    user.ID,
+			Username:  user.Username,
+			Nickname:  user.Nickname,
+			Avatar:    user.Avatar,
+			CreatedOn: user.CreatedOn,
 		})
 	}
 	return res, nil

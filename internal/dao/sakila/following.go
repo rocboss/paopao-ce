@@ -22,6 +22,7 @@ type followItem struct {
 	Username string
 	Nickname string
 	Avatar   string
+	CreateOn int64
 }
 
 type followingManageSrv struct {
@@ -51,11 +52,11 @@ func (s *followingManageSrv) ListFollows(userId int64, limit, offset int) (res *
 	}
 	for _, f := range follows {
 		res.Contacts = append(res.Contacts, ms.ContactItem{
-			UserId:   f.UserId,
-			Username: f.Username,
-			Nickname: f.Nickname,
-			Avatar:   f.Avatar,
-			IsFollow: true,
+			UserId:    f.UserId,
+			Username:  f.Username,
+			Nickname:  f.Nickname,
+			Avatar:    f.Avatar,
+			CreatedOn: f.CreateOn,
 		})
 	}
 	return
@@ -69,11 +70,11 @@ func (s *followingManageSrv) ListFollowings(userId int64, limit, offset int) (re
 	}
 	for _, f := range followings {
 		res.Contacts = append(res.Contacts, ms.ContactItem{
-			UserId:   f.UserId,
-			Username: f.Username,
-			Nickname: f.Nickname,
-			Avatar:   f.Avatar,
-			IsFollow: s.IsFollow(userId, f.UserId),
+			UserId:    f.UserId,
+			Username:  f.Username,
+			Nickname:  f.Nickname,
+			Avatar:    f.Avatar,
+			CreatedOn: f.CreateOn,
 		})
 	}
 	return
