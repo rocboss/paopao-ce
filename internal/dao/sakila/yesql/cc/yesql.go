@@ -123,11 +123,33 @@ const (
 	_TweetManage_DelPostCollection             = `UPDATE @post_collection SET is_del=1, deleted_on=? WHERE id=? AND is_del=0`
 	_TweetManage_DelPostStar                   = `UPDATE @post_star SET is_del=1, deleted_on=? WHERE id=? AND is_del=0`
 	_TweetManage_DelReplyByCommentIds          = `UPDATE @comment_reply SET deleted_on=?, is_del=1 WHERE comment_id IN (?) AND is_del=0`
+	_TweetManage_HighlightPost                 = `UPDATE @post SET is_essence=1-is_essence WHERE id=? AND is_del=0`
 	_TweetManage_LockPost                      = `UPDATE @post SET is_lock=1-is_lock, modified_on=? WHERE id=? AND is_del=0`
 	_TweetManage_MediaContentByPostId          = `SELECT content FROM post_content WHERE post_id=? AND is_del=0 AND type IN (3, 4, 5, 7, 8)`
+	_TweetManage_PostHighlightStatus           = `SELECT user_id, is_essence FROM @post WHERE id=? AND is_del=0`
 	_TweetManage_StickPost                     = `UPDATE @post SET is_top=1-is_top, modified_on=? WHERE id=? AND is_del=0`
 	_TweetManage_UpdatePost                    = `UPDATE @post SET comment_count=:comment_count, upvote_count=:upvote_count, collection_count=:collection_count, latest_replies_on=:latest_replies_on, modified_on=:modified_on WHERE id=:id AND is_del=0`
 	_TweetManage_VisiblePost                   = `UPDATE @post SET visibility=?, is_top=?, modified_on=? WHERE id=? AND is_del=0`
+	_Tweet_UserCommentTweetsByFriend           = `SELECT * FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND (visibility=0 OR visibility=2) ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserCommentTweetsByGuest            = `SELECT * FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND visibility=0 ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserCommentTweetsBySelf             = `SELECT * FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserCommentTweetsCountByFriend      = `SELECT count(*) FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND (visibility=0 OR visibility=2)`
+	_Tweet_UserCommentTweetsCountByGuest       = `SELECT count(*) FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND visibility=0`
+	_Tweet_UserCommentTweetsCountBySelf        = `SELECT count(*) FROM @post_by_comment WHERE is_del=0 AND comment_user_id=?`
+	_Tweet_UserMediaTweetsByFriend             = `SELECT * FROM @post_by_media WHERE is_del=0 AND user_id=? AND (visibility=0 OR visibility=2) ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserMediaTweetsByGuest              = `SELECT * FROM @post_by_media WHERE is_del=0 AND user_id=? AND visibility=0 ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserMediaTweetsBySelf               = `SELECT * FROM @post_by_media WHERE is_del=0 AND user_id=? ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserMediaTweetsCountByFriend        = `SELECT count(*) FROM @post_by_media WHERE is_del=0 AND user_id=? AND (visibility=0 OR visibility=2)`
+	_Tweet_UserMediaTweetsCountByGuest         = `SELECT count(*) FROM @post_by_media WHERE is_del=0 AND user_id=? AND visibility=0`
+	_Tweet_UserMediaTweetsCountBySelf          = `SELECT count(*) FROM @post_by_media WHERE is_del=0 AND user_id=?`
+	_Tweet_UserStarTweetsByAdmin               = `SELECT 	star.*, 	post.ID "post.id", 	post.created_on "post.created_on", 	post.modified_on "post.modified_on", 	post.deleted_on "post.deleted_on", 	post.is_del "post.is_del", 	post.user_id "post.user_id", 	post.comment_count "post.comment_count", 	post.collection_count "post.collection_count", 	post.share_count "post.share_count", 	post.upvote_count "post.upvote_count", 	post.visibility "post.visibility", 	post.is_top "post.is_top", 	post.is_essence "post.is_essence", 	post.is_lock "post.is_lock", 	post.latest_replied_on "post.latest_replied_on", 	post.tags "post.tags", 	post.attachment_price "post.attachment_price", 	post.ip "post.ip", 	post.ip_loc "post.ip_loc" FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? ORDER BY post.latest_replied_on DESC; LIMIT ? OFFSET ?`
+	_Tweet_UserStarTweetsByFriend              = `SELECT 	star.*, 	post.ID "post.id", 	post.created_on "post.created_on", 	post.modified_on "post.modified_on", 	post.deleted_on "post.deleted_on", 	post.is_del "post.is_del", 	post.user_id "post.user_id", 	post.comment_count "post.comment_count", 	post.collection_count "post.collection_count", 	post.share_count "post.share_count", 	post.upvote_count "post.upvote_count", 	post.visibility "post.visibility", 	post.is_top "post.is_top", 	post.is_essence "post.is_essence", 	post.is_lock "post.is_lock", 	post.latest_replied_on "post.latest_replied_on", 	post.tags "post.tags", 	post.attachment_price "post.attachment_price", 	post.ip "post.ip", 	post.ip_loc "post.ip_loc" FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND (post.visibility=0 OR post.visibility=2) ORDER BY post.latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserStarTweetsByGuest               = `SELECT 	star.*, 	post.ID "post.id", 	post.created_on "post.created_on", 	post.modified_on "post.modified_on", 	post.deleted_on "post.deleted_on", 	post.is_del "post.is_del", 	post.user_id "post.user_id", 	post.comment_count "post.comment_count", 	post.collection_count "post.collection_count", 	post.share_count "post.share_count", 	post.upvote_count "post.upvote_count", 	post.visibility "post.visibility", 	post.is_top "post.is_top", 	post.is_essence "post.is_essence", 	post.is_lock "post.is_lock", 	post.latest_replied_on "post.latest_replied_on", 	post.tags "post.tags", 	post.attachment_price "post.attachment_price", 	post.ip "post.ip", 	post.ip_loc "post.ip_loc" FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE 	star.is_del = 0 	AND star.user_id =? 	AND post.visibility = 0 ORDER BY post.latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserStarTweetsBySelf                = `SELECT 	star.*, 	post.ID "post.id", 	post.created_on "post.created_on", 	post.modified_on "post.modified_on", 	post.deleted_on "post.deleted_on", 	post.is_del "post.is_del", 	post.user_id "post.user_id", 	post.comment_count "post.comment_count", 	post.collection_count "post.collection_count", 	post.share_count "post.share_count", 	post.upvote_count "post.upvote_count", 	post.visibility "post.visibility", 	post.is_top "post.is_top", 	post.is_essence "post.is_essence", 	post.is_lock "post.is_lock", 	post.latest_replied_on "post.latest_replied_on", 	post.tags "post.tags", 	post.attachment_price "post.attachment_price", 	post.ip "post.ip", 	post.ip_loc "post.ip_loc" FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 (post.visibility=0 AND post.user_id=?)) ORDER BY post.latest_replied_on DESC; LIMIT ? OFFSET ?`
+	_Tweet_UserStarTweetsCountByAdmin          = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=?`
+	_Tweet_UserStarTweetsCountByFriend         = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND (post.visibility=0 OR post.visibility=2)`
+	_Tweet_UserStarTweetsCountByGuest          = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND post.visibility=0`
+	_Tweet_UserStarTweetsCountBySelf           = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 (post.visibility=0 AND post.user_id=?))`
 	_UserManage_CreateUser                     = `INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on) VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on)`
 	_UserManage_GetAnyUsers                    = `SELECT * FROM @user WHERE is_del=0 ORDER BY id ASC limit 6`
 	_UserManage_GetUserById                    = `SELECT * FROM @user WHERE id=? AND is_del=0`
@@ -270,21 +292,41 @@ type TopicA struct {
 }
 
 type Tweet struct {
-	yesql.Namespace            `yesql:"tweet"`
-	GetAnyPostCount            string     `yesql:"get_any_post_count"`
-	GetAnyPosts                string     `yesql:"get_any_posts"`
-	GetPostContentsByIds       string     `yesql:"get_post_contents_by_ids"`
-	GetUserPostCount           string     `yesql:"get_user_post_count"`
-	GetUserPosts               string     `yesql:"get_user_posts"`
-	GetPostAttachmentBill      *sqlx.Stmt `yesql:"get_post_attachment_bill"`
-	GetPostById                *sqlx.Stmt `yesql:"get_post_by_id"`
-	GetPostContentById         *sqlx.Stmt `yesql:"get_post_content_by_id"`
-	GetUserPostCollection      *sqlx.Stmt `yesql:"get_user_post_collection"`
-	GetUserPostCollectionCount *sqlx.Stmt `yesql:"get_user_post_collection_count"`
-	GetUserPostCollections     *sqlx.Stmt `yesql:"get_user_post_collections"`
-	GetUserPostStar            *sqlx.Stmt `yesql:"get_user_post_star"`
-	GetUserPostStarCount       *sqlx.Stmt `yesql:"get_user_post_star_count"`
-	GetUserPostStars           *sqlx.Stmt `yesql:"get_user_post_stars"`
+	yesql.Namespace                `yesql:"tweet"`
+	GetAnyPostCount                string     `yesql:"get_any_post_count"`
+	GetAnyPosts                    string     `yesql:"get_any_posts"`
+	GetPostContentsByIds           string     `yesql:"get_post_contents_by_ids"`
+	GetUserPostCount               string     `yesql:"get_user_post_count"`
+	GetUserPosts                   string     `yesql:"get_user_posts"`
+	GetPostAttachmentBill          *sqlx.Stmt `yesql:"get_post_attachment_bill"`
+	GetPostById                    *sqlx.Stmt `yesql:"get_post_by_id"`
+	GetPostContentById             *sqlx.Stmt `yesql:"get_post_content_by_id"`
+	GetUserPostCollection          *sqlx.Stmt `yesql:"get_user_post_collection"`
+	GetUserPostCollectionCount     *sqlx.Stmt `yesql:"get_user_post_collection_count"`
+	GetUserPostCollections         *sqlx.Stmt `yesql:"get_user_post_collections"`
+	GetUserPostStar                *sqlx.Stmt `yesql:"get_user_post_star"`
+	GetUserPostStarCount           *sqlx.Stmt `yesql:"get_user_post_star_count"`
+	GetUserPostStars               *sqlx.Stmt `yesql:"get_user_post_stars"`
+	UserCommentTweetsByFriend      *sqlx.Stmt `yesql:"user_comment_tweets_by_friend"`
+	UserCommentTweetsByGuest       *sqlx.Stmt `yesql:"user_comment_tweets_by_guest"`
+	UserCommentTweetsBySelf        *sqlx.Stmt `yesql:"user_comment_tweets_by_self"`
+	UserCommentTweetsCountByFriend *sqlx.Stmt `yesql:"user_comment_tweets_count_by_friend"`
+	UserCommentTweetsCountByGuest  *sqlx.Stmt `yesql:"user_comment_tweets_count_by_guest"`
+	UserCommentTweetsCountBySelf   *sqlx.Stmt `yesql:"user_comment_tweets_count_by_self"`
+	UserMediaTweetsByFriend        *sqlx.Stmt `yesql:"user_media_tweets_by_friend"`
+	UserMediaTweetsByGuest         *sqlx.Stmt `yesql:"user_media_tweets_by_guest"`
+	UserMediaTweetsBySelf          *sqlx.Stmt `yesql:"user_media_tweets_by_self"`
+	UserMediaTweetsCountByFriend   *sqlx.Stmt `yesql:"user_media_tweets_count_by_friend"`
+	UserMediaTweetsCountByGuest    *sqlx.Stmt `yesql:"user_media_tweets_count_by_guest"`
+	UserMediaTweetsCountBySelf     *sqlx.Stmt `yesql:"user_media_tweets_count_by_self"`
+	UserStarTweetsByAdmin          *sqlx.Stmt `yesql:"user_star_tweets_by_admin"`
+	UserStarTweetsByFriend         *sqlx.Stmt `yesql:"user_star_tweets_by_friend"`
+	UserStarTweetsByGuest          *sqlx.Stmt `yesql:"user_star_tweets_by_guest"`
+	UserStarTweetsBySelf           *sqlx.Stmt `yesql:"user_star_tweets_by_self"`
+	UserStarTweetsCountByAdmin     *sqlx.Stmt `yesql:"user_star_tweets_count_by_admin"`
+	UserStarTweetsCountByFriend    *sqlx.Stmt `yesql:"user_star_tweets_count_by_friend"`
+	UserStarTweetsCountByGuest     *sqlx.Stmt `yesql:"user_star_tweets_count_by_guest"`
+	UserStarTweetsCountBySelf      *sqlx.Stmt `yesql:"user_star_tweets_count_by_self"`
 }
 
 type TweetA struct {
@@ -327,8 +369,10 @@ type TweetManage struct {
 	DelPostById                   *sqlx.Stmt      `yesql:"del_post_by_id"`
 	DelPostCollection             *sqlx.Stmt      `yesql:"del_post_collection"`
 	DelPostStar                   *sqlx.Stmt      `yesql:"del_post_star"`
+	HighlightPost                 *sqlx.Stmt      `yesql:"highlight_post"`
 	LockPost                      *sqlx.Stmt      `yesql:"lock_post"`
 	MediaContentByPostId          *sqlx.Stmt      `yesql:"media_content_by_post_id"`
+	PostHighlightStatus           *sqlx.Stmt      `yesql:"post_highlight_status"`
 	StickPost                     *sqlx.Stmt      `yesql:"stick_post"`
 	VisiblePost                   *sqlx.Stmt      `yesql:"visible_post"`
 	AddPost                       *sqlx.NamedStmt `yesql:"add_post"`
@@ -723,6 +767,66 @@ func BuildTweet(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Tweet, er
 	if obj.GetUserPostStars, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_GetUserPostStars))); err != nil {
 		return
 	}
+	if obj.UserCommentTweetsByFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserCommentTweetsByFriend))); err != nil {
+		return
+	}
+	if obj.UserCommentTweetsByGuest, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserCommentTweetsByGuest))); err != nil {
+		return
+	}
+	if obj.UserCommentTweetsBySelf, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserCommentTweetsBySelf))); err != nil {
+		return
+	}
+	if obj.UserCommentTweetsCountByFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserCommentTweetsCountByFriend))); err != nil {
+		return
+	}
+	if obj.UserCommentTweetsCountByGuest, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserCommentTweetsCountByGuest))); err != nil {
+		return
+	}
+	if obj.UserCommentTweetsCountBySelf, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserCommentTweetsCountBySelf))); err != nil {
+		return
+	}
+	if obj.UserMediaTweetsByFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserMediaTweetsByFriend))); err != nil {
+		return
+	}
+	if obj.UserMediaTweetsByGuest, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserMediaTweetsByGuest))); err != nil {
+		return
+	}
+	if obj.UserMediaTweetsBySelf, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserMediaTweetsBySelf))); err != nil {
+		return
+	}
+	if obj.UserMediaTweetsCountByFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserMediaTweetsCountByFriend))); err != nil {
+		return
+	}
+	if obj.UserMediaTweetsCountByGuest, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserMediaTweetsCountByGuest))); err != nil {
+		return
+	}
+	if obj.UserMediaTweetsCountBySelf, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserMediaTweetsCountBySelf))); err != nil {
+		return
+	}
+	if obj.UserStarTweetsByAdmin, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserStarTweetsByAdmin))); err != nil {
+		return
+	}
+	if obj.UserStarTweetsByFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserStarTweetsByFriend))); err != nil {
+		return
+	}
+	if obj.UserStarTweetsByGuest, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserStarTweetsByGuest))); err != nil {
+		return
+	}
+	if obj.UserStarTweetsBySelf, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserStarTweetsBySelf))); err != nil {
+		return
+	}
+	if obj.UserStarTweetsCountByAdmin, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserStarTweetsCountByAdmin))); err != nil {
+		return
+	}
+	if obj.UserStarTweetsCountByFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserStarTweetsCountByFriend))); err != nil {
+		return
+	}
+	if obj.UserStarTweetsCountByGuest, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserStarTweetsCountByGuest))); err != nil {
+		return
+	}
+	if obj.UserStarTweetsCountBySelf, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserStarTweetsCountBySelf))); err != nil {
+		return
+	}
 	return
 }
 
@@ -795,10 +899,16 @@ func BuildTweetManage(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Twe
 	if obj.DelPostStar, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_DelPostStar))); err != nil {
 		return
 	}
+	if obj.HighlightPost, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_HighlightPost))); err != nil {
+		return
+	}
 	if obj.LockPost, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_LockPost))); err != nil {
 		return
 	}
 	if obj.MediaContentByPostId, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_MediaContentByPostId))); err != nil {
+		return
+	}
+	if obj.PostHighlightStatus, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_PostHighlightStatus))); err != nil {
 		return
 	}
 	if obj.StickPost, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManage_StickPost))); err != nil {

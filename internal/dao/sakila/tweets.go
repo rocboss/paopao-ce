@@ -263,9 +263,23 @@ func (s *tweetManageSrv) StickPost(r *ms.Post) error {
 	return err
 }
 
-func (s *tweetManageSrv) HighlightPost(userId, postId int64) (int, error) {
-	// TODO
-	return 0, cs.ErrNotImplemented
+func (s *tweetManageSrv) HighlightPost(userId, postId int64) (is_essence int, err error) {
+	err = s.with(func(tx *sqlx.Tx) error {
+		var postUserId int64
+		err = tx.Stmtx(s.q.PostHighlightStatus).QueryRowx(postId).Scan(&postUserId, &is_essence)
+		if err != nil {
+			return err
+		}
+		if postUserId != userId {
+			return cs.ErrNoPermission
+		}
+		if _, err = tx.Stmtx(s.q.HighlightPost).Exec(postId); err != nil {
+			return err
+		}
+		is_essence = 1 - is_essence
+		return nil
+	})
+	return
 }
 
 func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT) (err error) {
@@ -370,19 +384,65 @@ func (s *tweetSrv) GetUserPostStars(userID int64, limit int, offset int) (res []
 	return
 }
 
-func (s *tweetSrv) ListUserStarTweets(user *cs.VistUser, limit int, offset int) ([]*ms.PostStar, int64, error) {
-	// TODO
-	return nil, 0, cs.ErrNotImplemented
+func (s *tweetSrv) ListUserStarTweets(user *cs.VistUser, limit int, offset int) (res []*ms.PostStar, total int64, err error) {
+	switch user.RelTyp {
+	case cs.RelationAdmin:
+		if err = s.q.UserStarTweetsByAdmin.Select(&res, user.UserId, limit, offset); err == nil {
+			err = s.q.UserStarTweetsCountByAdmin.Get(&total, user.UserId)
+		}
+	case cs.RelationSelf:
+		// Fixed: 这里的查询有Bug，没有考虑查询Friend star 时如果对方已经不是你好友时，应该去除这个star
+		if err = s.q.UserStarTweetsBySelf.Select(&res, user.UserId, user.UserId, limit, offset); err == nil {
+			err = s.q.UserStarTweetsCountByAdmin.Get(&total, user.UserId, user.UserId)
+		}
+	case cs.RelationFriend:
+		if err = s.q.UserStarTweetsByFriend.Select(&res, user.UserId, limit, offset); err == nil {
+			err = s.q.UserStarTweetsByFriend.Get(&total, user.UserId)
+		}
+	case cs.RelationGuest:
+		fallthrough
+	default:
+		if err = s.q.UserStarTweetsByGuest.Select(&res, user.UserId, limit, offset); err == nil {
+			err = s.q.UserStarTweetsCountByGuest.Get(&total, user.UserId)
+		}
+	}
+	return
 }
 
-func (s *tweetSrv) ListUserMediaTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
-	// TODO
-	return nil, 0, cs.ErrNotImplemented
+func (s *tweetSrv) ListUserMediaTweets(user *cs.VistUser, limit int, offset int) (res []*ms.Post, total int64, err error) {
+	gStmt, cStmt := s.q.UserMediaTweetsByGuest, s.q.UserMediaTweetsCountByGuest
+	switch user.RelTyp {
+	case cs.RelationAdmin, cs.RelationSelf:
+		gStmt, cStmt = s.q.UserMediaTweetsBySelf, s.q.UserMediaTweetsCountBySelf
+	case cs.RelationFriend:
+		gStmt, cStmt = s.q.UserMediaTweetsByFriend, s.q.UserMediaTweetsCountByFriend
+	case cs.RelationGuest:
+		fallthrough
+	default:
+		// nothing
+	}
+	if err = gStmt.Select(&res, user.UserId, limit, offset); err == nil {
+		err = cStmt.Get(&total, user.UserId)
+	}
+	return
 }
 
-func (s *tweetSrv) ListUserCommentTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
-	// TODO
-	return nil, 0, cs.ErrNotImplemented
+func (s *tweetSrv) ListUserCommentTweets(user *cs.VistUser, limit int, offset int) (res []*ms.Post, total int64, err error) {
+	gStmt, cStmt := s.q.UserCommentTweetsByGuest, s.q.UserCommentTweetsCountByGuest
+	switch user.RelTyp {
+	case cs.RelationAdmin, cs.RelationSelf:
+		gStmt, cStmt = s.q.UserCommentTweetsBySelf, s.q.UserCommentTweetsCountBySelf
+	case cs.RelationFriend:
+		gStmt, cStmt = s.q.UserCommentTweetsByFriend, s.q.UserCommentTweetsCountByFriend
+	case cs.RelationGuest:
+		fallthrough
+	default:
+		// nothing
+	}
+	if err = gStmt.Select(&res, user.UserId, limit, offset); err == nil {
+		err = cStmt.Get(&total, user.UserId)
+	}
+	return
 }
 
 func (s *tweetSrv) GetUserPostStarCount(userID int64) (res int64, err error) {
@@ -433,12 +493,6 @@ func (s *tweetSrvA) TweetItemById(id int64) (*cs.TweetItem, error) {
 func (s *tweetSrvA) UserTweets(visitorId, userId int64) (res cs.TweetList, err error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
-}
-
-// checkRelationBy check the relation of visitor with user
-func (s *tweetSrvA) checkRelationBy(visitorId, userId int64) uint {
-	// TODO
-	return 0
 }
 
 func (s *tweetSrvA) ReactionByTweetId(userId int64, tweetId int64) (*cs.ReactionItem, error) {

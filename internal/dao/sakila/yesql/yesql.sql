@@ -565,6 +565,245 @@ WHERE post_id IN (?) AND is_del=0;
 -- prepare: stmt
 SELECT * FROM @post_content WHERE id=? AND is_del=0;
 
+-- name: user_media_tweets_by_guest@tweet
+-- prepare: stmt
+SELECT *
+FROM @post_by_media
+WHERE is_del=0 AND user_id=? AND visibility=0
+ORDER BY latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: user_media_tweets_count_by_guest@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM @post_by_media
+WHERE is_del=0 AND user_id=? AND visibility=0;
+
+-- name: user_media_tweets_by_friend@tweet
+-- prepare: stmt
+SELECT *
+FROM @post_by_media
+WHERE is_del=0 AND user_id=? AND (visibility=0 OR visibility=2)
+ORDER BY latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: user_media_tweets_count_by_friend@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM @post_by_media
+WHERE is_del=0 AND user_id=? AND (visibility=0 OR visibility=2);
+
+-- name: user_media_tweets_by_self@tweet
+-- prepare: stmt
+SELECT *
+FROM @post_by_media
+WHERE is_del=0 AND user_id=?
+ORDER BY latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: user_media_tweets_count_by_self@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM @post_by_media
+WHERE is_del=0 AND user_id=?;
+
+-- name: user_comment_tweets_by_guest@tweet
+-- prepare: stmt
+SELECT *
+FROM @post_by_comment
+WHERE is_del=0 AND comment_user_id=? AND visibility=0
+ORDER BY latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: user_comment_tweets_count_by_guest@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM @post_by_comment
+WHERE is_del=0 AND comment_user_id=? AND visibility=0;
+
+-- name: user_comment_tweets_by_friend@tweet
+-- prepare: stmt
+SELECT *
+FROM @post_by_comment
+WHERE is_del=0 AND comment_user_id=? AND (visibility=0 OR visibility=2)
+ORDER BY latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: user_comment_tweets_count_by_friend@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM @post_by_comment
+WHERE is_del=0 AND comment_user_id=? AND (visibility=0 OR visibility=2);
+
+-- name: user_comment_tweets_by_self@tweet
+-- prepare: stmt
+SELECT *
+FROM @post_by_comment
+WHERE is_del=0 AND comment_user_id=?
+ORDER BY latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: user_comment_tweets_count_by_self@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM @post_by_comment
+WHERE is_del=0 AND comment_user_id=?;
+
+-- name: user_star_tweets_by_guest@tweet
+-- prepare: stmt
+SELECT
+	star.*,
+	post.ID "post.id",
+	post.created_on "post.created_on",
+	post.modified_on "post.modified_on",
+	post.deleted_on "post.deleted_on",
+	post.is_del "post.is_del",
+	post.user_id "post.user_id",
+	post.comment_count "post.comment_count",
+	post.collection_count "post.collection_count",
+	post.share_count "post.share_count",
+	post.upvote_count "post.upvote_count",
+	post.visibility "post.visibility",
+	post.is_top "post.is_top",
+	post.is_essence "post.is_essence",
+	post.is_lock "post.is_lock",
+	post.latest_replied_on "post.latest_replied_on",
+	post.tags "post.tags",
+	post.attachment_price "post.attachment_price",
+	post.ip "post.ip",
+	post.ip_loc "post.ip_loc" 
+FROM
+	@post_star star
+	JOIN @post post ON star.post_id = post.ID 
+WHERE
+	star.is_del = 0 
+	AND star.user_id =? 
+	AND post.visibility = 0 
+ORDER BY post.latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: user_star_tweets_count_by_guest@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM
+	@post_star star
+	JOIN @post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=? AND post.visibility=0;
+
+-- name: user_star_tweets_by_friend@tweet
+-- prepare: stmt
+SELECT
+	star.*,
+	post.ID "post.id",
+	post.created_on "post.created_on",
+	post.modified_on "post.modified_on",
+	post.deleted_on "post.deleted_on",
+	post.is_del "post.is_del",
+	post.user_id "post.user_id",
+	post.comment_count "post.comment_count",
+	post.collection_count "post.collection_count",
+	post.share_count "post.share_count",
+	post.upvote_count "post.upvote_count",
+	post.visibility "post.visibility",
+	post.is_top "post.is_top",
+	post.is_essence "post.is_essence",
+	post.is_lock "post.is_lock",
+	post.latest_replied_on "post.latest_replied_on",
+	post.tags "post.tags",
+	post.attachment_price "post.attachment_price",
+	post.ip "post.ip",
+	post.ip_loc "post.ip_loc" 
+FROM
+	@post_star star
+	JOIN @post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=? AND (post.visibility=0 OR post.visibility=2)
+ORDER BY post.latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: user_star_tweets_count_by_friend@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM
+	@post_star star
+	JOIN @post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=? AND (post.visibility=0 OR post.visibility=2);
+
+-- name: user_star_tweets_by_self@tweet
+-- prepare: stmt
+SELECT
+	star.*,
+	post.ID "post.id",
+	post.created_on "post.created_on",
+	post.modified_on "post.modified_on",
+	post.deleted_on "post.deleted_on",
+	post.is_del "post.is_del",
+	post.user_id "post.user_id",
+	post.comment_count "post.comment_count",
+	post.collection_count "post.collection_count",
+	post.share_count "post.share_count",
+	post.upvote_count "post.upvote_count",
+	post.visibility "post.visibility",
+	post.is_top "post.is_top",
+	post.is_essence "post.is_essence",
+	post.is_lock "post.is_lock",
+	post.latest_replied_on "post.latest_replied_on",
+	post.tags "post.tags",
+	post.attachment_price "post.attachment_price",
+	post.ip "post.ip",
+	post.ip_loc "post.ip_loc" 
+FROM
+	@post_star star
+	JOIN @post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 (post.visibility=0 AND post.user_id=?))
+ORDER BY post.latest_replied_on DESC;
+LIMIT ? OFFSET ?;
+
+-- name: user_star_tweets_count_by_self@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM
+	@post_star star
+	JOIN @post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 (post.visibility=0 AND post.user_id=?));
+
+-- name: user_star_tweets_by_admin@tweet
+-- prepare: stmt
+SELECT
+	star.*,
+	post.ID "post.id",
+	post.created_on "post.created_on",
+	post.modified_on "post.modified_on",
+	post.deleted_on "post.deleted_on",
+	post.is_del "post.is_del",
+	post.user_id "post.user_id",
+	post.comment_count "post.comment_count",
+	post.collection_count "post.collection_count",
+	post.share_count "post.share_count",
+	post.upvote_count "post.upvote_count",
+	post.visibility "post.visibility",
+	post.is_top "post.is_top",
+	post.is_essence "post.is_essence",
+	post.is_lock "post.is_lock",
+	post.latest_replied_on "post.latest_replied_on",
+	post.tags "post.tags",
+	post.attachment_price "post.attachment_price",
+	post.ip "post.ip",
+	post.ip_loc "post.ip_loc" 
+FROM
+	@post_star star
+	JOIN @post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=?
+ORDER BY post.latest_replied_on DESC;
+LIMIT ? OFFSET ?;
+
+-- name: user_star_tweets_count_by_admin@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM
+	@post_star star
+	JOIN @post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=?;
+
 --------------------------------------------------------------------------------
 -- tweet_manage sql dml
 --------------------------------------------------------------------------------
@@ -593,6 +832,14 @@ UPDATE @post SET is_top=1-is_top, modified_on=? WHERE id=? AND is_del=0;
 -- name: visible_post@tweet_manage
 -- prepare: stmt
 UPDATE @post SET visibility=?, is_top=?, modified_on=? WHERE id=? AND is_del=0;
+
+-- name: highlight_post@tweet_manage
+-- prepare: stmt
+UPDATE @post SET is_essence=1-is_essence WHERE id=? AND is_del=0;
+
+-- name: post_highlight_status@tweet_manage
+-- prepare: stmt
+SELECT user_id, is_essence FROM @post WHERE id=? AND is_del=0;
 
 -- name: update_post@tweet_manage
 -- prepare: named_stmt
