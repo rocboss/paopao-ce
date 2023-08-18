@@ -50,13 +50,7 @@ const (
 	_ContactManager_ListFriend                 = `SELECT c.friend_id user_id, u.username username, u.nickname nickname, u.avatar avatar, u.phone phone FROM @contact c JOIN @user u ON c.friend_id=u.id WHERE user_id=? AND status=2 AND is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
 	_ContactManager_RejectFriendMsgsUpdate     = `UPDATE @message SET reply_id=?, modified_on=? WHERE sender_user_id = ? AND receiver_user_id = ? AND type = ? AND reply_id = ?`
 	_ContactManager_TotalFriendsById           = `SELECT count(*) FROM @contact WHERE user_id=? AND status=2 AND is_del=0`
-	_FollowIndexA_UserInfo                     = `SELECT * FROM @user WHERE username=?`
-	_FollowIndex_UserInfo                      = `SELECT * FROM @user WHERE username=?`
 	_FollowingManager_CreateFollowing          = `INSERT INTO @following (user_id, follow_id, created_on) VALUES (?, ?, ?)`
-	_FriendIndexA_UserInfo                     = `SELECT * FROM @user WHERE username=?`
-	_FriendIndex_UserInfo                      = `SELECT * FROM @user WHERE username=?`
-	_LightIndexA_UserInfo                      = `SELECT * FROM @user WHERE username=?`
-	_LightIndex_UserInfo                       = `SELECT * FROM @user WHERE username=?`
 	_Message_CreateMessage                     = `INSERT INTO @message (sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, created_on) VALUES (:sender_user_id, :receiver_user_id, :type, :brief, :content, :post_id, :comment_id, :reply_id, :created_on)`
 	_Message_GetMessageById                    = `SELECT * FROM @message WHERE id=? AND is_del=0`
 	_Message_GetMessageCount                   = `SELECT count(*) FROM @message WHERE receiver_user_id=:recerver_user_id AND is_del=0`
@@ -66,8 +60,16 @@ const (
 	_Security_CreatePhoneCaptcha               = `INSERT INTO @captcha (phone, captcha, expired_on, created_on) VALUES (:phone, :captcha, :expired_on, :created_on)`
 	_Security_GetLatestPhoneCaptcha            = `SELECT * FROM @captcha WHERE phone=? AND is_del=0`
 	_Security_UsePhoneCaptcha                  = `UPDATE @captcha SET use_times=use_times+1, modified_on=? WHERE id=? AND is_del=0`
+	_ShipIndexA_UserInfo                       = `SELECT * FROM @user WHERE username=?`
+	_ShipIndex_IndexByAdmin                    = `SELECT * FROM @p_post WHERE is_del=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
+	_ShipIndex_IndexByGuest                    = `SELECT * FROM @p_post WHERE visibility=0 AND is_del=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
+	_ShipIndex_IndexBySelf                     = `SELECT * FROM @p_post WHERE is_del=0 AND 	(visibility=0 OR 	(visibility=1 AND user_id=?) OR 	(visibility=2 AND user_id IN ?)) ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
+	_ShipIndex_IndexCountByAdmin               = `SELECT count(*) FROM @p_post WHERE is_del=0`
+	_ShipIndex_IndexCountByGuest               = `SELECT count(*) FROM @p_post WHERE visibility=0 AND is_del=0`
+	_ShipIndex_IndexCountBySelf                = `SELECT count(*) FROM @p_post WHERE is_del=0 AND 	(visibility=0 OR 	(visibility=1 AND user_id=?) OR 	(visibility=2 AND user_id IN ?))`
 	_SimpleIndexA_UserInfo                     = `SELECT * FROM @user WHERE username=?`
-	_SimpleIndex_UserInfo                      = `SELECT * FROM @user WHERE username=?`
+	_SimpleIndex_Index                         = `SELECT * FROM @p_post WHERE visibility=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
+	_SimpleIndex_IndexCount                    = `SELECT count(*) FROM @p_post WHERE visibility=0`
 	_TopicA_DecrTagsById                       = `UPDATE @tag SET quote_num=quote_num-1, modified_on=? WHERE id IN (?)`
 	_TopicA_HotTags                            = `SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.quote_num DESC LIMIT ? OFFSET ?`
 	_TopicA_IncrTagsById                       = `UPDATE @tag SET quote_num=quote_num+1, is_del=0, modified_on=? WHERE id IN (?)`
@@ -205,39 +207,9 @@ type ContactManager struct {
 	CreateMessage          *sqlx.NamedStmt `yesql:"create_message"`
 }
 
-type FollowIndex struct {
-	yesql.Namespace `yesql:"follow_index"`
-	UserInfo        *sqlx.Stmt `yesql:"user_info"`
-}
-
-type FollowIndexA struct {
-	yesql.Namespace `yesql:"follow_index_a"`
-	UserInfo        *sqlx.Stmt `yesql:"user_info"`
-}
-
 type FollowingManager struct {
 	yesql.Namespace `yesql:"following_manager"`
 	CreateFollowing *sqlx.Stmt `yesql:"create_following"`
-}
-
-type FriendIndex struct {
-	yesql.Namespace `yesql:"friend_index"`
-	UserInfo        *sqlx.Stmt `yesql:"user_info"`
-}
-
-type FriendIndexA struct {
-	yesql.Namespace `yesql:"friend_index_a"`
-	UserInfo        *sqlx.Stmt `yesql:"user_info"`
-}
-
-type LightIndex struct {
-	yesql.Namespace `yesql:"light_index"`
-	UserInfo        *sqlx.Stmt `yesql:"user_info"`
-}
-
-type LightIndexA struct {
-	yesql.Namespace `yesql:"light_index_a"`
-	UserInfo        *sqlx.Stmt `yesql:"user_info"`
 }
 
 type Message struct {
@@ -257,14 +229,30 @@ type Security struct {
 	CreatePhoneCaptcha    *sqlx.NamedStmt `yesql:"create_phone_captcha"`
 }
 
+type ShipIndex struct {
+	yesql.Namespace   `yesql:"ship_index"`
+	IndexBySelf       string     `yesql:"index_by_self"`
+	IndexCountBySelf  string     `yesql:"index_count_by_self"`
+	IndexByAdmin      *sqlx.Stmt `yesql:"index_by_admin"`
+	IndexByGuest      *sqlx.Stmt `yesql:"index_by_guest"`
+	IndexCountByAdmin *sqlx.Stmt `yesql:"index_count_by_admin"`
+	IndexCountByGuest *sqlx.Stmt `yesql:"index_count_by_guest"`
+}
+
+type ShipIndexA struct {
+	yesql.Namespace `yesql:"ship_index_a"`
+	UserInfo        string `yesql:"user_info"`
+}
+
 type SimpleIndex struct {
 	yesql.Namespace `yesql:"simple_index"`
-	UserInfo        *sqlx.Stmt `yesql:"user_info"`
+	Index           *sqlx.Stmt `yesql:"index"`
+	IndexCount      *sqlx.Stmt `yesql:"index_count"`
 }
 
 type SimpleIndexA struct {
 	yesql.Namespace `yesql:"simple_index_a"`
-	UserInfo        *sqlx.Stmt `yesql:"user_info"`
+	UserInfo        string `yesql:"user_info"`
 }
 
 type TopicA struct {
@@ -301,18 +289,18 @@ type Tweet struct {
 
 type TweetA struct {
 	yesql.Namespace     `yesql:"tweet_a"`
-	AttachmentByTweetId *sqlx.Stmt `yesql:"attachment_by_tweet_id"`
-	FavoriteByTweetId   *sqlx.Stmt `yesql:"favorite_by_tweet_id"`
-	ReactionByTweetId   *sqlx.Stmt `yesql:"reaction_by_tweet_id"`
-	TweetInfoById       *sqlx.Stmt `yesql:"tweet_info_by_id"`
-	TweetItemById       *sqlx.Stmt `yesql:"tweet_item_by_id"`
-	UserFavorites       *sqlx.Stmt `yesql:"user_favorites"`
-	UserInfo            *sqlx.Stmt `yesql:"user_info"`
-	UserReactions       *sqlx.Stmt `yesql:"user_reactions"`
-	UserTweetsByAdmin   *sqlx.Stmt `yesql:"user_tweets_by_admin"`
-	UserTweetsByFriend  *sqlx.Stmt `yesql:"user_tweets_by_friend"`
-	UserTweetsByGuest   *sqlx.Stmt `yesql:"user_tweets_by_guest"`
-	UserTweetsBySelf    *sqlx.Stmt `yesql:"user_tweets_by_self"`
+	AttachmentByTweetId string `yesql:"attachment_by_tweet_id"`
+	FavoriteByTweetId   string `yesql:"favorite_by_tweet_id"`
+	ReactionByTweetId   string `yesql:"reaction_by_tweet_id"`
+	TweetInfoById       string `yesql:"tweet_info_by_id"`
+	TweetItemById       string `yesql:"tweet_item_by_id"`
+	UserFavorites       string `yesql:"user_favorites"`
+	UserInfo            string `yesql:"user_info"`
+	UserReactions       string `yesql:"user_reactions"`
+	UserTweetsByAdmin   string `yesql:"user_tweets_by_admin"`
+	UserTweetsByFriend  string `yesql:"user_tweets_by_friend"`
+	UserTweetsByGuest   string `yesql:"user_tweets_by_guest"`
+	UserTweetsBySelf    string `yesql:"user_tweets_by_self"`
 }
 
 type TweetHelp struct {
@@ -323,7 +311,7 @@ type TweetHelp struct {
 
 type TweetHelpA struct {
 	yesql.Namespace `yesql:"tweet_help_a"`
-	UserInfo        *sqlx.Stmt `yesql:"user_info"`
+	UserInfo        string `yesql:"user_info"`
 }
 
 type TweetManage struct {
@@ -350,7 +338,7 @@ type TweetManage struct {
 
 type TweetManageA struct {
 	yesql.Namespace `yesql:"tweet_manage_a"`
-	UserInfo        *sqlx.Stmt `yesql:"user_info"`
+	UserInfo        string `yesql:"user_info"`
 }
 
 type UserManage struct {
@@ -542,34 +530,6 @@ func BuildContactManager(p yesql.PreparexBuilder, ctx ...context.Context) (obj *
 	return
 }
 
-func BuildFollowIndex(p yesql.PreparexBuilder, ctx ...context.Context) (obj *FollowIndex, err error) {
-	var c context.Context
-	if len(ctx) > 0 && ctx[0] != nil {
-		c = ctx[0]
-	} else {
-		c = context.Background()
-	}
-	obj = &FollowIndex{}
-	if obj.UserInfo, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FollowIndex_UserInfo))); err != nil {
-		return
-	}
-	return
-}
-
-func BuildFollowIndexA(p yesql.PreparexBuilder, ctx ...context.Context) (obj *FollowIndexA, err error) {
-	var c context.Context
-	if len(ctx) > 0 && ctx[0] != nil {
-		c = ctx[0]
-	} else {
-		c = context.Background()
-	}
-	obj = &FollowIndexA{}
-	if obj.UserInfo, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FollowIndexA_UserInfo))); err != nil {
-		return
-	}
-	return
-}
-
 func BuildFollowingManager(p yesql.PreparexBuilder, ctx ...context.Context) (obj *FollowingManager, err error) {
 	var c context.Context
 	if len(ctx) > 0 && ctx[0] != nil {
@@ -579,62 +539,6 @@ func BuildFollowingManager(p yesql.PreparexBuilder, ctx ...context.Context) (obj
 	}
 	obj = &FollowingManager{}
 	if obj.CreateFollowing, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FollowingManager_CreateFollowing))); err != nil {
-		return
-	}
-	return
-}
-
-func BuildFriendIndex(p yesql.PreparexBuilder, ctx ...context.Context) (obj *FriendIndex, err error) {
-	var c context.Context
-	if len(ctx) > 0 && ctx[0] != nil {
-		c = ctx[0]
-	} else {
-		c = context.Background()
-	}
-	obj = &FriendIndex{}
-	if obj.UserInfo, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FriendIndex_UserInfo))); err != nil {
-		return
-	}
-	return
-}
-
-func BuildFriendIndexA(p yesql.PreparexBuilder, ctx ...context.Context) (obj *FriendIndexA, err error) {
-	var c context.Context
-	if len(ctx) > 0 && ctx[0] != nil {
-		c = ctx[0]
-	} else {
-		c = context.Background()
-	}
-	obj = &FriendIndexA{}
-	if obj.UserInfo, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FriendIndexA_UserInfo))); err != nil {
-		return
-	}
-	return
-}
-
-func BuildLightIndex(p yesql.PreparexBuilder, ctx ...context.Context) (obj *LightIndex, err error) {
-	var c context.Context
-	if len(ctx) > 0 && ctx[0] != nil {
-		c = ctx[0]
-	} else {
-		c = context.Background()
-	}
-	obj = &LightIndex{}
-	if obj.UserInfo, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_LightIndex_UserInfo))); err != nil {
-		return
-	}
-	return
-}
-
-func BuildLightIndexA(p yesql.PreparexBuilder, ctx ...context.Context) (obj *LightIndexA, err error) {
-	var c context.Context
-	if len(ctx) > 0 && ctx[0] != nil {
-		c = ctx[0]
-	} else {
-		c = context.Background()
-	}
-	obj = &LightIndexA{}
-	if obj.UserInfo, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_LightIndexA_UserInfo))); err != nil {
 		return
 	}
 	return
@@ -689,6 +593,39 @@ func BuildSecurity(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Securi
 	return
 }
 
+func BuildShipIndex(p yesql.PreparexBuilder, ctx ...context.Context) (obj *ShipIndex, err error) {
+	var c context.Context
+	if len(ctx) > 0 && ctx[0] != nil {
+		c = ctx[0]
+	} else {
+		c = context.Background()
+	}
+	obj = &ShipIndex{
+		IndexBySelf:      p.QueryHook(_ShipIndex_IndexBySelf),
+		IndexCountBySelf: p.QueryHook(_ShipIndex_IndexCountBySelf),
+	}
+	if obj.IndexByAdmin, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ShipIndex_IndexByAdmin))); err != nil {
+		return
+	}
+	if obj.IndexByGuest, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ShipIndex_IndexByGuest))); err != nil {
+		return
+	}
+	if obj.IndexCountByAdmin, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ShipIndex_IndexCountByAdmin))); err != nil {
+		return
+	}
+	if obj.IndexCountByGuest, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_ShipIndex_IndexCountByGuest))); err != nil {
+		return
+	}
+	return
+}
+
+func BuildShipIndexA(p yesql.PreparexBuilder) (obj *ShipIndexA, err error) {
+	obj = &ShipIndexA{
+		UserInfo: p.QueryHook(_ShipIndexA_UserInfo),
+	}
+	return
+}
+
 func BuildSimpleIndex(p yesql.PreparexBuilder, ctx ...context.Context) (obj *SimpleIndex, err error) {
 	var c context.Context
 	if len(ctx) > 0 && ctx[0] != nil {
@@ -697,22 +634,18 @@ func BuildSimpleIndex(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Sim
 		c = context.Background()
 	}
 	obj = &SimpleIndex{}
-	if obj.UserInfo, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_SimpleIndex_UserInfo))); err != nil {
+	if obj.Index, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_SimpleIndex_Index))); err != nil {
+		return
+	}
+	if obj.IndexCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_SimpleIndex_IndexCount))); err != nil {
 		return
 	}
 	return
 }
 
-func BuildSimpleIndexA(p yesql.PreparexBuilder, ctx ...context.Context) (obj *SimpleIndexA, err error) {
-	var c context.Context
-	if len(ctx) > 0 && ctx[0] != nil {
-		c = ctx[0]
-	} else {
-		c = context.Background()
-	}
-	obj = &SimpleIndexA{}
-	if obj.UserInfo, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_SimpleIndexA_UserInfo))); err != nil {
-		return
+func BuildSimpleIndexA(p yesql.PreparexBuilder) (obj *SimpleIndexA, err error) {
+	obj = &SimpleIndexA{
+		UserInfo: p.QueryHook(_SimpleIndexA_UserInfo),
 	}
 	return
 }
@@ -793,49 +726,20 @@ func BuildTweet(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Tweet, er
 	return
 }
 
-func BuildTweetA(p yesql.PreparexBuilder, ctx ...context.Context) (obj *TweetA, err error) {
-	var c context.Context
-	if len(ctx) > 0 && ctx[0] != nil {
-		c = ctx[0]
-	} else {
-		c = context.Background()
-	}
-	obj = &TweetA{}
-	if obj.AttachmentByTweetId, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetA_AttachmentByTweetId))); err != nil {
-		return
-	}
-	if obj.FavoriteByTweetId, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetA_FavoriteByTweetId))); err != nil {
-		return
-	}
-	if obj.ReactionByTweetId, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetA_ReactionByTweetId))); err != nil {
-		return
-	}
-	if obj.TweetInfoById, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetA_TweetInfoById))); err != nil {
-		return
-	}
-	if obj.TweetItemById, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetA_TweetItemById))); err != nil {
-		return
-	}
-	if obj.UserFavorites, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetA_UserFavorites))); err != nil {
-		return
-	}
-	if obj.UserInfo, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetA_UserInfo))); err != nil {
-		return
-	}
-	if obj.UserReactions, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetA_UserReactions))); err != nil {
-		return
-	}
-	if obj.UserTweetsByAdmin, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetA_UserTweetsByAdmin))); err != nil {
-		return
-	}
-	if obj.UserTweetsByFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetA_UserTweetsByFriend))); err != nil {
-		return
-	}
-	if obj.UserTweetsByGuest, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetA_UserTweetsByGuest))); err != nil {
-		return
-	}
-	if obj.UserTweetsBySelf, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetA_UserTweetsBySelf))); err != nil {
-		return
+func BuildTweetA(p yesql.PreparexBuilder) (obj *TweetA, err error) {
+	obj = &TweetA{
+		AttachmentByTweetId: p.QueryHook(_TweetA_AttachmentByTweetId),
+		FavoriteByTweetId:   p.QueryHook(_TweetA_FavoriteByTweetId),
+		ReactionByTweetId:   p.QueryHook(_TweetA_ReactionByTweetId),
+		TweetInfoById:       p.QueryHook(_TweetA_TweetInfoById),
+		TweetItemById:       p.QueryHook(_TweetA_TweetItemById),
+		UserFavorites:       p.QueryHook(_TweetA_UserFavorites),
+		UserInfo:            p.QueryHook(_TweetA_UserInfo),
+		UserReactions:       p.QueryHook(_TweetA_UserReactions),
+		UserTweetsByAdmin:   p.QueryHook(_TweetA_UserTweetsByAdmin),
+		UserTweetsByFriend:  p.QueryHook(_TweetA_UserTweetsByFriend),
+		UserTweetsByGuest:   p.QueryHook(_TweetA_UserTweetsByGuest),
+		UserTweetsBySelf:    p.QueryHook(_TweetA_UserTweetsBySelf),
 	}
 	return
 }
@@ -848,16 +752,9 @@ func BuildTweetHelp(p yesql.PreparexBuilder) (obj *TweetHelp, err error) {
 	return
 }
 
-func BuildTweetHelpA(p yesql.PreparexBuilder, ctx ...context.Context) (obj *TweetHelpA, err error) {
-	var c context.Context
-	if len(ctx) > 0 && ctx[0] != nil {
-		c = ctx[0]
-	} else {
-		c = context.Background()
-	}
-	obj = &TweetHelpA{}
-	if obj.UserInfo, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetHelpA_UserInfo))); err != nil {
-		return
+func BuildTweetHelpA(p yesql.PreparexBuilder) (obj *TweetHelpA, err error) {
+	obj = &TweetHelpA{
+		UserInfo: p.QueryHook(_TweetHelpA_UserInfo),
 	}
 	return
 }
@@ -922,16 +819,9 @@ func BuildTweetManage(p yesql.PreparexBuilder, ctx ...context.Context) (obj *Twe
 	return
 }
 
-func BuildTweetManageA(p yesql.PreparexBuilder, ctx ...context.Context) (obj *TweetManageA, err error) {
-	var c context.Context
-	if len(ctx) > 0 && ctx[0] != nil {
-		c = ctx[0]
-	} else {
-		c = context.Background()
-	}
-	obj = &TweetManageA{}
-	if obj.UserInfo, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetManageA_UserInfo))); err != nil {
-		return
+func BuildTweetManageA(p yesql.PreparexBuilder) (obj *TweetManageA, err error) {
+	obj = &TweetManageA{
+		UserInfo: p.QueryHook(_TweetManageA_UserInfo),
 	}
 	return
 }

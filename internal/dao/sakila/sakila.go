@@ -56,23 +56,11 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	var (
 		v   core.VersionInfo
 		cis core.CacheIndexService
-		ips core.IndexPostsService
 	)
 	pvs := security.NewPhoneVerifyService()
 	ams := NewAuthorizationManageService()
 	ths := newTweetHelpService(_db)
-
-	// initialize core.IndexPostsService
-	if cfg.If("Friendship") {
-		ips = newFriendIndexService(_db, ams, ths)
-	} else if cfg.If("Followship") {
-		ips = newFollowIndexService(_db, ths)
-	} else if cfg.If("Lightship") {
-		ips = newLightIndexService(_db, ths)
-	} else {
-		// default use lightship post index service
-		ips = newLightIndexService(_db, ths)
-	}
+	ips := newShipIndexService(_db, ams, ths)
 
 	// initialize core.CacheIndexService
 	cfg.On(cfg.Actions{
@@ -119,23 +107,11 @@ func NewWebDataServantA() (core.WebDataServantA, core.VersionInfo) {
 	var (
 		v   core.VersionInfo
 		cis core.CacheIndexService
-		ips core.IndexPostsService
 	)
 	// pvs := security.NewPhoneVerifyService()
 	ams := NewAuthorizationManageService()
 	ths := newTweetHelpService(_db)
-
-	// initialize core.IndexPostsService
-	if cfg.If("Friendship") {
-		ips = newFriendIndexService(_db, ams, ths)
-	} else if cfg.If("Followship") {
-		ips = newFollowIndexService(_db, ths)
-	} else if cfg.If("Lightship") {
-		ips = newLightIndexService(_db, ths)
-	} else {
-		// default use lightship post index service
-		ips = newLightIndexService(_db, ths)
-	}
+	ips := newShipIndexService(_db, ams, ths)
 
 	// initialize core.CacheIndexService
 	cfg.On(cfg.Actions{

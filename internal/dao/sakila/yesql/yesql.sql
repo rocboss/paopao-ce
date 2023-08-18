@@ -270,59 +270,83 @@ INSERT INTO @captcha (phone, captcha, expired_on, created_on)
 VALUES (:phone, :captcha, :expired_on, :created_on);
 
 --------------------------------------------------------------------------------
--- friend_index sql dml
+-- ship_index sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@friend_index
+-- name: index_by_admin@ship_index
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * 
+FROM @p_post 
+WHERE is_del=0 
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT ? OFFSET ?;
 
---------------------------------------------------------------------------------
--- follow_index sql dml
---------------------------------------------------------------------------------
-
--- name: user_info@follow_index
+-- name: index_count_by_admin@ship_index
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT count(*)
+FROM @p_post
+WHERE is_del=0;
 
---------------------------------------------------------------------------------
--- light_index sql dml
---------------------------------------------------------------------------------
-
--- name: user_info@light_index
+-- name: index_by_guest@ship_index
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * 
+FROM @p_post 
+WHERE visibility=0 AND is_del=0 
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: index_count_by_guest@ship_index
+-- prepare: stmt
+SELECT count(*)
+FROM @p_post
+WHERE visibility=0 AND is_del=0;
+
+-- name: index_by_self@ship_index
+-- prepare: raw
+-- clause: in
+SELECT *
+FROM @p_post
+WHERE is_del=0 AND 
+	(visibility=0 OR
+	(visibility=1 AND user_id=?) OR
+	(visibility=2 AND user_id IN ?))
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: index_count_by_self@ship_index
+-- prepare: raw
+-- clause: in
+SELECT count(*)
+FROM @p_post
+WHERE is_del=0 AND 
+	(visibility=0 OR
+	(visibility=1 AND user_id=?) OR
+	(visibility=2 AND user_id IN ?)); 
 
 --------------------------------------------------------------------------------
 -- simple_index sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@simple_index
+-- name: index@simple_index
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT * 
+FROM @p_post 
+WHERE visibility=0
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT ? OFFSET ?;
 
---------------------------------------------------------------------------------
--- friend_index_a sql dml
---------------------------------------------------------------------------------
-
--- name: user_info@friend_index_a
+-- name: index_count@simple_index
 -- prepare: stmt
-SELECT * FROM @user WHERE username=?
+SELECT count(*) 
+FROM @p_post 
+WHERE visibility=0;
 
 --------------------------------------------------------------------------------
--- follow_index_a sql dml
+-- ship_index_a sql dml
 --------------------------------------------------------------------------------
 
--- name: user_info@follow_index_a
--- prepare: stmt
-SELECT * FROM @user WHERE username=?
-
---------------------------------------------------------------------------------
--- light_index_a sql dml
---------------------------------------------------------------------------------
-
--- name: user_info@light_index_a
--- prepare: stmt
+-- name: user_info@ship_index_a
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 --------------------------------------------------------------------------------
@@ -330,7 +354,7 @@ SELECT * FROM @user WHERE username=?
 --------------------------------------------------------------------------------
 
 -- name: user_info@simple_index_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 --------------------------------------------------------------------------------
@@ -653,51 +677,51 @@ WHERE id IN (?) AND is_del=0;
 --------------------------------------------------------------------------------
 
 -- name: user_info@tweet_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 -- name: tweet_info_by_id@tweet_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 -- name: tweet_item_by_id@tweet_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 -- name: user_tweets_by_admin@tweet_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 -- name: user_tweets_by_self@tweet_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 -- name: user_tweets_by_friend@tweet_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 -- name: user_tweets_by_guest@tweet_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 -- name: reaction_by_tweet_id@tweet_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 -- name: user_reactions@tweet_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 -- name: favorite_by_tweet_id@tweet_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 -- name: user_favorites@tweet_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 -- name: attachment_by_tweet_id@tweet_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 --------------------------------------------------------------------------------
@@ -705,7 +729,7 @@ SELECT * FROM @user WHERE username=?
 --------------------------------------------------------------------------------
 
 -- name: user_info@tweet_manage_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 --------------------------------------------------------------------------------
@@ -713,7 +737,7 @@ SELECT * FROM @user WHERE username=?
 --------------------------------------------------------------------------------
 
 -- name: user_info@tweet_help_a
--- prepare: stmt
+-- prepare: raw
 SELECT * FROM @user WHERE username=?
 
 --------------------------------------------------------------------------------

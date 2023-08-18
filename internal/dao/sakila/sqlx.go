@@ -39,6 +39,7 @@ func (s *sqlxSrv) with(handle func(tx *sqlx.Tx) error) error {
 	return tx.Commit()
 }
 
+//lint:ignore U1000 withTx
 func (s *sqlxSrv) withTx(ctx context.Context, opts *sql.TxOptions, handle func(*sqlx.Tx) error) error {
 	tx, err := s.db.BeginTxx(ctx, opts)
 	if err != nil {
@@ -51,6 +52,7 @@ func (s *sqlxSrv) withTx(ctx context.Context, opts *sql.TxOptions, handle func(*
 	return tx.Commit()
 }
 
+//lint:ignore U1000 in
 func (s *sqlxSrv) in(query string, args ...any) (string, []any, error) {
 	q, params, err := sqlx.In(query, args...)
 	if err != nil {
@@ -59,6 +61,7 @@ func (s *sqlxSrv) in(query string, args ...any) (string, []any, error) {
 	return s.db.Rebind(q), params, nil
 }
 
+//lint:ignore U1000 inExec
 func (s *sqlxSrv) inExec(query string, args ...any) (sql.Result, error) {
 	q, params, err := sqlx.In(query, args...)
 	if err != nil {
@@ -102,6 +105,8 @@ func (s *sqlxSrv) inSelectx(queryer sqlx.Queryer, dest any, query string, args .
 }
 
 // inGetx get for in clause with Transcation
+//
+//lint:ignore U1000 inGetx
 func (s *sqlxSrv) inGetx(queryer sqlx.Queryer, dest any, query string, args ...any) error {
 	q, params, err := sqlx.In(query, args...)
 	if err != nil {
@@ -117,10 +122,12 @@ func newSqlxSrv(db *sqlx.DB) *sqlxSrv {
 	}
 }
 
+//lint:ignore U1000 r
 func r(query string) string {
 	return _db.Rebind(t(query))
 }
 
+//lint:ignore U1000 c
 func c(query string) *sqlx.Stmt {
 	query = _db.Rebind(t(query))
 	stmt, err := _db.Preparex(query)
@@ -130,6 +137,7 @@ func c(query string) *sqlx.Stmt {
 	return stmt
 }
 
+//lint:ignore U1000 n
 func n(query string) *sqlx.NamedStmt {
 	query = t(query)
 	stmt, err := _db.PrepareNamed(query)
@@ -165,6 +173,8 @@ func t(query string) string {
 }
 
 // yesqlScan yesql.Scan help function
+//
+//lint:ignore U1000 yesqlScan
 func yesqlScan[T any](query yesql.SQLQuery, obj T) T {
 	if err := yesql.Scan(obj, query); err != nil {
 		logrus.Fatal(err)
