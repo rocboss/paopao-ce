@@ -164,7 +164,8 @@ WHERE user_id=? AND follow_id=? AND is_del=0;
 SELECT u.user_id user_id, 
 	u.username username,
 	u.nickname nickname,
-	u.avatar avatar
+	u.avatar avatar,
+	u.created_on created_on
 FROM @following f JOIN @user u ON f.follow_id=u.id
 WHERE f.user_id=? AND f.is_del=0
 ORDER BY u.nickname ASC
@@ -179,7 +180,8 @@ SELECT count(*) FROM @following WHERE user_id=? AND is_del=0;
 SELECT u.user_id user_id, 
 	u.username username,
 	u.nickname nickname,
-	u.avatar avatar
+	u.avatar avatar,
+	u.created_on created_on
 FROM @following f JOIN @user u ON f.user_id=u.id
 WHERE f.follow_id=? AND f.is_del=0
 ORDER BY u.nickname ASC
