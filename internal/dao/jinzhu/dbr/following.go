@@ -14,7 +14,7 @@ type Following struct {
 	*Model
 	User     *User `json:"-" gorm:"foreignKey:ID;references:FollowId"`
 	UserId   int64 `json:"user_id"`
-	FollowId int64 `json:"friend_id"`
+	FollowId int64 `json:"follow_id"`
 }
 
 func (f *Following) GetFollowing(db *gorm.DB, userId, followId int64) (*Following, error) {

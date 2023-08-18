@@ -149,6 +149,46 @@ WHERE id=? AND is_del=0;
 -- prepare: stmt
 INSERT INTO @following (user_id, follow_id, created_on) VALUES (?, ?, ?);
 
+-- name: exist_following@following_manager
+-- prepare: stmt
+SELECT 1 FROM @following WHERE user_id=? AND follow_id=? AND is_del=0;
+
+-- name: delete_following@following_manager
+-- prepare: stmt
+UPDATE @following 
+SET is_del=0, deleted_on=? 
+WHERE user_id=? AND follow_id=? AND is_del=0;
+
+-- name: list_follows@following_manager
+-- prepare: stmt
+SELECT u.user_id user_id, 
+	u.username username,
+	u.nickname nickname,
+	u.avatar avatar
+FROM @following f JOIN @user u ON f.follow_id=u.id
+WHERE f.user_id=? AND f.is_del=0
+ORDER BY u.nickname ASC
+LIMIT ? OFFSET ?;
+
+-- name: count_follows@following_manager
+-- prepare: stmt
+SELECT count(*) FROM @following WHERE user_id=? AND is_del=0;
+
+-- name: list_followings@following_manager
+-- prepare: stmt
+SELECT u.user_id user_id, 
+	u.username username,
+	u.nickname nickname,
+	u.avatar avatar
+FROM @following f JOIN @user u ON f.user_id=u.id
+WHERE f.follow_id=? AND f.is_del=0
+ORDER BY u.nickname ASC
+LIMIT ? OFFSET ?;
+
+-- name: count_followings@following_manager
+-- prepare: stmt
+SELECT count(*) FROM @following WHERE follow_id=? AND is_del=0;
+
 --------------------------------------------------------------------------------
 -- contact_manager sql dml
 --------------------------------------------------------------------------------

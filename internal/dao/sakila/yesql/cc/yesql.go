@@ -50,7 +50,13 @@ const (
 	_ContactManager_ListFriend                 = `SELECT c.friend_id user_id, u.username username, u.nickname nickname, u.avatar avatar, u.phone phone FROM @contact c JOIN @user u ON c.friend_id=u.id WHERE user_id=? AND status=2 AND is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
 	_ContactManager_RejectFriendMsgsUpdate     = `UPDATE @message SET reply_id=?, modified_on=? WHERE sender_user_id = ? AND receiver_user_id = ? AND type = ? AND reply_id = ?`
 	_ContactManager_TotalFriendsById           = `SELECT count(*) FROM @contact WHERE user_id=? AND status=2 AND is_del=0`
+	_FollowingManager_CountFollowings          = `SELECT count(*) FROM @following WHERE follow_id=? AND is_del=0`
+	_FollowingManager_CountFollows             = `SELECT count(*) FROM @following WHERE user_id=? AND is_del=0`
 	_FollowingManager_CreateFollowing          = `INSERT INTO @following (user_id, follow_id, created_on) VALUES (?, ?, ?)`
+	_FollowingManager_DeleteFollowing          = `UPDATE @following SET is_del=0, deleted_on=? WHERE user_id=? AND follow_id=? AND is_del=0`
+	_FollowingManager_ExistFollowing           = `SELECT 1 FROM @following WHERE user_id=? AND follow_id AND is_del=0`
+	_FollowingManager_ListFollowings           = `SELECT u.user_id user_id, 	u.username username, 	u.nickname nickname, 	u.avatar avatar FROM @following f JOIN @user u ON f.user_id=u.id WHERE f.follow_id=? AND f.is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
+	_FollowingManager_ListFollows              = `SELECT u.user_id user_id, 	u.username username, 	u.nickname nickname, 	u.avatar avatar FROM @following f JOIN @user u ON f.follow_id=u.id WHERE f.user_id=? AND f.is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
 	_Message_CreateMessage                     = `INSERT INTO @message (sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, created_on) VALUES (:sender_user_id, :receiver_user_id, :type, :brief, :content, :post_id, :comment_id, :reply_id, :created_on)`
 	_Message_GetMessageById                    = `SELECT * FROM @message WHERE id=? AND is_del=0`
 	_Message_GetMessageCount                   = `SELECT count(*) FROM @message WHERE receiver_user_id=:recerver_user_id AND is_del=0`
@@ -231,7 +237,13 @@ type ContactManager struct {
 
 type FollowingManager struct {
 	yesql.Namespace `yesql:"following_manager"`
+	CountFollowings *sqlx.Stmt `yesql:"count_followings"`
+	CountFollows    *sqlx.Stmt `yesql:"count_follows"`
 	CreateFollowing *sqlx.Stmt `yesql:"create_following"`
+	DeleteFollowing *sqlx.Stmt `yesql:"delete_following"`
+	ExistFollowing  *sqlx.Stmt `yesql:"exist_following"`
+	ListFollowings  *sqlx.Stmt `yesql:"list_followings"`
+	ListFollows     *sqlx.Stmt `yesql:"list_follows"`
 }
 
 type Message struct {
@@ -582,7 +594,25 @@ func BuildFollowingManager(p yesql.PreparexBuilder, ctx ...context.Context) (obj
 		c = context.Background()
 	}
 	obj = &FollowingManager{}
+	if obj.CountFollowings, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FollowingManager_CountFollowings))); err != nil {
+		return
+	}
+	if obj.CountFollows, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FollowingManager_CountFollows))); err != nil {
+		return
+	}
 	if obj.CreateFollowing, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FollowingManager_CreateFollowing))); err != nil {
+		return
+	}
+	if obj.DeleteFollowing, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FollowingManager_DeleteFollowing))); err != nil {
+		return
+	}
+	if obj.ExistFollowing, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FollowingManager_ExistFollowing))); err != nil {
+		return
+	}
+	if obj.ListFollowings, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FollowingManager_ListFollowings))); err != nil {
+		return
+	}
+	if obj.ListFollows, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_FollowingManager_ListFollows))); err != nil {
 		return
 	}
 	return
