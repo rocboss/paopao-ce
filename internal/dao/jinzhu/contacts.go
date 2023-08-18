@@ -248,11 +248,12 @@ func (s *contactManageSrv) GetContacts(userId int64, offset int, limit int) (*ms
 	for _, c := range contacts {
 		if c.User != nil {
 			resp.Contacts = append(resp.Contacts, ms.ContactItem{
-				UserId:   c.FriendId,
-				Username: c.User.Username,
-				Nickname: c.User.Nickname,
-				Avatar:   c.User.Avatar,
-				Phone:    c.User.Phone,
+				UserId:    c.FriendId,
+				Username:  c.User.Username,
+				Nickname:  c.User.Nickname,
+				Avatar:    c.User.Avatar,
+				Phone:     c.User.Phone,
+				CreatedOn: c.User.CreatedOn,
 			})
 		}
 	}
