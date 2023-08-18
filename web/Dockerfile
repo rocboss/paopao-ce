@@ -1,5 +1,5 @@
 # build frontend
-FROM node:18-alpine as frontend
+FROM node:19-alpine as frontend
 ARG API_HOST
 ARG USE_DIST=no
 WORKDIR /web

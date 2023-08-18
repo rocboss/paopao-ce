@@ -21,15 +21,6 @@ All notable changes to paopao-ce are documented in this file.
   CREATE TABLE p_following (ID BIGSERIAL PRIMARY KEY,user_id BIGINT NOT NULL,follow_id BIGINT NOT NULL,is_del SMALLINT NOT NULL DEFAULT 0,created_on BIGINT NOT NULL DEFAULT 0,modified_on BIGINT NOT NULL DEFAULT 0,deleted_on BIGINT NOT NULL DEFAULT 0); 
   CREATE INDEX idx_following_user_follow ON p_following USING btree (user_id,follow_id);
   ```
-  custom set config.yaml in `Features` section add `Followship` to enable Followship feature:
-  ```yaml
-  ...
-  # add Followship to enable this feature
-  Features:
-    Default: ["Meili", "LoggerMeili", "Base", "Sqlite3", "BigCacheIndex", "MinIO", "Followship"]
-    Base: ["Redis", "PhoneBind"]
-  ...
-  ```
 
 ### Changed
 - change man content width to 600px and optimize tweet/comment/replay text length. [#333](https://github.com/rocboss/paopao-ce/pull/333) 
@@ -41,6 +32,8 @@ All notable changes to paopao-ce are documented in this file.
   make build TAGS='slim embed'
   ```
 - frontend: optimize user profile page route path to domain/#/u/?s=username. [&c857142](https://github.com/rocboss/paopao-ce/commit/c857142565f0c28294344c7abc5c2df4e363b04c
+- change the `Friendship` feature and `Followship` feature as builtin feature. [#362](https://github.com/rocboss/paopao-ce/pull/362)  
+- deprecated/remove `Lightship` feature. [#362](https://github.com/rocboss/paopao-ce/pull/362)  
   
 ## 0.3.1
 ### Fixed

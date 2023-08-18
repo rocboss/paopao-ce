@@ -18,7 +18,7 @@ RELEASE_DARWIN_AMD64 = $(RELEASE_ROOT)/darwin-amd64/$(PROJECT)
 RELEASE_DARWIN_ARM64 = $(RELEASE_ROOT)/darwin-arm64/$(PROJECT)
 RELEASE_WINDOWS_AMD64 = $(RELEASE_ROOT)/windows-amd64/$(PROJECT)
 
-BUILD_VERSION := $(shell git describe --tags --always | cut -f1 -f2 -d "-")
+BUILD_VERSION := $(shell git describe --tags --always | cut -f 1 -f 2 -d "-")
 BUILD_DATE := $(shell date +'%Y-%m-%d %H:%M:%S')
 SHA_SHORT := $(shell git rev-parse --short HEAD)
 
