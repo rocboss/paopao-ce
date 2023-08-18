@@ -263,9 +263,23 @@ func (s *tweetManageSrv) StickPost(r *ms.Post) error {
 	return err
 }
 
-func (s *tweetManageSrv) HighlightPost(userId, postId int64) (int, error) {
-	// TODO
-	return 0, cs.ErrNotImplemented
+func (s *tweetManageSrv) HighlightPost(userId, postId int64) (is_essence int, err error) {
+	err = s.with(func(tx *sqlx.Tx) error {
+		var postUserId int64
+		err = tx.Stmtx(s.q.PostHighlightStatus).QueryRowx(postId).Scan(&postUserId, &is_essence)
+		if err != nil {
+			return err
+		}
+		if postUserId != userId {
+			return cs.ErrNoPermission
+		}
+		if _, err = tx.Stmtx(s.q.HighlightPost).Exec(postId); err != nil {
+			return err
+		}
+		is_essence = 1 - is_essence
+		return nil
+	})
+	return
 }
 
 func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT) (err error) {
@@ -370,19 +384,65 @@ func (s *tweetSrv) GetUserPostStars(userID int64, limit int, offset int) (res []
 	return
 }
 
-func (s *tweetSrv) ListUserStarTweets(user *cs.VistUser, limit int, offset int) ([]*ms.PostStar, int64, error) {
-	// TODO
-	return nil, 0, cs.ErrNotImplemented
+func (s *tweetSrv) ListUserStarTweets(user *cs.VistUser, limit int, offset int) (res []*ms.PostStar, total int64, err error) {
+	switch user.RelTyp {
+	case cs.RelationAdmin:
+		if err = s.q.UserStarTweetsByAdmin.Select(&res, user.UserId, limit, offset); err == nil {
+			err = s.q.UserStarTweetsCountByAdmin.Get(&total, user.UserId)
+		}
+	case cs.RelationSelf:
+		// Fixed: 这里的查询有Bug，没有考虑查询Friend star 时如果对方已经不是你好友时，应该去除这个star
+		if err = s.q.UserStarTweetsBySelf.Select(&res, user.UserId, user.UserId, limit, offset); err == nil {
+			err = s.q.UserStarTweetsCountByAdmin.Get(&total, user.UserId, user.UserId)
+		}
+	case cs.RelationFriend:
+		if err = s.q.UserStarTweetsByFriend.Select(&res, user.UserId, limit, offset); err == nil {
+			err = s.q.UserStarTweetsByFriend.Get(&total, user.UserId)
+		}
+	case cs.RelationGuest:
+		fallthrough
+	default:
+		if err = s.q.UserStarTweetsByGuest.Select(&res, user.UserId, limit, offset); err == nil {
+			err = s.q.UserStarTweetsCountByGuest.Get(&total, user.UserId)
+		}
+	}
+	return
 }
 
-func (s *tweetSrv) ListUserMediaTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
-	// TODO
-	return nil, 0, cs.ErrNotImplemented
+func (s *tweetSrv) ListUserMediaTweets(user *cs.VistUser, limit int, offset int) (res []*ms.Post, total int64, err error) {
+	gStmt, cStmt := s.q.UserMediaTweetsByGuest, s.q.UserMediaTweetsCountByGuest
+	switch user.RelTyp {
+	case cs.RelationAdmin, cs.RelationSelf:
+		gStmt, cStmt = s.q.UserMediaTweetsBySelf, s.q.UserMediaTweetsCountBySelf
+	case cs.RelationFriend:
+		gStmt, cStmt = s.q.UserMediaTweetsByFriend, s.q.UserMediaTweetsCountByFriend
+	case cs.RelationGuest:
+		fallthrough
+	default:
+		// nothing
+	}
+	if err = gStmt.Select(&res, user.UserId, limit, offset); err == nil {
+		err = cStmt.Get(&total, user.UserId)
+	}
+	return
 }
 
-func (s *tweetSrv) ListUserCommentTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
-	// TODO
-	return nil, 0, cs.ErrNotImplemented
+func (s *tweetSrv) ListUserCommentTweets(user *cs.VistUser, limit int, offset int) (res []*ms.Post, total int64, err error) {
+	gStmt, cStmt := s.q.UserCommentTweetsByGuest, s.q.UserCommentTweetsCountByGuest
+	switch user.RelTyp {
+	case cs.RelationAdmin, cs.RelationSelf:
+		gStmt, cStmt = s.q.UserCommentTweetsBySelf, s.q.UserCommentTweetsCountBySelf
+	case cs.RelationFriend:
+		gStmt, cStmt = s.q.UserCommentTweetsByFriend, s.q.UserCommentTweetsCountByFriend
+	case cs.RelationGuest:
+		fallthrough
+	default:
+		// nothing
+	}
+	if err = gStmt.Select(&res, user.UserId, limit, offset); err == nil {
+		err = cStmt.Get(&total, user.UserId)
+	}
+	return
 }
 
 func (s *tweetSrv) GetUserPostStarCount(userID int64) (res int64, err error) {
@@ -421,76 +481,43 @@ func (s *tweetSrv) GetPostContentByID(id int64) (res *ms.PostContent, err error)
 }
 
 func (s *tweetSrvA) TweetInfoById(id int64) (*cs.TweetInfo, error) {
-	res := &cs.TweetInfo{}
-	err := s.q.TweetInfoById.Get(res, id)
-	return res, err
+	// TODO
+	return nil, debug.ErrNotImplemented
 }
 
 func (s *tweetSrvA) TweetItemById(id int64) (*cs.TweetItem, error) {
-	res := &cs.TweetItem{}
-	err := s.q.TweetItemById.Get(res, id)
-	if err != nil {
-		return nil, err
-	}
-	// TODO need add contents info to res
-	return res, nil
+	// TODO
+	return nil, debug.ErrNotImplemented
 }
 
 func (s *tweetSrvA) UserTweets(visitorId, userId int64) (res cs.TweetList, err error) {
-	res = cs.TweetList{}
-	switch s.checkRelationBy(visitorId, userId) {
-	case 0: // admin
-		err = s.q.UserTweetsByAdmin.Select(&res, userId)
-	case 1: // self
-		err = s.q.UserTweetsBySelf.Select(&res, userId)
-	case 2: // friend
-		err = s.q.UserTweetsByFriend.Select(&res, userId)
-	case 3: // follower
-		fallthrough
-	default: // guest
-		err = s.q.UserTweetsByGuest.Select(&res, userId)
-	}
-	if err != nil {
-		return nil, err
-	}
-	// TODO need add contents info to res
-	return res, nil
-}
-
-// checkRelationBy check the relation of visitor with user
-func (s *tweetSrvA) checkRelationBy(visitorId, userId int64) uint {
 	// TODO
-	return 0
+	return nil, debug.ErrNotImplemented
 }
 
 func (s *tweetSrvA) ReactionByTweetId(userId int64, tweetId int64) (*cs.ReactionItem, error) {
-	res := &cs.ReactionItem{}
-	err := s.q.ReactionByTweetId.Get(res, userId, tweetId)
-	return res, err
+	// TODO
+	return nil, debug.ErrNotImplemented
 }
 
 func (s *tweetSrvA) UserReactions(userId int64, limit int, offset int) (cs.ReactionList, error) {
-	res := cs.ReactionList{}
-	err := s.q.UserReactions.Select(&res, userId)
-	return res, err
+	// TODO
+	return nil, debug.ErrNotImplemented
 }
 
 func (s *tweetSrvA) FavoriteByTweetId(userId int64, tweetId int64) (*cs.FavoriteItem, error) {
-	res := &cs.FavoriteItem{}
-	err := s.q.FavoriteByTweetId.Get(res, userId, tweetId)
-	return res, err
+	// TODO
+	return nil, debug.ErrNotImplemented
 }
 
 func (s *tweetSrvA) UserFavorites(userId int64, limit int, offset int) (cs.FavoriteList, error) {
-	res := cs.FavoriteList{}
-	err := s.q.UserFavorites.Select(&res, userId)
-	return res, err
+	// TODO
+	return nil, debug.ErrNotImplemented
 }
 
 func (s *tweetSrvA) AttachmentByTweetId(userId int64, tweetId int64) (*cs.AttachmentBill, error) {
-	res := &cs.AttachmentBill{}
-	err := s.q.AttachmentByTweetId.Get(res, userId, tweetId)
-	return res, err
+	// TODO
+	return nil, debug.ErrNotImplemented
 }
 
 func (s *tweetManageSrvA) CreateAttachment(obj *cs.Attachment) (int64, error) {
@@ -578,7 +605,7 @@ func newTweetHelpService(db *sqlx.DB) core.TweetHelpService {
 func newTweetServantA(db *sqlx.DB) core.TweetServantA {
 	return &tweetSrvA{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildTweetA),
+		q:       mustBuildFn(db, cc.BuildTweetA),
 	}
 }
 
@@ -586,13 +613,13 @@ func newTweetManageServantA(db *sqlx.DB, cacheIndex core.CacheIndexService) core
 	return &tweetManageSrvA{
 		sqlxSrv: newSqlxSrv(db),
 		cis:     cacheIndex,
-		q:       mustBuild(db, cc.BuildTweetManageA),
+		q:       mustBuildFn(db, cc.BuildTweetManageA),
 	}
 }
 
 func newTweetHelpServantA(db *sqlx.DB) core.TweetHelpServantA {
 	return &tweetHelpSrvA{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildTweetHelpA),
+		q:       mustBuildFn(db, cc.BuildTweetHelpA),
 	}
 }

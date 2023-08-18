@@ -150,15 +150,15 @@
     * [x] 业务逻辑实现   
 
 #### 关系模式:    
-* `Friendship` 弱关系好友模式，类似微信朋友圈(目前状态: 内测); 
+* `Friendship` 弱关系好友模式，类似微信朋友圈(目前状态: 内置Builtin); 
     * [x] [提按文档](docs/proposal/22110410-关于Friendship功能项的设计.md)
     * [x] 接口定义
     * [x] 业务逻辑实现     
-* `Followship` 关注者模式，类似Twitter的Follow模式(目前状态: WIP);  
+* `Followship` 关注者模式，类似Twitter的Follow模式(目前状态: 内置Builtin);  
     * [ ] [提按文档](docs/proposal/22110409-关于Followship功能项的设计.md)
     * [ ] 接口定义
     * [ ] 业务逻辑实现   
-* `Lightship` 开放模式，所有推文都公开可见(目前状态: 内测、默认);  
+* `Lightship` 开放模式，所有推文都公开可见(目前状态: 弃用Deprecated);  
     * [x] [提按文档](docs/proposal/22121409-关于Lightship功能项的设计.md)
     * [x] 接口定义
     * [x] 业务逻辑实现 
