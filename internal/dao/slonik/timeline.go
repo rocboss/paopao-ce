@@ -13,25 +13,13 @@ import (
 )
 
 var (
-	_ core.IndexPostsService = (*friendIndexSrv)(nil)
-	_ core.IndexPostsService = (*followIndexSrv)(nil)
-	_ core.IndexPostsService = (*lightIndexSrv)(nil)
+	_ core.IndexPostsService = (*shipIndexSrv)(nil)
 	_ core.IndexPostsService = (*simpleIndexPostsSrv)(nil)
 )
 
-type friendIndexSrv struct {
+type shipIndexSrv struct {
 	*pgxSrv
 	ams core.AuthorizationManageService
-	ths core.TweetHelpService
-}
-
-type followIndexSrv struct {
-	*pgxSrv
-	ths core.TweetHelpService
-}
-
-type lightIndexSrv struct {
-	*pgxSrv
 	ths core.TweetHelpService
 }
 
@@ -41,34 +29,7 @@ type simpleIndexPostsSrv struct {
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *friendIndexSrv) IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *friendIndexSrv) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-// IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *followIndexSrv) IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *followIndexSrv) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-// IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *lightIndexSrv) IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *lightIndexSrv) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
+func (s *shipIndexSrv) IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
@@ -84,23 +45,9 @@ func (s *simpleIndexPostsSrv) TweetTimeline(userId int64, offset int, limit int)
 	return nil, debug.ErrNotImplemented
 }
 
-func newFriendIndexService(db *pgx.Conn, ams core.AuthorizationManageService, ths core.TweetHelpService) core.IndexPostsService {
-	return &friendIndexSrv{
+func newShipIndexService(db *pgx.Conn, ams core.AuthorizationManageService, ths core.TweetHelpService) core.IndexPostsService {
+	return &shipIndexSrv{
 		ams:    ams,
-		pgxSrv: newPgxSrv(db),
-	}
-}
-
-func newFollowIndexService(db *pgx.Conn, ths core.TweetHelpService) core.IndexPostsService {
-	return &followIndexSrv{
-		ths:    ths,
-		pgxSrv: newPgxSrv(db),
-	}
-}
-
-func newLightIndexService(db *pgx.Conn, ths core.TweetHelpService) core.IndexPostsService {
-	return &lightIndexSrv{
-		ths:    ths,
 		pgxSrv: newPgxSrv(db),
 	}
 }

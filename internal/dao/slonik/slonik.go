@@ -49,24 +49,12 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	var (
 		v   core.VersionInfo
 		cis core.CacheIndexService
-		ips core.IndexPostsService
 	)
 	db := pgxDB()
 	pvs := security.NewPhoneVerifyService()
 	ams := NewAuthorizationManageService()
 	ths := newTweetHelpService(db)
-
-	// initialize core.IndexPostsService
-	if cfg.If("Friendship") {
-		ips = newFriendIndexService(db, ams, ths)
-	} else if cfg.If("Followship") {
-		ips = newFollowIndexService(db, ths)
-	} else if cfg.If("Lightship") {
-		ips = newLightIndexService(db, ths)
-	} else {
-		// default use lightship post index service
-		ips = newLightIndexService(db, ths)
-	}
+	ips := newShipIndexService(db, ams, ths)
 
 	// initialize core.CacheIndexService
 	cfg.On(cfg.Actions{
