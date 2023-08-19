@@ -34,19 +34,13 @@ func RouteWeb(e *gin.Engine) {
 	api.RegisterPubServant(e, newPubSrv(ds))
 	api.RegisterKeyQueryServant(e, NewShareKeyServant(ds))
 	api.RegisterRankServant(e, NewRankServant(ds))
+	api.RegisterFollowshipServant(e, newFollowshipSrv(ds))
+	api.RegisterFriendshipServant(e, newFriendshipSrv(ds))
 	// regster servants if needed by configure
-	cfg.In(cfg.Actions{
-		"Alipay": func() {
-			client := conf.MustAlipayClient()
-			api.RegisterAlipayPubServant(e, newAlipayPubSrv(ds))
-			api.RegisterAlipayPrivServant(e, newAlipayPrivSrv(ds, client))
-		},
-		"Followship": func() {
-			api.RegisterFollowshipServant(e, newFollowshipSrv(ds))
-		},
-		"Friendship": func() {
-			api.RegisterFriendshipServant(e, newFriendshipSrv(ds))
-		},
+	cfg.Be("Alipay", func() {
+		client := conf.MustAlipayClient()
+		api.RegisterAlipayPubServant(e, newAlipayPubSrv(ds))
+		api.RegisterAlipayPrivServant(e, newAlipayPrivSrv(ds, client))
 	})
 }
 

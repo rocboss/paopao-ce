@@ -16,6 +16,14 @@ declare module Item {
     is_admin: boolean;
     /** 是否好友 */
     is_friend: boolean;
+    /** 是否关注 */
+    is_following: boolean;
+    /** 加入时间 */
+    created_on: number;
+    /** 关注数 */
+    follows: number;
+    /** 粉丝数 */
+    followings: number;
     /** 用户余额（分） */
     balance?: number;
     /** 用户状态 */
@@ -254,6 +262,13 @@ declare module Item {
   }
 
   interface ContactsItemProps {
+    user_id: number;
+    name: string;
+    nickname: string;
+    avatar: string;
+  }
+
+  interface FollowItemProps {
     user_id: number;
     name: string;
     nickname: string;

@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from "vue-router";
 
 const routes = [
     {
@@ -75,6 +75,14 @@ const routes = [
         component: () => import('@/views/Contacts.vue'),
     },
     {
+        path: "/following",
+        name: "following",
+        meta: {
+          title: "关注",
+        },
+        component: () => import("@/views/Following.vue"),
+    },
+    {
         path: '/wallet',
         name: 'wallet',
         meta: {
@@ -129,8 +137,8 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHashHistory(),
-    routes,
+  history: createWebHashHistory(),
+  routes,
 });
 
 router.beforeEach((to, from, next) => {

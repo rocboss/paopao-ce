@@ -20,7 +20,7 @@
                         v-for="tag in tags"
                         :tag="tag"
                         :showAction="store.state.userLogined && tagsChecked"
-                        :checkFollowing="inFollwTab"
+                        :checkFollowing="inFollowTab"
                     >
                     </tag-item>
                 </n-space>
@@ -39,7 +39,7 @@ const tags = ref<Item.TagProps[]>([]);
 const tagType = ref<"hot" | "new" | "follow">('hot');
 const loading = ref(false);
 const tagsChecked = ref(false)
-const inFollwTab = ref(false)
+const inFollowTab = ref(false)
 
 watch(tagsChecked, () => {
     if (!tagsChecked.value) {
@@ -77,9 +77,9 @@ const loadTags = () => {
 const changeTab = (tab: "hot" | "new" | "follow") => {
     tagType.value = tab;
     if (tab == "follow") {
-        inFollwTab.value = true
+        inFollowTab.value = true
     } else {
-        inFollwTab.value = false
+        inFollowTab.value = false
     }
     loadTags();
 };

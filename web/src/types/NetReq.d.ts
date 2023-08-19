@@ -98,14 +98,13 @@ declare module NetReq {
 
   interface UserChangeStatus {}
 
+  interface FollowUserResp {}
+
+  interface UnfollowUserResp {}
+
   interface AddFriend {}
 
   interface DeleteFriend {}
-
-  interface GetContacts {
-    contacts: Item.ContactsItemProps;
-    total: number;
-  }
 
   interface RejectFriend {}
 

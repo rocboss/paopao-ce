@@ -4,7 +4,7 @@
             <div class="username">
                 <router-link class="user-link" :to="{
                     name: 'user',
-                    query: { username: props.reply.user.username },
+                    query: { s: props.reply.user.username },
                 }">
                     {{ props.reply.user.username }}
                 </router-link>
@@ -14,7 +14,7 @@
 
                 <router-link class="user-link" :to="{
                     name: 'user',
-                    query: { username: props.reply.at_user.username },
+                    query: { s: props.reply.at_user.username },
                 }" v-if="props.reply.at_user_id > 0">
                     {{ props.reply.at_user.username }}
                 </router-link>

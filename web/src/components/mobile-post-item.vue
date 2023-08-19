@@ -11,7 +11,7 @@
                             class="username-link"
                             :to="{
                                 name: 'user',
-                                query: { username: post.user.username },
+                                query: { s: post.user.username },
                             }"
                         >
                             {{ post.user.nickname }}
@@ -127,7 +127,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { h, computed } from 'vue';
+import type { Component } from 'vue'
+import { NIcon } from 'naive-ui'
 import { useStore } from 'vuex';
 import type { DropdownOption } from 'naive-ui';
 import { useRouter } from 'vue-router';
@@ -137,6 +139,7 @@ import {
     HeartOutline,
     BookmarkOutline,
     ChatboxOutline,
+    ShareSocialOutline,
 } from '@vicons/ionicons5';
 import { MoreHorizFilled } from '@vicons/material';
 import copy from "copy-to-clipboard";
@@ -147,12 +150,20 @@ const props = withDefaults(defineProps<{
     post: Item.PostProps,
 }>(), {});
 
+const renderIcon = (icon: Component) => {
+  return () => {
+    return h(NIcon, null, {
+      default: () => h(icon)
+    })
+  }
+};
 
 const tweetOptions = computed(() => {
     let options: DropdownOption[] = [
         {
             label: '复制链接',
             key: 'copyTweetLink',
+            icon: renderIcon(ShareSocialOutline),
         },
     ];
     return options;
@@ -230,7 +241,7 @@ const doClickText = (e: MouseEvent, id: number) => {
                 router.push({
                     name: 'user',
                     query: {
-                        username: d[1],
+                        s: d[1],
                     },
                 });
             }

@@ -265,6 +265,18 @@ CREATE TABLE p_user (
 CREATE UNIQUE INDEX idx_user_username ON p_user USING btree (username);
 CREATE INDEX idx_user_phone ON p_user USING btree (phone);
 
+DROP TABLE IF EXISTS p_following;
+CREATE TABLE p_following (
+	id BIGSERIAL PRIMARY KEY,
+	user_id BIGINT NOT NULL,
+	follow_id BIGINT NOT NULL,
+	is_del SMALLINT NOT NULL DEFAULT 0, -- 是否删除, 0否, 1是
+	created_on BIGINT NOT NULL DEFAULT 0,
+	modified_on BIGINT NOT NULL DEFAULT 0,
+	deleted_on BIGINT NOT NULL DEFAULT 0
+);
+CREATE INDEX idx_following_user_follow ON p_following USING btree (user_id, follow_id);
+
 DROP TABLE IF EXISTS p_contact;
 CREATE TABLE p_contact (
 	id BIGSERIAL PRIMARY KEY,
@@ -325,3 +337,38 @@ CREATE TABLE p_wallet_statement (
 	is_del SMALLINT NOT NULL DEFAULT 0
 );
 CREATE INDEX idx_wallet_statement_user_id ON p_wallet_statement USING btree (user_id);
+
+DROP VIEW IF EXISTS p_post_by_media;
+CREATE VIEW p_post_by_media AS 
+SELECT post.* 
+FROM
+	( SELECT DISTINCT post_id FROM p_post_content WHERE ( TYPE = 3 OR TYPE = 4 OR TYPE = 7 OR TYPE = 8 ) AND is_del = 0 ) media
+	JOIN p_post post ON media.post_id = post.ID 
+WHERE
+	post.is_del = 0;
+
+DROP VIEW IF EXISTS p_post_by_comment;
+CREATE VIEW p_post_by_comment AS 
+SELECT P.*, C.user_id comment_user_id
+FROM
+	(
+	SELECT
+		post_id,
+		user_id
+	FROM
+		p_comment 
+	WHERE
+		is_del = 0 UNION
+	SELECT
+		post_id,
+		reply.user_id user_id
+	FROM
+		p_comment_reply reply
+		JOIN p_comment COMMENT ON reply.comment_id = COMMENT.ID 
+	WHERE
+		reply.is_del = 0 
+		AND COMMENT.is_del = 0 
+	)
+	C JOIN p_post P ON C.post_id = P.ID 
+WHERE
+	P.is_del = 0;

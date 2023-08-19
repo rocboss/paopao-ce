@@ -69,6 +69,58 @@ export const addFriend = (
   });
 };
 
+// 关注 用户
+export const followUser = (
+  data: NetParams.FollowUserReq
+): Promise<NetReq.FollowUserResp> => {
+  return request({
+    method: "post",
+    url: "/v1/user/follow",
+    data,
+  });
+};
+
+// 取消关注 用户
+export const unfollowUser = (
+  data: NetParams.UnfollowUserReq
+): Promise<NetReq.UnfollowUserResp> => {
+  return request({
+    method: "post",
+    url: "/v1/user/unfollow",
+    data,
+  });
+};
+
+/**
+ * 获取关注列表
+ * @param {Object} params
+ * @returns Promise
+ */
+export const getUserFollows = (
+  params: NetParams.GetUserFollows
+): Promise<NetReq.GetContacts> => {
+  return request({
+    method: "get",
+    url: "/v1/user/follows",
+    params,
+  });
+};
+
+/**
+ * 获取粉丝列表
+ * @param {Object} params
+ * @returns Promise
+ */
+export const getUserFollowings = (
+  params: NetParams.GetUserFollowings
+): Promise<NetReq.GetContacts> => {
+  return request({
+    method: "get",
+    url: "/v1/user/followings",
+    params,
+  });
+};
+
 /**
  * 拒绝朋友申请
  * @param {Object} data

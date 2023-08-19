@@ -23,6 +23,8 @@ WORKDIR /paopao-ce
 COPY . .
 COPY --from=frontend /web/dist ./web/dist
 ENV GOPROXY=https://goproxy.cn
+RUN [ $EMBED_UI != yes ] || make build TAGS='go_json'
+RUN [ $EMBED_UI = yes ] || make build TAGS='slim embed go_json'
 RUN [ $EMBED_UI != no ] || make build TAGS='embed go_json'
 RUN [ $EMBED_UI = no ] || make build TAGS='go_json'
 
@@ -34,10 +36,11 @@ ARG USE_DIST=no
 ENV TZ=Asia/Shanghai
 
 WORKDIR /app/paopao-ce
-COPY --from=backend /paopao-ce/release/paopao-ce .
+COPY --from=backend /paopao-ce/release/paopao .
 COPY --from=backend /paopao-ce/config.yaml.sample config.yaml
 
 VOLUME ["/app/paopao-ce/custom"]
 EXPOSE 8008
-HEALTHCHECK --interval=5s --timeout=3s  --retries=3  CMD ps -ef | grep paopao-ce || exit 1
-ENTRYPOINT ["/app/paopao-ce/paopao-ce"]
+HEALTHCHECK --interval=5s --timeout=3s  --retries=3  CMD ps -ef | grep paopao || exit 1
+ENTRYPOINT ["/app/paopao-ce/paopao"]
+CMD ["serve"]

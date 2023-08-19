@@ -30,6 +30,7 @@ type DataService interface {
 	// 用户服务
 	UserManageService
 	ContactManageService
+	FollowingManageService
 
 	// 安全服务
 	SecurityService

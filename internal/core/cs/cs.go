@@ -4,4 +4,5 @@
 
 // Package cs contain core data service interface type
 // model define
+
 package cs

@@ -11,7 +11,7 @@
                             class="username-link"
                             :to="{
                                 name: 'user',
-                                query: { username: post.user.username },
+                                query: { s: post.user.username },
                             }"
                         >
                             {{ post.user.nickname }}
@@ -186,7 +186,7 @@ const doClickText = (e: MouseEvent, id: number) => {
                 router.push({
                     name: 'user',
                     query: {
-                        username: d[1],
+                        s: d[1],
                     },
                 });
             }
