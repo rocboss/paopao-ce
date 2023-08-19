@@ -35,7 +35,7 @@ const (
 	_TopicA_TagsForIncr         = `SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?)`
 	_TopicA_TopicInfos          = `SELECT topic_id, is_top FROM @topic_user WHERE is_del=0 AND user_id=? AND topic_id IN (?)`
 	_TopicA_TopicIsTop          = `SELECT is_top FROM @topic_user WHERE user_id=? AND topic_id=? AND is_del=0`
-	_TopicA_UnfollowTopic       = `UPDATE @topic_user SET is_del=1, deleted_on=? WHERE user_id=? AND topic_id=? AND is_del=0`
+	_TopicA_UnfollowTopic       = `DELETE FROM @topic_user WHERE user_id=? AND topic_id=? AND is_del=0`
 	_TweetA_AttachmentByTweetId = `SELECT * FROM @user WHERE username=?`
 	_TweetA_FavoriteByTweetId   = `SELECT * FROM @user WHERE username=?`
 	_TweetA_ReactionByTweetId   = `SELECT * FROM @user WHERE username=?`

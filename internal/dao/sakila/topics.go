@@ -139,14 +139,14 @@ func (s *topicSrvA) GetFollowTags(userId int64, limit int, offset int) (res cs.T
 
 func (s *topicSrvA) FollowTopic(userId int64, topicId int64) (err error) {
 	exist := false
-	if err = s.q.ExistTopicUser.Get(&exist, userId, topicId); err == nil {
+	if err = s.q.ExistTopicUser.Get(&exist, userId, topicId); err != nil {
 		_, err = s.q.FollowTopic.Exec(userId, topicId, time.Now().Unix())
 	}
 	return
 }
 
 func (s *topicSrvA) UnfollowTopic(userId int64, topicId int64) error {
-	_, err := s.q.UnfollowTopic.Exec(userId, topicId, time.Now().Unix())
+	_, err := s.q.UnfollowTopic.Exec(userId, topicId)
 	return err
 }
 
