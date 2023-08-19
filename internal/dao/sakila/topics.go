@@ -11,7 +11,7 @@ import (
 	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
-	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/ac"
 )
 
 var (
@@ -26,7 +26,7 @@ type topicInfo struct {
 
 type topicSrvA struct {
 	*sqlxSrv
-	q *cc.TopicA
+	q *ac.TopicA
 }
 
 func (s *topicSrvA) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, xerr error) {
@@ -190,13 +190,13 @@ func (s *topicSrvA) tagsFormatA(userId int64, tags cs.TagList) (cs.TagList, erro
 func newTopicService(db *sqlx.DB) core.TopicService {
 	return &topicSrvA{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildTopicA),
+		q:       acBuild(db, ac.BuildTopicA),
 	}
 }
 
 func newTopicServantA(db *sqlx.DB) core.TopicServantA {
 	return &topicSrvA{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildTopicA),
+		q:       acBuild(db, ac.BuildTopicA),
 	}
 }

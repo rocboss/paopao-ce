@@ -11,7 +11,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
-	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -182,6 +182,6 @@ func (s *contactManageSrv) fetchOrNewContact(tx *sqlx.Tx, userId int64, friendId
 func newContactManageService(db *sqlx.DB) core.ContactManageService {
 	return &contactManageSrv{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildContactManager),
+		q:       ccBuild(db, cc.BuildContactManager),
 	}
 }

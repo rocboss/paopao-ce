@@ -10,7 +10,7 @@ import (
 	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
-	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 )
 
 var (
@@ -97,6 +97,6 @@ func (s *followingManageSrv) IsFollow(userId int64, followId int64) (yn bool) {
 func newFollowingManageService(db *sqlx.DB) core.FollowingManageService {
 	return &followingManageSrv{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildFollowingManager),
+		q:       ccBuild(db, cc.BuildFollowingManager),
 	}
 }

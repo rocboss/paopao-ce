@@ -9,7 +9,8 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
-	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/ac"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/sirupsen/logrus"
 )
@@ -39,13 +40,13 @@ type shipIndexSrvA struct {
 	*sqlxSrv
 	ams core.AuthorizationManageService
 	ths core.TweetHelpServantA
-	q   *cc.ShipIndexA
+	q   *ac.ShipIndexA
 }
 
 type simpleIndexPostsSrvA struct {
 	*sqlxSrv
 	ths core.TweetHelpServantA
-	q   *cc.SimpleIndexA
+	q   *ac.SimpleIndexA
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
@@ -115,7 +116,7 @@ func newShipIndexService(db *sqlx.DB, ams core.AuthorizationManageService, ths c
 		ams:     ams,
 		ths:     ths,
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildShipIndex),
+		q:       ccBuild(db, cc.BuildShipIndex),
 	}
 }
 
@@ -123,7 +124,7 @@ func newSimpleIndexPostsService(db *sqlx.DB, ths core.TweetHelpService) core.Ind
 	return &simpleIndexPostsSrv{
 		ths:     ths,
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildSimpleIndex),
+		q:       ccBuild(db, cc.BuildSimpleIndex),
 	}
 }
 
@@ -133,7 +134,7 @@ func newShipIndexServantA(db *sqlx.DB, ams core.AuthorizationManageService, ths 
 		ams:     ams,
 		ths:     ths,
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuildFn(db, cc.BuildShipIndexA),
+		q:       acBuildFn(db, ac.BuildShipIndexA),
 	}
 }
 
@@ -142,6 +143,6 @@ func newSimpleIndexPostsServantA(db *sqlx.DB, ths core.TweetHelpServantA) core.I
 	return &simpleIndexPostsSrvA{
 		ths:     ths,
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuildFn(db, cc.BuildSimpleIndexA),
+		q:       acBuildFn(db, ac.BuildSimpleIndexA),
 	}
 }

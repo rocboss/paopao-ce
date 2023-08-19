@@ -13,7 +13,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
-	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 )
 
 var (
@@ -63,7 +63,7 @@ func (s *securitySrv) SendPhoneCaptcha(phone string) error {
 func newSecurityService(db *sqlx.DB, phoneVerify core.PhoneVerifyService) core.SecurityService {
 	return &securitySrv{
 		sqlxSrv:     newSqlxSrv(db),
-		q:           mustBuild(db, cc.BuildSecurity),
+		q:           ccBuild(db, cc.BuildSecurity),
 		rand:        rand.New(rand.NewSource(time.Now().UnixNano())),
 		phoneVerify: phoneVerify,
 	}

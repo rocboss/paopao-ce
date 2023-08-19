@@ -13,7 +13,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
-	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 	"github.com/rocboss/paopao-ce/pkg/types"
 )
 
@@ -374,13 +374,13 @@ func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, rep
 func newCommentService(db *sqlx.DB) core.CommentService {
 	return &commentSrv{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildComment),
+		q:       ccBuild(db, cc.BuildComment),
 	}
 }
 
 func newCommentManageService(db *sqlx.DB) core.CommentManageService {
 	return &commentManageSrv{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildCommentManage),
+		q:       ccBuild(db, cc.BuildCommentManage),
 	}
 }

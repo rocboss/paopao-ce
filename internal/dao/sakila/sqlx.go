@@ -11,7 +11,9 @@ import (
 	"github.com/alimy/yesql"
 	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
+	yc "github.com/rocboss/paopao-ce/internal/dao/sakila/auto"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/ac"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,13 +24,13 @@ var (
 
 type sqlxSrv struct {
 	db *sqlx.DB
-	y  *cc.Yesql
+	y  *yc.Yesql
 }
 
 func newSqlxSrv(db *sqlx.DB) *sqlxSrv {
 	return &sqlxSrv{
 		db: db,
-		y:  mustBuild(db, cc.BuildYesql),
+		y:  mustBuild(db, yc.BuildYesql),
 	}
 }
 
@@ -92,7 +94,7 @@ func yesqlScan[T any](query yesql.SQLQuery, obj T) T {
 	return obj
 }
 
-func mustBuild[T any](db *sqlx.DB, fn func(cc.PreparexBuilder, ...context.Context) (T, error)) T {
+func mustBuild[T any](db *sqlx.DB, fn func(yc.PreparexBuilder, ...context.Context) (T, error)) T {
 	p := yesql.NewPreparexBuilder(db, t)
 	obj, err := fn(p)
 	if err != nil {
@@ -101,7 +103,43 @@ func mustBuild[T any](db *sqlx.DB, fn func(cc.PreparexBuilder, ...context.Contex
 	return obj
 }
 
-func mustBuildFn[T any](db *sqlx.DB, fn func(cc.PreparexBuilder) (T, error)) T {
+func mustBuildFn[T any](db *sqlx.DB, fn func(yc.PreparexBuilder) (T, error)) T {
+	p := yesql.NewPreparexBuilder(db, t)
+	obj, err := fn(p)
+	if err != nil {
+		logrus.Fatalf("build object failure: %s", err)
+	}
+	return obj
+}
+
+func acBuild[T any](db *sqlx.DB, fn func(ac.PreparexBuilder, ...context.Context) (T, error)) T {
+	p := yesql.NewPreparexBuilder(db, t)
+	obj, err := fn(p)
+	if err != nil {
+		logrus.Fatalf("build object failure: %s", err)
+	}
+	return obj
+}
+
+func acBuildFn[T any](db *sqlx.DB, fn func(ac.PreparexBuilder) (T, error)) T {
+	p := yesql.NewPreparexBuilder(db, t)
+	obj, err := fn(p)
+	if err != nil {
+		logrus.Fatalf("build object failure: %s", err)
+	}
+	return obj
+}
+
+func ccBuild[T any](db *sqlx.DB, fn func(cc.PreparexBuilder, ...context.Context) (T, error)) T {
+	p := yesql.NewPreparexBuilder(db, t)
+	obj, err := fn(p)
+	if err != nil {
+		logrus.Fatalf("build object failure: %s", err)
+	}
+	return obj
+}
+
+func ccBuildFn[T any](db *sqlx.DB, fn func(cc.PreparexBuilder) (T, error)) T {
 	p := yesql.NewPreparexBuilder(db, t)
 	obj, err := fn(p)
 	if err != nil {

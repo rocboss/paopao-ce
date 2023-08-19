@@ -11,7 +11,7 @@ import (
 	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
-	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 )
 
 var (
@@ -73,6 +73,6 @@ func (s *userManageSrv) UpdateUser(r *ms.User) error {
 func newUserManageService(db *sqlx.DB) core.UserManageService {
 	return &userManageSrv{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildUserManage),
+		q:       ccBuild(db, cc.BuildUserManage),
 	}
 }

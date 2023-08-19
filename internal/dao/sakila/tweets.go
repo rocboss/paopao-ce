@@ -13,18 +13,13 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
-	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
-	"github.com/rocboss/paopao-ce/pkg/debug"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 )
 
 var (
 	_ core.TweetService       = (*tweetSrv)(nil)
 	_ core.TweetManageService = (*tweetManageSrv)(nil)
 	_ core.TweetHelpService   = (*tweetHelpSrv)(nil)
-
-	_ core.TweetServantA       = (*tweetSrvA)(nil)
-	_ core.TweetManageServantA = (*tweetManageSrvA)(nil)
-	_ core.TweetHelpServantA   = (*tweetHelpSrvA)(nil)
 )
 
 type tweetSrv struct {
@@ -41,22 +36,6 @@ type tweetManageSrv struct {
 type tweetHelpSrv struct {
 	*sqlxSrv
 	q *cc.TweetHelp
-}
-
-type tweetSrvA struct {
-	*sqlxSrv
-	q *cc.TweetA
-}
-
-type tweetManageSrvA struct {
-	*sqlxSrv
-	cis core.CacheIndexService
-	q   *cc.TweetManageA
-}
-
-type tweetHelpSrvA struct {
-	*sqlxSrv
-	q *cc.TweetHelpA
 }
 
 // MergePosts post数据整合
@@ -480,110 +459,10 @@ func (s *tweetSrv) GetPostContentByID(id int64) (res *ms.PostContent, err error)
 	return
 }
 
-func (s *tweetSrvA) TweetInfoById(id int64) (*cs.TweetInfo, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetSrvA) TweetItemById(id int64) (*cs.TweetItem, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetSrvA) UserTweets(visitorId, userId int64) (res cs.TweetList, err error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetSrvA) ReactionByTweetId(userId int64, tweetId int64) (*cs.ReactionItem, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetSrvA) UserReactions(userId int64, limit int, offset int) (cs.ReactionList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetSrvA) FavoriteByTweetId(userId int64, tweetId int64) (*cs.FavoriteItem, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetSrvA) UserFavorites(userId int64, limit int, offset int) (cs.FavoriteList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetSrvA) AttachmentByTweetId(userId int64, tweetId int64) (*cs.AttachmentBill, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetManageSrvA) CreateAttachment(obj *cs.Attachment) (int64, error) {
-	// TODO
-	return 0, debug.ErrNotImplemented
-}
-
-func (s *tweetManageSrvA) CreateTweet(userId int64, req *cs.NewTweetReq) (*cs.TweetItem, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetManageSrvA) DeleteTweet(userId int64, tweetId int64) ([]string, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetManageSrvA) LockTweet(userId int64, tweetId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetManageSrvA) StickTweet(userId int64, tweetId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetManageSrvA) VisibleTweet(userId int64, visibility cs.TweetVisibleType) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetManageSrvA) CreateReaction(userId int64, tweetId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetManageSrvA) DeleteReaction(userId int64, reactionId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetManageSrvA) CreateFavorite(userId int64, tweetId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetManageSrvA) DeleteFavorite(userId int64, favoriteId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
-}
-
-func (s *tweetHelpSrvA) RevampTweets(tweets cs.TweetList) (cs.TweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetHelpSrvA) MergeTweets(tweets cs.TweetInfo) (cs.TweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
 func newTweetService(db *sqlx.DB) core.TweetService {
 	return &tweetSrv{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildTweet),
+		q:       ccBuild(db, cc.BuildTweet),
 	}
 }
 
@@ -591,35 +470,13 @@ func newTweetManageService(db *sqlx.DB, cacheIndex core.CacheIndexService) core.
 	return &tweetManageSrv{
 		sqlxSrv: newSqlxSrv(db),
 		cis:     cacheIndex,
-		q:       mustBuild(db, cc.BuildTweetManage),
+		q:       ccBuild(db, cc.BuildTweetManage),
 	}
 }
 
 func newTweetHelpService(db *sqlx.DB) core.TweetHelpService {
 	return &tweetHelpSrv{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuildFn(db, cc.BuildTweetHelp),
-	}
-}
-
-func newTweetServantA(db *sqlx.DB) core.TweetServantA {
-	return &tweetSrvA{
-		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuildFn(db, cc.BuildTweetA),
-	}
-}
-
-func newTweetManageServantA(db *sqlx.DB, cacheIndex core.CacheIndexService) core.TweetManageServantA {
-	return &tweetManageSrvA{
-		sqlxSrv: newSqlxSrv(db),
-		cis:     cacheIndex,
-		q:       mustBuildFn(db, cc.BuildTweetManageA),
-	}
-}
-
-func newTweetHelpServantA(db *sqlx.DB) core.TweetHelpServantA {
-	return &tweetHelpSrvA{
-		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuildFn(db, cc.BuildTweetHelpA),
+		q:       ccBuildFn(db, cc.BuildTweetHelp),
 	}
 }
