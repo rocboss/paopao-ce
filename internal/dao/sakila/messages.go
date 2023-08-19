@@ -11,7 +11,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
-	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 )
 
 var (
@@ -75,6 +75,6 @@ func (s *messageSrv) GetMessageCount(r *ms.ConditionsT) (res int64, err error) {
 func newMessageService(db *sqlx.DB) core.MessageService {
 	return &messageSrv{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildMessage),
+		q:       ccBuild(db, cc.BuildMessage),
 	}
 }

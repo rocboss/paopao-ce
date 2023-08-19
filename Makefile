@@ -84,7 +84,7 @@ gen-mir:
 .PHONY: gen-yesql
 gen-yesql:
 	@go generate internal/dao/sakila/yesql/gen.go
-	@go fmt ./internal/dao/sakila/yesql/...
+	@go fmt ./internal/dao/sakila/auto/...
 
 .PHONY: gen-rpc
 gen-rpc:

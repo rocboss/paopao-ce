@@ -12,7 +12,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
-	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 )
 
 var (
@@ -126,6 +126,6 @@ func (s *walletSrv) HandlePostAttachmentBought(post *ms.Post, user *ms.User) err
 func newWalletService(db *sqlx.DB) core.WalletService {
 	return &walletSrv{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildWallet),
+		q:       ccBuild(db, cc.BuildWallet),
 	}
 }

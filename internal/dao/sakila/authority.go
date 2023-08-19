@@ -9,7 +9,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
-	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/sirupsen/logrus"
 )
@@ -74,6 +74,6 @@ func (s *authorizationManageSrv) isFriend(userId int64, friendId int64) bool {
 func newAuthorizationManageService(db *sqlx.DB) core.AuthorizationManageService {
 	return &authorizationManageSrv{
 		sqlxSrv: newSqlxSrv(db),
-		q:       mustBuild(db, cc.BuildAuthorizationManage),
+		q:       ccBuild(db, cc.BuildAuthorizationManage),
 	}
 }
