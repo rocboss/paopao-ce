@@ -94,14 +94,27 @@
         <div
           class="ranking-item"
           v-for="(highQuality, index) in rankingList"
-          :key="highQuality.id"
+          :key="highQuality.name"
         >
         <div class="ranking-number">{{ index + 1 }}</div> <!-- 添加排序编号 -->
           <div class="ranking-avatar">
             <!-- 用户头像 -->
             <img :src="highQuality.avatar" alt="User Avatar" />
           </div>
-          <div class="user-name">{{ highQuality.name }}</div>
+          <div class="user-name">
+            <router-link
+              class="hash-link"
+              :to="{
+                name: 'user',
+                query: {
+                  s: highQuality.name
+                }
+              }"
+            >
+              {{ formatUserName(highQuality.name) }}
+            </router-link>
+          </div>
+          
           <div class="ranking-info">
             <div class="name-stats">
               <div class="downloads">
@@ -210,6 +223,9 @@ const showFollowTopics = computed({
     // do nothing
   },
 });
+const formatUserName = (name: string) => {
+  return name.length > 5 ? name.substring(0, 5) + '...' : name;
+};
 watch(
   () => ({
     refreshTopicFollow: store.state.refreshTopicFollow,
@@ -310,6 +326,9 @@ onMounted(() => {
       //用户名
       font-weight: bold;
       font-size: 15px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .ranking-info {

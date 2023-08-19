@@ -30,12 +30,13 @@ type (
 
 // UserInfo 用户基本信息
 type UserInfo struct {
-	ID       int64  `json:"id"`
-	Nickname string `json:"nickname"`
-	Username string `json:"username"`
-	Status   int    `json:"status"`
-	Avatar   string `json:"avatar"`
-	IsAdmin  bool   `json:"is_admin"`
+	ID        int64  `json:"id"`
+	Nickname  string `json:"nickname"`
+	Username  string `json:"username"`
+	Status    int    `json:"status"`
+	Avatar    string `json:"avatar"`
+	IsAdmin   bool   `json:"is_admin"`
+	CreatedOn int64  `json:"created_on"`
 }
 
 func (t RelationTyp) String() string {

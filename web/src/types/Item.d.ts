@@ -136,6 +136,8 @@ declare module Item {
     nickname: string;
     avatar: string;
     phone?: string;
+    is_following: boolean;
+    created_on: number;
   }
 
   /** 帖子内容 */
