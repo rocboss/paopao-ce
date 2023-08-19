@@ -5,7 +5,7 @@
 package sakila
 
 import (
-	"github.com/jmoiron/sqlx"
+	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"

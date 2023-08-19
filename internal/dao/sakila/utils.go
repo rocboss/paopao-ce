@@ -7,7 +7,7 @@ package sakila
 import (
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 )
 

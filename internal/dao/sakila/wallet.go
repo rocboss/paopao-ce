@@ -7,7 +7,7 @@ package sakila
 import (
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -60,7 +60,7 @@ func (s *walletSrv) GetUserWalletBillCount(userID int64) (res int64, err error) 
 }
 
 func (s *walletSrv) HandleRechargeSuccess(r *ms.WalletRecharge, tradeNo string) error {
-	return s.with(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
 		var oldBalance int64
 		// 获取当前金额
 		err := tx.Stmtx(s.q.GetUserBalance).Get(&oldBalance, r.UserID)
@@ -86,7 +86,7 @@ func (s *walletSrv) HandleRechargeSuccess(r *ms.WalletRecharge, tradeNo string) 
 }
 
 func (s *walletSrv) HandlePostAttachmentBought(post *ms.Post, user *ms.User) error {
-	return s.with(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
 		now := time.Now().Unix()
 		// 扣除金额
 		_, err := tx.Stmtx(s.q.MinusUserBalance).Exec(post.AttachmentPrice, now, user.ID)

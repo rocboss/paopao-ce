@@ -52,13 +52,8 @@
     * [ ] 提按文档
     * [x] 接口定义
     * [x] 业务逻辑实现  
-* `Sqlx` + `MySQL`/`Sqlite3`/`PostgreSQL`   
-使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM(目前状态：WIP)  
-    * [ ] 提按文档
-    * [ ] 接口定义
-    * [ ] 业务逻辑实现  
-* `Sqlc` + `PostgreSQL`   
-使用[sqlc](https://github.com/kyleconroy/sqlc)自动生成ORM代码(目前状态：WIP)  
+* `Sqlx` + `MySQL`/`PostgreSQL`
+使用[sqlx](https://github.com/bitbus/sqlx)作为数据库的ORM(目前状态：WIP)；
     * [ ] 提按文档
     * [ ] 接口定义
     * [ ] 业务逻辑实现  

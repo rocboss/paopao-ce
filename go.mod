@@ -7,9 +7,10 @@ require (
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/cfg v0.4.0
 	github.com/alimy/mir/v4 v4.0.0
-	github.com/alimy/yesql v1.5.0
+	github.com/alimy/yesql v1.8.0
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.8+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
+	github.com/bitbus/sqlx v1.6.0
 	github.com/bufbuild/connect-go v1.10.0
 	github.com/bytedance/sonic v1.10.0
 	github.com/cockroachdb/errors v1.10.0
@@ -25,7 +26,6 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.23.4+incompatible
 	github.com/jackc/pgx/v5 v5.4.2
-	github.com/jmoiron/sqlx v1.3.5
 	github.com/json-iterator/go v1.1.12
 	github.com/meilisearch/meilisearch-go v0.25.0
 	github.com/minio/minio-go/v7 v7.0.61
@@ -165,5 +165,3 @@ require (
 	modernc.org/strutil v1.1.3 // indirect
 	modernc.org/token v1.0.1 // indirect
 )
-
-replace github.com/jmoiron/sqlx => github.com/bitbus/sqlx v1.4.0

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -56,7 +56,7 @@ func (s *commentSrv) GetCommentCount(r *ms.ConditionsT) (res int64, err error) {
 }
 
 func (s *commentSrv) GetCommentContentsByIDs(ids []int64) (res []*ms.CommentContent, err error) {
-	err = s.inSelect(&res, s.q.GetCommentContentsByIds, ids)
+	err = s.db.InSelect(&res, s.q.GetCommentContentsByIds, ids)
 	return res, err
 }
 
@@ -82,7 +82,7 @@ func (s *commentSrv) GetCommentThumbsMap(userId int64, tweetId int64) (cs.Commen
 
 func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*ms.CommentReplyFormated, error) {
 	replies := []*ms.CommentReply{}
-	err := s.inSelect(&replies, s.q.GetCommmentRepliesByIds, ids)
+	err := s.db.InSelect(&replies, s.q.GetCommmentRepliesByIds, ids)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*ms.CommentReplyForma
 		userIds = append(userIds, reply.UserID, reply.AtUserID)
 	}
 	users := []*ms.UserFormated{}
-	if err = s.inSelect(&users, s.q.GetUsersByIds, userIds); err != nil {
+	if err = s.db.InSelect(&users, s.q.GetUsersByIds, userIds); err != nil {
 		return nil, err
 	}
 	repliesFormated := []*ms.CommentReplyFormated{}
@@ -113,7 +113,7 @@ func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*ms.CommentReplyForma
 // DeleteComment delete comment
 // TODO: need delete related replies and update tweet comment count and comment content?
 func (s *commentManageSrv) DeleteComment(r *ms.Comment) error {
-	return s.with(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
 		now := time.Now().Unix()
 		if _, err := tx.Stmtx(s.q.DeleteComment).Exec(now, r.ID); err != nil {
 			return err
@@ -153,7 +153,7 @@ func (s *commentManageSrv) CreateCommentReply(r *ms.CommentReply) (*ms.CommentRe
 }
 
 func (s *commentManageSrv) DeleteCommentReply(r *ms.CommentReply) error {
-	return s.with(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
 		now := time.Now().Unix()
 		if _, err := tx.Stmtx(s.q.DeleteCommentReply).Exec(now, r.ID); err != nil {
 			return err
@@ -177,7 +177,7 @@ func (s *commentManageSrv) CreateCommentContent(r *ms.CommentContent) (*ms.Comme
 }
 
 func (s *commentManageSrv) ThumbsUpComment(userId int64, tweetId, commentId int64) error {
-	return s.with(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
 		var (
 			thumbsUpCount   int32 = 0
 			thumbsDownCount int32 = 0
@@ -225,7 +225,7 @@ func (s *commentManageSrv) ThumbsUpComment(userId int64, tweetId, commentId int6
 }
 
 func (s *commentManageSrv) ThumbsDownComment(userId int64, tweetId, commentId int64) error {
-	return s.with(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
 		var (
 			thumbsUpCount   int32 = 0
 			thumbsDownCount int32 = 0
@@ -274,7 +274,7 @@ func (s *commentManageSrv) ThumbsDownComment(userId int64, tweetId, commentId in
 }
 
 func (s *commentManageSrv) ThumbsUpReply(userId int64, tweetId, commentId, replyId int64) error {
-	return s.with(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
 		var (
 			thumbsUpCount   int32 = 0
 			thumbsDownCount int32 = 0
@@ -323,7 +323,7 @@ func (s *commentManageSrv) ThumbsUpReply(userId int64, tweetId, commentId, reply
 }
 
 func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, replyId int64) error {
-	return s.with(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
 		var (
 			thumbsUpCount   int32 = 0
 			thumbsDownCount int32 = 0

@@ -8,17 +8,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
-	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
 var (
 	_ core.TopicService  = (*topicSrvA)(nil)
 	_ core.TopicServantA = (*topicSrvA)(nil)
 )
+
+type topicInfo struct {
+	TopicId int64
+	IsTop   int8
+}
 
 type topicSrvA struct {
 	*sqlxSrv
@@ -29,9 +33,9 @@ func (s *topicSrvA) UpsertTags(userId int64, tags []string) (res cs.TagInfoList,
 	if len(tags) == 0 {
 		return nil, nil
 	}
-	xerr = s.with(func(tx *sqlx.Tx) error {
+	xerr = s.db.Withx(func(tx *sqlx.Tx) error {
 		var upTags cs.TagInfoList
-		if err := s.inSelectx(tx, &upTags, s.q.TagsForIncr, tags); err != nil {
+		if err := tx.InSelect(&upTags, s.q.TagsForIncr, tags); err != nil {
 			return err
 		}
 		now := time.Now().Unix()
@@ -51,7 +55,7 @@ func (s *topicSrvA) UpsertTags(userId int64, tags []string) (res cs.TagInfoList,
 					}
 				}
 			}
-			if _, err := s.inExecx(tx, s.q.IncrTagsById, now, ids); err != nil {
+			if _, err := tx.InExec(s.q.IncrTagsById, now, ids); err != nil {
 				return err
 			}
 			res = append(res, upTags...)
@@ -73,7 +77,7 @@ func (s *topicSrvA) UpsertTags(userId int64, tags []string) (res cs.TagInfoList,
 			ids = append(ids, id)
 		}
 		var newTags cs.TagInfoList
-		if err := s.inSelectx(tx, &newTags, s.q.TagsByIdB, ids); err != nil {
+		if err := tx.InSelect(&newTags, s.q.TagsByIdB, ids); err != nil {
 			return err
 		}
 		res = append(res, newTags...)
@@ -83,13 +87,13 @@ func (s *topicSrvA) UpsertTags(userId int64, tags []string) (res cs.TagInfoList,
 }
 
 func (s *topicSrvA) DecrTagsById(ids []int64) error {
-	return s.with(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
 		var ids []int64
-		err := s.inSelectx(tx, &ids, s.q.TagsByIdA, ids)
+		err := tx.InSelect(&ids, s.q.TagsByIdA, ids)
 		if err != nil {
 			return err
 		}
-		_, err = s.inExecx(tx, s.q.DecrTagsById, time.Now().Unix(), ids)
+		_, err = tx.InExec(s.q.DecrTagsById, time.Now().Unix(), ids)
 		return err
 	})
 }
@@ -114,34 +118,73 @@ func (s *topicSrvA) TagsByKeyword(keyword string) (res cs.TagInfoList, err error
 	return
 }
 
-func (s *topicSrvA) GetHotTags(userId int64, limit int, offset int) (cs.TagList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
+func (s *topicSrvA) GetHotTags(userId int64, limit int, offset int) (res cs.TagList, err error) {
+	if err = s.q.HotTags.Select(&res, limit, offset); err != nil {
+		return
+	}
+	return s.tagsFormatA(userId, res)
 }
 
-func (s *topicSrvA) GetNewestTags(userId int64, limit int, offset int) (cs.TagList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
+func (s *topicSrvA) GetNewestTags(userId int64, limit int, offset int) (res cs.TagList, err error) {
+	err = s.q.NewestTags.Select(&res, limit, offset)
+	return
 }
 
-func (s *topicSrvA) GetFollowTags(userId int64, limit int, offset int) (cs.TagList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
+func (s *topicSrvA) GetFollowTags(userId int64, limit int, offset int) (res cs.TagList, err error) {
+	if err = s.q.FollowTags.Select(&res, userId, limit, offset); err != nil {
+		return
+	}
+	return s.tagsFormatA(userId, res)
 }
 
-func (s *topicSrvA) FollowTopic(userId int64, topicId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
+func (s *topicSrvA) FollowTopic(userId int64, topicId int64) (err error) {
+	exist := false
+	if err = s.q.ExistTopicUser.Get(&exist, userId, topicId); err == nil {
+		_, err = s.q.FollowTopic.Exec(userId, topicId, time.Now().Unix())
+	}
+	return
 }
 
 func (s *topicSrvA) UnfollowTopic(userId int64, topicId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
+	_, err := s.q.UnfollowTopic.Exec(userId, topicId, time.Now().Unix())
+	return err
 }
 
-func (s *topicSrvA) StickTopic(userId int64, topicId int64) (int8, error) {
-	// TODO
-	return 0, debug.ErrNotImplemented
+func (s *topicSrvA) StickTopic(userId int64, topicId int64) (res int8, err error) {
+	s.db.Withx(func(tx *sqlx.Tx) error {
+		_, err = tx.Stmtx(s.q.StickTopic).Exec(time.Now().Unix(), userId, topicId)
+		if err == nil {
+			err = tx.Stmtx(s.q.TopicIsTop).Get(&res, userId, topicId)
+		}
+		return err
+	})
+	return
+}
+
+func (s *topicSrvA) tagsFormatA(userId int64, tags cs.TagList) (cs.TagList, error) {
+	// 获取创建者User IDs
+	tagIds := []int64{}
+	for _, tag := range tags {
+		tagIds = append(tagIds, tag.ID)
+	}
+	// 填充话题follow信息
+	if userId > -1 {
+		userTopics := []*topicInfo{}
+		err := s.db.InSelect(&userTopics, s.q.TopicInfos, userId, tagIds)
+		if err != nil {
+			return nil, err
+		}
+		userTopicsMap := make(map[int64]*topicInfo, len(userTopics))
+		for _, info := range userTopics {
+			userTopicsMap[info.TopicId] = info
+		}
+		for _, tag := range tags {
+			if info, exist := userTopicsMap[tag.ID]; exist {
+				tag.IsFollowing, tag.IsTop = 1, info.IsTop
+			}
+		}
+	}
+	return tags, nil
 }
 
 func newTopicService(db *sqlx.DB) core.TopicService {

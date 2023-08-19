@@ -7,11 +7,9 @@ package sakila
 import (
 	"bytes"
 	"context"
-	"database/sql"
-	_ "embed"
 
 	"github.com/alimy/yesql"
-	"github.com/jmoiron/sqlx"
+	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
 	"github.com/sirupsen/logrus"
@@ -25,94 +23,6 @@ var (
 type sqlxSrv struct {
 	db *sqlx.DB
 	y  *cc.Yesql
-}
-
-func (s *sqlxSrv) with(handle func(tx *sqlx.Tx) error) error {
-	tx, err := s.db.Beginx()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	if err = handle(tx); err != nil {
-		return err
-	}
-	return tx.Commit()
-}
-
-//lint:ignore U1000 withTx
-func (s *sqlxSrv) withTx(ctx context.Context, opts *sql.TxOptions, handle func(*sqlx.Tx) error) error {
-	tx, err := s.db.BeginTxx(ctx, opts)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	if err = handle(tx); err != nil {
-		return err
-	}
-	return tx.Commit()
-}
-
-//lint:ignore U1000 in
-func (s *sqlxSrv) in(query string, args ...any) (string, []any, error) {
-	q, params, err := sqlx.In(query, args...)
-	if err != nil {
-		return "", nil, err
-	}
-	return s.db.Rebind(q), params, nil
-}
-
-//lint:ignore U1000 inExec
-func (s *sqlxSrv) inExec(query string, args ...any) (sql.Result, error) {
-	q, params, err := sqlx.In(query, args...)
-	if err != nil {
-		return nil, err
-	}
-	return s.db.Exec(s.db.Rebind(q), params...)
-}
-
-func (s *sqlxSrv) inSelect(dest any, query string, args ...any) error {
-	q, params, err := sqlx.In(query, args...)
-	if err != nil {
-		return err
-	}
-	return sqlx.Select(s.db, dest, s.db.Rebind(q), params...)
-}
-
-func (s *sqlxSrv) inGet(dest any, query string, args ...any) error {
-	q, params, err := sqlx.In(query, args...)
-	if err != nil {
-		return err
-	}
-	return sqlx.Get(s.db, dest, s.db.Rebind(q), params...)
-}
-
-// inExecx execute for in clause with Transcation
-func (s *sqlxSrv) inExecx(execer sqlx.Execer, query string, args ...any) (sql.Result, error) {
-	q, params, err := sqlx.In(query, args...)
-	if err != nil {
-		return nil, err
-	}
-	return execer.Exec(s.db.Rebind(q), params...)
-}
-
-// inSelectx select for in clause with Transcation
-func (s *sqlxSrv) inSelectx(queryer sqlx.Queryer, dest any, query string, args ...any) error {
-	q, params, err := sqlx.In(query, args...)
-	if err != nil {
-		return err
-	}
-	return sqlx.Select(queryer, dest, s.db.Rebind(q), params...)
-}
-
-// inGetx get for in clause with Transcation
-//
-//lint:ignore U1000 inGetx
-func (s *sqlxSrv) inGetx(queryer sqlx.Queryer, dest any, query string, args ...any) error {
-	q, params, err := sqlx.In(query, args...)
-	if err != nil {
-		return err
-	}
-	return sqlx.Get(queryer, dest, s.db.Rebind(q), params...)
 }
 
 func newSqlxSrv(db *sqlx.DB) *sqlxSrv {
@@ -182,7 +92,7 @@ func yesqlScan[T any](query yesql.SQLQuery, obj T) T {
 	return obj
 }
 
-func mustBuild[T any](db *sqlx.DB, fn func(yesql.PreparexBuilder, ...context.Context) (T, error)) T {
+func mustBuild[T any](db *sqlx.DB, fn func(cc.PreparexBuilder, ...context.Context) (T, error)) T {
 	p := yesql.NewPreparexBuilder(db, t)
 	obj, err := fn(p)
 	if err != nil {
@@ -191,7 +101,7 @@ func mustBuild[T any](db *sqlx.DB, fn func(yesql.PreparexBuilder, ...context.Con
 	return obj
 }
 
-func mustBuildFn[T any](db *sqlx.DB, fn func(yesql.PreparexBuilder) (T, error)) T {
+func mustBuildFn[T any](db *sqlx.DB, fn func(cc.PreparexBuilder) (T, error)) T {
 	p := yesql.NewPreparexBuilder(db, t)
 	obj, err := fn(p)
 	if err != nil {

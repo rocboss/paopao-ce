@@ -5,7 +5,7 @@
 package sakila
 
 import (
-	"github.com/jmoiron/sqlx"
+	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -64,9 +64,9 @@ func (s *shipIndexSrv) IndexPosts(user *ms.User, offset int, limit int) (res *ms
 	default:
 		friendIds, _ := s.ams.BeFriendIds(user.ID)
 		friendIds = append(friendIds, user.ID)
-		err = s.inSelect(&posts, s.q.IndexBySelf, user.ID, friendIds, limit, offset)
+		err = s.db.InSelect(&posts, s.q.IndexBySelf, user.ID, friendIds, limit, offset)
 		if err == nil {
-			err = s.inGet(&res.Total, s.q.IndexCountBySelf, user.ID, friendIds)
+			err = s.db.InGet(&res.Total, s.q.IndexCountBySelf, user.ID, friendIds)
 		}
 	}
 	if err != nil {
