@@ -14,6 +14,7 @@ import (
 	yc "github.com/rocboss/paopao-ce/internal/dao/sakila/auto"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/ac"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pg"
 	"github.com/sirupsen/logrus"
 )
 
@@ -103,6 +104,7 @@ func mustBuild[T any](db *sqlx.DB, fn func(yc.PreparexBuilder, ...context.Contex
 	return obj
 }
 
+//lint:ignore U1000 mustBuildFn
 func mustBuildFn[T any](db *sqlx.DB, fn func(yc.PreparexBuilder) (T, error)) T {
 	p := yesql.NewPreparexBuilder(db, t)
 	obj, err := fn(p)
@@ -140,6 +142,26 @@ func ccBuild[T any](db *sqlx.DB, fn func(cc.PreparexBuilder, ...context.Context)
 }
 
 func ccBuildFn[T any](db *sqlx.DB, fn func(cc.PreparexBuilder) (T, error)) T {
+	p := yesql.NewPreparexBuilder(db, t)
+	obj, err := fn(p)
+	if err != nil {
+		logrus.Fatalf("build object failure: %s", err)
+	}
+	return obj
+}
+
+//lint:ignore U1000 pgBuild
+func pgBuild[T any](db *sqlx.DB, fn func(pg.PreparexBuilder, ...context.Context) (T, error)) T {
+	p := yesql.NewPreparexBuilder(db, t)
+	obj, err := fn(p)
+	if err != nil {
+		logrus.Fatalf("build object failure: %s", err)
+	}
+	return obj
+}
+
+//lint:ignore U1000 pgBuildFn
+func pgBuildFn[T any](db *sqlx.DB, fn func(pg.PreparexBuilder) (T, error)) T {
 	p := yesql.NewPreparexBuilder(db, t)
 	obj, err := fn(p)
 	if err != nil {
