@@ -19,14 +19,6 @@ var (
 	_ core.ContactManageService = (*contactManageSrv)(nil)
 )
 
-type contact struct {
-	UserId       int64 `db:"user_id" json:"user_id"`
-	FriendId     int64 `db:"friend_id" json:"friend_id"`
-	Status       int8  `json:"status"` // 1请求好友, 2已同意好友, 3已拒绝好友, 4已删除好友
-	IsBlack      int8  `json:"is_black"`
-	NoticeEnable int8  `json:"notice_enable"`
-}
-
 type contactManageSrv struct {
 	*sqlxSrv
 	q *cc.ContactManager

@@ -77,15 +77,22 @@ const (
 	_SimpleIndex_Index                         = `SELECT * FROM @p_post WHERE visibility=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
 	_SimpleIndex_IndexCount                    = `SELECT count(*) FROM @p_post WHERE visibility=0`
 	_TopicA_DecrTagsById                       = `UPDATE @tag SET quote_num=quote_num-1, modified_on=? WHERE id IN (?)`
-	_TopicA_HotTags                            = `SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.quote_num DESC LIMIT ? OFFSET ?`
+	_TopicA_ExistTopicUser                     = `SELECT 1 FROM @topic_user WHERE user_id=? AND topic_id=? AND is_del=0`
+	_TopicA_FollowTags                         = `SELECT t.id id, 	t.user_id user_id, 	t.tag tag, 	t.quote_num quote_num, 	u.id "u.id", 	1 as is_following, 	c.is_top, 	u.nickname "u.nickname", 	u.username "u.username", 	u.status "u.status", 	u.avatar "u.avatar", 	u.is_admin "u.is_admin" FROM @topic_user c JOIN @user u ON c.user_id = u.id JOIN @tag t ON c.topic_id = t.id WHERE c.is_del = 0 AND t.quote_num > 0 AND AND c.user_id=? ORDER BY t.quote_num DESC LIMIT ? OFFSET ?`
+	_TopicA_FollowTopic                        = `INSERT INTO @topic_user(user_id, topic_id, created_on) VALUES (?, ?, ?)`
+	_TopicA_HotTags                            = `SELECT t.id id, 	t.user_id user_id, 	t.tag tag, 	t.quote_num quote_num, 	u.id "u.id", 	u.nickname "u.nickname", 	u.username "u.username", 	u.status "u.status", 	u.avatar "u.avatar", 	u.is_admin "u.is_admin" FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.quote_num DESC LIMIT ? OFFSET ?`
 	_TopicA_IncrTagsById                       = `UPDATE @tag SET quote_num=quote_num+1, is_del=0, modified_on=? WHERE id IN (?)`
 	_TopicA_InsertTag                          = `INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1)`
-	_TopicA_NewestTags                         = `SELECT t.id id, t.user_id user_id, t.tag tag, t.quote_num quote_num, u.id, u.nickname, u.username, u.status, u.avatar, u.is_admin FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.id DESC LIMIT ? OFFSET ?`
+	_TopicA_NewestTags                         = `SELECT t.id id, 	t.user_id user_id, 	t.tag tag, 	t.quote_num quote_num, 	u.id "u.id", 	u.nickname "u.nickname", 	u.username "u.username", 	u.status "u.status", 	u.avatar "u.avatar", 	u.is_admin "u.is_admin" FROM @tag t JOIN @user u ON t.user_id = u.id WHERE t.is_del = 0 AND t.quote_num > 0 ORDER BY t.id DESC LIMIT ? OFFSET ?`
+	_TopicA_StickTopic                         = `UPDATE @topic_user SET is_top=1-is_top; modified_on=? WHERE user_id=? AND topic_id=? AND is_del=0`
 	_TopicA_TagsByIdA                          = `SELECT id FROM @tag WHERE id IN (?) AND is_del = 0 AND quote_num > 0`
 	_TopicA_TagsByIdB                          = `SELECT id, user_id, tag, quote_num FROM @tag WHERE id IN (?)`
 	_TopicA_TagsByKeywordA                     = `SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 ORDER BY quote_num DESC LIMIT 6`
 	_TopicA_TagsByKeywordB                     = `SELECT id, user_id, tag, quote_num FROM @tag WHERE is_del = 0 AND tag LIKE ? ORDER BY quote_num DESC LIMIT 6`
 	_TopicA_TagsForIncr                        = `SELECT id, user_id, tag, quote_num FROM @tag WHERE tag IN (?)`
+	_TopicA_TopicInfos                         = `SELECT topic_id, is_top FROM @topic_user WHERE is_del=0 AND user_id=? AND topic_id IN ?`
+	_TopicA_TopicIsTop                         = `SELECT is_top FROM @topic_user WHERE user_id=? AND topic_id=? AND is_del=0`
+	_TopicA_UnfollowTopic                      = `UPDATE @topic_user SET is_del=1, deleted_on=? WHERE user_id=? AND topic_id=? AND is_del=0`
 	_TweetA_AttachmentByTweetId                = `SELECT * FROM @user WHERE username=?`
 	_TweetA_FavoriteByTweetId                  = `SELECT * FROM @user WHERE username=?`
 	_TweetA_ReactionByTweetId                  = `SELECT * FROM @user WHERE username=?`
@@ -316,11 +323,18 @@ type TopicA struct {
 	TagsByIdA       string     `yesql:"tags_by_id_a"`
 	TagsByIdB       string     `yesql:"tags_by_id_b"`
 	TagsForIncr     string     `yesql:"tags_for_incr"`
+	TopicInfos      string     `yesql:"topic_infos"`
+	ExistTopicUser  *sqlx.Stmt `yesql:"exist_topic_user"`
+	FollowTags      *sqlx.Stmt `yesql:"follow_tags"`
+	FollowTopic     *sqlx.Stmt `yesql:"follow_topic"`
 	HotTags         *sqlx.Stmt `yesql:"hot_tags"`
 	InsertTag       *sqlx.Stmt `yesql:"insert_tag"`
 	NewestTags      *sqlx.Stmt `yesql:"newest_tags"`
+	StickTopic      *sqlx.Stmt `yesql:"stick_topic"`
 	TagsByKeywordA  *sqlx.Stmt `yesql:"tags_by_keyword_a"`
 	TagsByKeywordB  *sqlx.Stmt `yesql:"tags_by_keyword_b"`
+	TopicIsTop      *sqlx.Stmt `yesql:"topic_is_top"`
+	UnfollowTopic   *sqlx.Stmt `yesql:"unfollow_topic"`
 }
 
 type Tweet struct {
@@ -757,6 +771,16 @@ func BuildTopicA(p PreparexBuilder, ctx ...context.Context) (obj *TopicA, err er
 		TagsByIdA:    p.QueryHook(_TopicA_TagsByIdA),
 		TagsByIdB:    p.QueryHook(_TopicA_TagsByIdB),
 		TagsForIncr:  p.QueryHook(_TopicA_TagsForIncr),
+		TopicInfos:   p.QueryHook(_TopicA_TopicInfos),
+	}
+	if obj.ExistTopicUser, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_ExistTopicUser))); err != nil {
+		return
+	}
+	if obj.FollowTags, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_FollowTags))); err != nil {
+		return
+	}
+	if obj.FollowTopic, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_FollowTopic))); err != nil {
+		return
 	}
 	if obj.HotTags, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_HotTags))); err != nil {
 		return
@@ -767,10 +791,19 @@ func BuildTopicA(p PreparexBuilder, ctx ...context.Context) (obj *TopicA, err er
 	if obj.NewestTags, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_NewestTags))); err != nil {
 		return
 	}
+	if obj.StickTopic, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_StickTopic))); err != nil {
+		return
+	}
 	if obj.TagsByKeywordA, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_TagsByKeywordA))); err != nil {
 		return
 	}
 	if obj.TagsByKeywordB, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_TagsByKeywordB))); err != nil {
+		return
+	}
+	if obj.TopicIsTop, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_TopicIsTop))); err != nil {
+		return
+	}
+	if obj.UnfollowTopic, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_UnfollowTopic))); err != nil {
 		return
 	}
 	return
