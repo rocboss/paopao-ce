@@ -21,7 +21,7 @@ func main() {
 		query.Query = strings.TrimRight(query.Query, ";")
 		return query, nil
 	})
-	if err := yesql.Generate("yesql.sql", "cc", "cc"); err != nil {
+	if err := yesql.Generate("yesql.sql", "cc", "cc", yesql.SqlxPkgName("github.com/bitbus/sqlx")); err != nil {
 		log.Fatalf("generate code occurs error: %s", err)
 	}
 	log.Println("[Yesql] generate code finish")

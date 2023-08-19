@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -127,12 +127,12 @@ func (s *tweetHelpSrv) RevampPosts(posts []*ms.PostFormated) ([]*ms.PostFormated
 }
 
 func (s *tweetHelpSrv) getPostContentsByIDs(ids []int64) (res []*dbr.PostContentFormated, err error) {
-	err = s.inSelect(&res, s.q.GetPostContentByIds, ids)
+	err = s.db.InSelect(&res, s.q.GetPostContentByIds, ids)
 	return
 }
 
 func (s *tweetHelpSrv) getUsersByIDs(ids []int64) (res []*dbr.UserFormated, err error) {
-	err = s.inSelect(&res, s.q.GetUsersByIds, ids)
+	err = s.db.InSelect(&res, s.q.GetUsersByIds, ids)
 	return
 }
 
@@ -199,7 +199,7 @@ func (s *tweetManageSrv) CreatePost(r *ms.Post) (*ms.Post, error) {
 }
 
 func (s *tweetManageSrv) DeletePost(post *ms.Post) (mediaContents []string, err error) {
-	s.with(func(tx *sqlx.Tx) error {
+	s.db.Withx(func(tx *sqlx.Tx) error {
 		// 获取多媒体内容
 		if err = tx.Stmtx(s.q.MediaContentByPostId).Get(&mediaContents, post.ID); err != nil {
 			return err
@@ -233,7 +233,7 @@ func (s *tweetManageSrv) deleteCommentByPostId(tx *sqlx.Tx, postId int64) (media
 		return nil, err
 	}
 	// 获取评论的媒体内容
-	err = s.inSelectx(tx, &mediaContents, s.q.CommentMediaFromCommentIds, commentIds)
+	err = tx.InSelect(&mediaContents, s.q.CommentMediaFromCommentIds, commentIds)
 	if err != nil {
 		return nil, err
 	}
@@ -243,11 +243,11 @@ func (s *tweetManageSrv) deleteCommentByPostId(tx *sqlx.Tx, postId int64) (media
 		return nil, err
 	}
 	// 删评论内容
-	if _, err = s.inExecx(tx, s.q.DelCommentContentByCommentIds, now, commentIds); err != nil {
+	if _, err = tx.InExec(s.q.DelCommentContentByCommentIds, now, commentIds); err != nil {
 		return nil, err
 	}
 	// 删评论的评论
-	if _, err = s.inExecx(tx, s.q.DelReplyByCommentIds, now, commentIds); err != nil {
+	if _, err = tx.InExec(s.q.DelReplyByCommentIds, now, commentIds); err != nil {
 		return nil, err
 	}
 	return
@@ -264,7 +264,7 @@ func (s *tweetManageSrv) StickPost(r *ms.Post) error {
 }
 
 func (s *tweetManageSrv) HighlightPost(userId, postId int64) (is_essence int, err error) {
-	err = s.with(func(tx *sqlx.Tx) error {
+	err = s.db.Withx(func(tx *sqlx.Tx) error {
 		var postUserId int64
 		err = tx.Stmtx(s.q.PostHighlightStatus).QueryRowx(postId).Scan(&postUserId, &is_essence)
 		if err != nil {
@@ -295,7 +295,7 @@ func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT
 		// TODO: 置顶推文用户是否有权设置成私密？ 后续完善
 		post.IsTop = 0
 	}
-	s.with(func(tx *sqlx.Tx) error {
+	s.db.Withx(func(tx *sqlx.Tx) error {
 		_, err = s.q.VisiblePost.Exec(visibility, post.IsTop, time.Now().Unix(), post.ID)
 		// tag处理
 		tags := strings.Split(post.Tags, ",")
@@ -356,9 +356,9 @@ func (s *tweetSrv) GetPosts(c ms.ConditionsT, offset, limit int) (res []*ms.Post
 	userId, exist := c["user_id"]
 	visibility := c["visibility IN ?"]
 	if exist {
-		err = s.inSelect(&res, s.q.GetUserPosts, userId, visibility, limit, offset)
+		err = s.db.InSelect(&res, s.q.GetUserPosts, userId, visibility, limit, offset)
 	} else {
-		err = s.inSelect(&res, s.q.GetAnyPosts, visibility, limit, offset)
+		err = s.db.InSelect(&res, s.q.GetAnyPosts, visibility, limit, offset)
 	}
 	return
 }
@@ -367,9 +367,9 @@ func (s *tweetSrv) GetPostCount(c ms.ConditionsT) (res int64, err error) {
 	userId, exist := c["user_id"]
 	visibility := c["visibility IN ?"]
 	if exist {
-		err = s.inGet(&res, s.q.GetUserPostCount, userId, visibility)
+		err = s.db.InGet(&res, s.q.GetUserPostCount, userId, visibility)
 	} else {
-		err = s.inGet(&res, s.q.GetAnyPostCount, visibility)
+		err = s.db.InGet(&res, s.q.GetAnyPostCount, visibility)
 	}
 	return
 }
@@ -471,7 +471,7 @@ func (s *tweetSrv) GetPostAttatchmentBill(postID, userID int64) (res *ms.PostAtt
 }
 
 func (s *tweetSrv) GetPostContentsByIDs(ids []int64) (res []*ms.PostContent, err error) {
-	err = s.inSelect(&res, s.q.GetPostContentsByIds, ids)
+	err = s.db.InSelect(&res, s.q.GetPostContentsByIds, ids)
 	return
 }
 

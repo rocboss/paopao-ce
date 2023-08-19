@@ -7,7 +7,7 @@ package sakila
 import (
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -33,7 +33,7 @@ type contactManageSrv struct {
 }
 
 func (s *contactManageSrv) RequestingFriend(userId int64, friendId int64, greetings string) error {
-	return s.with(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
 		contact, err := s.fetchOrNewContact(tx, userId, friendId, cs.ContactStatusRequesting)
 		if err != nil {
 			return err
@@ -70,7 +70,7 @@ func (s *contactManageSrv) RequestingFriend(userId int64, friendId int64, greeti
 }
 
 func (s *contactManageSrv) AddFriend(userId int64, friendId int64) error {
-	return s.with(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
 		contact := &cs.Contact{}
 		err := tx.Stmtx(s.q.GetUserFriend).Get(contact, userId, friendId)
 		if err != nil {
@@ -106,7 +106,7 @@ func (s *contactManageSrv) AddFriend(userId int64, friendId int64) error {
 }
 
 func (s *contactManageSrv) RejectFriend(userId int64, friendId int64) error {
-	return s.with(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
 		contact := &cs.Contact{}
 		err := tx.Stmtx(s.q.GetUserFriend).Get(contact, userId, friendId)
 		if err != nil {
@@ -130,7 +130,7 @@ func (s *contactManageSrv) RejectFriend(userId int64, friendId int64) error {
 }
 
 func (s *contactManageSrv) DeleteFriend(userId int64, friendId int64) error {
-	return s.with(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
 		var contacts []cs.Contact
 		err := tx.Stmtx(s.q.GetContacts).Select(&contacts, userId, friendId, friendId, userId)
 		if err != nil {

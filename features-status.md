@@ -53,7 +53,7 @@
     * [x] 接口定义
     * [x] 业务逻辑实现  
 * `Sqlx` + `MySQL`/`PostgreSQL`
-使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM(目前状态：WIP)；
+使用[sqlx](https://github.com/bitbus/sqlx)作为数据库的ORM(目前状态：WIP)；
     * [ ] 提按文档
     * [ ] 接口定义
     * [ ] 业务逻辑实现  

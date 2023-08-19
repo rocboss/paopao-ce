@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/yesql/cc"
@@ -39,7 +39,7 @@ func (s *userManageSrv) GetUserByPhone(phone string) (res *ms.User, err error) {
 }
 
 func (s *userManageSrv) GetUsersByIDs(ids []int64) (res []*ms.User, err error) {
-	err = s.inSelect(&res, s.q.GetUsersByIds, ids)
+	err = s.db.InSelect(&res, s.q.GetUsersByIds, ids)
 	return
 }
 

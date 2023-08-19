@@ -7,7 +7,7 @@ package conf
 import (
 	"sync"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/pkg/naming"
 	"github.com/sirupsen/logrus"
 )
