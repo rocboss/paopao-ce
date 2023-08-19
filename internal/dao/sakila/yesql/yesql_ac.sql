@@ -168,8 +168,7 @@ INSERT INTO @topic_user(user_id, topic_id, created_on) VALUES (?, ?, ?)
 
 -- name: unfollow_topic@topic_a
 -- prepare: stmt
-UPDATE @topic_user 
-SET is_del=1, deleted_on=?
+DELETE FROM @topic_user 
 WHERE user_id=? AND topic_id=? AND is_del=0;
 
 -- name: stick_topic@topic_a
