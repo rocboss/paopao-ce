@@ -26,12 +26,19 @@ func (s *pgTweetManageSrv) CreatePost(r *ms.Post) (*ms.Post, error) {
 	now := time.Now().Unix()
 	r.Model = &dbr.Model{CreatedOn: now}
 	r.LatestRepliedOn = now
-	var postId int64
-	err := s.p.AddPost.Get(&postId, r)
+	err := s.p.AddPost.Get(&r.ID, r)
 	if err != nil {
 		return nil, err
 	}
-	r.ID = postId
 	s.cis.SendAction(core.IdxActCreatePost, r)
+	return r, nil
+}
+
+func (s *pgTweetManageSrv) CreatePostContent(r *ms.PostContent) (*ms.PostContent, error) {
+	r.Model = &ms.Model{CreatedOn: time.Now().Unix()}
+	err := s.p.AddPostContent.Get(&r.ID, r)
+	if err != nil {
+		return nil, err
+	}
 	return r, nil
 }

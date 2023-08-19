@@ -9,3 +9,8 @@ INSERT INTO @post (user_id, tags, ip, ip_loc, attachment_price, visibility, late
 VALUES (:user_id, :tags, :ip, :ip_loc, :attachment_price, :visibility, :latest_replied_on, :created_on)
 RETURNING id;
 
+-- name: add_post_content@tweet_manage
+-- prepare: named_stmt
+INSERT INTO @post_content (post_id, user_id, content, type, sort, created_on)
+VALUES (:post_id, :user_id, :content, :type, :sort, :created_on)
+RETURNING id;

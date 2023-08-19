@@ -17,7 +17,8 @@ var (
 )
 
 const (
-	_TweetManage_AddPost = `INSERT INTO @post (user_id, tags, ip, ip_loc, attachment_price, visibility, latest_replied_on, created_on) VALUES (:user_id, :tags, :ip, :ip_loc, :attachment_price, :visibility, :latest_replied_on, :created_on)`
+	_TweetManage_AddPost        = `INSERT INTO @post (user_id, tags, ip, ip_loc, attachment_price, visibility, latest_replied_on, created_on) VALUES (:user_id, :tags, :ip, :ip_loc, :attachment_price, :visibility, :latest_replied_on, :created_on) RETURNING id`
+	_TweetManage_AddPostContent = `INSERT INTO @post_content (post_id, user_id, content, type, sort, created_on) VALUES (:post_id, :user_id, :content, :type, :sort, :created_on) RETURNING id`
 )
 
 // PreparexContext enhances the Conn interface with context.
@@ -43,6 +44,7 @@ type PreparexBuilder interface {
 type TweetManage struct {
 	yesql.Namespace `yesql:"tweet_manage"`
 	AddPost         *sqlx.NamedStmt `yesql:"add_post"`
+	AddPostContent  *sqlx.NamedStmt `yesql:"add_post_content"`
 }
 
 func BuildTweetManage(p PreparexBuilder, ctx ...context.Context) (obj *TweetManage, err error) {
@@ -55,6 +57,9 @@ func BuildTweetManage(p PreparexBuilder, ctx ...context.Context) (obj *TweetMana
 	obj = &TweetManage{}
 	if obj.AddPost, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_TweetManage_AddPost))); err != nil {
 		return nil, fmt.Errorf("prepare _TweetManage_AddPost error: %w", err)
+	}
+	if obj.AddPostContent, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_TweetManage_AddPostContent))); err != nil {
+		return nil, fmt.Errorf("prepare _TweetManage_AddPostContent error: %w", err)
 	}
 	return
 }
