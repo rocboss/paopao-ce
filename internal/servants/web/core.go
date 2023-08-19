@@ -62,6 +62,7 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 	}
 	follows, followings, err := s.Ds.GetFollowCount(user.ID)
 	if err != nil {
+		logrus.Errorf("get follow count error: %s", err)
 		return nil, web.ErrGetFollowCountFailed
 	}
 	resp := &web.UserInfoResp{
@@ -85,6 +86,7 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 func (s *coreSrv) GetUnreadMsgCount(req *web.GetUnreadMsgCountReq) (*web.GetUnreadMsgCountResp, mir.Error) {
 	count, err := s.Ds.GetUnreadCount(req.Uid)
 	if err != nil {
+		logrus.Errorf("get unread msg count error: %s", err)
 		return nil, xerror.ServerError
 	}
 	return &web.GetUnreadMsgCountResp{

@@ -12,6 +12,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -39,7 +40,7 @@ func (s *messageSrv) CreateMessage(r *ms.Message) (*ms.Message, error) {
 }
 
 func (s *messageSrv) GetUnreadCount(userID int64) (res int64, err error) {
-	err = s.q.GetUnreadCount.Get(&res)
+	err = s.q.GetUnreadCount.Get(&res, userID)
 	return
 }
 
@@ -56,7 +57,7 @@ func (s *messageSrv) ReadMessage(r *ms.Message) (err error) {
 func (s *messageSrv) GetMessages(r *ms.ConditionsT, offset, limit int) ([]*ms.MessageFormated, error) {
 	var messages []*ms.Message
 	(*r)["limit"], (*r)["offset"] = limit, offset
-	if err := s.q.GetMessages.Select(&messages, r); err != nil {
+	if err := s.q.GetMessages.Select(&messages, *r); err != nil {
 		return nil, err
 	}
 	mfs := make([]*dbr.MessageFormated, 0, len(messages))
@@ -68,7 +69,9 @@ func (s *messageSrv) GetMessages(r *ms.ConditionsT, offset, limit int) ([]*ms.Me
 }
 
 func (s *messageSrv) GetMessageCount(r *ms.ConditionsT) (res int64, err error) {
-	err = s.q.GetMessageCount.Get(&res, r)
+	if err = s.q.GetMessageCount.Get(&res, *r); err != nil {
+		logrus.Errorf("get message count error: %s", err)
+	}
 	return
 }
 

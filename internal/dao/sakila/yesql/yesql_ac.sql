@@ -147,7 +147,7 @@ SELECT t.id id,
 FROM @topic_user c
 JOIN @user u ON c.user_id = u.id 
 JOIN @tag t ON c.topic_id = t.id
-WHERE c.is_del = 0 AND t.quote_num > 0 AND AND c.user_id=?
+WHERE c.is_del = 0 AND t.quote_num > 0 AND c.user_id=?
 ORDER BY t.quote_num DESC
 LIMIT ? OFFSET ?;
 
@@ -156,7 +156,7 @@ LIMIT ? OFFSET ?;
 -- clause: in
 SELECT topic_id, is_top 
 FROM @topic_user 
-WHERE is_del=0 AND user_id=? AND topic_id IN ?;
+WHERE is_del=0 AND user_id=? AND topic_id IN (?);
 
 -- name: exist_topic_user@topic_a
 -- prepare: stmt
@@ -175,7 +175,7 @@ WHERE user_id=? AND topic_id=? AND is_del=0;
 -- name: stick_topic@topic_a
 -- prepare: stmt
 UPDATE @topic_user
-SET is_top=1-is_top; modified_on=?
+SET is_top=1-is_top, modified_on=?
 WHERE user_id=? AND topic_id=? AND is_del=0;
 
 -- name: topic_is_top@topic_a

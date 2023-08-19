@@ -40,6 +40,9 @@ type tweetHelpSrv struct {
 
 // MergePosts post数据整合
 func (s *tweetHelpSrv) MergePosts(posts []*ms.Post) ([]*ms.PostFormated, error) {
+	if len(posts) == 0 {
+		return nil, nil
+	}
 	postIds := make([]int64, 0, len(posts))
 	userIds := make([]int64, 0, len(posts))
 	for _, post := range posts {
@@ -75,6 +78,9 @@ func (s *tweetHelpSrv) MergePosts(posts []*ms.Post) ([]*ms.PostFormated, error) 
 
 // RevampPosts post数据整形修复
 func (s *tweetHelpSrv) RevampPosts(posts []*ms.PostFormated) ([]*ms.PostFormated, error) {
+	if len(posts) == 0 {
+		return nil, nil
+	}
 	postIds := make([]int64, 0, len(posts))
 	userIds := make([]int64, 0, len(posts))
 	for _, post := range posts {
@@ -327,6 +333,7 @@ func (s *tweetManageSrv) DeletePostStar(r *ms.PostStar) error {
 }
 
 func (s *tweetSrv) GetPostByID(id int64) (res *ms.Post, err error) {
+	res = &ms.Post{}
 	err = s.q.GetPostById.Get(res, id)
 	return
 }
@@ -354,12 +361,13 @@ func (s *tweetSrv) GetPostCount(c ms.ConditionsT) (res int64, err error) {
 }
 
 func (s *tweetSrv) GetUserPostStar(postID, userID int64) (res *ms.PostStar, err error) {
+	res = &ms.PostStar{}
 	err = s.q.GetUserPostStar.Get(res, postID, userID, userID)
 	return
 }
 
 func (s *tweetSrv) GetUserPostStars(userID int64, limit int, offset int) (res []*ms.PostStar, err error) {
-	err = s.q.GetUserPostStar.Select(&res, userID, userID, limit, offset)
+	err = s.q.GetUserPostStars.Select(&res, userID, userID, limit, offset)
 	return
 }
 
@@ -372,7 +380,7 @@ func (s *tweetSrv) ListUserStarTweets(user *cs.VistUser, limit int, offset int) 
 	case cs.RelationSelf:
 		// Fixed: 这里的查询有Bug，没有考虑查询Friend star 时如果对方已经不是你好友时，应该去除这个star
 		if err = s.q.UserStarTweetsBySelf.Select(&res, user.UserId, user.UserId, limit, offset); err == nil {
-			err = s.q.UserStarTweetsCountByAdmin.Get(&total, user.UserId, user.UserId)
+			err = s.q.UserStarTweetsCountBySelf.Get(&total, user.UserId, user.UserId)
 		}
 	case cs.RelationFriend:
 		if err = s.q.UserStarTweetsByFriend.Select(&res, user.UserId, limit, offset); err == nil {
@@ -430,6 +438,7 @@ func (s *tweetSrv) GetUserPostStarCount(userID int64) (res int64, err error) {
 }
 
 func (s *tweetSrv) GetUserPostCollection(postID, userID int64) (res *ms.PostCollection, err error) {
+	res = &ms.PostCollection{}
 	err = s.q.GetUserPostCollection.Get(res, postID, userID, userID)
 	return
 }
@@ -445,6 +454,7 @@ func (s *tweetSrv) GetUserPostCollectionCount(userID int64) (res int64, err erro
 }
 
 func (s *tweetSrv) GetPostAttatchmentBill(postID, userID int64) (res *ms.PostAttachmentBill, err error) {
+	res = &ms.PostAttachmentBill{}
 	err = s.q.GetPostAttachmentBill.Get(res, postID, userID)
 	return
 }
@@ -455,6 +465,7 @@ func (s *tweetSrv) GetPostContentsByIDs(ids []int64) (res []*ms.PostContent, err
 }
 
 func (s *tweetSrv) GetPostContentByID(id int64) (res *ms.PostContent, err error) {
+	res = &ms.PostContent{}
 	err = s.q.GetPostContentById.Get(res, id)
 	return
 }

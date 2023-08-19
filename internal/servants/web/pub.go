@@ -45,14 +45,17 @@ type pubSrv struct {
 func (s *pubSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir.Error) {
 	post, err := s.Ds.GetPostByID(req.TweetId)
 	if err != nil {
+		logrus.Errorf("get tweet detail error[1]: %s", err)
 		return nil, web.ErrGetPostFailed
 	}
 	postContents, err := s.Ds.GetPostContentsByIDs([]int64{post.ID})
 	if err != nil {
+		logrus.Errorf("get tweet detail error[2]: %s", err)
 		return nil, web.ErrGetPostFailed
 	}
 	users, err := s.Ds.GetUsersByIDs([]int64{post.UserID})
 	if err != nil {
+		logrus.Errorf("get tweet detail error[3]: %s", err)
 		return nil, web.ErrGetPostFailed
 	}
 	// 数据整合

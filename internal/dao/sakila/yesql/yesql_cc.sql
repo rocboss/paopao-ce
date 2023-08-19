@@ -23,9 +23,13 @@ SELECT status FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0;
 -- comment sql dml
 --------------------------------------------------------------------------------
 
--- name: get_comments@comment
--- prepare: raw
-SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY %order% LIMIT ? OFFSET ?; 
+-- name: get_newest_comments@comment
+-- prepare: stmt
+SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?; 
+
+-- name: get_default_comments@comment
+-- prepare: stmt
+SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY id ASC LIMIT ? OFFSET ?; 
 
 -- name: get_comment_by_id@comment
 -- prepare: stmt
@@ -56,7 +60,14 @@ SELECT id, nickname, username, status, avatar, is_admin FROM @user WHERE id IN (
 
 -- name: get_comment_thumbs@comment
 -- prepare: stmt
-SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=?;
+SELECT user_id, 
+	tweet_id, 
+	comment_id, 
+	reply_id, 
+	comment_type, 
+	is_thumbs_up, 
+	is_thumbs_down 
+FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=?;
 
 --------------------------------------------------------------------------------
 -- comment_manage sql dml
@@ -152,7 +163,7 @@ WHERE user_id=? AND follow_id=? AND is_del=0;
 
 -- name: list_follows@following_manager
 -- prepare: stmt
-SELECT u.user_id user_id, 
+SELECT u.id user_id, 
 	u.username username,
 	u.nickname nickname,
 	u.avatar avatar,
@@ -168,7 +179,7 @@ SELECT count(*) FROM @following WHERE user_id=? AND is_del=0;
 
 -- name: list_followings@following_manager
 -- prepare: stmt
-SELECT u.user_id user_id, 
+SELECT u.id user_id, 
 	u.username username,
 	u.nickname nickname,
 	u.avatar avatar,
@@ -220,7 +231,7 @@ UPDATE @contact SET status=4, is_del=1, deleted_on=? WHERE id=?;
 SELECT c.friend_id user_id, u.username username, u.nickname nickname, u.avatar avatar, u.phone phone 
 FROM @contact c JOIN @user u 
 ON c.friend_id=u.id 
-WHERE user_id=? AND status=2 AND is_del=0 
+WHERE c.user_id=? AND c.status=2 AND c.is_del=0 
 ORDER BY u.nickname ASC 
 LIMIT ? OFFSET ?;
 
@@ -277,13 +288,13 @@ UPDATE @message SET is_read=1, modified_on=? WHERE id=?;
 -- prepare: named_stmt
 SELECT * 
 FROM @message 
-WHERE receiver_user_id=:recerver_user_id AND is_del=0 
+WHERE receiver_user_id=:receiver_user_id AND is_del=0 
 ORDER BY id DESC
 LIMIT :limit OFFSET :offset
 
 -- name: get_message_count@message
 -- prepare: named_stmt
-SELECT count(*) FROM @message WHERE receiver_user_id=:recerver_user_id AND is_del=0;
+SELECT count(*) FROM @message WHERE receiver_user_id=:receiver_user_id AND is_del=0;
 
 --------------------------------------------------------------------------------
 -- security sql dml
@@ -309,7 +320,7 @@ VALUES (:phone, :captcha, :expired_on, :created_on);
 -- name: index_by_admin@ship_index
 -- prepare: stmt
 SELECT * 
-FROM @p_post 
+FROM @post 
 WHERE is_del=0 
 ORDER BY is_top DESC, latest_replied_on DESC
 LIMIT ? OFFSET ?;
@@ -317,13 +328,13 @@ LIMIT ? OFFSET ?;
 -- name: index_count_by_admin@ship_index
 -- prepare: stmt
 SELECT count(*)
-FROM @p_post
+FROM @post
 WHERE is_del=0;
 
 -- name: index_by_guest@ship_index
 -- prepare: stmt
 SELECT * 
-FROM @p_post 
+FROM @post 
 WHERE visibility=0 AND is_del=0 
 ORDER BY is_top DESC, latest_replied_on DESC
 LIMIT ? OFFSET ?;
@@ -331,14 +342,14 @@ LIMIT ? OFFSET ?;
 -- name: index_count_by_guest@ship_index
 -- prepare: stmt
 SELECT count(*)
-FROM @p_post
+FROM @post
 WHERE visibility=0 AND is_del=0;
 
 -- name: index_by_self@ship_index
 -- prepare: raw
 -- clause: in
 SELECT *
-FROM @p_post
+FROM @post
 WHERE is_del=0 AND 
 	(visibility=0 OR
 	(visibility=1 AND user_id=?) OR
@@ -350,7 +361,7 @@ LIMIT ? OFFSET ?;
 -- prepare: raw
 -- clause: in
 SELECT count(*)
-FROM @p_post
+FROM @post
 WHERE is_del=0 AND 
 	(visibility=0 OR
 	(visibility=1 AND user_id=?) OR
@@ -363,7 +374,7 @@ WHERE is_del=0 AND
 -- name: index@simple_index
 -- prepare: stmt
 SELECT * 
-FROM @p_post 
+FROM @post 
 WHERE visibility=0
 ORDER BY is_top DESC, latest_replied_on DESC
 LIMIT ? OFFSET ?;
@@ -371,7 +382,7 @@ LIMIT ? OFFSET ?;
 -- name: index_count@simple_index
 -- prepare: stmt
 SELECT count(*) 
-FROM @p_post 
+FROM @post 
 WHERE visibility=0;
 
 --------------------------------------------------------------------------------
@@ -387,7 +398,7 @@ SELECT * FROM @post WHERE id=? AND is_del=0;
 -- clause: in
 SELECT * FROM @post
 WHERE user_id=? AND visibility IN (?)
-ORDER BY latest_replies_on DESC
+ORDER BY latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
 -- name: get_any_posts@tweet
@@ -584,7 +595,25 @@ SELECT * FROM @post_content WHERE id=? AND is_del=0;
 
 -- name: user_media_tweets_by_guest@tweet
 -- prepare: stmt
-SELECT *
+SELECT id,
+	user_id,
+	comment_count,
+	collection_count,
+	upvote_count,
+	share_count,
+	visibility,
+	is_top,
+	is_essence,
+	is_lock,
+	latest_replied_on,
+	tags,
+	attachment_price,
+	ip,
+	ip_loc,
+	created_on,
+	modified_on,
+	deleted_on,
+	is_del
 FROM @post_by_media
 WHERE is_del=0 AND user_id=? AND visibility=0
 ORDER BY latest_replied_on DESC
@@ -598,7 +627,25 @@ WHERE is_del=0 AND user_id=? AND visibility=0;
 
 -- name: user_media_tweets_by_friend@tweet
 -- prepare: stmt
-SELECT *
+SELECT id,
+	user_id,
+	comment_count,
+	collection_count,
+	upvote_count,
+	share_count,
+	visibility,
+	is_top,
+	is_essence,
+	is_lock,
+	latest_replied_on,
+	tags,
+	attachment_price,
+	ip,
+	ip_loc,
+	created_on,
+	modified_on,
+	deleted_on,
+	is_del
 FROM @post_by_media
 WHERE is_del=0 AND user_id=? AND (visibility=0 OR visibility=2)
 ORDER BY latest_replied_on DESC
@@ -612,7 +659,25 @@ WHERE is_del=0 AND user_id=? AND (visibility=0 OR visibility=2);
 
 -- name: user_media_tweets_by_self@tweet
 -- prepare: stmt
-SELECT *
+SELECT id,
+	user_id,
+	comment_count,
+	collection_count,
+	upvote_count,
+	share_count,
+	visibility,
+	is_top,
+	is_essence,
+	is_lock,
+	latest_replied_on,
+	tags,
+	attachment_price,
+	ip,
+	ip_loc,
+	created_on,
+	modified_on,
+	deleted_on,
+	is_del
 FROM @post_by_media
 WHERE is_del=0 AND user_id=?
 ORDER BY latest_replied_on DESC
@@ -626,7 +691,25 @@ WHERE is_del=0 AND user_id=?;
 
 -- name: user_comment_tweets_by_guest@tweet
 -- prepare: stmt
-SELECT *
+SELECT id,
+	user_id,
+	comment_count,
+	collection_count,
+	upvote_count,
+	share_count,
+	visibility,
+	is_top,
+	is_essence,
+	is_lock,
+	latest_replied_on,
+	tags,
+	attachment_price,
+	ip,
+	ip_loc,
+	created_on,
+	modified_on,
+	deleted_on,
+	is_del
 FROM @post_by_comment
 WHERE is_del=0 AND comment_user_id=? AND visibility=0
 ORDER BY latest_replied_on DESC
@@ -640,7 +723,25 @@ WHERE is_del=0 AND comment_user_id=? AND visibility=0;
 
 -- name: user_comment_tweets_by_friend@tweet
 -- prepare: stmt
-SELECT *
+SELECT id,
+	user_id,
+	comment_count,
+	collection_count,
+	upvote_count,
+	share_count,
+	visibility,
+	is_top,
+	is_essence,
+	is_lock,
+	latest_replied_on,
+	tags,
+	attachment_price,
+	ip,
+	ip_loc,
+	created_on,
+	modified_on,
+	deleted_on,
+	is_del
 FROM @post_by_comment
 WHERE is_del=0 AND comment_user_id=? AND (visibility=0 OR visibility=2)
 ORDER BY latest_replied_on DESC
@@ -654,7 +755,25 @@ WHERE is_del=0 AND comment_user_id=? AND (visibility=0 OR visibility=2);
 
 -- name: user_comment_tweets_by_self@tweet
 -- prepare: stmt
-SELECT *
+SELECT id,
+	user_id,
+	comment_count,
+	collection_count,
+	upvote_count,
+	share_count,
+	visibility,
+	is_top,
+	is_essence,
+	is_lock,
+	latest_replied_on,
+	tags,
+	attachment_price,
+	ip,
+	ip_loc,
+	created_on,
+	modified_on,
+	deleted_on,
+	is_del
 FROM @post_by_comment
 WHERE is_del=0 AND comment_user_id=?
 ORDER BY latest_replied_on DESC
@@ -771,8 +890,8 @@ SELECT
 FROM
 	@post_star star
 	JOIN @post post ON star.post_id = post.ID 
-WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 (post.visibility=0 AND post.user_id=?))
-ORDER BY post.latest_replied_on DESC;
+WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 OR (post.visibility=0 AND post.user_id=?))
+ORDER BY post.latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
 -- name: user_star_tweets_count_by_self@tweet
@@ -781,7 +900,7 @@ SELECT count(*)
 FROM
 	@post_star star
 	JOIN @post post ON star.post_id = post.ID 
-WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 (post.visibility=0 AND post.user_id=?));
+WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 OR (post.visibility=0 AND post.user_id=?));
 
 -- name: user_star_tweets_by_admin@tweet
 -- prepare: stmt
@@ -810,7 +929,7 @@ FROM
 	@post_star star
 	JOIN @post post ON star.post_id = post.ID 
 WHERE star.is_del=0 AND star.user_id=?
-ORDER BY post.latest_replied_on DESC;
+ORDER BY post.latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
 -- name: user_star_tweets_count_by_admin@tweet
@@ -827,12 +946,12 @@ WHERE star.is_del=0 AND star.user_id=?;
 
 -- name: add_post@tweet_manage
 -- prepare: named_stmt
-INSERT INTO @post (user_id, tags, ip, ip_loc, attachment_price, visibility, latest_replies_on, created_on)
-VALUES (:user_id, :tags, :ip, :ip_loc, :attachment_price, :visibility, :latest_replies_on, :created_on);
+INSERT INTO @post (user_id, tags, ip, ip_loc, attachment_price, visibility, latest_replied_on, created_on)
+VALUES (:user_id, :tags, :ip, :ip_loc, :attachment_price, :visibility, :latest_replied_on, :created_on);
 
 -- name: media_content_by_post_id@tweet_manage
 -- prepare stmt
-SELECT content FROM post_content WHERE post_id=? AND is_del=0 AND type IN (3, 4, 5, 7, 8);
+SELECT content FROM @post_content WHERE post_id=? AND is_del=0 AND type IN (3, 4, 5, 7, 8);
 
 -- name: del_post_by_id@tweet_manage
 -- prepare: stmt
@@ -863,7 +982,7 @@ SELECT user_id, is_essence FROM @post WHERE id=? AND is_del=0;
 UPDATE @post SET comment_count=:comment_count, 
     upvote_count=:upvote_count,
     collection_count=:collection_count,
-    latest_replies_on=:latest_replies_on,
+    latest_replied_on=:latest_replied_on,
     modified_on=:modified_on
 WHERE id=:id AND is_del=0;
 

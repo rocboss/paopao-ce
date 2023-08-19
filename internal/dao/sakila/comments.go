@@ -5,7 +5,6 @@
 package sakila
 
 import (
-	"strings"
 	"time"
 
 	"github.com/bitbus/sqlx"
@@ -35,27 +34,35 @@ type commentManageSrv struct {
 func (s *commentSrv) GetComments(r *ms.ConditionsT, offset, limit int) (res []*ms.Comment, err error) {
 	order := (*r)["ORDER"].(string)
 	postId := (*r)["post_id"]
-	stmt := strings.Replace(s.q.GetComments, "%order%", order, 1)
-	err = s.db.Select(&res, stmt, postId, limit, offset)
+	if order == "id ASC" {
+		err = s.q.GetDefaultComments.Select(&res, postId, limit, offset)
+	} else {
+		err = s.q.GetNewestComments.Select(&res, postId, limit, offset)
+	}
 	return
 }
 
 func (s *commentSrv) GetCommentByID(id int64) (res *ms.Comment, err error) {
+	res = &ms.Comment{}
 	err = s.q.GetCommentById.Get(res, id)
 	return
 }
 
 func (s *commentSrv) GetCommentReplyByID(id int64) (res *ms.CommentReply, err error) {
+	res = &ms.CommentReply{}
 	err = s.q.GetCommentReplyById.Get(res, id)
 	return
 }
 
 func (s *commentSrv) GetCommentCount(r *ms.ConditionsT) (res int64, err error) {
-	err = s.q.GetCommentCount.Get(&res, r)
+	err = s.q.GetCommentCount.Get(&res, *r)
 	return
 }
 
 func (s *commentSrv) GetCommentContentsByIDs(ids []int64) (res []*ms.CommentContent, err error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
 	err = s.db.InSelect(&res, s.q.GetCommentContentsByIds, ids)
 	return res, err
 }
@@ -81,6 +88,9 @@ func (s *commentSrv) GetCommentThumbsMap(userId int64, tweetId int64) (cs.Commen
 }
 
 func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*ms.CommentReplyFormated, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
 	replies := []*ms.CommentReply{}
 	err := s.db.InSelect(&replies, s.q.GetCommmentRepliesByIds, ids)
 	if err != nil {
@@ -91,8 +101,10 @@ func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*ms.CommentReplyForma
 		userIds = append(userIds, reply.UserID, reply.AtUserID)
 	}
 	users := []*ms.UserFormated{}
-	if err = s.db.InSelect(&users, s.q.GetUsersByIds, userIds); err != nil {
-		return nil, err
+	if len(userIds) > 0 {
+		if err = s.db.InSelect(&users, s.q.GetUsersByIds, userIds); err != nil {
+			return nil, err
+		}
 	}
 	repliesFormated := []*ms.CommentReplyFormated{}
 	for _, reply := range replies {
