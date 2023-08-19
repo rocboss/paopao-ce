@@ -8,12 +8,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimy/cfg"
 	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pg"
 )
 
 var (
@@ -477,12 +479,20 @@ func newTweetService(db *sqlx.DB) core.TweetService {
 	}
 }
 
-func newTweetManageService(db *sqlx.DB, cacheIndex core.CacheIndexService) core.TweetManageService {
-	return &tweetManageSrv{
+func newTweetManageService(db *sqlx.DB, cacheIndex core.CacheIndexService) (s core.TweetManageService) {
+	tms := &tweetManageSrv{
 		sqlxSrv: newSqlxSrv(db),
 		cis:     cacheIndex,
 		q:       ccBuild(db, cc.BuildTweetManage),
 	}
+	s = tms
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		s = &pgTweetManageSrv{
+			tweetManageSrv: tms,
+			p:              pgBuild(db, pg.BuildTweetManage),
+		}
+	}
+	return
 }
 
 func newTweetHelpService(db *sqlx.DB) core.TweetHelpService {
