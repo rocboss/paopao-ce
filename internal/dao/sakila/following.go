@@ -18,11 +18,11 @@ var (
 )
 
 type followItem struct {
-	UserId   int64
-	Username string
-	Nickname string
-	Avatar   string
-	CreateOn int64
+	UserId    int64
+	Username  string
+	Nickname  string
+	Avatar    string
+	CreatedOn int64
 }
 
 type followingManageSrv struct {
@@ -56,7 +56,7 @@ func (s *followingManageSrv) ListFollows(userId int64, limit, offset int) (res *
 			Username:  f.Username,
 			Nickname:  f.Nickname,
 			Avatar:    f.Avatar,
-			CreatedOn: f.CreateOn,
+			CreatedOn: f.CreatedOn,
 		})
 	}
 	return
@@ -74,15 +74,15 @@ func (s *followingManageSrv) ListFollowings(userId int64, limit, offset int) (re
 			Username:  f.Username,
 			Nickname:  f.Nickname,
 			Avatar:    f.Avatar,
-			CreatedOn: f.CreateOn,
+			CreatedOn: f.CreatedOn,
 		})
 	}
 	return
 }
 
 func (s *followingManageSrv) GetFollowCount(userId int64) (follows int64, followings int64, err error) {
-	if err = s.q.CountFollows.Get(&follows); err == nil {
-		err = s.q.CountFollowings.Get(&followings)
+	if err = s.q.CountFollows.Get(&follows, userId); err == nil {
+		err = s.q.CountFollowings.Get(&followings, userId)
 	}
 	return
 }

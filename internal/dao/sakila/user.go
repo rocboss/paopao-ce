@@ -24,21 +24,27 @@ type userManageSrv struct {
 }
 
 func (s *userManageSrv) GetUserByID(id int64) (res *ms.User, err error) {
+	res = &ms.User{}
 	err = s.q.GetUserById.Get(res, id)
 	return
 }
 
 func (s *userManageSrv) GetUserByUsername(username string) (res *ms.User, err error) {
+	res = &ms.User{}
 	err = s.q.GetUserByUsername.Get(res, username)
 	return
 }
 
 func (s *userManageSrv) GetUserByPhone(phone string) (res *ms.User, err error) {
+	res = &ms.User{}
 	err = s.q.GetUserByPhone.Get(res, phone)
 	return
 }
 
 func (s *userManageSrv) GetUsersByIDs(ids []int64) (res []*ms.User, err error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
 	err = s.db.InSelect(&res, s.q.GetUsersByIds, ids)
 	return
 }

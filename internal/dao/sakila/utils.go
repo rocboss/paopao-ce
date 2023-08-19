@@ -26,30 +26,59 @@ func (s *sqlxSrv) deleteTags(tx *sqlx.Tx, tags []string) (err error) {
 	return
 }
 
-func (s *sqlxSrv) createTags(tx *sqlx.Tx, userId int64, tags []string) (res cs.TagInfoList, err error) {
-	// for _, name := range tags {
-	// 	tag := &dbr.Tag{Tag: name}
-	// 	if tag, err = tag.Get(db); err == nil {
-	// 		// 更新
-	// 		tag.QuoteNum++
-	// 		if err = tag.Update(db); err != nil {
-	// 			return
-	// 		}
-	// 	} else {
-	// 		if tag, err = (&dbr.Tag{
-	// 			UserID:   userId,
-	// 			QuoteNum: 1,
-	// 			Tag:      name,
-	// 		}).Create(db); err != nil {
-	// 			return
-	// 		}
-	// 	}
-	// 	res = append(res, &cs.TagInfo{
-	// 		ID:       tag.ID,
-	// 		UserID:   tag.UserID,
-	// 		Tag:      tag.Tag,
-	// 		QuoteNum: tag.QuoteNum,
-	// 	})
-	// }
+func (s *sqlxSrv) createTags(tx *sqlx.Tx, userId int64, tags []string) (res cs.TagInfoList, xerr error) {
+	if len(tags) == 0 {
+		return nil, nil
+	}
+	xerr = s.db.Withx(func(tx *sqlx.Tx) error {
+		var upTags cs.TagInfoList
+		if err := tx.InSelect(&upTags, s.y.TagsForIncr, tags); err != nil {
+			return err
+		}
+		now := time.Now().Unix()
+		if len(upTags) > 0 {
+			var ids []int64
+			for _, t := range upTags {
+				ids = append(ids, t.ID)
+				t.QuoteNum++
+				// prepare remain tags just delete updated tag
+				// notice ensure tags slice is distinct elements
+				for i, name := range tags {
+					if name == t.Tag {
+						lastIdx := len(tags) - 1
+						tags[i] = tags[lastIdx]
+						tags = tags[:lastIdx]
+						break
+					}
+				}
+			}
+			if _, err := tx.InExec(s.y.IncrTagsById, now, ids); err != nil {
+				return err
+			}
+			res = append(res, upTags...)
+		}
+		// process remain tags if tags is not empty
+		if len(tags) == 0 {
+			return nil
+		}
+		var ids []int64
+		for _, tag := range tags {
+			res, err := s.y.InsertTag.Exec(userId, tag, now, now)
+			if err != nil {
+				return err
+			}
+			id, err := res.LastInsertId()
+			if err != nil {
+				return err
+			}
+			ids = append(ids, id)
+		}
+		var newTags cs.TagInfoList
+		if err := tx.InSelect(&newTags, s.y.TagsByIdB, ids); err != nil {
+			return err
+		}
+		res = append(res, newTags...)
+		return nil
+	})
 	return
 }

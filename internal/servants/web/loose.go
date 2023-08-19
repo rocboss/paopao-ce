@@ -227,6 +227,7 @@ func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Err
 		err = web.ErrGetPostTagsFailed
 	}
 	if err != nil {
+		logrus.Errorf("get tag list error: %s", err)
 		return nil, web.ErrGetPostTagsFailed
 	}
 	return &web.TopicListResp{
@@ -247,6 +248,7 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 
 	comments, err := s.Ds.GetComments(conditions, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
+		logrus.Errorf("get tweet comments error[1]: %s", err)
 		return nil, web.ErrGetCommentsFailed
 	}
 
@@ -259,16 +261,19 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 
 	users, err := s.Ds.GetUsersByIDs(userIDs)
 	if err != nil {
+		logrus.Errorf("get tweet comments error[2]: %s", err)
 		return nil, web.ErrGetCommentsFailed
 	}
 
 	contents, err := s.Ds.GetCommentContentsByIDs(commentIDs)
 	if err != nil {
+		logrus.Errorf("get tweet comments error[3]: %s", err)
 		return nil, web.ErrGetCommentsFailed
 	}
 
 	replies, err := s.Ds.GetCommentRepliesByID(commentIDs)
 	if err != nil {
+		logrus.Errorf("get tweet comments error[4]: %s", err)
 		return nil, web.ErrGetCommentsFailed
 	}
 
@@ -276,6 +281,7 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 	if req.Uid > 0 {
 		commentThumbs, replyThumbs, err = s.Ds.GetCommentThumbsMap(req.Uid, req.TweetId)
 		if err != nil {
+			logrus.Errorf("get tweet comments error[5]: %s", err)
 			return nil, web.ErrGetCommentsFailed
 		}
 	}

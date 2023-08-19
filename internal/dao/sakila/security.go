@@ -29,6 +29,7 @@ type securitySrv struct {
 
 // GetLatestPhoneCaptcha 获取最新短信验证码
 func (s *securitySrv) GetLatestPhoneCaptcha(phone string) (res *ms.Captcha, err error) {
+	res = &ms.Captcha{}
 	err = s.q.GetLatestPhoneCaptcha.Get(res, phone)
 	return
 }

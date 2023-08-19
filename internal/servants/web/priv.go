@@ -361,6 +361,7 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.Creat
 	)
 
 	if post, comment, atUserID, err = s.createPostPreHandler(req.CommentID, req.Uid, req.AtUserID); err != nil {
+		logrus.Errorf("create comment reply error[1]: %s", err)
 		return nil, web.ErrCreateReplyFailed
 	}
 
@@ -376,6 +377,7 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.Creat
 
 	reply, err = s.Ds.CreateCommentReply(reply)
 	if err != nil {
+		logrus.Errorf("create comment reply error[2]: %s", err)
 		return nil, web.ErrCreateReplyFailed
 	}
 
