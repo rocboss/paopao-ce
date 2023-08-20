@@ -556,7 +556,7 @@ watch(
         query: route.query,
     }),
     (to, from) => {
-        if (from.path === '/user' && to.path === '/user') {
+        if (from.path === '/u' && to.path === '/u') {
             username.value = route.query.s || '';
             loadUser();
         }
