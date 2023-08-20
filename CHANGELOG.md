@@ -1,7 +1,8 @@
 # Changelog
 
 All notable changes to paopao-ce are documented in this file.
-## 0.4.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+## 0.5.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+## 0.4.0
 ### Added
 - add `pprof` feature support [#327](https://github.com/rocboss/paopao-ce/pull/327)  
 - use compiler profile-guided optimization (PGO) to further optimize builds. [#327](https://github.com/rocboss/paopao-ce/pull/327)  

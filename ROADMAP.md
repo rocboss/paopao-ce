@@ -54,21 +54,16 @@
 * [ ] optimize backend data logic service(optimize database CRUD operate)
 
 ## paopao-ce-plus roadmap
-#### paopao-ce-plus/v0.4.0
+#### paopao-ce-plus/v0.5.0
 * [ ] adapt for paopao-ce v0.4.0
 
-#### paopao-ce-plus/v0.3.0
-* [ ] adapt for paopao-ce v0.3.0
-
-#### paopao-ce-plus/v0.2.0
-* [ ] adapt for paopao-ce v0.2.0
+#### paopao-ce-plus/v0.4.0
+* [x] adapt for paopao-ce v0.4.0
 
 ## paopao-ce-pro roadmap
+#### paopao-ce-pro/v0.5.0
+* [ ] adapt for paopao-ce v0.4.0
+
 #### paopao-ce-pro/v0.4.0
 * [ ] adapt for paopao-ce v0.4.0
 
-#### paopao-ce-pro/v0.3.0
-* [ ] adapt for paopao-ce v0.3.0
-
-#### paopao-ce-pro/v0.2.0
-* [ ] adapt for paopao-ce v0.2.0
