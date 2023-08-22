@@ -4,7 +4,7 @@
             <div class="username">
                 <router-link class="user-link" :to="{
                     name: 'user',
-                    query: { username: props.reply.user.username },
+                    query: { s: props.reply.user.username },
                 }">
                     {{ props.reply.user.username }}
                 </router-link>
@@ -14,7 +14,7 @@
 
                 <router-link class="user-link" :to="{
                     name: 'user',
-                    query: { username: props.reply.at_user.username },
+                    query: { s: props.reply.at_user.username },
                 }" v-if="props.reply.at_user_id > 0">
                     {{ props.reply.at_user.username }}
                 </router-link>
@@ -40,7 +40,11 @@
         </div>
 
         <div class="base-wrap">
-            <div class="content">{{ props.reply.content }}</div>
+            <div class="content">
+                <n-ellipsis expand-trigger="click" line-clamp="5" :tooltip="false">
+                    {{ props.reply.content }}
+                </n-ellipsis>
+            </div>
             <div class="reply-switch">
                 <span class="time-item">
                     {{ formatPrettyTime(props.reply.created_on) }}
@@ -58,7 +62,7 @@
                             <thumb-up-outlined v-if="!hasThumbsUp" />
                             <thumb-up-twotone v-if="hasThumbsUp" class="show" />
                         </n-icon>
-                        <span class="upvote-count">{{ thumbsUpCount }}</span>
+                        <span class="upvote-count">{{ thumbsUpCount>0 ? thumbsUpCount : "赞" }}</span>
                     </div>
                     <div v-if="!store.state.userLogined" class="action-item">
                         <n-icon size="medium">
@@ -204,7 +208,7 @@ const execDelAction = () => {
         display: block;
 
         .content {
-            width: calc(100% - 40px);
+            width: calc(100%);
             margin-top: 4px;
             font-size: 12px;
             text-align: justify;

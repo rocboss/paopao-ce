@@ -35,7 +35,7 @@ declare module NetParams {
     id: number;
   }
 
-  interface UserGetUnreadMsgCount { }
+  interface UserGetUnreadMsgCount {}
 
   interface UserGetMessages {
     page: number;
@@ -43,8 +43,8 @@ declare module NetParams {
   }
 
   interface UserGetUserPosts {
-    /** 用户名 */
     username: string;
+    style: string;
     page: number;
     page_size: number;
   }
@@ -61,6 +61,14 @@ declare module NetParams {
   interface UserStatusReq {
     id: number;
     status: number;
+  }
+
+  interface FollowUserReq {
+    user_id: number;
+  }
+
+  interface UnfollowUserReq {
+    user_id: number;
   }
 
   interface UserReqRecharge {
@@ -82,7 +90,7 @@ declare module NetParams {
     imgCaptcha: string;
   }
 
-  interface UserGetCaptcha { }
+  interface UserGetCaptcha {}
 
   interface UserWhisper {
     user_id: number;
@@ -107,6 +115,18 @@ declare module NetParams {
   }
 
   interface GetContacts {
+    page: number;
+    page_size: number;
+  }
+
+  interface GetUserFollows {
+    username: string;
+    page: number;
+    page_size: number;
+  }
+
+  interface GetUserFollowings {
+    username: string;
     page: number;
     page_size: number;
   }
@@ -139,6 +159,10 @@ declare module NetParams {
   }
 
   interface PostStickPost {
+    id: number;
+  }
+
+  interface PostHighlightPost {
     id: number;
   }
 
@@ -177,7 +201,7 @@ declare module NetParams {
     page_size?: number;
   }
 
-  interface GetContacts { }
+  interface GetContacts {}
 
   interface PostCreatePost {
     /** 帖子内容列表 */

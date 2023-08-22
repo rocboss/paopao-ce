@@ -1,14 +1,17 @@
 <template>
     <div class="contact-item" @click="goUserProfile(contact.username)">
         <div class="avatar">
-            <n-avatar size="large" :src="contact.avatar" />
+            <n-avatar :size="54" :src="contact.avatar" />
         </div>
         <div class="base-info">
             <div class="username">
                 <strong>{{ contact.nickname }}</strong>
                 <span> @{{ contact.username }} </span>
             </div>
-            <div class="uid">UID. {{ contact.user_id }}</div>
+            <div class="user-info">
+                <span class="info-item">UID. {{ contact.user_id }}</span>
+                <span class="info-item">{{ formatDate(contact.created_on) }}&nbsp;加入</span>
+            </div>
         </div>
     </div>
 </template>
@@ -16,6 +19,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 const router = useRouter();
+import { formatDate } from '@/utils/formatTime';
 
 const props = withDefaults(defineProps<{
     contact: Item.ContactItemProps
@@ -23,7 +27,7 @@ const props = withDefaults(defineProps<{
 const goUserProfile = (username: string) => {
     router.push({
         name: 'user',
-        query: { username: username },
+        query: { s: username },
     });
 };
 </script>
@@ -43,23 +47,28 @@ const goUserProfile = (username: string) => {
     }
 
     .avatar {
-        width: 55px;
+        width: 54px;
     }
 
     .base-info {
         position: relative;
-        width: calc(100% - 55px);
+        margin-left: 12px;
+        padding-top: 2px;
+        width: calc(100% - 66px);
 
         .username {
             line-height: 16px;
             font-size: 16px;
         }
 
-        .uid {
-            font-size: 14px;
-            line-height: 14px;
-            margin-top: 10px;
-            opacity: 0.75;
+        .user-info {
+            margin-top: 6px;
+            .info-item {
+                font-size: 14px;
+                line-height: 14px;
+                margin-right: 8px;
+                opacity: 0.75;
+            }
         }
     }
 }

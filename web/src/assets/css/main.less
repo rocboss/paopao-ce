@@ -1,6 +1,6 @@
 :root {
     // 如果要变更中间栏的大小，修改此处即可
-    --content-main: 544px;
+    --content-main: 600px;
 }
 
 .app-container {
@@ -43,6 +43,18 @@
     justify-content: center;
 }
 
+.following-link {
+    color: #000;
+    color: none;
+    text-decoration: none;
+    cursor: pointer;
+    opacity: 0.75;
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
 .hash-link,
 .user-link {
     color: #18a058;
@@ -81,6 +93,7 @@
         color: #63e2b7;
     }
 
+    .following-link,
     .username-link {
         color: #eee;
     }

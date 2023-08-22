@@ -296,6 +296,38 @@ func (s *databaseConf) logLevel() logger.LogLevel {
 	}
 }
 
+func (s *databaseConf) TableNames() (res TableNameMap) {
+	tableNames := []string{
+		TableAnouncement,
+		TableAnouncementContent,
+		TableAttachment,
+		TableCaptcha,
+		TableComment,
+		TableCommentContent,
+		TableCommentReply,
+		TableFollowing,
+		TableContact,
+		TableContactGroup,
+		TableMessage,
+		TablePost,
+		TablePostByComment,
+		TablePostByMedia,
+		TablePostAttachmentBill,
+		TablePostCollection,
+		TablePostContent,
+		TablePostStar,
+		TableTag,
+		TableUser,
+		TableWalletRecharge,
+		TableWalletStatement,
+	}
+	res = make(TableNameMap, len(tableNames))
+	for _, name := range tableNames {
+		res[name] = s.TablePrefix + name
+	}
+	return
+}
+
 func (s *loggerConf) logLevel() logrus.Level {
 	switch strings.ToLower(s.Level) {
 	case "panic":

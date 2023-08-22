@@ -11,7 +11,7 @@
                         class="username-link"
                         :to="{
                             name: 'user',
-                            query: { username: comment.user.username },
+                            query: { s: comment.user.username },
                         }"
                     >
                         {{ comment.user.nickname }}
@@ -61,8 +61,7 @@
                     class="comment-text"
                     @click.stop="doClickText($event, comment.id)"
                     v-html="parsePostTag(content.content).content"
-                >
-                </span>
+                ></span>
             </template>
 
             <template #footer>
@@ -146,7 +145,7 @@ const doClickText = (e: MouseEvent, id: number | string) => {
                 router.push({
                     name: 'user',
                     query: {
-                        username: d[1],
+                        s: d[1],
                     },
                 });
             }

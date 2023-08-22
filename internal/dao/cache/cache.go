@@ -5,6 +5,7 @@
 package cache
 
 import (
+	"context"
 	"time"
 
 	"github.com/allegro/bigcache/v3"
@@ -28,7 +29,7 @@ func NewBigCacheIndexService(ips core.IndexPostsService, ams core.AuthorizationM
 	c.MaxEntrySize = 10000
 	c.Logger = logrus.StandardLogger()
 
-	bc, err := bigcache.NewBigCache(c)
+	bc, err := bigcache.New(context.Background(), c)
 	if err != nil {
 		logrus.Fatalf("initial bigCahceIndex failure by err: %v", err)
 	}

@@ -10,6 +10,9 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,21 +25,21 @@ type simpleCacheIndexServant struct {
 	ips core.IndexPostsService
 
 	indexActionCh   chan core.IdxAct
-	indexPosts      *core.IndexTweetList
+	indexPosts      *ms.IndexTweetList
 	atomicIndex     atomic.Value
 	maxIndexSize    int
 	checkTick       *time.Ticker
 	expireIndexTick *time.Ticker
 }
 
-func (s *simpleCacheIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
-	cacheResp := s.atomicIndex.Load().(*core.IndexTweetList)
+func (s *simpleCacheIndexServant) IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error) {
+	cacheResp := s.atomicIndex.Load().(*ms.IndexTweetList)
 	end := offset + limit
 	if cacheResp != nil {
 		size := len(cacheResp.Tweets)
 		logrus.Debugf("simpleCacheIndexServant.IndexPosts get index posts from cache posts: %d offset:%d limit:%d start:%d, end:%d", size, offset, limit, offset, end)
 		if size >= end {
-			return &core.IndexTweetList{
+			return &ms.IndexTweetList{
 				Tweets: cacheResp.Tweets[offset:end],
 				Total:  cacheResp.Total,
 			}, nil
@@ -47,7 +50,12 @@ func (s *simpleCacheIndexServant) IndexPosts(user *core.User, offset int, limit 
 	return s.ips.IndexPosts(user, offset, limit)
 }
 
-func (s *simpleCacheIndexServant) SendAction(act core.IdxAct, _post *core.Post) {
+func (s *simpleCacheIndexServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
+	// TODO
+	return nil, debug.ErrNotImplemented
+}
+
+func (s *simpleCacheIndexServant) SendAction(act core.IdxAct, _post *ms.Post) {
 	select {
 	case s.indexActionCh <- act:
 		logrus.Debugf("simpleCacheIndexServant.SendAction send indexAction by chan: %s", act)

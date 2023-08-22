@@ -30,8 +30,20 @@ type DataService interface {
 	// 用户服务
 	UserManageService
 	ContactManageService
+	FollowingManageService
 
 	// 安全服务
 	SecurityService
 	AttachmentCheckService
+}
+
+// WebDataServantA Web数据服务集成(版本A)
+type WebDataServantA interface {
+	// 话题服务
+	TopicServantA
+
+	// 推文服务
+	TweetServantA
+	TweetManageServantA
+	TweetHelpServantA
 }

@@ -86,14 +86,13 @@ declare module NetReq {
 
   interface UserChangeStatus {}
 
+  interface FollowUserResp {}
+
+  interface UnfollowUserResp {}
+
   interface AddFriend {}
 
   interface DeleteFriend {}
-
-  interface GetContacts {
-    contacts: Item.ContactsItemProps;
-    total: number;
-  }
 
   interface RejectFriend {}
 
@@ -116,6 +115,11 @@ declare module NetReq {
   interface PostStickPost {
     /** 置顶状态：0为未置顶，1为置顶 */
     top_status: 0 | 1;
+  }
+
+  interface PostHighlightPost {
+    /** 置顶状态：0为未亮点，1为亮点 */
+    highlight_status: 0 | 1;
   }
 
   interface PostVisibilityPost {

@@ -6,50 +6,51 @@ package jinzhu
 
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
 )
 
 var (
-	_ core.MessageService = (*messageServant)(nil)
+	_ core.MessageService = (*messageSrv)(nil)
 )
 
-type messageServant struct {
+type messageSrv struct {
 	db *gorm.DB
 }
 
 func newMessageService(db *gorm.DB) core.MessageService {
-	return &messageServant{
+	return &messageSrv{
 		db: db,
 	}
 }
 
-func (d *messageServant) CreateMessage(msg *core.Message) (*core.Message, error) {
-	return msg.Create(d.db)
+func (s *messageSrv) CreateMessage(msg *ms.Message) (*ms.Message, error) {
+	return msg.Create(s.db)
 }
 
-func (d *messageServant) GetUnreadCount(userID int64) (int64, error) {
-	return (&dbr.Message{}).Count(d.db, &dbr.ConditionsT{
+func (s *messageSrv) GetUnreadCount(userID int64) (int64, error) {
+	return (&dbr.Message{}).Count(s.db, &dbr.ConditionsT{
 		"receiver_user_id": userID,
 		"is_read":          dbr.MsgStatusUnread,
 	})
 }
 
-func (d *messageServant) GetMessageByID(id int64) (*core.Message, error) {
+func (s *messageSrv) GetMessageByID(id int64) (*ms.Message, error) {
 	return (&dbr.Message{
 		Model: &dbr.Model{
 			ID: id,
 		},
-	}).Get(d.db)
+	}).Get(s.db)
 }
 
-func (d *messageServant) ReadMessage(message *core.Message) error {
+func (s *messageSrv) ReadMessage(message *ms.Message) error {
 	message.IsRead = 1
-	return message.Update(d.db)
+	return message.Update(s.db)
 }
 
-func (d *messageServant) GetMessages(conditions *core.ConditionsT, offset, limit int) ([]*core.MessageFormated, error) {
-	messages, err := (&dbr.Message{}).List(d.db, conditions, offset, limit)
+func (s *messageSrv) GetMessages(conditions *ms.ConditionsT, offset, limit int) ([]*ms.MessageFormated, error) {
+	messages, err := (&dbr.Message{}).List(s.db, conditions, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -63,6 +64,6 @@ func (d *messageServant) GetMessages(conditions *core.ConditionsT, offset, limit
 	return mfs, nil
 }
 
-func (d *messageServant) GetMessageCount(conditions *core.ConditionsT) (int64, error) {
-	return (&dbr.Message{}).Count(d.db, conditions)
+func (s *messageSrv) GetMessageCount(conditions *ms.ConditionsT) (int64, error) {
+	return (&dbr.Message{}).Count(s.db, conditions)
 }

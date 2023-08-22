@@ -11,5 +11,5 @@ import (
 
 // RouteWeb register SpaceX route
 func RouteSpaceX(e *gin.Engine) {
-	api.RegisterUserServant(e, newUserSrv(), newUserBinding(), newUserRender())
+	api.RegisterUserServant(e, newUserSrv())
 }

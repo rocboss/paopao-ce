@@ -14,8 +14,8 @@ import (
 type PostCollection struct {
 	*Model
 	Post   *Post `json:"-"`
-	PostID int64 `json:"post_id"`
-	UserID int64 `json:"user_id"`
+	PostID int64 `db:"post_id" json:"post_id"`
+	UserID int64 `db:"user_id" json:"user_id"`
 }
 
 func (p *PostCollection) Get(db *gorm.DB) (*PostCollection, error) {

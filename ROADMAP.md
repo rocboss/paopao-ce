@@ -3,18 +3,22 @@
 
 ## paopao-ce roadmap
 #### dev+
-* [ ] add `Followship` feature
 * [ ] add `Auth:Bcrypt` feature
 * [ ] add `Auth:MD5` feature (just for compatible)
-* [x] add extend base ORM code for implement data logic base sqlx/sqlc
 * [ ] optimize media tweet submit logic
 * [ ] optimize search logic service
+
+#### v0.4.0
+* [x] add `Followship` feature.
+* [x] add extend base ORM code for implement data logic base sqlx/sqlc.
+* [x] user/profile page add comment/highlight/media/likes sub-page.
+* [x] add tweet highlight feature to enable user set a tweet as highlight.
 
 #### v0.3.0
 * [x] remove `Deprecated:OldWeb` feature
 * [x] add user topic follow feature support
 * [x] add tweet link share support
-* [ ] add comment thumbsUp/thumbsDown support
+* [x] add comment thumbsUp/thumbsDown support
 * [x] add `RedisCacheIndex` feature
 * [x] add `Sentry` feature
 
@@ -50,21 +54,16 @@
 * [ ] optimize backend data logic service(optimize database CRUD operate)
 
 ## paopao-ce-plus roadmap
-#### paopao-ce-plus/v0.4.0
+#### paopao-ce-plus/v0.5.0
 * [ ] adapt for paopao-ce v0.4.0
 
-#### paopao-ce-plus/v0.3.0
-* [ ] adapt for paopao-ce v0.3.0
-
-#### paopao-ce-plus/v0.2.0
-* [ ] adapt for paopao-ce v0.2.0
+#### paopao-ce-plus/v0.4.0
+* [x] adapt for paopao-ce v0.4.0
 
 ## paopao-ce-pro roadmap
+#### paopao-ce-pro/v0.5.0
+* [ ] adapt for paopao-ce v0.4.0
+
 #### paopao-ce-pro/v0.4.0
 * [ ] adapt for paopao-ce v0.4.0
 
-#### paopao-ce-pro/v0.3.0
-* [ ] adapt for paopao-ce v0.3.0
-
-#### paopao-ce-pro/v0.2.0
-* [ ] adapt for paopao-ce v0.2.0

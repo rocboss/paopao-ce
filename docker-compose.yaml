@@ -41,7 +41,7 @@ services:
   #     - paopao-network
 
   redis:
-    image: redis/redis-stack:7.0.6-RC8
+    image: redis/redis-stack:7.2.0-RC3
     restart: always
     ports:
       - 6379:6379
@@ -51,32 +51,32 @@ services:
     networks:
       - paopao-network
   
-  zinc:
-    image: public.ecr.aws/zinclabs/zinc:latest
-    user: root
-    restart: always
-    ports:
-      - 4080:4080
-    volumes:
-      - ./custom/data/zinc/data:/data
-    environment:
-      ZINC_FIRST_ADMIN_USER: admin
-      ZINC_FIRST_ADMIN_PASSWORD: admin
-      DATA_PATH: /data
-    networks:
-      - paopao-network
-
-  # meili:
-  #   image: getmeili/meilisearch:v1.1
+  # zinc:
+  #   image: bitbus/zincsearch:latest
+  #   user: zincsearch
   #   restart: always
   #   ports:
-  #     - 7700:7700
+  #     - 4080:4080
   #   volumes:
-  #     - ./custom/data/meili/data:/meili_data
+  #     - ./custom/data/zinc/data:/data
   #   environment:
-  #     - MEILI_MASTER_KEY=paopao-meilisearch
+  #     ZINC_FIRST_ADMIN_USER: admin
+  #     ZINC_FIRST_ADMIN_PASSWORD: admin
+  #     DATA_PATH: /data
   #   networks:
   #     - paopao-network
+
+  meili:
+    image: getmeili/meilisearch:v1.3
+    restart: always
+    ports:
+      - 7700:7700
+    volumes:
+      - ./custom/data/meili/data:/meili_data
+    environment:
+      - MEILI_MASTER_KEY=paopao-meilisearch
+    networks:
+      - paopao-network
 
   # pyroscope:
   #   image: pyroscope/pyroscope:latest
@@ -102,12 +102,12 @@ services:
       - paopao-network
 
   backend:
-    image: bitbus/paopao-ce:0.3
+    image: bitbus/paopao-ce:0.4
     restart: always
     depends_on:
       - db
       - redis
-      - zinc
+      - meili
     # modify below to reflect your custom configure
     volumes:
       - ./config.yaml.sample:/app/paopao-ce/config.yaml

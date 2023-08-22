@@ -1,8 +1,41 @@
 # Changelog
 
 All notable changes to paopao-ce are documented in this file.
-## 0.4.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+## 0.5.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+## 0.4.0
+### Added
+- add `pprof` feature support [#327](https://github.com/rocboss/paopao-ce/pull/327)  
+- use compiler profile-guided optimization (PGO) to further optimize builds. [#327](https://github.com/rocboss/paopao-ce/pull/327)  
+- frontend: re-add stars page embed to  profile page. [#339](https://github.com/rocboss/paopao-ce/pull/339)  
+- simple support for user posts filter by style(post/comment/media/star). [#345](https://github.com/rocboss/paopao-ce/pull/345)  
+  migration database first(sql ddl file in `scripts/migration/**/*_create_view_post_filter.up.sql`):
+  ```sql
+  CREATE VIEW p_post_by_media AS SELECT post.*FROM (SELECT DISTINCT post_id FROM p_post_content WHERE (TYPE=3 OR TYPE=4 OR TYPE=7 OR TYPE=8) AND is_del=0) media JOIN p_post post ON media.post_id=post.ID WHERE post.is_del=0;
+  CREATE VIEW p_post_by_comment AS SELECT P.*,C.user_id comment_user_id FROM (SELECT post_id,user_id FROM p_comment WHERE is_del=0 UNION SELECT post_id,reply.user_id user_id FROM p_comment_reply reply JOIN p_comment COMMENT ON reply.comment_id=COMMENT.ID WHERE reply.is_del=0 AND COMMENT.is_del=0) C JOIN p_post P ON C.post_id=P.ID WHERE P.is_del=0;
+  ```
+- add user highlight tweet support include custom tweet set to highlight and list in user/profile page.
+- add cli subcommand to start paopao-ce serve or other task. [#354](https://github.com/rocboss/paopao-ce/pull/354)  
+- add `Friendship` feature . [#355](https://github.com/rocboss/paopao-ce/pull/355)
+  migration database first(sql ddl file in `scripts/migration/**/*_user_following.up.sql`):
+  ```sql
+  DROP TABLE IF EXISTS p_following; 
+  CREATE TABLE p_following (ID BIGSERIAL PRIMARY KEY,user_id BIGINT NOT NULL,follow_id BIGINT NOT NULL,is_del SMALLINT NOT NULL DEFAULT 0,created_on BIGINT NOT NULL DEFAULT 0,modified_on BIGINT NOT NULL DEFAULT 0,deleted_on BIGINT NOT NULL DEFAULT 0); 
+  CREATE INDEX idx_following_user_follow ON p_following USING btree (user_id,follow_id);
+  ```
 
+### Changed
+- change man content width to 600px and optimize tweet/comment/replay text length. [#333](https://github.com/rocboss/paopao-ce/pull/333) 
+- optimize embed web ui to paopao execute binary file logic. [#354](https://github.com/rocboss/paopao-ce/pull/354)   
+  ```sh
+  # embed web ui to execute file default
+  make build 
+  # use slim model to disable embed web ui to exectute file
+  make build TAGS='slim embed'
+  ```
+- frontend: optimize user profile page route path to domain/#/u/?s=username. [&c857142](https://github.com/rocboss/paopao-ce/commit/c857142565f0c28294344c7abc5c2df4e363b04c
+- change the `Friendship` feature and `Followship` feature as builtin feature. [#362](https://github.com/rocboss/paopao-ce/pull/362)  
+- deprecated/remove `Lightship` feature. [#362](https://github.com/rocboss/paopao-ce/pull/362)  
+  
 ## 0.3.1
 ### Fixed
 - fixed: video player assets cdn error. [&caff8c0](https://github.com/rocboss/paopao-ce/commit/caff8c052be6c8d59576011192f830fd98e17ab3 'commit caff8c0')  
@@ -65,6 +98,10 @@ All notable changes to paopao-ce are documented in this file.
 - fixed tweet's owner not allow star/collection action when tweet is private error [#274](https://github.com/rocboss/paopao-ce/pull/274)
 - fixed user not list owner's collectioned private tweet error [#274](https://github.com/rocboss/paopao-ce/pull/274)
 - fixed comments thumbs up/down state incorrect error [#283](https://github.com/rocboss/paopao-ce/pull/283)
+
+### Fixed
+
+- fixed sql ddl p_contact's column `is_delete` define error (change to `is_del`) in scripts/paopao-mysql.sql [&afd8fe1](https://github.com/rocboss/paopao-ce/commit/afd8fe18d2dce08a4af846c2f822379d99a3d3b3 'commit afd8fe1')
 
 ### Changed
 

@@ -1,84 +1,71 @@
-// Copyright 2022 ROC. All rights reserved.
+// Copyright 2023 ROC. All rights reserved.
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
 package conf
 
 import (
+	"database/sql"
 	"sync"
-	"time"
 
 	"github.com/alimy/cfg"
 	"github.com/sirupsen/logrus"
-	"gorm.io/driver/mysql"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
-	"gorm.io/gorm/schema"
-	"gorm.io/plugin/dbresolver"
 )
 
 var (
-	_gormDB   *gorm.DB
-	_onceGorm sync.Once
+	_sqldb   *sql.DB
+	_onceSql sync.Once
 )
 
-func MustGormDB() *gorm.DB {
-	_onceGorm.Do(func() {
+const (
+	TableAnouncement        = "user"
+	TableAnouncementContent = "anouncement_content"
+	TableAttachment         = "attachment"
+	TableCaptcha            = "captcha"
+	TableComment            = "comment"
+	TableCommentContent     = "comment_content"
+	TableCommentReply       = "comment_reply"
+	TableFollowing          = "following"
+	TableContact            = "contact"
+	TableContactGroup       = "contact_group"
+	TableMessage            = "message"
+	TablePost               = "post"
+	TablePostByComment      = "post_by_comment"
+	TablePostByMedia        = "post_by_media"
+	TablePostAttachmentBill = "post_attachment_bill"
+	TablePostCollection     = "post_collection"
+	TablePostContent        = "post_content"
+	TablePostStar           = "post_star"
+	TableTag                = "tag"
+	TableUser               = "user"
+	TableWalletRecharge     = "wallet_recharge"
+	TableWalletStatement    = "wallet_statement"
+)
+
+type TableNameMap map[string]string
+
+func MustSqlDB() *sql.DB {
+	_onceSql.Do(func() {
 		var err error
-		if _gormDB, err = newGormDB(); err != nil {
-			logrus.Fatalf("new gorm db failed: %s", err)
+		if _, _sqldb, err = newSqlDB(); err != nil {
+			logrus.Fatalf("new sql db failed: %s", err)
 		}
 	})
-	return _gormDB
+	return _sqldb
 }
 
-func newGormDB() (*gorm.DB, error) {
-	newLogger := logger.New(
-		logrus.StandardLogger(), // io writer（日志输出的目标，前缀和日志包含的内容）
-		logger.Config{
-			SlowThreshold:             time.Second,                // 慢 SQL 阈值
-			LogLevel:                  DatabaseSetting.logLevel(), // 日志级别
-			IgnoreRecordNotFoundError: true,                       // 忽略ErrRecordNotFound（记录未找到）错误
-			Colorful:                  false,                      // 禁用彩色打印
-		},
-	)
-
-	config := &gorm.Config{
-		Logger: newLogger,
-		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   DatabaseSetting.TablePrefix,
-			SingularTable: true,
-		},
-	}
-
-	plugin := dbresolver.Register(dbresolver.Config{}).
-		SetConnMaxIdleTime(time.Hour).
-		SetConnMaxLifetime(24 * time.Hour).
-		SetMaxIdleConns(MysqlSetting.MaxIdleConns).
-		SetMaxOpenConns(MysqlSetting.MaxOpenConns)
-
-	var (
-		db  *gorm.DB
-		err error
-	)
+func newSqlDB() (driver string, db *sql.DB, err error) {
 	if cfg.If("MySQL") {
-		logrus.Debugln("use MySQL as db")
-		if db, err = gorm.Open(mysql.Open(MysqlSetting.Dsn()), config); err == nil {
-			db.Use(plugin)
-		}
-	} else if cfg.If("Postgres") {
-		logrus.Debugln("use PostgreSQL as db")
-		db, err = gorm.Open(postgres.Open(PostgresSetting.Dsn()), config)
+		driver = "mysql"
+		db, err = sql.Open(driver, MysqlSetting.Dsn())
+	} else if cfg.If("PostgreSQL") || cfg.If("Postgres") {
+		driver = "pgx"
+		db, err = sql.Open(driver, PostgresSetting.Dsn())
 	} else if cfg.If("Sqlite3") {
-		logrus.Debugf("use Sqlite3 as db path:%s sqlite3InCgoEnabled:%t", Sqlite3Setting.Path, sqlite3InCgoEnabled)
-		db, err = gormOpenSqlite3(config)
+		driver, db, err = OpenSqlite3()
 	} else {
-		logrus.Debugln("use default of MySQL as db")
-		if db, err = gorm.Open(mysql.Open(MysqlSetting.Dsn()), config); err == nil {
-			db.Use(plugin)
-		}
+		driver = "mysql"
+		db, err = sql.Open(driver, MysqlSetting.Dsn())
 	}
-
-	return db, err
+	return
 }

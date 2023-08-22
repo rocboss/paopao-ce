@@ -40,5 +40,4 @@ var _ = Describe("Md5", Ordered, func() {
 			Expect(utils.EncodeMD5(t.value)).To(Equal(t.md5))
 		}
 	})
-
 })

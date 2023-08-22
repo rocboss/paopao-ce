@@ -58,7 +58,7 @@ CREATE TABLE p_comment_content (
 	id BIGSERIAL PRIMARY KEY,
 	comment_id BIGINT NOT NULL DEFAULT 0,
 	user_id BIGINT NOT NULL DEFAULT 0,
-	content VARCHAR(255) NOT NULL DEFAULT '',
+	content TEXT NOT NULL DEFAULT '',
 	"type" SMALLINT NOT NULL DEFAULT 2, -- 类型，1标题，2文字段落，3图片地址，4视频地址，5语音地址，6链接地址,
 	sort BIGINT NOT NULL DEFAULT 100,
 	created_on BIGINT NOT NULL DEFAULT 0,
@@ -77,7 +77,7 @@ CREATE TABLE p_comment_reply (
 	comment_id BIGINT NOT NULL DEFAULT 0,
 	user_id BIGINT NOT NULL DEFAULT 0,
 	at_user_id BIGINT NOT NULL DEFAULT 0,
-	content VARCHAR(255) NOT NULL DEFAULT '',
+	content TEXT NOT NULL DEFAULT '',
 	ip VARCHAR(64) NOT NULL DEFAULT '',
 	ip_loc VARCHAR(64) NOT NULL DEFAULT '',
 	thumbs_up_count int NOT NULL DEFAULT 0, -- 点赞数
@@ -186,7 +186,7 @@ CREATE TABLE p_post_content (
 	id BIGSERIAL PRIMARY KEY,
 	post_id BIGINT NOT NULL DEFAULT 0,
 	user_id BIGINT NOT NULL DEFAULT 0,
-	content VARCHAR(2000) NOT NULL DEFAULT '',
+	content TEXT NOT NULL DEFAULT '',
 	"type" SMALLINT NOT NULL DEFAULT 2, -- 类型，1标题，2文字段落，3图片地址，4视频地址，5语音地址，6链接地址，7附件资源，8收费资源
 	sort SMALLINT NOT NULL DEFAULT 100,
 	created_on BIGINT NOT NULL DEFAULT 0,
@@ -265,6 +265,18 @@ CREATE TABLE p_user (
 CREATE UNIQUE INDEX idx_user_username ON p_user USING btree (username);
 CREATE INDEX idx_user_phone ON p_user USING btree (phone);
 
+DROP TABLE IF EXISTS p_following;
+CREATE TABLE p_following (
+	id BIGSERIAL PRIMARY KEY,
+	user_id BIGINT NOT NULL,
+	follow_id BIGINT NOT NULL,
+	is_del SMALLINT NOT NULL DEFAULT 0, -- 是否删除, 0否, 1是
+	created_on BIGINT NOT NULL DEFAULT 0,
+	modified_on BIGINT NOT NULL DEFAULT 0,
+	deleted_on BIGINT NOT NULL DEFAULT 0
+);
+CREATE INDEX idx_following_user_follow ON p_following USING btree (user_id, follow_id);
+
 DROP TABLE IF EXISTS p_contact;
 CREATE TABLE p_contact (
 	id BIGSERIAL PRIMARY KEY,
@@ -325,3 +337,38 @@ CREATE TABLE p_wallet_statement (
 	is_del SMALLINT NOT NULL DEFAULT 0
 );
 CREATE INDEX idx_wallet_statement_user_id ON p_wallet_statement USING btree (user_id);
+
+DROP VIEW IF EXISTS p_post_by_media;
+CREATE VIEW p_post_by_media AS 
+SELECT post.* 
+FROM
+	( SELECT DISTINCT post_id FROM p_post_content WHERE ( TYPE = 3 OR TYPE = 4 OR TYPE = 7 OR TYPE = 8 ) AND is_del = 0 ) media
+	JOIN p_post post ON media.post_id = post.ID 
+WHERE
+	post.is_del = 0;
+
+DROP VIEW IF EXISTS p_post_by_comment;
+CREATE VIEW p_post_by_comment AS 
+SELECT P.*, C.user_id comment_user_id
+FROM
+	(
+	SELECT
+		post_id,
+		user_id
+	FROM
+		p_comment 
+	WHERE
+		is_del = 0 UNION
+	SELECT
+		post_id,
+		reply.user_id user_id
+	FROM
+		p_comment_reply reply
+		JOIN p_comment COMMENT ON reply.comment_id = COMMENT.ID 
+	WHERE
+		reply.is_del = 0 
+		AND COMMENT.is_del = 0 
+	)
+	C JOIN p_post P ON C.post_id = P.ID 
+WHERE
+	P.is_del = 0;
