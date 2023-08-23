@@ -14,7 +14,8 @@
 		<array>
 			<!-- assumes installed in /Users/paopao/app -->
 			<!-- modify below to reflect your settings -->
-			<string>/Users/paopao/app/paopao-ce</string>
+			<string>/Users/paopao/app/paopao</string>
+			<string>serve</string>
 		</array>
 		<key>RunAtLoad</key>
 		<true/>
