@@ -129,7 +129,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
    
     # 编译时加入migration tag编译出支持migrate功能的可执行文件
     make build TAGS='migration'
-    release/paopao-ce
+    release/paopao
 
     # 或者 带上migration tag直接运行
     make run TAGS='migration'
@@ -317,24 +317,24 @@ Default/Develop/Demo/Slim 是不同 功能集套件(Features Suite)， Base/Opti
 使用Feautures:
 
 ```sh
-release/paopao-ce --help
-Usage of release/paopao-ce:
+release/paopao serve --help
+Usage of release/paopao:
   -features value
         use special features
   -no-default-features
         whether use default features
 
 # 默认使用 Default 功能套件
-release/paopao-ce 
+release/paopao serve
 
 # 不包含 default 中的功能集，仅仅使用 develop 中声明的功能集
-release/paopao-ce --no-default-features --features develop 
+release/paopao serve --no-default-features --features develop 
 
 # 使用 default 中的功能集，外加 sms 功能
-release/paopao-ce --features sms  
+release/paopao serve --features sms  
 
 # 手动指定需要开启的功能集
-release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,redis 
+release/paopao serve --no-default-features --features sqlite3,localoss,loggerfile,redis 
 ```
 
 目前支持的功能集合:
