@@ -9,7 +9,7 @@ Type=simple
 User=paopao
 Group=paopao
 WorkingDirectory=/home/paopao/app
-ExecStart=/home/paopao/app/paopao-ce
+ExecStart=/home/paopao/app/paopao serve
 Restart=always
 Environment=USER=paopao HOME=/home/paopao
 
