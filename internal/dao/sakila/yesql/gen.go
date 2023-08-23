@@ -21,14 +21,7 @@ func main() {
 		query.Query = strings.TrimRight(query.Query, ";")
 		return query, nil
 	})
-	opt := yesql.SqlxPkgName("github.com/bitbus/sqlx")
-	sqlInfos := []yesql.SqlInfo{
-		yesql.NewSqlInfo("yesql.sql", "../auto", "yesql"),
-		yesql.NewSqlInfo("yesql_ac.sql", "../auto/ac", "ac"),
-		yesql.NewSqlInfo("yesql_cc.sql", "../auto/cc", "cc"),
-		yesql.NewSqlInfo("yesql_pg.sql", "../auto/pg", "pg"),
-	}
-	if err := yesql.GenerateFrom(sqlInfos, opt); err != nil {
+	if err := yesql.Generate(); err != nil {
 		log.Fatalf("generate code occurs error: %s", err)
 	}
 	log.Println("[Yesql] generate code finish")

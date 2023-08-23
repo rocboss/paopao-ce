@@ -1,0 +1,28 @@
+version: '1'
+
+generator:
+  engine: sqlx
+  sqlx_package: 'github.com/bitbus/sqlx'
+  default_struct_name: yesql
+  go_file_name: yesql
+
+sql:
+  - queries: yesql.sql
+    gen:
+      package: yesql
+      out: ../auto
+  - queries: yesql_ac.sql
+    gen:
+      package: ac
+      out: ../auto/ac
+      go_file_name: ac
+  - queries: yesql_cc.sql
+    gen:
+      package: cc
+      out: ../auto/cc
+      go_file_name: cc
+  - queries: yesql_pg.sql
+    gen:
+      package: pg
+      out: ../auto/pg
+      go_file_name: pg
