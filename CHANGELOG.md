@@ -35,6 +35,11 @@ All notable changes to paopao-ce are documented in this file.
 - frontend: optimize user profile page route path to domain/#/u/?s=username. [&c857142](https://github.com/rocboss/paopao-ce/commit/c857142565f0c28294344c7abc5c2df4e363b04c
 - change the `Friendship` feature and `Followship` feature as builtin feature. [#362](https://github.com/rocboss/paopao-ce/pull/362)  
 - deprecated/remove `Lightship` feature. [#362](https://github.com/rocboss/paopao-ce/pull/362)  
+ - optimize Followship feature allow follow/unfollow user in follow page. [&fd5e54b](https://github.com/rocboss/paopao-ce/commit/fd5e54bd31108bb5a879d8b7afe0d2cbd56b3395)
+- use Meilisearch as default search in docker-compose.yaml.
+
+### Fixed
+- fixed JWT valide error whent get user by id failed.[&51fd972](https://github.com/rocboss/paopao-ce/commit/51fd9724b96bbc8cc64405b36a5fd7ae69b7a52c)
   
 ## 0.3.1
 ### Fixed
