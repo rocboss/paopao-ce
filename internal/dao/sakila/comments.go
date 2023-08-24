@@ -7,12 +7,13 @@ package sakila
 import (
 	"time"
 
+	"github.com/alimy/cfg"
 	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
-	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
 	"github.com/rocboss/paopao-ce/pkg/types"
 )
 
@@ -144,7 +145,7 @@ func (s *commentManageSrv) CreateComment(r *ms.Comment) (*ms.Comment, error) {
 	if err != nil {
 		return nil, err
 	}
-	r.Model = &dbr.Model{
+	r.Model = &ms.Model{
 		ID: id,
 	}
 	return r, nil
@@ -160,7 +161,7 @@ func (s *commentManageSrv) CreateCommentReply(r *ms.CommentReply) (*ms.CommentRe
 	if err != nil {
 		return nil, err
 	}
-	r.Model = &dbr.Model{ID: id}
+	r.Model = &ms.Model{ID: id}
 	return r, nil
 }
 
@@ -184,7 +185,7 @@ func (s *commentManageSrv) CreateCommentContent(r *ms.CommentContent) (*ms.Comme
 	if err != nil {
 		return nil, err
 	}
-	r.Model = &dbr.Model{ID: id}
+	r.Model = &ms.Model{ID: id}
 	return r, nil
 }
 
@@ -195,7 +196,7 @@ func (s *commentManageSrv) ThumbsUpComment(userId int64, tweetId, commentId int6
 			thumbsDownCount int32 = 0
 		)
 		now := time.Now().Unix()
-		commentThumbs := &dbr.TweetCommentThumbs{}
+		commentThumbs := &ms.TweetCommentThumbs{}
 		// 检查thumbs状态
 		err := tx.Stmtx(s.q.GetTweetCommentThumb).Get(commentThumbs, userId, tweetId, commentId)
 		if err == nil {
@@ -214,14 +215,14 @@ func (s *commentManageSrv) ThumbsUpComment(userId int64, tweetId, commentId int6
 				return err
 			}
 		} else {
-			commentThumbs = &dbr.TweetCommentThumbs{
+			commentThumbs = &ms.TweetCommentThumbs{
 				UserID:       userId,
 				TweetID:      tweetId,
 				CommentID:    commentId,
 				IsThumbsUp:   types.Yes,
 				IsThumbsDown: types.No,
 				CommentType:  0,
-				Model: &dbr.Model{
+				Model: &ms.Model{
 					CreatedOn: now,
 				},
 			}
@@ -243,7 +244,7 @@ func (s *commentManageSrv) ThumbsDownComment(userId int64, tweetId, commentId in
 			thumbsDownCount int32 = 0
 		)
 		now := time.Now().Unix()
-		commentThumbs := &dbr.TweetCommentThumbs{}
+		commentThumbs := &ms.TweetCommentThumbs{}
 		// 检查thumbs状态
 		err := tx.Stmtx(s.q.GetTweetCommentThumb).Get(commentThumbs, userId, tweetId, commentId)
 		if err == nil {
@@ -263,14 +264,14 @@ func (s *commentManageSrv) ThumbsDownComment(userId int64, tweetId, commentId in
 				return err
 			}
 		} else {
-			commentThumbs = &dbr.TweetCommentThumbs{
+			commentThumbs = &ms.TweetCommentThumbs{
 				UserID:       userId,
 				TweetID:      tweetId,
 				CommentID:    commentId,
 				IsThumbsUp:   types.No,
 				IsThumbsDown: types.Yes,
 				CommentType:  0,
-				Model: &dbr.Model{
+				Model: &ms.Model{
 					CreatedOn: now,
 				},
 			}
@@ -292,7 +293,7 @@ func (s *commentManageSrv) ThumbsUpReply(userId int64, tweetId, commentId, reply
 			thumbsDownCount int32 = 0
 		)
 		now := time.Now().Unix()
-		commentThumbs := &dbr.TweetCommentThumbs{}
+		commentThumbs := &ms.TweetCommentThumbs{}
 		// 检查thumbs状态
 		err := tx.Stmtx(s.q.GetCommentReplyThumb).Get(commentThumbs, userId, tweetId, commentId, replyId)
 		if err == nil {
@@ -311,7 +312,7 @@ func (s *commentManageSrv) ThumbsUpReply(userId int64, tweetId, commentId, reply
 				return err
 			}
 		} else {
-			commentThumbs = &dbr.TweetCommentThumbs{
+			commentThumbs = &ms.TweetCommentThumbs{
 				UserID:       userId,
 				TweetID:      tweetId,
 				CommentID:    commentId,
@@ -319,7 +320,7 @@ func (s *commentManageSrv) ThumbsUpReply(userId int64, tweetId, commentId, reply
 				IsThumbsUp:   types.Yes,
 				IsThumbsDown: types.No,
 				CommentType:  1,
-				Model: &dbr.Model{
+				Model: &ms.Model{
 					CreatedOn: now,
 				},
 			}
@@ -341,7 +342,7 @@ func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, rep
 			thumbsDownCount int32 = 0
 		)
 		now := time.Now().Unix()
-		commentThumbs := &dbr.TweetCommentThumbs{}
+		commentThumbs := &ms.TweetCommentThumbs{}
 		// 检查thumbs状态
 		err := tx.Stmtx(s.q.GetCommentReplyThumb).Get(commentThumbs, userId, tweetId, commentId, replyId)
 		if err == nil {
@@ -360,7 +361,7 @@ func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, rep
 				return err
 			}
 		} else {
-			commentThumbs = &dbr.TweetCommentThumbs{
+			commentThumbs = &ms.TweetCommentThumbs{
 				UserID:       userId,
 				TweetID:      tweetId,
 				CommentID:    commentId,
@@ -368,7 +369,7 @@ func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, rep
 				IsThumbsUp:   types.No,
 				IsThumbsDown: types.Yes,
 				CommentType:  1,
-				Model: &dbr.Model{
+				Model: &ms.Model{
 					CreatedOn: now,
 				},
 			}
@@ -390,9 +391,17 @@ func newCommentService(db *sqlx.DB) core.CommentService {
 	}
 }
 
-func newCommentManageService(db *sqlx.DB) core.CommentManageService {
-	return &commentManageSrv{
+func newCommentManageService(db *sqlx.DB) (s core.CommentManageService) {
+	cms := &commentManageSrv{
 		sqlxSrv: newSqlxSrv(db),
 		q:       ccBuild(db, cc.BuildCommentManage),
 	}
+	s = cms
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		s = &pgcCommentManageSrv{
+			commentManageSrv: cms,
+			p:                pgcBuild(db, pgc.BuildCommentManage),
+		}
+	}
+	return
 }

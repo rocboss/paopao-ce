@@ -26,3 +26,13 @@ sql:
       package: pg
       out: ../auto/pg
       go_file_name: pg
+  - queries: yesql_pga.sql
+    gen:
+      package: pga
+      out: ../auto/pga
+      go_file_name: pga
+  - queries: yesql_pgc.sql
+    gen:
+      package: pgc
+      out: ../auto/pgc
+      go_file_name: pgc

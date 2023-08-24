@@ -7,12 +7,13 @@ package sakila
 import (
 	"time"
 
+	"github.com/alimy/cfg"
 	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
-	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
 )
 
 var (
@@ -25,7 +26,7 @@ type walletSrv struct {
 }
 
 func (s *walletSrv) GetRechargeByID(id int64) (res *ms.WalletRecharge, err error) {
-	err = s.q.GetRechargeById.Get(res, id)
+	err = stmtGet(s.q.GetRechargeById, &res, id)
 	return
 }
 
@@ -40,7 +41,7 @@ func (s *walletSrv) CreateRecharge(userId, amount int64) (*ms.WalletRecharge, er
 		return nil, err
 	}
 	return &ms.WalletRecharge{
-		Model: &dbr.Model{
+		Model: &ms.Model{
 			ID:        id,
 			CreatedOn: now,
 		},
@@ -123,9 +124,17 @@ func (s *walletSrv) HandlePostAttachmentBought(post *ms.Post, user *ms.User) err
 	})
 }
 
-func newWalletService(db *sqlx.DB) core.WalletService {
-	return &walletSrv{
+func newWalletService(db *sqlx.DB) (s core.WalletService) {
+	ws := &walletSrv{
 		sqlxSrv: newSqlxSrv(db),
 		q:       ccBuild(db, cc.BuildWallet),
 	}
+	s = ws
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		s = &pgcWalletSrv{
+			walletSrv: ws,
+			p:         pgcBuild(db, pgc.BuildWallet),
+		}
+	}
+	return
 }

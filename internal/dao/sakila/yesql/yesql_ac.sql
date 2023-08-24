@@ -148,7 +148,7 @@ FROM @topic_user c
 JOIN @user u ON c.user_id = u.id 
 JOIN @tag t ON c.topic_id = t.id
 WHERE c.is_del = 0 AND t.quote_num > 0 AND c.user_id=?
-ORDER BY t.quote_num DESC
+ORDER BY c.is_top DESC, t.quote_num DESC
 LIMIT ? OFFSET ?;
 
 -- name: topic_infos@topic_a

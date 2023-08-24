@@ -8,10 +8,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimy/cfg"
 	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/ac"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pga"
 )
 
 var (
@@ -187,16 +189,32 @@ func (s *topicSrvA) tagsFormatA(userId int64, tags cs.TagList) (cs.TagList, erro
 	return tags, nil
 }
 
-func newTopicService(db *sqlx.DB) core.TopicService {
-	return &topicSrvA{
+func newTopicService(db *sqlx.DB) (s core.TopicService) {
+	ts := &topicSrvA{
 		sqlxSrv: newSqlxSrv(db),
 		q:       acBuild(db, ac.BuildTopicA),
 	}
+	s = ts
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		s = &pgaTopicSrvA{
+			topicSrvA: ts,
+			p:         pgaBuild(db, pga.BuildTopicA),
+		}
+	}
+	return
 }
 
-func newTopicServantA(db *sqlx.DB) core.TopicServantA {
-	return &topicSrvA{
+func newTopicServantA(db *sqlx.DB) (s core.TopicServantA) {
+	ts := &topicSrvA{
 		sqlxSrv: newSqlxSrv(db),
 		q:       acBuild(db, ac.BuildTopicA),
 	}
+	s = ts
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		s = &pgaTopicSrvA{
+			topicSrvA: ts,
+			p:         pgaBuild(db, pga.BuildTopicA),
+		}
+	}
+	return
 }
