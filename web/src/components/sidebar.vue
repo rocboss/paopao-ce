@@ -3,9 +3,8 @@
         <div class="logo-wrap">
             <n-image class="logo-img" width="36" :src="LOGO" :preview-disabled="true" @click="goHome" />
         </div>
-        <n-menu :accordion="true" :icon-size="24"
-            :options="menuOptions" :render-label="renderMenuLabel" :render-icon="renderMenuIcon" :value="selectedPath"
-            @update:value="goRouter" />
+        <n-menu :accordion="true" :icon-size="24" :options="menuOptions" :render-label="renderMenuLabel"
+            :render-icon="renderMenuIcon" :value="selectedPath" @update:value="goRouter" />
 
         <div class="user-wrap" v-if="store.state.userInfo.id > 0">
             <n-avatar class="user-avatar" round :size="34" :src="store.state.userInfo.avatar" />
@@ -135,7 +134,7 @@ const menuOptions = computed(() => {
         },
     ];
     if (import.meta.env.VITE_ENABLE_ANOUNCEMENT.toLowerCase() === 'true') {
-        options.push( {
+        options.push({
             label: '公告',
             key: 'anouncement',
             icon: () => h(MegaphoneOutline),
@@ -234,7 +233,11 @@ const renderMenuIcon = (option: AnyObject) => {
 
 const goRouter = (name: string, item: any = {}) => {
     selectedPath.value = name;
-    router.push({ name });
+    router.push({
+        name, query: {
+            t: (new Date().getTime())
+        }
+    });
 };
 const goHome = () => {
     if (route.path === '/') {
@@ -339,7 +342,7 @@ window.$message = useMessage();
 
     .login-only-wrap {
         display: flex;
-        justify-content:center;
+        justify-content: center;
         width: 100%;
 
         button {
@@ -378,6 +381,7 @@ window.$message = useMessage();
     }
 
     .user-wrap {
+
         .user-avatar,
         .user-info,
         .login-only-wrap,
@@ -385,9 +389,9 @@ window.$message = useMessage();
             margin-bottom: 32px;
         }
 
-    //     .user-mini-wrap {
-    //         display: block !important;
-    //     }
+        //     .user-mini-wrap {
+        //         display: block !important;
+        //     }
     }
 }
 </style>
