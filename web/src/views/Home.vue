@@ -99,6 +99,9 @@ const loadPosts = () => {
         })
         .catch((err) => {
             loading.value = false;
+            if (page.value > 1) {
+                page.value--
+            }
         });
 };
 
@@ -136,8 +139,12 @@ const onPostSuccess = (post: Item.PostProps) => {
 };
 
 const nextPage = () => {
-    page.value++;
-    loadPosts()
+    if (page.value < totalPage.value || totalPage.value == 0) {
+        page.value++;
+        loadPosts();
+    } else {
+        noMore.value = true;
+    }
 };
 
 onMounted(() => {
@@ -185,13 +192,6 @@ watch(
             opacity: 0.65;
         }
     }
-}
-
-.pagination-wrap {
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
 }
 
 .dark {
