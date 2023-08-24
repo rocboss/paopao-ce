@@ -1086,8 +1086,8 @@ SELECT * FROM @user WHERE is_del=0 ORDER BY id ASC limit 6;
 
 -- name: create_user@user_manage
 -- prepare: named_stmt
-INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on) 
-VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on);
+INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on, balance) 
+VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on, 0);
 
 -- name: update_user@user_manage
 -- prepare: named_stmt

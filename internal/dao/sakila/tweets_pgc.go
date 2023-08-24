@@ -48,11 +48,11 @@ func (s *pgcTweetManageSrv) CreateAttachment(r *ms.Attachment) (res int64, err e
 }
 
 func (s *pgcTweetManageSrv) CreatePostStar(postID, userID int64) (res *ms.PostStar, err error) {
-	err = stmtGet(s.q.AddPostStar, res, postID, userID, time.Now().Unix())
+	err = stmtGet(s.p.AddPostStar, &res, postID, userID, time.Now().Unix())
 	return
 }
 
 func (s *pgcTweetManageSrv) CreatePostCollection(postID, userID int64) (res *ms.PostCollection, err error) {
-	err = stmtGet(s.q.AddPostCollection, res, postID, userID, time.Now().Unix())
+	err = stmtGet(s.p.AddPostCollection, &res, postID, userID, time.Now().Unix())
 	return
 }

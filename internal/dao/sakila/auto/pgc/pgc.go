@@ -27,7 +27,7 @@ const (
 	_TweetManage_AddPostCollection      = `INSERT INTO @post_collection (post_id, user_id, created_on) VALUES (?, ?, ?) RETURNING *`
 	_TweetManage_AddPostContent         = `INSERT INTO @post_content (post_id, user_id, content, type, sort, created_on) VALUES (:post_id, :user_id, :content, :type, :sort, :created_on) RETURNING id`
 	_TweetManage_AddPostStar            = `INSERT INTO @post_star (post_id, user_id, created_on) VALUES (?, ?, ?) RETURNING *`
-	_UserManage_CreateUser              = `INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on) VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on) RETURNING id`
+	_UserManage_CreateUser              = `INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on, balance) VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on, 0) RETURNING id`
 	_Wallet_CreateRecharge              = `INSERT INTO @wallet_recharge (user_id, amount, created_on) VALUES (?, ?, ?) RETURNING *`
 )
 

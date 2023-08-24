@@ -134,7 +134,7 @@ const (
 	_Tweet_UserStarTweetsCountByFriend         = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND (post.visibility=0 OR post.visibility=2)`
 	_Tweet_UserStarTweetsCountByGuest          = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND post.visibility=0`
 	_Tweet_UserStarTweetsCountBySelf           = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 OR (post.visibility=0 AND post.user_id=?))`
-	_UserManage_CreateUser                     = `INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on) VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on)`
+	_UserManage_CreateUser                     = `INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on, balance) VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on, 0)`
 	_UserManage_GetAnyUsers                    = `SELECT * FROM @user WHERE is_del=0 ORDER BY id ASC limit 6`
 	_UserManage_GetUserById                    = `SELECT * FROM @user WHERE id=? AND is_del=0`
 	_UserManage_GetUserByPhone                 = `SELECT * FROM @user WHERE phone=? AND is_del=0`

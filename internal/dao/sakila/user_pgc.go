@@ -23,7 +23,7 @@ type pgcUserManageSrv struct {
 
 func (s *pgcUserManageSrv) CreateUser(r *ms.User) (*ms.User, error) {
 	r.Model = &ms.Model{CreatedOn: time.Now().Unix()}
-	if err := s.q.CreateUser.Get(&r.ID, r); err != nil {
+	if err := s.p.CreateUser.Get(&r.ID, r); err != nil {
 		return nil, err
 	}
 	return r, nil

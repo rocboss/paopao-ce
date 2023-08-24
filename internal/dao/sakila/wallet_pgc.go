@@ -22,6 +22,6 @@ type pgcWalletSrv struct {
 }
 
 func (s *pgcWalletSrv) CreateRecharge(userId, amount int64) (res *ms.WalletRecharge, err error) {
-	err = stmtGet(s.q.CreateRecharge, res, userId, amount, time.Now().Unix())
+	err = stmtGet(s.p.CreateRecharge, &res, userId, amount, time.Now().Unix())
 	return
 }

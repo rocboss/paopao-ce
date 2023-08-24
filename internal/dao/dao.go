@@ -54,7 +54,7 @@ func newAuthorizationManageService() (ams core.AuthorizationManageService) {
 	} else if cfg.If("Sqlc") && cfg.Any("Postgres", "PostgreSQL") {
 		ams = slonik.NewAuthorizationManageService()
 	} else {
-		ams = jinzhu.NewAuthorizationManageService()
+		ams = sakila.NewAuthorizationManageService()
 	}
 	return
 }
@@ -80,9 +80,9 @@ func initDsX() {
 		ds, dsVer = slonik.NewDataService()
 		webDsa, dsaVer = slonik.NewWebDataServantA()
 	} else {
-		// default use gorm as orm for sql database
-		ds, dsVer = jinzhu.NewDataService()
-		webDsa, dsaVer = jinzhu.NewWebDataServantA()
+		// default use sqlx as orm for sql database
+		ds, dsVer = sakila.NewDataService()
+		webDsa, dsaVer = sakila.NewWebDataServantA()
 	}
 	logrus.Infof("use %s as core.DataService with version %s", dsVer.Name(), dsVer.Version())
 	logrus.Infof("use %s as core.ServantA with version %s", dsaVer.Name(), dsaVer.Version())

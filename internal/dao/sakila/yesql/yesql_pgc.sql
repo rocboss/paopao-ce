@@ -44,8 +44,8 @@ RETURNING *;
 
 -- name: create_user@user_manage
 -- prepare: named_stmt
-INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on) 
-VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on)
+INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on, balance) 
+VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on, 0)
 RETURNING id;
 
 --------------------------------------------------------------------------------

@@ -46,33 +46,33 @@ func newSqlxSrv(db *sqlx.DB) (s *sqlxSrv) {
 }
 
 //lint:ignore U1000 stmtGet
-func stmtGet[T any](stmt *sqlx.Stmt, dest *T, args ...any) error {
-	*dest = *new(T)
-	return stmt.Get(dest, args...)
+func stmtGet[T any](stmt *sqlx.Stmt, dest **T, args ...any) error {
+	*dest = new(T)
+	return stmt.Get(*dest, args...)
 }
 
 //lint:ignore U1000 stmtGetContext
-func stmtGetContext[T any](ctx context.Context, stmt *sqlx.Stmt, dest *T, args ...any) error {
-	*dest = *new(T)
-	return stmt.GetContext(ctx, dest, args...)
+func stmtGetContext[T any](ctx context.Context, stmt *sqlx.Stmt, dest **T, args ...any) error {
+	*dest = new(T)
+	return stmt.GetContext(ctx, *dest, args...)
 }
 
 //lint:ignore U1000 namedGet
 func namedGet[T any](stmt *sqlx.NamedStmt, dest *T, arg any) error {
 	*dest = *new(T)
-	return stmt.Get(dest, arg)
+	return stmt.Get(*dest, arg)
 }
 
-//lint:ignore U1000 namesGetContext
-func namesGetContext[T any](ctx context.Context, stmt *sqlx.NamedStmt, dest *T, arg any) error {
-	*dest = *new(T)
-	return stmt.GetContext(ctx, dest, arg)
+//lint:ignore U1000 namedGetContext
+func namedGetContext[T any](ctx context.Context, stmt *sqlx.NamedStmt, dest **T, arg any) error {
+	*dest = new(T)
+	return stmt.GetContext(ctx, *dest, arg)
 }
 
 //lint:ignore U1000 inGet
-func inGet[T any](q sqlx.Queryable, dest *T, query string, args ...any) error {
-	*dest = *new(T)
-	return q.InGet(dest, query, args...)
+func inGet[T any](q sqlx.Queryable, dest **T, query string, args ...any) error {
+	*dest = new(T)
+	return q.InGet(*dest, query, args...)
 }
 
 //lint:ignore U1000 r

@@ -23,8 +23,8 @@ type pgcContactManageSrv struct {
 }
 
 func (s *pgcContactManageSrv) pgcFetchOrNewContact(tx *sqlx.Tx, userId int64, friendId int64, status int8) (res *cs.Contact, err error) {
-	if err = stmtGet(tx.Stmtx(s.q.GetContact), res, userId, friendId); err != nil {
-		err = stmtGet(tx.Stmtx(s.p.CreateContact), res, userId, friendId, status, time.Now().Unix())
+	if err = stmtGet(tx.Stmtx(s.q.GetContact), &res, userId, friendId); err != nil {
+		err = stmtGet(tx.Stmtx(s.p.CreateContact), &res, userId, friendId, status, time.Now().Unix())
 	}
 	return
 }

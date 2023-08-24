@@ -22,21 +22,21 @@ type pgcCommentManageSrv struct {
 }
 
 func (s *pgcCommentManageSrv) CreateComment(r *ms.Comment) (res *ms.Comment, err error) {
-	err = stmtGet(s.q.CreateComment, res,
+	err = stmtGet(s.p.CreateComment, &res,
 		r.PostID, r.UserID, r.IP,
 		r.IPLoc, time.Now().Unix())
 	return
 }
 
 func (s *pgcCommentManageSrv) CreateCommentReply(r *ms.CommentReply) (res *ms.CommentReply, err error) {
-	err = stmtGet(s.q.CreateCommentReply, res,
+	err = stmtGet(s.p.CreateCommentReply, &res,
 		r.CommentID, r.UserID, r.Content,
 		r.AtUserID, r.IP, r.IPLoc, time.Now().Unix())
 	return
 }
 
 func (s *pgcCommentManageSrv) CreateCommentContent(r *ms.CommentContent) (res *ms.CommentContent, err error) {
-	err = stmtGet(s.q.CreateCommentContent, res,
+	err = stmtGet(s.p.CreateCommentContent, &res,
 		r.CommentID, r.UserID, r.Content,
 		r.Type, r.Sort, time.Now().Unix())
 	return
