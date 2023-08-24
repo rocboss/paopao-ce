@@ -67,7 +67,7 @@
                 <n-tab-pane name="media" tab="图文"> </n-tab-pane>
                 <n-tab-pane name="star" tab="喜欢"> </n-tab-pane>
             </n-tabs>
-            <div v-if="loading" class="skeleton-wrap">
+            <div v-if="loading && list.length === 0" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />
             </div>
             <div v-else>
