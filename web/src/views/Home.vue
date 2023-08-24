@@ -8,10 +8,11 @@
                 <compose @post-success="onPostSuccess" />
             </n-list-item>
 
-            <div v-if="loading" class="skeleton-wrap">
+            <div v-if="loading && list.length === 0" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />
             </div>
-            <div v-else>
+
+            <div>
                 <div class="empty-wrap" v-if="list.length === 0">
                     <n-empty size="large" description="暂无数据" />
                 </div>
@@ -28,14 +29,17 @@
             </div>
         </n-list>
 
-        <div class="pagination-wrap" v-if="totalPage > 0">
-            <n-pagination
-                :page="page"
-                @update:page="updatePage"
-                :page-slot="!store.state.collapsedRight ? 8 : 5"
-                :page-count="totalPage"
-            />
-        </div>
+
+        <n-space v-if="totalPage > 0" justify="center">
+            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多泡泡了', error: '加载出错' }" @infinite="nextPage()">
+                <template #spinner>
+                    <div class="load-more-wrap">
+                        <n-spin :size="14" v-if="!noMore" />
+                        <span class="load-more-spinner">{{ noMore ? '没有更多泡泡了' : '加载更多' }}</span>
+                    </div>
+                </template>
+            </InfiniteLoading>
+        </n-space>
     </div>
 </template>
 
@@ -43,6 +47,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
+import InfiniteLoading from "v3-infinite-loading";
 import { getPosts } from '@/api/post';
 
 const store = useStore();
@@ -50,8 +55,9 @@ const route = useRoute();
 const router = useRouter();
 
 const loading = ref(false);
+const noMore = ref(false);
 const list = ref<any[]>([]);
-const page = ref(+(route.query.p as string) || 1);
+const page = ref(1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 const title = computed(() => {
@@ -78,13 +84,24 @@ const loadPosts = () => {
     })
         .then((rsp) => {
             loading.value = false;
-            list.value = rsp.list;
-            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+            if (rsp.list.length === 0) {
+                noMore.value = true
+            }
 
-            window.scrollTo(0, 0);
+            if (page.value > 1) {
+                list.value = list.value.concat(rsp.list);
+            } else {
+                list.value = rsp.list;
+                window.scrollTo(0, 0);
+            }
+
+            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
         })
         .catch((err) => {
             loading.value = false;
+            if (page.value > 1) {
+                page.value--
+            }
         });
 };
 
@@ -99,36 +116,36 @@ const onPostSuccess = (post: Item.PostProps) => {
         });
         return;
     }
-    
+
     // 如果实在第一页，就地插入新推文到文章列表中
-   let items = [];
-   let length = list.value.length;
-   if (length == pageSize.value) {
+    let items = [];
+    let length = list.value.length;
+    if (length == pageSize.value) {
         length--;
-   }
-   var i = 0;
-   for (;i < length; i++) {
+    }
+    var i = 0;
+    for (; i < length; i++) {
         let item: Item.PostProps = list.value[i];
         if (!item.is_top) {
             break;
         }
-        items.push(item);  
-   }
-   items.push(post);
-   for (;i < length; i++) {
+        items.push(item);
+    }
+    items.push(post);
+    for (; i < length; i++) {
         items.push(list.value[i]);
-   }
-   list.value = items;
+    }
+    list.value = items;
 };
 
-const updatePage = (p: number) => {
-    router.push({
-        name: 'home',
-        query: {
-            ...route.query,
-            p,
-        },
-    });
+const nextPage = () => {
+    if (page.value < totalPage.value || totalPage.value == 0) {
+        noMore.value = false;
+        page.value++;
+        loadPosts();
+    } else {
+        noMore.value = true;
+    }
 };
 
 onMounted(() => {
@@ -142,14 +159,16 @@ watch(
     }),
     (to, from) => {
         if (to.refresh !== from.refresh) {
-            page.value = +(route.query.p as string) || 1;
+            noMore.value = false;
+            page.value = 1;
             setTimeout(() => {
                 loadPosts();
             }, 0);
             return;
         }
         if (from.path !== '/post' && to.path === '/') {
-            page.value = +(route.query.p as string) || 1;
+            noMore.value = false;
+            page.value = 1;
             setTimeout(() => {
                 loadPosts();
             }, 0);
@@ -159,14 +178,29 @@ watch(
 </script>
 
 <style lang="less" scoped>
-.pagination-wrap {
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
+.load-more {
+    margin: 20px;
+
+    .load-more-wrap {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 14px;
+
+        .load-more-spinner {
+            font-size: 14px;
+            opacity: 0.65;
+        }
+    }
 }
+
 .dark {
-    .main-content-wrap, .pagination-wrap, .empty-wrap, .skeleton-wrap {
+
+    .main-content-wrap,
+    .pagination-wrap,
+    .empty-wrap,
+    .skeleton-wrap {
         background-color: rgba(16, 16, 20, 0.75);
     }
 }
