@@ -88,14 +88,16 @@
             </div>
         </n-list>
 
-        <div class="pagination-wrap" v-if="totalPage > 0">
-            <n-pagination
-                :page="page"
-                @update:page="updatePage"
-                :page-slot="!store.state.collapsedRight ? 8 : 5"
-                :page-count="totalPage"
-            />
-         </div>
+        <n-space v-if="totalPage > 0" justify="center">
+            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多泡泡了', error: '加载出错' }" @infinite="nextPage()">
+                <template #spinner>
+                    <div class="load-more-wrap">
+                        <n-spin :size="14" v-if="!noMore" />
+                        <span class="load-more-spinner">{{ noMore ? '没有更多泡泡了' : '加载更多' }}</span>
+                    </div>
+                </template>
+            </InfiniteLoading>
+        </n-space>
     </div>
 </template>
 
@@ -105,12 +107,18 @@ import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import { getUserPosts } from '@/api/user';
 import { formatDate } from '@/utils/formatTime';
+import InfiniteLoading from "v3-infinite-loading";
 
 const store = useStore();
 const route = useRoute();
-
 const loading = ref(false);
+const noMore = ref(false);
 const list = ref<Item.PostProps[]>([]);
+const postList = ref<Item.PostProps[]>([]);
+const commentList = ref<Item.PostProps[]>([]);
+const highlightList = ref<Item.PostProps[]>([]);
+const mediaList = ref<Item.PostProps[]>([]);
+const starList = ref<Item.PostProps[]>([]);
 const pageType = ref<"post" | "comment" | "highlight" |"media" | "star">('post');
 const postPage = ref(+(route.query.p as string) || 1);
 const commentPage = ref(1)
@@ -120,6 +128,11 @@ const starPage = ref(1);
 const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
+const postTotalPage = ref(0);
+const commentTotalPage = ref(0);
+const highlightTotalPage = ref(0);
+const mediaTotalPage = ref(0);
+const starTotalPage = ref(0);
 
 const loadPage = () => {
     switch(pageType.value) {
@@ -150,12 +163,24 @@ const loadPosts = () => {
     })
         .then((rsp) => {
             loading.value = false;
-            list.value = rsp.list || [];
+            if (rsp.list.length === 0) {
+                noMore.value = true
+            }
+            if (page.value > 1) {
+                list.value = list.value.concat(rsp.list);
+            } else {
+                list.value = rsp.list || [];
+                window.scrollTo(0, 0);
+            }
             totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-            window.scrollTo(0, 0);
+            postList.value = list.value;
+            postTotalPage.value = totalPage.value;
         })
         .catch((err) => {
-            list.value = []
+            list.value = [];
+            if (page.value > 1) {
+                page.value--;
+            }
             loading.value = false;
         });
 };
@@ -169,12 +194,24 @@ const loadCommentPosts = () => {
     })
         .then((rsp) => {
             loading.value = false;
-            list.value = rsp.list || [];
+            if (rsp.list.length === 0) {
+                noMore.value = true
+            }
+            if (page.value > 1) {
+                list.value = list.value.concat(rsp.list);
+            } else {
+                list.value = rsp.list || [];
+                window.scrollTo(0, 0);
+            }
             totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-            window.scrollTo(0, 0);
+            commentList.value = list.value;
+            commentTotalPage.value = totalPage.value;
         })
         .catch((err) => {
-            list.value = []
+            list.value = [];
+            if (page.value > 1) {
+                page.value--;
+            }
             loading.value = false;
         });
 };
@@ -188,12 +225,24 @@ const loadHighlightPosts = () => {
     })
         .then((rsp) => {
             loading.value = false;
-            list.value = rsp.list || [];
+            if (rsp.list.length === 0) {
+                noMore.value = true
+            }
+            if (page.value > 1) {
+                list.value = list.value.concat(rsp.list);
+            } else {
+                list.value = rsp.list || [];
+                window.scrollTo(0, 0);
+            }
             totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-            window.scrollTo(0, 0);
+            highlightList.value = list.value;
+            highlightTotalPage.value = totalPage.value;
         })
         .catch((err) => {
-            list.value = []
+            list.value = [];
+            if (page.value > 1) {
+                page.value--;
+            }
             loading.value = false;
         });
 };
@@ -207,12 +256,24 @@ const loadMediaPosts = () => {
     })
         .then((rsp) => {
             loading.value = false;
-            list.value = rsp.list || [];
+            if (rsp.list.length === 0) {
+                noMore.value = true
+            }
+            if (page.value > 1) {
+                list.value = list.value.concat(rsp.list);
+            } else {
+                list.value = rsp.list || [];
+                window.scrollTo(0, 0);
+            }
             totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-            window.scrollTo(0, 0);
+            mediaList.value = list.value;
+            mediaTotalPage.value = totalPage.value;
         })
         .catch((err) => {
-            list.value = []
+            list.value = [];
+            if (page.value > 1) {
+                page.value--;
+            }
             loading.value = false;
         });
 };
@@ -226,12 +287,24 @@ const loadStarPosts = () => {
     })
         .then((rsp) => {
             loading.value = false;
-            list.value = rsp.list || [];
+            if (rsp.list.length === 0) {
+                noMore.value = true
+            }
+            if (page.value > 1) {
+                list.value = list.value.concat(rsp.list);
+            } else {
+                list.value = rsp.list || [];
+                window.scrollTo(0, 0);
+            }
             totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-            window.scrollTo(0, 0);
+            starList.value = list.value;
+            starTotalPage.value = totalPage.value;
         })
         .catch((err) => {
-            list.value = []
+            list.value = [];
+            if (page.value > 1) {
+                page.value--;
+            }
             loading.value = false;
         });
 };
@@ -239,50 +312,67 @@ const changeTab = (tab: "post" | "comment" | "highlight" | "media" | "star") => 
     pageType.value = tab;
     switch(pageType.value) {
         case "post":
-            page.value = postPage.value
+            list.value = postList.value;
+            page.value = postPage.value;
+            totalPage.value = postTotalPage.value;
             loadPosts();
             break;
         case "comment":
-            page.value = commentPage.value
+            list.value = commentList.value;
+            page.value = commentPage.value;
+            totalPage.value = commentTotalPage.value;
             loadCommentPosts();
             break;
         case "highlight":
-            page.value = highlightPage.value
+            list.value = highlightList.value;
+            page.value = highlightPage.value;
+            totalPage.value = highlightTotalPage.value;
             loadHighlightPosts();
             break;
         case "media":
-            page.value = mediaPage.value
+            list.value = mediaList.value;
+            page.value = mediaPage.value;
+            totalPage.value = mediaTotalPage.value;
             loadMediaPosts();
             break;
         case "star":
-            page.value = starPage.value
+            list.value = starList.value;
+            page.value = starPage.value;
+            totalPage.value = starTotalPage.value;
             loadStarPosts();
             break;
     }
 };
-const updatePage = (p: number) => {
-    page.value = p;
+const updatePage = () => {
     switch(pageType.value) {
         case "post":
-            postPage.value = p
+            postPage.value = page.value;
             loadPosts();
             break;
         case "comment":
-            commentPage.value = page.value
+            commentPage.value = page.value;
             loadCommentPosts();
             break;
         case "highlight":
-            highlightPage.value = page.value
+            highlightPage.value = page.value;
             loadHighlightPosts();
             break;
         case "media":
-            mediaPage.value = page.value
+            mediaPage.value = page.value;
             loadMediaPosts();
             break;
         case "star":
-            starPage.value = page.value
+            starPage.value = page.value;
             loadStarPosts();
             break;
+    }
+};
+const nextPage = () => {
+    if (page.value < totalPage.value || totalPage.value == 0) {
+        page.value++;
+        updatePage();
+    }  else {
+        noMore.value = true;
     }
 };
 onMounted(() => {
@@ -350,12 +440,23 @@ watch(
     padding: 0 16px;
 }
 
-.pagination-wrap {
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
+.load-more {
+    margin: 20px;
+
+    .load-more-wrap {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 14px;
+
+        .load-more-spinner {
+            font-size: 14px;
+            opacity: 0.65;
+        }
+    }
 }
+
 .dark {
     .profile-wrap, .pagination-wrap {
         background-color: rgba(16, 16, 20, 0.75);
