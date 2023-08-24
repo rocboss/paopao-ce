@@ -637,6 +637,7 @@ const banUser = () => {
 };
 const nextPage = () => {
     if (page.value < totalPage.value || totalPage.value == 0) {
+        noMore.value = false;
         page.value++;
         updatePage();
     } else {
