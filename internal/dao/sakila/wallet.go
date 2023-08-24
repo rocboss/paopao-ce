@@ -25,7 +25,7 @@ type walletSrv struct {
 }
 
 func (s *walletSrv) GetRechargeByID(id int64) (res *ms.WalletRecharge, err error) {
-	err = s.q.GetRechargeById.Get(res, id)
+	err = stmtGet(s.q.GetRechargeById, res, id)
 	return
 }
 

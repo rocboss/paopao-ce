@@ -160,8 +160,7 @@ func (s *contactManageSrv) IsFriend(userId int64, friendId int64) (res bool) {
 }
 
 func (s *contactManageSrv) fetchOrNewContact(tx *sqlx.Tx, userId int64, friendId int64, status int8) (res *cs.Contact, err error) {
-	res = &cs.Contact{}
-	if err = tx.Stmtx(s.q.GetContact).Get(res, userId, friendId); err == nil {
+	if err = stmtGet(tx.Stmtx(s.q.GetContact), res, userId, friendId); err == nil {
 		return
 	}
 	result, xerr := tx.Stmtx(s.q.CreateContact).Exec(userId, friendId, status, time.Now().Unix())

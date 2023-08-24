@@ -24,20 +24,17 @@ type userManageSrv struct {
 }
 
 func (s *userManageSrv) GetUserByID(id int64) (res *ms.User, err error) {
-	res = &ms.User{}
-	err = s.q.GetUserById.Get(res, id)
+	err = stmtGet(s.q.GetUserById, res, id)
 	return
 }
 
 func (s *userManageSrv) GetUserByUsername(username string) (res *ms.User, err error) {
-	res = &ms.User{}
-	err = s.q.GetUserByUsername.Get(res, username)
+	err = stmtGet(s.q.GetUserByUsername, res, username)
 	return
 }
 
 func (s *userManageSrv) GetUserByPhone(phone string) (res *ms.User, err error) {
-	res = &ms.User{}
-	err = s.q.GetUserByPhone.Get(res, phone)
+	err = stmtGet(s.q.GetUserByPhone, res, phone)
 	return
 }
 

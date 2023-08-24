@@ -440,8 +440,7 @@ func (s *tweetSrv) GetUserPostStarCount(userID int64) (res int64, err error) {
 }
 
 func (s *tweetSrv) GetUserPostCollection(postID, userID int64) (res *ms.PostCollection, err error) {
-	res = &ms.PostCollection{}
-	err = s.q.GetUserPostCollection.Get(res, postID, userID, userID)
+	err = stmtGet(s.q.GetUserPostCollection, res, postID, userID, userID)
 	return
 }
 
@@ -467,8 +466,7 @@ func (s *tweetSrv) GetPostContentsByIDs(ids []int64) (res []*ms.PostContent, err
 }
 
 func (s *tweetSrv) GetPostContentByID(id int64) (res *ms.PostContent, err error) {
-	res = &ms.PostContent{}
-	err = s.q.GetPostContentById.Get(res, id)
+	err = stmtGet(s.q.GetPostContentById, res, id)
 	return
 }
 

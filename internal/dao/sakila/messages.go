@@ -45,7 +45,7 @@ func (s *messageSrv) GetUnreadCount(userID int64) (res int64, err error) {
 }
 
 func (s *messageSrv) GetMessageByID(id int64) (res *ms.Message, err error) {
-	err = s.q.GetMessageById.Get(res, id)
+	err = stmtGet(s.q.GetMessageById, res, id)
 	return
 }
 
