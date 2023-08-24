@@ -2,8 +2,9 @@
 
 All notable changes to paopao-ce are documented in this file.
 ## 0.5.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+## 0.4.1
 ### Changed
-- web frontend remove pagination to display content and use load more mechanism load page content.
+- infinite scrolling instead of pagination for Home/User/Profile page
 
 ## 0.4.0
 ### Added
