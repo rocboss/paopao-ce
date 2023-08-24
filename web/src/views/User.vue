@@ -87,7 +87,7 @@
                 <!-- 加好友组件 -->
                 <whisper-add-friend :show="showAddFriendWhisper" :user="user" @success="addFriendWhisperSuccess" />
             </n-spin>
-            <n-tabs class="profile-tabs-wrap" type="line" animated @update:value="changeTab">
+            <n-tabs class="profile-tabs-wrap" type="line" animated :value="pageType" @update:value="changeTab">
                 <n-tab-pane name="post" tab="泡泡"> </n-tab-pane>
                 <n-tab-pane name="comment" tab="评论"> </n-tab-pane>
                 <n-tab-pane name="highlight" tab="亮点"> </n-tab-pane>
@@ -193,6 +193,28 @@ const highlightTotalPage = ref(0);
 const mediaTotalPage = ref(0);
 const starTotalPage = ref(0);
 
+const reset = () => {
+    noMore.value = false;
+    list.value = [];
+    postList.value = [];
+    commentList.value = [];
+    highlightList.value = []
+    mediaList.value = [];
+    starList.value = []
+    pageType.value = "post";
+    page.value = 1;
+    postPage.value = 1;
+    commentPage.value = 1;
+    highlightPage.value = 1;
+    mediaPage.value = 1;
+    starPage.value = 1;
+    totalPage.value = 0;
+    postTotalPage.value = 0;
+    commentTotalPage.value = 0;
+    highlightTotalPage.value = 0;
+    mediaTotalPage.value = 0;
+    starTotalPage.value = 0;
+};
 const loadPage = () => {
     switch(pageType.value) {
         case "post":
@@ -655,6 +677,7 @@ watch(
     (to, from) => {
         if (from.path === '/u' && to.path === '/u') {
             username.value = route.query.s || '';
+            reset();
             loadUser();
         }
     }
