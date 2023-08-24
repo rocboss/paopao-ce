@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 
+	"github.com/alimy/cfg"
 	"github.com/alimy/yesql"
 	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/conf"
@@ -15,6 +16,8 @@ import (
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/ac"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pg"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pga"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -24,15 +27,22 @@ var (
 )
 
 type sqlxSrv struct {
-	db *sqlx.DB
-	y  *yc.Yesql
+	db        *sqlx.DB
+	y         *yc.Yesql
+	insertTag *sqlx.Stmt
 }
 
-func newSqlxSrv(db *sqlx.DB) *sqlxSrv {
-	return &sqlxSrv{
+func newSqlxSrv(db *sqlx.DB) (s *sqlxSrv) {
+	s = &sqlxSrv{
 		db: db,
 		y:  mustBuild(db, yc.BuildYesql),
 	}
+	s.insertTag = s.y.InsertTag
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		g := pgBuild(s.db, pg.BuildYesql)
+		s.insertTag = g.InsertTag
+	}
+	return
 }
 
 //lint:ignore U1000 stmtGet
@@ -45,6 +55,18 @@ func stmtGet[T any](stmt *sqlx.Stmt, dest *T, args ...any) error {
 func stmtGetContext[T any](ctx context.Context, stmt *sqlx.Stmt, dest *T, args ...any) error {
 	*dest = *new(T)
 	return stmt.GetContext(ctx, dest, args...)
+}
+
+//lint:ignore U1000 namedGet
+func namedGet[T any](stmt *sqlx.NamedStmt, dest *T, arg any) error {
+	*dest = *new(T)
+	return stmt.Get(dest, arg)
+}
+
+//lint:ignore U1000 namesGetContext
+func namesGetContext[T any](ctx context.Context, stmt *sqlx.NamedStmt, dest *T, arg any) error {
+	*dest = *new(T)
+	return stmt.GetContext(ctx, dest, arg)
 }
 
 //lint:ignore U1000 inGet
@@ -180,6 +202,46 @@ func pgBuild[T any](db *sqlx.DB, fn func(pg.PreparexBuilder, ...context.Context)
 
 //lint:ignore U1000 pgBuildFn
 func pgBuildFn[T any](db *sqlx.DB, fn func(pg.PreparexBuilder) (T, error)) T {
+	p := yesql.NewPreparexBuilder(db, t)
+	obj, err := fn(p)
+	if err != nil {
+		logrus.Fatalf("build object failure: %s", err)
+	}
+	return obj
+}
+
+//lint:ignore U1000 pgBuild
+func pgaBuild[T any](db *sqlx.DB, fn func(pga.PreparexBuilder, ...context.Context) (T, error)) T {
+	p := yesql.NewPreparexBuilder(db, t)
+	obj, err := fn(p)
+	if err != nil {
+		logrus.Fatalf("build object failure: %s", err)
+	}
+	return obj
+}
+
+//lint:ignore U1000 pgBuildFn
+func pgaBuildFn[T any](db *sqlx.DB, fn func(pga.PreparexBuilder) (T, error)) T {
+	p := yesql.NewPreparexBuilder(db, t)
+	obj, err := fn(p)
+	if err != nil {
+		logrus.Fatalf("build object failure: %s", err)
+	}
+	return obj
+}
+
+//lint:ignore U1000 pgBuild
+func pgcBuild[T any](db *sqlx.DB, fn func(pgc.PreparexBuilder, ...context.Context) (T, error)) T {
+	p := yesql.NewPreparexBuilder(db, t)
+	obj, err := fn(p)
+	if err != nil {
+		logrus.Fatalf("build object failure: %s", err)
+	}
+	return obj
+}
+
+//lint:ignore U1000 pgBuildFn
+func pgcBuildFn[T any](db *sqlx.DB, fn func(pgc.PreparexBuilder) (T, error)) T {
 	p := yesql.NewPreparexBuilder(db, t)
 	obj, err := fn(p)
 	if err != nil {

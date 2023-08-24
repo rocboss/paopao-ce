@@ -14,4 +14,5 @@ type (
 	CommentReply         = dbr.CommentReply
 	CommentContent       = dbr.CommentContent
 	CommentReplyFormated = dbr.CommentReplyFormated
+	TweetCommentThumbs   = dbr.TweetCommentThumbs
 )

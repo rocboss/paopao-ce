@@ -8,31 +8,28 @@ import (
 	"time"
 
 	"github.com/bitbus/sqlx"
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pga"
 )
 
-func (s *sqlxSrv) deleteTags(tx *sqlx.Tx, tags []string) (err error) {
-	var tagInfos []cs.TagInfo
-	if err = tx.Stmtx(s.y.TagsFromNames).Select(&tagInfos, tags); err != nil {
-		return
-	}
-	now := time.Now().Unix()
-	for _, tag := range tagInfos {
-		tag.QuoteNum--
-		if _, err = tx.Stmtx(s.y.UpdateTagQuote).Exec(tag.QuoteNum, now, tag.ID); err != nil {
-			return
-		}
-	}
-	return
+var (
+	_ core.TopicService  = (*pgaTopicSrvA)(nil)
+	_ core.TopicServantA = (*pgaTopicSrvA)(nil)
+)
+
+type pgaTopicSrvA struct {
+	*topicSrvA
+	p *pga.TopicA
 }
 
-func (s *sqlxSrv) createTags(tx *sqlx.Tx, userId int64, tags []string) (res cs.TagInfoList, xerr error) {
+func (s *pgaTopicSrvA) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, xerr error) {
 	if len(tags) == 0 {
 		return nil, nil
 	}
 	xerr = s.db.Withx(func(tx *sqlx.Tx) error {
 		var upTags cs.TagInfoList
-		err := tx.InSelect(&upTags, s.y.TagsForIncr, tags)
+		err := tx.InSelect(&upTags, s.q.TagsForIncr, tags)
 		if err != nil {
 			return err
 		}
@@ -53,7 +50,7 @@ func (s *sqlxSrv) createTags(tx *sqlx.Tx, userId int64, tags []string) (res cs.T
 					}
 				}
 			}
-			if _, err := tx.InExec(s.y.IncrTagsById, now, ids); err != nil {
+			if _, err := tx.InExec(s.q.IncrTagsById, now, ids); err != nil {
 				return err
 			}
 			res = append(res, upTags...)
@@ -67,13 +64,13 @@ func (s *sqlxSrv) createTags(tx *sqlx.Tx, userId int64, tags []string) (res cs.T
 			ids []int64
 		)
 		for _, tag := range tags {
-			if err = s.insertTag.Get(&id, userId, tag, now, now); err != nil {
+			if err = s.p.InsertTag.Get(&id, userId, tag, now, now); err != nil {
 				return err
 			}
 			ids = append(ids, id)
 		}
 		var newTags cs.TagInfoList
-		if err := tx.InSelect(&newTags, s.y.TagsByIdB, ids); err != nil {
+		if err := tx.InSelect(&newTags, s.q.TagsByIdB, ids); err != nil {
 			return err
 		}
 		res = append(res, newTags...)

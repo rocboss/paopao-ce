@@ -8,10 +8,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimy/cfg"
 	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
 )
 
 var (
@@ -73,9 +75,17 @@ func (s *userManageSrv) UpdateUser(r *ms.User) error {
 	return err
 }
 
-func newUserManageService(db *sqlx.DB) core.UserManageService {
-	return &userManageSrv{
+func newUserManageService(db *sqlx.DB) (s core.UserManageService) {
+	ums := &userManageSrv{
 		sqlxSrv: newSqlxSrv(db),
 		q:       ccBuild(db, cc.BuildUserManage),
 	}
+	s = ums
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		s = &pgcUserManageSrv{
+			userManageSrv: ums,
+			p:             pgcBuild(db, pgc.BuildUserManage),
+		}
+	}
+	return
 }

@@ -2,12 +2,13 @@
 // versions:
 // - Yesql v1.9.0
 
-package pg
+package pga
 
 import (
 	"context"
 	"fmt"
 
+	"github.com/alimy/yesql"
 	"github.com/bitbus/sqlx"
 )
 
@@ -16,7 +17,7 @@ var (
 )
 
 const (
-	_InsertTag = `INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1) RETURNING id`
+	_TopicA_InsertTag = `INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1) RETURNING id`
 )
 
 // PreparexContext enhances the Conn interface with context.
@@ -39,20 +40,21 @@ type PreparexBuilder interface {
 	QueryHook(query string) string
 }
 
-type Yesql struct {
-	InsertTag *sqlx.Stmt `yesql:"insert_tag"`
+type TopicA struct {
+	yesql.Namespace `yesql:"topic_a"`
+	InsertTag       *sqlx.Stmt `yesql:"insert_tag"`
 }
 
-func BuildYesql(p PreparexBuilder, ctx ...context.Context) (obj *Yesql, err error) {
+func BuildTopicA(p PreparexBuilder, ctx ...context.Context) (obj *TopicA, err error) {
 	var c context.Context
 	if len(ctx) > 0 && ctx[0] != nil {
 		c = ctx[0]
 	} else {
 		c = context.Background()
 	}
-	obj = &Yesql{}
-	if obj.InsertTag, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_InsertTag))); err != nil {
-		return nil, fmt.Errorf("prepare _InsertTag error: %w", err)
+	obj = &TopicA{}
+	if obj.InsertTag, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_InsertTag))); err != nil {
+		return nil, fmt.Errorf("prepare _TopicA_InsertTag error: %w", err)
 	}
 	return
 }

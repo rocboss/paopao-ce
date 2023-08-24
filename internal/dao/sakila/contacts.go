@@ -7,11 +7,13 @@ package sakila
 import (
 	"time"
 
+	"github.com/alimy/cfg"
 	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,12 +23,13 @@ var (
 
 type contactManageSrv struct {
 	*sqlxSrv
-	q *cc.ContactManager
+	q             *cc.ContactManager
+	upsertContact func(tx *sqlx.Tx, userId int64, friendId int64, status int8) (*cs.Contact, error)
 }
 
 func (s *contactManageSrv) RequestingFriend(userId int64, friendId int64, greetings string) error {
 	return s.db.Withx(func(tx *sqlx.Tx) error {
-		contact, err := s.fetchOrNewContact(tx, userId, friendId, cs.ContactStatusRequesting)
+		contact, err := s.upsertContact(tx, userId, friendId, cs.ContactStatusRequesting)
 		if err != nil {
 			return err
 		}
@@ -78,7 +81,7 @@ func (s *contactManageSrv) AddFriend(userId int64, friendId int64) error {
 		if _, err = tx.Stmtx(s.q.FreshContactStatus).Exec(args...); err != nil {
 			return err
 		}
-		contact, err = s.fetchOrNewContact(tx, userId, friendId, cs.ContactStatusAgree)
+		contact, err = s.upsertContact(tx, userId, friendId, cs.ContactStatusAgree)
 		if err != nil {
 			return err
 		}
@@ -179,9 +182,20 @@ func (s *contactManageSrv) fetchOrNewContact(tx *sqlx.Tx, userId int64, friendId
 	}, nil
 }
 
-func newContactManageService(db *sqlx.DB) core.ContactManageService {
-	return &contactManageSrv{
+func newContactManageService(db *sqlx.DB) (s core.ContactManageService) {
+	cms := &contactManageSrv{
 		sqlxSrv: newSqlxSrv(db),
 		q:       ccBuild(db, cc.BuildContactManager),
 	}
+	cms.upsertContact = cms.fetchOrNewContact
+	s = cms
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		pgcms := &pgcContactManageSrv{
+			contactManageSrv: cms,
+			p:                pgcBuild(db, pgc.BuildContactManager),
+		}
+		pgcms.upsertContact = pgcms.pgcFetchOrNewContact
+		s = pgcms
+	}
+	return
 }

@@ -13,9 +13,8 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
-	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
-	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pg"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
 )
 
 var (
@@ -59,16 +58,16 @@ func (s *tweetHelpSrv) MergePosts(posts []*ms.Post) ([]*ms.PostFormated, error) 
 	if err != nil {
 		return nil, err
 	}
-	userMap := make(map[int64]*dbr.UserFormated, len(users))
+	userMap := make(map[int64]*ms.UserFormated, len(users))
 	for _, user := range users {
 		userMap[user.ID] = user
 	}
-	contentMap := make(map[int64][]*dbr.PostContentFormated, len(postContents))
+	contentMap := make(map[int64][]*ms.PostContentFormated, len(postContents))
 	for _, content := range postContents {
 		contentMap[content.PostID] = append(contentMap[content.PostID], content)
 	}
 	// 数据整合
-	postsFormated := make([]*dbr.PostFormated, 0, len(posts))
+	postsFormated := make([]*ms.PostFormated, 0, len(posts))
 	for _, post := range posts {
 		postFormated := post.Format()
 		postFormated.User = userMap[post.UserID]
@@ -97,11 +96,11 @@ func (s *tweetHelpSrv) RevampPosts(posts []*ms.PostFormated) ([]*ms.PostFormated
 	if err != nil {
 		return nil, err
 	}
-	userMap := make(map[int64]*dbr.UserFormated, len(users))
+	userMap := make(map[int64]*ms.UserFormated, len(users))
 	for _, user := range users {
 		userMap[user.ID] = user
 	}
-	contentMap := make(map[int64][]*dbr.PostContentFormated, len(postContents))
+	contentMap := make(map[int64][]*ms.PostContentFormated, len(postContents))
 	for _, content := range postContents {
 		contentMap[content.PostID] = append(contentMap[content.PostID], content)
 	}
@@ -113,12 +112,12 @@ func (s *tweetHelpSrv) RevampPosts(posts []*ms.PostFormated) ([]*ms.PostFormated
 	return posts, nil
 }
 
-func (s *tweetHelpSrv) getPostContentsByIDs(ids []int64) (res []*dbr.PostContentFormated, err error) {
+func (s *tweetHelpSrv) getPostContentsByIDs(ids []int64) (res []*ms.PostContentFormated, err error) {
 	err = s.db.InSelect(&res, s.q.GetPostContentByIds, ids)
 	return
 }
 
-func (s *tweetHelpSrv) getUsersByIDs(ids []int64) (res []*dbr.UserFormated, err error) {
+func (s *tweetHelpSrv) getUsersByIDs(ids []int64) (res []*ms.UserFormated, err error) {
 	err = s.db.InSelect(&res, s.q.GetUsersByIds, ids)
 	return
 }
@@ -134,7 +133,7 @@ func (s *tweetManageSrv) CreatePostCollection(postID, userID int64) (*ms.PostCol
 		return nil, err
 	}
 	return &ms.PostCollection{
-		Model: &dbr.Model{
+		Model: &ms.Model{
 			ID:        id,
 			CreatedOn: now,
 		},
@@ -172,7 +171,7 @@ func (s *tweetManageSrv) CreateAttachment(r *ms.Attachment) (int64, error) {
 
 func (s *tweetManageSrv) CreatePost(r *ms.Post) (*ms.Post, error) {
 	now := time.Now().Unix()
-	r.Model = &dbr.Model{CreatedOn: now}
+	r.Model = &ms.Model{CreatedOn: now}
 	r.LatestRepliedOn = now
 	res, err := s.q.AddPost.Exec(r)
 	if err != nil {
@@ -287,10 +286,10 @@ func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT
 		// tag处理
 		tags := strings.Split(post.Tags, ",")
 		// TODO: 暂时宽松不处理错误，这里或许可以有优化，后续完善
-		if oldVisibility == dbr.PostVisitPrivate {
+		if oldVisibility == ms.PostVisitPrivate {
 			// 从私密转为非私密才需要重新创建tag
 			s.createTags(tx, post.UserID, tags)
-		} else if visibility == dbr.PostVisitPrivate {
+		} else if visibility == ms.PostVisitPrivate {
 			// 从非私密转为私密才需要删除tag
 			s.deleteTags(tx, tags)
 		}
@@ -320,7 +319,7 @@ func (s *tweetManageSrv) CreatePostStar(postID, userID int64) (*ms.PostStar, err
 		return nil, err
 	}
 	return &ms.PostStar{
-		Model: &dbr.Model{
+		Model: &ms.Model{
 			ID:        id,
 			CreatedOn: now,
 		},
@@ -485,9 +484,9 @@ func newTweetManageService(db *sqlx.DB, cacheIndex core.CacheIndexService) (s co
 	}
 	s = tms
 	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
-		s = &pgTweetManageSrv{
+		s = &pgcTweetManageSrv{
 			tweetManageSrv: tms,
-			p:              pgBuild(db, pg.BuildTweetManage),
+			p:              pgcBuild(db, pgc.BuildTweetManage),
 		}
 	}
 	return
