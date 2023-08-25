@@ -2,6 +2,26 @@
 
 All notable changes to paopao-ce are documented in this file.
 ## 0.5.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+### Added
+- add `LoggerOpenObserve` feature use OpenObserve to collect log.[#370](https://github.com/rocboss/paopao-ce/pull/370)    
+  add `LoggerOpenObserve` to `conf.yaml` 's `Features` section to enable this feature like below:
+  ```yaml
+  # file config.yaml
+  ...
+  Features:
+    Default: ["Base", "Postgres", "Meili", "LocalOSS", "LoggerOpenObserve", "BigCacheIndex", "web"]
+  LoggerOpenObserve: # 使用OpenObserve写日志
+  Host: 127.0.0.1:5080
+  Organization: paopao-ce
+  Stream: default
+  User: root@paopao.info
+  Password: tiFEI8UeJWuYA7kN
+  Secure: False
+  MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
+  MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
+  ...
+  ```
+
 ## 0.4.1
 ### Changed
 - infinite scrolling instead of pagination for Home/User/Profile page
@@ -19,7 +39,7 @@ All notable changes to paopao-ce are documented in this file.
   ```
 - add user highlight tweet support include custom tweet set to highlight and list in user/profile page.
 - add cli subcommand to start paopao-ce serve or other task. [#354](https://github.com/rocboss/paopao-ce/pull/354)  
-- add `Friendship` feature . [#355](https://github.com/rocboss/paopao-ce/pull/355)
+- add `Followship` feature . [#355](https://github.com/rocboss/paopao-ce/pull/355)
   migration database first(sql ddl file in `scripts/migration/**/*_user_following.up.sql`):
   ```sql
   DROP TABLE IF EXISTS p_following; 

@@ -373,6 +373,7 @@ release/paopao serve --no-default-features --features sqlite3,localoss,loggerfil
 |`LoggerFile` | 日志 | 稳定 | 使用文件写日志 |
 |`LoggerZinc` | 日志 | 稳定(推荐) | 使用[Zinc](https://github.com/zinclabs/zinc)写日志 |
 |`LoggerMeili` | 日志 | 内测 | 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志 |
+|`LoggerOpenObserve` | 日志 | 内测 | 使用[OpenObserve](https://github.com/openobserve/openobserve)写日志 |
 |[`Friendship`](docs/proposal/22110410-关于Friendship功能项的设计.md) | 关系模式 | 内置 Builtin | 弱关系好友模式，类似微信朋友圈 |
 |[`Followship`](docs/proposal/22110409-关于Followship功能项的设计.md) | 关系模式 | 内置 Builtin | 关注者模式，类似Twitter的Follow模式 |
 |[`Lightship`](docs/proposal/22121409-关于Lightship功能项的设计.md) | 关系模式 | 弃用 Deprecated | 开放模式，所有推文都公开可见 |

@@ -65,7 +65,7 @@ func (s *bridgeTweetSearchServant) updateDocs(doc *documents) {
 
 				// watch updateDocsTempch to continue handle update if needed.
 				// cancel loop if no item had watched in 1 minute.
-				for count := 0; count > 60; count++ {
+				for count := 0; count < 60; count++ {
 					select {
 					case item := <-s.updateDocsTempCh:
 						// reset count to continue handle docs update
