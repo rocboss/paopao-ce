@@ -137,6 +137,10 @@
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现 
+* `LoggerOpenObserve` 使用[OpenObserve](https://github.com/openobserve/openobserve)写日志(目前状态: 内测阶段);  
+    * [ ] 提按文档  
+    * [x] 接口定义
+    * [x] 业务逻辑实现 
 
 #### 监控:
 * `Sentry` 使用Sentry进行错误跟踪与性能监控(目前状态: 内测); 
