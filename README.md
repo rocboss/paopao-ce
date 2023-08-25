@@ -495,6 +495,35 @@ MinIO: # MinIO 存储配置
 ...
 ```
 
+#### [OpenObserve](https://github.com/openobserve/openobserve) 日志收集、指标度量、轨迹跟踪
+* OpenObserve运行
+```sh
+# 使用Docker运行
+mkdir data && docker run -v $PWD/data:/data -e ZO_DATA_DIR="/data" -p 5080:5080 \
+    -e ZO_ROOT_USER_EMAIL="root@paopao.info" -e ZO_ROOT_USER_PASSWORD="paopao-ce" \
+    public.ecr.aws/zinclabs/openobserve:latest
+
+# 使用docker compose运行， 需要删除docker-compose.yaml中关于openobserve的注释
+docker compose up -d openobserve
+# visit http://loclahost:5080
+```
+
+* 修改LoggerOpenObserve配置
+```yaml
+# features中加上 LoggerOpenObserve
+Features:
+  Default: ["Meili", "LoggerOpenObserve", "Base", "Sqlite3", "BigCacheIndex"]
+...
+LoggerOpenObserve: # 使用OpenObserve写日志
+  Host: 127.0.0.1:4080
+  Organization: paopao-ce
+  Stream: default
+  User: root@paopao.info
+  Password: tiFEI8UeJWuYA7kN
+  Secure: False
+...
+```
+
 #### [Pyroscope](https://github.com/pyroscope-io/pyroscope) 性能剖析
 * Pyroscope运行
 ```sh
@@ -509,7 +538,7 @@ docker compose up -d pyroscope
 
 * 修改Pyroscope配置
 ```yaml
-# features中加上 MinIO
+# features中加上 Pyroscope
 Features:
   Default: ["Meili", "LoggerMeili", "Base", "Sqlite3", "BigCacheIndex", "Pyroscope"]
 ...
