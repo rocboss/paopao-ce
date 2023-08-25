@@ -51,20 +51,20 @@ services:
     networks:
       - paopao-network
   
-  # zinc:
-  #   image: bitbus/zincsearch:latest
-  #   user: zincsearch
-  #   restart: always
-  #   ports:
-  #     - 4080:4080
-  #   volumes:
-  #     - ./custom/data/zinc/data:/data
-  #   environment:
-  #     ZINC_FIRST_ADMIN_USER: admin
-  #     ZINC_FIRST_ADMIN_PASSWORD: admin
-  #     DATA_PATH: /data
-  #   networks:
-  #     - paopao-network
+  zinc:
+    image: bitbus/zincsearch:latest
+    user: zincsearch
+    restart: always
+    ports:
+      - 4080:4080
+    volumes:
+      - ./custom/data/zinc/data:/data
+    environment:
+      ZINC_FIRST_ADMIN_USER: admin
+      ZINC_FIRST_ADMIN_PASSWORD: admin
+      DATA_PATH: /data
+    networks:
+      - paopao-network
 
   meili:
     image: getmeili/meilisearch:v1.3
@@ -77,6 +77,20 @@ services:
       - MEILI_MASTER_KEY=paopao-meilisearch
     networks:
       - paopao-network
+
+  # openobserve:
+  #   image: public.ecr.aws/zinclabs/openobserve:latest
+  #   restart: always
+  #   ports:
+  #     - 5080:5080
+  #   volumes:
+  #     - ./custom/data/openobserve/data:/data
+  #   environment:
+  #     ZO_DATA_DIR: /data
+  #     ZO_ROOT_USER_EMAIL: root@paopao.info
+  #     ZO_ROOT_USER_PASSWORD: paopao-ce
+  #   networks:
+  #     - paopao-network
 
   # pyroscope:
   #   image: pyroscope/pyroscope:latest
