@@ -1,6 +1,6 @@
-// Copyright 2023 Michael Li <alimy@gility.net>. All rights reserved.
-// Use of this source code is governed by Apache License 2.0 that
-// can be found in the LICENSE file.
+// Copyright 2023 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
 
 package http
 
@@ -55,11 +55,11 @@ func (s *wormClient) Do(req *http.Request, fn ResponseFn) {
 	item := &requestItem{req, fn}
 	select {
 	case s.requestCh <- item:
-		// simepleClient.Do send request item by requestCh chan
+		// send request item by requestCh chan
 	default:
 		select {
 		case s.requestTempCh <- item:
-			// simepleClient.Do send request item by requestTempCh chan"
+			// send request item by requestTempCh chan"
 		default:
 			go func() {
 				s.do(item)
