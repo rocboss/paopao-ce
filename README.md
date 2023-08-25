@@ -515,7 +515,7 @@ Features:
   Default: ["Meili", "LoggerOpenObserve", "Base", "Sqlite3", "BigCacheIndex"]
 ...
 LoggerOpenObserve: # 使用OpenObserve写日志
-  Host: 127.0.0.1:4080
+  Host: 127.0.0.1:5080
   Organization: paopao-ce
   Stream: default
   User: root@paopao.info
