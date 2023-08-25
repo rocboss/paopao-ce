@@ -55,11 +55,11 @@ func (s *wormClient) Do(req *http.Request, fn ResponseFn) {
 	item := &requestItem{req, fn}
 	select {
 	case s.requestCh <- item:
-		logrus.Debugln("simepleClient.Do send request item by requestCh chan")
+		// simepleClient.Do send request item by requestCh chan
 	default:
 		select {
 		case s.requestTempCh <- item:
-			logrus.Debugln("simepleClient.Do send request item by requestTempCh chan")
+			// simepleClient.Do send request item by requestTempCh chan"
 		default:
 			go func() {
 				s.do(item)
