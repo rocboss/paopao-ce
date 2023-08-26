@@ -3,7 +3,7 @@ package security
 import (
 	"strings"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/rocboss/paopao-ce/internal/core"
 )
 

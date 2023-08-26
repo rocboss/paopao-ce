@@ -8,7 +8,7 @@
 package migration
 
 import (
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/sirupsen/logrus"
 )
 
