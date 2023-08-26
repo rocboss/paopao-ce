@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/huaweicloud/huaweicloud-sdk-go-obs/obs"
 	"github.com/minio/minio-go/v7"

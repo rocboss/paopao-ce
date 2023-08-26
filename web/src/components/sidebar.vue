@@ -3,9 +3,8 @@
         <div class="logo-wrap">
             <n-image class="logo-img" width="160" :src="LOGO" :preview-disabled="true" @click="goHome" />
         </div>
-        <n-menu :accordion="true" :icon-size="24"
-            :options="menuOptions" :render-label="renderMenuLabel" :render-icon="renderMenuIcon" :value="selectedPath"
-            @update:value="goRouter" />
+        <n-menu :accordion="true" :icon-size="24" :options="menuOptions" :render-label="renderMenuLabel"
+            :render-icon="renderMenuIcon" :value="selectedPath" @update:value="goRouter" />
 
         <div class="user-wrap" v-if="store.state.userInfo.id > 0">
             <n-avatar class="user-avatar" round :size="34" :src="store.state.userInfo.avatar" />
@@ -248,7 +247,11 @@ const renderMenuIcon = (option: AnyObject) => {
 
 const goRouter = (name: string, item: any = {}) => {
     selectedPath.value = name;
-    router.push({ name });
+    router.push({
+        name, query: {
+            t: (new Date().getTime())
+        }
+    });
 };
 const goHome = () => {
     if (route.path === '/') {
@@ -270,6 +273,13 @@ window.$message = useMessage();
 </script>
 
 <style lang="less">
+.sidebar-wrap::-webkit-scrollbar {
+    width: 0;
+    /* 隐藏滚动条的宽度 */
+    height: 0;
+    /* 隐藏滚动条的高度 */
+}
+
 .sidebar-wrap {
     z-index: 99;
     width: 200px;
@@ -278,97 +288,101 @@ window.$message = useMessage();
     right: calc(50% + var(--content-main) / 2 + 10px);
     padding: 12px 0;
     box-sizing: border-box;
+    max-height: calc(100vh);
+    /* 调整高度 */
+    overflow: auto;
 
     .n-menu .n-menu-item-content::before {
         border-radius: 21px;
     }
-}
 
-.logo-wrap {
-    display: flex;
-    justify-content: flex-start;
-    margin-bottom: 12px;
 
-    .logo-img {
-        margin-left: 24px;
+    .logo-wrap {
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 12px;
 
-        &:hover {
-            cursor: pointer;
+        .logo-img {
+            margin-left: 24px;
+
+            &:hover {
+                cursor: pointer;
+            }
         }
     }
-}
 
-.user-wrap {
-    display: flex;
-    align-items: center;
-    position: absolute;
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
-
-    .user-mini-wrap {
-        display: none;
-    }
-
-    .user-avatar {
-        margin-right: 8px;
-    }
-
-    .user-info {
+    .user-wrap {
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        right: 12px;
 
-        .nickname {
-            font-size: 16px;
-            font-weight: bold;
-            line-height: 16px;
-            height: 16px;
-            margin-bottom: 2px;
+        .user-mini-wrap {
+            display: none;
+        }
+
+        .user-avatar {
+            margin-right: 8px;
+        }
+
+        .user-info {
             display: flex;
-            align-items: center;
+            flex-direction: column;
 
-            .nickname-txt {
-                max-width: 90px;
+            .nickname {
+                font-size: 16px;
+                font-weight: bold;
+                line-height: 16px;
+                height: 16px;
+                margin-bottom: 2px;
+                display: flex;
+                align-items: center;
+
+                .nickname-txt {
+                    max-width: 90px;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                }
+
+                .logout {
+                    margin-left: 6px;
+                }
+            }
+
+            .username {
+                font-size: 14px;
+                line-height: 16px;
+                height: 16px;
+                width: 120px;
                 text-overflow: ellipsis;
                 overflow: hidden;
                 white-space: nowrap;
-            }
-
-            .logout {
-                margin-left: 6px;
+                opacity: 0.75;
             }
         }
 
-        .username {
-            font-size: 14px;
-            line-height: 16px;
-            height: 16px;
-            width: 120px;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-            opacity: 0.75;
+        .login-only-wrap {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+
+            button {
+                margin: 0 4px;
+                width: 80%
+            }
         }
-    }
 
-    .login-only-wrap {
-        display: flex;
-        justify-content:center;
-        width: 100%;
+        .login-wrap {
+            display: flex;
+            justify-content: center;
+            width: 100%;
 
-        button {
-            margin: 0 4px;
-            width: 80%
-        }
-    }
-
-    .login-wrap {
-        display: flex;
-        justify-content: center;
-        width: 100%;
-
-        button {
-            margin: 0 4px;
+            button {
+                margin: 0 4px;
+            }
         }
     }
 }
@@ -392,6 +406,7 @@ window.$message = useMessage();
     }
 
     .user-wrap {
+
         .user-avatar,
         .user-info,
         .login-only-wrap,
@@ -399,9 +414,8 @@ window.$message = useMessage();
             margin-bottom: 32px;
         }
 
-    //     .user-mini-wrap {
-    //         display: block !important;
-    //     }
+        //     .user-mini-wrap {
+        //         display: block !important;
+        //     }
     }
-}
-</style>
+}</style>

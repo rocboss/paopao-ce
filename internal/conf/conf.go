@@ -8,16 +8,17 @@ import (
 	"log"
 	"time"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 )
 
 var (
-	loggerSetting      *loggerConf
-	loggerFileSetting  *loggerFileConf
-	loggerZincSetting  *loggerZincConf
-	loggerMeiliSetting *loggerMeiliConf
-	sentrySetting      *sentryConf
-	redisSetting       *redisConf
+	loggerSetting            *loggerConf
+	loggerFileSetting        *loggerFileConf
+	loggerZincSetting        *loggerZincConf
+	loggerMeiliSetting       *loggerMeiliConf
+	loggerOpenObserveSetting *loggerOpenObserveConf
+	sentrySetting            *sentryConf
+	redisSetting             *redisConf
 
 	PyroscopeSetting        *pyroscopeConf
 	DatabaseSetting         *databaseConf
@@ -89,6 +90,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"LoggerFile":        &loggerFileSetting,
 		"LoggerZinc":        &loggerZincSetting,
 		"LoggerMeili":       &loggerMeiliSetting,
+		"LoggerOpenObserve": &loggerOpenObserveSetting,
 		"Database":          &DatabaseSetting,
 		"MySQL":             &MysqlSetting,
 		"Postgres":          &PostgresSetting,

@@ -10,7 +10,7 @@ package debug
 import (
 	"os"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/pyroscope-io/client/pyroscope"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/sirupsen/logrus"

@@ -8,7 +8,7 @@
 package docs
 
 import (
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/docs/openapi"
 )

@@ -129,7 +129,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
    
     # 编译时加入migration tag编译出支持migrate功能的可执行文件
     make build TAGS='migration'
-    release/paopao-ce
+    release/paopao
 
     # 或者 带上migration tag直接运行
     make run TAGS='migration'
@@ -317,24 +317,24 @@ Default/Develop/Demo/Slim 是不同 功能集套件(Features Suite)， Base/Opti
 使用Feautures:
 
 ```sh
-release/paopao-ce --help
-Usage of release/paopao-ce:
+release/paopao serve --help
+Usage of release/paopao:
   -features value
         use special features
   -no-default-features
         whether use default features
 
 # 默认使用 Default 功能套件
-release/paopao-ce 
+release/paopao serve
 
 # 不包含 default 中的功能集，仅仅使用 develop 中声明的功能集
-release/paopao-ce --no-default-features --features develop 
+release/paopao serve --no-default-features --features develop 
 
 # 使用 default 中的功能集，外加 sms 功能
-release/paopao-ce --features sms  
+release/paopao serve --features sms  
 
 # 手动指定需要开启的功能集
-release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,redis 
+release/paopao serve --no-default-features --features sqlite3,localoss,loggerfile,redis 
 ```
 
 目前支持的功能集合:
@@ -373,6 +373,7 @@ release/paopao-ce --no-default-features --features sqlite3,localoss,loggerfile,r
 |`LoggerFile` | 日志 | 稳定 | 使用文件写日志 |
 |`LoggerZinc` | 日志 | 稳定(推荐) | 使用[Zinc](https://github.com/zinclabs/zinc)写日志 |
 |`LoggerMeili` | 日志 | 内测 | 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志 |
+|`LoggerOpenObserve` | 日志 | 内测 | 使用[OpenObserve](https://github.com/openobserve/openobserve)写日志 |
 |[`Friendship`](docs/proposal/22110410-关于Friendship功能项的设计.md) | 关系模式 | 内置 Builtin | 弱关系好友模式，类似微信朋友圈 |
 |[`Followship`](docs/proposal/22110409-关于Followship功能项的设计.md) | 关系模式 | 内置 Builtin | 关注者模式，类似Twitter的Follow模式 |
 |[`Lightship`](docs/proposal/22121409-关于Lightship功能项的设计.md) | 关系模式 | 弃用 Deprecated | 开放模式，所有推文都公开可见 |
@@ -495,6 +496,35 @@ MinIO: # MinIO 存储配置
 ...
 ```
 
+#### [OpenObserve](https://github.com/openobserve/openobserve) 日志收集、指标度量、轨迹跟踪
+* OpenObserve运行
+```sh
+# 使用Docker运行
+mkdir data && docker run -v $PWD/data:/data -e ZO_DATA_DIR="/data" -p 5080:5080 \
+    -e ZO_ROOT_USER_EMAIL="root@paopao.info" -e ZO_ROOT_USER_PASSWORD="paopao-ce" \
+    public.ecr.aws/zinclabs/openobserve:latest
+
+# 使用docker compose运行， 需要删除docker-compose.yaml中关于openobserve的注释
+docker compose up -d openobserve
+# visit http://loclahost:5080
+```
+
+* 修改LoggerOpenObserve配置
+```yaml
+# features中加上 LoggerOpenObserve
+Features:
+  Default: ["Meili", "LoggerOpenObserve", "Base", "Sqlite3", "BigCacheIndex"]
+...
+LoggerOpenObserve: # 使用OpenObserve写日志
+  Host: 127.0.0.1:5080
+  Organization: paopao-ce
+  Stream: default
+  User: root@paopao.info
+  Password: tiFEI8UeJWuYA7kN
+  Secure: False
+...
+```
+
 #### [Pyroscope](https://github.com/pyroscope-io/pyroscope) 性能剖析
 * Pyroscope运行
 ```sh
@@ -509,7 +539,7 @@ docker compose up -d pyroscope
 
 * 修改Pyroscope配置
 ```yaml
-# features中加上 MinIO
+# features中加上 Pyroscope
 Features:
   Default: ["Meili", "LoggerMeili", "Base", "Sqlite3", "BigCacheIndex", "Pyroscope"]
 ...

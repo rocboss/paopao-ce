@@ -114,6 +114,15 @@ LoggerMeili: # 使用Meili写日志
   Secure: False
   MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
   MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
+LoggerOpenObserve: # 使用OpenObserve写日志
+  Host: 127.0.0.1:5080
+  Organization: paopao-ce
+  Stream: default
+  User: root@paopao.info
+  Password: tiFEI8UeJWuYA7kN
+  Secure: False
+  MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
+  MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
 JWT: # 鉴权加密
   Secret: 18a6413dc4fe394c66345ebe501b2f26
   Issuer: paopao-api

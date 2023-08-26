@@ -117,7 +117,7 @@
                     preset="dialog"
                     title="提示"
                     :content="
-                        '确定将该泡泡动态' +
+                        '确定将该Aimo动态' +
                         (post.is_essence ? '取消亮点' : '设为亮点') +
                         '吗？'
                     "

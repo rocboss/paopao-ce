@@ -7,12 +7,17 @@
 * [ ] add `Auth:MD5` feature (just for compatible)
 * [ ] optimize media tweet submit logic
 * [ ] optimize search logic service
+* [ ] optimize backend data logic service(optimize database CRUD operate)
+* [ ] optimize current message push logic service use `ims` module 
+* [ ] add `NativeOBS` feature
 
 #### v0.4.0
 * [x] add `Followship` feature.
 * [x] add extend base ORM code for implement data logic base sqlx/sqlc.
 * [x] user/profile page add comment/highlight/media/likes sub-page.
 * [x] add tweet highlight feature to enable user set a tweet as highlight.
+* [x] new execute file base sub-command style.
+* [x] add extend base ORM code for implement data logic base sqlx/sqlc
 
 #### v0.3.0
 * [x] remove `Deprecated:OldWeb` feature
@@ -25,7 +30,6 @@
 #### v0.2.0
 * [x] add `Friendship` feature
 * [x] add `Lightship` feature
-* [ ] add extend base ORM code for implement data logic base sqlx/sqlc
 * [x] add `Pyroscope` feature
 * [x] add new `Web` service
 * [x] add `Frontend:Web` feature
@@ -38,7 +42,6 @@
 * [ ] add `SpaceX` feature
 * [ ] add `Bot` feature
 * [ ] add `Admin` feature
-* [ ] add `NativeOBS` feature
 * [ ] add `Mobile` gRPC API service feature
 * [ ] add admin web frontend
 * [ ] add tweet forwarding support
@@ -50,25 +53,18 @@
 * [ ] add tweet thread like twitter support
 * [ ] add short link support
 * [ ] optimize topics service
-* [ ] optimize current message push logic service use `ims` module 
-* [ ] optimize backend data logic service(optimize database CRUD operate)
 
 ## paopao-ce-plus roadmap
-#### paopao-ce-plus/v0.4.0
+#### paopao-ce-plus/v0.5.0
 * [ ] adapt for paopao-ce v0.4.0
 
-#### paopao-ce-plus/v0.3.0
-* [ ] adapt for paopao-ce v0.3.0
-
-#### paopao-ce-plus/v0.2.0
-* [ ] adapt for paopao-ce v0.2.0
+#### paopao-ce-plus/v0.4.0
+* [x] adapt for paopao-ce v0.4.0
 
 ## paopao-ce-pro roadmap
+#### paopao-ce-pro/v0.5.0
+* [ ] adapt for paopao-ce v0.4.0
+
 #### paopao-ce-pro/v0.4.0
 * [ ] adapt for paopao-ce v0.4.0
 
-#### paopao-ce-pro/v0.3.0
-* [ ] adapt for paopao-ce v0.3.0
-
-#### paopao-ce-pro/v0.2.0
-* [ ] adapt for paopao-ce v0.2.0
