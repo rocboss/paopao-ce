@@ -63,6 +63,17 @@ type loggerMeiliConf struct {
 	MinWorker    int
 }
 
+type loggerOpenObserveConf struct {
+	Host         string
+	Organization string
+	Stream       string
+	User         string
+	Password     string
+	Secure       bool
+	MaxLogBuffer int
+	MinWorker    int
+}
+
 type httpServerConf struct {
 	RunMode      string
 	HttpIp       string

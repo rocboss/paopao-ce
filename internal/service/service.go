@@ -8,7 +8,7 @@ import (
 	"log"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/rocboss/paopao-ce/pkg/types"
 )
 
