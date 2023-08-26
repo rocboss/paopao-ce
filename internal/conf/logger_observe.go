@@ -53,11 +53,11 @@ func newObserveLogHook() *observeLogHook {
 		Secure:       s.Secure,
 	}
 	acc := &hx.AsyncClientConf{
-		MinWorker:          s.MinWorker,
-		MaxRequestInCh:     s.MaxLogBuffer,
-		MaxRequestInTempCh: 100,
-		MaxTickCount:       60,
-		TickWaitTime:       time.Second,
+		MinWorker:         s.MinWorker,
+		MaxRequestBuf:     s.MaxLogBuffer,
+		MaxRequestTempBuf: 100,
+		MaxTickCount:      60,
+		TickWaitTime:      time.Second,
 	}
 	return &observeLogHook{
 		client: obx.NewClient(obc, acc, func(req *http.Request, resp *http.Response, err error) {
