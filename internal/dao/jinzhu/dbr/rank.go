@@ -17,8 +17,17 @@ type HighQualityRanking struct {
 // GetHighQualityRankingResp 优质榜单返回数据
 type GetHighQualityRankingResp struct {
 	UserName           string `json:"name"`
+	NickName           string `json:"nickname"`
 	Avatar             string `json:"avatar"`
 	PostCount          int64  `json:"post_count"`
 	LikesCount         int64  `json:"likes"`
 	ComprehensiveScore int64  `json:"comprehensive_score"`
+}
+
+// GetDownloadRankListResp 下载榜单返回数据
+type GetDownloadRankListResp struct {
+	UserName string `json:"name"`
+	NickName string `json:"nickname"`
+	Avatar   string `json:"avatar"`
+	Download int64  `json:"download"`
 }

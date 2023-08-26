@@ -352,10 +352,12 @@ declare module Item {
     description: string;
   }
 
-  //优质榜参数
-  interface highqualityProps {
+  //排行榜参数
+  interface RankingDataProps {
     //用户名
     name: string;
+    //昵称
+    nickname: string;
     //头像
     avatar: string;
     //发帖数量
@@ -364,5 +366,7 @@ declare module Item {
     likes: number;
     //总得分
     comprehensive_score: number;
+    //下载数量
+    download: number;
   }
 }

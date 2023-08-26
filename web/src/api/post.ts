@@ -22,11 +22,22 @@ export const getTags = (
   });
 };
 
-/** 获取优质帖榜 */
-export const getHighQuailty = (): Promise<NetReq.PostGetHighQuailty> => {
+/** 获取用户榜 */
+export const getHighQuailty = (): Promise<NetReq.GetRankingData> => {
   return request({
     method: "get",
     url: "/v1/rank/highquality",
+  });
+}
+
+/** 获取下载榜 */
+export const getDownloadRank= (param: number): Promise<NetReq.GetRankingData> => {
+  return request({
+    method: "get",
+    url: "/v1/rank/list",
+    params: {
+      list_type: param
+    }
   });
 }
 

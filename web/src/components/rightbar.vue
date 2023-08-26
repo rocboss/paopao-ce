@@ -85,51 +85,64 @@
     </n-card>
     <n-card
       class="hottopic-wrap"
-      title="排行榜"
       embedded
       :bordered="false"
       size="small"
     >
+    <div class="ranking-header">
+        <div class="ranking-title">{{ rankingTitles[currentRankingType] }}</div>
+        <div class="toggle-button" @click="toggleRankingType">
+          切换 <n-icon :component="ChevronForward" />
+        </div>
+      </div>
       <n-spin :show="loading">
         <div
           class="ranking-item"
-          v-for="(highQuality, index) in rankingList"
-          :key="highQuality.name"
+          v-for="(item, index) in getCurrentRankingList"
+          :key="item.name"
         >
-        <div class="ranking-number">{{ index + 1 }}</div> <!-- 添加排序编号 -->
+          <div class="ranking-number">{{ index + 1 }}</div>
+          <!-- 添加排序编号 -->
           <div class="ranking-avatar">
             <!-- 用户头像 -->
-            <img :src="highQuality.avatar" alt="User Avatar" />
+            <img :src="item.avatar" alt="User Avatar" />
           </div>
-          <div class="user-name">
-            <router-link
-              class="hash-link"
-              :to="{
-                name: 'user',
-                query: {
-                  s: highQuality.name
-                }
-              }"
-            >
-              {{ formatUserName(highQuality.name) }}
-            </router-link>
-          </div>
-          
+
           <div class="ranking-info">
-            <div class="name-stats">
-              <div class="downloads">
-                <div class="download-box">
-                  <div class="download-value">{{ highQuality.comprehensive_score }}</div>
+            <div style="flex: 1">
+              <div class="user-name">
+                <router-link
+                  class="hash-link"
+                  :to="{
+                    name: 'user',
+                    query: {
+                      s: item.name,
+                    },
+                  }"
+                >
+                  {{ formatUserName(item.nickname) }}
+                </router-link>
+
+                <div class="score">
+                  <div class="score-value" v-if="currentRankingType === 'highQuality'">
+                    {{ item.comprehensive_score }}
+                  </div>
+                  <div class="score-value" v-else-if="currentRankingType !== 'highQuality'">
+                    {{ item.download }}
+                  </div>
                 </div>
               </div>
-              <div class="stats">
-                <div class="stat-item">
-                  <div class="stat-value">{{ highQuality.post_count }} 贴子</div>
-                </div>
-                <div class="stat-drop">·</div>
-                <!-- 加粗的点 -->
-                <div class="stat-item">
-                  <div class="stat-value">{{ highQuality.likes }} 点赞</div>
+
+              <div class="name-stats">
+                <div class="stats" v-if="currentRankingType === 'highQuality'">
+                  <div class="stat-item">
+                    <div class="stat-value">📃{{ formatQuoteNumStats(item.post_count || item.download) }}</div>
+                  </div>
+                  <div class="stat-drop">·</div>
+                  <!-- 加粗的点 -->
+                  <div class="stat-item">
+                    <div class="stat-value">❤️{{ formatQuoteNumStats(item.likes) }}</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -144,7 +157,7 @@
 import { ref, onMounted, computed, watch } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import { getHighQuailty, getTags } from "@/api/post";
+import { getDownloadRank, getHighQuailty, getTags } from "@/api/post";
 import { Search } from "@vicons/ionicons5";
 import { ChevronForward } from "@vicons/ionicons5";
 
@@ -167,7 +180,8 @@ const rightHotTopicMaxSize = Number(
 );
 
 // 模拟排行榜数据
-const rankingList = ref<Item.highqualityProps[]>([]);
+const rankingList = ref<Item.RankingDataProps[]>([]);
+const allDownloadRankingList = ref<Item.RankingDataProps[]>([]);
 
 //获取排行榜数据
 const locadHeighQuailtyRankingList = () => {
@@ -180,8 +194,41 @@ const locadHeighQuailtyRankingList = () => {
     .catch((err) => {
       loading.value = false;
     });
+};
 
-}
+const loadDowmloadRankingByType = (type: number) => {
+  getDownloadRank(type)
+    .then((res) => {
+      allDownloadRankingList.value = res.list;
+    })
+    .catch((err) => {
+      loading.value = false;
+    });
+};
+
+const rankingTitles: { [key: string]: string } = {
+  highQuality: "用户榜",
+  downloadPreWeek: "下载周榜",
+  downloadPreMonth: "下载月榜",
+  downloadAll: "下载总榜",
+  hot: "热门排行榜",
+};
+
+const currentRankingType = ref("highQuality");
+
+const getCurrentRankingList = computed(() => {
+  if (currentRankingType.value === "highQuality") {
+    return rankingList.value;
+  } else if (currentRankingType.value === "downloadAll") {
+    return allDownloadRankingList.value;
+  }
+  return [];
+});
+
+const toggleRankingType = () => {
+  currentRankingType.value =
+    currentRankingType.value === "highQuality" ? "downloadAll" : "highQuality";
+};
 
 const loadHotTags = () => {
   loading.value = true;
@@ -207,6 +254,15 @@ const formatQuoteNum = (num: number) => {
 
   return num;
 };
+const formatQuoteNumStats = (num: number) => {
+  if (num >= 1000) {
+    const formattedNum = (num / 1000).toFixed(1); // Get one decimal place
+    return formattedNum + 'k';
+  } else {
+    return num.toString().padStart(3, '0'); // Ensure 3-digit format
+  }
+};
+
 const handleSearch = () => {
   router.push({
     name: "home",
@@ -224,8 +280,10 @@ const showFollowTopics = computed({
   },
 });
 const formatUserName = (name: string) => {
-  return name.length > 5 ? name.substring(0, 5) + '...' : name;
+  return name.length > 10 ? name.substring(0, 10) + "..." : name;
 };
+
+
 watch(
   () => ({
     refreshTopicFollow: store.state.refreshTopicFollow,
@@ -240,6 +298,7 @@ watch(
 onMounted(() => {
   loadHotTags();
   locadHeighQuailtyRankingList();
+  loadDowmloadRankingByType(1);
 });
 </script>
 
@@ -255,7 +314,7 @@ onMounted(() => {
   left: calc(50% + var(--content-main) / 2 + 10px);
   max-height: calc(100vh); /* 调整高度 */
   overflow: auto;
-  
+
   .search-wrap {
     margin: 12px 0;
   }
@@ -307,9 +366,9 @@ onMounted(() => {
     border-top: 1px solid #eaeaea; /* 添加分割线 */
 
     .ranking-number {
-        margin-right: 8px; /* 调整排序编号与内容的间距 */
-        font-size: 16px; /* 设置排序编号的字体大小 */
-        margin-top: -20px;
+      margin-right: 8px; /* 调整排序编号与内容的间距 */
+      font-size: 16px; /* 设置排序编号的字体大小 */
+      margin-top: -20px;
     }
     .ranking-avatar {
       //头像
@@ -329,18 +388,20 @@ onMounted(() => {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
     }
 
     .ranking-info {
       margin-left: auto; /* 将左边距设置为 auto，使排行榜内容靠右 */
-      flex: 1;
       display: flex;
       align-items: center; /* 将 align-items 设置为 center */
       justify-content: flex-end; /* 将 justify-content 设置为 flex-end */
+      flex: 1;
 
       .name-stats {
         display: flex;
-        flex-direction: column;
         align-items: flex-end; /* 将 align-items 设置为 flex-end */
         justify-content: right;
         flex: 1;
@@ -348,7 +409,7 @@ onMounted(() => {
         .stats {
           display: flex;
           align-items: center;
-          .stat-drop{
+          .stat-drop {
             margin-top: -10px;
           }
 
@@ -361,18 +422,43 @@ onMounted(() => {
         }
       }
 
-      .downloads {
+      .score {
         margin-left: auto;
         text-align: right;
-        margin-top: 13px;
+        align-items: center;
 
-        .download-value {
+        .score-value {
           font-weight: bold;
           font-size: 15px;
         }
       }
     }
   }
+}
+.ranking-card {
+  margin-bottom: 10px;
+}
+
+.ranking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.ranking-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.toggle-button {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.toggle-button n-icon {
+  margin-left: 5px;
 }
 .dark {
   .hottopic-wrap {

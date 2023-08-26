@@ -48,3 +48,14 @@ type RegisterResp struct {
 	UserId   int64  `json:"id"`
 	Username string `json:"username"`
 }
+
+// ThirdPartyLoginReq 第三方登录请求参数
+type ThirdPartyLoginReq struct {
+	RequestType string `json:"request_type" form:"request_type" binding:"required"`
+}
+
+// ThirdPartyUserDataReq 第三方登录获取用户数据请求参数
+type ThirdPartyUserDataReq struct {
+	Type string `json:"type" form:"type" binding:"required"`
+	Code string `json:"code" form:"code" binding:"required"`
+}

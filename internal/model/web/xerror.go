@@ -107,5 +107,9 @@ var (
 
 	ErrGetHighQualityRankingFailed = xerror.NewError(12001, "获取优质帖子排行榜失败")
 
+	ErrGetThirdPartyLoginUrlFailed = xerror.NewError(13001, "获取第三方登录地址失败")
+	ErrGetThirdPartyUserDataFailed = xerror.NewError(13002, "获取第三方用户数据失败")
+	ErrGetDownloadRankListFailed   = xerror.NewError(13003, "获取下载排行榜失败")
+
 	ErrNotImplemented = xerror.NewError(10501, "功能未实现")
 )

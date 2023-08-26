@@ -28,6 +28,7 @@ type UserScore struct {
 	UserId int64
 	//用户名
 	Username string
+	Nickname string
 	//用户头像
 	Avatar string
 	//帖子数量&得分，一个帖子是1分
@@ -64,12 +65,13 @@ func (s RankService) GetHighQualityRanking() ([]*core.GetHighQualityRankingResp,
 		//如果userScores中没有该用户的信息，则新建一个用户信息
 		if _, ok := userScores[post.UserID]; !ok {
 			userScores[post.UserID] = &UserScore{}
-			err = s.db.Table("p_user").Select("id,username,avatar").Where("id = ?", post.UserID).Find(&user).Error
+			err = s.db.Table("p_user").Select("id,username,avatar,nickname").Where("id = ?", post.UserID).Find(&user).Error
 			if err != nil {
 				fmt.Print("get user info error")
 				return nil, err
 			}
 			userScores[post.UserID].Username = user.Username
+			userScores[post.UserID].Nickname = user.Nickname
 			userScores[post.UserID].Avatar = user.Avatar
 		}
 
@@ -134,10 +136,99 @@ func (s RankService) GetHighQualityRanking() ([]*core.GetHighQualityRankingResp,
 		rank = append(rank, &core.GetHighQualityRankingResp{
 			UserName:           userScore.Username,
 			Avatar:             userScore.Avatar,
+			NickName:           userScore.Nickname,
 			PostCount:          userScore.PostCount,
 			LikesCount:         userScore.LikeCount,
 			ComprehensiveScore: userScore.Score,
 		})
 	}
 	return rank, nil
+}
+
+type ShareKeyInfo struct {
+	//用户id
+	Id                    int64
+	UserName              string
+	AllDownloadCount      int64
+	DownloadCountPreWeek  int64
+	DownloadCountPreMonth int64
+	Status                int
+}
+
+type ShareKeyInfoRank struct {
+	UserName           string `gorm:"column:username"`
+	Avatar             string
+	TotalDownloadCount int64 `gorm:"column:total_download_count"`
+}
+
+// GetDownloadRankList 获取下载榜单
+func (s RankService) GetDownloadRankList(listType int) ([]*core.GetDownloadRankListResp, error) {
+
+	//查询p_share_key_info表，获取所有的share_key_info
+	var shareKeyInfos []ShareKeyInfoRank
+
+	//根据listType判断是获取周榜单还是月榜单
+	fmt.Print("listType:" + strconv.Itoa(listType) + "\n")
+	if listType == 1 {
+		//获取总榜单
+		//对shareKeyInfos按照all_download_count进行排序
+		err := s.db.Table("p_share_key_info").Select("username, SUM(all_download_count) as total_download_count").
+			Where("status = 0").
+			Group("username").
+			Order("total_download_count desc").
+			Limit(5).
+			Find(&shareKeyInfos).Error
+		if err != nil {
+			return nil, err
+		}
+	}
+	if listType == 2 {
+		//获取周榜单
+		//对shareKeyInfos按照download_count_per_week进行排序
+		err := s.db.Table("p_share_key_info").Select("username, SUM(download_count_per_week) as total_download_count").
+			Where("status = 0").
+			Group("username").
+			Order("total_download_count desc").
+			Limit(5).
+			Find(&shareKeyInfos).Error
+		if err != nil {
+			return nil, err
+		}
+	}
+	if listType == 3 {
+		//获取月榜单
+		//对shareKeyInfos按照download_count_per_month进行排序
+		err := s.db.Table("p_share_key_info").Select("username, SUM(download_count_per_month) as total_download_count").
+			Where("status = 0").
+			Group("username").
+			Order("total_download_count desc").
+			Limit(5).
+			Find(&shareKeyInfos).Error
+		if err != nil {
+			return nil, err
+		}
+	}
+	//将shareKeyInfos中的数据放到rank中
+	var ranks []*core.GetDownloadRankListResp
+	for _, shareKeyInfo := range shareKeyInfos {
+		//根据username查询user表，获取用户头像
+		var user ms.User
+		err := s.db.Table("p_user").Select("avatar,nickname").Where("username = ?", shareKeyInfo.UserName).First(&user).Error
+		if err != nil {
+			fmt.Print("查询用户失败")
+			return nil, err
+		}
+		shareKeyInfo.Avatar = user.Avatar
+		ranks = append(ranks, &core.GetDownloadRankListResp{
+			UserName: shareKeyInfo.UserName,
+			NickName: user.Nickname,
+			Avatar:   shareKeyInfo.Avatar,
+			Download: shareKeyInfo.TotalDownloadCount,
+		})
+		fmt.Print(shareKeyInfo.UserName + " " + strconv.FormatInt(shareKeyInfo.TotalDownloadCount, 10) + " " + shareKeyInfo.Avatar + "\n")
+	}
+
+	//fmt.Print(rank)
+
+	return ranks, nil
 }

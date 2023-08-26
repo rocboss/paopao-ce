@@ -167,9 +167,9 @@ declare module NetReq {
     pager: Item.PagerProps;
   }
 
-  interface PostGetHighQuailty {
-    /** 帖子列表 */
-    list: Item.highqualityProps[];
+  interface GetRankingData {
+    /** 排行榜数据 */
+    list: Item.RankingDataProps[];
   }
 
   type PostCreatePost = Item.PostProps;

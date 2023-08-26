@@ -8,8 +8,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"image/color"
 	"image/png"
+	"io/ioutil"
+	"net/http"
 	"regexp"
 	"strings"
 	"unicode/utf8"
@@ -41,6 +45,85 @@ const (
 type pubSrv struct {
 	api.UnimplementedPubServant
 	*base.DaoServant
+}
+
+type ThirdPartyUserDataVo struct {
+	Code        int    `json:"code"`
+	Msg         string `json:"msg"`
+	Type        string `json:"type"`
+	AccessToken string `json:"access_token"`
+	SocialUid   string `json:"social_uid"`
+	Faceimg     string `json:"faceimg"`
+	Nickname    string `json:"nickname"`
+	Location    string `json:"location"`
+	Grnder      string `json:"grnder"`
+	Ip          string `json:"ip"`
+}
+
+func (s *pubSrv) ThirdPartyUserData(req *web.ThirdPartyUserDataReq) mir.Error {
+	requestUrl := fmt.Sprintf("https://uniqueker.top/connect.php?act=callback&appid=1971&appkey=192e4cdc5d860b4eca813f64eec17498&type=" + req.Type + "&code=" + req.Code)
+	resp, err := http.Get(requestUrl)
+	if err != nil {
+		return web.ErrGetThirdPartyUserDataFailed
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		fmt.Print("failed to get response: %s" + resp.Status)
+		return web.ErrGetThirdPartyUserDataFailed
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return web.ErrGetThirdPartyUserDataFailed
+	}
+	var user ThirdPartyUserDataVo
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		return web.ErrGetThirdPartyUserDataFailed
+	}
+	//if data["code"].(float64) != 200 {
+	//	return web.ErrGetThirdPartyUserDataFailed
+	//}
+	fmt.Print(user)
+	return nil
+}
+
+type ThirdPartyLoginVo struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+	Type string `json:"type"`
+	URL  string `json:"url"`
+}
+
+func (s *pubSrv) ThirdPartyLogin(req *web.ThirdPartyLoginReq) mir.Error {
+	requestUrl := fmt.Sprintf("https://uniqueker.top/connect.php?act=login&appid=1971&appkey=192e4cdc5d860b4eca813f64eec17498&type=" + req.RequestType + "&redirect_uri=http://s5qfht.natappfree.cc")
+
+	resp, err := http.Get(requestUrl)
+	if err != nil {
+		return web.ErrGetThirdPartyLoginUrlFailed
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Print("failed to get response: %s" + resp.Status)
+		return web.ErrGetThirdPartyLoginUrlFailed
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return web.ErrGetThirdPartyLoginUrlFailed
+	}
+
+	var qq ThirdPartyLoginVo
+	err = json.Unmarshal(body, &qq)
+	if err != nil {
+		return web.ErrGetThirdPartyLoginUrlFailed
+	}
+	if qq.Code != 0 {
+		return web.ErrGetThirdPartyLoginUrlFailed
+	}
+	fmt.Print(qq.URL)
+
+	return nil
 }
 
 func (s *pubSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir.Error) {

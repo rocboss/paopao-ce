@@ -19,6 +19,25 @@ type rankSrv struct {
 	*base.DaoServant
 }
 
+func (s *rankSrv) GetDownloadRankList(req *web.GetDownloadRankListReq) ([]web.GetDownloadRankListResp, mir.Error) {
+
+	ranks, err := s.Ds.GetDownloadRankList(req.ListType)
+	if err != nil {
+		return []web.GetDownloadRankListResp{}, web.ErrGetDownloadRankListFailed
+	}
+	var rankInfos []web.GetDownloadRankListResp
+	for _, rank := range ranks {
+		rankInfos = append(rankInfos, web.GetDownloadRankListResp{
+			UserName: rank.UserName,
+			NickName: rank.NickName,
+			Avatar:   rank.Avatar,
+			Download: rank.Download,
+		})
+	}
+
+	return rankInfos, nil
+}
+
 func (s *rankSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT()}
 }
@@ -41,6 +60,7 @@ func (s *rankSrv) GetHighQuality() ([]*web.GetHighQualityRankingResp, mir.Error)
 	for _, rank := range ranks {
 		rankInfos = append(rankInfos, &web.GetHighQualityRankingResp{
 			UserName:           rank.UserName,
+			NickName:           rank.NickName,
 			Avatar:             rank.Avatar,
 			PostCount:          rank.PostCount,
 			LikesCount:         rank.LikesCount,

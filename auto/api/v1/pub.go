@@ -21,6 +21,8 @@ type Pub interface {
 	Register(*web.RegisterReq) (*web.RegisterResp, mir.Error)
 	Login(*web.LoginReq) (*web.LoginResp, mir.Error)
 	Version() (*web.VersionResp, mir.Error)
+	ThirdPartyLogin(*web.ThirdPartyLoginReq) mir.Error
+	ThirdPartyUserData(req *web.ThirdPartyUserDataReq) mir.Error
 
 	mustEmbedUnimplementedPubServant()
 }
@@ -95,6 +97,36 @@ func RegisterPubServant(e *gin.Engine, s Pub) {
 		resp, err := s.Login(req)
 		s.Render(c, resp, err)
 	})
+	//微信登录路由
+	router.Handle("GET", "/auth/third/login", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.ThirdPartyLoginReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		s.Render(c, nil, s.ThirdPartyLogin(req))
+	})
+
+	//获取用户数据
+	router.Handle("GET", "/auth/third/user", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.ThirdPartyUserDataReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		s.Render(c, nil, s.ThirdPartyUserData(req))
+	})
+
 	router.Handle("GET", "/", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
