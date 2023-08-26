@@ -65,10 +65,10 @@ func NewAsyncClient(client *http.Client, conf *AsyncClientConf) AsyncClient {
 			return client.Do(req)
 		},
 			gp.MinWorkerOpt(minWorker),
-			gp.MaxRequestBuffer(maxRequestBuf),
-			gp.MaxRequestTempBuffer(maxRequestTempBuf),
-			gp.MaxTickCount(conf.MaxTickCount),
-			gp.TickWaitTime(conf.TickWaitTime),
+			gp.MaxRequestBufOpt(maxRequestBuf),
+			gp.MaxRequestTempBufOpt(maxRequestTempBuf),
+			gp.MaxTickCountOpt(conf.MaxTickCount),
+			gp.TickWaitTimeOpt(conf.TickWaitTime),
 		),
 	}
 }
