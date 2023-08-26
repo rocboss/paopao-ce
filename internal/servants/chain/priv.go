@@ -5,7 +5,7 @@
 package chain
 
 import (
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/pkg/app"

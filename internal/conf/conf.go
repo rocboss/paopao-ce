@@ -8,7 +8,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 )
 
 var (

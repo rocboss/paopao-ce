@@ -7,7 +7,7 @@ package conf
 import (
 	"time"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/getsentry/sentry-go"
 	"github.com/rocboss/paopao-ce/pkg/version"
 )
