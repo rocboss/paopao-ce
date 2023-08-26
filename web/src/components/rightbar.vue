@@ -159,10 +159,16 @@ onMounted(() => {
 </script>
 
 <style lang="less" scoped>
+.rightbar-wrap::-webkit-scrollbar {
+  width: 0; /* 隐藏滚动条的宽度 */
+  height: 0; /* 隐藏滚动条的高度 */
+}
 .rightbar-wrap {
     width: 240px;
     position: fixed;
     left: calc(50% + var(--content-main) / 2 + 10px);
+    max-height: calc(100vh); /* 调整高度 */
+    overflow: auto;
     .search-wrap {
         margin: 12px 0;
     }

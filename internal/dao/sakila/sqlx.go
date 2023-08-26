@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"context"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/alimy/yesql"
 	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/conf"

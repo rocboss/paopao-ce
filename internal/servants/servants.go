@@ -7,7 +7,7 @@ package servants
 import (
 	"net/http"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/bufbuild/connect-go"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/servants/admin"

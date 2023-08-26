@@ -7,7 +7,7 @@ package dao
 import (
 	"sync"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila"
