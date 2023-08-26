@@ -51,6 +51,14 @@ const routes = [
     component: () => import("@/views/User.vue"),
   },
   {
+    path: "/m",
+    name: "me",
+    meta: {
+      title: "动态",
+    },
+    component: () => import("@/views/Me.vue"),
+  },
+  {
     path: "/messages",
     name: "messages",
     meta: {
@@ -118,7 +126,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  document.title = `${to.meta.title} | 泡泡 - 一个清新文艺的微社区`;
+  document.title = `${to.meta.title} | 壁仞 - 那年江湖，遇见你`;
   next();
 });
 

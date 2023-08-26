@@ -62,8 +62,8 @@
     "windows": [
       {
         "title": "泡泡 | 一个清新文艺的微社区",
-        "width": 1080,
-        "height": 860,
+        "width": 1280,
+        "height": 960,
         "resizable": false,
         "fullscreen": false,
         "transparent": true,
