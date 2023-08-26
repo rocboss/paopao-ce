@@ -8,7 +8,7 @@ import (
 	"database/sql"
 	"sync"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/sirupsen/logrus"
 )
 
