@@ -4,7 +4,7 @@ All notable changes to paopao-ce are documented in this file.
 ## 0.5.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
 ## 0.4.2
 ### Fixed
-- fixed remove multi-objects no effects and occurs resource leak error when use Minio as OSS(Object Storage System).
+- fixed remove multi-objects no effects and occurs resource leak error when use Minio as OSS(Object Storage System).[#371](https://github.com/rocboss/paopao-ce/pull/371) [#372](https://github.com/rocboss/paopao-ce/pull/372)  
 
 ## 0.4.1
 ### Changed
