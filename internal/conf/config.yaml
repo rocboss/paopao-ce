@@ -64,8 +64,9 @@ SmsJuhe:
   TplID:
   TplVal: "#code#=%s&#m#=%d"
 Alipay: 
-  AppID:
+  AppID: "paopao-ce-app-id"
   InProduction: True
+  PrivateKey: "MIICXAIBAAKBgQCzXV/spaX9+eOjM5f12W6eDTtszU9f9rgpXG4EQwzZI3WM5+Fe+9Bn6NQQILfF1o3Z+3BEzHMMcYwxrQw/toq2o6JPchbUK7eArKc6pl/GV3uIefZdKncz5bZvCFMgiJrpy75lYKhJgotQFEfQd+ks2t0gtC007uOjmY9QDB2EVQIDAQABAoGAMruhi0UbW2gYHCxWuiJDKI9jlJXJ8sHNO126fJgehTiDYlSgKYaeXxW7DcjDUkEqpFJ7YepWTFm9prtksIzIVQFNNjstI6cvowVF2t+lWf7mIB4w0ugarVd+SXssQK830Og3kjtZ84a3BbC6uf3a/qcgoIO8Sj1VnzOJ8fEYl+0CQQDeG6JhauGDOC8oCTwbFs9QPpjwGnp7UkYAJNg7jn4uBSVeg4lwb5uj9TshLSp49geNkPcWeCythuiz1jvoTqEjAkEAzrwIBxUPT1WmcDUXAkVPaQNADDbhMZLdw5nHZEUVwmO3o1FkJky4MLjLjT977400mhsnsQCy4sAWUZs6aEyoJwJARK3U2zy6eOHhqwaYAGRgPJbuoaf+Ya3CGX9LIbdhCwfqUzxnPk40mVFWNF8L+BVTppHB5b/JSOsjf6BqK95McwJBAL+kvUhbdHrV6lmgTXkUaV3u3mO0SCPdgui9WIKSLG6sY+LpI48BlcnMtR12WVyjKL0nKS9Dd5EOAmKaJJXlYgcCQGWbWCn9KUDUqpm4o3wr5nwXzlS74XYZo65UAM7TSzHRpcovfv5uiQ0VRLImWeiSXKK2aTOBGn5eKbevRTxN07k="
   RootCertFile: "custom/alipay/RootCert.crt"
   PublicCertFile: "custom/alipay/CertPublicKey_RSA2.crt"
   AppPublicCertFile: "custom/alipay/AppCertPublicKey.crt" 
