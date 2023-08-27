@@ -134,16 +134,15 @@ func (s *minioServant) DeleteObject(objectKey string) error {
 func (s *minioServant) DeleteObjects(objectKeys []string) (err error) {
 	objectsCh := make(chan minio.ObjectInfo, len(objectKeys))
 
-	go func() {
-		defer close(objectsCh)
-		for _, objectKey := range objectKeys {
-			objectsCh <- minio.ObjectInfo{
-				Key: objectKey,
-			}
-		}
-	}()
-
 	resCh := s.client.RemoveObjects(context.Background(), s.bucket, objectsCh, minio.RemoveObjectsOptions{})
+	for _, objectKey := range objectKeys {
+		objectsCh <- minio.ObjectInfo{
+			Key: objectKey,
+		}
+	}
+	// 记得一定要close，否则会被卡死，退出不了函数，造成资源泄露！！！
+	close(objectsCh)
+
 	// 宽松处理所有错误，只记录最后一次发生的错误
 	for result := range resCh {
 		if result.Err != nil {
