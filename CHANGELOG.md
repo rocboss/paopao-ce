@@ -2,6 +2,10 @@
 
 All notable changes to paopao-ce are documented in this file.
 ## 0.5.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+## 0.4.2
+### Fixed
+- fixed remove multi-objects no effects and occurs resource leak error when use Minio as OSS(Object Storage System).
+
 ## 0.4.1
 ### Changed
 - infinite scrolling instead of pagination for Home/User/Profile page
