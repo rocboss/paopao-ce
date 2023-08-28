@@ -14,22 +14,30 @@ function push {
         echo "git push bitbus $1:$1"
         git push bitbus $1:$1
     else
-        push dev
-        push r/paopao-ce
-        push r/paopao-ce-plus
-        push r/paopao-ce-pro
-        push r/paopao-ce-xtra
+        push_all dev r/paopao-ce r/paopao-ce-plus r/paopao-ce-pro r/paopao-ce-xtra
     fi
+}
+
+function push_all {
+    if [ $# -eq 0 ]; then 
+        push
+    else 
+        while [ $# -gt 0 ]; do
+            push $1
+            shift
+        done
+    fi 
 }
 
 case $1 in
 "push")
-    push $2
+    shift 
+    push_all $@
     ;;
 "merge")
     echo "merge command"
     ;;
 *)
-    push $2
+    push_all
     ;;
 esac
