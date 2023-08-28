@@ -153,7 +153,7 @@ func (s *dataSrv) Name() string {
 }
 
 func (s *dataSrv) Version() *semver.Version {
-	return semver.MustParse("v0.1.0")
+	return semver.MustParse("v0.2.0")
 }
 
 func (s *webDataSrvA) Name() string {

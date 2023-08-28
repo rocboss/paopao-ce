@@ -58,14 +58,18 @@ func newSqlDB() (driver string, db *sql.DB, err error) {
 	if cfg.If("MySQL") {
 		driver = "mysql"
 		db, err = sql.Open(driver, MysqlSetting.Dsn())
+		logrus.Infof("use MySQL as relation database")
 	} else if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
 		driver = "pgx"
 		db, err = sql.Open(driver, PostgresSetting.Dsn())
+		logrus.Infof("use PostgreSQL as relation database")
 	} else if cfg.If("Sqlite3") {
 		driver, db, err = OpenSqlite3()
+		logrus.Infof("use Sqlite3 as relation database")
 	} else {
 		driver = "mysql"
 		db, err = sql.Open(driver, MysqlSetting.Dsn())
+		logrus.Infof("not set db fetuare so use MySQL as default relation database")
 	}
 	return
 }

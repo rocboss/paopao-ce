@@ -9,6 +9,7 @@ import (
 
 	"github.com/alimy/tryst/cfg"
 	"github.com/bitbus/sqlx"
+	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
@@ -45,9 +46,8 @@ func (s *messageSrv) GetUnreadCount(userID int64) (res int64, err error) {
 	return
 }
 
-func (s *messageSrv) GetMessageByID(id int64) (res *ms.Message, err error) {
-	err = stmtGet(s.q.GetMessageById, &res, id)
-	return
+func (s *messageSrv) GetMessageByID(id int64) (*ms.Message, error) {
+	return db.Get[ms.Message](s.q.GetMessageById, id)
 }
 
 func (s *messageSrv) ReadMessage(r *ms.Message) (err error) {

@@ -7,6 +7,7 @@ package sakila
 import (
 	"time"
 
+	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
@@ -47,12 +48,10 @@ func (s *pgcTweetManageSrv) CreateAttachment(r *ms.Attachment) (res int64, err e
 	return
 }
 
-func (s *pgcTweetManageSrv) CreatePostStar(postID, userID int64) (res *ms.PostStar, err error) {
-	err = stmtGet(s.p.AddPostStar, &res, postID, userID, time.Now().Unix())
-	return
+func (s *pgcTweetManageSrv) CreatePostStar(postID, userID int64) (*ms.PostStar, error) {
+	return db.Get[ms.PostStar](s.p.AddPostStar, postID, userID, time.Now().Unix())
 }
 
-func (s *pgcTweetManageSrv) CreatePostCollection(postID, userID int64) (res *ms.PostCollection, err error) {
-	err = stmtGet(s.p.AddPostCollection, &res, postID, userID, time.Now().Unix())
-	return
+func (s *pgcTweetManageSrv) CreatePostCollection(postID, userID int64) (*ms.PostCollection, error) {
+	return db.Get[ms.PostCollection](s.p.AddPostCollection, postID, userID, time.Now().Unix())
 }
