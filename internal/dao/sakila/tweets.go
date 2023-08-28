@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimy/tryst/cfg"
 	"github.com/bitbus/sqlx"
+	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -438,9 +439,8 @@ func (s *tweetSrv) GetUserPostStarCount(userID int64) (res int64, err error) {
 	return
 }
 
-func (s *tweetSrv) GetUserPostCollection(postID, userID int64) (res *ms.PostCollection, err error) {
-	err = stmtGet(s.q.GetUserPostCollection, &res, postID, userID, userID)
-	return
+func (s *tweetSrv) GetUserPostCollection(postID, userID int64) (*ms.PostCollection, error) {
+	return db.Get[ms.PostCollection](s.q.GetUserPostCollection, postID, userID, userID)
 }
 
 func (s *tweetSrv) GetUserPostCollections(userID int64, offset, limit int) (res []*ms.PostCollection, err error) {
@@ -465,8 +465,7 @@ func (s *tweetSrv) GetPostContentsByIDs(ids []int64) (res []*ms.PostContent, err
 }
 
 func (s *tweetSrv) GetPostContentByID(id int64) (res *ms.PostContent, err error) {
-	err = stmtGet(s.q.GetPostContentById, &res, id)
-	return
+	return db.Get[ms.PostContent](s.q.GetPostContentById, &res, id)
 }
 
 func newTweetService(db *sqlx.DB) core.TweetService {

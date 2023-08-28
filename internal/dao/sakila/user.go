@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimy/tryst/cfg"
 	"github.com/bitbus/sqlx"
+	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
@@ -25,19 +26,16 @@ type userManageSrv struct {
 	q *cc.UserManage
 }
 
-func (s *userManageSrv) GetUserByID(id int64) (res *ms.User, err error) {
-	err = stmtGet(s.q.GetUserById, &res, id)
-	return
+func (s *userManageSrv) GetUserByID(id int64) (*ms.User, error) {
+	return db.Get[ms.User](s.q.GetUserById, id)
 }
 
-func (s *userManageSrv) GetUserByUsername(username string) (res *ms.User, err error) {
-	err = stmtGet(s.q.GetUserByUsername, &res, username)
-	return
+func (s *userManageSrv) GetUserByUsername(username string) (*ms.User, error) {
+	return db.Get[ms.User](s.q.GetUserByUsername, username)
 }
 
-func (s *userManageSrv) GetUserByPhone(phone string) (res *ms.User, err error) {
-	err = stmtGet(s.q.GetUserByPhone, &res, phone)
-	return
+func (s *userManageSrv) GetUserByPhone(phone string) (*ms.User, error) {
+	return db.Get[ms.User](s.q.GetUserByPhone, phone)
 }
 
 func (s *userManageSrv) GetUsersByIDs(ids []int64) (res []*ms.User, err error) {

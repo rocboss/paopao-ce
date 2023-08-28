@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/bitbus/sqlx"
+	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
@@ -28,9 +29,8 @@ type securitySrv struct {
 }
 
 // GetLatestPhoneCaptcha 获取最新短信验证码
-func (s *securitySrv) GetLatestPhoneCaptcha(phone string) (res *ms.Captcha, err error) {
-	err = stmtGet(s.q.GetLatestPhoneCaptcha, &res, phone)
-	return
+func (s *securitySrv) GetLatestPhoneCaptcha(phone string) (*ms.Captcha, error) {
+	return db.Get[ms.Captcha](s.q.GetLatestPhoneCaptcha, phone)
 }
 
 // UsePhoneCaptcha 更新短信验证码

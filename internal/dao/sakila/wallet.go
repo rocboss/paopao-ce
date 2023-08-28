@@ -9,6 +9,7 @@ import (
 
 	"github.com/alimy/tryst/cfg"
 	"github.com/bitbus/sqlx"
+	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -25,9 +26,8 @@ type walletSrv struct {
 	q *cc.Wallet
 }
 
-func (s *walletSrv) GetRechargeByID(id int64) (res *ms.WalletRecharge, err error) {
-	err = stmtGet(s.q.GetRechargeById, &res, id)
-	return
+func (s *walletSrv) GetRechargeByID(id int64) (*ms.WalletRecharge, error) {
+	return db.Get[ms.WalletRecharge](s.q.GetRechargeById, id)
 }
 
 func (s *walletSrv) CreateRecharge(userId, amount int64) (*ms.WalletRecharge, error) {

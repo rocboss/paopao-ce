@@ -7,6 +7,7 @@ package sakila
 import (
 	"time"
 
+	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
@@ -21,7 +22,6 @@ type pgcWalletSrv struct {
 	p *pgc.Wallet
 }
 
-func (s *pgcWalletSrv) CreateRecharge(userId, amount int64) (res *ms.WalletRecharge, err error) {
-	err = stmtGet(s.p.CreateRecharge, &res, userId, amount, time.Now().Unix())
-	return
+func (s *pgcWalletSrv) CreateRecharge(userId, amount int64) (*ms.WalletRecharge, error) {
+	return db.Get[ms.WalletRecharge](s.p.CreateRecharge, userId, amount, time.Now().Unix())
 }
