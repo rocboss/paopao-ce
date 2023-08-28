@@ -14,20 +14,11 @@ function push {
         echo "git push bitbus $1:$1"
         git push bitbus $1:$1
     else
-        echo "git push origin dev:dev"
-        git push origin dev:dev
-        
-        echo "git push alimy r/paopao-ce:r/paopao-ce"
-        git push alimy r/paopao-ce:r/paopao-ce
-
-        echo "git push bitbus r/paopao-ce-plus:r/paopao-ce-plus"
-        git push bitbus r/paopao-ce-plus:r/paopao-ce-plus
-          
-        echo "git push bitbus r/paopao-ce-pro:r/paopao-ce-pro"
-        git push bitbus r/paopao-ce-pro:r/paopao-ce-pro
-
-        echo "git push bitbus r/paopao-ce-xtra:r/paopao-ce-xtra"
-        git push bitbus r/paopao-ce-xtra:r/paopao-ce-xtra
+        push dev
+        push r/paopao-ce
+        push r/paopao-ce-plus
+        push r/paopao-ce-pro
+        push r/paopao-ce-xtra
     fi
 }
 
