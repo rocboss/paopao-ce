@@ -7,6 +7,27 @@
                 <!-- 发布器 -->
                 <compose @post-success="onPostSuccess" />
             </n-list-item>
+            <n-list-item v-if="store.state.desktopModelShow && store.state.userInfo.id > 0" >
+            <SlideBar v-model="slideBarList" :wheel-blocks="8" :init-blocks="initBlocks"  tag="div" sub-tag="div">
+                <template #default="data">
+                    <div class="slide-bar-item">
+                        <n-badge value="1" :offset="[0, 48]" dot :show="data.slotData.show">
+                            <n-avatar
+                                round
+                                :size="48"
+                                :src="data.slotData.avatar"
+                                class="slide-bar-item-avatar"
+                            />
+                        </n-badge>
+                        <div class="slide-bar-item-title slide-bar-user-link">
+                            <n-ellipsis :line-clamp="2">
+                                {{ data.slotData.title }}
+                            </n-ellipsis>
+                        </div>
+                    </div>
+                </template>
+            </SlideBar>
+            </n-list-item>
 
             <div v-if="loading && list.length === 0" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />
@@ -48,11 +69,18 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import InfiniteLoading from "v3-infinite-loading";
-import { getPosts } from '@/api/post';
+import { getPosts, getContacts } from '@/api/post';
+import SlideBar from '@opentiny/vue-slide-bar';
 
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
+
+const initBlocks = ref(9)
+const slideBarList = ref<any[]>([
+    { title: '全部动态', avatar: 'https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg', show: true },
+    { title: '正在关注', avatar: 'https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg', show: true }
+]);
 
 const loading = ref(false);
 const noMore = ref(false);
@@ -73,6 +101,26 @@ const title = computed(() => {
 
     return t;
 });
+
+const loadContacts = () => {
+    if (store.state.userInfo.id === 0) {
+        loading.value = true;
+    }
+    getContacts({
+        page: 1,
+        page_size: 20,
+    }).then((res) => {
+        var i = 0;
+        const list = res.list || []
+        for (; i < res.list.length; i++) {
+            let item: Item.ContactItemProps = list[i];
+            slideBarList.value.push({title: item.nickname, avatar: item.avatar, show: false});   
+        }
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+};
 
 const loadPosts = () => {
     loading.value = true;
@@ -149,6 +197,7 @@ const nextPage = () => {
 };
 
 onMounted(() => {
+    loadContacts()
     loadPosts();
 });
 watch(
@@ -175,9 +224,32 @@ watch(
         }
     }
 );
+
 </script>
 
 <style lang="less" scoped>
+
+.tiny-slide-bar .slide-bar-item {
+    min-height: 170px;
+    width: 64px;
+    display: flex;
+    flex-direction:column;
+    justify-content: center;
+    align-items: center;
+    .slide-bar-item-title {
+        justify-content: center;
+        font-size: 12px;
+        margin-top: 4px;
+        height: 40px;
+    }
+    &:hover {
+        cursor: pointer;
+        .slide-bar-item-avatar {
+            opacity: 0.65;
+        }
+    }
+}
+
 .load-more {
     margin: 20px;
 
