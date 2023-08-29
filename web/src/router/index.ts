@@ -43,7 +43,7 @@ const routes = [
         component: () => import('@/views/Profile.vue'),
     },
     {
-        path: '/user',
+        path: '/u',
         name: 'user',
         meta: {
             title: '用户详情',

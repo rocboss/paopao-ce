@@ -105,7 +105,7 @@
           <!-- 添加排序编号 -->
           <div class="ranking-avatar">
             <!-- 用户头像 -->
-            <img :src="item.avatar" alt="User Avatar" />
+            <img :src="item.avatar"/>
           </div>
 
           <div class="ranking-info">
@@ -304,7 +304,6 @@ const showFollowTopics = computed({
 const formatUserName = (name: string) => {
   return name.length > 10 ? name.substring(0, 10) + "..." : name;
 };
-
 
 watch(
   () => ({
