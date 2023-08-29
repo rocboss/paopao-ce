@@ -353,7 +353,7 @@ FROM @post
 WHERE is_del=0 AND 
 	(visibility=0 OR
 	(visibility=1 AND user_id=?) OR
-	(visibility=2 AND user_id IN ?))
+	(visibility=2 AND user_id IN (?)))
 ORDER BY is_top DESC, latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
@@ -365,7 +365,7 @@ FROM @post
 WHERE is_del=0 AND 
 	(visibility=0 OR
 	(visibility=1 AND user_id=?) OR
-	(visibility=2 AND user_id IN ?)); 
+	(visibility=2 AND user_id IN (?))); 
 
 --------------------------------------------------------------------------------
 -- simple_index sql dml

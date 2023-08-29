@@ -72,10 +72,10 @@ const (
 	_Security_UsePhoneCaptcha                  = `UPDATE @captcha SET use_times=use_times+1, modified_on=? WHERE id=? AND is_del=0`
 	_ShipIndex_IndexByAdmin                    = `SELECT * FROM @post WHERE is_del=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
 	_ShipIndex_IndexByGuest                    = `SELECT * FROM @post WHERE visibility=0 AND is_del=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
-	_ShipIndex_IndexBySelf                     = `SELECT * FROM @post WHERE is_del=0 AND 	(visibility=0 OR 	(visibility=1 AND user_id=?) OR 	(visibility=2 AND user_id IN ?)) ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
+	_ShipIndex_IndexBySelf                     = `SELECT * FROM @post WHERE is_del=0 AND 	(visibility=0 OR 	(visibility=1 AND user_id=?) OR 	(visibility=2 AND user_id IN (?))) ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
 	_ShipIndex_IndexCountByAdmin               = `SELECT count(*) FROM @post WHERE is_del=0`
 	_ShipIndex_IndexCountByGuest               = `SELECT count(*) FROM @post WHERE visibility=0 AND is_del=0`
-	_ShipIndex_IndexCountBySelf                = `SELECT count(*) FROM @post WHERE is_del=0 AND 	(visibility=0 OR 	(visibility=1 AND user_id=?) OR 	(visibility=2 AND user_id IN ?))`
+	_ShipIndex_IndexCountBySelf                = `SELECT count(*) FROM @post WHERE is_del=0 AND 	(visibility=0 OR 	(visibility=1 AND user_id=?) OR 	(visibility=2 AND user_id IN (?)))`
 	_SimpleIndex_Index                         = `SELECT * FROM @post WHERE visibility=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
 	_SimpleIndex_IndexCount                    = `SELECT count(*) FROM @post WHERE visibility=0`
 	_Tweet_GetAnyPostCount                     = `SELECT count(*) FROM @post WHERE visibility IN (?)`
