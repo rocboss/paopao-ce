@@ -31,7 +31,6 @@ type Core interface {
 	SendUserWhisper(*web.SendWhisperReq) mir.Error
 	ReadMessage(*web.ReadMessageReq) mir.Error
 	GetMessages(*web.GetMessagesReq) (*web.GetMessagesResp, mir.Error)
-	GetUnreadMsgCount(*web.GetUnreadMsgCountReq) (*web.GetUnreadMsgCountResp, mir.Error)
 	GetUserInfo(*web.UserInfoReq) (*web.UserInfoResp, mir.Error)
 	SyncSearchIndex(*web.SyncSearchIndexReq) mir.Error
 
@@ -229,20 +228,6 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		resp, err := s.GetMessages(req)
 		s.Render(c, resp, err)
 	})
-	router.Handle("GET", "/user/msgcount/unread", func(c *gin.Context) {
-		select {
-		case <-c.Request.Context().Done():
-			return
-		default:
-		}
-		req := new(web.GetUnreadMsgCountReq)
-		if err := s.Bind(c, req); err != nil {
-			s.Render(c, nil, err)
-			return
-		}
-		resp, err := s.GetUnreadMsgCount(req)
-		s.Render(c, resp, err)
-	})
 	router.Handle("GET", "/user/info", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
@@ -329,10 +314,6 @@ func (UnimplementedCoreServant) ReadMessage(req *web.ReadMessageReq) mir.Error {
 }
 
 func (UnimplementedCoreServant) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mir.Error) {
-	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
-}
-
-func (UnimplementedCoreServant) GetUnreadMsgCount(req *web.GetUnreadMsgCountReq) (*web.GetUnreadMsgCountResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 

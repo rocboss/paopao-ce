@@ -82,16 +82,6 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 	return resp, nil
 }
 
-func (s *coreSrv) GetUnreadMsgCount(req *web.GetUnreadMsgCountReq) (*web.GetUnreadMsgCountResp, mir.Error) {
-	count, err := s.Ds.GetUnreadCount(req.Uid)
-	if err != nil {
-		return nil, xerror.ServerError
-	}
-	return &web.GetUnreadMsgCountResp{
-		Count: count,
-	}, nil
-}
-
 func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mir.Error) {
 	conditions := &ms.ConditionsT{
 		"receiver_user_id": req.UserId,

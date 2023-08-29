@@ -20,7 +20,7 @@ require (
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/goccy/go-json v0.10.2
 	github.com/gofrs/uuid/v5 v5.0.0
-	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.23.4+incompatible
 	github.com/json-iterator/go v1.1.12
@@ -69,6 +69,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
