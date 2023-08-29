@@ -114,7 +114,6 @@ const reset = () => {
     list.value = [];
     page.value = 1;
     totalPage.value = 0;
-    slideBarList.value = slideBarList.value.slice(0, 1)
 }
 
 const handleBarClick = (data: Item.SlideBarItem, index: number) => {
@@ -143,6 +142,7 @@ const loadContacts = () => {
     if (store.state.userInfo.id === 0) {
         return
     }
+    slideBarList.value = slideBarList.value.slice(0, 1)
     getContacts({
         page: 1,
         page_size: 50,
