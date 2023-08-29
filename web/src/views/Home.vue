@@ -380,5 +380,16 @@ div:hover .slide-bar-item {
     .skeleton-wrap {
         background-color: rgba(16, 16, 20, 0.75);
     }
+    .tiny-slide-bar .tiny-slide-bar__list > 
+    div.tiny-slide-bar__select .slide-bar-item .slide-bar-item-title {
+        color: #63e2b7;
+        opacity: 0.8;
+    }
+
+    .tiny-slide-bar .tiny-slide-bar__list > 
+    div:hover .slide-bar-item .slide-bar-item-title {
+        color: #63e2b7;
+        opacity: 0.8;
+    }
 }
 </style>
