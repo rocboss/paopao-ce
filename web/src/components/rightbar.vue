@@ -95,7 +95,7 @@
           切换 <n-icon :component="ChevronForward" />
         </div>
       </div>
-      <n-spin :show="loading">
+      <n-spin :show="rankloading">
         <div
           class="ranking-item"
           v-for="(item, index) in getCurrentRankingList"
@@ -164,6 +164,7 @@ import { ChevronForward } from "@vicons/ionicons5";
 const hotTags = ref<Item.TagProps[]>([]);
 const followTags = ref<Item.TagProps[]>([]);
 const loading = ref(false);
+const rankloading = ref(false);
 const keyword = ref("");
 const store = useStore();
 const router = useRouter();
@@ -182,27 +183,33 @@ const rightHotTopicMaxSize = Number(
 // 模拟排行榜数据
 const rankingList = ref<Item.RankingDataProps[]>([]);
 const allDownloadRankingList = ref<Item.RankingDataProps[]>([]);
+const DownloadPreWeekRankingList = ref<Item.RankingDataProps[]>([]);
+const DownloadPreMonthRankingList = ref<Item.RankingDataProps[]>([]);
 
 //获取排行榜数据
 const locadHeighQuailtyRankingList = () => {
-  loading.value = true;
+  rankloading.value = true;
   getHighQuailty()
     .then((res) => {
       rankingList.value = res.list;
-      loading.value = false;
+      rankloading.value = false;
     })
     .catch((err) => {
-      loading.value = false;
+      rankloading.value = false;
     });
 };
 
 const loadDowmloadRankingByType = (type: number) => {
+  rankloading.value = true;
   getDownloadRank(type)
     .then((res) => {
-      allDownloadRankingList.value = res.list;
+      if (type ===1 ) allDownloadRankingList.value = res.list;
+      if (type === 2) DownloadPreWeekRankingList.value = res.list;
+      if (type === 3) DownloadPreMonthRankingList.value = res.list;
+      rankloading.value = false;
     })
     .catch((err) => {
-      loading.value = false;
+      rankloading.value = false;
     });
 };
 
@@ -211,24 +218,39 @@ const rankingTitles: { [key: string]: string } = {
   downloadPreWeek: "下载周榜",
   downloadPreMonth: "下载月榜",
   downloadAll: "下载总榜",
-  hot: "热门排行榜",
 };
 
+const rankingTypes = ['highQuality', 'downloadPreWeek', 'downloadPreMonth', 'downloadAll'];
+let currentRankingTypeIndex = 0;
 const currentRankingType = ref("highQuality");
 
+const toggleRankingType = () => {
+  currentRankingTypeIndex = (currentRankingTypeIndex + 1) % rankingTypes.length;
+  currentRankingType.value = rankingTypes[currentRankingTypeIndex];
+};
+
+//1总 2周 3月
 const getCurrentRankingList = computed(() => {
   if (currentRankingType.value === "highQuality") {
     return rankingList.value;
   } else if (currentRankingType.value === "downloadAll") {
+    if (allDownloadRankingList.value.length === 0) {
+      loadDowmloadRankingByType(1);
+    }
     return allDownloadRankingList.value;
+  } else if (currentRankingType.value === "downloadPreWeek") {
+    if (DownloadPreWeekRankingList.value.length === 0) {
+      loadDowmloadRankingByType(2);
+    }
+    return DownloadPreWeekRankingList.value;
+  } else if (currentRankingType.value === "downloadPreMonth") {
+    if (DownloadPreMonthRankingList.value.length === 0) {
+      loadDowmloadRankingByType(3);
+    }
+    return DownloadPreMonthRankingList.value;
   }
   return [];
 });
-
-const toggleRankingType = () => {
-  currentRankingType.value =
-    currentRankingType.value === "highQuality" ? "downloadAll" : "highQuality";
-};
 
 const loadHotTags = () => {
   loading.value = true;
@@ -298,7 +320,6 @@ watch(
 onMounted(() => {
   loadHotTags();
   locadHeighQuailtyRankingList();
-  loadDowmloadRankingByType(1);
 });
 </script>
 

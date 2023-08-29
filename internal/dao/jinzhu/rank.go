@@ -6,7 +6,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"gorm.io/gorm"
 	"sort"
-	"strconv"
 	"strings"
 )
 
@@ -125,14 +124,14 @@ func (s RankService) GetHighQualityRanking() ([]*core.GetHighQualityRankingResp,
 			break
 		}
 		i++
-		fmt.Print(userScore.Username + " " + strconv.FormatInt(userScore.CommentCount, 10) +
-			" " + strconv.FormatInt(userScore.LikeCount, 10) +
-			" " + strconv.FormatInt(userScore.ImageCount, 10) +
-			" " + strconv.FormatInt(userScore.PostCount, 10) +
-			" " + strconv.FormatInt(userScore.VideoCount, 10) +
-			" " + strconv.FormatInt(userScore.ShareCodeCount, 10) +
-			" " + strconv.FormatInt(userScore.Score, 10) +
-			"\n")
+		//fmt.Print(userScore.Username + " " + strconv.FormatInt(userScore.CommentCount, 10) +
+		//	" " + strconv.FormatInt(userScore.LikeCount, 10) +
+		//	" " + strconv.FormatInt(userScore.ImageCount, 10) +
+		//	" " + strconv.FormatInt(userScore.PostCount, 10) +
+		//	" " + strconv.FormatInt(userScore.VideoCount, 10) +
+		//	" " + strconv.FormatInt(userScore.ShareCodeCount, 10) +
+		//	" " + strconv.FormatInt(userScore.Score, 10) +
+		//	"\n")
 		rank = append(rank, &core.GetHighQualityRankingResp{
 			UserName:           userScore.Username,
 			Avatar:             userScore.Avatar,
@@ -168,7 +167,7 @@ func (s RankService) GetDownloadRankList(listType int) ([]*core.GetDownloadRankL
 	var shareKeyInfos []ShareKeyInfoRank
 
 	//根据listType判断是获取周榜单还是月榜单
-	fmt.Print("listType:" + strconv.Itoa(listType) + "\n")
+	//fmt.Print("listType:" + strconv.Itoa(listType) + "\n")
 	if listType == 1 {
 		//获取总榜单
 		//对shareKeyInfos按照all_download_count进行排序
@@ -225,10 +224,8 @@ func (s RankService) GetDownloadRankList(listType int) ([]*core.GetDownloadRankL
 			Avatar:   shareKeyInfo.Avatar,
 			Download: shareKeyInfo.TotalDownloadCount,
 		})
-		fmt.Print(shareKeyInfo.UserName + " " + strconv.FormatInt(shareKeyInfo.TotalDownloadCount, 10) + " " + shareKeyInfo.Avatar + "\n")
+		//fmt.Print(shareKeyInfo.UserName + " " + strconv.FormatInt(shareKeyInfo.TotalDownloadCount, 10) + " " + shareKeyInfo.Avatar + "\n")
 	}
-
-	//fmt.Print(rank)
 
 	return ranks, nil
 }
