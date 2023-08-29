@@ -15,8 +15,7 @@ import (
 )
 
 var (
-	_ api.Relax      = (*relaxSrv)(nil)
-	_ api.RelaxChain = (*relaxChain)(nil)
+	_ api.Relax = (*relaxSrv)(nil)
 )
 
 type relaxSrv struct {
@@ -24,8 +23,8 @@ type relaxSrv struct {
 	*base.DaoServant
 }
 
-type relaxChain struct {
-	api.UnimplementedRelaxChain
+func (s *relaxSrv) Chain() gin.HandlersChain {
+	return gin.HandlersChain{chain.JwtSurely()}
 }
 
 func (s *relaxSrv) GetUnreadMsgCount(req *web.GetUnreadMsgCountReq) (*web.GetUnreadMsgCountResp, mir.Error) {
@@ -38,16 +37,8 @@ func (s *relaxSrv) GetUnreadMsgCount(req *web.GetUnreadMsgCountReq) (*web.GetUnr
 	}, nil
 }
 
-func (*relaxChain) ChainGetUnreadMsgCount() gin.HandlersChain {
-	return gin.HandlersChain{chain.JwtSurely()}
-}
-
 func newRelaxSrv(s *base.DaoServant) api.Relax {
 	return &relaxSrv{
 		DaoServant: s,
 	}
-}
-
-func newRelaxChain() api.RelaxChain {
-	return &relaxChain{}
 }

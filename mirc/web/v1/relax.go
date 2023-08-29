@@ -16,5 +16,5 @@ type Relax struct {
 	Group `mir:"v1"`
 
 	// GetUnreadMsgCount 获取当前用户未读消息数量
-	GetUnreadMsgCount func(Get, Chain, web.GetUnreadMsgCountReq) web.GetUnreadMsgCountResp `mir:"/user/msgcount/unread"`
+	GetUnreadMsgCount func(Get, web.GetUnreadMsgCountReq) web.GetUnreadMsgCountResp `mir:"/user/msgcount/unread"`
 }

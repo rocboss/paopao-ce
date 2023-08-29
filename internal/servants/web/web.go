@@ -29,12 +29,12 @@ func RouteWeb(e *gin.Engine) {
 	// aways register servants
 	api.RegisterAdminServant(e, newAdminSrv(ds))
 	api.RegisterCoreServant(e, newCoreSrv(ds, oss))
+	api.RegisterRelaxServant(e, newRelaxSrv(ds))
 	api.RegisterLooseServant(e, newLooseSrv(ds))
 	api.RegisterPrivServant(e, newPrivSrv(ds, oss))
 	api.RegisterPubServant(e, newPubSrv(ds))
 	api.RegisterFollowshipServant(e, newFollowshipSrv(ds))
 	api.RegisterFriendshipServant(e, newFriendshipSrv(ds))
-	api.RegisterRelaxServant(e, newRelaxSrv(ds), newRelaxChain())
 	// regster servants if needed by configure
 	cfg.Be("Alipay", func() {
 		client := conf.MustAlipayClient()
