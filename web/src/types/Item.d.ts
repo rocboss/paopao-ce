@@ -140,6 +140,15 @@ declare module Item {
     created_on: number;
   }
 
+  /** slide bar item */
+  interface SlideBarItem {
+    title: string;
+    style: number;
+    username: string;
+    avatar: string;
+    show: boolean;
+  }
+
   /** 帖子内容 */
   interface PostItemProps {
     /** 内容ID */
