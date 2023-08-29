@@ -74,7 +74,7 @@ import { getPosts, getContacts } from '@/api/post';
 import { getUserPosts } from '@/api/user';
 import SlideBar from '@opentiny/vue-slide-bar';
 import allTweets from '@/assets/img/all-tweets.png';
-import followingTweets from '@/assets/img/following-tweets.jpeg';
+// import followingTweets from '@/assets/img/following-tweets.jpeg';
 
 const store = useStore();
 const route = useRoute();
@@ -114,6 +114,7 @@ const reset = () => {
     list.value = [];
     page.value = 1;
     totalPage.value = 0;
+    slideBarList.value = slideBarList.value.slice(0, 1)
 }
 
 const handleBarClick = (data: Item.SlideBarItem, index: number) => {
@@ -140,11 +141,11 @@ const handleBarClick = (data: Item.SlideBarItem, index: number) => {
 
 const loadContacts = () => {
     if (store.state.userInfo.id === 0) {
-        loading.value = true;
+        return
     }
     getContacts({
         page: 1,
-        page_size: 20,
+        page_size: 50,
     }).then((res) => {
         var i = 0;
         const list = res.list || []
@@ -286,6 +287,7 @@ const nextPage = () => {
 };
 
 onMounted(() => {
+    reset();
     loadContacts()
     loadPosts();
 });
@@ -300,6 +302,7 @@ watch(
         if (to.refresh !== from.refresh) {
             reset();
             setTimeout(() => {
+                loadContacts()
                 loadMorePosts();
             }, 0);
             return;
@@ -307,6 +310,7 @@ watch(
         if (from.path !== '/post' && to.path === '/') {
             reset();
             setTimeout(() => {
+                loadContacts()
                 loadMorePosts();
             }, 0);
         }
