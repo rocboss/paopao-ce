@@ -21,6 +21,7 @@ All notable changes to paopao-ce are documented in this file.
   MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
   ...
   ```
+- Added friend tweets bar feature support in home page. [#377](https://github.com/rocboss/paopao-ce/pull/377)    
 
 ## 0.4.2
 ### Fixed
