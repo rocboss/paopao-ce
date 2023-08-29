@@ -8,12 +8,12 @@ require (
 	github.com/alimy/mir/v4 v4.0.0
 	github.com/alimy/tryst v0.3.0
 	github.com/alimy/yesql v1.9.0
-	github.com/aliyun/aliyun-oss-go-sdk v2.2.8+incompatible
+	github.com/aliyun/aliyun-oss-go-sdk v2.2.9+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/bitbus/sqlx v1.8.0
 	github.com/bufbuild/connect-go v1.10.0
 	github.com/bytedance/sonic v1.10.0
-	github.com/cockroachdb/errors v1.10.0
+	github.com/cockroachdb/errors v1.11.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.15.0
 	github.com/getsentry/sentry-go v0.23.0
@@ -28,10 +28,10 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/meilisearch/meilisearch-go v0.25.0
 	github.com/minio/minio-go/v7 v7.0.62
-	github.com/onsi/ginkgo/v2 v2.11.0
+	github.com/onsi/ginkgo/v2 v2.12.0
 	github.com/onsi/gomega v1.27.10
 	github.com/pyroscope-io/client v0.7.2
-	github.com/redis/rueidis v1.0.15
+	github.com/redis/rueidis v1.0.16
 	github.com/sirupsen/logrus v1.9.3
 	github.com/smartwalle/alipay/v3 v3.2.15
 	github.com/sourcegraph/conc v0.3.0
@@ -127,12 +127,12 @@ require (
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/image v0.0.0-20210216034530-4410531fe030 // indirect
-	golang.org/x/mod v0.10.0 // indirect
+	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
 	golang.org/x/text v0.12.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/tools v0.9.3 // indirect
+	golang.org/x/tools v0.12.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230525234030-28d5490b6b19 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
