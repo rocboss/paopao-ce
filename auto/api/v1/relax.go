@@ -23,27 +23,15 @@ type Relax interface {
 	mustEmbedUnimplementedRelaxServant()
 }
 
-type RelaxChain interface {
-	ChainGetUnreadMsgCount() gin.HandlersChain
-
-	mustEmbedUnimplementedRelaxChain()
-}
-
 // RegisterRelaxServant register Relax servant to gin
-func RegisterRelaxServant(e *gin.Engine, s Relax, m ...RelaxChain) {
-	var cc RelaxChain
-	if len(m) > 0 {
-		cc = m[0]
-	} else {
-		cc = &UnimplementedRelaxChain{}
-	}
+func RegisterRelaxServant(e *gin.Engine, s Relax) {
 	router := e.Group("v1")
 	// use chain for router
 	middlewares := s.Chain()
 	router.Use(middlewares...)
 
 	// register routes info to router
-	router.Handle("GET", "/user/msgcount/unread", append(cc.ChainGetUnreadMsgCount(), func(c *gin.Context) {
+	router.Handle("GET", "/user/msgcount/unread", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
 			return
@@ -56,7 +44,7 @@ func RegisterRelaxServant(e *gin.Engine, s Relax, m ...RelaxChain) {
 		}
 		resp, err := s.GetUnreadMsgCount(req)
 		s.Render(c, resp, err)
-	})...)
+	})
 }
 
 // UnimplementedRelaxServant can be embedded to have forward compatible implementations.
@@ -71,12 +59,3 @@ func (UnimplementedRelaxServant) GetUnreadMsgCount(req *web.GetUnreadMsgCountReq
 }
 
 func (UnimplementedRelaxServant) mustEmbedUnimplementedRelaxServant() {}
-
-// UnimplementedRelaxChain can be embedded to have forward compatible implementations.
-type UnimplementedRelaxChain struct{}
-
-func (b *UnimplementedRelaxChain) ChainGetUnreadMsgCount() gin.HandlersChain {
-	return nil
-}
-
-func (b *UnimplementedRelaxChain) mustEmbedUnimplementedRelaxChain() {}
