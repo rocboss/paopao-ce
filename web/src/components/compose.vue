@@ -294,6 +294,7 @@ import { isZipFile } from '@/utils/isZipFile';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
 import { VisibilityEnum, PostItemTypeEnum } from '@/utils/IEnum';
 import { userLogin, userRegister, userInfo } from '@/api/auth';
+import { useRouter } from "vue-router";
 
 
 
@@ -302,6 +303,7 @@ const emit = defineEmits<{
 }>();
 
 const store = useStore();
+const router = useRouter();
 
 const optionsRef = ref<MentionOption[]>([]);
 const loading = ref(false);
@@ -684,6 +686,10 @@ const submitPost = () => {
             videoContents.value = [];
             attachmentContents.value = [];
             visitType.value = defaultVisitType.value;
+            //转到初始页面
+            router.push({
+                name: 'home',
+            });
         })
         .catch((err) => {
             submitting.value = false;
@@ -745,7 +751,7 @@ onMounted(() => {
                             loading.value = false;
                         });
             }
-            contentValue.value = parts[0] + "\n\n" + "今天探索Aimo新发现了一端有趣的c#代码\n\n" + 
+            contentValue.value = parts[0] + " \n\n" + "今天探索Aimo新发现了一端有趣的c#代码" +  " \n\n" + 
             "名字：\n        " + parts[1] + "\n" +
             "介绍：\n        " + parts[2] + "\n" + 
             "分享码：\n        " + parts[3];

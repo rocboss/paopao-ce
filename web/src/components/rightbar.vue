@@ -92,7 +92,7 @@
     <div class="ranking-header">
         <div class="ranking-title">{{ rankingTitles[currentRankingType] }}</div>
         <div class="toggle-button" @click="toggleRankingType">
-          切换 <n-icon :component="ChevronForward" />
+          {{ rankingTitles[NextRankingType] }} <n-icon :component="ChevronForward" />
         </div>
       </div>
       <n-spin :show="rankloading">
@@ -223,10 +223,12 @@ const rankingTitles: { [key: string]: string } = {
 const rankingTypes = ['highQuality', 'downloadPreWeek', 'downloadPreMonth', 'downloadAll'];
 let currentRankingTypeIndex = 0;
 const currentRankingType = ref("highQuality");
+const NextRankingType = ref("downloadPreWeek");
 
 const toggleRankingType = () => {
   currentRankingTypeIndex = (currentRankingTypeIndex + 1) % rankingTypes.length;
   currentRankingType.value = rankingTypes[currentRankingTypeIndex];
+  NextRankingType.value = rankingTypes[(currentRankingTypeIndex + 1) % rankingTypes.length];
 };
 
 //1总 2周 3月
