@@ -7,8 +7,9 @@
                 <!-- 发布器 -->
                 <compose @post-success="onPostSuccess" />
             </n-list-item>
+
             <n-list-item v-if="store.state.desktopModelShow && store.state.userInfo.id > 0" >
-            <SlideBar v-model="slideBarList" :wheel-blocks="8" :init-blocks="initBlocks"  tag="div" sub-tag="div">
+            <SlideBar v-model="slideBarList" :wheel-blocks="8" :init-blocks="initBlocks" @click="handleBarClick" tag="div" sub-tag="div">
                 <template #default="data">
                     <div class="slide-bar-item">
                         <n-badge value="1" :offset="[0, 48]" dot :show="data.slotData.show">
@@ -70,20 +71,25 @@ import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import InfiniteLoading from "v3-infinite-loading";
 import { getPosts, getContacts } from '@/api/post';
+import { getUserPosts } from '@/api/user';
 import SlideBar from '@opentiny/vue-slide-bar';
+import allTweets from '@/assets/img/all-tweets.png';
+import followingTweets from '@/assets/img/following-tweets.jpeg';
 
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
 
 const initBlocks = ref(9)
-const slideBarList = ref<any[]>([
-    { title: '全部动态', avatar: 'https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg', show: true },
-    { title: '正在关注', avatar: 'https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg', show: true }
+const slideBarList = ref<Item.SlideBarItem[]>([
+    { title: '全部动态', style: 1, username: '', avatar: allTweets, show: true },
+    // { title: '正在关注', style: 2, username: '', avatar: followingTweets, show: true }
 ]);
 
 const loading = ref(false);
 const noMore = ref(false);
+const targetStyle = ref<number>(1)
+const targetUsername = ref<string>("")
 const list = ref<any[]>([]);
 const page = ref(1);
 const pageSize = ref(20);
@@ -102,6 +108,36 @@ const title = computed(() => {
     return t;
 });
 
+const reset = () => {
+    loading.value = false;
+    noMore.value = false;
+    list.value = [];
+    page.value = 1;
+    totalPage.value = 0;
+}
+
+const handleBarClick = (data: Item.SlideBarItem, index: number) => {
+    reset();
+    targetStyle.value = data.style
+    switch (data.style) {
+    case 1:
+        loadPosts();
+        break;
+    case 2:
+        // todo: add some other logic
+        loadPosts();
+        break;
+    case 21:
+        targetUsername.value = data.username;
+        loadUserPosts();
+        break;
+   
+    default:
+        break;
+   }
+   slideBarList.value[index].show = false;
+};
+
 const loadContacts = () => {
     if (store.state.userInfo.id === 0) {
         loading.value = true;
@@ -114,7 +150,13 @@ const loadContacts = () => {
         const list = res.list || []
         for (; i < res.list.length; i++) {
             let item: Item.ContactItemProps = list[i];
-            slideBarList.value.push({title: item.nickname, avatar: item.avatar, show: false});   
+            slideBarList.value.push({
+                title: item.nickname, 
+                style: 21,
+                username: item.username,
+                avatar: item.avatar, 
+                show: false
+            });   
         }
     })
     .catch((err) => {
@@ -153,6 +195,36 @@ const loadPosts = () => {
         });
 };
 
+const loadUserPosts = () => {
+    loading.value = true;
+    getUserPosts({
+        username: targetUsername.value,
+        style: "post",
+        page: page.value,
+        page_size: pageSize.value,
+    })
+        .then((rsp) => {
+            loading.value = false;
+            if (rsp.list.length === 0) {
+                noMore.value = true
+            }
+            if (page.value > 1) {
+                list.value = list.value.concat(rsp.list);
+            } else {
+                list.value = rsp.list || [];
+                window.scrollTo(0, 0);
+            }
+            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+        })
+        .catch((err) => {
+            list.value = [];
+            if (page.value > 1) {
+                page.value--;
+            }
+            loading.value = false;
+        });
+};
+
 const onPostSuccess = (post: Item.PostProps) => {
     // 如果不在第一页，需要跳转到详情页面
     if (page.value != 1) {
@@ -186,11 +258,28 @@ const onPostSuccess = (post: Item.PostProps) => {
     list.value = items;
 };
 
+const loadMorePosts = () => {
+    switch (targetStyle.value) {
+    case 1:
+        loadPosts();
+        break;
+    case 2:
+        // todo: add some other logic
+        loadPosts();
+        break;
+    case 21:
+        loadUserPosts();
+        break;
+    default:
+        break;
+   }
+};
+
 const nextPage = () => {
     if (page.value < totalPage.value || totalPage.value == 0) {
         noMore.value = false;
         page.value++;
-        loadPosts();
+        loadMorePosts();
     } else {
         noMore.value = true;
     }
@@ -200,6 +289,7 @@ onMounted(() => {
     loadContacts()
     loadPosts();
 });
+
 watch(
     () => ({
         path: route.path,
@@ -208,18 +298,16 @@ watch(
     }),
     (to, from) => {
         if (to.refresh !== from.refresh) {
-            noMore.value = false;
-            page.value = 1;
+            reset();
             setTimeout(() => {
-                loadPosts();
+                loadMorePosts();
             }, 0);
             return;
         }
         if (from.path !== '/post' && to.path === '/') {
-            noMore.value = false;
-            page.value = 1;
+            reset();
             setTimeout(() => {
-                loadPosts();
+                loadMorePosts();
             }, 0);
         }
     }
@@ -229,23 +317,40 @@ watch(
 
 <style lang="less" scoped>
 
-.tiny-slide-bar .slide-bar-item {
-    min-height: 170px;
-    width: 64px;
-    display: flex;
-    flex-direction:column;
-    justify-content: center;
-    align-items: center;
-    .slide-bar-item-title {
-        justify-content: center;
-        font-size: 12px;
-        margin-top: 4px;
-        height: 40px;
+.tiny-slide-bar .tiny-slide-bar__list > 
+div.tiny-slide-bar__select .slide-bar-item .slide-bar-item-title {
+    color: #18a058;
+    opacity: 0.8;
+}
+
+.tiny-slide-bar .tiny-slide-bar__list > 
+div:hover .slide-bar-item {
+    cursor: pointer;
+    .slide-bar-item-avatar {
+        opacity: 0.8;
     }
-    &:hover {
-        cursor: pointer;
-        .slide-bar-item-avatar {
-            opacity: 0.65;
+    .slide-bar-item-title {
+        color: #18a058;
+        opacity: 0.8;
+    }
+}
+
+.tiny-slide-bar {
+    margin-top: -30px;
+    margin-bottom: -30px;
+    .slide-bar-item {
+        min-height: 170px;
+        width: 64px;
+        display: flex;
+        flex-direction:column;
+        justify-content: center;
+        align-items: center;
+        margin-top: 8px;
+        .slide-bar-item-title {
+            justify-content: center;
+            font-size: 12px;
+            margin-top: 4px;
+            height: 40px;
         }
     }
 }
