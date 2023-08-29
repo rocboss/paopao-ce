@@ -88,14 +88,15 @@ func (s *topicSrvA) UpsertTags(userId int64, tags []string) (res cs.TagInfoList,
 	return
 }
 
-func (s *topicSrvA) DecrTagsById(ids []int64) error {
+func (s *topicSrvA) DecrTagsById(ids []int64) (err error) {
+	if len(ids) == 0 {
+		return
+	}
 	return s.db.Withx(func(tx *sqlx.Tx) error {
-		var ids []int64
-		err := tx.InSelect(&ids, s.q.TagsByIdA, ids)
-		if err != nil {
-			return err
+		var newIds []int64
+		if err = tx.InSelect(&newIds, s.q.TagsByIdA, ids); err == nil {
+			_, err = tx.InExec(s.q.DecrTagsById, time.Now().Unix(), newIds)
 		}
-		_, err = tx.InExec(s.q.DecrTagsById, time.Now().Unix(), ids)
 		return err
 	})
 }
@@ -164,6 +165,9 @@ func (s *topicSrvA) StickTopic(userId int64, topicId int64) (res int8, err error
 }
 
 func (s *topicSrvA) tagsFormatA(userId int64, tags cs.TagList) (cs.TagList, error) {
+	if len(tags) == 0 {
+		return tags, nil
+	}
 	// 获取创建者User IDs
 	tagIds := []int64{}
 	for _, tag := range tags {
