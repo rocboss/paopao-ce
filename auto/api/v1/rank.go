@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/model/web"
@@ -52,7 +51,7 @@ func RegisterRankServant(e *gin.Engine, s Rank) {
 			s.Render(c, nil, err)
 			return
 		}
-		fmt.Print(req.ListType)
+		//fmt.Print(req.ListType)
 		resp := new(web.GetRankListResp)
 		downloadRankList, err := s.GetDownloadRankList(req)
 		resp.List = downloadRankList
