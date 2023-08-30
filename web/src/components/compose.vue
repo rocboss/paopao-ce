@@ -274,9 +274,8 @@
     </div>
 </template>
 
-
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { debounce } from 'lodash';
 import { getSuggestUsers, getSuggestTags } from '@/api/user';
@@ -293,8 +292,6 @@ import { parsePostTag } from '@/utils/content';
 import { isZipFile } from '@/utils/isZipFile';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
 import { VisibilityEnum, PostItemTypeEnum } from '@/utils/IEnum';
-
-
 
 const emit = defineEmits<{
     (e: 'post-success', post: Item.PostProps): void;
@@ -317,14 +314,10 @@ const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
 const videoContents = ref<Item.CommentItemProps[]>([]);
 const attachmentContents = ref<Item.AttachmentProps[]>([]);
-const visitType = ref<VisibilityEnum>(VisibilityEnum.FRIEND);
-const defaultVisitType = ref<VisibilityEnum>(VisibilityEnum.FRIEND)
-const visibilities = [
-    {value: VisibilityEnum.PUBLIC, label: "公开"}
-    , {value: VisibilityEnum.PRIVATE, label: "私密"}
-    , {value: VisibilityEnum.FRIEND, label: "好友可见"}
-];
+const visitType = ref<VisibilityEnum>(VisibilityEnum.PUBLIC);
+const defaultVisitType = ref<VisibilityEnum>(VisibilityEnum.PUBLIC)
 
+const useFriendship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true')
 const defaultTweetMaxLength = Number(import.meta.env.VITE_DEFAULT_TWEET_MAX_LENGTH)
 const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
 const allowTweetVideo = ref(import.meta.env.VITE_ALLOW_TWEET_VIDEO.toLowerCase() === 'true')
@@ -333,6 +326,18 @@ const allowTweetAttachmentPrice = ref(import.meta.env.VITE_ALLOW_TWEET_ATTACHMEN
 const allowTweetVisibility = ref(import.meta.env.VITE_ALLOW_TWEET_VISIBILITY.toLowerCase() === 'true')
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = ref();
+
+const visibilities = computed(()=> {
+    let res = [
+        {value: VisibilityEnum.PUBLIC, label: "公开"},
+        {value: VisibilityEnum.PRIVATE, label: "私密"},
+        {value: VisibilityEnum.Following, label: "关注可见"},
+    ];
+    if (useFriendship) {
+        res.push({value: VisibilityEnum.FRIEND, label: "好友可见"});
+    }
+    return res;
+});
 
 const switchLink = () => {
     showLinkSet.value = !showLinkSet.value;
@@ -586,12 +591,17 @@ const submitPost = () => {
     }
 
     submitting.value = true;
+    // TODO: 临时过渡，暂时将Following等价于Public
+    let fixedVisit = visitType.value;
+    if (fixedVisit == VisibilityEnum.Following) {
+        fixedVisit = VisibilityEnum.PUBLIC
+    }
     createPost({
         contents,
         tags: Array.from(new Set(tags)),
         users: Array.from(new Set(users)),
         attachment_price: +attachmentPrice.value * 100,
-        visibility: visitType.value
+        visibility: fixedVisit
     })
         .then((res) => {
             window.$message.success('发布成功');
@@ -619,14 +629,16 @@ const triggerAuth = (key: string) => {
     store.commit('triggerAuthKey', key);
 };
 onMounted(() => {
-    if (import.meta.env.VITE_DEFAULT_TWEET_VISIBILITY.toLowerCase() === 'friend') {
+    const defaultVisibility = import.meta.env.VITE_DEFAULT_TWEET_VISIBILITY.toLowerCase()
+    if (useFriendship && defaultVisibility === 'friend') {
         defaultVisitType.value = VisibilityEnum.FRIEND
-    } else if (import.meta.env.VITE_DEFAULT_TWEET_VISIBILITY.toLowerCase()  === 'public') {
+    } else if (defaultVisibility  === 'following') {
+        defaultVisitType.value = VisibilityEnum.Following
+    } else if (defaultVisibility === 'public') {
         defaultVisitType.value = VisibilityEnum.PUBLIC
     } else {
         defaultVisitType.value = VisibilityEnum.PRIVATE
     }
-
     visitType.value = defaultVisitType.value;
     uploadToken.value = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
 });
