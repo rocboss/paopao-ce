@@ -79,8 +79,12 @@ const router = useRouter();
 const hasUnreadMsg = ref(false);
 const selectedPath = ref<any>(route.name || '');
 const msgLoop = ref();
-const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
-const defMsgLoopInterval = Number(import.meta.env.VITE_DEFAULT_MSG_LOOP_INTERVAL)
+
+const useFrindship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true');
+const enableAnnoucement = (import.meta.env.VITE_ENABLE_ANOUNCEMENT.toLowerCase() === 'true');
+const enableWallet = (import.meta.env.VITE_ENABLE_WALLET.toLocaleLowerCase() === 'true');
+const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true');
+const defMsgLoopInterval = Number(import.meta.env.VITE_DEFAULT_MSG_LOOP_INTERVAL);
 
 watch(route, () => {
     selectedPath.value = route.name;
@@ -133,7 +137,7 @@ const menuOptions = computed(() => {
             href: '/topic',
         },
     ];
-    if (import.meta.env.VITE_ENABLE_ANOUNCEMENT.toLowerCase() === 'true') {
+    if (enableAnnoucement) {
         options.push({
             label: '公告',
             key: 'anouncement',
@@ -159,13 +163,15 @@ const menuOptions = computed(() => {
         icon: () => h(BookmarksOutline),
         href: '/collection',
     });
-    options.push({
-        label: '好友',
-        key: 'contacts',
-        icon: () => h(PeopleOutline),
-        href: '/contacts',
-    });
-    if (import.meta.env.VITE_ENABLE_WALLET.toLocaleLowerCase() === 'true') {
+    if (useFrindship) {
+        options.push({
+            label: '好友',
+            key: 'contacts',
+            icon: () => h(PeopleOutline),
+            href: '/contacts',
+        });
+    }   
+    if (enableWallet) {
         options.push({
             label: '钱包',
             key: 'wallet',
