@@ -75,7 +75,7 @@ import SlideBar from '@opentiny/vue-slide-bar';
 import allTweets from '@/assets/img/all-tweets.png';
 // import followingTweets from '@/assets/img/following-tweets.jpeg';
 
-const useFrindship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true')
+const useFriendship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true')
 const enableFriendsBar = (import.meta.env.VITE_ENABLE_FRIENDS_BAR.toLowerCase() === 'true')
 const store = useStore();
 const route = useRoute();
@@ -123,7 +123,7 @@ const title = computed(() => {
 });
 
 const showFriendsBar = computed(() => {
-    return useFrindship && enableFriendsBar && store.state.desktopModelShow && store.state.userInfo.id > 0;
+    return useFriendship && enableFriendsBar && store.state.desktopModelShow && store.state.userInfo.id > 0;
 });
 
 const reset = () => {
@@ -157,7 +157,7 @@ const handleBarClick = (data: Item.SlideBarItem, index: number) => {
 };
 
 const loadContacts = () => {
-    if (!useFrindship || !enableFriendsBar || store.state.userInfo.id === 0) {
+    if (!useFriendship || !enableFriendsBar || store.state.userInfo.id === 0) {
         return
     }
     slideBarList.value = slideBarList.value.slice(0, 1);

@@ -133,7 +133,7 @@
                     title="提示"
                     :content="
                         '确定将该泡泡动态可见度修改为' +
-                        (tempVisibility == 0 ? '公开' : (tempVisibility == 1 ? '私密' : '好友可见')) +
+                        (tempVisibility == 0 ? '公开' : (tempVisibility == 1 ? '私密' : (tempVisibility == 2 ? '好友可见' : '关注可见'))) +
                         '吗？'
                     "
                     positive-text="确认"
@@ -239,6 +239,7 @@ import {
     LockOpenOutline,
     EyeOutline,
     EyeOffOutline,
+    BodyOutline,
     PersonOutline,
     FlameOutline,
 } from '@vicons/ionicons5';
@@ -257,6 +258,8 @@ import {
 import type { DropdownOption } from 'naive-ui';
 import { VisibilityEnum } from '@/utils/IEnum';
 import copy from "copy-to-clipboard";
+
+const useFriendship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true')
 
 const store = useStore();
 const router = useRouter();
@@ -380,37 +383,53 @@ const adminOptions = computed(() => {
             icon: renderIcon(FlameOutline)
         });
     }
+    let visitMenu: DropdownOption
     if (post.value.visibility === VisibilityEnum.PUBLIC) {
-        options.push({
+        visitMenu = {
             label: '公开',
             key: 'vpublic',
             icon: renderIcon(EyeOutline),
             children: [
-                { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline)}
-                , { label: '好友可见', key: 'vfriend', icon: renderIcon(PersonOutline) }
+                { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline) },
+                { label: '关注可见', key: 'vfollowing', icon: renderIcon(BodyOutline) }
             ]
-        })
+        };
     } else if (post.value.visibility === VisibilityEnum.PRIVATE) {
-        options.push({
+        visitMenu = {
             label: '私密',
             key: 'vprivate',
             icon: renderIcon(EyeOffOutline),
             children: [
-                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) }
-                , { label: '好友可见', key: 'vfriend', icon: renderIcon(PersonOutline) }
+                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) },
+                { label: '关注可见', key: 'vfollowing', icon: renderIcon(BodyOutline) }
             ]
-        })
-    } else {
-        options.push({
+        };
+    } else if (useFriendship && post.value.visibility === VisibilityEnum.FRIEND) {
+        visitMenu = {
             label: '好友可见',
             key: 'vfriend',
             icon: renderIcon(PersonOutline),
             children: [
-                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) }
-                , { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline) }
+                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) },
+                { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline) },
+                { label: '关注可见', key: 'vfollowing', icon: renderIcon(BodyOutline) }
             ]
-        })
+        };
+    } else {
+       visitMenu = {
+            label: '关注可见',
+            key: 'vfollowing',
+            icon: renderIcon(BodyOutline),
+            children: [
+                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) },
+                { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline) }
+            ]
+        };
     }
+    if (useFriendship && post.value.visibility !== VisibilityEnum.FRIEND) {
+        visitMenu.children?.push({ label: '好友可见', key: 'vfriend', icon: renderIcon(PersonOutline) })
+    }
+    options.push(visitMenu);
     return options;
 });
 
@@ -449,7 +468,7 @@ const doClickText = (e: MouseEvent, id: number) => {
     goPostDetail(id);
 };
 const handlePostAction = (
-    item: 'delete' | 'lock' | 'unlock' | 'stick' | 'unstick' | 'highlight' | 'unhighlight' | 'vpublic' | 'vprivate' | 'vfriend'
+    item: 'delete' | 'lock' | 'unlock' | 'stick' | 'unstick' | 'highlight' | 'unhighlight' | 'vpublic' | 'vprivate' | 'vfriend' | 'vfollowing'
 ) => {
     switch (item) {
         case 'delete':
@@ -477,6 +496,10 @@ const handlePostAction = (
             break;
         case 'vfriend':
             tempVisibility.value = 2;
+            showVisibilityModal.value = true;
+            break;
+        case 'vfollowing':
+            tempVisibility.value = 3;
             showVisibilityModal.value = true;
             break;
         default:
@@ -551,9 +574,14 @@ const execHighlightAction = () => {
         });
 };
 const execVisibilityAction = () => {
+    // TODO: 暂时following等价于public
+    let fixedVisit = tempVisibility.value
+    if (fixedVisit == 3) {
+        fixedVisit = 0
+    }
     visibilityPost({
         id: post.value.id,
-        visibility: tempVisibility.value
+        visibility: fixedVisit
     })
         .then((res) => {
             emit('reload');
