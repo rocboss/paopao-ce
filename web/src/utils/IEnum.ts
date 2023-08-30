@@ -79,6 +79,8 @@ export enum VisibilityEnum {
   PRIVATE,
   /** 好友可见 */
   FRIEND,
+  /** 关注可见 */
+  Following,
 }
 
 /** 二态枚举 */
