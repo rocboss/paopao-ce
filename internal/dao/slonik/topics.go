@@ -12,7 +12,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
-	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/sqlc/postgres"
+	"github.com/rocboss/paopao-ce/internal/dao/slonik/sqlc/auto/pgc"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
@@ -22,14 +22,16 @@ var (
 
 type topicSrv struct {
 	*pgxSrv
+	q *pgc.Queries
 }
 
 // UpsertTags update/insert tags info.
 // Assume tags slice is distinct elements.
 func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, err error) {
-	err = s.with(func(c context.Context, q dbr.Querier) error {
+	err = s.with(func(c context.Context, tx pgx.Tx) error {
 		now := time.Now().Unix()
-		upTags, err := q.IncrTags(c, &dbr.IncrTagsParams{
+		q := s.q.WithTx(tx)
+		upTags, err := q.IncrTags(c, &pgc.IncrTagsParams{
 			Tags:       tags,
 			ModifiedOn: now,
 		})
@@ -55,7 +57,7 @@ func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, 
 			}
 		}
 		for _, tag := range tags {
-			id, err := q.InsertTags(c, &dbr.InsertTagsParams{
+			id, err := q.InsertTags(c, &pgc.InsertTagsParams{
 				UserID:    userId,
 				Tag:       tag,
 				CreatedOn: now,
@@ -76,7 +78,7 @@ func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, 
 }
 
 func (s *topicSrv) DecrTagsById(ids []int64) error {
-	return s.q.DecrTagsById(context.Background(), &dbr.DecrTagsByIdParams{
+	return s.q.DecrTagsById(context.Background(), &pgc.DecrTagsByIdParams{
 		Ids:        ids,
 		ModifiedOn: time.Now().Unix(),
 	})
@@ -86,7 +88,7 @@ func (s *topicSrv) ListTags(typ cs.TagType, limit int, offset int) (res cs.TagLi
 	ctx := context.Background()
 	switch typ {
 	case cs.TagTypeHot:
-		tags, err := s.q.HotTags(ctx, &dbr.HotTagsParams{Limit: int32(limit), Offset: int32(offset)})
+		tags, err := s.q.HotTags(ctx, &pgc.HotTagsParams{Limit: int32(limit), Offset: int32(offset)})
 		if err != nil {
 			return nil, err
 		}
@@ -107,7 +109,7 @@ func (s *topicSrv) ListTags(typ cs.TagType, limit int, offset int) (res cs.TagLi
 			})
 		}
 	case cs.TagTypeNew:
-		tags, err := s.q.NewestTags(ctx, &dbr.NewestTagsParams{Limit: int32(limit), Offset: int32(offset)})
+		tags, err := s.q.NewestTags(ctx, &pgc.NewestTagsParams{Limit: int32(limit), Offset: int32(offset)})
 		if err != nil {
 			return nil, err
 		}
@@ -197,5 +199,6 @@ func (s *topicSrv) StickTopic(userId int64, topicId int64) (int8, error) {
 func newTopicService(db *pgx.Conn) core.TopicService {
 	return &topicSrv{
 		pgxSrv: newPgxSrv(db),
+		q:      pgc.New(db),
 	}
 }

@@ -10,7 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	dbr "github.com/rocboss/paopao-ce/internal/dao/slonik/sqlc/postgres"
+	pg "github.com/rocboss/paopao-ce/internal/dao/slonik/sqlc/auto"
 )
 
 var (
@@ -20,70 +20,54 @@ var (
 
 type pgxSrv struct {
 	db *pgx.Conn
-	q  dbr.Querier
+	p  pg.Querier
 }
 
-func (s *pgxSrv) begin(ctx context.Context) (pgx.Tx, dbr.Querier, error) {
-	tx, err := s.db.Begin(ctx)
-	if err != nil {
-		return nil, nil, err
-	}
-	return tx, dbr.New(tx), nil
-}
-
-func (s *pgxSrv) beingTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, dbr.Querier, error) {
-	tx, err := s.db.BeginTx(ctx, txOptions)
-	if err != nil {
-		return nil, nil, err
-	}
-	return tx, dbr.New(tx), nil
-}
-
-func (s *pgxSrv) with(handle func(c context.Context, q dbr.Querier) error) error {
+func (s *pgxSrv) with(fn func(c context.Context, tx pgx.Tx) error) error {
 	ctx := context.Background()
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
-	if err = handle(ctx, dbr.New(tx)); err != nil {
+	if err = fn(ctx, tx); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)
 }
 
-func (s *pgxSrv) withTx(txOptions pgx.TxOptions, handle func(ctx context.Context, q dbr.Querier) error) error {
+func (s *pgxSrv) withTx(txOptions pgx.TxOptions, fn func(ctx context.Context, tx pgx.Tx) error) error {
 	ctx := context.Background()
 	tx, err := s.db.BeginTx(ctx, txOptions)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
-	if err = handle(ctx, dbr.New(tx)); err != nil {
+	if err = fn(ctx, tx); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)
 }
 
-func (s *pgxSrv) withCtx(ctx context.Context, handle func(dbr.Querier) error) error {
+func (s *pgxSrv) withCtx(ctx context.Context, fn func(tx pgx.Tx) error) error {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
-	if err = handle(dbr.New(tx)); err != nil {
+	if err = fn(tx); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)
 }
 
-func (s *pgxSrv) withTxCtx(ctx context.Context, txOptions pgx.TxOptions, handle func(dbr.Querier) error) error {
+func (s *pgxSrv) withTxCtx(ctx context.Context, txOptions pgx.TxOptions, fn func(tx pgx.Tx) error) error {
 	tx, err := s.db.BeginTx(ctx, txOptions)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
-	if err = handle(dbr.New(tx)); err != nil {
+	if err = fn(tx); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)
@@ -92,7 +76,7 @@ func (s *pgxSrv) withTxCtx(ctx context.Context, txOptions pgx.TxOptions, handle 
 func newPgxSrv(db *pgx.Conn) *pgxSrv {
 	return &pgxSrv{
 		db: db,
-		q:  dbr.New(db),
+		p:  pg.New(db),
 	}
 }
 

@@ -89,9 +89,9 @@ gen-rpc:
 
 .PHONY: gen-sqlc
 gen-sqlc:
-	@find internal/dao/slonik/sqlc/postgres -name '*.go' -exec rm -f {} +
+	@find internal/dao/slonik/sqlc/auto -name '*.go' -exec rm -f {} +
 	@go generate internal/dao/slonik/sqlc/gen.go
-	@go fmt ./internal/dao/slonik/sqlc/...
+	@go fmt ./internal/dao/slonik/sqlc/auto/...
 
 .PHONY: proto-mod
 proto-mod:
