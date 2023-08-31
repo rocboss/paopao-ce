@@ -52,13 +52,28 @@
                         {{ post.ip_loc ? post.ip_loc + ' · ' : post.ip_loc }}
                         {{ formatPrettyDate(post.created_on) }}
                     </span>
+                    <n-dropdown
+                        placement="bottom-end"
+                        trigger="hover"
+                        size="small"
+                        :options="tweetOptions"
+                        @select="handleTweetAction"
+                    >
+                        <n-button quaternary circle>
+                            <template #icon>
+                                <n-icon>
+                                    <more-horiz-filled />
+                                </n-icon>
+                            </template>
+                        </n-button>
+                    </n-dropdown>
                 </div>
             </template>
             <template #description v-if="post.texts.length > 0">
                 <span
                     v-for="content in post.texts"
                     :key="content.id"
-                    class="post-text"
+                    class="post-text hover"
                     @click.stop="doClickText($event, post.id)"
                     v-html="parsePostTag(content.content).content"
                 ></span>
@@ -85,19 +100,19 @@
             </template>
             <template #action>
                 <n-space justify="space-between">
-                    <div class="opt-item">
+                    <div class="opt-item hover" @click.stop="handlePostStar">
                         <n-icon size="18" class="opt-item-icon">
                             <heart-outline />
                         </n-icon>
                         {{ post.upvote_count }}
                     </div>
-                    <div class="opt-item" @click.stop="goPostDetail(post.id)">
+                    <div class="opt-item hover" @click.stop="goPostDetail(post.id)">
                         <n-icon size="18" class="opt-item-icon">
                             <chatbox-outline />
                         </n-icon>
                         {{ post.comment_count }}
                     </div>
-                    <div class="opt-item">
+                    <div class="opt-item hover" @click.stop="handlePostCollection">
                         <n-icon size="18" class="opt-item-icon">
                             <bookmark-outline />
                         </n-icon>
@@ -110,16 +125,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { h, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { NIcon } from 'naive-ui'
+import type { Component } from 'vue'
+import type { DropdownOption } from 'naive-ui';
 import { formatPrettyDate } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
+import {
+    postStar,
+    postCollection,
+} from '@/api/post';
 import {
     HeartOutline,
     BookmarkOutline,
     ChatboxOutline,
+    ShareSocialOutline,
 } from '@vicons/ionicons5';
+import { MoreHorizFilled } from '@vicons/material';
+import copy from "copy-to-clipboard";
 
 const router = useRouter();
 const store = useStore();
@@ -127,40 +152,121 @@ const props = withDefaults(defineProps<{
     post: Item.PostProps,
 }>(), {});
 
-const post = computed(() => {
-    let post: Item.PostComponentProps = Object.assign(
+
+const renderIcon = (icon: Component) => {
+  return () => {
+    return h(NIcon, null, {
+      default: () => h(icon)
+    })
+  }
+};
+
+const tweetOptions = computed(() => {
+    let options: DropdownOption[] = [
         {
-            texts: [],
-            imgs: [],
-            videos: [],
-            links: [],
-            attachments: [],
-            charge_attachments: [],
+            label: '复制链接',
+            key: 'copyTweetLink',
+            icon: renderIcon(ShareSocialOutline),
         },
-        props.post
-    );
-    post.contents.map((content) => {
-        if (+content.type === 1 || +content.type === 2) {
-            post.texts.push(content);
-        }
-        if (+content.type === 3) {
-            post.imgs.push(content);
-        }
-        if (+content.type === 4) {
-            post.videos.push(content);
-        }
-        if (+content.type === 6) {
-            post.links.push(content);
-        }
-        if (+content.type === 7) {
-            post.attachments.push(content);
-        }
-        if (+content.type === 8) {
-            post.charge_attachments.push(content);
-        }
-    });
-    return post;
+    ];
+    return options;
 });
+
+const handleTweetAction = async (
+    item: 'copyTweetLink'
+) => {
+    switch (item) {
+        case 'copyTweetLink':
+            copy(`${window.location.origin}/#/post?id=${post.value.id}&share=copy_link&t=${new Date().getTime()}`);
+            window.$message.success('链接已复制到剪贴板');
+            break;
+        default:
+            break;
+    }
+};
+
+const post = computed({
+    get: () => {
+        let post: Item.PostComponentProps = Object.assign(
+            {
+                texts: [],
+                imgs: [],
+                videos: [],
+                links: [],
+                attachments: [],
+                charge_attachments: [],
+            },
+            props.post
+        );
+        post.contents.map((content) => {
+            if (+content.type === 1 || +content.type === 2) {
+                post.texts.push(content);
+            }
+            if (+content.type === 3) {
+                post.imgs.push(content);
+            }
+            if (+content.type === 4) {
+                post.videos.push(content);
+            }
+            if (+content.type === 6) {
+                post.links.push(content);
+            }
+            if (+content.type === 7) {
+                post.attachments.push(content);
+            }
+            if (+content.type === 8) {
+                post.charge_attachments.push(content);
+            }
+        });
+        return post;
+    },
+    set: (newVal) => {
+        props.post.upvote_count = newVal.upvote_count;
+        props.post.collection_count = newVal.collection_count;
+    },
+});
+const handlePostStar = () => {
+    postStar({
+        id: post.value.id,
+    })
+        .then((res) => {
+            if (res.status) {
+                post.value = {
+                    ...post.value,
+                    upvote_count: post.value.upvote_count + 1,
+                };
+            } else {
+                post.value = {
+                    ...post.value,
+                    upvote_count: post.value.upvote_count > 0 ? post.value.upvote_count - 1 : 0,
+                };
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
+const handlePostCollection = () => {
+    postCollection({
+        id: post.value.id,
+    })
+        .then((res) => {
+            if (res.status) {
+                post.value = {
+                    ...post.value,
+                    collection_count: post.value.collection_count + 1,
+                };
+            } else {
+                post.value = {
+                    ...post.value,
+                    collection_count: post.value.collection_count > 0 ? post.value.collection_count - 1 : 0,
+                };
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
 const goPostDetail = (id: number) => {
     router.push({
         name: 'post',
@@ -237,9 +343,13 @@ const doClickText = (e: MouseEvent, id: number) => {
             margin-right: 10px;
         }
     }
+    
     &:hover {
         background: #f7f9f9;
-        cursor: pointer;
+    }
+    
+    &.hover {
+                cursor: pointer;
     }
 
     .n-thing-avatar {

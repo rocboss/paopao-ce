@@ -102,7 +102,7 @@
             </template>
             <template #action>
                 <n-space justify="space-between">
-                    <div class="opt-item">
+                    <div class="opt-item" @click.stop="handlePostStar">
                         <n-icon size="18" class="opt-item-icon">
                             <heart-outline />
                         </n-icon>
@@ -114,7 +114,7 @@
                         </n-icon>
                         {{ post.comment_count }}
                     </div>
-                    <div class="opt-item">
+                    <div class="opt-item" @click.stop="handlePostCollection">
                         <n-icon size="18" class="opt-item-icon">
                             <bookmark-outline />
                         </n-icon>
@@ -135,6 +135,10 @@ import type { DropdownOption } from 'naive-ui';
 import { useRouter } from 'vue-router';
 import { formatPrettyDate } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
+import {
+    postStar,
+    postCollection,
+} from '@/api/post';
 import {
     HeartOutline,
     BookmarkOutline,
@@ -174,7 +178,7 @@ const handleTweetAction = async (
 ) => {
     switch (item) {
         case 'copyTweetLink':
-            copy(`${window.location.origin}/#/post?id=${post.value.id}`);
+            copy(`${window.location.origin}/#/post?id=${post.value.id}&share=copy_link&t=${new Date().getTime()}`);
             window.$message.success('链接已复制到剪贴板');
             break;
         default:
@@ -182,40 +186,91 @@ const handleTweetAction = async (
     }
 };
 
-const post = computed(() => {
-    let post: Item.PostComponentProps = Object.assign(
-        {
-            texts: [],
-            imgs: [],
-            videos: [],
-            links: [],
-            attachments: [],
-            charge_attachments: [],
-        },
-        props.post
-    );
-    post.contents.map((content) => {
-        if (+content.type === 1 || +content.type === 2) {
-            post.texts.push(content);
-        }
-        if (+content.type === 3) {
-            post.imgs.push(content);
-        }
-        if (+content.type === 4) {
-            post.videos.push(content);
-        }
-        if (+content.type === 6) {
-            post.links.push(content);
-        }
-        if (+content.type === 7) {
-            post.attachments.push(content);
-        }
-        if (+content.type === 8) {
-            post.charge_attachments.push(content);
-        }
-    });
-    return post;
+const post = computed({
+    get: () => {
+        let post: Item.PostComponentProps = Object.assign(
+            {
+                texts: [],
+                imgs: [],
+                videos: [],
+                links: [],
+                attachments: [],
+                charge_attachments: [],
+            },
+            props.post
+        );
+        post.contents.map((content) => {
+            if (+content.type === 1 || +content.type === 2) {
+                post.texts.push(content);
+            }
+            if (+content.type === 3) {
+                post.imgs.push(content);
+            }
+            if (+content.type === 4) {
+                post.videos.push(content);
+            }
+            if (+content.type === 6) {
+                post.links.push(content);
+            }
+            if (+content.type === 7) {
+                post.attachments.push(content);
+            }
+            if (+content.type === 8) {
+                post.charge_attachments.push(content);
+            }
+        });
+        return post;
+    },
+    set: (newVal) => {
+        props.post.upvote_count = newVal.upvote_count;
+        props.post.collection_count = newVal.collection_count;
+    },
 });
+
+const handlePostStar = () => {
+    postStar({
+        id: post.value.id,
+    })
+        .then((res) => {
+            if (res.status) {
+                post.value = {
+                    ...post.value,
+                    upvote_count: post.value.upvote_count + 1,
+                };
+            } else {
+                post.value = {
+                    ...post.value,
+                    upvote_count: post.value.upvote_count > 0 ? post.value.upvote_count - 1 : 0,
+                };
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
+
+const handlePostCollection = () => {
+    postCollection({
+        id: post.value.id,
+    })
+        .then((res) => {
+            if (res.status) {
+                post.value = {
+                    ...post.value,
+                    collection_count: post.value.collection_count + 1,
+                };
+            } else {
+                post.value = {
+                    ...post.value,
+                    collection_count: post.value.collection_count > 0 ? post.value.collection_count - 1 : 0,
+                };
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
+
 const goPostDetail = (id: number) => {
     router.push({
         name: 'post',
