@@ -51,20 +51,20 @@ services:
     networks:
       - paopao-network
   
-  zinc:
-    image: bitbus/zincsearch:latest
-    user: zincsearch
-    restart: always
-    ports:
-      - 4080:4080
-    volumes:
-      - ./custom/data/zinc/data:/data
-    environment:
-      ZINC_FIRST_ADMIN_USER: admin
-      ZINC_FIRST_ADMIN_PASSWORD: admin
-      DATA_PATH: /data
-    networks:
-      - paopao-network
+  # zinc:
+  #   image: bitbus/zincsearch:latest
+  #   user: zincsearch
+  #   restart: always
+  #   ports:
+  #     - 4080:4080
+  #   volumes:
+  #     - ./custom/data/zinc/data:/data
+  #   environment:
+  #     ZINC_FIRST_ADMIN_USER: admin
+  #     ZINC_FIRST_ADMIN_PASSWORD: admin
+  #     DATA_PATH: /data
+  #   networks:
+  #     - paopao-network
 
   meili:
     image: getmeili/meilisearch:v1.3
@@ -78,6 +78,14 @@ services:
     networks:
       - paopao-network
 
+  meilisearch-ui:
+    image: riccoxie/meilisearch-ui:latest
+    restart: always
+    ports:
+      - 24900:24900
+    networks:
+      - paopao-network
+  
   # openobserve:
   #   image: public.ecr.aws/zinclabs/openobserve:latest
   #   restart: always
@@ -102,18 +110,18 @@ services:
   #   networks:
   #     - paopao-network
 
-  phpmyadmin:
-    image: phpmyadmin:5.2
-    depends_on:
-      - db
-    ports:
-      - 8080:80
-    environment:
-      - PMA_HOST=db
-      - PMA_USER=paopao
-      - PMA_PASSWORD=paopao
-    networks:
-      - paopao-network
+  # phpmyadmin:
+  #   image: phpmyadmin:5.2
+  #   depends_on:
+  #     - db
+  #   ports:
+  #     - 8080:80
+  #   environment:
+  #     - PMA_HOST=db
+  #     - PMA_USER=paopao
+  #     - PMA_PASSWORD=paopao
+  #   networks:
+  #     - paopao-network
 
   backend:
     image: bitbus/paopao-ce:nightly

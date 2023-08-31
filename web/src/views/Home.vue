@@ -8,7 +8,7 @@
                 <compose @post-success="onPostSuccess" />
             </n-list-item>
 
-            <n-list-item v-if="store.state.desktopModelShow && store.state.userInfo.id > 0" >
+            <n-list-item v-if="showFriendsBar" >
             <SlideBar v-model="slideBarList" :wheel-blocks="wheelBlocks" :init-blocks="initBlocks" @click="handleBarClick" tag="div" sub-tag="div">
                 <template #default="data">
                     <div class="slide-bar-item">
@@ -51,7 +51,6 @@
             </div>
         </n-list>
 
-
         <n-space v-if="totalPage > 0" justify="center">
             <InfiniteLoading class="load-more" :slots="{ complete: '没有更多泡泡了', error: '加载出错' }" @infinite="nextPage()">
                 <template #spinner>
@@ -76,6 +75,8 @@ import SlideBar from '@opentiny/vue-slide-bar';
 import allTweets from '@/assets/img/all-tweets.png';
 // import followingTweets from '@/assets/img/following-tweets.jpeg';
 
+const useFriendship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true')
+const enableFriendsBar = (import.meta.env.VITE_ENABLE_FRIENDS_BAR.toLowerCase() === 'true')
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
@@ -106,6 +107,7 @@ const list = ref<any[]>([]);
 const page = ref(1);
 const pageSize = ref(20);
 const totalPage = ref(0);
+
 const title = computed(() => {
     let t = '泡泡广场';
 
@@ -118,6 +120,10 @@ const title = computed(() => {
     }
 
     return t;
+});
+
+const showFriendsBar = computed(() => {
+    return useFriendship && enableFriendsBar && store.state.desktopModelShow && store.state.userInfo.id > 0;
 });
 
 const reset = () => {
@@ -151,7 +157,7 @@ const handleBarClick = (data: Item.SlideBarItem, index: number) => {
 };
 
 const loadContacts = () => {
-    if (store.state.userInfo.id === 0) {
+    if (!useFriendship || !enableFriendsBar || store.state.userInfo.id === 0) {
         return
     }
     slideBarList.value = slideBarList.value.slice(0, 1);

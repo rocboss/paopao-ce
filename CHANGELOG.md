@@ -22,6 +22,14 @@ All notable changes to paopao-ce are documented in this file.
   ...
   ```
 - Added friend tweets bar feature support in home page. [#377](https://github.com/rocboss/paopao-ce/pull/377)    
+- web: add custom `Friendship` feature support. To custom setup `Friendship` use below configure in `web/.env` or `web/.env.local`
+  ```
+  # 功能特性开启
+  VITE_USE_FRIENDSHIP=true
+
+  # 模块开启
+  VITE_ENABLE_FRIENDS_BAR=true
+  ```
 
 ## 0.4.2
 ### Fixed
