@@ -35,15 +35,17 @@ type PCaptcha struct {
 }
 
 type PComment struct {
-	ID         int64
-	PostID     int64
-	UserID     int64
-	Ip         string
-	IpLoc      string
-	CreatedOn  int64
-	ModifiedOn int64
-	DeletedOn  int64
-	IsDel      int16
+	ID              int64
+	PostID          int64
+	UserID          int64
+	Ip              string
+	IpLoc           string
+	CreatedOn       int64
+	ModifiedOn      int64
+	DeletedOn       int64
+	IsDel           int16
+	ThumbsUpCount   int32
+	ThumbsDownCount int32
 }
 
 type PCommentContent struct {
@@ -60,17 +62,19 @@ type PCommentContent struct {
 }
 
 type PCommentReply struct {
-	ID         int64
-	CommentID  int64
-	UserID     int64
-	AtUserID   int64
-	Content    string
-	Ip         string
-	IpLoc      string
-	CreatedOn  int64
-	ModifiedOn int64
-	DeletedOn  int64
-	IsDel      int16
+	ID              int64
+	CommentID       int64
+	UserID          int64
+	AtUserID        int64
+	Content         string
+	Ip              string
+	IpLoc           string
+	CreatedOn       int64
+	ModifiedOn      int64
+	DeletedOn       int64
+	IsDel           int16
+	ThumbsUpCount   int32
+	ThumbsDownCount int32
 }
 
 type PContact struct {
@@ -93,6 +97,16 @@ type PContactGroup struct {
 	ID         int64
 	UserID     int32
 	Name       string
+	IsDel      int16
+	CreatedOn  int64
+	ModifiedOn int64
+	DeletedOn  int64
+}
+
+type PFollowing struct {
+	ID         int64
+	UserID     int64
+	FollowID   int64
 	IsDel      int16
 	CreatedOn  int64
 	ModifiedOn int64
@@ -147,6 +161,51 @@ type PPostAttachmentBill struct {
 	ModifiedOn int64
 	DeletedOn  int64
 	IsDel      int16
+}
+
+type PPostByComment struct {
+	ID              int64
+	UserID          int64
+	CommentCount    int64
+	CollectionCount int64
+	UpvoteCount     int64
+	IsTop           int16
+	IsEssence       int16
+	IsLock          int16
+	LatestRepliedOn int64
+	Tags            string
+	AttachmentPrice int64
+	Ip              string
+	IpLoc           string
+	CreatedOn       int64
+	ModifiedOn      int64
+	DeletedOn       int64
+	IsDel           int16
+	Visibility      int16
+	ShareCount      int64
+	CommentUserID   int64
+}
+
+type PPostByMedium struct {
+	ID              int64
+	UserID          int64
+	CommentCount    int64
+	CollectionCount int64
+	UpvoteCount     int64
+	IsTop           int16
+	IsEssence       int16
+	IsLock          int16
+	LatestRepliedOn int64
+	Tags            string
+	AttachmentPrice int64
+	Ip              string
+	IpLoc           string
+	CreatedOn       int64
+	ModifiedOn      int64
+	DeletedOn       int64
+	IsDel           int16
+	Visibility      int16
+	ShareCount      int64
 }
 
 type PPostCollection struct {
@@ -209,19 +268,30 @@ type PTopicUser struct {
 	ReserveB   pgtype.Text
 }
 
-// 用户
+type PTweetCommentThumb struct {
+	ID           int64
+	UserID       int64
+	TweetID      int64
+	CommentID    int64
+	ReplyID      pgtype.Int8
+	CommentType  int16
+	IsThumbsUp   int16
+	IsThumbsDown int16
+	CreatedOn    int64
+	ModifiedOn   int64
+	DeletedOn    int64
+	IsDel        int16
+}
+
 type PUser struct {
-	ID       int64
-	Nickname string
-	Username string
-	Phone    string
-	// MD5密码
-	Password string
-	Salt     string
-	// 状态, 1正常, 2停用
-	Status int16
-	Avatar string
-	// 用户余额（分）
+	ID         int64
+	Nickname   string
+	Username   string
+	Phone      string
+	Password   string
+	Salt       string
+	Status     int16
+	Avatar     string
 	Balance    int64
 	IsAdmin    bool
 	CreatedOn  int64

@@ -199,10 +199,6 @@ CREATE TABLE p_user (
 	deleted_on BIGINT NOT NULL DEFAULT 0,
 	is_del SMALLINT NOT NULL DEFAULT 0
 );
-COMMENT ON TABLE p_user IS '用户';
-COMMENT ON COLUMN p_user.password IS 'MD5密码';
-COMMENT ON COLUMN p_user.status IS '状态, 1正常, 2停用';
-COMMENT ON COLUMN p_user.balance IS '用户余额（分）';
 CREATE UNIQUE INDEX idx_user_username ON p_user USING btree (username);
 CREATE INDEX idx_user_phone ON p_user USING btree (phone);
 

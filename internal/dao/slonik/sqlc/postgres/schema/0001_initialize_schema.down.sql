@@ -14,4 +14,3 @@ DROP TABLE IF EXISTS p_user;
 DROP TABLE IF EXISTS p_wallet_recharge;
 DROP TABLE IF EXISTS p_wallet_statement;
 DROP SEQUENCE IF EXISTS post_id_seq;
-
