@@ -84,16 +84,17 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 }
 
 func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mir.Error) {
-	conditions := &ms.ConditionsT{
-		"receiver_user_id": req.UserId,
-		"ORDER":            "id DESC",
-	}
-	messages, err := s.Ds.GetMessages(conditions, (req.Page-1)*req.PageSize, req.PageSize)
+	messages, err := s.Ds.GetMessages(req.UserId, (req.Page-1)*req.PageSize, req.PageSize)
 	for _, mf := range messages {
+		// TODO: 优化处理这里的user获取逻辑以及错误处理
 		if mf.SenderUserID > 0 {
-			user, err := s.Ds.GetUserByID(mf.SenderUserID)
-			if err == nil {
+			if user, err := s.Ds.GetUserByID(mf.SenderUserID); err == nil {
 				mf.SenderUser = user.Format()
+			}
+		}
+		if mf.Type == ms.MsgTypeWhisper && mf.ReceiverUserID != req.UserId {
+			if user, err := s.Ds.GetUserByID(mf.ReceiverUserID); err == nil {
+				mf.ReceiverUser = user.Format()
 			}
 		}
 		// 好友申请消息不需要获取其他信息
@@ -123,7 +124,7 @@ func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mi
 		logrus.Errorf("Ds.GetMessages err: %v\n", err)
 		return nil, web.ErrGetMessagesFailed
 	}
-	totalRows, _ := s.Ds.GetMessageCount(conditions)
+	totalRows, _ := s.Ds.GetMessageCount(req.UserId)
 	resp := base.PageRespFrom(messages, req.Page, req.PageSize, totalRows)
 	return (*web.GetMessagesResp)(resp), nil
 }
