@@ -14,6 +14,6 @@ type MessageService interface {
 	GetUnreadCount(userID int64) (int64, error)
 	GetMessageByID(id int64) (*ms.Message, error)
 	ReadMessage(message *ms.Message) error
-	GetMessages(conditions *ms.ConditionsT, offset, limit int) ([]*ms.MessageFormated, error)
-	GetMessageCount(conditions *ms.ConditionsT) (int64, error)
+	GetMessages(userId int64, offset, limit int) ([]*ms.MessageFormated, error)
+	GetMessageCount(userId int64) (int64, error)
 }
