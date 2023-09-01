@@ -43,13 +43,13 @@ func (s *messageSrv) ReadMessage(message *ms.Message) error {
 	return nil
 }
 
-func (s *messageSrv) GetMessages(conditions *ms.ConditionsT, offset, limit int) ([]*ms.MessageFormated, error) {
+func (s *messageSrv) GetMessages(userId int64, offset, limit int) ([]*ms.MessageFormated, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
 }
 
-func (s *messageSrv) GetMessageCount(conditions *ms.ConditionsT) (int64, error) {
+func (s *messageSrv) GetMessageCount(userId int64) (int64, error) {
 	// TODO
 	debug.NotImplemented()
 	return 0, nil
