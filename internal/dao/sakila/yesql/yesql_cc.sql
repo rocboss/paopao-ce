@@ -285,16 +285,16 @@ SELECT * FROM @message WHERE id=? AND is_del=0;
 UPDATE @message SET is_read=1, modified_on=? WHERE id=?;
 
 -- name: get_messages@message
--- prepare: named_stmt
+-- prepare: stmt
 SELECT * 
 FROM @message 
-WHERE receiver_user_id=:receiver_user_id AND is_del=0 
+WHERE (receiver_user_id=? OR (sender_user_id=? AND type=4)) AND is_del=0 
 ORDER BY id DESC
-LIMIT :limit OFFSET :offset
+LIMIT ? OFFSET ?
 
 -- name: get_message_count@message
--- prepare: named_stmt
-SELECT count(*) FROM @message WHERE receiver_user_id=:receiver_user_id AND is_del=0;
+-- prepare: stmt
+SELECT count(*) FROM @message WHERE (receiver_user_id=? OR (sender_user_id=? AND type=4)) AND is_del=0 
 
 --------------------------------------------------------------------------------
 -- security sql dml
