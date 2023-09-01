@@ -160,7 +160,7 @@ const props = withDefaults(
 );
 
 const isNotWhisperSender = computed(() => {
-    return props.message.type != 4 || !props.message.sender_user_id == store.state.userInfo.id
+    return props.message.type !== 4 || props.message.sender_user_id !== store.state.userInfo.id
 });
 
 const isWhisperReceiver = computed(() => {
