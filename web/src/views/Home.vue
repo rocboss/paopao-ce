@@ -12,7 +12,7 @@
             <SlideBar v-model="slideBarList" :wheel-blocks="wheelBlocks" :init-blocks="initBlocks" @click="handleBarClick" tag="div" sub-tag="div">
                 <template #default="data">
                     <div class="slide-bar-item">
-                        <n-badge value="1" :offset="[0, 48]" dot :show="data.slotData.show">
+                        <n-badge value="1" :offset="[-4, 48]" dot :show="data.slotData.show">
                             <n-avatar
                                 round
                                 :size="48"
@@ -84,7 +84,7 @@ const router = useRouter();
 const initBlocks = ref(9)
 const wheelBlocks = ref(8)
 const slideBarList = ref<Item.SlideBarItem[]>([
-    { title: '全部动态', style: 1, username: '', avatar: allTweets, show: true },
+    { title: '最新动态', style: 1, username: '', avatar: allTweets, show: true },
     // { title: '正在关注', style: 2, username: '', avatar: followingTweets, show: true }
     // TODO: 不知道SlideBar抽什么疯，如果没有填充下面这些伪数据的话，直接设置initBlocks为9而给的数据又不足，后面动态添加数据后，吖的竟然不能后划了，
     // f*k，不知道哪姿势不对，总之先凑合着用吧，后期再优化。
@@ -157,10 +157,10 @@ const handleBarClick = (data: Item.SlideBarItem, index: number) => {
 };
 
 const loadContacts = () => {
+    slideBarList.value = slideBarList.value.slice(0, 1);
     if (!useFriendship || !enableFriendsBar || store.state.userInfo.id === 0) {
         return
     }
-    slideBarList.value = slideBarList.value.slice(0, 1);
     getContacts({
         page: 1,
         page_size: 50,
@@ -250,7 +250,7 @@ const loadUserPosts = () => {
 
 const onPostSuccess = (post: Item.PostProps) => {
     // 如果不在第一页，需要跳转到详情页面
-    if (page.value != 1) {
+    if (targetStyle.value != 1) {
         router.push({
             name: 'post',
             query: {
