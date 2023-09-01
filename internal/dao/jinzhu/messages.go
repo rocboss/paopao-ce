@@ -30,10 +30,7 @@ func (s *messageSrv) CreateMessage(msg *ms.Message) (*ms.Message, error) {
 }
 
 func (s *messageSrv) GetUnreadCount(userID int64) (int64, error) {
-	return (&dbr.Message{}).Count(s.db, &dbr.ConditionsT{
-		"receiver_user_id": userID,
-		"is_read":          dbr.MsgStatusUnread,
-	})
+	return (&dbr.Message{}).CountUnread(s.db, userID)
 }
 
 func (s *messageSrv) GetMessageByID(id int64) (*ms.Message, error) {
@@ -49,21 +46,19 @@ func (s *messageSrv) ReadMessage(message *ms.Message) error {
 	return message.Update(s.db)
 }
 
-func (s *messageSrv) GetMessages(conditions *ms.ConditionsT, offset, limit int) ([]*ms.MessageFormated, error) {
-	messages, err := (&dbr.Message{}).List(s.db, conditions, offset, limit)
+func (s *messageSrv) GetMessages(userId int64, offset, limit int) ([]*ms.MessageFormated, error) {
+	messages, err := (&dbr.Message{}).List(s.db, userId, offset, limit)
 	if err != nil {
 		return nil, err
 	}
-
 	mfs := []*dbr.MessageFormated{}
 	for _, message := range messages {
 		mf := message.Format()
 		mfs = append(mfs, mf)
 	}
-
 	return mfs, nil
 }
 
-func (s *messageSrv) GetMessageCount(conditions *ms.ConditionsT) (int64, error) {
-	return (&dbr.Message{}).Count(s.db, conditions)
+func (s *messageSrv) GetMessageCount(userId int64) (int64, error) {
+	return (&dbr.Message{}).Count(s.db, userId)
 }

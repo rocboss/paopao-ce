@@ -1,16 +1,19 @@
 <template>
-    <div class="message-item" :class="{ unread: message.is_read === 0 }" @click="handleReadMessage(message)">
+    <div class="message-item" :class="{ unread: isNotWhisperSender && message.is_read === 0 }" @click="handleReadMessage(message)">
         <n-thing content-indented>
             <template #avatar>
                 <n-avatar round :size="30" :src="
-                    message.sender_user.id > 0
+                    message.type == 4 && message.sender_user_id == store.state.userInfo.id 
+                    ?  message.receiver_user.avatar 
+                    : ( message.sender_user.id > 0
                         ? message.sender_user.avatar
                         : defaultavatar
+                      )
                 " />
             </template>
             <template #header>
                 <div class="sender-wrap">
-                    <span class="nickname" v-if="message.sender_user.id > 0">
+                    <span class="nickname" v-if="(message.type !=4 && message.sender_user.id > 0) || isWhisperReceiver">
                         <router-link @click.stop class="username-link" :to="{
                             name: 'user',
                             query: {
@@ -23,19 +26,74 @@
                             @{{ message.sender_user.username }}
                         </span>
                     </span>
+                    <span class="nickname" v-else-if="isWhisperSender">
+                        <router-link @click.stop class="username-link" :to="{
+                            name: 'user',
+                            query: {
+                                s: message.receiver_user.username,
+                            },
+                        }">
+                            {{ message.receiver_user.nickname }}
+                        </router-link>
+                        <span class="username">
+                            @{{ message.receiver_user.username }}
+                        </span>
+                    </span>
                     <span class="nickname" v-else> 系统 </span>
+                    <n-tag
+                        v-if="message.type == 4"
+                        class="top-tag"
+                        type="success"
+                        size="small"
+                        round
+                    >
+                        私信
+                    </n-tag>
+                    <!-- <n-tag
+                        v-if="message.type != 4"
+                        class="top-tag"
+                        type="info"
+                        size="small"
+                        round
+                    >
+                        系统
+                    </n-tag> -->
+                    <n-tag
+                        v-if="isWhisperSender"
+                        class="top-tag"
+                        type="info"
+                        size="small"
+                        round
+                    >
+                        已发送
+                        <template #icon>
+                             <n-icon :component="CheckmarkCircle" />
+                        </template>
+                    </n-tag>
+                    <n-tag
+                        v-if="message.type == 4 && message.receiver_user_id == store.state.userInfo.id"
+                        class="top-tag"
+                        type="warning"
+                        size="small"
+                        round
+                    >
+                        已接收
+                        <template #icon>
+                             <n-icon :component="CheckmarkCircle" />
+                        </template>
+                    </n-tag>
                 </div>
             </template>
             <template #header-extra>
                 <span class="timestamp">
-                    <n-badge v-if="message.is_read === 0" dot processing />
+                    <n-badge v-if="isNotWhisperSender && message.is_read === 0" dot processing />
                     <span class="timestamp-txt">
                         {{ formatRelativeTime(message.created_on) }}
                     </span>
                 </span>
             </template>
             <template #description>
-                <n-alert :show-icon="false" class="brief-wrap" :type="message.is_read > 0 ? 'default' : 'success'">
+                <n-alert :show-icon="false" class="brief-wrap" :type="!isNotWhisperSender || message.is_read > 0 ? 'default' : 'success'">
                     <div v-if="message.type != 4" class="brief-content">
                         {{ message.brief }}
                         <span v-if="message.type === 1 || message.type === 2 || message.type === 3"
@@ -82,20 +140,36 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { ShareOutline, CheckmarkOutline, CloseOutline, CheckmarkDoneOutline } from '@vicons/ionicons5';
 import { readMessage, addFriend, rejectFriend } from '@/api/user';
 import { formatRelativeTime } from '@/utils/formatTime';
+import { CheckmarkCircle } from '@vicons/ionicons5'
 
 const defaultavatar = 'https://assets.paopao.info/public/avatar/default/admin.png';
 
 const router = useRouter();
+const store = useStore();
 const props = withDefaults(
     defineProps<{
         message: Item.MessageProps;
     }>(),
     {}
 );
+
+const isNotWhisperSender = computed(() => {
+    return props.message.type !== 4 || props.message.sender_user_id !== store.state.userInfo.id
+});
+
+const isWhisperReceiver = computed(() => {
+    return props.message.type == 4 && props.message.receiver_user_id == store.state.userInfo.id
+});
+
+const isWhisperSender = computed(() => {
+    return props.message.type == 4 && props.message.sender_user_id == store.state.userInfo.id
+});
 
 const viewDetail = (message: Item.MessageProps) => {
     handleReadMessage(message);
@@ -142,6 +216,9 @@ const rejectAddFriend = (message: Item.MessageProps) => {
 }
 
 const handleReadMessage = (message: Item.MessageProps) => {
+    if (props.message.receiver_user_id != store.state.userInfo.id) {
+        return
+    }
     if (message.is_read === 0) {
         readMessage({
             id: message.id,
@@ -167,7 +244,9 @@ const handleReadMessage = (message: Item.MessageProps) => {
     .sender-wrap {
         display: flex;
         align-items: center;
-
+        .top-tag {
+            transform: scale(0.75);
+        }
         .username {
             opacity: 0.75;
             font-size: 14px;

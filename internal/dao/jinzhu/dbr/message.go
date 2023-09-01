@@ -38,6 +38,7 @@ type MessageFormated struct {
 	SenderUserID   int64         `json:"sender_user_id"`
 	SenderUser     *UserFormated `json:"sender_user"`
 	ReceiverUserID int64         `json:"receiver_user_id"`
+	ReceiverUser   *UserFormated `json:"receiver_user,omitempty"`
 	Type           MessageT      `json:"type"`
 	Brief          string        `json:"brief"`
 	Content        string        `json:"content"`
@@ -61,6 +62,7 @@ func (m *Message) Format() *MessageFormated {
 		SenderUserID:   m.SenderUserID,
 		SenderUser:     &UserFormated{},
 		ReceiverUserID: m.ReceiverUserID,
+		ReceiverUser:   &UserFormated{},
 		Type:           m.Type,
 		Brief:          m.Brief,
 		Content:        m.Content,
@@ -114,39 +116,20 @@ func (m *Message) FetchBy(db *gorm.DB, predicates Predicates) ([]*Message, error
 	return messages, nil
 }
 
-func (c *Message) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]*Message, error) {
-	var messages []*Message
-	var err error
+func (c *Message) List(db *gorm.DB, userId int64, offset, limit int) (res []*Message, err error) {
 	if offset >= 0 && limit > 0 {
 		db = db.Offset(offset).Limit(limit)
 	}
-
-	for k, v := range *conditions {
-		if k == "ORDER" {
-			db = db.Order(v)
-		} else {
-			db = db.Where(k, v)
-		}
-	}
-
-	if err = db.Where("is_del = ?", 0).Find(&messages).Error; err != nil {
-		return nil, err
-	}
-
-	return messages, nil
+	err = db.Where("receiver_user_id=? OR (sender_user_id=? AND type=4)", userId, userId).Order("id DESC").Find(&res).Error
+	return
 }
 
-func (m *Message) Count(db *gorm.DB, conditions *ConditionsT) (int64, error) {
-	var count int64
+func (m *Message) Count(db *gorm.DB, userId int64) (res int64, err error) {
+	err = db.Model(m).Where("receiver_user_id=? OR (sender_user_id=? AND type=4)", userId, userId).Count(&res).Error
+	return
+}
 
-	for k, v := range *conditions {
-		if k != "ORDER" {
-			db = db.Where(k, v)
-		}
-	}
-	if err := db.Model(m).Count(&count).Error; err != nil {
-		return 0, err
-	}
-
-	return count, nil
+func (m *Message) CountUnread(db *gorm.DB, userId int64) (res int64, err error) {
+	err = db.Model(m).Where("receiver_user_id=? AND is_read=0", userId).Count(&res).Error
+	return
 }

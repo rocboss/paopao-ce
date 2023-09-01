@@ -55,10 +55,9 @@ func (s *messageSrv) ReadMessage(r *ms.Message) (err error) {
 	return
 }
 
-func (s *messageSrv) GetMessages(r *ms.ConditionsT, offset, limit int) ([]*ms.MessageFormated, error) {
+func (s *messageSrv) GetMessages(userId int64, offset, limit int) ([]*ms.MessageFormated, error) {
 	var messages []*ms.Message
-	(*r)["limit"], (*r)["offset"] = limit, offset
-	if err := s.q.GetMessages.Select(&messages, *r); err != nil {
+	if err := s.q.GetMessages.Select(&messages, userId, userId, limit, offset); err != nil {
 		return nil, err
 	}
 	mfs := make([]*ms.MessageFormated, 0, len(messages))
@@ -69,8 +68,8 @@ func (s *messageSrv) GetMessages(r *ms.ConditionsT, offset, limit int) ([]*ms.Me
 	return mfs, nil
 }
 
-func (s *messageSrv) GetMessageCount(r *ms.ConditionsT) (res int64, err error) {
-	if err = s.q.GetMessageCount.Get(&res, *r); err != nil {
+func (s *messageSrv) GetMessageCount(userId int64) (res int64, err error) {
+	if err = s.q.GetMessageCount.Get(&res, userId, userId); err != nil {
 		logrus.Errorf("get message count error: %s", err)
 	}
 	return
