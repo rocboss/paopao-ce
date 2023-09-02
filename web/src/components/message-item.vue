@@ -90,6 +90,21 @@
                     <span class="timestamp-txt">
                         {{ formatRelativeTime(message.created_on) }}
                     </span>
+                    <n-dropdown
+                        placement="bottom-end"
+                        trigger="click"
+                        size="small"
+                        :options="actionOpts"
+                        @select="handleAction"
+                    >
+                        <n-button quaternary circle>
+                            <template #icon>
+                                <n-icon>
+                                    <more-horiz-filled />
+                                </n-icon>
+                            </template>
+                        </n-button>
+                    </n-dropdown>
                 </span>
             </template>
             <template #description>
@@ -140,13 +155,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { h, computed } from 'vue';
+import type { Component } from 'vue'
+import { NIcon } from 'naive-ui'
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { DropdownOption } from 'naive-ui';
 import { ShareOutline, CheckmarkOutline, CloseOutline, CheckmarkDoneOutline } from '@vicons/ionicons5';
 import { readMessage, addFriend, rejectFriend } from '@/api/user';
 import { formatRelativeTime } from '@/utils/formatTime';
-import { CheckmarkCircle } from '@vicons/ionicons5'
+import { MoreHorizFilled } from '@vicons/material';
+import { PaperPlaneOutline, CheckmarkCircle } from '@vicons/ionicons5'
 
 const defaultavatar = 'https://assets.paopao.info/public/avatar/default/admin.png';
 
@@ -158,6 +177,47 @@ const props = withDefaults(
     }>(),
     {}
 );
+
+const renderIcon = (icon: Component) => {
+  return () => {
+    return h(NIcon, null, {
+      default: () => h(icon)
+    })
+  }
+};
+
+const actionOpts = computed(() => {
+    let options: DropdownOption[] = [
+        {
+            label: '私信',
+            key: 'whisper',
+            icon: renderIcon(PaperPlaneOutline)
+        },
+    ]
+    return options;
+});
+
+const emit = defineEmits<{
+    (e: 'send-whisper', user: Item.UserInfo): void;
+}>();
+
+const handleAction = (
+    item: 'whisper'
+) => {
+    switch (item) {
+        case 'whisper':
+            const message = props.message
+            if (message.type != 99) {
+                let user = message.type == 4 && message.sender_user_id == store.state.userInfo.id 
+                    ?  message.receiver_user
+                    : message.sender_user;
+                emit('send-whisper', user);
+            }
+            break;
+        default:
+            break;
+    }
+};
 
 const isNotWhisperSender = computed(() => {
     return props.message.type !== 4 || props.message.sender_user_id !== store.state.userInfo.id

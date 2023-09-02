@@ -104,12 +104,12 @@
 
                 <div v-if="store.state.desktopModelShow">
                     <n-list-item v-for="post in list" :key="post.id">
-                        <post-item :post="post" />
+                        <post-item :post="post" @send-whisper="onSendWhisper" />
                     </n-list-item>
                 </div>
                 <div v-else>
                     <n-list-item v-for="post in list" :key="post.id">
-                        <mobile-post-item :post="post" />
+                        <mobile-post-item :post="post" @send-whisper="onSendWhisper" />
                     </n-list-item>
                 </div>
             </div>
@@ -194,6 +194,14 @@ const commentTotalPage = ref(0);
 const highlightTotalPage = ref(0);
 const mediaTotalPage = ref(0);
 const starTotalPage = ref(0);
+
+const onSendWhisper =  (receiver: Item.UserInfo) => {
+    user.id = receiver.id;
+    user.username = receiver.username
+    user.nickname = receiver.nickname
+    user.avatar = receiver.avatar
+    showWhisper.value = true;
+};
 
 const reset = () => {
     noMore.value = false;

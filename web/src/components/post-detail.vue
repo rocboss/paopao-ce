@@ -636,7 +636,7 @@ const handlePostCollection = () => {
         });
 };
 const handlePostShare = () => {
-   copy(`${window.location.origin}/#/post?id=${post.value.id}`);
+   copy(`${window.location.origin}/#/post?id=${post.value.id}&share=copy_link&t=${new Date().getTime()}`);
    window.$message.success('链接已复制到剪贴板');
 };
 
