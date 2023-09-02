@@ -140,6 +140,7 @@ import {
     postCollection,
 } from '@/api/post';
 import {
+    PaperPlaneOutline,
     HeartOutline,
     BookmarkOutline,
     ChatboxOutline,
@@ -154,6 +155,10 @@ const props = withDefaults(defineProps<{
     post: Item.PostProps,
 }>(), {});
 
+const emit = defineEmits<{
+    (e: 'send-whisper', user: Item.UserInfo): void;
+}>();
+
 const renderIcon = (icon: Component) => {
   return () => {
     return h(NIcon, null, {
@@ -163,23 +168,38 @@ const renderIcon = (icon: Component) => {
 };
 
 const tweetOptions = computed(() => {
-    let options: DropdownOption[] = [
-        {
-            label: '复制链接',
-            key: 'copyTweetLink',
-            icon: renderIcon(ShareSocialOutline),
-        },
-    ];
+    let options: DropdownOption[] = [];
+    // TODO: f*k 为什么这里会卡？
+    // if (store.state.userinfo.id > 0) {
+    //     options.push({
+    //         label: '私信',
+    //         key: 'whisper',
+    //         icon: renderIcon(PaperPlaneOutline)
+    //     });
+    // }
+    options.push({
+        label: '私信',
+        key: 'whisper',
+        icon: renderIcon(PaperPlaneOutline)
+    });
+    options.push({
+        label: '复制链接',
+        key: 'copyTweetLink',
+        icon: renderIcon(ShareSocialOutline),
+    });
     return options;
 });
 
 const handleTweetAction = async (
-    item: 'copyTweetLink'
+    item: 'copyTweetLink' | 'whisper'
 ) => {
     switch (item) {
         case 'copyTweetLink':
             copy(`${window.location.origin}/#/post?id=${post.value.id}&share=copy_link&t=${new Date().getTime()}`);
             window.$message.success('链接已复制到剪贴板');
+            break;
+        case 'whisper':
+            emit('send-whisper', props.post.user);
             break;
         default:
             break;
