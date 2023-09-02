@@ -11,12 +11,12 @@
                     <n-empty size="large" description="暂无数据" />
                 </div>
 
-                <n-list-item v-for="contact in list" :key="contact.user_id">
-                     <contact-item
-                        :contact="contact"
-                     />
+                <n-list-item class="list-item" v-for="contact in list" :key="contact.user_id">
+                     <contact-item :contact="contact" @send-whisper="onSendWhisper" />
                 </n-list-item>
             </div>
+            <!-- 私信组件 -->
+            <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
         </n-list>
     </div>
 
@@ -43,6 +43,29 @@ const list = ref<Item.ContactItemProps[]>([]);
 const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
+const showWhisper = ref(false);
+const whisperReceiver = ref<Item.UserInfo>({
+    id: 0,
+    avatar: '',
+    username: '',
+    nickname: '',
+    is_admin: false,
+    is_friend: true,
+    is_following: false,
+    created_on: 0,
+    follows: 0,
+    followings: 0,
+    status: 1,
+});
+
+const onSendWhisper =  (user: Item.UserInfo) => {
+    whisperReceiver.value = user;
+    showWhisper.value = true;
+};
+
+const whisperSuccess = () => {
+    showWhisper.value = false;
+};
 
 const updatePage = (p: number) => {
     page.value = p;
