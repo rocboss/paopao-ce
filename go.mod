@@ -11,7 +11,7 @@ require (
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/bufbuild/connect-go v1.10.0
 	github.com/bytedance/sonic v1.10.0
-	github.com/cockroachdb/errors v1.11.0
+	github.com/cockroachdb/errors v1.11.1
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.15.0
 	github.com/getsentry/sentry-go v0.23.0
