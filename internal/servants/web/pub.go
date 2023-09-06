@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/rocboss/paopao-ce/internal/core"
 	"image/color"
 	"image/png"
 	"io/ioutil"
@@ -45,6 +46,8 @@ const (
 type pubSrv struct {
 	api.UnimplementedPubServant
 	*base.DaoServant
+
+	oss core.ObjectStorageService
 }
 
 type ThirdPartyUserDataVo struct {
@@ -214,12 +217,17 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
 		logrus.Errorf("scheckPassword err: %v", err)
 		return nil, web.ErrUserRegisterFailed
 	}
+	avatarURL := s.getRandomAvatarByUsername(req.Username)
+	if len(avatarURL) == 0 {
+		fmt.Println("头像生成失败或为空")
+	}
+
 	password, salt := encryptPasswordAndSalt(req.Password)
 	user := &ms.User{
 		Nickname: req.Username,
 		Username: req.Username,
 		Password: password,
-		Avatar:   getRandomAvatar(),
+		Avatar:   avatarURL,
 		Salt:     salt,
 		Status:   ms.UserStatusNormal,
 	}
@@ -314,8 +322,9 @@ func (s *pubSrv) validUsername(username string) mir.Error {
 	return nil
 }
 
-func newPubSrv(s *base.DaoServant) api.Pub {
+func newPubSrv(s *base.DaoServant, oss core.ObjectStorageService) api.Pub {
 	return &pubSrv{
 		DaoServant: s,
+		oss:        oss,
 	}
 }

@@ -24,7 +24,7 @@ type OssCreateService interface {
 	PersistObject(objectKey string) error
 }
 
-// OssCreateService Object Storage System Object Delete service
+// OssDeleteService Object Storage System Object Delete service
 type OssDeleteService interface {
 	DeleteObject(objectKey string) error
 	DeleteObjects(objectKeys []string) error

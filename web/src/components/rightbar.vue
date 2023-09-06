@@ -160,6 +160,7 @@ import { useRouter } from "vue-router";
 import { getDownloadRank, getHighQuailty, getTags } from "@/api/post";
 import { Search } from "@vicons/ionicons5";
 import { ChevronForward } from "@vicons/ionicons5";
+import { Ref } from 'vue';
 
 const hotTags = ref<Item.TagProps[]>([]);
 const followTags = ref<Item.TagProps[]>([]);
@@ -187,7 +188,7 @@ const DownloadPreWeekRankingList = ref<Item.RankingDataProps[]>([]);
 const DownloadPreMonthRankingList = ref<Item.RankingDataProps[]>([]);
 
 //获取排行榜数据
-const locadHeighQuailtyRankingList = () => {
+const loadHeighQuailtyRankingList = () => {
   rankloading.value = true;
   getHighQuailty()
     .then((res) => {
@@ -199,13 +200,13 @@ const locadHeighQuailtyRankingList = () => {
     });
 };
 
-const loadDowmloadRankingByType = (type: number) => {
+const loadDownloadRankingByType = (type: number) => {
   rankloading.value = true;
   getDownloadRank(type)
     .then((res) => {
-      if (type ===1 ) allDownloadRankingList.value = res.list;
-      if (type === 2) DownloadPreWeekRankingList.value = res.list;
-      if (type === 3) DownloadPreMonthRankingList.value = res.list;
+      if (type === 1) allDownloadRankingList.value = res.list;
+      else if (type === 2) DownloadPreWeekRankingList.value = res.list;
+      else if (type === 3) DownloadPreMonthRankingList.value = res.list;
       rankloading.value = false;
     })
     .catch((err) => {
@@ -231,25 +232,28 @@ const toggleRankingType = () => {
   NextRankingType.value = rankingTypes[(currentRankingTypeIndex + 1) % rankingTypes.length];
 };
 
-//1总 2周 3月
+const rankingTypeToFunctionMap: { [key: string]: Ref<Item.RankingDataProps[]> } = {
+  highQuality: rankingList,
+  downloadAll: allDownloadRankingList,
+  downloadPreWeek: DownloadPreWeekRankingList,
+  downloadPreMonth: DownloadPreMonthRankingList
+};
+
+const rankingTypeToLoadFunctionMap: { [key: string]: () => void } = {
+  downloadAll: () => loadDownloadRankingByType(1),
+  downloadPreWeek: () => loadDownloadRankingByType(2),
+  downloadPreMonth: () => loadDownloadRankingByType(3)
+};
+
 const getCurrentRankingList = computed(() => {
-  if (currentRankingType.value === "highQuality") {
-    return rankingList.value;
-  } else if (currentRankingType.value === "downloadAll") {
-    if (allDownloadRankingList.value.length === 0) {
-      loadDowmloadRankingByType(1);
+  const currentType = currentRankingType.value;
+  const rankingValue = rankingTypeToFunctionMap[currentType as keyof typeof rankingTypeToFunctionMap]?.value;
+
+  if (rankingValue !== undefined) {
+    if (rankingValue.length === 0 && rankingTypeToLoadFunctionMap[currentType]) {
+      rankingTypeToLoadFunctionMap[currentType]();
     }
-    return allDownloadRankingList.value;
-  } else if (currentRankingType.value === "downloadPreWeek") {
-    if (DownloadPreWeekRankingList.value.length === 0) {
-      loadDowmloadRankingByType(2);
-    }
-    return DownloadPreWeekRankingList.value;
-  } else if (currentRankingType.value === "downloadPreMonth") {
-    if (DownloadPreMonthRankingList.value.length === 0) {
-      loadDowmloadRankingByType(3);
-    }
-    return DownloadPreMonthRankingList.value;
+    return rankingValue;
   }
   return [];
 });
@@ -320,7 +324,7 @@ watch(
 );
 onMounted(() => {
   loadHotTags();
-  locadHeighQuailtyRankingList();
+  loadHeighQuailtyRankingList();
 });
 </script>
 

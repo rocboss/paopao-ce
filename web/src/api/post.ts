@@ -304,3 +304,19 @@ export const unfollowTopic = (
     data,
   });
 };
+
+export const uploadImage = (
+  data: NetParams.UploadImageReq,
+  uploadToken: string // 添加一个参数来传递 Authorization 头的值
+): Promise<NetReq.UploadImageResp> => {
+  return request({
+    method: 'post',
+    url: '/v1/attachment',
+    data,
+    headers: {
+      'Authorization': uploadToken, // 设置 Authorization 头，使用传递的 uploadToken
+      'Content-Type': 'multipart/form-data', // 设置请求头，表明发送的是 FormData
+    },
+  });
+};
+

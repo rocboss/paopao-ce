@@ -158,7 +158,7 @@ import MainNav from "@/components/main-nav.vue";
 const store = useStore();
 const route = useRoute();
 const showRecharge = ref(false);
-const selectedRechargeAmount = ref(100);
+const selectedRechargeAmount = ref(3000);
 const recharging = ref(false);
 const rechargeQrcode = ref('');
 const loading = ref(false);

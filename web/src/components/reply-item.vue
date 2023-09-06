@@ -6,7 +6,7 @@
                     name: 'user',
                     query: { s: props.reply.user.username },
                 }">
-                    {{ props.reply.user.username }}
+                    {{ props.reply.user.nickname }}
                 </router-link>
                 <span class="reply-name">
                     {{ props.reply.at_user_id > 0 ? '回复' : ':' }}
@@ -16,7 +16,7 @@
                     name: 'user',
                     query: { s: props.reply.at_user.username },
                 }" v-if="props.reply.at_user_id > 0">
-                    {{ props.reply.at_user.username }}
+                    {{ props.reply.at_user.nickname }}
                 </router-link>
             </div>
             <div class="timestamp">

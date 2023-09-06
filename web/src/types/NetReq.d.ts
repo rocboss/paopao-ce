@@ -203,4 +203,15 @@ declare module NetReq {
   interface PostFollowTopic {}
 
   interface PostUnfollowTopic {}
+
+  /** 上传图片响应参数 */
+  interface UploadImageResp {
+    /** 图片URL */
+    content: string;
+    file_size: number;
+    img_height: number;
+    img_width: number;
+    type: number;
+    user_id: number;
+  }
 }

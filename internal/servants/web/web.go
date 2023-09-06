@@ -31,7 +31,7 @@ func RouteWeb(e *gin.Engine) {
 	api.RegisterCoreServant(e, newCoreSrv(ds, oss))
 	api.RegisterLooseServant(e, newLooseSrv(ds))
 	api.RegisterPrivServant(e, newPrivSrv(ds, oss))
-	api.RegisterPubServant(e, newPubSrv(ds))
+	api.RegisterPubServant(e, newPubSrv(ds, oss))
 	api.RegisterKeyQueryServant(e, NewShareKeyServant(ds))
 	api.RegisterRankServant(e, NewRankServant(ds))
 	api.RegisterFollowshipServant(e, newFollowshipSrv(ds))

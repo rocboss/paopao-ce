@@ -279,4 +279,11 @@ declare module NetParams {
   interface PostUnfollowTopic {
     topic_id: number;
   }
+
+  /** 上传图片请求参数 */
+  interface UploadImageReq {
+    file: File;
+    type: string;
+  }
+
 }

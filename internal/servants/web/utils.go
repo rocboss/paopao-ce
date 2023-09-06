@@ -5,7 +5,19 @@
 package web
 
 import (
+	"bytes"
+	"fmt"
+	"github.com/golang/freetype"
+	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/font"
+	"hash/fnv"
 	"image"
+	"image/color"
+	"image/draw"
+	"image/png"
+	"io"
+	"io/ioutil"
+	"log"
 	"math/rand"
 	"strings"
 	"time"
@@ -77,6 +89,122 @@ var defaultAvatars = []string{
 func getRandomAvatar() string {
 	rand.Seed(time.Now().UnixMicro())
 	return defaultAvatars[rand.Intn(len(defaultAvatars))]
+}
+
+func (s *pubSrv) getRandomAvatarByUsername(username string) string {
+	// 获取前两个字
+	runes := []rune(username)
+	showName := string(runes[:2])
+	//转换为大写
+	showName = strings.ToUpper(showName)
+
+	// 获取随机颜色作为头像底色
+	finalColor := getRandomColor(username)
+
+	//生成随机头像文件
+	// 生成头像图片
+	imageSize := 50 // 设置头像图片大小
+	avatar := createAvatar(imageSize, finalColor, showName)
+	//avatarFilename := username + ".png"
+	// 保存头像图片到文件
+	avatarBuffer := &bytes.Buffer{}
+	err := saveImageToBuffer(avatar, avatarBuffer)
+	if err != nil {
+		fmt.Println("保存头像到缓冲区失败:", err)
+		return "注册失败"
+	}
+	if avatarBuffer.Len() == 0 {
+		fmt.Println("头像缓冲区为空")
+		return "注册失败"
+	}
+
+	// 生成随机路径
+	randomPath := uuid.Must(uuid.NewV4()).String()
+	ossSavePath := "public/avatar/" + generatePath(randomPath[:8]) + "/" + randomPath[9:] + ".png"
+	if ossSavePath == "" {
+		fmt.Println("ossSavePath为空")
+		return "注册失败"
+	}
+
+	//fmt.Print(ossSavePath + "\n" + avatarBuffer.String() + "\n" + strconv.Itoa(imageSize) + "\n" + "image/png" + "\n" + "false")
+	objectUrl, err := s.oss.PutObject(ossSavePath, avatarBuffer, int64(avatarBuffer.Len()), "image/png", false)
+	if err != nil {
+		logrus.Errorf("oss.PutObject err: %s", err)
+		return "失败"
+	}
+
+	fmt.Print(objectUrl)
+	return objectUrl
+}
+
+// 生成随机颜色
+func getRandomColor(username string) color.RGBA {
+	hasher := fnv.New32()
+	hasher.Write([]byte(username))
+	hash := hasher.Sum32()
+
+	return color.RGBA{
+		R: 150 + uint8(hash>>16)%106,
+		G: 150 + uint8((hash>>8)%106),
+		B: 150 + uint8(hash%106),
+		A: 255,
+	}
+}
+
+// 创建头像
+func createAvatar(size int, bgColor color.RGBA, text string) image.Image {
+	avatar := image.NewRGBA(image.Rect(0, 0, size, size))
+	draw.Draw(avatar, avatar.Bounds(), &image.Uniform{bgColor}, image.Point{}, draw.Src)
+
+	// 在头像上绘制文字
+	textColor := color.RGBA{255, 255, 255, 255} // 白色文字
+
+	fontBytes, err := ioutil.ReadFile("internal/servants/web/typeface/TTF/SourceSans3-Black.ttf")
+	if err != nil {
+		log.Println("unable to read font file:", err)
+		return avatar
+	}
+
+	fontParsed, err := truetype.Parse(fontBytes)
+	if err != nil {
+		log.Println("unable to parse font file:", err)
+		return avatar
+	}
+
+	// 使用 freetype 作为字体渲染器
+	c := freetype.NewContext()
+	c.SetDPI(72)
+	c.SetFont(fontParsed)
+	c.SetFontSize(float64(size / 2)) // 设置字体大小
+	c.SetClip(avatar.Bounds())
+	c.SetDst(avatar)
+	c.SetSrc(image.NewUniform(textColor))
+	c.SetHinting(font.HintingFull)
+
+	// 创建字体面以计算字符串大小
+	opts := truetype.Options{}
+	opts.Size = float64(size) / 2
+	face := truetype.NewFace(fontParsed, &opts)
+
+	// 获取文本的宽度和高度
+	textWidth := font.MeasureString(face, text).Round()
+	textHeight := face.Metrics().Height.Round()
+
+	// 计算绘制文本的起点，以使其居中
+	x := (size - textWidth) / 2
+	y := (size + textHeight/2) / 2
+
+	pt := freetype.Pt(x, y)
+	_, err = c.DrawString(text, pt)
+	if err != nil {
+		log.Println("failed to draw string:", err)
+	}
+
+	return avatar
+}
+
+func saveImageToBuffer(img image.Image, buffer io.Writer) error {
+	return png.Encode(buffer, img)
 }
 
 // checkPassword 密码检查
