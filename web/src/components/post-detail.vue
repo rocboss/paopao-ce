@@ -355,14 +355,13 @@ const renderIcon = (icon: Component) => {
 };
 
 const adminOptions = computed(() => {
-    let options: DropdownOption[] = [
-        {
+    let options: DropdownOption[] = [];
+    if (!store.state.userInfo.is_admin && store.state.userInfo.id != props.post.user.id) {
+       options.push({
             label: '私信',
             key: 'whisper',
             icon: renderIcon(PaperPlaneOutline)
-        },
-    ];
-    if (!store.state.userInfo.is_admin && store.state.userInfo.id != props.post.user.id) {
+        });
         return options;
     }
     options.push({
