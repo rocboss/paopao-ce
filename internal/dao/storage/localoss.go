@@ -62,7 +62,6 @@ func (s *localossCreateServant) PutObject(objectKey string, reader io.Reader, ob
 		return "", err
 	}
 	if written != objectSize {
-		fmt.Print("这里发生了错误.......")
 		os.Remove(savePath)
 		return "", errors.New("put object not complete")
 	}
