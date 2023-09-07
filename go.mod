@@ -13,10 +13,10 @@ require (
 	github.com/bitbus/sqlx v1.8.0
 	github.com/bufbuild/connect-go v1.10.0
 	github.com/bytedance/sonic v1.10.0
-	github.com/cockroachdb/errors v1.11.0
+	github.com/cockroachdb/errors v1.11.1
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.15.0
-	github.com/getsentry/sentry-go v0.23.0
+	github.com/getsentry/sentry-go v0.24.0
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-resty/resty/v2 v2.7.0
@@ -27,17 +27,17 @@ require (
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.23.4+incompatible
 	github.com/json-iterator/go v1.1.12
 	github.com/meilisearch/meilisearch-go v0.25.0
-	github.com/minio/minio-go/v7 v7.0.62
+	github.com/minio/minio-go/v7 v7.0.63
 	github.com/onsi/ginkgo/v2 v2.12.0
 	github.com/onsi/gomega v1.27.10
 	github.com/pyroscope-io/client v0.7.2
-	github.com/redis/rueidis v1.0.16
+	github.com/redis/rueidis v1.0.17
 	github.com/sirupsen/logrus v1.9.3
 	github.com/smartwalle/alipay/v3 v3.2.15
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
-	github.com/tencentyun/cos-go-sdk-v5 v0.7.42
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.43
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
 	go.uber.org/automaxprocs v1.5.3
 	google.golang.org/grpc v1.57.0

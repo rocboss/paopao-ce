@@ -45,13 +45,7 @@
                 </n-tag>
             </template>
             <template #header-extra>
-                <div
-                    class="options"
-                    v-if="
-                        store.state.userInfo.is_admin ||
-                        store.state.userInfo.id === post.user.id
-                    "
-                >
+                <div class="options">
                     <n-dropdown
                         placement="bottom-end"
                         trigger="click"
@@ -140,6 +134,8 @@
                     negative-text="取消"
                     @positive-click="execVisibilityAction"
                 />
+                  <!-- 私信组件 -->
+                <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
             </template>
             <div v-if="post.texts.length > 0">
                 <span
@@ -227,6 +223,7 @@ import { useRouter } from 'vue-router';
 import { formatPrettyTime } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
 import {
+    PaperPlaneOutline,
     Heart,
     HeartOutline,
     Bookmark,
@@ -278,6 +275,29 @@ const showHighlightModal = ref(false);
 const showVisibilityModal = ref(false);
 const loading = ref(false);
 const tempVisibility = ref<VisibilityEnum>(VisibilityEnum.PUBLIC);
+const showWhisper = ref(false);
+const whisperReceiver = ref<Item.UserInfo>({
+    id: 0,
+    avatar: '',
+    username: '',
+    nickname: '',
+    is_admin: false,
+    is_friend: true,
+    is_following: false,
+    created_on: 0,
+    follows: 0,
+    followings: 0,
+    status: 1,
+});
+
+const onSendWhisper =  (user: Item.UserInfo) => {
+    whisperReceiver.value = user;
+    showWhisper.value = true;
+};
+
+const whisperSuccess = () => {
+    showWhisper.value = false;
+};
 
 const emit = defineEmits<{
     (e: 'reload'): void;
@@ -335,13 +355,20 @@ const renderIcon = (icon: Component) => {
 };
 
 const adminOptions = computed(() => {
-    let options: DropdownOption[] = [
-        {
-            label: '删除',
-            key: 'delete',
-            icon: renderIcon(TrashOutline)
-        },
-    ];
+    let options: DropdownOption[] = [];
+    if (!store.state.userInfo.is_admin && store.state.userInfo.id != props.post.user.id) {
+       options.push({
+            label: '私信',
+            key: 'whisper',
+            icon: renderIcon(PaperPlaneOutline)
+        });
+        return options;
+    }
+    options.push({
+        label: '删除',
+        key: 'delete',
+        icon: renderIcon(TrashOutline)
+    })
     if (post.value.is_lock === 0) {
         options.push({
             label: '锁定',
@@ -468,9 +495,12 @@ const doClickText = (e: MouseEvent, id: number) => {
     goPostDetail(id);
 };
 const handlePostAction = (
-    item: 'delete' | 'lock' | 'unlock' | 'stick' | 'unstick' | 'highlight' | 'unhighlight' | 'vpublic' | 'vprivate' | 'vfriend' | 'vfollowing'
+    item: 'whisper' | 'delete' | 'lock' | 'unlock' | 'stick' | 'unstick' | 'highlight' | 'unhighlight' | 'vpublic' | 'vprivate' | 'vfriend' | 'vfollowing'
 ) => {
     switch (item) {
+        case 'whisper':
+            onSendWhisper(props.post.user);
+            break;
         case 'delete':
             showDelModal.value = true;
             break;
