@@ -181,7 +181,6 @@ const rightHotTopicMaxSize = Number(
   import.meta.env.VITE_RIGHT_HOT_TOPIC_MAX_SIZE
 );
 
-// 模拟排行榜数据
 const rankingList = ref<Item.RankingDataProps[]>([]);
 const allDownloadRankingList = ref<Item.RankingDataProps[]>([]);
 const DownloadPreWeekRankingList = ref<Item.RankingDataProps[]>([]);
@@ -286,8 +285,10 @@ const formatQuoteNumStats = (num: number) => {
   if (num >= 1000) {
     const formattedNum = (num / 1000).toFixed(1); // Get one decimal place
     return formattedNum + 'k';
+  } else if (num >= 10) {
+    return num.toString(); // Display two digits for two-digit numbers
   } else {
-    return num.toString().padStart(3, '0'); // Ensure 3-digit format
+    return '0' + num.toString(); // Display two digits for one-digit numbers
   }
 };
 

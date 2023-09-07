@@ -126,10 +126,11 @@ services:
     volumes:
       - ./config.yaml.sample:/app/paopao-ce/config.yaml
       - ./custom:/app/paopao-ce/custom
+      - ./internal/servants/web/typeface/TTF/SourceSans3-Black.ttf:/app/paopao-ce/internal/servants/web/typeface/TTF/SourceSans3-Black.ttf
     ports:
       - 8008:8008
     networks:
-      - paopao-network
+      - paopao-networ
 
 networks:
   paopao-network:
