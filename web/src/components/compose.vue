@@ -325,7 +325,10 @@ const allowTweetAttachment = ref(import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT.toL
 const allowTweetAttachmentPrice = ref(import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT_PRICE.toLowerCase() === 'true')
 const allowTweetVisibility = ref(import.meta.env.VITE_ALLOW_TWEET_VISIBILITY.toLowerCase() === 'true')
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
-const uploadToken = ref();
+
+const uploadToken = computed(() => {
+    return 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
+});
 
 const visibilities = computed(()=> {
     let res = [
@@ -640,7 +643,6 @@ onMounted(() => {
         defaultVisitType.value = VisibilityEnum.PRIVATE
     }
     visitType.value = defaultVisitType.value;
-    uploadToken.value = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
 });
 </script>
 
