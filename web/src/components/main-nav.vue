@@ -64,7 +64,7 @@
 import { onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { useOsTheme, DrawerPlacement} from 'naive-ui';
+import { useMessage, useOsTheme, DrawerPlacement} from 'naive-ui';
 import { LightModeOutlined, DarkModeOutlined, ChevronLeftRound, DehazeRound } from '@vicons/material';
 
 const store = useStore();
@@ -109,6 +109,11 @@ const activeDrawer = () => {
 onMounted(() => {
     if (!localStorage.getItem('PAOPAO_THEME')) {
         switchTheme((useOsTheme() as unknown as string) === 'dark');
+    }
+    // 移动端特殊处理
+    if (!store.state.desktopModelShow) {
+        window.$store = store;  
+        window.$message = useMessage();
     }
 });
 </script>

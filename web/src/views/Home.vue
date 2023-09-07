@@ -75,7 +75,8 @@ import { getPosts, getContacts } from '@/api/post';
 import { getUserPosts } from '@/api/user';
 import SlideBar from '@opentiny/vue-slide-bar';
 import allTweets from '@/assets/img/all-tweets.png';
-// import followingTweets from '@/assets/img/following-tweets.jpeg';
+import discoverTweets from '@/assets/img/discover-tweets.jpeg';
+import followingTweets from '@/assets/img/following-tweets.jpeg';
 
 const useFriendship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true')
 const enableFriendsBar = (import.meta.env.VITE_ENABLE_FRIENDS_BAR.toLowerCase() === 'true')
@@ -87,7 +88,8 @@ const initBlocks = ref(9)
 const wheelBlocks = ref(8)
 const slideBarList = ref<Item.SlideBarItem[]>([
     { title: '最新动态', style: 1, username: '', avatar: allTweets, show: true },
-    // { title: '正在关注', style: 2, username: '', avatar: followingTweets, show: true }
+    { title: '热门推荐', style: 2, username: '', avatar: discoverTweets, show: false },
+    { title: '正在关注', style: 3, username: '', avatar: followingTweets, show: false },
     // TODO: 不知道SlideBar抽什么疯，如果没有填充下面这些伪数据的话，直接设置initBlocks为9而给的数据又不足，后面动态添加数据后，吖的竟然不能后划了，
     // f*k，不知道哪姿势不对，总之先凑合着用吧，后期再优化。
     { title: '', style: 1, username: '', avatar: '', show: true },
@@ -101,6 +103,7 @@ const slideBarList = ref<Item.SlideBarItem[]>([
     { title: '', style: 1, username: '', avatar: '', show: true }
 ]);
 
+const title = ref<string>("泡泡广场")
 const loading = ref(false);
 const noMore = ref(false);
 const targetStyle = ref<number>(1)
@@ -133,19 +136,16 @@ const whisperSuccess = () => {
     showWhisper.value = false;
 };
 
-const title = computed(() => {
-    let t = '泡泡广场';
-
+const updateTitle = () => {
+    title.value = '泡泡广场';
     if (route.query && route.query.q) {
         if (route.query.t && route.query.t === 'tag') {
-            t = '#' + decodeURIComponent(route.query.q as string);
+            title.value = '#' + decodeURIComponent(route.query.q as string);
         } else {
-            t = '搜索: ' + decodeURIComponent(route.query.q as string);
+            title.value = '搜索: ' + decodeURIComponent(route.query.q as string);
         }
     }
-
-    return t;
-});
+};
 
 const showFriendsBar = computed(() => {
     return useFriendship && enableFriendsBar && store.state.desktopModelShow && store.state.userInfo.id > 0;
@@ -162,6 +162,10 @@ const reset = () => {
 const handleBarClick = (data: Item.SlideBarItem, index: number) => {
     reset();
     targetStyle.value = data.style
+    if (route.query.q) {
+        route.query.q = null;
+        updateTitle();
+    }
     switch (data.style) {
     case 1:
         loadPosts();
@@ -170,11 +174,15 @@ const handleBarClick = (data: Item.SlideBarItem, index: number) => {
         // todo: add some other logic
         loadPosts();
         break;
+    case 3:
+        // todo: add some other logic
+        route.query.q=null
+        loadPosts();
+        break;
     case 21:
         targetUsername.value = data.username;
         loadUserPosts();
         break;
-   
     default:
         break;
    }
@@ -182,7 +190,7 @@ const handleBarClick = (data: Item.SlideBarItem, index: number) => {
 };
 
 const loadContacts = () => {
-    slideBarList.value = slideBarList.value.slice(0, 1);
+    slideBarList.value = slideBarList.value.slice(0, 3)
     if (!useFriendship || !enableFriendsBar || store.state.userInfo.id === 0) {
         return
     }
@@ -315,8 +323,16 @@ const loadMorePosts = () => {
         // todo: add some other logic
         loadPosts();
         break;
+    case 3:
+        // todo: add some other logic
+        loadPosts();
+        break;
     case 21:
-        loadUserPosts();
+        if (route.query.q) {
+            loadPosts();
+        } else {
+            loadUserPosts();
+        }
         break;
     default:
         break;
@@ -346,6 +362,7 @@ watch(
         refresh: store.state.refresh,
     }),
     (to, from) => {
+        updateTitle();
         if (to.refresh !== from.refresh) {
             reset();
             setTimeout(() => {
@@ -378,6 +395,7 @@ div.tiny-slide-bar__select .slide-bar-item .slide-bar-item-title {
 div:hover .slide-bar-item {
     cursor: pointer;
     .slide-bar-item-avatar {
+        color: #18a058;
         opacity: 0.8;
     }
     .slide-bar-item-title {

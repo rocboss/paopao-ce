@@ -167,7 +167,7 @@
 
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import { debounce } from 'lodash';
 import {
@@ -205,10 +205,11 @@ const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
 const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
 const defaultCommentMaxLength = Number(import.meta.env.VITE_DEFAULT_COMMENT_MAX_LENGTH)
-
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
-const uploadToken = ref();
 
+const uploadToken = computed(() => {
+    return 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
+});
 // 加载at用户列表
 const loadSuggestionUsers = debounce((k) => {
     getSuggestUsers({
@@ -229,7 +230,6 @@ const loadSuggestionUsers = debounce((k) => {
             loading.value = false;
         });
 }, 200);
-
 const handleSearch = (k: string, prefix: string) => {
     if (loading.value) {
         return;
@@ -383,9 +383,6 @@ const triggerAuth = (key: string) => {
     store.commit('triggerAuth', true);
     store.commit('triggerAuthKey', key);
 };
-onMounted(() => {
-    uploadToken.value = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
-});
 </script>
 
 <style lang="less" scoped>

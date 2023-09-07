@@ -39,7 +39,7 @@ Web端：
 更多演示请前往[官网](https://www.paopao.info)体验（谢绝灌水）  
 
 桌面端：  
-![](docs/proposal/.assets/000-00.png)
+![](docs/proposal/.assets/000-00.jpg)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
