@@ -263,6 +263,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { defineComponent } from 'vue'
 import { useStore } from "vuex";
 import { debounce } from "lodash";
 import { getSuggestUsers, getSuggestTags } from "@/api/user";
@@ -281,6 +282,7 @@ import type { MentionOption, UploadFileInfo, UploadInst } from "naive-ui";
 import { VisibilityEnum, PostItemTypeEnum } from "@/utils/IEnum";
 import { userLogin, userRegister, userInfo } from "@/api/auth";
 import { useRouter } from "vue-router";
+import { MessageReactive } from 'naive-ui'
 
 const emit = defineEmits<{
   (e: "post-success", post: Item.PostProps): void;
@@ -708,6 +710,9 @@ const generateRandomFileName = (extension: any) => {
 
 //粘贴事件监听
 const handlePaste = (event: ClipboardEvent) => {
+  //粘贴图片提示
+  let messageReactive: MessageReactive | null = null
+
   if (event && event.clipboardData) {
     const items = event.clipboardData.items;
     let file: File | null = null;
@@ -715,6 +720,9 @@ const handlePaste = (event: ClipboardEvent) => {
     if (items && items.length) {
       for (let i = 0; i < items.length; i++) {
         if (items[i].type.indexOf("image") !== -1) {
+          if (!messageReactive) {
+            messageReactive =  window.$message.loading('正在粘贴图片',{duration: 0})
+          }
           file = items[i].getAsFile();
           break;
         }
@@ -724,7 +732,6 @@ const handlePaste = (event: ClipboardEvent) => {
     if (file) {
       const fileExtension = file.name.split(".").pop();
       const randomFileName = generateRandomFileName(fileExtension);
-      const fileSize = file.size;
 
       // 以二进制形式读取文件内容
       const reader = new FileReader();
@@ -752,13 +759,6 @@ const handlePaste = (event: ClipboardEvent) => {
             file: formData.get('file') as File,
             };
 
-            // 声明一个 Ref 对象
-            // const uploadToken: Ref<string> = ref('your_upload_token_here');
-
-            // 获取 Ref 对象的值并赋给 string 类型的变量
-            // const token: string = uploadToken.value;
-            // const token = ref(uploadToken)
-
           uploadImage(uploadImageReq, uploadToken.value)
             .then((response) => {
                 // 处理响应
@@ -783,6 +783,10 @@ const handlePaste = (event: ClipboardEvent) => {
                     id: pasteTimestamp.toString(),
                     content: response.content,
                 } as Item.CommentItemProps);
+                if (messageReactive) {
+                  messageReactive.destroy()
+                  messageReactive = null
+                }
             })
             .catch((error) => {
                 // 处理错误
