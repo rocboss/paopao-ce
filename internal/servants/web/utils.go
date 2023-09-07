@@ -19,6 +19,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math/rand"
+	"path/filepath"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -159,7 +160,10 @@ func createAvatar(size int, bgColor color.RGBA, text string) image.Image {
 	// 在头像上绘制文字
 	textColor := color.RGBA{255, 255, 255, 255} // 白色文字
 
-	fontBytes, err := ioutil.ReadFile("internal/servants/web/typeface/TTF/SourceSans3-Black.ttf")
+	path, _ := filepath.Abs("./internal/servants/web/typeface/TTF/SourceSans3-Black.ttf")
+	fmt.Println(path)
+
+	fontBytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Println("unable to read font file:", err)
 		return avatar
