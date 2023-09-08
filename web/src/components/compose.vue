@@ -263,7 +263,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 import { useStore } from "vuex";
 import { debounce } from "lodash";
 import { getSuggestUsers, getSuggestTags } from "@/api/user";
@@ -282,7 +282,7 @@ import type { MentionOption, UploadFileInfo, UploadInst } from "naive-ui";
 import { VisibilityEnum, PostItemTypeEnum } from "@/utils/IEnum";
 import { userLogin, userRegister, userInfo } from "@/api/auth";
 import { useRouter } from "vue-router";
-import { MessageReactive } from 'naive-ui'
+import { MessageReactive } from "naive-ui";
 
 const emit = defineEmits<{
   (e: "post-success", post: Item.PostProps): void;
@@ -702,28 +702,32 @@ const triggerAuth = (key: string) => {
   store.commit("triggerAuthKey", key);
 };
 
-const generateRandomFileName = (extension: any) => {
-  const timestamp = new Date().getTime(); // 获取当前时间戳
-  const randomString = Math.random().toString(36).substring(2, 15); // 生成随机字符串
+const generateRandomFileName = (extension: string | undefined): string => {
+  const timestamp = Date.now();
+  const randomString = Math.random().toString(36).substring(2, 15);
   return `${timestamp}-${randomString}.${extension}`;
 };
 
-//粘贴事件监听
-const handlePaste = (event: ClipboardEvent) => {
-  //粘贴图片提示
-  let messageReactive: MessageReactive | null = null
+const handlePaste = async (event: ClipboardEvent) => {
+  if (fileQueue.value.length >= 9) {
+    window.$message.warning("最多只能上传9张图片");
+    return;
+  }
 
-  if (event && event.clipboardData) {
-    const items = event.clipboardData.items;
+  let messageReactive: MessageReactive | null = null;
+
+  if (event?.clipboardData) {
+    const { items } = event.clipboardData;
     let file: File | null = null;
 
-    if (items && items.length) {
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf("image") !== -1) {
-          if (!messageReactive) {
-            messageReactive =  window.$message.loading('正在粘贴图片',{duration: 0})
-          }
-          file = items[i].getAsFile();
+    if (items?.length) {
+      for (const item of Array.from(items)) {
+        // 这里使用 Array.from 来转换为数组
+        if (item.type.includes("image")) {
+          messageReactive =
+            messageReactive ||
+            window.$message.loading("正在粘贴图片", { duration: 0 });
+          file = item.getAsFile();
           break;
         }
       }
@@ -732,72 +736,76 @@ const handlePaste = (event: ClipboardEvent) => {
     if (file) {
       const fileExtension = file.name.split(".").pop();
       const randomFileName = generateRandomFileName(fileExtension);
-
-      // 以二进制形式读取文件内容
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        if (
-          event &&
-          event.target &&
-          event.target.result instanceof ArrayBuffer
-        ) {
-          // 获取文件内容
-          const fileContent = new Uint8Array(event.target.result);
-
-          // 创建 Blob
-          const blob = new Blob([fileContent], { type: "image/jpeg" });
-
-          // 这里可以使用 blob 了
-          const formData = new FormData();
-
-          // 添加文件到 FormData 对象
-          formData.append('type', 'public/image');
-          formData.append("file", blob, randomFileName);
-
-          const uploadImageReq: NetParams.UploadImageReq = {
-            type: formData.get('type') as string,
-            file: formData.get('file') as File,
-            };
-
-          uploadImage(uploadImageReq, uploadToken.value)
-            .then((response) => {
-                // 处理响应
-                const pasteTimestamp = new Date().getTime()
-                const pasteFile : UploadFileInfo[] = [{
-                    id: pasteTimestamp.toString(),
-                    name: randomFileName,
-                    batchId:  pasteTimestamp.toString(),
-                    percentage: 100,
-                    status: 'finished',
-                    url:  null,
-                    file: file,
-                    thumbnailUrl: null,
-                    type: "image/jpeg",
-                    fullPath: "/" + randomFileName,
-                }]
-                const combinedFileList = fileQueue.value.concat(pasteFile);
-
-                updateUpload(combinedFileList)
-                
-                imageContents.value.push({
-                    id: pasteTimestamp.toString(),
-                    content: response.content,
-                } as Item.CommentItemProps);
-                if (messageReactive) {
-                  messageReactive.destroy()
-                  messageReactive = null
-                }
-            })
-            .catch((error) => {
-                // 处理错误
-                console.error('上传失败', error);
-            });
-            }
+      const pasteTimestamp: any = Date.now();
+      const pasteFile: UploadFileInfo = {
+        id: pasteTimestamp,
+        name: randomFileName,
+        batchId: pasteTimestamp,
+        percentage: 50,
+        status: "uploading",
+        url: null,
+        file,
+        thumbnailUrl: null,
+        type: "image/jpeg",
+        fullPath: `/${randomFileName}`,
       };
 
-      reader.readAsArrayBuffer(file);
+      let combinedFileList = [...fileQueue.value, pasteFile];
+      updateUpload(combinedFileList);
+
+      try {
+        // 使用compressionFile函数来压缩图片（自建的）
+        const compressedFile = await compressionFile(file);
+
+        // 使用压缩后的文件来创建Uint8Array和Blob对象
+        const fileContent = new Uint8Array(await compressedFile.arrayBuffer());
+        const blob = new Blob([fileContent], { type: "image/jpeg" });
+        const formData = new FormData();
+
+        formData.append("type", "public/image");
+        formData.append("file", blob, randomFileName);
+
+        const uploadImageReq: NetParams.UploadImageReq = {
+          type: formData.get("type") as string,
+          file: formData.get("file") as File,
+        };
+
+        pasteFile.status = "uploading";
+        pasteFile.percentage = 70;
+        updateUploadList(pasteFile, combinedFileList);
+
+        const response = await uploadImage(uploadImageReq, uploadToken.value);
+
+        pasteFile.status = "finished";
+        pasteFile.percentage = 100;
+        pasteFile.url = response.content;
+
+        updateUploadList(pasteFile, combinedFileList);
+
+        imageContents.value.push({
+          id: pasteTimestamp,
+          content: response.content,
+        } as Item.CommentItemProps);
+
+        messageReactive?.destroy();
+        messageReactive = null;
+      } catch (error) {
+        pasteFile.status = "error";
+        pasteFile.percentage = 0;
+        updateUploadList(pasteFile, combinedFileList);
+      }
     }
   }
+};
+
+const updateUploadList = (
+  pasteFile: UploadFileInfo,
+  combinedFileList: UploadFileInfo[]
+) => {
+  combinedFileList = combinedFileList.map((file) =>
+    file.id === pasteFile.id ? pasteFile : file
+  );
+  updateUpload(combinedFileList);
 };
 
 onMounted(() => {
