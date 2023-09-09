@@ -125,8 +125,8 @@ github.com/alexflint/go-filemutex v0.0.0-20171022225611-72bdc8eae2ae/go.mod h1:C
 github.com/alexflint/go-filemutex v1.1.0/go.mod h1:7P4iRhttt/nUvUOrYIhcpMzv2G6CY9UnI16Z+UJqRyk=
 github.com/alimy/mir/v4 v4.0.0 h1:MzGfmoLjjvR69jbZEmpKJO3tUuqB0RGRv1UWPbtukBg=
 github.com/alimy/mir/v4 v4.0.0/go.mod h1:d58dBvw2KImcVbAUANrciEV/of0arMNsI9c/5UNCMMc=
-github.com/alimy/tryst v0.4.0 h1:OjidWhVWxKonoFzJ1oIZ5+gikDSaJaKzqHGP9BxMQ5o=
-github.com/alimy/tryst v0.4.0/go.mod h1:K//dPeoE/nnv2Jw8C3iPE7n8mO6LVqAxVmqbopM9nAk=
+github.com/alimy/tryst v0.6.0 h1:wbPAGpkNXVPWtJG30g5RERF/lnYHkM7BM8Jsw8HJTrc=
+github.com/alimy/tryst v0.6.0/go.mod h1:K//dPeoE/nnv2Jw8C3iPE7n8mO6LVqAxVmqbopM9nAk=
 github.com/aliyun/aliyun-oss-go-sdk v2.2.9+incompatible h1:Sg/2xHwDrioHpxTN6WMiwbXTpUEinBpHsN7mG21Rc2k=
 github.com/aliyun/aliyun-oss-go-sdk v2.2.9+incompatible/go.mod h1:T/Aws4fEfogEE9v+HPhhw+CntffsBHJ8nXQCwKr0/g8=
 github.com/allegro/bigcache/v3 v3.1.0 h1:H2Vp8VOvxcrB91o86fUSVJFqeuz8kpyyB02eH3bSzwk=
