@@ -44,7 +44,9 @@ func Initial() {
 		}
 		opts = append(opts, pool.MaxTickCountOpt(s.MaxTickCount), pool.TickWaitTimeOpt(s.TickWaitTime))
 		_defaultEventManager = event.NewEventManager(func(req event.Event, err error) {
-			logrus.Errorf("handle event[%s] occurs error: %s", req.Name(), err)
+			if err != nil {
+				logrus.Errorf("handle event[%s] occurs error: %s", req.Name(), err)
+			}
 		}, opts...)
 	})
 }
