@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sirupsen/logrus"
+	gp "github.com/alimy/tryst/pool"
 )
 
 var (
@@ -16,13 +16,13 @@ var (
 )
 
 const (
-	_minRequestInCh    = 10
-	_minRequestInTmpCh = 10
+	_minRequestBuf     = 10
+	_minRequestTempBuf = 10
 	_minWorker         = 5
 )
 
 // ResponseFn a function used handle the response of http.Client.Do
-type ResponseFn = func(req *http.Request, resp *http.Response, err error)
+type ResponseFn = gp.ResponseFn[*http.Request, *http.Response]
 
 // AsyncClient asynchronous client interface
 type AsyncClient interface {
@@ -31,90 +31,44 @@ type AsyncClient interface {
 
 // AsyncClientConf client configure used to create an AsynClient instance
 type AsyncClientConf struct {
-	MinWorker          int
-	MaxRequestInCh     int
-	MaxRequestInTempCh int
-	MaxTickCount       int
-	TickWaitTime       time.Duration
-}
-
-type requestItem struct {
-	request *http.Request
-	fn      ResponseFn
+	MinWorker         int
+	MaxRequestBuf     int
+	MaxRequestTempBuf int
+	MaxTickCount      int
+	TickWaitTime      time.Duration
 }
 
 type wormClient struct {
-	client        *http.Client
-	requestCh     chan *requestItem // 正式工 缓存通道
-	requestTempCh chan *requestItem // 临时工 缓存通道
-	maxTickCount  int
-	tickWaitTime  time.Duration
+	pool gp.GoroutinePool[*http.Request, *http.Response]
 }
 
 func (s *wormClient) Do(req *http.Request, fn ResponseFn) {
-	item := &requestItem{req, fn}
-	select {
-	case s.requestCh <- item:
-		// send request item by requestCh chan
-	default:
-		select {
-		case s.requestTempCh <- item:
-			// send request item by requestTempCh chan"
-		default:
-			go func() {
-				s.do(item)
-				// watch requestTempCh to continue do work if needed.
-				// cancel loop if no item had watched in s.maxCyle * s.maxWaitTime.
-				for count := 0; count < s.maxTickCount; count++ {
-					select {
-					case item := <-s.requestTempCh:
-						// reset count to continue do work
-						count = 0
-						s.do(item)
-					default:
-						// sleeping to wait request item pass over to do work
-						time.Sleep(s.tickWaitTime)
-					}
-				}
-			}()
-		}
-	}
-}
-
-func (s *wormClient) starDotWork() {
-	for item := range s.requestCh {
-		s.do(item)
-	}
-}
-
-func (s *wormClient) do(req *requestItem) {
-	resp, err := s.client.Do(req.request)
-	req.fn(req.request, resp, err)
+	s.pool.Do(req, fn)
 }
 
 // NewAsyncClient create an AsyncClient instance
 func NewAsyncClient(client *http.Client, conf *AsyncClientConf) AsyncClient {
-	maxRequestInCh := _minRequestInCh
-	maxRequestInTempCh := _minRequestInTmpCh
-	if conf.MaxRequestInCh > _minRequestInCh {
-		maxRequestInCh = conf.MaxRequestInCh
+	minWorker := _minWorker
+	maxRequestBuf := _minRequestBuf
+	maxRequestTempBuf := _minRequestTempBuf
+	if conf.MaxRequestBuf > _minRequestBuf {
+		maxRequestBuf = conf.MaxRequestBuf
 	}
-	if conf.MaxRequestInTempCh > _minRequestInTmpCh {
-		maxRequestInTempCh = conf.MaxRequestInTempCh
+	if conf.MaxRequestTempBuf > _minRequestTempBuf {
+		maxRequestTempBuf = conf.MaxRequestTempBuf
 	}
-	wc := &wormClient{
-		client:        client,
-		requestCh:     make(chan *requestItem, maxRequestInCh),
-		requestTempCh: make(chan *requestItem, maxRequestInTempCh),
+	if conf.MinWorker > _minWorker {
+		minWorker = conf.MinWorker
 	}
-	numWorker := conf.MinWorker
-	if numWorker < _minWorker {
-		numWorker = _minWorker
+	return &wormClient{
+		pool: gp.NewGoroutinePool(func(req *http.Request) (*http.Response, error) {
+			return client.Do(req)
+		},
+			gp.MinWorkerOpt(minWorker),
+			gp.MaxRequestBufOpt(maxRequestBuf),
+			gp.MaxRequestTempBufOpt(maxRequestTempBuf),
+			gp.MaxTickCountOpt(conf.MaxTickCount),
+			gp.TickWaitTimeOpt(conf.TickWaitTime),
+		),
 	}
-	logrus.Debugf("use %d backend worker to do the http request", numWorker)
-	// 启动 do work 正式工
-	for ; numWorker > 0; numWorker-- {
-		go wc.starDotWork()
-	}
-	return wc
 }
