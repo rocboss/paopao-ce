@@ -96,6 +96,14 @@ type appConf struct {
 	MaxPageSize           int
 }
 
+type eventManagerConf struct {
+	MinWorker       int
+	MaxEventBuf     int
+	MaxTempEventBuf int
+	MaxTickCount    int
+	TickWaitTime    time.Duration
+}
+
 type cacheIndexConf struct {
 	MaxUpdateQPS int
 	MinWorker    int
