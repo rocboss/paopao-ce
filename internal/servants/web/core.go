@@ -45,7 +45,7 @@ func (s *coreSrv) Chain() gin.HandlersChain {
 
 func (s *coreSrv) SyncSearchIndex(req *web.SyncSearchIndexReq) mir.Error {
 	if req.User != nil && req.User.IsAdmin {
-		go s.PushPostsToSearch(context.Background())
+		s.PushAllPostToSearch()
 	} else {
 		logrus.Warnf("sync search index need admin permision user: %#v", req.User)
 	}
