@@ -35,6 +35,7 @@ var (
 	DocsServerSetting       *httpServerConf
 	MobileServerSetting     *grpcServerConf
 	AppSetting              *appConf
+	CacheSetting            *cacheConf
 	EventManagerSetting     *eventManagerConf
 	CacheIndexSetting       *cacheIndexConf
 	SimpleCacheIndexSetting *simpleCacheIndexConf
@@ -70,6 +71,7 @@ func setupSetting(suite []string, noDefault bool) error {
 
 	objects := map[string]any{
 		"App":               &AppSetting,
+		"Cache":             &CacheSetting,
 		"EventManager":      &EventManagerSetting,
 		"PprofServer":       &PprofServerSetting,
 		"WebServer":         &WebServerSetting,
@@ -117,6 +119,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		}
 	}
 
+	CacheSetting.CientSideCacheExpire *= time.Second
 	EventManagerSetting.TickWaitTime *= time.Second
 	JWTSetting.Expire *= time.Second
 	SimpleCacheIndexSetting.CheckTickDuration *= time.Second

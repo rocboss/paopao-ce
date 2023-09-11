@@ -14,3 +14,9 @@ type BasePageInfo struct {
 func (r *BasePageInfo) SetPageInfo(page int, pageSize int) {
 	r.Page, r.PageSize = page, pageSize
 }
+
+type JsonResp struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg,omitempty"`
+	Data any    `json:"data,omitempty"`
+}

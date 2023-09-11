@@ -43,7 +43,12 @@ func RegisterRelaxServant(e *gin.Engine, s Relax) {
 			return
 		}
 		resp, err := s.GetUnreadMsgCount(req)
-		s.Render(c, resp, err)
+		if err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		var rv _render_ = resp
+		rv.Render(c)
 	})
 }
 

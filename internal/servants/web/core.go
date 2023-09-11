@@ -37,6 +37,7 @@ type coreSrv struct {
 	*base.DaoServant
 
 	oss core.ObjectStorageService
+	wc  core.WebCache
 }
 
 func (s *coreSrv) Chain() gin.HandlersChain {
@@ -141,6 +142,8 @@ func (s *coreSrv) ReadMessage(req *web.ReadMessageReq) mir.Error {
 		logrus.Errorf("Ds.ReadMessage err: %s", err)
 		return web.ErrReadMessageFailed
 	}
+	// 清除未读消息数缓存，不需要处理错误
+	s.wc.DelUnreadMsgCountResp(req.Uid)
 	return nil
 }
 
@@ -168,6 +171,9 @@ func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 		logrus.Errorf("Ds.CreateWhisper err: %s", err)
 		return web.ErrSendWhisperFailed
 	}
+
+	// 清除接收者未读消息缓存, 不需要处理错误
+	s.wc.DelUnreadMsgCountResp(req.UserID)
 
 	// 写入当日（自然日）计数缓存
 	s.Redis.IncrCountWhisper(ctx, req.Uid)
@@ -366,9 +372,10 @@ func (s *coreSrv) TweetStarStatus(req *web.TweetStarStatusReq) (*web.TweetStarSt
 	return resp, nil
 }
 
-func newCoreSrv(s *base.DaoServant, oss core.ObjectStorageService) api.Core {
+func newCoreSrv(s *base.DaoServant, oss core.ObjectStorageService, wc core.WebCache) api.Core {
 	return &coreSrv{
 		DaoServant: s,
 		oss:        oss,
+		wc:         wc,
 	}
 }
