@@ -97,3 +97,9 @@ type RedisCache interface {
 	SetRechargeStatus(ctx context.Context, tradeNo string) error
 	DelRechargeStatus(ctx context.Context, tradeNo string) error
 }
+
+type WebCache interface {
+	GetUnreadMsgCountResp(uid int64) ([]byte, error)
+	PutUnreadMsgCountResp(uid int64, data []byte) error
+	DelUnreadMsgCountResp(uid int64) error
+}
