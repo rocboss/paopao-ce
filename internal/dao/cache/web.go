@@ -8,7 +8,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/Masterminds/semver/v3"
 	"github.com/redis/rueidis"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
@@ -16,25 +15,21 @@ import (
 )
 
 var (
-	_webCache core.WebCache = (*redisWebCache)(nil)
+	_webCache core.WebCache = (*webCache)(nil)
+	_appCache core.AppCache = (*appCache)(nil)
 )
 
-type redisWebCache struct {
-	cscExpire       time.Duration
+type appCache struct {
+	cscExpire time.Duration
+	c         rueidis.Client
+}
+
+type webCache struct {
+	core.AppCache
 	unreadMsgExpire int64
-	c               rueidis.Client
 }
 
-func (s *redisWebCache) Name() string {
-	return "RedisWebCache"
-}
-
-func (s *redisWebCache) Version() *semver.Version {
-	return semver.MustParse("v0.1.0")
-}
-
-func (s *redisWebCache) GetUnreadMsgCountResp(uid int64) ([]byte, error) {
-	key := conf.KeyUnreadMsg.Get(uid)
+func (s *appCache) Get(key string) ([]byte, error) {
 	res, err := rueidis.MGetCache(s.c, context.Background(), s.cscExpire, []string{key})
 	if err != nil {
 		return nil, err
@@ -43,24 +38,70 @@ func (s *redisWebCache) GetUnreadMsgCountResp(uid int64) ([]byte, error) {
 	return message.AsBytes()
 }
 
-func (s *redisWebCache) PutUnreadMsgCountResp(uid int64, data []byte) error {
+func (s *appCache) Set(key string, data []byte, ex int64) error {
 	return s.c.Do(context.Background(), s.c.B().Set().
-		Key(conf.KeyUnreadMsg.Get(uid)).
+		Key(key).
 		Value(utils.String(data)).
-		ExSeconds(s.unreadMsgExpire).
+		ExSeconds(ex).
 		Build()).
 		Error()
 }
 
-func (s *redisWebCache) DelUnreadMsgCountResp(uid int64) error {
-	return s.c.Do(context.Background(), s.c.B().Del().Key(conf.KeyUnreadMsg.Get(uid)).Build()).Error()
+func (s *appCache) Delete(keys ...string) (err error) {
+	if len(keys) != 0 {
+		err = s.c.Do(context.Background(), s.c.B().Del().Key(keys...).Build()).Error()
+	}
+	return
 }
 
-func newWebCache() *redisWebCache {
-	s := conf.CacheSetting
-	return &redisWebCache{
-		cscExpire:       s.CientSideCacheExpire,
-		unreadMsgExpire: s.UnreadMsgExpire,
-		c:               conf.MustRedisClient(),
+func (s *appCache) DelAny(pattern string) (err error) {
+	var (
+		keys   []string
+		cursor uint64
+		entry  rueidis.ScanEntry
+	)
+	ctx := context.Background()
+	for {
+		cmd := s.c.B().Scan().Cursor(cursor).Match(pattern).Count(50).Build()
+		if entry, err = s.c.Do(ctx, cmd).AsScanEntry(); err != nil {
+			return
+		}
+		keys = append(keys, entry.Elements...)
+		if entry.Cursor != 0 {
+			cursor = entry.Cursor
+			continue
+		}
+		break
+	}
+	if len(keys) != 0 {
+		err = s.c.Do(ctx, s.c.B().Del().Key(keys...).Build()).Error()
+	}
+	return
+}
+
+func (s *webCache) GetUnreadMsgCountResp(uid int64) ([]byte, error) {
+	key := conf.KeyUnreadMsg.Get(uid)
+	return s.Get(key)
+}
+
+func (s *webCache) PutUnreadMsgCountResp(uid int64, data []byte) error {
+	return s.Set(conf.KeyUnreadMsg.Get(uid), data, s.unreadMsgExpire)
+}
+
+func (s *webCache) DelUnreadMsgCountResp(uid int64) error {
+	return s.Delete(conf.KeyUnreadMsg.Get(uid))
+}
+
+func newAppCache() *appCache {
+	return &appCache{
+		cscExpire: conf.CacheSetting.CientSideCacheExpire,
+		c:         conf.MustRedisClient(),
+	}
+}
+
+func newWebCache(ac core.AppCache) *webCache {
+	return &webCache{
+		AppCache:        ac,
+		unreadMsgExpire: conf.CacheSetting.UnreadMsgExpire,
 	}
 }

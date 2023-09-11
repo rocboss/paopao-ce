@@ -58,6 +58,11 @@ func NewWebCache() core.WebCache {
 	return _webCache
 }
 
+func NewAppCache() core.AppCache {
+	lazyInitial()
+	return _appCache
+}
+
 func NewSimpleCacheIndexService(indexPosts core.IndexPostsService) (core.CacheIndexService, core.VersionInfo) {
 	s := conf.SimpleCacheIndexSetting
 	cacheIndex := &simpleCacheIndexServant{
@@ -101,6 +106,7 @@ func NewNoneCacheIndexService(indexPosts core.IndexPostsService) (core.CacheInde
 
 func lazyInitial() {
 	_onceInit.Do(func() {
-		_webCache = newWebCache()
+		_appCache = newAppCache()
+		_webCache = newWebCache(_appCache)
 	})
 }
