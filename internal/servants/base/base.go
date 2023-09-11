@@ -22,6 +22,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/events"
+	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
@@ -37,12 +38,6 @@ type DaoServant struct {
 	Ds    core.DataService
 	Ts    core.TweetSearchService
 	Redis core.RedisCache
-}
-
-type JsonResp struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg,omitempty"`
-	Data any    `json:"data,omitempty"`
 }
 
 type SentryHubSetter interface {
@@ -145,13 +140,13 @@ func bindAnySentry(c *gin.Context, obj any) mir.Error {
 
 func RenderAny(c *gin.Context, data any, err mir.Error) {
 	if err == nil {
-		c.JSON(http.StatusOK, &JsonResp{
+		c.JSON(http.StatusOK, &joint.JsonResp{
 			Code: 0,
 			Msg:  "success",
 			Data: data,
 		})
 	} else {
-		c.JSON(xerror.HttpStatusCode(err), &JsonResp{
+		c.JSON(xerror.HttpStatusCode(err), &joint.JsonResp{
 			Code: err.StatusCode(),
 			Msg:  err.Error(),
 		})
@@ -164,13 +159,13 @@ func (s *BaseServant) Bind(c *gin.Context, obj any) mir.Error {
 
 func (s *BaseServant) Render(c *gin.Context, data any, err mir.Error) {
 	if err == nil {
-		c.JSON(http.StatusOK, &JsonResp{
+		c.JSON(http.StatusOK, &joint.JsonResp{
 			Code: 0,
 			Msg:  "success",
 			Data: data,
 		})
 	} else {
-		c.JSON(xerror.HttpStatusCode(err), &JsonResp{
+		c.JSON(xerror.HttpStatusCode(err), &joint.JsonResp{
 			Code: err.StatusCode(),
 			Msg:  err.Error(),
 		})

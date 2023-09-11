@@ -29,6 +29,8 @@ func MustRedisClient() rueidis.Client {
 			log.Fatalf("create a redis client failed: %s", err)
 		}
 		_redisClient = client
+		// 顺便初始化一下CacheKeyPool
+		initCacheKeyPool()
 	})
 	return _redisClient
 }
