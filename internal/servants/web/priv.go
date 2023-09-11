@@ -286,8 +286,7 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 			}
 
 			// 创建消息提醒
-			// TODO: 优化消息提醒处理机制
-			go s.Ds.CreateMessage(&ms.Message{
+			onCreateMessageEvent(&ms.Message{
 				SenderUserID:   req.User.ID,
 				ReceiverUserID: user.ID,
 				Type:           ms.MsgTypePost,
@@ -392,7 +391,7 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.Creat
 	// 创建用户消息提醒
 	commentMaster, err := s.Ds.GetUserByID(comment.UserID)
 	if err == nil && commentMaster.ID != req.Uid {
-		go s.Ds.CreateMessage(&ms.Message{
+		onCreateMessageEvent(&ms.Message{
 			SenderUserID:   req.Uid,
 			ReceiverUserID: commentMaster.ID,
 			Type:           ms.MsgTypeReply,
@@ -404,7 +403,7 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.Creat
 	}
 	postMaster, err := s.Ds.GetUserByID(post.UserID)
 	if err == nil && postMaster.ID != req.Uid && commentMaster.ID != postMaster.ID {
-		go s.Ds.CreateMessage(&ms.Message{
+		onCreateMessageEvent(&ms.Message{
 			SenderUserID:   req.Uid,
 			ReceiverUserID: postMaster.ID,
 			Type:           ms.MsgTypeReply,
@@ -418,7 +417,7 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.Creat
 		user, err := s.Ds.GetUserByID(atUserID)
 		if err == nil && user.ID != req.Uid && commentMaster.ID != user.ID && postMaster.ID != user.ID {
 			// 创建消息提醒
-			go s.Ds.CreateMessage(&ms.Message{
+			onCreateMessageEvent(&ms.Message{
 				SenderUserID:   req.Uid,
 				ReceiverUserID: user.ID,
 				Type:           ms.MsgTypeReply,
@@ -524,7 +523,7 @@ func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateComment
 	// 创建用户消息提醒
 	postMaster, err := s.Ds.GetUserByID(post.UserID)
 	if err == nil && postMaster.ID != req.Uid {
-		go s.Ds.CreateMessage(&ms.Message{
+		onCreateMessageEvent(&ms.Message{
 			SenderUserID:   req.Uid,
 			ReceiverUserID: postMaster.ID,
 			Type:           ms.MsgtypeComment,
@@ -540,7 +539,7 @@ func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateComment
 		}
 
 		// 创建消息提醒
-		go s.Ds.CreateMessage(&ms.Message{
+		onCreateMessageEvent(&ms.Message{
 			SenderUserID:   req.Uid,
 			ReceiverUserID: user.ID,
 			Type:           ms.MsgtypeComment,

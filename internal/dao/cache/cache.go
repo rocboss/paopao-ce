@@ -6,12 +6,17 @@ package cache
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/allegro/bigcache/v3"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/sirupsen/logrus"
+)
+
+var (
+	_onceInit sync.Once
 )
 
 func NewRedisCache() core.RedisCache {
@@ -46,6 +51,11 @@ func NewRedisCacheIndexService(ips core.IndexPostsService, ams core.Authorizatio
 		c:              conf.MustRedisClient(),
 	})
 	return cacheIndex, cacheIndex
+}
+
+func NewWebCache() core.WebCache {
+	lazyInitial()
+	return _webCache
 }
 
 func NewSimpleCacheIndexService(indexPosts core.IndexPostsService) (core.CacheIndexService, core.VersionInfo) {
@@ -87,4 +97,10 @@ func NewNoneCacheIndexService(indexPosts core.IndexPostsService) (core.CacheInde
 		ips: indexPosts,
 	}
 	return obj, obj
+}
+
+func lazyInitial() {
+	_onceInit.Do(func() {
+		_webCache = newWebCache()
+	})
 }

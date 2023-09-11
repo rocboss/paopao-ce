@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/mir/v4 v4.0.0
-	github.com/alimy/tryst v0.7.1
+	github.com/alimy/tryst v0.8.2
 	github.com/alimy/yesql v1.9.0
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.9+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
@@ -81,6 +81,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/hashicorp/golang-lru/v2 v2.0.6 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

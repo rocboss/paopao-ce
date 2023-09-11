@@ -5,6 +5,10 @@ App: # APP基础设置项
   DefaultContextTimeout: 60
   DefaultPageSize: 10
   MaxPageSize: 100
+Cache:
+  KeyPoolSize: 256            # 键的池大小， 设置范围[128, ++], 默认256
+  CientSideCacheExpire: 60    # 客户端缓存过期时间 默认60s
+  UnreadMsgExpire: 60         # 未读消息过期时间，单位秒， 默认60s
 EventManager: # 事件管理器的配置参数
   MinWorker: 10               # 最小后台工作者, 设置范围[5, ++], 默认10
   MaxEventBuf: 100            # 最大log缓存条数, 设置范围[10, ++], 默认100

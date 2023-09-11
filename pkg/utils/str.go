@@ -7,6 +7,7 @@ package utils
 import (
 	"math/rand"
 	"time"
+	"unsafe"
 )
 
 type StrType int
@@ -40,4 +41,11 @@ func RandStr(size int, kind StrType) []byte {
 		}
 	}
 	return result
+}
+
+func String(data []byte) string {
+	if size := len(data); size > 0 {
+		return unsafe.String(unsafe.SliceData(data), size)
+	}
+	return ""
 }
