@@ -5,7 +5,6 @@
 package base
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/alimy/tryst/event"
@@ -13,6 +12,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/events"
 	"github.com/rocboss/paopao-ce/internal/model/joint"
+	"github.com/rocboss/paopao-ce/pkg/json"
 )
 
 type CacheRespEvent struct {
