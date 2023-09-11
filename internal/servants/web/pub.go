@@ -219,7 +219,8 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
 	}
 	avatarURL := s.getRandomAvatarByUsername(req.Username)
 	if len(avatarURL) == 0 {
-		fmt.Println("头像生成失败或为空")
+		//头像生成失败，从默认头像中随机选取一个
+		avatarURL = getRandomAvatar()
 	}
 
 	password, salt := encryptPasswordAndSalt(req.Password)

@@ -206,7 +206,6 @@ declare module NetReq {
 
   /** 上传图片响应参数 */
   interface UploadImageResp {
-    /** 图片URL */
     content: string;
     file_size: number;
     img_height: number;

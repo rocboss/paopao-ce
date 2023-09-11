@@ -134,7 +134,7 @@ func (s *pubSrv) getRandomAvatarByUsername(username string) string {
 		return "失败"
 	}
 
-	fmt.Print(objectUrl)
+	//fmt.Print(objectUrl)
 	return objectUrl
 }
 
