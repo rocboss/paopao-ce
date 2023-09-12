@@ -18,7 +18,7 @@ var (
 func Initial() {
 	_onceInitial.Do(func() {
 		initEventManager()
-		if cfg.If("JobManager") {
+		if cfg.If("UseJobManager") {
 			initJobManager()
 			logrus.Debugln("initial JobManager")
 		}

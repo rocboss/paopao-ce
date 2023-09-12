@@ -7,12 +7,14 @@ package web
 import (
 	"fmt"
 	"mime/multipart"
+	"net/http"
 	"strings"
 
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
@@ -280,4 +282,17 @@ func (r *CreateCommentReplyReq) Bind(c *gin.Context) mir.Error {
 func (r *CreateCommentReq) Bind(c *gin.Context) mir.Error {
 	r.ClientIP = c.ClientIP()
 	return bindAny(c, r)
+}
+
+func (r *CreateTweetResp) Render(c *gin.Context) {
+	c.JSON(http.StatusOK, &joint.JsonResp{
+		Code: 0,
+		Msg:  "success",
+		Data: r,
+	})
+	// 设置审核元信息，用于接下来的审核逻辑
+	c.Set(AuditHookCtxKey, &AuditMetaInfo{
+		Style: AuditStyleUserTweet,
+		Id:    r.ID,
+	})
 }
