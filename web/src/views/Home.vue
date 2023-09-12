@@ -8,7 +8,7 @@
                 <compose @post-success="onPostSuccess" />
             </n-list-item>
 
-            <n-list-item v-if="showFriendsBar" >
+            <!-- <n-list-item v-if="showFriendsBar" >
             <SlideBar v-model="slideBarList" :wheel-blocks="wheelBlocks" :init-blocks="initBlocks" @click="handleBarClick" tag="div" sub-tag="div">
                 <template #default="data">
                     <div class="slide-bar-item">
@@ -28,7 +28,7 @@
                     </div>
                 </template>
             </SlideBar>
-            </n-list-item>
+            </n-list-item> -->
 
             <div v-if="loading && list.length === 0" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />

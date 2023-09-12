@@ -687,9 +687,9 @@ const submitPost = () => {
       attachmentContents.value = [];
       visitType.value = defaultVisitType.value;
       //转到初始页面，待优化，用于一键分享，但是和“正在关注”“热门推荐”推文发布存在冲突
-      // router.push({
-      //   name: "home",
-      // });
+      router.push({
+        name: "home",
+      });
     })
     .catch((err) => {
       submitting.value = false;
