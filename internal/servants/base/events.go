@@ -76,6 +76,10 @@ func (p *CacheRespEvent) Name() string {
 }
 
 func (p *CacheRespEvent) Action() error {
+	if p.ac.Exist(p.key) {
+		// do nothing
+		return nil
+	}
 	resp := &joint.JsonResp{
 		Code: 0,
 		Msg:  "success",

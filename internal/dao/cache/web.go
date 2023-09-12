@@ -98,6 +98,10 @@ func (s *webCache) DelUnreadMsgCountResp(uid int64) error {
 	return s.Delete(conf.KeyUnreadMsg.Get(uid))
 }
 
+func (s *webCache) ExistUnreadMsgCountResp(uid int64) bool {
+	return s.Exist(conf.KeyUnreadMsg.Get(uid))
+}
+
 func newAppCache() *appCache {
 	return &appCache{
 		cscExpire: conf.CacheSetting.CientSideCacheExpire,

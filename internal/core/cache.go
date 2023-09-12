@@ -111,4 +111,5 @@ type WebCache interface {
 	GetUnreadMsgCountResp(uid int64) ([]byte, error)
 	PutUnreadMsgCountResp(uid int64, data []byte) error
 	DelUnreadMsgCountResp(uid int64) error
+	ExistUnreadMsgCountResp(uid int64) bool
 }
