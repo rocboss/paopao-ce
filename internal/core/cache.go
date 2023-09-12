@@ -103,6 +103,7 @@ type AppCache interface {
 	Set(key string, data []byte, ex int64) error
 	Delete(key ...string) error
 	DelAny(pattern string) error
+	Exist(key string) bool
 }
 
 type WebCache interface {

@@ -79,6 +79,12 @@ func (s *appCache) DelAny(pattern string) (err error) {
 	return
 }
 
+func (s *appCache) Exist(key string) bool {
+	cmd := s.c.B().Exists().Key(key).Build()
+	count, _ := s.c.Do(context.Background(), cmd).AsInt64()
+	return count > 0
+}
+
 func (s *webCache) GetUnreadMsgCountResp(uid int64) ([]byte, error) {
 	key := conf.KeyUnreadMsg.Get(uid)
 	return s.Get(key)

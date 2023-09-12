@@ -5,9 +5,13 @@
 package web
 
 import (
+	"fmt"
+
 	"github.com/alimy/mir/v4"
+	"github.com/alimy/tryst/lets"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -25,6 +29,9 @@ var (
 type looseSrv struct {
 	api.UnimplementedLooseServant
 	*base.DaoServant
+	ac               core.AppCache
+	userTweetsExpire int64
+	prefixUserTweets string
 }
 
 func (s *looseSrv) Chain() gin.HandlersChain {
@@ -66,6 +73,13 @@ func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTwe
 	if xerr != nil {
 		return nil, err
 	}
+	// 尝试直接从缓存中获取数据
+	key, ok := "", false
+	if res, key, ok = s.userTweetsFromCache(req, user); ok {
+		// logrus.Debugf("GetUserTweets from cache key:%s", key)
+		return
+	}
+	// 缓存获取未成功，只能查库了
 	switch req.Style {
 	case web.UserPostsStyleComment, web.UserPostsStyleMedia:
 		res, err = s.listUserTweets(req, user)
@@ -77,6 +91,28 @@ func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTwe
 		fallthrough
 	default:
 		res, err = s.getUserPostTweets(req, user, false)
+	}
+	// 缓存处理
+	if err == nil {
+		if xerr == nil {
+			base.OnCacheRespEvent(s.ac, key, res.Data, s.userTweetsExpire)
+		} else {
+			logrus.Warnf("marshal user tweets response to json occurs error: %s", xerr)
+		}
+	}
+	return
+}
+
+func (s *looseSrv) userTweetsFromCache(req *web.GetUserTweetsReq, user *cs.VistUser) (res *web.GetUserTweetsResp, key string, ok bool) {
+	switch req.Style {
+	case web.UserPostsStylePost, web.UserPostsStyleHighlight, web.UserPostsStyleMedia:
+		key = fmt.Sprintf("%s%s:%s:%s:%d:%d", s.prefixUserTweets, req.Username, req.Style, user.RelTyp, req.Page, req.PageSize)
+	default:
+		visitUserName := lets.If(user.RelTyp != cs.RelationGuest, user.Username, "_")
+		key = fmt.Sprintf("%s%s:%s:%s:%d:%d", s.prefixUserTweets, req.Username, req.Style, visitUserName, req.Page, req.PageSize)
+	}
+	if data, err := s.ac.Get(key); err == nil {
+		ok, res = true, &web.GetUserTweetsResp{JsonResp: data}
 	}
 	return
 }
@@ -99,7 +135,7 @@ func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUse
 		return nil, web.ErrGetStarsFailed
 	}
 	resp := base.PageRespFrom(postsFormated, req.Page, req.PageSize, totalRows)
-	return (*web.GetUserTweetsResp)(resp), nil
+	return &web.GetUserTweetsResp{Data: resp}, nil
 }
 
 func (s *looseSrv) listUserTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
@@ -126,7 +162,7 @@ func (s *looseSrv) listUserTweets(req *web.GetUserTweetsReq, user *cs.VistUser) 
 		return nil, web.ErrGetPostsFailed
 	}
 	resp := base.PageRespFrom(postFormated, req.Page, req.PageSize, total)
-	return (*web.GetUserTweetsResp)(resp), nil
+	return &web.GetUserTweetsResp{Data: resp}, nil
 }
 
 func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq, user *cs.VistUser, isHighlight bool) (*web.GetUserTweetsResp, mir.Error) {
@@ -160,7 +196,7 @@ func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq, user *cs.VistUse
 		return nil, web.ErrGetPostsFailed
 	}
 	resp := base.PageRespFrom(posts, req.Page, req.PageSize, totalRows)
-	return (*web.GetUserTweetsResp)(resp), nil
+	return &web.GetUserTweetsResp{Data: resp}, nil
 }
 
 func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfileResp, mir.Error) {
@@ -322,8 +358,11 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 	return (*web.TweetCommentsResp)(resp), nil
 }
 
-func newLooseSrv(s *base.DaoServant) api.Loose {
+func newLooseSrv(s *base.DaoServant, ac core.AppCache) api.Loose {
 	return &looseSrv{
-		DaoServant: s,
+		DaoServant:       s,
+		ac:               ac,
+		userTweetsExpire: conf.CacheSetting.UserTweetsExpire,
+		prefixUserTweets: conf.PrefixUserTweets,
 	}
 }
