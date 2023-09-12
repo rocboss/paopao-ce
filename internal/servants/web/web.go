@@ -11,27 +11,32 @@ import (
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao"
+	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 )
 
 var (
 	_enablePhoneVerify    bool
 	_disallowUserRegister bool
+	_ds                   core.DataService
+	_wc                   core.WebCache
+	_oss                  core.ObjectStorageService
 	_onceInitial          sync.Once
 )
 
 // RouteWeb register web route
 func RouteWeb(e *gin.Engine) {
 	lazyInitial()
-	oss := dao.ObjectStorageService()
 	ds := base.NewDaoServant()
 	// aways register servants
 	api.RegisterAdminServant(e, newAdminSrv(ds))
-	api.RegisterCoreServant(e, newCoreSrv(ds, oss))
+	api.RegisterCoreServant(e, newCoreSrv(ds, _oss, _wc))
+	api.RegisterRelaxServant(e, newRelaxSrv(ds, _wc))
 	api.RegisterLooseServant(e, newLooseSrv(ds))
-	api.RegisterPrivServant(e, newPrivSrv(ds, oss))
-	api.RegisterPubServant(e, newPubSrv(ds, oss))
+	api.RegisterPrivServant(e, newPrivSrv(ds, _oss))
+	api.RegisterPubServant(e, newPubSrv(ds, _oss))
 	api.RegisterKeyQueryServant(e, NewShareKeyServant(ds))
 	api.RegisterRankServant(e, NewRankServant(ds))
 	api.RegisterFollowshipServant(e, newFollowshipSrv(ds))
@@ -49,5 +54,8 @@ func lazyInitial() {
 	_onceInitial.Do(func() {
 		_enablePhoneVerify = cfg.If("Sms")
 		_disallowUserRegister = cfg.If("Web:DisallowUserRegister")
+		_oss = dao.ObjectStorageService()
+		_ds = dao.DataService()
+		_wc = cache.NewWebCache()
 	})
 }

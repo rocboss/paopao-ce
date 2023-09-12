@@ -75,6 +75,7 @@ func NewClient(conf *Config, acc *hx.AsyncClientConf, fn hx.ResponseFn) OpenObse
 		user:      conf.User,
 		password:  conf.Password,
 		userAgent: userAgent,
+		respFn:    fn,
 		client:    hx.NewAsyncClient(http.DefaultClient, acc),
 	}
 }

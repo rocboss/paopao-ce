@@ -96,6 +96,20 @@ type appConf struct {
 	MaxPageSize           int
 }
 
+type cacheConf struct {
+	KeyPoolSize          int
+	CientSideCacheExpire time.Duration
+	UnreadMsgExpire      int64
+}
+
+type eventManagerConf struct {
+	MinWorker       int
+	MaxEventBuf     int
+	MaxTempEventBuf int
+	MaxTickCount    int
+	TickWaitTime    time.Duration
+}
+
 type cacheIndexConf struct {
 	MaxUpdateQPS int
 	MinWorker    int

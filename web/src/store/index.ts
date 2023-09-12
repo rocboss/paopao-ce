@@ -53,7 +53,7 @@ export default createStore({
       }
     },
     userLogout(state) {
-      localStorage.removeItem("PAOPAO_TOKEN");
+      localStorage.removeItem("AIMO_TOKEN");
       state.userInfo = {
         id: 0,
         nickname: "",

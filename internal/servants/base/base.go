@@ -21,9 +21,10 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
+	"github.com/rocboss/paopao-ce/internal/events"
+	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/pkg/app"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
-	"github.com/sirupsen/logrus"
 )
 
 type BaseServant struct {
@@ -37,12 +38,6 @@ type DaoServant struct {
 	Ds    core.DataService
 	Ts    core.TweetSearchService
 	Redis core.RedisCache
-}
-
-type JsonResp struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg,omitempty"`
-	Data any    `json:"data,omitempty"`
 }
 
 type SentryHubSetter interface {
@@ -145,13 +140,13 @@ func bindAnySentry(c *gin.Context, obj any) mir.Error {
 
 func RenderAny(c *gin.Context, data any, err mir.Error) {
 	if err == nil {
-		c.JSON(http.StatusOK, &JsonResp{
+		c.JSON(http.StatusOK, &joint.JsonResp{
 			Code: 0,
 			Msg:  "success",
 			Data: data,
 		})
 	} else {
-		c.JSON(xerror.HttpStatusCode(err), &JsonResp{
+		c.JSON(xerror.HttpStatusCode(err), &joint.JsonResp{
 			Code: err.StatusCode(),
 			Msg:  err.Error(),
 		})
@@ -164,13 +159,13 @@ func (s *BaseServant) Bind(c *gin.Context, obj any) mir.Error {
 
 func (s *BaseServant) Render(c *gin.Context, data any, err mir.Error) {
 	if err == nil {
-		c.JSON(http.StatusOK, &JsonResp{
+		c.JSON(http.StatusOK, &joint.JsonResp{
 			Code: 0,
 			Msg:  "success",
 			Data: data,
 		})
 	} else {
-		c.JSON(xerror.HttpStatusCode(err), &JsonResp{
+		c.JSON(xerror.HttpStatusCode(err), &joint.JsonResp{
 			Code: err.StatusCode(),
 			Msg:  err.Error(),
 		})
@@ -203,9 +198,16 @@ func (s *DaoServant) GetTweetBy(id int64) (*ms.PostFormated, error) {
 	return postFormated, nil
 }
 
-func (s *DaoServant) PushPostsToSearch(c context.Context) {
-	if err := s.Redis.SetPushToSearchJob(c); err == nil {
-		defer s.Redis.DelPushToSearchJob(c)
+func (s *DaoServant) PushAllPostToSearch() {
+	events.OnEvent(&pushAllPostToSearchEvent{
+		fn: s.pushAllPostToSearch,
+	})
+}
+
+func (s *DaoServant) pushAllPostToSearch() error {
+	ctx := context.Background()
+	if err := s.Redis.SetPushToSearchJob(ctx); err == nil {
+		defer s.Redis.DelPushToSearchJob(ctx)
 
 		splitNum := 1000
 		conditions := ms.ConditionsT{
@@ -234,11 +236,19 @@ func (s *DaoServant) PushPostsToSearch(c context.Context) {
 			}
 		}
 	} else {
-		logrus.Errorf("redis: set JOB_PUSH_TO_SEARCH error: %s", err)
+		return fmt.Errorf("redis: set JOB_PUSH_TO_SEARCH error: %w", err)
 	}
+	return nil
 }
 
 func (s *DaoServant) PushPostToSearch(post *ms.Post) {
+	events.OnEvent(&pushPostToSearchEvent{
+		fn:   s.pushPostToSearch,
+		post: post,
+	})
+}
+
+func (s *DaoServant) pushPostToSearch(post *ms.Post) {
 	postFormated := post.Format()
 	postFormated.User = &ms.UserFormated{
 		ID: post.UserID,
@@ -247,14 +257,12 @@ func (s *DaoServant) PushPostToSearch(post *ms.Post) {
 	for _, content := range contents {
 		postFormated.Contents = append(postFormated.Contents, content.Format())
 	}
-
 	contentFormated := ""
 	for _, content := range postFormated.Contents {
 		if content.Type == ms.ContentTypeText || content.Type == ms.ContentTypeTitle {
 			contentFormated = contentFormated + content.Content + "\n"
 		}
 	}
-
 	docs := []core.TsDocItem{{
 		Post:    post,
 		Content: contentFormated,

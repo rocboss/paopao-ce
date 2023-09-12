@@ -13,15 +13,17 @@
 
                 <div v-if="store.state.desktopModelShow">
                     <n-list-item v-for="post in list" :key="post.id">
-                        <post-item :post="post" />
+                        <post-item :post="post" @send-whisper="onSendWhisper" />
                     </n-list-item>
                 </div>
                 <div v-else>
                     <n-list-item v-for="post in list" :key="post.id">
-                        <mobile-post-item :post="post" />
+                        <mobile-post-item :post="post" @send-whisper="onSendWhisper" />
                     </n-list-item>
                 </div>
             </div>
+            <!-- 私信组件 -->
+            <!-- <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" /> -->
         </n-list>
 
         <div class="pagination-wrap" v-if="totalPage > 0">
@@ -37,7 +39,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { getCollections } from '@/api/user';
 
 const store = useStore();
@@ -48,6 +50,29 @@ const list = ref<any[]>([]);
 const page = ref(+(route.query.p as any) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
+const showWhisper = ref(false);
+const whisperReceiver = ref<Item.UserInfo>({
+    id: 0,
+    avatar: '',
+    username: '',
+    nickname: '',
+    is_admin: false,
+    is_friend: true,
+    is_following: false,
+    created_on: 0,
+    follows: 0,
+    followings: 0,
+    status: 1,
+});
+
+const onSendWhisper =  (user: Item.UserInfo) => {
+    whisperReceiver.value = user;
+    showWhisper.value = true;
+};
+
+const whisperSuccess = () => {
+    showWhisper.value = false;
+};
 
 const loadPosts = () => {
     loading.value = true;

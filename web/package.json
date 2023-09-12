@@ -9,6 +9,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@opentiny/vue-slide-bar": "^3.10.0",
     "@vicons/carbon": "^0.12.0",
     "@vicons/fa": "^0.12.0",
     "@vicons/ionicons5": "^0.12.0",

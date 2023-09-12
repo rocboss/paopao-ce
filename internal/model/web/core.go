@@ -40,14 +40,6 @@ type UserInfoResp struct {
 	Followings int64  `json:"followings"`
 }
 
-type GetUnreadMsgCountReq struct {
-	SimpleInfo `json:"-" binding:"-"`
-}
-
-type GetUnreadMsgCountResp struct {
-	Count int64 `json:"count"`
-}
-
 type GetMessagesReq BasePageReq
 
 type GetMessagesResp base.PageResp

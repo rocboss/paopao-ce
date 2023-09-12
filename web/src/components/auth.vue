@@ -237,7 +237,7 @@ const handleLogin = (e: Event) => {
                 .then((res) => {
                     const token = res?.token || '';
                     // 写入用户信息
-                    localStorage.setItem('PAOPAO_TOKEN', token);
+                    localStorage.setItem('AIMO_TOKEN', token);
 
                     return userInfo(token);
                 })
@@ -279,7 +279,7 @@ const handleRegister = (e: Event) => {
                 .then((res) => {
                     const token = res?.token || '';
                     // 写入用户信息
-                    localStorage.setItem('PAOPAO_TOKEN', token);
+                    localStorage.setItem('AIMO_TOKEN', token);
 
                     return userInfo(token);
                 })
@@ -305,7 +305,7 @@ const handleRegister = (e: Event) => {
 };
 
 onMounted(() => {
-    const token = localStorage.getItem('PAOPAO_TOKEN') || '';
+    const token = localStorage.getItem('AIMO_TOKEN') || '';
     if (token) {
         userInfo(token)
             .then((res) => {

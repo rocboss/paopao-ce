@@ -140,6 +140,15 @@ declare module Item {
     created_on: number;
   }
 
+  /** slide bar item */
+  interface SlideBarItem {
+    title: string;
+    style: number;
+    username: string;
+    avatar: string;
+    show: boolean;
+  }
+
   /** 帖子内容 */
   interface PostItemProps {
     /** 内容ID */
@@ -241,6 +250,8 @@ declare module Item {
     sender_user: UserInfo;
     /** 接收方UID */
     receiver_user_id: number;
+    /** 接收人用户数据 */
+    receiver_user: UserInfo;
     /** 帖子ID */
     post_id: number;
     /** 帖子内容 */

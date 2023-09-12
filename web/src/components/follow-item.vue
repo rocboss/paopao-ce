@@ -38,8 +38,8 @@
                         placement="bottom-end"
                         trigger="click"
                         size="small"
-                        :options="followOptions"
-                        @select="handleFollowAction"
+                        :options="actionOpts"
+                        @select="handleAction"
                     >
                         <n-button quaternary circle>
                             <template #icon>
@@ -65,12 +65,17 @@ import { followUser, unfollowUser } from '@/api/user';
 import { formatDate } from '@/utils/formatTime';
 import { MoreHorizFilled } from '@vicons/material';
 import {
+    PaperPlaneOutline,
     BodyOutline,
     WalkOutline
 } from '@vicons/ionicons5';
 
 const dialog = useDialog();
 const router = useRouter();
+
+const emit = defineEmits<{
+    (e: 'send-whisper', user: Item.UserInfo): void;
+}>();
 
 const renderIcon = (icon: Component) => {
   return () => {
@@ -113,26 +118,18 @@ const handleFollowUser = () => {
     });
 };
 
-const handleFollowAction = (
-    item: 'follow' | 'unfollow' 
-) => {
-    switch (item) {
-        case 'follow':
-        case 'unfollow':
-            handleFollowUser();
-            break;
-        default:
-            break;
-    }
-};
-
-
 const props = withDefaults(defineProps<{
     contact: Item.ContactItemProps
 }>(), {})
 
-const followOptions = computed(() => {
-    let options: DropdownOption[] = [];
+const actionOpts = computed(() => {
+    let options: DropdownOption[] = [
+        // {
+        //     label: '私信',
+        //     key: 'whisper',
+        //     icon: renderIcon(PaperPlaneOutline)
+        // },
+    ];
     if (props.contact.is_following) {
         options.push({
             label: '取消关注',
@@ -149,11 +146,33 @@ const followOptions = computed(() => {
     return options;
 });
 
-const goUserProfile = (username: string) => {
-    router.push({
-        name: 'user',
-        query: { s: username },
-    });
+const handleAction = (
+    item: 'follow' | 'unfollow' | 'whisper'
+) => {
+    switch (item) {
+        case 'follow':
+        case 'unfollow':
+            handleFollowUser();
+            break;
+        case 'whisper':
+            const user:  Item.UserInfo = {
+                id: props.contact.user_id,
+                avatar: props.contact.avatar,
+                username: props.contact.username,
+                nickname: props.contact.nickname,
+                is_admin: false,
+                is_friend: true,
+                is_following: false,
+                created_on: 0,
+                follows: 0,
+                followings: 0,
+                status: 1,
+            }
+            emit('send-whisper', user);
+            break;
+        default:
+            break;
+    }
 };
 </script>
 

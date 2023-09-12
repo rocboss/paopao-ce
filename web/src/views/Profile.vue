@@ -74,18 +74,63 @@
                 <div class="empty-wrap" v-if="list.length === 0">
                     <n-empty size="large" description="暂无数据" />
                 </div>
-
                 <div v-if="store.state.desktopModelShow">
-                    <n-list-item v-for="post in list" :key="post.id">
-                        <post-item :post="post" />
-                    </n-list-item>
+                    <div v-if="pageType === 'post'">
+                        <n-list-item v-for="post in postList" :key="post.id">
+                            <post-item :post="post" @send-whisper="onSendWhisper" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'comment'">
+                        <n-list-item v-for="post in commentList" :key="post.id">
+                            <post-item :post="post" @send-whisper="onSendWhisper" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'highlight'">
+                        <n-list-item v-for="post in highlightList" :key="post.id">
+                            <post-item :post="post" @send-whisper="onSendWhisper" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'media'">
+                        <n-list-item v-for="post in mediaList" :key="post.id">
+                            <post-item :post="post" @send-whisper="onSendWhisper" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'star'">
+                        <n-list-item v-for="post in starList" :key="post.id">
+                            <post-item :post="post" @send-whisper="onSendWhisper" />
+                        </n-list-item>
+                    </div>
                 </div>
                 <div v-else>
-                    <n-list-item v-for="post in list" :key="post.id">
-                        <mobile-post-item :post="post" />
-                    </n-list-item>
+                    <div v-if="pageType === 'post'">
+                        <n-list-item v-for="post in postList" :key="post.id">
+                            <mobile-post-item :post="post" @send-whisper="onSendWhisper" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'comment'">
+                        <n-list-item v-for="post in commentList" :key="post.id">
+                            <mobile-post-item :post="post" @send-whisper="onSendWhisper" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'highlight'">
+                        <n-list-item v-for="post in highlightList" :key="post.id">
+                            <mobile-post-item :post="post" @send-whisper="onSendWhisper" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'media'">
+                        <n-list-item v-for="post in mediaList" :key="post.id">
+                            <mobile-post-item :post="post" @send-whisper="onSendWhisper" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'star'">
+                        <n-list-item v-for="post in starList" :key="post.id">
+                            <mobile-post-item :post="post" @send-whisper="onSendWhisper" />
+                        </n-list-item>
+                    </div>
                 </div>
             </div>
+            <!-- 私信组件 -->
+            <!-- <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" /> -->
         </n-list>
 
         <n-space v-if="totalPage > 0" justify="center">
@@ -133,6 +178,29 @@ const commentTotalPage = ref(0);
 const highlightTotalPage = ref(0);
 const mediaTotalPage = ref(0);
 const starTotalPage = ref(0);
+const showWhisper = ref(false);
+const whisperReceiver = ref<Item.UserInfo>({
+    id: 0,
+    avatar: '',
+    username: '',
+    nickname: '',
+    is_admin: false,
+    is_friend: true,
+    is_following: false,
+    created_on: 0,
+    follows: 0,
+    followings: 0,
+    status: 1,
+});
+
+const onSendWhisper =  (user: Item.UserInfo) => {
+    whisperReceiver.value = user;
+    showWhisper.value = true;
+};
+
+const whisperSuccess = () => {
+    showWhisper.value = false;
+};
 
 const loadPage = () => {
     switch(pageType.value) {

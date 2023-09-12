@@ -8,8 +8,8 @@ const service = axios.create({
 service.interceptors.request.use(
     config => {
         // 鉴权Header
-        if (localStorage.getItem('PAOPAO_TOKEN')) {
-            (config.headers as any)['Authorization'] = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
+        if (localStorage.getItem('AIMO_TOKEN')) {
+            (config.headers as any)['Authorization'] = 'Bearer ' + localStorage.getItem('AIMO_TOKEN');
         }
 
         return config;
@@ -32,7 +32,7 @@ service.interceptors.response.use(
         const { response = {} } = error || {};
         // 重定向
         if (+response?.status === 401) {
-            localStorage.removeItem('PAOPAO_TOKEN');
+            localStorage.removeItem('AIMO_TOKEN');
 
             if (response?.data.code !== 10005) {
                 window.$message.warning(response?.data.msg || '鉴权失败');

@@ -366,7 +366,7 @@ import type {
 
 
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
-const uploadToken = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
+const uploadToken = 'Bearer ' + localStorage.getItem('AIMO_TOKEN');
 const uploadType = ref('public/avatar');
 
 const allowPhoneBind = (import.meta.env.VITE_ALLOW_PHONE_BIND.toLowerCase() === 'true')

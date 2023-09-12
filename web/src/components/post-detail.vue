@@ -45,13 +45,7 @@
                 </n-tag>
             </template>
             <template #header-extra>
-                <div
-                    class="options"
-                    v-if="
-                        store.state.userInfo.is_admin ||
-                        store.state.userInfo.id === post.user.id
-                    "
-                >
+                <div class="options">
                     <n-dropdown
                         placement="bottom-end"
                         trigger="click"
@@ -133,13 +127,15 @@
                     title="提示"
                     :content="
                         '确定将该Aimo动态可见度修改为' +
-                        (tempVisibility == 0 ? '公开' : (tempVisibility == 1 ? '私密' : '好友可见')) +
+                        (tempVisibility == 0 ? '公开' : (tempVisibility == 1 ? '私密' : (tempVisibility == 2 ? '好友可见' : '关注可见'))) +
                         '吗？'
                     "
                     positive-text="确认"
                     negative-text="取消"
                     @positive-click="execVisibilityAction"
                 />
+                  <!-- 私信组件 -->
+                <!-- <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" /> -->
             </template>
             <div v-if="post.texts.length > 0">
                 <span
@@ -227,6 +223,7 @@ import { useRouter } from 'vue-router';
 import { formatPrettyTime } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
 import {
+    PaperPlaneOutline,
     Heart,
     HeartOutline,
     Bookmark,
@@ -239,6 +236,7 @@ import {
     LockOpenOutline,
     EyeOutline,
     EyeOffOutline,
+    BodyOutline,
     PersonOutline,
     FlameOutline,
 } from '@vicons/ionicons5';
@@ -258,6 +256,8 @@ import type { DropdownOption } from 'naive-ui';
 import { VisibilityEnum } from '@/utils/IEnum';
 import copy from "copy-to-clipboard";
 
+const useFriendship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true')
+
 const store = useStore();
 const router = useRouter();
 const hasStarred = ref(false);
@@ -275,6 +275,29 @@ const showHighlightModal = ref(false);
 const showVisibilityModal = ref(false);
 const loading = ref(false);
 const tempVisibility = ref<VisibilityEnum>(VisibilityEnum.PUBLIC);
+const showWhisper = ref(false);
+const whisperReceiver = ref<Item.UserInfo>({
+    id: 0,
+    avatar: '',
+    username: '',
+    nickname: '',
+    is_admin: false,
+    is_friend: true,
+    is_following: false,
+    created_on: 0,
+    follows: 0,
+    followings: 0,
+    status: 1,
+});
+
+const onSendWhisper =  (user: Item.UserInfo) => {
+    whisperReceiver.value = user;
+    showWhisper.value = true;
+};
+
+const whisperSuccess = () => {
+    showWhisper.value = false;
+};
 
 const emit = defineEmits<{
     (e: 'reload'): void;
@@ -332,13 +355,20 @@ const renderIcon = (icon: Component) => {
 };
 
 const adminOptions = computed(() => {
-    let options: DropdownOption[] = [
-        {
-            label: '删除',
-            key: 'delete',
-            icon: renderIcon(TrashOutline)
-        },
-    ];
+    let options: DropdownOption[] = [];
+    if (!store.state.userInfo.is_admin && store.state.userInfo.id != props.post.user.id) {
+    //    options.push({
+    //         label: '私信',
+    //         key: 'whisper',
+    //         icon: renderIcon(PaperPlaneOutline)
+    //     });
+        return options;
+    }
+    options.push({
+        label: '删除',
+        key: 'delete',
+        icon: renderIcon(TrashOutline)
+    })
     if (post.value.is_lock === 0) {
         options.push({
             label: '锁定',
@@ -380,37 +410,53 @@ const adminOptions = computed(() => {
             icon: renderIcon(FlameOutline)
         });
     }
+    let visitMenu: DropdownOption
     if (post.value.visibility === VisibilityEnum.PUBLIC) {
-        options.push({
+        visitMenu = {
             label: '公开',
             key: 'vpublic',
             icon: renderIcon(EyeOutline),
             children: [
-                { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline)}
-                , { label: '好友可见', key: 'vfriend', icon: renderIcon(PersonOutline) }
+                { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline) },
+                { label: '关注可见', key: 'vfollowing', icon: renderIcon(BodyOutline) }
             ]
-        })
+        };
     } else if (post.value.visibility === VisibilityEnum.PRIVATE) {
-        options.push({
+        visitMenu = {
             label: '私密',
             key: 'vprivate',
             icon: renderIcon(EyeOffOutline),
             children: [
-                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) }
-                , { label: '好友可见', key: 'vfriend', icon: renderIcon(PersonOutline) }
+                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) },
+                { label: '关注可见', key: 'vfollowing', icon: renderIcon(BodyOutline) }
             ]
-        })
-    } else {
-        options.push({
+        };
+    } else if (useFriendship && post.value.visibility === VisibilityEnum.FRIEND) {
+        visitMenu = {
             label: '好友可见',
             key: 'vfriend',
             icon: renderIcon(PersonOutline),
             children: [
-                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) }
-                , { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline) }
+                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) },
+                { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline) },
+                { label: '关注可见', key: 'vfollowing', icon: renderIcon(BodyOutline) }
             ]
-        })
+        };
+    } else {
+       visitMenu = {
+            label: '关注可见',
+            key: 'vfollowing',
+            icon: renderIcon(BodyOutline),
+            children: [
+                { label: '公开', key: 'vpublic', icon: renderIcon(EyeOutline) },
+                { label: '私密', key: 'vprivate', icon: renderIcon(EyeOffOutline) }
+            ]
+        };
     }
+    if (useFriendship && post.value.visibility !== VisibilityEnum.FRIEND) {
+        visitMenu.children?.push({ label: '好友可见', key: 'vfriend', icon: renderIcon(PersonOutline) })
+    }
+    options.push(visitMenu);
     return options;
 });
 
@@ -449,9 +495,12 @@ const doClickText = (e: MouseEvent, id: number) => {
     goPostDetail(id);
 };
 const handlePostAction = (
-    item: 'delete' | 'lock' | 'unlock' | 'stick' | 'unstick' | 'highlight' | 'unhighlight' | 'vpublic' | 'vprivate' | 'vfriend'
+    item: 'whisper' | 'delete' | 'lock' | 'unlock' | 'stick' | 'unstick' | 'highlight' | 'unhighlight' | 'vpublic' | 'vprivate' | 'vfriend' | 'vfollowing'
 ) => {
     switch (item) {
+        case 'whisper':
+            onSendWhisper(props.post.user);
+            break;
         case 'delete':
             showDelModal.value = true;
             break;
@@ -477,6 +526,10 @@ const handlePostAction = (
             break;
         case 'vfriend':
             tempVisibility.value = 2;
+            showVisibilityModal.value = true;
+            break;
+        case 'vfollowing':
+            tempVisibility.value = 3;
             showVisibilityModal.value = true;
             break;
         default:
@@ -551,9 +604,14 @@ const execHighlightAction = () => {
         });
 };
 const execVisibilityAction = () => {
+    // TODO: 暂时following等价于public
+    let fixedVisit = tempVisibility.value
+    if (fixedVisit == 3) {
+        fixedVisit = 0
+    }
     visibilityPost({
         id: post.value.id,
-        visibility: tempVisibility.value
+        visibility: fixedVisit
     })
         .then((res) => {
             emit('reload');
@@ -608,7 +666,7 @@ const handlePostCollection = () => {
         });
 };
 const handlePostShare = () => {
-   copy(`${window.location.origin}/#/post?id=${post.value.id}`);
+   copy(`${window.location.origin}/#/post?id=${post.value.id}&share=copy_link&t=${new Date().getTime()}`);
    window.$message.success('链接已复制到剪贴板');
 };
 

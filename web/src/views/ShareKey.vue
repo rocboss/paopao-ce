@@ -96,7 +96,7 @@ const copyToClipboard = (text: any) => {
 
 const loadKeys = () => {
   loading.value = true;
-  const token = localStorage.getItem("PAOPAO_TOKEN") || "";
+  const token = localStorage.getItem("AIMO_TOKEN") || "";
   if (token) {
     const params: NetParams.UserGetShareKeys = {
       page: page.value,
@@ -128,7 +128,7 @@ const deleteShareKey = (keyToDelete: string) => {
   const params: NetParams.UserDeleteShareKey = {
     share_key: keyToDelete,
   };
-  const token = localStorage.getItem("PAOPAO_TOKEN") || "";
+  const token = localStorage.getItem("AIMO_TOKEN") || "";
   if (token) {
     deleteThisShareKey(params, token)
       .then((rsp) => {

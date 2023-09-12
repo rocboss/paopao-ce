@@ -260,13 +260,12 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { defineComponent } from "vue";
-import { useStore } from "vuex";
-import { debounce } from "lodash";
-import { getSuggestUsers, getSuggestTags } from "@/api/user";
+import { ref, computed, onMounted } from 'vue';
+import { defineComponent } from 'vue';
+import { useStore } from 'vuex';
+import { debounce } from 'lodash';
+import { getSuggestUsers, getSuggestTags } from '@/api/user';
 
 import {
   ImageOutline,
@@ -285,7 +284,7 @@ import { useRouter } from "vue-router";
 import { MessageReactive } from "naive-ui";
 
 const emit = defineEmits<{
-  (e: "post-success", post: Item.PostProps): void;
+    (e: 'post-success', post: Item.PostProps): void;
 }>();
 
 const store = useStore();
@@ -296,57 +295,56 @@ const loading = ref(false);
 const submitting = ref(false);
 const showLinkSet = ref(false);
 const showEyeSet = ref(false);
-const content = ref("");
+const content = ref('');
 const links = ref([]);
 
 const uploadRef = ref<UploadInst>();
 const attachmentPrice = ref(0);
-const uploadType = ref("public/image");
+const uploadType = ref('public/image');
 const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
 const videoContents = ref<Item.CommentItemProps[]>([]);
 const attachmentContents = ref<Item.AttachmentProps[]>([]);
-const visitType = ref<VisibilityEnum>(VisibilityEnum.FRIEND);
-const defaultVisitType = ref<VisibilityEnum>(VisibilityEnum.FRIEND);
-const visibilities = [
-  { value: VisibilityEnum.PUBLIC, label: "公开" },
-  { value: VisibilityEnum.PRIVATE, label: "私密" },
-  { value: VisibilityEnum.FRIEND, label: "好友可见" },
-];
+const visitType = ref<VisibilityEnum>(VisibilityEnum.PUBLIC);
+const defaultVisitType = ref<VisibilityEnum>(VisibilityEnum.PUBLIC)
 
-const defaultTweetMaxLength = Number(
-  import.meta.env.VITE_DEFAULT_TWEET_MAX_LENGTH
-);
-const allowUserRegister = ref(
-  import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === "true"
-);
-const allowTweetVideo = ref(
-  import.meta.env.VITE_ALLOW_TWEET_VIDEO.toLowerCase() === "true"
-);
-const allowTweetAttachment = ref(
-  import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT.toLowerCase() === "true"
-);
-const allowTweetAttachmentPrice = ref(
-  import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT_PRICE.toLowerCase() === "true"
-);
-const allowTweetVisibility = ref(
-  import.meta.env.VITE_ALLOW_TWEET_VISIBILITY.toLowerCase() === "true"
-);
-const uploadGateway = import.meta.env.VITE_HOST + "/v1/attachment";
-const uploadToken = ref();
+const useFriendship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true')
+const defaultTweetMaxLength = Number(import.meta.env.VITE_DEFAULT_TWEET_MAX_LENGTH)
+const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
+const allowTweetVideo = ref(import.meta.env.VITE_ALLOW_TWEET_VIDEO.toLowerCase() === 'true')
+const allowTweetAttachment = ref(import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT.toLowerCase() === 'true')
+const allowTweetAttachmentPrice = ref(import.meta.env.VITE_ALLOW_TWEET_ATTACHMENT_PRICE.toLowerCase() === 'true')
+const allowTweetVisibility = ref(import.meta.env.VITE_ALLOW_TWEET_VISIBILITY.toLowerCase() === 'true')
+const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
+
+const uploadToken = computed(() => {
+    return 'Bearer ' + localStorage.getItem('AIMO_TOKEN');
+});
+
+const visibilities = computed(()=> {
+    let res = [
+        {value: VisibilityEnum.PUBLIC, label: "公开"},
+        {value: VisibilityEnum.PRIVATE, label: "私密"},
+        {value: VisibilityEnum.Following, label: "关注可见"},
+    ];
+    if (useFriendship) {
+        res.push({value: VisibilityEnum.FRIEND, label: "好友可见"});
+    }
+    return res;
+});
 
 const switchLink = () => {
-  showLinkSet.value = !showLinkSet.value;
-  if (showLinkSet.value && showEyeSet.value) {
-    showEyeSet.value = false;
-  }
+    showLinkSet.value = !showLinkSet.value;
+    if (showLinkSet.value && showEyeSet.value) {
+        showEyeSet.value = false
+    }
 };
 
 const switchEye = () => {
-  showEyeSet.value = !showEyeSet.value;
-  if (showEyeSet.value && showLinkSet.value) {
-    showLinkSet.value = false;
-  }
+    showEyeSet.value = !showEyeSet.value;
+     if (showEyeSet.value && showLinkSet.value) {
+        showLinkSet.value = false
+    }
 };
 
 // 加载at用户列表
@@ -396,7 +394,7 @@ const handleSearch = (k: string, prefix: string) => {
     return;
   }
   loading.value = true;
-  if (prefix === "@") {
+  if (prefix === '@') {
     loadSuggestionUsers(k);
   } else {
     loadSuggestionTags(k);
@@ -414,37 +412,32 @@ const setUploadType = (type: string) => {
 };
 
 const updateUpload = (list: UploadFileInfo[]) => {
-  for (let i = 0; i < list.length; i++) {
-    var name = list[i].name;
-    var basename: string = name.split(".").slice(0, -1).join(".");
-    var ext: string = name.split(".").pop()!;
-    if (basename.length > 30) {
-      list[i].name =
-        basename.substring(0, 18) +
-        "..." +
-        basename.substring(basename.length - 9) +
-        "." +
-        ext;
+    for (let i = 0; i < list.length; i++) {
+        var name = list[i].name;
+        var basename: string = name.split('.').slice(0, -1).join('.');
+        var ext: string = name.split('.').pop()!;
+        if (basename.length > 30) {
+            list[i].name = basename.substring(0, 18) + "..." + basename.substring(basename.length-9) + "." + ext;
+        }
     }
-  }
-  fileQueue.value = list;
+    fileQueue.value = list;
 };
 const beforeUpload = async (data: any) => {
-  // 图片类型校验
-  if (
-    uploadType.value === "public/image" &&
-    !["image/png", "image/jpg", "image/jpeg", "image/gif"].includes(
-      data.file.file?.type
-    )
-  ) {
-    window.$message.warning("图片仅允许 png/jpg/gif 格式");
-    return false;
-  }
+    // 图片类型校验
+    if (
+        uploadType.value === 'public/image' &&
+        !['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(
+            data.file.file?.type
+        )
+    ) {
+        window.$message.warning('图片仅允许 png/jpg/gif 格式');
+        return false;
+    }
 
-  if (uploadType.value === "image" && data.file.file?.size > 10485760) {
-    window.$message.warning("图片大小不能超过10MB");
-    return false;
-  }
+    if (uploadType.value === 'image' && data.file.file?.size > 10485760) {
+        window.$message.warning('图片大小不能超过10MB');
+        return false;
+    }
 
   if (uploadType.value === "public/image") {
     const compressedFile = await compressionFile(data.file.file);
@@ -664,18 +657,23 @@ const submitPost = () => {
     });
   }
 
-  submitting.value = true;
-  createPost({
-    contents,
-    tags: Array.from(new Set(tags)),
-    users: Array.from(new Set(users)),
-    attachment_price: +attachmentPrice.value * 100,
-    visibility: visitType.value,
-  })
-    .then((res) => {
-      window.$message.success("发布成功");
-      submitting.value = false;
-      emit("post-success", res);
+    submitting.value = true;
+    // TODO: 临时过渡，暂时将Following等价于Public
+    let fixedVisit = visitType.value;
+    if (fixedVisit == VisibilityEnum.Following) {
+        fixedVisit = VisibilityEnum.PUBLIC
+    }
+    createPost({
+        contents,
+        tags: Array.from(new Set(tags)),
+        users: Array.from(new Set(users)),
+        attachment_price: +attachmentPrice.value * 100,
+        visibility: fixedVisit
+    })
+        .then((res) => {
+            window.$message.success('发布成功');
+            submitting.value = false;
+            emit('post-success', res);
 
       // 置空
       showLinkSet.value = false;
@@ -688,10 +686,10 @@ const submitPost = () => {
       videoContents.value = [];
       attachmentContents.value = [];
       visitType.value = defaultVisitType.value;
-      //转到初始页面
-      router.push({
-        name: "home",
-      });
+      //转到初始页面，待优化，用于一键分享，但是和“正在关注”“热门推荐”推文发布存在冲突
+      // router.push({
+      //   name: "home",
+      // });
     })
     .catch((err) => {
       submitting.value = false;
@@ -809,20 +807,18 @@ const updateUploadList = (
 };
 
 onMounted(() => {
-  if (
-    import.meta.env.VITE_DEFAULT_TWEET_VISIBILITY.toLowerCase() === "friend"
-  ) {
-    defaultVisitType.value = VisibilityEnum.FRIEND;
-  } else if (
-    import.meta.env.VITE_DEFAULT_TWEET_VISIBILITY.toLowerCase() === "public"
-  ) {
-    defaultVisitType.value = VisibilityEnum.PUBLIC;
-  } else {
-    defaultVisitType.value = VisibilityEnum.PRIVATE;
-  }
-
-  visitType.value = defaultVisitType.value;
-  uploadToken.value = "Bearer " + localStorage.getItem("PAOPAO_TOKEN");
+   const defaultVisibility = import.meta.env.VITE_DEFAULT_TWEET_VISIBILITY.toLowerCase()
+      if (useFriendship && defaultVisibility === 'friend') {
+          defaultVisitType.value = VisibilityEnum.FRIEND
+      } else if (defaultVisibility  === 'following') {
+          defaultVisitType.value = VisibilityEnum.Following
+      } else if (defaultVisibility === 'public') {
+          defaultVisitType.value = VisibilityEnum.PUBLIC
+      } else {
+          defaultVisitType.value = VisibilityEnum.PRIVATE
+      }
+      visitType.value = defaultVisitType.value;
+  uploadToken.value = "Bearer " + localStorage.getItem("AIMO_TOKEN");
   // 获取完整URL
   const fullURL = window.location.href;
   // 从完整URL中获取hash部分（包括#号）
@@ -850,7 +846,7 @@ onMounted(() => {
           .then((res) => {
             const token = res?.token || "";
             // 写入用户信息
-            localStorage.setItem("PAOPAO_TOKEN", token);
+            localStorage.setItem("AIMO_TOKEN", token);
 
             return userInfo(token);
           })

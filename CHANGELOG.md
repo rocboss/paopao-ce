@@ -21,6 +21,19 @@ All notable changes to paopao-ce are documented in this file.
   MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
   ...
   ```
+- Added friend tweets bar feature support in home page. [#377](https://github.com/rocboss/paopao-ce/pull/377)    
+- web: add custom `Friendship` feature support. To custom setup `Friendship` use below configure in `web/.env` or `web/.env.local`
+  ```
+  # 功能特性开启
+  VITE_USE_FRIENDSHIP=true
+
+  # 模块开启
+  VITE_ENABLE_FRIENDS_BAR=true
+  ```
+
+## 0.4.2
+### Fixed
+- fixed remove multi-objects no effects and occurs resource leak error when use Minio as OSS(Object Storage System).[#371](https://github.com/rocboss/paopao-ce/pull/371) [#372](https://github.com/rocboss/paopao-ce/pull/372)  
 
 ## 0.4.1
 ### Changed
