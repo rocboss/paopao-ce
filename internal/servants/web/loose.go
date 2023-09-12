@@ -94,11 +94,7 @@ func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTwe
 	}
 	// 缓存处理
 	if err == nil {
-		if xerr == nil {
-			base.OnCacheRespEvent(s.ac, key, res.Data, s.userTweetsExpire)
-		} else {
-			logrus.Warnf("marshal user tweets response to json occurs error: %s", xerr)
-		}
+		base.OnCacheRespEvent(s.ac, key, res.Data, s.userTweetsExpire)
 	}
 	return
 }
