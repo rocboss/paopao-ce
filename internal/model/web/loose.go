@@ -5,10 +5,14 @@
 package web
 
 import (
+	"encoding/json"
+	"net/http"
+
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/pkg/app"
 )
@@ -59,7 +63,10 @@ type GetUserTweetsReq struct {
 	PageSize int    `form:"-" binding:"-"`
 }
 
-type GetUserTweetsResp base.PageResp
+type GetUserTweetsResp struct {
+	Data     *base.PageResp
+	JsonResp json.RawMessage
+}
 
 type GetUserProfileReq struct {
 	BaseInfo `form:"-" binding:"-"`
@@ -110,4 +117,16 @@ func (r *TimelineReq) Bind(c *gin.Context) mir.Error {
 	r.Page, r.PageSize = app.GetPageInfo(c)
 	r.Query, r.Type = c.Query("query"), "search"
 	return nil
+}
+
+func (r *GetUserTweetsResp) Render(c *gin.Context) {
+	if len(r.JsonResp) != 0 {
+		c.JSON(http.StatusOK, r.JsonResp)
+	} else {
+		c.JSON(http.StatusOK, &joint.JsonResp{
+			Code: 0,
+			Msg:  "success",
+			Data: r.Data,
+		})
+	}
 }

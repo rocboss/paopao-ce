@@ -51,6 +51,10 @@ func (e *cacheUnreadMsgEvent) Name() string {
 }
 
 func (e *cacheUnreadMsgEvent) Action() error {
+	if e.wc.ExistUnreadMsgCountResp(e.uid) {
+		// do nothing
+		return nil
+	}
 	count, err := e.ds.GetUnreadCount(e.uid)
 	if err != nil {
 		return fmt.Errorf("cacheUnreadMsgEvent action occurs error: %w", err)

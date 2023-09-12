@@ -7,6 +7,7 @@ package web
 import (
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/rueidis"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/model/web"
@@ -35,7 +36,7 @@ func (s *relaxSrv) GetUnreadMsgCount(req *web.GetUnreadMsgCountReq) (*web.GetUnr
 		return &web.GetUnreadMsgCountResp{
 			JsonResp: data,
 		}, nil
-	} else {
+	} else if !rueidis.IsRedisNil(xerr) {
 		logrus.Warnf("GetUnreadMsgCount from cache occurs error: %s", xerr)
 	}
 	// 使用缓存机制特殊处理
