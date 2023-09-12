@@ -1,28 +1,15 @@
 <template>
-    <div>
-      <n-list class="main-content-wrap" bordered>
-        <div class="balance-wrap">
-          <n-statistic style="color: black; font-weight: bold">我的分享码</n-statistic>
-        </div>
-        <template #footer>
-          <div class="pagination-wrap" v-if="totalPage > 1">
-            <n-pagination
-              :page="page"
-              @update:page="updatePage"
-              :page-slot="!store.state.collapsedRight ? 8 : 5"
-              :page-count="totalPage"
-            />
-          </div>
-        </template>
-  
-        <div v-if="loading" class="skeleton-wrap">
-          <post-skeleton :num="pageSize" />
-        </div>
-        <div v-else>
-          <div class="empty-wrap" v-if="shareKeys.length === 0">
-            <n-empty size="large" description="暂无数据" />
-          </div>
-  
+  <div>
+    <n-list class="main-content-wrap" bordered>
+      <div class="balance-wrap">
+        <n-statistic style="color: black; font-weight: bold">我的分享码</n-statistic>
+      </div>
+
+      <div v-if="loading" class="skeleton-wrap">
+        <post-skeleton :num="pageSize" />
+      </div>
+      <div v-else>
+        <div class="table-wrap">
           <n-table :bordered="false" :single-line="false" striped>
             <thead>
               <tr>
@@ -45,25 +32,39 @@
               </tr>
             </tbody>
           </n-table>
+
+          <div class="empty-wrap" v-if="shareKeys.length === 0">
+            <n-empty size="large" description="暂无数据" />
+          </div>
         </div>
-      </n-list>
-      
-      <n-modal v-model:show="showRecharge">
-        <n-card :bordered="false" title="删除" role="dialog" aria-modal="true" style="width: 100%; max-width: 330px">
-          <div class="amount-options" v-if="rechargeQrcode.length === 0 && selectedShareKey">
-            <n-space align="baseline">
-              <div>删除分享码会影响排行榜分数评定,是否删除:</div>
-              <div>{{ selectedShareKey.name }} {{ selectedShareKey.share_key }}</div>
-            </n-space>
-          </div>
-          <div v-if="selectedShareKey" style="margin-top: 20px">
-            <n-button style="width: 30%; left: 10%" type="primary" @click="deleteShareKey(selectedShareKey.share_key)">确定</n-button>
-            <n-button style="width: 30%; left: 30%" @click="showRecharge = false">取消</n-button>
-          </div>
-        </n-card>
-      </n-modal>
-    </div>
-  </template>  
+
+        <div class="pagination-wrap" v-if="totalPage > 1">
+          <n-pagination
+            :page="page"
+            @update:page="updatePage"
+            :page-slot="!store.state.collapsedRight ? 8 : 5"
+            :page-count="totalPage"
+          />
+        </div>
+      </div>
+    </n-list>
+
+    <n-modal v-model:show="showRecharge">
+      <n-card :bordered="false" title="删除" role="dialog" aria-modal="true" style="width: 100%; max-width: 330px">
+        <div class="amount-options" v-if="rechargeQrcode.length === 0 && selectedShareKey">
+          <n-space align="baseline">
+            <div>删除分享码会影响排行榜分数评定,是否删除:</div>
+            <div>{{ selectedShareKey.name }} {{ selectedShareKey.share_key }}</div>
+          </n-space>
+        </div>
+        <div v-if="selectedShareKey" style="margin-top: 20px">
+          <n-button style="width: 30%; left: 10%" type="primary" @click="deleteShareKey(selectedShareKey.share_key)">确定</n-button>
+          <n-button style="width: 30%; left: 30%" @click="showRecharge = false">取消</n-button>
+        </div>
+      </n-card>
+    </n-modal>
+  </div>
+</template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
