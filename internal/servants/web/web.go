@@ -21,6 +21,7 @@ var (
 	_enablePhoneVerify    bool
 	_disallowUserRegister bool
 	_ds                   core.DataService
+	_ac                   core.AppCache
 	_wc                   core.WebCache
 	_oss                  core.ObjectStorageService
 	_onceInitial          sync.Once
@@ -34,8 +35,8 @@ func RouteWeb(e *gin.Engine) {
 	api.RegisterAdminServant(e, newAdminSrv(ds))
 	api.RegisterCoreServant(e, newCoreSrv(ds, _oss, _wc))
 	api.RegisterRelaxServant(e, newRelaxSrv(ds, _wc))
-	api.RegisterLooseServant(e, newLooseSrv(ds))
-	api.RegisterPrivServant(e, newPrivSrv(ds, _oss))
+	api.RegisterLooseServant(e, newLooseSrv(ds, _ac))
+	api.RegisterPrivServant(e, newPrivSrv(ds, _oss), newPrivChain())
 	api.RegisterPubServant(e, newPubSrv(ds, _oss))
 	api.RegisterKeyQueryServant(e, NewShareKeyServant(ds))
 	api.RegisterRankServant(e, NewRankServant(ds))
@@ -56,6 +57,7 @@ func lazyInitial() {
 		_disallowUserRegister = cfg.If("Web:DisallowUserRegister")
 		_oss = dao.ObjectStorageService()
 		_ds = dao.DataService()
+		_ac = cache.NewAppCache()
 		_wc = cache.NewWebCache()
 	})
 }

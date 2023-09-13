@@ -14,6 +14,11 @@ const (
 	_defaultKeyPoolSize = 128
 )
 
+// 以下包含一些在cache中会用到的key的前缀
+const (
+	PrefixUserTweets = "paopao:usertweets:"
+)
+
 // 以下包含一些在cache中会用到的池化后的key
 var (
 	KeyUnreadMsg cache.KeyPool[int64]

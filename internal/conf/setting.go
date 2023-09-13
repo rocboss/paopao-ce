@@ -100,6 +100,7 @@ type cacheConf struct {
 	KeyPoolSize          int
 	CientSideCacheExpire time.Duration
 	UnreadMsgExpire      int64
+	UserTweetsExpire     int64
 }
 
 type eventManagerConf struct {
