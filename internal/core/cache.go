@@ -105,6 +105,7 @@ type AppCache interface {
 	Delete(key ...string) error
 	DelAny(pattern string) error
 	Exist(key string) bool
+	Keys(pattern string) ([]string, error)
 }
 
 type WebCache interface {

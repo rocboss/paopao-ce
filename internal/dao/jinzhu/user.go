@@ -78,3 +78,8 @@ func (s *userManageSrv) CreateUser(user *dbr.User) (*ms.User, error) {
 func (s *userManageSrv) UpdateUser(user *ms.User) error {
 	return user.Update(s.db)
 }
+
+func (s *userManageSrv) GetRegisterUserCount() (res int64, err error) {
+	err = s.db.Model(&dbr.User{}).Count(&res).Error
+	return
+}

@@ -15,6 +15,7 @@ type UserManageService interface {
 	GetUsersByKeyword(keyword string) ([]*ms.User, error)
 	CreateUser(user *ms.User) (*ms.User, error)
 	UpdateUser(user *ms.User) error
+	GetRegisterUserCount() (int64, error)
 }
 
 // ContactManageService 联系人管理服务
