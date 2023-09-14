@@ -23,6 +23,8 @@ const (
 	PrefixUserTweets      = "paopao:usertweets:"
 	PrefixUnreadmsg       = "paopao:unreadmsg:"
 	PrefixOnlineUser      = "paopao:onlineuser:"
+	KeySiteStatus         = "paopao:sitestatus"
+	KeyHistoryMaxOnline   = "history.max.online"
 )
 
 // 以下包含一些在cache中会用到的池化后的key

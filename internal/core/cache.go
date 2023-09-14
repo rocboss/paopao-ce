@@ -114,4 +114,5 @@ type WebCache interface {
 	PutUnreadMsgCountResp(uid int64, data []byte) error
 	DelUnreadMsgCountResp(uid int64) error
 	ExistUnreadMsgCountResp(uid int64) bool
+	PutHistoryMaxOnline(newScore int) (int, error)
 }

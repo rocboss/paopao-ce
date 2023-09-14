@@ -26,6 +26,7 @@ type appCache struct {
 
 type webCache struct {
 	core.AppCache
+	c               rueidis.Client
 	unreadMsgExpire int64
 }
 
@@ -129,6 +130,23 @@ func (s *webCache) ExistUnreadMsgCountResp(uid int64) bool {
 	return s.Exist(conf.KeyUnreadMsg.Get(uid))
 }
 
+func (s *webCache) PutHistoryMaxOnline(newScore int) (int, error) {
+	ctx := context.Background()
+	cmd := s.c.B().Zadd().
+		Key(conf.KeySiteStatus).
+		Gt().ScoreMember().
+		ScoreMember(float64(newScore), conf.KeyHistoryMaxOnline).Build()
+	if err := s.c.Do(ctx, cmd).Error(); err != nil {
+		return 0, err
+	}
+	cmd = s.c.B().Zscore().Key(conf.KeySiteStatus).Member(conf.KeyHistoryMaxOnline).Build()
+	if score, err := s.c.Do(ctx, cmd).ToFloat64(); err == nil {
+		return int(score), nil
+	} else {
+		return 0, err
+	}
+}
+
 func newAppCache() *appCache {
 	return &appCache{
 		cscExpire: conf.CacheSetting.CientSideCacheExpire,
@@ -139,6 +157,7 @@ func newAppCache() *appCache {
 func newWebCache(ac core.AppCache) *webCache {
 	return &webCache{
 		AppCache:        ac,
+		c:               conf.MustRedisClient(),
 		unreadMsgExpire: conf.CacheSetting.UnreadMsgExpire,
 	}
 }
