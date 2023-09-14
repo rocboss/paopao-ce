@@ -86,6 +86,11 @@ declare module NetReq {
 
   interface UserChangeStatus {}
 
+  interface SiteInfoResp {
+    register_user_count: number;
+    online_user_count: number;
+  }
+
   interface FollowUserResp {}
 
   interface UnfollowUserResp {}

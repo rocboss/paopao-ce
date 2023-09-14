@@ -94,6 +94,24 @@ func (s *appCache) Exist(key string) bool {
 	return count > 0
 }
 
+func (s *appCache) Keys(pattern string) (res []string, err error) {
+	ctx, cursor := context.Background(), uint64(0)
+	for {
+		cmd := s.c.B().Scan().Cursor(cursor).Match(pattern).Count(50).Build()
+		entry, err := s.c.Do(ctx, cmd).AsScanEntry()
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, entry.Elements...)
+		if entry.Cursor != 0 {
+			cursor = entry.Cursor
+			continue
+		}
+		break
+	}
+	return
+}
+
 func (s *webCache) GetUnreadMsgCountResp(uid int64) ([]byte, error) {
 	key := conf.KeyUnreadMsg.Get(uid)
 	return s.Get(key)
