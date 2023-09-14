@@ -136,6 +136,7 @@ const (
 	_Tweet_UserStarTweetsCountBySelf           = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 OR (post.visibility=0 AND post.user_id=?))`
 	_UserManage_CreateUser                     = `INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on, balance) VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on, 0)`
 	_UserManage_GetAnyUsers                    = `SELECT * FROM @user WHERE is_del=0 ORDER BY id ASC limit 6`
+	_UserManage_GetRegisterUserCount           = `SELECT count(*) FROM @user WHERE is_del=0`
 	_UserManage_GetUserById                    = `SELECT * FROM @user WHERE id=? AND is_del=0`
 	_UserManage_GetUserByPhone                 = `SELECT * FROM @user WHERE phone=? AND is_del=0`
 	_UserManage_GetUserByUsername              = `SELECT * FROM @user WHERE username=? AND is_del=0`
@@ -342,15 +343,16 @@ type TweetManage struct {
 }
 
 type UserManage struct {
-	yesql.Namespace   `yesql:"user_manage"`
-	GetUsersByIds     string          `yesql:"get_users_by_ids"`
-	GetAnyUsers       *sqlx.Stmt      `yesql:"get_any_users"`
-	GetUserById       *sqlx.Stmt      `yesql:"get_user_by_id"`
-	GetUserByPhone    *sqlx.Stmt      `yesql:"get_user_by_phone"`
-	GetUserByUsername *sqlx.Stmt      `yesql:"get_user_by_username"`
-	GetUsersByKeyword *sqlx.Stmt      `yesql:"get_users_by_keyword"`
-	CreateUser        *sqlx.NamedStmt `yesql:"create_user"`
-	UpdateUser        *sqlx.NamedStmt `yesql:"update_user"`
+	yesql.Namespace      `yesql:"user_manage"`
+	GetUsersByIds        string          `yesql:"get_users_by_ids"`
+	GetAnyUsers          *sqlx.Stmt      `yesql:"get_any_users"`
+	GetRegisterUserCount *sqlx.Stmt      `yesql:"get_register_user_count"`
+	GetUserById          *sqlx.Stmt      `yesql:"get_user_by_id"`
+	GetUserByPhone       *sqlx.Stmt      `yesql:"get_user_by_phone"`
+	GetUserByUsername    *sqlx.Stmt      `yesql:"get_user_by_username"`
+	GetUsersByKeyword    *sqlx.Stmt      `yesql:"get_users_by_keyword"`
+	CreateUser           *sqlx.NamedStmt `yesql:"create_user"`
+	UpdateUser           *sqlx.NamedStmt `yesql:"update_user"`
 }
 
 type Wallet struct {
@@ -833,6 +835,9 @@ func BuildUserManage(p PreparexBuilder, ctx ...context.Context) (obj *UserManage
 	}
 	if obj.GetAnyUsers, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserManage_GetAnyUsers))); err != nil {
 		return nil, fmt.Errorf("prepare _UserManage_GetAnyUsers error: %w", err)
+	}
+	if obj.GetRegisterUserCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserManage_GetRegisterUserCount))); err != nil {
+		return nil, fmt.Errorf("prepare _UserManage_GetRegisterUserCount error: %w", err)
 	}
 	if obj.GetUserById, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserManage_GetUserById))); err != nil {
 		return nil, fmt.Errorf("prepare _UserManage_GetUserById error: %w", err)

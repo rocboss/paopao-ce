@@ -16,5 +16,6 @@ type Admin struct {
 	Group `mir:"v1"`
 
 	// ChangeUserStatus 管理·禁言/解封用户
-	ChangeUserStatus func(Post, web.ChangeUserStatusReq) `mir:"/admin/user/status"`
+	ChangeUserStatus func(Post, web.ChangeUserStatusReq)         `mir:"/admin/user/status"`
+	SiteInfo         func(Get, web.SiteInfoReq) web.SiteInfoResp `mir:"/admin/site/status"`
 }

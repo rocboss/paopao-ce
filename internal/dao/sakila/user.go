@@ -73,6 +73,11 @@ func (s *userManageSrv) UpdateUser(r *ms.User) error {
 	return err
 }
 
+func (s *userManageSrv) GetRegisterUserCount() (res int64, err error) {
+	err = s.q.GetRegisterUserCount.Get(&res)
+	return
+}
+
 func newUserManageService(db *sqlx.DB) (s core.UserManageService) {
 	ums := &userManageSrv{
 		sqlxSrv: newSqlxSrv(db),

@@ -1059,6 +1059,10 @@ WHERE id IN (?) AND is_del=0;
 -- user_manage sql dml
 --------------------------------------------------------------------------------
 
+-- name: get_register_user_count@user_manage
+-- prepare: stmt
+SELECT count(*) FROM @user WHERE is_del=0;
+
 -- name: get_user_by_id@user_manage
 -- prepare: stmt
 SELECT * FROM @user WHERE id=? AND is_del=0;

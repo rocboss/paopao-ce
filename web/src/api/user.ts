@@ -414,3 +414,14 @@ export const changeUserStatus = (
     data,
   });
 };
+
+/**
+ * 获取站点状态信息
+ * @returns Promise
+ */
+export const getSiteInfo = (): Promise<NetReq.SiteInfoResp> => {
+  return request({
+    method: "get",
+    url: "/v1/admin/site/status",
+  });
+};
