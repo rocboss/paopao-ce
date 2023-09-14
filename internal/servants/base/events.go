@@ -99,7 +99,7 @@ func (p *ExpireRespEvent) Name() string {
 	return "servants.base.ExpireRespEvent"
 }
 
-func (p *ExpireRespEvent) Action() (err error) {
+func (p *ExpireRespEvent) Action() error {
 	return p.ac.Delete(p.keys...)
 }
 
@@ -107,7 +107,7 @@ func (p *ExpireAnyRespEvent) Name() string {
 	return "servants.base.ExpireAnyRespEvent"
 }
 
-func (p *ExpireAnyRespEvent) Action() (err error) {
+func (p *ExpireAnyRespEvent) Action() error {
 	return p.ac.DelAny(p.pattern)
 }
 
