@@ -6,6 +6,7 @@ package internal
 
 import (
 	"github.com/rocboss/paopao-ce/internal/events"
+	"github.com/rocboss/paopao-ce/internal/metrics"
 	"github.com/rocboss/paopao-ce/internal/migration"
 )
 
@@ -14,4 +15,6 @@ func Initial() {
 	migration.Run()
 	// event manager system initialize
 	events.Initial()
+	// metric manager system initialize
+	metrics.Initial()
 }

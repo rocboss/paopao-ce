@@ -101,6 +101,7 @@ type RedisCache interface {
 type AppCache interface {
 	Get(key string) ([]byte, error)
 	Set(key string, data []byte, ex int64) error
+	SetNx(key string, data []byte, ex int64) error
 	Delete(key ...string) error
 	DelAny(pattern string) error
 	Exist(key string) bool

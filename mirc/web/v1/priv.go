@@ -25,7 +25,7 @@ type Priv struct {
 	DownloadAttachment func(Get, web.DownloadAttachmentReq) web.DownloadAttachmentResp `mir:"/attachment"`
 
 	// CreateTweet 发布动态
-	CreateTweet func(Post, web.CreateTweetReq) web.CreateTweetResp `mir:"/post"`
+	CreateTweet func(Post, Chain, web.CreateTweetReq) web.CreateTweetResp `mir:"/post"`
 
 	// DeleteTweet 删除动态
 	DeleteTweet func(Delete, web.DeleteTweetReq) `mir:"/post"`

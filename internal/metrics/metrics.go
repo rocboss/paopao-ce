@@ -2,9 +2,11 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-package events
+package metrics
 
 import (
+	"sync"
+
 	"github.com/alimy/tryst/event"
 	"github.com/alimy/tryst/pool"
 	"github.com/rocboss/paopao-ce/internal/conf"
@@ -12,10 +14,40 @@ import (
 )
 
 var (
-	_defaultEventManager event.EventManager
+	_defaultMetricManager event.EventManager
+	_onceInitial          sync.Once
 )
 
-func initEventManager() {
+type Metric = event.Event
+
+type BaseMetric = event.UnimplementedEvent
+
+type MetricManager interface {
+	Start()
+	Stop()
+	OnMeasure(metric Metric)
+}
+
+func StartMetricManager() {
+	_defaultMetricManager.Start()
+}
+
+func StopMetricManager() {
+	_defaultMetricManager.Stop()
+}
+
+// OnMeasure push Metric to gorotine pool then handled automatic.
+func OnMeasure(metric Metric) {
+	_defaultMetricManager.OnEvent(metric)
+}
+
+func Initial() {
+	_onceInitial.Do(func() {
+		initMetricManager()
+	})
+}
+
+func initMetricManager() {
 	var opts []pool.Option
 	s := conf.EventManagerSetting
 	if s.MinWorker > 5 {
@@ -34,22 +66,9 @@ func initEventManager() {
 		opts = append(opts, pool.MaxRequestTempBufOpt(10))
 	}
 	opts = append(opts, pool.MaxTickCountOpt(s.MaxTickCount), pool.TickWaitTimeOpt(s.TickWaitTime))
-	_defaultEventManager = event.NewEventManager(func(req event.Event, err error) {
+	_defaultMetricManager = event.NewEventManager(func(req Metric, err error) {
 		if err != nil {
 			logrus.Errorf("handle event[%s] occurs error: %s", req.Name(), err)
 		}
 	}, opts...)
-}
-
-func StartEventManager() {
-	_defaultEventManager.Start()
-}
-
-func StopEventManager() {
-	_defaultEventManager.Stop()
-}
-
-// OnEvent push event to gorotine pool then handled automatic.
-func OnEvent(event event.Event) {
-	_defaultEventManager.OnEvent(event)
 }

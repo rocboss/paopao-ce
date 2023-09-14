@@ -39,12 +39,21 @@ func (s *appCache) Get(key string) ([]byte, error) {
 }
 
 func (s *appCache) Set(key string, data []byte, ex int64) error {
-	return s.c.Do(context.Background(), s.c.B().Set().
-		Key(key).
-		Value(utils.String(data)).
-		ExSeconds(ex).
-		Build()).
-		Error()
+	ctx := context.Background()
+	cmd := s.c.B().Set().Key(key).Value(utils.String(data))
+	if ex > 0 {
+		return s.c.Do(ctx, cmd.ExSeconds(ex).Build()).Error()
+	}
+	return s.c.Do(ctx, cmd.Build()).Error()
+}
+
+func (s *appCache) SetNx(key string, data []byte, ex int64) error {
+	ctx := context.Background()
+	cmd := s.c.B().Set().Key(key).Value(utils.String(data)).Nx()
+	if ex > 0 {
+		return s.c.Do(ctx, cmd.ExSeconds(ex).Build()).Error()
+	}
+	return s.c.Do(ctx, cmd.Build()).Error()
 }
 
 func (s *appCache) Delete(keys ...string) (err error) {
