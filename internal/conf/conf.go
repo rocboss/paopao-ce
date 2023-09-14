@@ -37,6 +37,7 @@ var (
 	AppSetting              *appConf
 	CacheSetting            *cacheConf
 	EventManagerSetting     *eventManagerConf
+	MetricManagerSetting    *metricManagerConf
 	CacheIndexSetting       *cacheIndexConf
 	SimpleCacheIndexSetting *simpleCacheIndexConf
 	BigCacheIndexSetting    *bigCacheIndexConf
@@ -73,6 +74,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"App":               &AppSetting,
 		"Cache":             &CacheSetting,
 		"EventManager":      &EventManagerSetting,
+		"MetricManager":     &MetricManagerSetting,
 		"PprofServer":       &PprofServerSetting,
 		"WebServer":         &WebServerSetting,
 		"AdminServer":       &AdminServerSetting,
@@ -121,6 +123,7 @@ func setupSetting(suite []string, noDefault bool) error {
 
 	CacheSetting.CientSideCacheExpire *= time.Second
 	EventManagerSetting.TickWaitTime *= time.Second
+	MetricManagerSetting.TickWaitTime *= time.Second
 	JWTSetting.Expire *= time.Second
 	SimpleCacheIndexSetting.CheckTickDuration *= time.Second
 	SimpleCacheIndexSetting.ExpireTickDuration *= time.Second

@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"github.com/alimy/tryst/cache"
+	"github.com/rocboss/paopao-ce/pkg/types"
 )
 
 const (
@@ -16,12 +17,21 @@ const (
 
 // 以下包含一些在cache中会用到的key的前缀
 const (
-	PrefixUserTweets = "paopao:usertweets:"
+	PrefixNewestTweets    = "paopao:newesttweets:"
+	PrefixHotsTweets      = "paopao:hotstweets:"
+	PrefixFollowingTweets = "paopao:followingtweets:"
+	PrefixUserTweets      = "paopao:usertweets:"
+	PrefixUnreadmsg       = "paopao:unreadmsg:"
+	PrefixOnlineUser      = "paopao:onlineuser:"
 )
 
 // 以下包含一些在cache中会用到的池化后的key
 var (
-	KeyUnreadMsg cache.KeyPool[int64]
+	KeyNewestTweets    cache.KeyPool[int]
+	KeyHotsTweets      cache.KeyPool[int]
+	KeyFollowingTweets cache.KeyPool[string]
+	KeyUnreadMsg       cache.KeyPool[int64]
+	KeyOnlineUser      cache.KeyPool[int64]
 )
 
 func initCacheKeyPool() {
@@ -29,7 +39,25 @@ func initCacheKeyPool() {
 	if poolSize < CacheSetting.KeyPoolSize {
 		poolSize = CacheSetting.KeyPoolSize
 	}
-	KeyUnreadMsg = cache.MustKeyPool[int64](poolSize, func(key int64) string {
-		return fmt.Sprintf("paopao:unreadmsg:%d", key)
+	KeyNewestTweets = intKeyPool[int](poolSize, PrefixNewestTweets)
+	KeyHotsTweets = intKeyPool[int](poolSize, PrefixHotsTweets)
+	KeyFollowingTweets = strKeyPool(poolSize, PrefixFollowingTweets)
+	KeyUnreadMsg = intKeyPool[int64](poolSize, PrefixUnreadmsg)
+	KeyOnlineUser = intKeyPool[int64](poolSize, PrefixOnlineUser)
+}
+
+func strKeyPool(size int, prefix string) cache.KeyPool[string] {
+	return cache.MustKeyPool(size, func(key string) string {
+		return fmt.Sprintf("%s%s", prefix, key)
 	})
+}
+
+func intKeyPool[T types.Integer](size int, prefix string) cache.KeyPool[T] {
+	return cache.MustKeyPool[T](size, intKey[T](prefix))
+}
+
+func intKey[T types.Integer](prefix string) func(T) string {
+	return func(key T) string {
+		return fmt.Sprintf("%s%d", prefix, key)
+	}
 }

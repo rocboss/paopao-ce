@@ -201,7 +201,17 @@
 * `PhoneBind` 手机绑定功能； 
     * [ ] 提按文档  
     * [x] 接口定义
-    * [x] 业务逻辑实现    
+    * [x] 业务逻辑实现  
+
+* `UseAuditHook` 使用审核hook功能 (目前状态: 内测 待完善后将转为Builtin)
+    * [ ] 提按文档  
+    * [x] 接口定义
+    * [x] 业务逻辑实现  
+
+* `UseJobManager` 使用JobManager功能 (目前状态: 内测 待完善后将转为Builtin)
+    * [ ] 提按文档  
+    * [x] 接口定义
+    * [x] 业务逻辑实现  
 
 ### 功能特性:
 * `Web:DisallowUserRegister` 不允许用户注册；       

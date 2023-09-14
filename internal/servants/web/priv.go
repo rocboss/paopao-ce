@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/alimy/mir/v4"
+	"github.com/alimy/tryst/cfg"
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid/v5"
@@ -27,19 +28,14 @@ import (
 )
 
 var (
-	_ api.Priv = (*privSrv)(nil)
+	_ api.Priv      = (*privSrv)(nil)
+	_ api.PrivChain = (*privChain)(nil)
 
 	_uploadAttachmentTypeMap = map[string]ms.AttachmentType{
 		"public/image":  ms.AttachmentTypeImage,
 		"public/avatar": ms.AttachmentTypeImage,
 		"public/video":  ms.AttachmentTypeVideo,
 		"attachment":    ms.AttachmentTypeOther,
-	}
-	_uploadAttachmentTypes = map[string]cs.AttachmentType{
-		"public/image":  cs.AttachmentTypeImage,
-		"public/avatar": cs.AttachmentTypeImage,
-		"public/video":  cs.AttachmentTypeVideo,
-		"attachment":    cs.AttachmentTypeOther,
 	}
 )
 
@@ -48,6 +44,17 @@ type privSrv struct {
 	*base.DaoServant
 
 	oss core.ObjectStorageService
+}
+
+type privChain struct {
+	api.UnimplementedPrivChain
+}
+
+func (s *privChain) ChainCreateTweet() (res gin.HandlersChain) {
+	if cfg.If("UseAuditHook") {
+		res = gin.HandlersChain{chain.AuditHook()}
+	}
+	return
 }
 
 func (s *privSrv) Chain() gin.HandlersChain {
@@ -845,4 +852,8 @@ func newPrivSrv(s *base.DaoServant, oss core.ObjectStorageService) api.Priv {
 		DaoServant: s,
 		oss:        oss,
 	}
+}
+
+func newPrivChain() api.PrivChain {
+	return &privChain{}
 }
