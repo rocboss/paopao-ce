@@ -31,6 +31,7 @@ type Admin interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
+	SiteInfo(*web.SiteInfoReq) (*web.SiteInfoResp, mir.Error)
 	ChangeUserStatus(*web.ChangeUserStatusReq) mir.Error
 
 	mustEmbedUnimplementedAdminServant()
@@ -44,6 +45,20 @@ func RegisterAdminServant(e *gin.Engine, s Admin) {
 	router.Use(middlewares...)
 
 	// register routes info to router
+	router.Handle("GET", "/admin/site/status", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.SiteInfoReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.SiteInfo(req)
+		s.Render(c, resp, err)
+	})
 	router.Handle("POST", "/admin/user/status", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
@@ -64,6 +79,10 @@ type UnimplementedAdminServant struct{}
 
 func (UnimplementedAdminServant) Chain() gin.HandlersChain {
 	return nil
+}
+
+func (UnimplementedAdminServant) SiteInfo(req *web.SiteInfoReq) (*web.SiteInfoResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
 func (UnimplementedAdminServant) ChangeUserStatus(req *web.ChangeUserStatusReq) mir.Error {

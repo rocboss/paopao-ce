@@ -77,6 +77,12 @@
                     </a>
                 </n-space>
             </div>
+            <div v-if="store.state.userInfo.is_admin" ref="userInfoElement">
+            <n-space>
+                <span class="copyright">{{ registerUserCount }} 注册用户&nbsp;&nbsp;</span>
+                <span class="copyright">{{ onlineUserCount }} 人在线</span>
+            </n-space>
+        </div>
         </n-card>
     </div>
 </template>
@@ -86,6 +92,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { getTags } from '@/api/post';
+import { getSiteInfo } from '@/api/user';
 import { Search } from '@vicons/ionicons5';
 
 const hotTags = ref<Item.TagProps[]>([]);
@@ -94,6 +101,9 @@ const loading = ref(false);
 const keyword = ref('');
 const store = useStore();
 const router = useRouter();
+const registerUserCount = ref(0)
+const onlineUserCount = ref(0)
+const userInfoElement = ref<HTMLElement | null>(null);
 const copyrightTop = import.meta.env.VITE_COPYRIGHT_TOP
 const copyrightLeft = import.meta.env.VITE_COPYRIGHT_LEFT
 const copyrightLeftLink = import.meta.env.VITE_COPYRIGHT_LEFT_LINK
@@ -102,6 +112,17 @@ const copyrightRightLink = import.meta.env.VITE_COPYRIGHT_RIGHT_LINK
 const rightFollowTopicMaxSize = Number(import.meta.env.VITE_RIGHT_FOLLOW_TOPIC_MAX_SIZE)
 const rightHotTopicMaxSize = Number(import.meta.env.VITE_RIGHT_HOT_TOPIC_MAX_SIZE)
 
+const loadSiteInfo = () => {
+    getSiteInfo()
+        .then((res) => {
+            registerUserCount.value = res.register_user_count;
+            onlineUserCount.value = res.online_user_count;
+        })
+        .catch((_err) => {
+            // do nothing
+        });
+    observer.disconnect()
+};
 const loadHotTags = () => {
     loading.value = true;
     getTags({
@@ -115,7 +136,7 @@ const loadHotTags = () => {
             showFollowTopics.value = true
             loading.value = false;
         })
-        .catch((err) => {
+        .catch((_err) => {
             loading.value = false;
         });
 };
@@ -123,7 +144,6 @@ const formatQuoteNum = (num: number) => {
     if (num >= 1000) {
         return (num / 1000).toFixed(1) + 'k';
     }
-
     return num;
 };
 const handleSearch = () => {
@@ -151,9 +171,27 @@ watch(
         if (to.refreshTopicFollow !== from.refreshTopicFollow || to.userLogined) {
             loadHotTags();
         }
+        if (store.state.userInfo.is_admin) {
+            loadSiteInfo();
+        }
     }
 );
+const observer = new IntersectionObserver((entries: IntersectionObserverEntry[]) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            loadSiteInfo();
+        }
+    });
+}, {
+    root: null,
+    rootMargin: '0px',
+    threshold: 1
+});
 onMounted(() => {
+    // 不知道为什么 store.state.userInfo.is_admin 在这里就是不起作用f*k，所以才用这么一种蹩脚的法子来凑合
+    if (userInfoElement.value) {
+        observer.observe(userInfoElement.value);
+    }
     loadHotTags();
 });
 </script>
