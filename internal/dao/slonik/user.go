@@ -55,6 +55,12 @@ func (s *userManageSrv) CreateUser(user *ms.User) (*ms.User, error) {
 	return nil, nil
 }
 
+func (s *userManageSrv) GetRegisterUserCount() (res int64, err error) {
+	// TODO
+	debug.NotImplemented()
+	return
+}
+
 func (s *userManageSrv) UpdateUser(user *ms.User) error {
 	// TODO
 	debug.NotImplemented()
