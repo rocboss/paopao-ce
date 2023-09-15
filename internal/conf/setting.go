@@ -120,6 +120,10 @@ type metricManagerConf struct {
 	TickWaitTime    time.Duration
 }
 
+type jobManagerConf struct {
+	MaxOnlineInterval string
+}
+
 type cacheIndexConf struct {
 	MaxUpdateQPS int
 	MinWorker    int

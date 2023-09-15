@@ -203,7 +203,7 @@
     * [x] 接口定义
     * [x] 业务逻辑实现  
 
-* `UseJobManager` 使用JobManager功能 (目前状态: 内测 待完善后将转为Builtin)
+* `DisableJobManager` 禁止使用JobManager功能 (目前状态: 内测 待完善后将转为Builtin)
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现  

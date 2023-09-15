@@ -384,7 +384,7 @@ release/paopao serve --no-default-features --features sqlite3,localoss,loggerfil
 |[`Pprof`](docs/proposal/23062905-添加Pprof功能特性用于获取Profile.md)| 性能优化 | 内测 | 开启Pprof功能收集Profile信息 |  
 |`PhoneBind` | 其他 | 稳定 | 手机绑定功能 |   
 |`UseAuditHook` | 其他 | 内测 | 使用审核hook功能 |   
-|`UseJobManager` | 其他 | 内测 | 使用JobManager功能 |   
+|`DisableJobManager` | 其他 | 内测 | 禁止使用JobManager功能 |   
 |`Web:DisallowUserRegister` | 功能特性 | 稳定 | 不允许用户注册 |     
 
 > 功能项状态详情参考 [features-status](features-status.md).

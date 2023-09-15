@@ -23,6 +23,8 @@ MetricManager: # 指标监控管理器的配置参数
   MaxTempEventBuf: 256        # 最大log缓存条数, 设置范围[10, ++], 默认256
   MaxTickCount: 60            # 最大的循环周期, 设置范围[60, ++], 默认60
   TickWaitTime: 1             # 一个周期的等待时间，单位：秒 默认1s
+JobManager: # Cron Job理器的配置参数
+  MaxOnlineInterval: "@every 5m"     # 更新最大在线人数，默认每5分钟更新一次
 Features:
   Default: []
 WebServer: # Web服务

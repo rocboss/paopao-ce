@@ -73,10 +73,10 @@ func Schedule(s cron.Schedule, fn JobFn) EntryID {
 func Initial() {
 	_onceInitial.Do(func() {
 		initEventManager()
-		if cfg.If("UseJobManager") {
+		cfg.Not("DisableJobManager", func() {
 			initJobManager()
 			logrus.Debugln("initial JobManager")
-		}
+		})
 	})
 }
 
