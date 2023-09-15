@@ -23,8 +23,6 @@ func onMaxOnlineJob() {
 		if maxOnline := len(onlineUserKeys); err == nil && maxOnline > 0 {
 			if _, err = _wc.PutHistoryMaxOnline(maxOnline); err != nil {
 				logrus.Warnf("onMaxOnlineJob[2] occurs error: %s", err)
-			} else {
-				logrus.Debug("trigger onMaxOnlineJob run action")
 			}
 		} else if err != nil {
 			logrus.Warnf("onMaxOnlineJob[1] occurs error: %s", err)
