@@ -18,7 +18,7 @@ func onMaxOnlineJob() {
 	if err != nil {
 		panic(err)
 	}
-	events.Schedule(schedule, func() {
+	events.OnTask(schedule, func() {
 		onlineUserKeys, err := _wc.Keys(conf.PrefixOnlineUser + "*")
 		if maxOnline := len(onlineUserKeys); err == nil && maxOnline > 0 {
 			if _, err = _wc.PutHistoryMaxOnline(maxOnline); err != nil {
@@ -30,7 +30,7 @@ func onMaxOnlineJob() {
 	})
 }
 
-func scheduleInnerJobs() {
+func scheduleJobs() {
 	cfg.Not("DisableJobManager", func() {
 		lazyInitial()
 		onMaxOnlineJob()

@@ -46,8 +46,8 @@ func RouteWeb(e *gin.Engine) {
 		api.RegisterAlipayPubServant(e, newAlipayPubSrv(ds))
 		api.RegisterAlipayPrivServant(e, newAlipayPrivSrv(ds, client))
 	})
-	// shedule inner jobs if need
-	scheduleInnerJobs()
+	// shedule jobs if need
+	scheduleJobs()
 }
 
 // lazyInitial do some package lazy initialize for performance

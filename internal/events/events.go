@@ -54,15 +54,15 @@ func RemoveJob(id EntryID) {
 	_defaultJobManager.Remove(id)
 }
 
-// ScheduleJob adds a Job to the Cron to be run on the given schedule.
+// Schedule adds a Job to the Cron to be run on the given schedule.
 // The job is wrapped with the configured Chain.
-func ScheduleJob(job Job) EntryID {
+func Schedule(job Job) EntryID {
 	return _defaultJobManager.Schedule(job)
 }
 
-// Schedule adds a Job to the Cron to be run on the given schedule.
+// OnTask adds a Job to the Cron to be run on the given schedule.
 // The job is wrapped with the configured Chain.
-func Schedule(s cron.Schedule, fn JobFn) EntryID {
+func OnTask(s cron.Schedule, fn JobFn) EntryID {
 	job := &simpleJob{
 		Schedule: s,
 		Job:      fn,
