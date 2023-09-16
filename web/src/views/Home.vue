@@ -74,7 +74,7 @@ import InfiniteLoading from "v3-infinite-loading";
 import { getPosts, getContacts } from '@/api/post';
 import { getUserPosts } from '@/api/user';
 import SlideBar from '@opentiny/vue-slide-bar';
-import allTweets from '@/assets/img/all-tweets.png';
+import allTweets from '@/assets/img/fresh-tweets.png';
 import discoverTweets from '@/assets/img/discover-tweets.jpeg';
 import followingTweets from '@/assets/img/following-tweets.jpeg';
 
