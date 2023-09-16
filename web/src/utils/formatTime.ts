@@ -10,6 +10,10 @@ export const formatTime = (time: number) => {
   return moment.unix(time).utc(true).format("YYYY-MM-DD HH:mm");
 };
 
+export const formatHumanTime = (time: number) => {
+  return moment().from(moment.unix(time));
+};
+
 export const formatRelativeTime = (time: number) => {
   return moment.unix(time).fromNow();
 };

@@ -83,16 +83,12 @@
         </n-space>
       </div>
     </n-card>
-    <n-card
-      class="hottopic-wrap"
-      embedded
-      :bordered="false"
-      size="small"
-    >
-    <div class="ranking-header">
+    <n-card class="hottopic-wrap" embedded :bordered="false" size="small">
+      <div class="ranking-header">
         <div class="ranking-title">{{ rankingTitles[currentRankingType] }}</div>
         <div class="toggle-button" @click="toggleRankingType">
-          {{ rankingTitles[NextRankingType] }} <n-icon :component="ChevronForward" />
+          {{ rankingTitles[NextRankingType] }}
+          <n-icon :component="ChevronForward" />
         </div>
       </div>
       <n-spin :show="rankloading">
@@ -105,7 +101,7 @@
           <!-- 添加排序编号 -->
           <div class="ranking-avatar">
             <!-- 用户头像 -->
-            <img :src="item.avatar"/>
+            <img :src="item.avatar" />
           </div>
 
           <div class="ranking-info">
@@ -124,10 +120,16 @@
                 </router-link>
 
                 <div class="score">
-                  <div class="score-value" v-if="currentRankingType === 'highQuality'">
+                  <div
+                    class="score-value"
+                    v-if="currentRankingType === 'highQuality'"
+                  >
                     {{ item.comprehensive_score }}
                   </div>
-                  <div class="score-value" v-else-if="currentRankingType !== 'highQuality'">
+                  <div
+                    class="score-value"
+                    v-else-if="currentRankingType !== 'highQuality'"
+                  >
                     {{ item.download }}
                   </div>
                 </div>
@@ -136,12 +138,18 @@
               <div class="name-stats">
                 <div class="stats" v-if="currentRankingType === 'highQuality'">
                   <div class="stat-item">
-                    <div class="stat-value">📃{{ formatQuoteNumStats(item.post_count || item.download) }}</div>
+                    <div class="stat-value">
+                      📃{{
+                        formatQuoteNumStats(item.post_count || item.download)
+                      }}
+                    </div>
                   </div>
                   <div class="stat-drop">·</div>
                   <!-- 加粗的点 -->
                   <div class="stat-item">
-                    <div class="stat-value">❤️{{ formatQuoteNumStats(item.likes) }}</div>
+                    <div class="stat-value">
+                      ❤️{{ formatQuoteNumStats(item.likes) }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -150,6 +158,14 @@
         </div>
       </n-spin>
     </n-card>
+    <div
+      class="site-info"
+      v-if="store.state.userInfo.is_admin"
+      ref="userInfoElement"
+    >
+      <span class="site-info-item">{{ registerUserCount }} 注册用户，{{onlineUserCount}}人在线，
+        最高在线 {{ historyMaxOnline }} 人，站点上线于{{ formatRelativeTime(serverUpTime) }}</span>
+    </div>
   </div>
 </template>
 
@@ -158,9 +174,11 @@ import { ref, onMounted, computed, watch } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { getDownloadRank, getHighQuailty, getTags } from "@/api/post";
+import { getSiteInfo } from "@/api/user";
 import { Search } from "@vicons/ionicons5";
 import { ChevronForward } from "@vicons/ionicons5";
-import { Ref } from 'vue';
+import { Ref } from "vue";
+import { formatRelativeTime } from "@/utils/formatTime";
 
 const hotTags = ref<Item.TagProps[]>([]);
 const followTags = ref<Item.TagProps[]>([]);
@@ -169,6 +187,11 @@ const rankloading = ref(false);
 const keyword = ref("");
 const store = useStore();
 const router = useRouter();
+const registerUserCount = ref(0);
+const onlineUserCount = ref(0);
+const historyMaxOnline = ref(0);
+const serverUpTime = ref(0);
+const userInfoElement = ref<HTMLElement | null>(null);
 const copyrightTop = import.meta.env.VITE_COPYRIGHT_TOP;
 const copyrightLeft = import.meta.env.VITE_COPYRIGHT_LEFT;
 const copyrightLeftLink = import.meta.env.VITE_COPYRIGHT_LEFT_LINK;
@@ -220,7 +243,12 @@ const rankingTitles: { [key: string]: string } = {
   downloadAll: "下载总榜",
 };
 
-const rankingTypes = ['highQuality', 'downloadPreWeek', 'downloadPreMonth', 'downloadAll'];
+const rankingTypes = [
+  "highQuality",
+  "downloadPreWeek",
+  "downloadPreMonth",
+  "downloadAll",
+];
 let currentRankingTypeIndex = 0;
 const currentRankingType = ref("highQuality");
 const NextRankingType = ref("downloadPreWeek");
@@ -228,28 +256,37 @@ const NextRankingType = ref("downloadPreWeek");
 const toggleRankingType = () => {
   currentRankingTypeIndex = (currentRankingTypeIndex + 1) % rankingTypes.length;
   currentRankingType.value = rankingTypes[currentRankingTypeIndex];
-  NextRankingType.value = rankingTypes[(currentRankingTypeIndex + 1) % rankingTypes.length];
+  NextRankingType.value =
+    rankingTypes[(currentRankingTypeIndex + 1) % rankingTypes.length];
 };
 
-const rankingTypeToFunctionMap: { [key: string]: Ref<Item.RankingDataProps[]> } = {
+const rankingTypeToFunctionMap: {
+  [key: string]: Ref<Item.RankingDataProps[]>;
+} = {
   highQuality: rankingList,
   downloadAll: allDownloadRankingList,
   downloadPreWeek: DownloadPreWeekRankingList,
-  downloadPreMonth: DownloadPreMonthRankingList
+  downloadPreMonth: DownloadPreMonthRankingList,
 };
 
 const rankingTypeToLoadFunctionMap: { [key: string]: () => void } = {
   downloadAll: () => loadDownloadRankingByType(1),
   downloadPreWeek: () => loadDownloadRankingByType(2),
-  downloadPreMonth: () => loadDownloadRankingByType(3)
+  downloadPreMonth: () => loadDownloadRankingByType(3),
 };
 
 const getCurrentRankingList = computed(() => {
   const currentType = currentRankingType.value;
-  const rankingValue = rankingTypeToFunctionMap[currentType as keyof typeof rankingTypeToFunctionMap]?.value;
+  const rankingValue =
+    rankingTypeToFunctionMap[
+      currentType as keyof typeof rankingTypeToFunctionMap
+    ]?.value;
 
   if (rankingValue !== undefined) {
-    if (rankingValue.length === 0 && rankingTypeToLoadFunctionMap[currentType]) {
+    if (
+      rankingValue.length === 0 &&
+      rankingTypeToLoadFunctionMap[currentType]
+    ) {
       rankingTypeToLoadFunctionMap[currentType]();
     }
     return rankingValue;
@@ -257,6 +294,19 @@ const getCurrentRankingList = computed(() => {
   return [];
 });
 
+const loadSiteInfo = () => {
+  getSiteInfo()
+    .then((res) => {
+      registerUserCount.value = res.register_user_count;
+      onlineUserCount.value = res.online_user_count;
+      historyMaxOnline.value = res.history_max_online;
+      serverUpTime.value = res.server_up_time;
+    })
+    .catch((_err) => {
+      // do nothing
+    });
+  observer.disconnect();
+};
 const loadHotTags = () => {
   loading.value = true;
   getTags({
@@ -270,7 +320,7 @@ const loadHotTags = () => {
       showFollowTopics.value = true;
       loading.value = false;
     })
-    .catch((err) => {
+    .catch((_err) => {
       loading.value = false;
     });
 };
@@ -278,17 +328,16 @@ const formatQuoteNum = (num: number) => {
   if (num >= 1000) {
     return (num / 1000).toFixed(1) + "k";
   }
-
   return num;
 };
 const formatQuoteNumStats = (num: number) => {
   if (num >= 1000) {
     const formattedNum = (num / 1000).toFixed(1); // Get one decimal place
-    return formattedNum + 'k';
+    return formattedNum + "k";
   } else if (num >= 10) {
     return num.toString(); // Display two digits for two-digit numbers
   } else {
-    return '0' + num.toString(); // Display two digits for one-digit numbers
+    return "0" + num.toString(); // Display two digits for one-digit numbers
   }
 };
 
@@ -321,9 +370,30 @@ watch(
     if (to.refreshTopicFollow !== from.refreshTopicFollow || to.userLogined) {
       loadHotTags();
     }
+    if (store.state.userInfo.is_admin) {
+      loadSiteInfo();
+    }
+  }
+);
+const observer = new IntersectionObserver(
+  (entries: IntersectionObserverEntry[]) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        loadSiteInfo();
+      }
+    });
+  },
+  {
+    root: null,
+    rootMargin: "0px",
+    threshold: 1,
   }
 );
 onMounted(() => {
+  // 不知道为什么 store.state.userInfo.is_admin 在这里就是不起作用f*k，所以才用这么一种蹩脚的法子来凑合
+  if (userInfoElement.value) {
+    observer.observe(userInfoElement.value);
+  }
   loadHotTags();
   loadHeighQuailtyRankingList();
 });
@@ -334,14 +404,12 @@ onMounted(() => {
   width: 0; /* 隐藏滚动条的宽度 */
   height: 0; /* 隐藏滚动条的高度 */
 }
-
 .rightbar-wrap {
   width: 240px;
   position: fixed;
   left: calc(50% + var(--content-main) / 2 + 10px);
   max-height: calc(100vh); /* 调整高度 */
   overflow: auto;
-
   .search-wrap {
     margin: 12px 0;
   }
@@ -372,6 +440,16 @@ onMounted(() => {
   .hottopic-wrap {
     margin-bottom: 10px;
     margin-top: 10px;
+  }
+
+  .site-info {
+    margin-top: 8px;
+    padding-left: 16px;
+    padding-right: 16px;
+    .site-info-item {
+      font-size: 10px;
+      opacity: 0.75;
+    }
   }
 
   .copyright-wrap {

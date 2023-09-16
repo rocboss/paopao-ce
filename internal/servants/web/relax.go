@@ -26,6 +26,14 @@ type relaxSrv struct {
 	wc core.WebCache
 }
 
+type relaxChain struct {
+	api.UnimplementedRelaxChain
+}
+
+func (s *relaxChain) ChainGetUnreadMsgCount() gin.HandlersChain {
+	return gin.HandlersChain{chain.OnlineUserMeasure()}
+}
+
 func (s *relaxSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JwtSurely()}
 }
@@ -49,4 +57,8 @@ func newRelaxSrv(s *base.DaoServant, wc core.WebCache) api.Relax {
 		DaoServant: s,
 		wc:         wc,
 	}
+}
+
+func newRelaxChain() api.RelaxChain {
+	return &relaxChain{}
 }

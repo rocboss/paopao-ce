@@ -74,6 +74,8 @@ declare module NetParams {
     status: number;
   }
 
+  interface SiteInfoReq {}
+
   interface FollowUserReq {
     user_id: number;
   }

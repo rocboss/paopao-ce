@@ -32,9 +32,9 @@ func RouteWeb(e *gin.Engine) {
 	lazyInitial()
 	ds := base.NewDaoServant()
 	// aways register servants
-	api.RegisterAdminServant(e, newAdminSrv(ds))
+	api.RegisterAdminServant(e, newAdminSrv(ds, _wc))
 	api.RegisterCoreServant(e, newCoreSrv(ds, _oss, _wc))
-	api.RegisterRelaxServant(e, newRelaxSrv(ds, _wc))
+	api.RegisterRelaxServant(e, newRelaxSrv(ds, _wc), newRelaxChain())
 	api.RegisterLooseServant(e, newLooseSrv(ds, _ac))
 	api.RegisterPrivServant(e, newPrivSrv(ds, _oss), newPrivChain())
 	api.RegisterPubServant(e, newPubSrv(ds, _oss))

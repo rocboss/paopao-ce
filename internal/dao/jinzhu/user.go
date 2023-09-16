@@ -126,3 +126,8 @@ func (s *userManageSrv) UpdateUser(user *ms.User) error {
 		return nil
 	})
 }
+
+func (s *userManageSrv) GetRegisterUserCount() (res int64, err error) {
+	err = s.db.Model(&dbr.User{}).Count(&res).Error
+	return
+}

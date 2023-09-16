@@ -97,7 +97,6 @@ func (u *User) ListUserInfoById(db *gorm.DB, ids []int64) (res cs.UserInfoList, 
 
 func (u *User) Create(db *gorm.DB) (*User, error) {
 	err := db.Create(&u).Error
-
 	return u, err
 }
 

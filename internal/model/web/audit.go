@@ -12,7 +12,8 @@ const (
 )
 
 const (
-	AuditHookCtxKey = "audit_ctx_key"
+	AuditHookCtxKey  = "audit_ctx_key"
+	OnlineUserCtxKey = "online_user_ctx_key"
 )
 
 type AuditStyle uint8

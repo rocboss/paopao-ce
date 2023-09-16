@@ -101,9 +101,18 @@ type cacheConf struct {
 	CientSideCacheExpire time.Duration
 	UnreadMsgExpire      int64
 	UserTweetsExpire     int64
+	OnlineUserExpire     int64
 }
 
 type eventManagerConf struct {
+	MinWorker       int
+	MaxEventBuf     int
+	MaxTempEventBuf int
+	MaxTickCount    int
+	TickWaitTime    time.Duration
+}
+
+type metricManagerConf struct {
 	MinWorker       int
 	MaxEventBuf     int
 	MaxTempEventBuf int

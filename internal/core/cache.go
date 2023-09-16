@@ -101,9 +101,11 @@ type RedisCache interface {
 type AppCache interface {
 	Get(key string) ([]byte, error)
 	Set(key string, data []byte, ex int64) error
+	SetNx(key string, data []byte, ex int64) error
 	Delete(key ...string) error
 	DelAny(pattern string) error
 	Exist(key string) bool
+	Keys(pattern string) ([]string, error)
 }
 
 type WebCache interface {
@@ -112,4 +114,5 @@ type WebCache interface {
 	PutUnreadMsgCountResp(uid int64, data []byte) error
 	DelUnreadMsgCountResp(uid int64) error
 	ExistUnreadMsgCountResp(uid int64) bool
+	PutHistoryMaxOnline(newScore int) (int, error)
 }

@@ -1,4 +1,3 @@
-import { stat } from "fs";
 import { createStore } from "vuex";
 
 export default createStore({
@@ -20,6 +19,7 @@ export default createStore({
       created_on: 0,
       follows: 0,
       followings: 0,
+      is_admin: false,
     },
   },
   mutations: {
@@ -61,6 +61,7 @@ export default createStore({
         created_on: 0,
         follows: 0,
         followings: 0,
+        is_admin: false,
       };
       state.userLogined = false;
     },
