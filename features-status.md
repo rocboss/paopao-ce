@@ -101,11 +101,11 @@
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现   
-* `BigCacheIndex` 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(推荐使用)；  
+* `BigCacheIndex` 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(目前状态: Deprecated)；  
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现 
-* `RedisCacheIndex` 使用Redis缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(目前状态: 推荐使用)；  
+* `RedisCacheIndex` 使用Redis缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(目前状态: Deprecated)；  
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现 
