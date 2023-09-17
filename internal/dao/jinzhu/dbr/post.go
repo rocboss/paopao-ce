@@ -18,6 +18,7 @@ const (
 	PostVisitPublic PostVisibleT = iota
 	PostVisitPrivate
 	PostVisitFriend
+	PostVisitFollowing
 	PostVisitInvalid
 )
 

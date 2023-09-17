@@ -15,10 +15,11 @@ const (
 )
 
 const (
-	PostVisitPublic  = dbr.PostVisitPublic
-	PostVisitPrivate = dbr.PostVisitPrivate
-	PostVisitFriend  = dbr.PostVisitFriend
-	PostVisitInvalid = dbr.PostVisitInvalid
+	PostVisitPublic    = dbr.PostVisitPublic
+	PostVisitPrivate   = dbr.PostVisitPrivate
+	PostVisitFriend    = dbr.PostVisitFriend
+	PostVisitFollowing = dbr.PostVisitFollowing
+	PostVisitInvalid   = dbr.PostVisitInvalid
 )
 
 type (

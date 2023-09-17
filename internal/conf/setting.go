@@ -101,6 +101,7 @@ type cacheConf struct {
 	CientSideCacheExpire time.Duration
 	UnreadMsgExpire      int64
 	UserTweetsExpire     int64
+	IndexTweetsExpire    int64
 	OnlineUserExpire     int64
 }
 

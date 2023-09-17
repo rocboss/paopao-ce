@@ -19,7 +19,20 @@ const (
 	TweetVisitPublic TweetVisibleType = iota
 	TweetVisitPrivate
 	TweetVisitFriend
+	TweetVisitFollowing
 	TweetVisitInvalid
+
+	// 用户推文列表样式
+	StyleUserTweetsGuest uint8 = iota
+	StyleUserTweetsSelf
+	StyleUserTweetsAdmin
+	StyleUserTweetsFriend
+	StyleUserTweetsFollowing
+
+	// 广场推文列表样式
+	StyleIndexTweetsSearch uint8 = iota
+	StyleIndexTweetsNewest
+	StyleIndexTweetsHots
 
 	// 附件类型
 	AttachmentTypeImage AttachmentType = iota + 1

@@ -17,14 +17,17 @@ const (
 
 // 以下包含一些在cache中会用到的key的前缀
 const (
-	PrefixNewestTweets    = "paopao:newesttweets:"
-	PrefixHotsTweets      = "paopao:hotstweets:"
-	PrefixFollowingTweets = "paopao:followingtweets:"
-	PrefixUserTweets      = "paopao:usertweets:"
-	PrefixUnreadmsg       = "paopao:unreadmsg:"
-	PrefixOnlineUser      = "paopao:onlineuser:"
-	KeySiteStatus         = "paopao:sitestatus"
-	KeyHistoryMaxOnline   = "history.max.online"
+	PrefixNewestTweets       = "paopao:newesttweets:"
+	PrefixHotsTweets         = "paopao:hotstweets:"
+	PrefixFollowingTweets    = "paopao:followingtweets:"
+	PrefixUserTweets         = "paopao:usertweets:"
+	PrefixUnreadmsg          = "paopao:unreadmsg:"
+	PrefixOnlineUser         = "paopao:onlineuser:"
+	PrefixIdxTweetsNewest    = "paopao:index:tweets:newest:"
+	PrefixIdxTweetsHots      = "paopao:index:tweets:hots:"
+	prefixIdxTweetsFollowing = "paopao:index:tweets:following:"
+	KeySiteStatus            = "paopao:sitestatus"
+	KeyHistoryMaxOnline      = "history.max.online"
 )
 
 // 以下包含一些在cache中会用到的池化后的key

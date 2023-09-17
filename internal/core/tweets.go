@@ -26,6 +26,9 @@ type TweetService interface {
 	ListUserStarTweets(user *cs.VistUser, limit int, offset int) ([]*ms.PostStar, int64, error)
 	ListUserMediaTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error)
 	ListUserCommentTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error)
+	ListUserTweets(userId int64, style uint8, justEssence bool, limit, offset int) ([]*ms.Post, int64, error)
+	ListFollowingTweets(userId int64, limit, offset int) ([]*ms.Post, int64, error)
+	ListIndexTweets(style uint8, limit, offset int) ([]*ms.Post, int64, error)
 }
 
 // TweetManageService 推文管理服务，包括创建/删除/更新推文

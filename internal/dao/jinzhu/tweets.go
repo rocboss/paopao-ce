@@ -392,6 +392,21 @@ func (s *tweetSrv) GetPosts(conditions ms.ConditionsT, offset, limit int) ([]*ms
 	return (&dbr.Post{}).List(s.db, conditions, offset, limit)
 }
 
+func (s *tweetSrv) ListUserTweets(userId int64, style uint8, justEssence bool, limit, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, debug.ErrNotImplemented
+}
+
+func (s *tweetSrv) ListIndexTweets(style uint8, limit, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, debug.ErrNotImplemented
+}
+
+func (s *tweetSrv) ListFollowingTweets(userId int64, limit, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, debug.ErrNotImplemented
+}
+
 func (s *tweetSrv) GetPostCount(conditions ms.ConditionsT) (int64, error) {
 	return (&dbr.Post{}).Count(s.db, conditions)
 }

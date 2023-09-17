@@ -210,15 +210,18 @@ func (s *DaoServant) pushAllPostToSearch() error {
 		defer s.Redis.DelPushToSearchJob(ctx)
 
 		splitNum := 1000
-		conditions := ms.ConditionsT{
-			"visibility IN ?": []core.PostVisibleT{core.PostVisitPublic, core.PostVisitFriend},
+		// conditions := ms.ConditionsT{
+		// 	"visibility IN ?": []core.PostVisibleT{core.PostVisitPublic, core.PostVisitFriend},
+		// }
+		// totalRows, _ := s.Ds.GetPostCount(conditions)
+		posts, totalRows, err := s.Ds.ListIndexTweets(cs.StyleIndexTweetsSearch, splitNum, 0)
+		if err != nil {
+			return fmt.Errorf("get first page tweets push to search failed: %s", err)
 		}
-		totalRows, _ := s.Ds.GetPostCount(conditions)
-		pages := math.Ceil(float64(totalRows) / float64(splitNum))
-		nums := int(pages)
-		for i := 0; i < nums; i++ {
-			posts, postsFormated, err := s.GetTweetList(conditions, i*splitNum, splitNum)
-			if err != nil || len(posts) != len(postsFormated) {
+		i, nums := 0, int(math.Ceil(float64(totalRows)/float64(splitNum)))
+		for {
+			postsFormated, xerr := s.Ds.MergePosts(posts)
+			if xerr != nil || len(posts) != len(postsFormated) {
 				continue
 			}
 			for i, pf := range postsFormated {
@@ -233,6 +236,12 @@ func (s *DaoServant) pushAllPostToSearch() error {
 					Content: contentFormated,
 				}}
 				s.Ts.AddDocuments(docs, fmt.Sprintf("%d", posts[i].ID))
+			}
+			if i++; i >= nums {
+				break
+			}
+			if posts, _, err = s.Ds.ListIndexTweets(cs.StyleIndexTweetsSearch, splitNum, i*splitNum); err != nil {
+				return fmt.Errorf("get tweets push to search failed: %s, limit[%d] offset[%d]", err, splitNum, i*splitNum)
 			}
 		}
 	} else {
