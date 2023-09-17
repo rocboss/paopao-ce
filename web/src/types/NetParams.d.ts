@@ -152,6 +152,7 @@ declare module NetParams {
   interface PostGetPosts {
     query: string | null;
     type: string;
+    style: "newest" | "hots" | "following" | "search";
     page: number;
     page_size: number;
   }

@@ -118,6 +118,6 @@ func (r *TimelineReq) Bind(c *gin.Context) mir.Error {
 		User: user,
 	}
 	r.Page, r.PageSize = app.GetPageInfo(c)
-	r.Query, r.Type = c.Query("query"), "search"
+	r.Query, r.Type, r.Style = c.Query("query"), "search", c.Query("style")
 	return nil
 }

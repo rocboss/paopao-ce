@@ -168,16 +168,14 @@ const handleBarClick = (data: Item.SlideBarItem, index: number) => {
     }
     switch (data.style) {
     case 1:
-        loadPosts();
+        loadPosts("newest");
         break;
     case 2:
-        // todo: add some other logic
-        loadPosts();
+        loadPosts("hots");
         break;
     case 3:
-        // todo: add some other logic
         route.query.q=null
-        loadPosts();
+        loadPosts("following");
         break;
     case 21:
         targetUsername.value = data.username;
@@ -220,11 +218,12 @@ const loadContacts = () => {
     });
 };
 
-const loadPosts = () => {
+const loadPosts = (style : "newest" | "hots" | "following" | "search") => {
     loading.value = true;
     getPosts({
         query: route.query.q ? decodeURIComponent(route.query.q as string) : null,
         type: route.query.t as string,
+        style: style,
         page: page.value,
         page_size: pageSize.value,
     })
@@ -317,19 +316,17 @@ const onPostSuccess = (post: Item.PostProps) => {
 const loadMorePosts = () => {
     switch (targetStyle.value) {
     case 1:
-        loadPosts();
+        loadPosts("newest");
         break;
     case 2:
-        // todo: add some other logic
-        loadPosts();
+        loadPosts("hots");
         break;
     case 3:
-        // todo: add some other logic
-        loadPosts();
+        loadPosts("following");
         break;
     case 21:
         if (route.query.q) {
-            loadPosts();
+            loadPosts("search");
         } else {
             loadUserPosts();
         }
@@ -352,7 +349,7 @@ const nextPage = () => {
 onMounted(() => {
     reset();
     loadContacts()
-    loadPosts();
+    loadPosts("newest");
 });
 
 watch(

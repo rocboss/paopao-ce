@@ -62,6 +62,8 @@ func (s *looseSrv) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error)
 		logrus.Errorf("Ds.RevampPosts err: %s", err)
 		return nil, web.ErrGetPostsFailed
 	}
+	// TODO: 暂时处理，需要去掉这个步骤
+	visbleTansform(posts)
 	resp := joint.PageRespFrom(posts, req.Page, req.PageSize, res.Total)
 	return &web.TimelineResp{
 		CachePageResp: joint.CachePageResp{
@@ -90,9 +92,9 @@ func (s *looseSrv) getIndexTweets(req *web.TimelineReq, limit int, offset int) (
 			return nil, web.ErrGetPostsNilUser
 		}
 	case web.StyleTweetsNewest:
-		posts, total, xerr = s.Ds.ListIndexTweets(cs.StyleIndexTweetsNewest, limit, offset)
+		posts, total, xerr = s.Ds.ListIndexNewestTweets(limit, offset)
 	case web.StyleTweetsHots:
-		posts, total, xerr = s.Ds.ListIndexTweets(cs.StyleIndexTweetsHots, limit, offset)
+		posts, total, xerr = s.Ds.ListIndexHotsTweets(limit, offset)
 	default:
 		return nil, web.ErrGetPostsUnknowStyle
 	}
@@ -105,6 +107,8 @@ func (s *looseSrv) getIndexTweets(req *web.TimelineReq, limit int, offset int) (
 		logrus.Errorf("getIndexTweets in merge posts occurs error: %s", verr)
 		return nil, web.ErrGetPostFailed
 	}
+	// TODO: 暂时处理，需要去掉这个步骤
+	visbleTansform(postsFormated)
 	resp := joint.PageRespFrom(postsFormated, req.Page, req.PageSize, total)
 	// 缓存处理
 	base.OnCacheRespEvent(s.ac, key, resp, s.idxTweetsExpire)
@@ -203,6 +207,8 @@ func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUse
 		logrus.Errorf("Ds.MergePosts err: %s", err)
 		return nil, web.ErrGetStarsFailed
 	}
+	// TODO: 暂时处理，需要去掉这个步骤
+	visbleTansform(postsFormated)
 	resp := joint.PageRespFrom(postsFormated, req.Page, req.PageSize, totalRows)
 	return &web.GetUserTweetsResp{
 		CachePageResp: joint.CachePageResp{
@@ -234,6 +240,8 @@ func (s *looseSrv) listUserTweets(req *web.GetUserTweetsReq, user *cs.VistUser) 
 		logrus.Errorf("s.listUserTweets err: %s", err)
 		return nil, web.ErrGetPostsFailed
 	}
+	// TODO: 暂时处理，需要去掉这个步骤
+	visbleTansform(postFormated)
 	resp := joint.PageRespFrom(postFormated, req.Page, req.PageSize, total)
 	return &web.GetUserTweetsResp{
 		CachePageResp: joint.CachePageResp{
@@ -268,6 +276,8 @@ func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq, user *cs.VistUse
 		logrus.Errorf("s.GetTweetList error[2]: %s", err)
 		return nil, web.ErrGetPostsFailed
 	}
+	// TODO: 暂时处理，需要去掉这个步骤
+	visbleTansform(postsFormated)
 	resp := joint.PageRespFrom(postsFormated, req.Page, req.PageSize, total)
 	return &web.GetUserTweetsResp{
 		CachePageResp: joint.CachePageResp{
@@ -436,10 +446,15 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 }
 
 func newLooseSrv(s *base.DaoServant, ac core.AppCache) api.Loose {
+	cs := conf.CacheSetting
 	return &looseSrv{
-		DaoServant:       s,
-		ac:               ac,
-		userTweetsExpire: conf.CacheSetting.UserTweetsExpire,
-		prefixUserTweets: conf.PrefixUserTweets,
+		DaoServant:               s,
+		ac:                       ac,
+		userTweetsExpire:         cs.UserTweetsExpire,
+		idxTweetsExpire:          cs.IndexTweetsExpire,
+		prefixUserTweets:         conf.PrefixUserTweets,
+		prefixIdxTweetsNewest:    conf.PrefixIdxTweetsNewest,
+		prefixIdxTweetsHots:      conf.PrefixIdxTweetsHots,
+		prefixIdxTweetsFollowing: conf.PrefixIdxTweetsFollowing,
 	}
 }

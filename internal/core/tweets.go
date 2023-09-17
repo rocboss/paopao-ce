@@ -28,7 +28,9 @@ type TweetService interface {
 	ListUserCommentTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error)
 	ListUserTweets(userId int64, style uint8, justEssence bool, limit, offset int) ([]*ms.Post, int64, error)
 	ListFollowingTweets(userId int64, limit, offset int) ([]*ms.Post, int64, error)
-	ListIndexTweets(style uint8, limit, offset int) ([]*ms.Post, int64, error)
+	ListIndexNewestTweets(limit, offset int) ([]*ms.Post, int64, error)
+	ListIndexHotsTweets(limit, offset int) ([]*ms.Post, int64, error)
+	ListSyncSearchTweets(limit, offset int) ([]*ms.Post, int64, error)
 }
 
 // TweetManageService 推文管理服务，包括创建/删除/更新推文
@@ -38,7 +40,7 @@ type TweetManageService interface {
 	LockPost(post *ms.Post) error
 	StickPost(post *ms.Post) error
 	HighlightPost(userId, postId int64) (int, error)
-	VisiblePost(post *ms.Post, visibility PostVisibleT) error
+	VisiblePost(post *ms.Post, visibility cs.TweetVisibleType) error
 	UpdatePost(post *ms.Post) error
 	CreatePostStar(postID, userID int64) (*ms.PostStar, error)
 	DeletePostStar(p *ms.PostStar) error

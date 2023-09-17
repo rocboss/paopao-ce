@@ -350,6 +350,7 @@ func (s *databaseConf) TableNames() (res TableNameMap) {
 		TableContactGroup,
 		TableMessage,
 		TablePost,
+		TablePostMetric,
 		TablePostByComment,
 		TablePostByMedia,
 		TablePostAttachmentBill,

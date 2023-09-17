@@ -25,7 +25,7 @@ const (
 	PrefixOnlineUser         = "paopao:onlineuser:"
 	PrefixIdxTweetsNewest    = "paopao:index:tweets:newest:"
 	PrefixIdxTweetsHots      = "paopao:index:tweets:hots:"
-	prefixIdxTweetsFollowing = "paopao:index:tweets:following:"
+	PrefixIdxTweetsFollowing = "paopao:index:tweets:following:"
 	KeySiteStatus            = "paopao:sitestatus"
 	KeyHistoryMaxOnline      = "history.max.online"
 )

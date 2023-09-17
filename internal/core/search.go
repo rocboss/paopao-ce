@@ -19,11 +19,10 @@ const (
 	PostVisitPrivate   = dbr.PostVisitPrivate
 	PostVisitFriend    = dbr.PostVisitFriend
 	PostVisitFollowing = dbr.PostVisitFollowing
-	PostVisitInvalid   = dbr.PostVisitInvalid
 )
 
 type (
-	// PostVisibleT 可访问类型，0公开，1私密，2好友
+	// PostVisibleT 可访问类型，可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开
 	PostVisibleT = dbr.PostVisibleT
 
 	SearchType string

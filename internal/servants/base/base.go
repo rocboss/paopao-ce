@@ -208,13 +208,8 @@ func (s *DaoServant) pushAllPostToSearch() error {
 	ctx := context.Background()
 	if err := s.Redis.SetPushToSearchJob(ctx); err == nil {
 		defer s.Redis.DelPushToSearchJob(ctx)
-
 		splitNum := 1000
-		// conditions := ms.ConditionsT{
-		// 	"visibility IN ?": []core.PostVisibleT{core.PostVisitPublic, core.PostVisitFriend},
-		// }
-		// totalRows, _ := s.Ds.GetPostCount(conditions)
-		posts, totalRows, err := s.Ds.ListIndexTweets(cs.StyleIndexTweetsSearch, splitNum, 0)
+		posts, totalRows, err := s.Ds.ListSyncSearchTweets(splitNum, 0)
 		if err != nil {
 			return fmt.Errorf("get first page tweets push to search failed: %s", err)
 		}
@@ -240,7 +235,7 @@ func (s *DaoServant) pushAllPostToSearch() error {
 			if i++; i >= nums {
 				break
 			}
-			if posts, _, err = s.Ds.ListIndexTweets(cs.StyleIndexTweetsSearch, splitNum, i*splitNum); err != nil {
+			if posts, _, err = s.Ds.ListSyncSearchTweets(splitNum, i*splitNum); err != nil {
 				return fmt.Errorf("get tweets push to search failed: %s, limit[%d] offset[%d]", err, splitNum, i*splitNum)
 			}
 		}
