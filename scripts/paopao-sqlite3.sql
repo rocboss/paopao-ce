@@ -221,13 +221,13 @@ CREATE TABLE "p_post_metric" (
 	"id" integer NOT NULL,
 	"post_id" integer NOT NULL,
 	"rank_score" integer NOT NULL,
-	"incentive_score" integer NOT NULL,
-	"decay_factor" integer NOT NULL,
-	"motivation_factor" integer NOT NULL,
-	"is_del" integer NOT NULL,
-	"created_on" integer NOT NULL,
-	"modified_on" integer NOT NULL,
-	"deleted_on" integer NOT NULL,
+	"incentive_score" integer NOT NULL DEFAULT 0,
+	"decay_factor" integer NOT NULL DEFAULT 0,
+	"motivation_factor" integer NOT NULL DEFAULT 0,
+	"is_del" integer NOT NULL DEFAULT 0,
+	"created_on" integer NOT NULL DEFAULT 0,
+	"modified_on" integer NOT NULL DEFAULT 0,
+	"deleted_on" integer NOT NULL DEFAULT 0,
 	PRIMARY KEY ("id")
 );
 

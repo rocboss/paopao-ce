@@ -2,13 +2,13 @@ CREATE TABLE "p_post_metric" (
 	"id" integer NOT NULL,
 	"post_id" integer NOT NULL,
 	"rank_score" integer NOT NULL,
-	"incentive_score" integer NOT NULL,
-	"decay_factor" integer NOT NULL,
-	"motivation_factor" integer NOT NULL,
-	"is_del" integer NOT NULL,
-	"created_on" integer NOT NULL,
-	"modified_on" integer NOT NULL,
-	"deleted_on" integer NOT NULL,
+	"incentive_score" integer NOT NULL DEFAULT 0,
+	"decay_factor" integer NOT NULL DEFAULT 0,
+	"motivation_factor" integer NOT NULL DEFAULT 0,
+	"is_del" integer NOT NULL DEFAULT 0,
+	"created_on" integer NOT NULL DEFAULT 0,
+	"modified_on" integer NOT NULL DEFAULT 0,
+	"deleted_on" integer NOT NULL DEFAULT 0,
 	PRIMARY KEY ("id")
 );
 
@@ -27,7 +27,7 @@ WHERE is_del=0;
 
 -- 原来的可见性: 0公开 1私密 2好友可见 3关注可见
 -- 现在的可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开
-UPDATE p_post a
+UPDATE p_post AS a
 SET visibility = (
 	SELECT
 	CASE visibility 
@@ -38,7 +38,7 @@ SET visibility = (
 		ELSE 0
 	END 
 	FROM
-		p_post b 
+		p_post AS b 
 	WHERE
 		a.ID = b.ID 
 );

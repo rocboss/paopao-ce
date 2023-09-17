@@ -489,7 +489,7 @@ func (s *tweetSrv) ListFollowingTweets(userId int64, limit, offset int) (res []*
 	if offset >= 0 && limit > 0 {
 		db = db.Offset(offset).Limit(limit)
 	}
-	if err = db.Find(&res).Error; err != nil {
+	if err = db.Order("is_top DESC, latest_replied_on DESC").Find(&res).Error; err != nil {
 		return
 	}
 	return
