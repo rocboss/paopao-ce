@@ -438,7 +438,7 @@ func (s *tweetSrv) ListIndexNewestTweets(limit, offset int) (res []*ms.Post, tot
 }
 
 func (s *tweetSrv) ListIndexHotsTweets(limit, offset int) (res []*ms.Post, total int64, err error) {
-	db := s.db.Table(_post_).Joins(fmt.Sprintf("JOIN %s metric ON %s.id=metric.post_id", _post_metric_, _post_)).Where("visibility >= ?", cs.TweetVisitPublic)
+	db := s.db.Table(_post_).Joins(fmt.Sprintf("LEFT JOIN %s metric ON %s.id=metric.post_id", _post_metric_, _post_)).Where("visibility >= ?", cs.TweetVisitPublic)
 	if err = db.Count(&total).Error; err != nil {
 		return
 	}
