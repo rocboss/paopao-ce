@@ -5,7 +5,7 @@
 package cs
 
 const (
-	RelationUnknow RelationTyp = iota
+	RelationUnknown RelationTyp = iota
 	RelationSelf
 	RelationFriend
 	RelationFollower
@@ -51,9 +51,9 @@ func (t RelationTyp) String() string {
 		return "following"
 	case RelationAdmin:
 		return "admin"
-	case RelationUnknow:
+	case RelationUnknown:
 		fallthrough
 	default:
-		return "unknow relation"
+		return "unknown"
 	}
 }
