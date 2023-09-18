@@ -281,36 +281,43 @@ const loadUserPosts = () => {
 };
 
 const onPostSuccess = (post: Item.PostProps) => {
-    // 如果不在第一页，需要跳转到详情页面
-    if (targetStyle.value != 1) {
-        router.push({
-            name: 'post',
-            query: {
-                id: post.id,
-            },
-        });
-        return;
-    }
+    // 暂时统统跳到详情页面，后续再精细化分场景优化
+    router.push({
+        name: 'post',
+        query: {
+            id: post.id,
+        },
+    });
+    // // 如果不在第一页，需要跳转到详情页面
+    // if (targetStyle.value != 1) {
+    //     router.push({
+    //         name: 'post',
+    //         query: {
+    //             id: post.id,
+    //         },
+    //     });
+    //     return;
+    // }
 
-    // 如果实在第一页，就地插入新推文到文章列表中
-    let items = [];
-    let length = list.value.length;
-    if (length == pageSize.value) {
-        length--;
-    }
-    var i = 0;
-    for (; i < length; i++) {
-        let item: Item.PostProps = list.value[i];
-        if (!item.is_top) {
-            break;
-        }
-        items.push(item);
-    }
-    items.push(post);
-    for (; i < length; i++) {
-        items.push(list.value[i]);
-    }
-    list.value = items;
+    // // 如果是在第一页，就地插入新推文到文章列表中
+    // let items = [];
+    // let length = list.value.length;
+    // if (length == pageSize.value) {
+    //     length--;
+    // }
+    // var i = 0;
+    // for (; i < length; i++) {
+    //     let item: Item.PostProps = list.value[i];
+    //     if (!item.is_top) {
+    //         break;
+    //     }
+    //     items.push(item);
+    // }
+    // items.push(post);
+    // for (; i < length; i++) {
+    //     items.push(list.value[i]);
+    // }
+    // list.value = items;
 };
 
 const loadMorePosts = () => {
