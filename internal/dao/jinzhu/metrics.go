@@ -17,11 +17,9 @@ type tweetMetricSrvA struct {
 
 func (s *tweetMetricSrvA) UpdateRankScore(metric *cs.TweetMetric) error {
 	return s.db.Transaction(func(tx *gorm.DB) (err error) {
-		postMetric := &dbr.PostMetric{}
+		postMetric := &dbr.PostMetric{PostId: metric.PostId}
 		db := s.db.Model(postMetric).Where("post_id=?", metric.PostId)
-		if err = db.First(postMetric).Error; err != nil {
-			return
-		}
+		db.First(postMetric)
 		postMetric.RankScore = metric.RankScore(postMetric.MotivationFactor)
 		err = db.Save(postMetric).Error
 		return
@@ -30,7 +28,7 @@ func (s *tweetMetricSrvA) UpdateRankScore(metric *cs.TweetMetric) error {
 }
 
 func (s *tweetMetricSrvA) AddTweetMetric(postId int64) (err error) {
-	_, err = (&dbr.PostMetric{}).Create(s.db)
+	_, err = (&dbr.PostMetric{PostId: postId}).Create(s.db)
 	return
 }
 
