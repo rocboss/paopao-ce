@@ -309,8 +309,6 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 		logrus.Infof("Ds.RevampPosts err: %s", err)
 		return nil, web.ErrCreatePostFailed
 	}
-	// 发推后处理
-	onCreateTweetEvent(post)
 	return (*web.CreateTweetResp)(formatedPosts[0]), nil
 }
 

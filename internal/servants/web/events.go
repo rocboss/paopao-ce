@@ -14,7 +14,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/events"
 	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/model/web"
-	"github.com/sirupsen/logrus"
 )
 
 type cacheUnreadMsgEvent struct {
@@ -31,12 +30,6 @@ type createMessageEvent struct {
 	message *ms.Message
 }
 
-type createTweetEvent struct {
-	event.UnimplementedEvent
-	tweet *ms.Post
-	ac    core.AppCache
-}
-
 func onCacheUnreadMsgEvent(uid int64) {
 	events.OnEvent(&cacheUnreadMsgEvent{
 		ds:  _ds,
@@ -50,13 +43,6 @@ func onCreateMessageEvent(data *ms.Message) {
 		ds:      _ds,
 		wc:      _wc,
 		message: data,
-	})
-}
-
-func onCreateTweetEvent(tweet *ms.Post) {
-	events.OnEvent(&createTweetEvent{
-		ac:    _ac,
-		tweet: tweet,
 	})
 }
 
@@ -98,15 +84,5 @@ func (e *createMessageEvent) Action() (err error) {
 	if _, err = e.ds.CreateMessage(e.message); err == nil {
 		err = e.wc.DelUnreadMsgCountResp(e.message.ReceiverUserID)
 	}
-	return
-}
-
-func (e *createTweetEvent) Name() string {
-	return "createTweetEvent"
-}
-
-func (e *createTweetEvent) Action() (err error) {
-	// TODO: 过期缓存，重新计算rank等
-	logrus.Debug("createTweetEvent post action running")
 	return
 }

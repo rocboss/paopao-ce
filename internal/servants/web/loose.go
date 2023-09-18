@@ -175,10 +175,10 @@ func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTwe
 func (s *looseSrv) userTweetsFromCache(req *web.GetUserTweetsReq, user *cs.VistUser) (res *web.GetUserTweetsResp, key string, ok bool) {
 	switch req.Style {
 	case web.UserPostsStylePost, web.UserPostsStyleHighlight, web.UserPostsStyleMedia:
-		key = fmt.Sprintf("%s%s:%s:%s:%d:%d", s.prefixUserTweets, req.Username, req.Style, user.RelTyp, req.Page, req.PageSize)
+		key = fmt.Sprintf("%s%d:%s:%s:%d:%d", s.prefixUserTweets, req.User.ID, req.Style, user.RelTyp, req.Page, req.PageSize)
 	default:
 		visitUserName := lets.If(user.RelTyp != cs.RelationGuest, user.Username, "_")
-		key = fmt.Sprintf("%s%s:%s:%s:%d:%d", s.prefixUserTweets, req.Username, req.Style, visitUserName, req.Page, req.PageSize)
+		key = fmt.Sprintf("%s%d:%s:%s:%d:%d", s.prefixUserTweets, req.User.ID, req.Style, visitUserName, req.Page, req.PageSize)
 	}
 	if data, err := s.ac.Get(key); err == nil {
 		ok, res = true, &web.GetUserTweetsResp{

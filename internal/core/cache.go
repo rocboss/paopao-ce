@@ -68,14 +68,14 @@ func NewIndexActionA(act IdxAct, tweet *cs.TweetInfo) *IndexActionA {
 
 // CacheIndexService cache index service interface
 type CacheIndexService interface {
-	IndexPostsService
+	// IndexPostsService
 
 	SendAction(act IdxAct, post *dbr.Post)
 }
 
 // CacheIndexServantA cache index service interface
 type CacheIndexServantA interface {
-	IndexPostsServantA
+	// IndexPostsServantA
 
 	SendAction(act IdxAct, tweet *cs.TweetInfo)
 }
