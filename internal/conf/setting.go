@@ -103,6 +103,7 @@ type cacheConf struct {
 	UserTweetsExpire     int64
 	IndexTweetsExpire    int64
 	OnlineUserExpire     int64
+	UserInfoExpire       int64
 }
 
 type eventManagerConf struct {

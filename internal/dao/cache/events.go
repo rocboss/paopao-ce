@@ -5,6 +5,8 @@
 package cache
 
 import (
+	"bytes"
+	"encoding/gob"
 	"fmt"
 
 	"github.com/alimy/tryst/event"
@@ -35,6 +37,15 @@ type expireFollowTweetsEvent struct {
 	keyPattern string
 }
 
+type cacheUserInfoEvent struct {
+	event.UnimplementedEvent
+	tweet  *ms.Post
+	ac     core.AppCache
+	key    string
+	data   *ms.User
+	expire int64
+}
+
 func onExpireIndexTweetEvent(tweet *ms.Post) {
 	events.OnEvent(&expireIndexTweetsEvent{
 		tweet: tweet,
@@ -60,6 +71,15 @@ func onExpireFollowTweetEvent(tweet *ms.Post) {
 		tweet:      tweet,
 		ac:         _appCache,
 		keyPattern: conf.PrefixFollowingTweets + "*",
+	})
+}
+
+func onCacheUserInfoEvent(key string, data *ms.User) {
+	events.OnEvent(&cacheUserInfoEvent{
+		key:    key,
+		data:   data,
+		ac:     _appCache,
+		expire: conf.CacheSetting.UserInfoExpire,
 	})
 }
 
@@ -92,5 +112,18 @@ func (e *expireFollowTweetsEvent) Name() string {
 func (e *expireFollowTweetsEvent) Action() (err error) {
 	// logrus.Debug("expireFollowTweetsEvent action running")
 	e.ac.DelAny(e.keyPattern)
+	return
+}
+
+func (e *cacheUserInfoEvent) Name() string {
+	return "cacheUserInfoEvent"
+}
+
+func (e *cacheUserInfoEvent) Action() (err error) {
+	buffer := &bytes.Buffer{}
+	ge := gob.NewEncoder(buffer)
+	if err = ge.Encode(e.data); err == nil {
+		e.ac.Set(e.key, buffer.Bytes(), e.expire)
+	}
 	return
 }

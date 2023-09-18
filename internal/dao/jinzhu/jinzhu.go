@@ -77,7 +77,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		SecurityService:        newSecurityService(db, pvs),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
 	}
-	return ds, ds
+	return cache.NewCacheDataService(ds), ds
 }
 
 func NewWebDataServantA() (core.WebDataServantA, core.VersionInfo) {
