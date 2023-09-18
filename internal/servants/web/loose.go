@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"github.com/alimy/mir/v4"
-	"github.com/alimy/tryst/lets"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/conf"
@@ -122,7 +121,10 @@ func (s *looseSrv) getIndexTweets(req *web.TimelineReq, limit int, offset int) (
 func (s *looseSrv) indexTweetsFromCache(req *web.TimelineReq, limit int, offset int) (res *web.TimelineResp, key string, ok bool) {
 	switch req.Style {
 	case web.StyleTweetsFollowing:
-		username := lets.If(req.User != nil, req.User.Username, "_")
+		username := "_"
+		if req.User != nil {
+			username = req.User.Username
+		}
 		key = fmt.Sprintf("%s%s:%d:%d", s.prefixIdxTweetsFollowing, username, offset, limit)
 	case web.StyleTweetsNewest:
 		key = fmt.Sprintf("%s%d:%d", s.prefixIdxTweetsNewest, offset, limit)
