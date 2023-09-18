@@ -177,7 +177,10 @@ func (s *looseSrv) userTweetsFromCache(req *web.GetUserTweetsReq, user *cs.VistU
 	case web.UserPostsStylePost, web.UserPostsStyleHighlight, web.UserPostsStyleMedia:
 		key = fmt.Sprintf("%s%d:%s:%s:%d:%d", s.prefixUserTweets, user.UserId, req.Style, user.RelTyp, req.Page, req.PageSize)
 	default:
-		meName := lets.If(user.RelTyp != cs.RelationGuest, req.User.Username, "_")
+		meName := "_"
+		if user.RelTyp != cs.RelationGuest {
+			meName = req.User.Username
+		}
 		key = fmt.Sprintf("%s%d:%s:%s:%d:%d", s.prefixUserTweets, user.UserId, req.Style, meName, req.Page, req.PageSize)
 	}
 	if data, err := s.ac.Get(key); err == nil {
