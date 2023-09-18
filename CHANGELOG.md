@@ -73,6 +73,7 @@ All notable changes to paopao-ce are documented in this file.
 		  a.ID = b.ID 
   );
   ```sql
+  - add cache support for index/home etc. page.
   
 ## 0.4.2
 ### Fixed
