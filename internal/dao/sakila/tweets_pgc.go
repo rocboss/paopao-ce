@@ -17,9 +17,21 @@ var (
 	_ core.TweetManageService = (*pgcTweetManageSrv)(nil)
 )
 
+type pgcTweetSrv struct {
+	*tweetSrv
+	p *pgc.Tweet
+}
+
 type pgcTweetManageSrv struct {
 	*tweetManageSrv
 	p *pgc.TweetManage
+}
+
+func (s *pgcTweetSrv) ListIndexHotsTweets(limit int, offset int) (res []*ms.Post, total int64, err error) {
+	if err = s.p.ListIndexHotsTweets.Select(&res, limit, offset); err == nil {
+		err = s.q.CountIndexHotsTweets.Get(&total)
+	}
+	return
 }
 
 func (s *pgcTweetManageSrv) CreatePost(r *ms.Post) (*ms.Post, error) {
