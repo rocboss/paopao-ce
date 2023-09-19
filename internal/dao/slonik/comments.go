@@ -25,10 +25,9 @@ type commentManageSrv struct {
 	*pgxSrv
 }
 
-func (s *commentSrv) GetComments(conditions *ms.ConditionsT, offset, limit int) ([]*ms.Comment, error) {
+func (s *commentSrv) GetComments(tweetId int64, style cs.StyleCommentType, limit int, offset int) ([]*ms.Comment, int64, error) {
 	// TODO
-	debug.NotImplemented()
-	return nil, nil
+	return nil, 0, cs.ErrNotImplemented
 }
 
 func (s *commentSrv) GetCommentByID(id int64) (*ms.Comment, error) {
@@ -41,12 +40,6 @@ func (s *commentSrv) GetCommentReplyByID(id int64) (*ms.CommentReply, error) {
 	// TODO
 	debug.NotImplemented()
 	return nil, nil
-}
-
-func (s *commentSrv) GetCommentCount(conditions *ms.ConditionsT) (int64, error) {
-	// TODO
-	debug.NotImplemented()
-	return 0, nil
 }
 
 func (s *commentSrv) GetCommentContentsByIDs(ids []int64) ([]*ms.CommentContent, error) {
