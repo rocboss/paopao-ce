@@ -364,20 +364,7 @@ func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Err
 }
 
 func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsResp, mir.Error) {
-	// TODO: 需要优化一下，更精细的调整评论排序策略
-	sort := "id ASC"
-	if req.SortStrategy == "newest" {
-		sort = "id DESC"
-	} else if req.SortStrategy == "hots" {
-		// TOOD: 暂时简单排序，后续需要根据 rank_score=评论回复数*2+点赞*4-点踩, order byrank_score DESC
-		sort = "thumbs_up_count DESC, id DESC"
-	}
-	conditions := &ms.ConditionsT{
-		"post_id": req.TweetId,
-		"ORDER":   sort,
-	}
-
-	comments, err := s.Ds.GetComments(conditions, (req.Page-1)*req.PageSize, req.PageSize)
+	comments, totalRows, err := s.Ds.GetComments(req.TweetId, req.Style.ToInnerValue(), req.PageSize, (req.Page-1)*req.PageSize)
 	if err != nil {
 		return nil, web.ErrGetCommentsFailed
 	}
@@ -447,9 +434,6 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 		}
 		commentsFormated = append(commentsFormated, commentFormated)
 	}
-
-	// 获取总量
-	totalRows, _ := s.Ds.GetCommentCount(conditions)
 	resp := base.PageRespFrom(commentsFormated, req.Page, req.PageSize, totalRows)
 	return (*web.TweetCommentsResp)(resp), nil
 }

@@ -4,6 +4,14 @@
 
 package cs
 
+const (
+	StyleCommentDefault StyleCommentType = iota
+	StyleCommentHots
+	StyleCommentNewest
+)
+
+type StyleCommentType uint8
+
 type CommentThumbs struct {
 	UserID       int64 `json:"user_id"`
 	TweetID      int64 `json:"tweet_id"`

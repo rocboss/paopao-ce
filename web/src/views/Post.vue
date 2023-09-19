@@ -126,7 +126,7 @@ const loadDefaultComments = ($state: any) => {
     }
     getPostComments({
         id: post.value.id as number,
-        sort_strategy: 'default',
+        style: 'default',
         page: defaultCommmentsPage,
         page_size: pageSize,
     })
@@ -165,7 +165,7 @@ const loadHotsComments = ($state: any) => {
     }
     getPostComments({
         id: post.value.id as number,
-        sort_strategy: 'hots',
+        style: 'hots',
         page: hotsCommmentsPage,
         page_size: pageSize,
     })
@@ -204,7 +204,7 @@ const loadNewestComments = ($state: any) => {
     }
     getPostComments({
         id: post.value.id as number,
-        sort_strategy: 'newest',
+        style: 'newest',
         page: newestCommmentsPage,
         page_size: pageSize,
     })
