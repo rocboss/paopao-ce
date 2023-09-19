@@ -30,6 +30,7 @@ const (
 	TableContactGroup       = "contact_group"
 	TableMessage            = "message"
 	TablePost               = "post"
+	TablePostMetric         = "post_metric"
 	TablePostByComment      = "post_by_comment"
 	TablePostByMedia        = "post_by_media"
 	TablePostAttachmentBill = "post_attachment_bill"

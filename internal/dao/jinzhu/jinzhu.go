@@ -12,12 +12,10 @@ import (
 	"sync"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/alimy/tryst/cfg"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/dao/security"
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -31,13 +29,14 @@ var (
 )
 
 type dataSrv struct {
-	core.IndexPostsService
+	// core.IndexPostsService
 	core.WalletService
 	core.MessageService
 	core.TopicService
 	core.TweetService
 	core.TweetManageService
 	core.TweetHelpService
+	core.TweetMetricServantA
 	core.CommentService
 	core.CommentManageService
 	core.UserManageService
@@ -57,37 +56,13 @@ type webDataSrvA struct {
 func NewDataService() (core.DataService, core.VersionInfo) {
 	lazyInitial()
 
-	var (
-		v   core.VersionInfo
-		cis core.CacheIndexService
-	)
 	db := conf.MustGormDB()
 	pvs := security.NewPhoneVerifyService()
-	ams := NewAuthorizationManageService()
-	ths := newTweetHelpService(db)
-	ips := newShipIndexService(db, ams, ths)
-
-	// initialize core.CacheIndexService
-	cfg.On(cfg.Actions{
-		"SimpleCacheIndex": func() {
-			// simpleCache use special post index service
-			ips = newSimpleIndexPostsService(db, ths)
-			cis, v = cache.NewSimpleCacheIndexService(ips)
-		},
-		"BigCacheIndex": func() {
-			cis, v = cache.NewBigCacheIndexService(ips, ams)
-		},
-		"RedisCacheIndex": func() {
-			cis, v = cache.NewRedisCacheIndexService(ips, ams)
-		},
-	}, func() {
-		// defualt no cache
-		cis, v = cache.NewNoneCacheIndexService(ips)
-	})
-	logrus.Infof("use %s as cache index service by version: %s", v.Name(), v.Version())
+	tms := NewTweetMetricServentA(db)
+	cis := cache.NewEventCacheIndexSrv(tms)
 
 	ds := &dataSrv{
-		IndexPostsService:      cis,
+		TweetMetricServantA:    tms,
 		WalletService:          newWalletService(db),
 		MessageService:         newMessageService(db),
 		TopicService:           newTopicService(db),
@@ -102,7 +77,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		SecurityService:        newSecurityService(db, pvs),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
 	}
-	return ds, ds
+	return cache.NewCacheDataService(ds), ds
 }
 
 func NewWebDataServantA() (core.WebDataServantA, core.VersionInfo) {

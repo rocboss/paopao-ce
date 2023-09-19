@@ -594,17 +594,12 @@ const submitPost = () => {
     }
 
     submitting.value = true;
-    // TODO: 临时过渡，暂时将Following等价于Public
-    let fixedVisit = visitType.value;
-    if (fixedVisit == VisibilityEnum.Following) {
-        fixedVisit = VisibilityEnum.PUBLIC
-    }
     createPost({
         contents,
         tags: Array.from(new Set(tags)),
         users: Array.from(new Set(users)),
         attachment_price: +attachmentPrice.value * 100,
-        visibility: fixedVisit
+        visibility: visitType.value
     })
         .then((res) => {
             window.$message.success('发布成功');

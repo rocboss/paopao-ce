@@ -17,12 +17,20 @@ const (
 
 // 以下包含一些在cache中会用到的key的前缀
 const (
-	PrefixNewestTweets    = "paopao:newesttweets:"
-	PrefixHotsTweets      = "paopao:hotstweets:"
-	PrefixFollowingTweets = "paopao:followingtweets:"
-	PrefixUserTweets      = "paopao:usertweets:"
-	PrefixUnreadmsg       = "paopao:unreadmsg:"
-	PrefixOnlineUser      = "paopao:onlineuser:"
+	PrefixNewestTweets       = "paopao:newesttweets:"
+	PrefixHotsTweets         = "paopao:hotstweets:"
+	PrefixFollowingTweets    = "paopao:followingtweets:"
+	PrefixUserTweets         = "paopao:usertweets:"
+	PrefixUnreadmsg          = "paopao:unreadmsg:"
+	PrefixOnlineUser         = "paopao:onlineuser:"
+	PrefixIdxTweetsNewest    = "paopao:index:tweets:newest:"
+	PrefixIdxTweetsHots      = "paopao:index:tweets:hots:"
+	PrefixIdxTweetsFollowing = "paopao:index:tweets:following:"
+	PrefixUserInfo           = "paopao:userinfo:"
+	PrefixUserInfoById       = "paopao:userinfo:id:"
+	PrefixUserInfoByName     = "paopao:userinfo:name:"
+	KeySiteStatus            = "paopao:sitestatus"
+	KeyHistoryMaxOnline      = "history.max.online"
 )
 
 // 以下包含一些在cache中会用到的池化后的key
@@ -32,6 +40,8 @@ var (
 	KeyFollowingTweets cache.KeyPool[string]
 	KeyUnreadMsg       cache.KeyPool[int64]
 	KeyOnlineUser      cache.KeyPool[int64]
+	KeyUserInfoById    cache.KeyPool[int64]
+	KeyUserInfoByName  cache.KeyPool[string]
 )
 
 func initCacheKeyPool() {
@@ -44,6 +54,8 @@ func initCacheKeyPool() {
 	KeyFollowingTweets = strKeyPool(poolSize, PrefixFollowingTweets)
 	KeyUnreadMsg = intKeyPool[int64](poolSize, PrefixUnreadmsg)
 	KeyOnlineUser = intKeyPool[int64](poolSize, PrefixOnlineUser)
+	KeyUserInfoById = intKeyPool[int64](poolSize, PrefixUserInfoById)
+	KeyUserInfoByName = strKeyPool(poolSize, PrefixUserInfoById)
 }
 
 func strKeyPool(size int, prefix string) cache.KeyPool[string] {

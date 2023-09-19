@@ -109,7 +109,12 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 			return
 		}
 		resp, err := s.Timeline(req)
-		s.Render(c, resp, err)
+		if err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		var rv _render_ = resp
+		rv.Render(c)
 	})
 }
 

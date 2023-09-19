@@ -5,9 +5,6 @@
 package web
 
 import (
-	"encoding/json"
-	"net/http"
-
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core"
@@ -30,6 +27,10 @@ const (
 	UserPostsStyleHighlight = "highlight"
 	UserPostsStyleMedia     = "media"
 	UserPostsStyleStar      = "star"
+
+	StyleTweetsNewest    = "newest"
+	StyleTweetsHots      = "hots"
+	StyleTweetsFollowing = "following"
 )
 
 type TagType = cs.TagType
@@ -49,11 +50,14 @@ type TimelineReq struct {
 	Query      string              `form:"query"`
 	Visibility []core.PostVisibleT `form:"query"`
 	Type       string              `form:"type"`
+	Style      string              `form:"style"`
 	Page       int                 `form:"-"  binding:"-"`
 	PageSize   int                 `form:"-"  binding:"-"`
 }
 
-type TimelineResp base.PageResp
+type TimelineResp struct {
+	joint.CachePageResp
+}
 
 type GetUserTweetsReq struct {
 	BaseInfo `form:"-" binding:"-"`
@@ -64,8 +68,7 @@ type GetUserTweetsReq struct {
 }
 
 type GetUserTweetsResp struct {
-	Data     *base.PageResp
-	JsonResp json.RawMessage
+	joint.CachePageResp
 }
 
 type GetUserProfileReq struct {
@@ -115,18 +118,6 @@ func (r *TimelineReq) Bind(c *gin.Context) mir.Error {
 		User: user,
 	}
 	r.Page, r.PageSize = app.GetPageInfo(c)
-	r.Query, r.Type = c.Query("query"), "search"
+	r.Query, r.Type, r.Style = c.Query("query"), "search", c.Query("style")
 	return nil
-}
-
-func (r *GetUserTweetsResp) Render(c *gin.Context) {
-	if len(r.JsonResp) != 0 {
-		c.JSON(http.StatusOK, r.JsonResp)
-	} else {
-		c.JSON(http.StatusOK, &joint.JsonResp{
-			Code: 0,
-			Msg:  "success",
-			Data: r.Data,
-		})
-	}
 }

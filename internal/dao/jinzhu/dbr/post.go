@@ -11,14 +11,14 @@ import (
 	"gorm.io/gorm"
 )
 
-// PostVisibleT 可访问类型，0公开，1私密，2好友
+// PostVisibleT 可访问类型，可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开',
 type PostVisibleT uint8
 
 const (
-	PostVisitPublic PostVisibleT = iota
-	PostVisitPrivate
-	PostVisitFriend
-	PostVisitInvalid
+	PostVisitPublic    PostVisibleT = 90
+	PostVisitPrivate   PostVisibleT = 0
+	PostVisitFriend    PostVisibleT = 50
+	PostVisitFollowing PostVisibleT = 60
 )
 
 type PostByMedia = Post
@@ -62,6 +62,22 @@ type PostFormated struct {
 	Tags            map[string]int8        `json:"tags"`
 	AttachmentPrice int64                  `json:"attachment_price"`
 	IPLoc           string                 `json:"ip_loc"`
+}
+
+func (t PostVisibleT) ToOutValue() (res uint8) {
+	switch t {
+	case PostVisitPublic:
+		res = 0
+	case PostVisitPrivate:
+		res = 1
+	case PostVisitFriend:
+		res = 2
+	case PostVisitFollowing:
+		res = 3
+	default:
+		res = 1
+	}
+	return
 }
 
 func (p *Post) Format() *PostFormated {
@@ -211,8 +227,6 @@ func (p PostVisibleT) String() string {
 		return "private"
 	case PostVisitFriend:
 		return "friend"
-	case PostVisitInvalid:
-		return "invalid"
 	default:
 		return "unknow"
 	}

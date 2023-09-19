@@ -74,7 +74,7 @@ import InfiniteLoading from "v3-infinite-loading";
 import { getPosts, getContacts } from '@/api/post';
 import { getUserPosts } from '@/api/user';
 import SlideBar from '@opentiny/vue-slide-bar';
-import allTweets from '@/assets/img/all-tweets.png';
+import allTweets from '@/assets/img/fresh-tweets.png';
 import discoverTweets from '@/assets/img/discover-tweets.jpeg';
 import followingTweets from '@/assets/img/following-tweets.jpeg';
 
@@ -168,16 +168,14 @@ const handleBarClick = (data: Item.SlideBarItem, index: number) => {
     }
     switch (data.style) {
     case 1:
-        loadPosts();
+        loadPosts("newest");
         break;
     case 2:
-        // todo: add some other logic
-        loadPosts();
+        loadPosts("hots");
         break;
     case 3:
-        // todo: add some other logic
         route.query.q=null
-        loadPosts();
+        loadPosts("following");
         break;
     case 21:
         targetUsername.value = data.username;
@@ -220,11 +218,12 @@ const loadContacts = () => {
     });
 };
 
-const loadPosts = () => {
+const loadPosts = (style : "newest" | "hots" | "following" | "search") => {
     loading.value = true;
     getPosts({
         query: route.query.q ? decodeURIComponent(route.query.q as string) : null,
         type: route.query.t as string,
+        style: style,
         page: page.value,
         page_size: pageSize.value,
     })
@@ -282,54 +281,59 @@ const loadUserPosts = () => {
 };
 
 const onPostSuccess = (post: Item.PostProps) => {
-    // 如果不在第一页，需要跳转到详情页面
-    if (targetStyle.value != 1) {
-        router.push({
-            name: 'post',
-            query: {
-                id: post.id,
-            },
-        });
-        return;
-    }
+    // 暂时统统跳到详情页面，后续再精细化分场景优化
+    router.push({
+        name: 'post',
+        query: {
+            id: post.id,
+        },
+    });
+    // // 如果不在第一页，需要跳转到详情页面
+    // if (targetStyle.value != 1) {
+    //     router.push({
+    //         name: 'post',
+    //         query: {
+    //             id: post.id,
+    //         },
+    //     });
+    //     return;
+    // }
 
-    // 如果实在第一页，就地插入新推文到文章列表中
-    let items = [];
-    let length = list.value.length;
-    if (length == pageSize.value) {
-        length--;
-    }
-    var i = 0;
-    for (; i < length; i++) {
-        let item: Item.PostProps = list.value[i];
-        if (!item.is_top) {
-            break;
-        }
-        items.push(item);
-    }
-    items.push(post);
-    for (; i < length; i++) {
-        items.push(list.value[i]);
-    }
-    list.value = items;
+    // // 如果是在第一页，就地插入新推文到文章列表中
+    // let items = [];
+    // let length = list.value.length;
+    // if (length == pageSize.value) {
+    //     length--;
+    // }
+    // var i = 0;
+    // for (; i < length; i++) {
+    //     let item: Item.PostProps = list.value[i];
+    //     if (!item.is_top) {
+    //         break;
+    //     }
+    //     items.push(item);
+    // }
+    // items.push(post);
+    // for (; i < length; i++) {
+    //     items.push(list.value[i]);
+    // }
+    // list.value = items;
 };
 
 const loadMorePosts = () => {
     switch (targetStyle.value) {
     case 1:
-        loadPosts();
+        loadPosts("newest");
         break;
     case 2:
-        // todo: add some other logic
-        loadPosts();
+        loadPosts("hots");
         break;
     case 3:
-        // todo: add some other logic
-        loadPosts();
+        loadPosts("following");
         break;
     case 21:
         if (route.query.q) {
-            loadPosts();
+            loadPosts("search");
         } else {
             loadUserPosts();
         }
@@ -352,7 +356,7 @@ const nextPage = () => {
 onMounted(() => {
     reset();
     loadContacts()
-    loadPosts();
+    loadPosts("newest");
 });
 
 watch(

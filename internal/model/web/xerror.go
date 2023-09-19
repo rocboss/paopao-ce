@@ -47,6 +47,8 @@ var (
 	ErrStickPostFailed         = xerror.NewError(30011, "动态置顶失败")
 	ErrVisblePostFailed        = xerror.NewError(30012, "更新可见性失败")
 	ErrHighlightPostFailed     = xerror.NewError(30013, "动态设为亮点失败")
+	ErrGetPostsUnknowStyle     = xerror.NewError(30014, "使用未知样式参数获取动态列表")
+	ErrGetPostsNilUser         = xerror.NewError(30015, "使用游客账户获取动态详情失败")
 
 	ErrGetCommentsFailed   = xerror.NewError(40001, "获取评论列表失败")
 	ErrCreateCommentFailed = xerror.NewError(40002, "评论发布失败")
