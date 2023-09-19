@@ -22,11 +22,12 @@ const (
 	_AuthorizationManage_MyFriendSet           = `SELECT friend_id FROM @contact WHERE user_id=? AND status=2 AND is_del=0`
 	_Comment_GetCommentById                    = `SELECT * FROM @comment WHERE id=? AND is_del=0`
 	_Comment_GetCommentContentsByIds           = `SELECT * FROM @comment_content WHERE comment_id IN (?)`
-	_Comment_GetCommentCount                   = `SELECT count(*) FROM @comment WHERE post_id=:post_id AND is_del=0`
+	_Comment_GetCommentCount                   = `SELECT count(*) FROM @comment WHERE post_id=? AND is_del=0`
 	_Comment_GetCommentReplyById               = `SELECT * FROM @comment_reply WHERE id=? AND is_del=0`
 	_Comment_GetCommentThumbs                  = `SELECT user_id, 	tweet_id, 	comment_id, 	reply_id, 	comment_type, 	is_thumbs_up, 	is_thumbs_down FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=?`
 	_Comment_GetCommmentRepliesByIds           = `SELECT * FROM @comment_reply WHERE comment_id IN (?) ORDER BY id ASC`
 	_Comment_GetDefaultComments                = `SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY id ASC LIMIT ? OFFSET ?`
+	_Comment_GetHotsComments                   = `SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY thumbs_up_count DESC, id DESC LIMIT ? OFFSET ?`
 	_Comment_GetNewestComments                 = `SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?`
 	_Comment_GetUsersByIds                     = `SELECT id, nickname, username, status, avatar, is_admin FROM @user WHERE id IN (?)`
 	_CommentManage_CreateComment               = `INSERT INTO @comment (post_id, user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?)`
@@ -208,15 +209,16 @@ type AuthorizationManage struct {
 
 type Comment struct {
 	yesql.Namespace         `yesql:"comment"`
-	GetCommentContentsByIds string          `yesql:"get_comment_contents_by_ids"`
-	GetCommmentRepliesByIds string          `yesql:"get_commment_replies_by_ids"`
-	GetUsersByIds           string          `yesql:"get_users_by_ids"`
-	GetCommentById          *sqlx.Stmt      `yesql:"get_comment_by_id"`
-	GetCommentReplyById     *sqlx.Stmt      `yesql:"get_comment_reply_by_id"`
-	GetCommentThumbs        *sqlx.Stmt      `yesql:"get_comment_thumbs"`
-	GetDefaultComments      *sqlx.Stmt      `yesql:"get_default_comments"`
-	GetNewestComments       *sqlx.Stmt      `yesql:"get_newest_comments"`
-	GetCommentCount         *sqlx.NamedStmt `yesql:"get_comment_count"`
+	GetCommentContentsByIds string     `yesql:"get_comment_contents_by_ids"`
+	GetCommmentRepliesByIds string     `yesql:"get_commment_replies_by_ids"`
+	GetUsersByIds           string     `yesql:"get_users_by_ids"`
+	GetCommentById          *sqlx.Stmt `yesql:"get_comment_by_id"`
+	GetCommentCount         *sqlx.Stmt `yesql:"get_comment_count"`
+	GetCommentReplyById     *sqlx.Stmt `yesql:"get_comment_reply_by_id"`
+	GetCommentThumbs        *sqlx.Stmt `yesql:"get_comment_thumbs"`
+	GetDefaultComments      *sqlx.Stmt `yesql:"get_default_comments"`
+	GetHotsComments         *sqlx.Stmt `yesql:"get_hots_comments"`
+	GetNewestComments       *sqlx.Stmt `yesql:"get_newest_comments"`
 }
 
 type CommentManage struct {
@@ -454,6 +456,9 @@ func BuildComment(p PreparexBuilder, ctx ...context.Context) (obj *Comment, err 
 	if obj.GetCommentById, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Comment_GetCommentById))); err != nil {
 		return nil, fmt.Errorf("prepare _Comment_GetCommentById error: %w", err)
 	}
+	if obj.GetCommentCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Comment_GetCommentCount))); err != nil {
+		return nil, fmt.Errorf("prepare _Comment_GetCommentCount error: %w", err)
+	}
 	if obj.GetCommentReplyById, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Comment_GetCommentReplyById))); err != nil {
 		return nil, fmt.Errorf("prepare _Comment_GetCommentReplyById error: %w", err)
 	}
@@ -463,11 +468,11 @@ func BuildComment(p PreparexBuilder, ctx ...context.Context) (obj *Comment, err 
 	if obj.GetDefaultComments, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Comment_GetDefaultComments))); err != nil {
 		return nil, fmt.Errorf("prepare _Comment_GetDefaultComments error: %w", err)
 	}
+	if obj.GetHotsComments, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Comment_GetHotsComments))); err != nil {
+		return nil, fmt.Errorf("prepare _Comment_GetHotsComments error: %w", err)
+	}
 	if obj.GetNewestComments, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Comment_GetNewestComments))); err != nil {
 		return nil, fmt.Errorf("prepare _Comment_GetNewestComments error: %w", err)
-	}
-	if obj.GetCommentCount, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_Comment_GetCommentCount))); err != nil {
-		return nil, fmt.Errorf("prepare _Comment_GetCommentCount error: %w", err)
 	}
 	return
 }

@@ -27,6 +27,10 @@ SELECT status FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0;
 -- prepare: stmt
 SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?; 
 
+-- name: get_hots_comments@comment
+-- prepare: stmt
+SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY thumbs_up_count DESC, id DESC LIMIT ? OFFSET ?; 
+
 -- name: get_default_comments@comment
 -- prepare: stmt
 SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY id ASC LIMIT ? OFFSET ?; 
@@ -36,8 +40,8 @@ SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY id ASC LIMIT ? OFFS
 SELECT * FROM @comment WHERE id=? AND is_del=0;
 
 -- name: get_comment_count@comment
--- prepare: named_stmt
-SELECT count(*) FROM @comment WHERE post_id=:post_id AND is_del=0;
+-- prepare: stmt
+SELECT count(*) FROM @comment WHERE post_id=? AND is_del=0;
 
 -- name: get_comment_reply_by_id@comment
 -- prepare: stmt
