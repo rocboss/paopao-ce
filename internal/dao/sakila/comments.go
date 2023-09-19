@@ -32,13 +32,22 @@ type commentManageSrv struct {
 	q *cc.CommentManage
 }
 
-func (s *commentSrv) GetComments(r *ms.ConditionsT, offset, limit int) (res []*ms.Comment, err error) {
-	order := (*r)["ORDER"].(string)
-	postId := (*r)["post_id"]
-	if order == "id ASC" {
-		err = s.q.GetDefaultComments.Select(&res, postId, limit, offset)
-	} else {
-		err = s.q.GetNewestComments.Select(&res, postId, limit, offset)
+func (s *commentSrv) GetComments(tweetId int64, style cs.StyleCommentType, limit int, offset int) (res []*ms.Comment, total int64, err error) {
+	switch style {
+	case cs.StyleCommentHots:
+		if err = s.q.GetHotsComments.Select(&res, tweetId, limit, offset); err == nil {
+			err = s.q.GetCommentCount.Get(&total, tweetId)
+		}
+	case cs.StyleCommentNewest:
+		if err = s.q.GetNewestComments.Select(&res, tweetId, limit, offset); err == nil {
+			err = s.q.GetCommentCount.Get(&total, tweetId)
+		}
+	case cs.StyleCommentDefault:
+		fallthrough
+	default:
+		if err = s.q.GetDefaultComments.Select(&res, tweetId, limit, offset); err == nil {
+			err = s.q.GetCommentCount.Get(&total, tweetId)
+		}
 	}
 	return
 }
@@ -52,11 +61,6 @@ func (s *commentSrv) GetCommentByID(id int64) (res *ms.Comment, err error) {
 func (s *commentSrv) GetCommentReplyByID(id int64) (res *ms.CommentReply, err error) {
 	res = &ms.CommentReply{}
 	err = s.q.GetCommentReplyById.Get(res, id)
-	return
-}
-
-func (s *commentSrv) GetCommentCount(r *ms.ConditionsT) (res int64, err error) {
-	err = s.q.GetCommentCount.Get(&res, *r)
 	return
 }
 
@@ -211,7 +215,7 @@ func (s *commentManageSrv) ThumbsUpComment(userId int64, tweetId, commentId int6
 			}
 			commentThumbs.IsThumbsUp = 1 - commentThumbs.IsThumbsUp
 			commentThumbs.ModifiedOn = now
-			if _, err := tx.Stmtx(s.q.UpdateThumbsUpdownComment).Exec(commentThumbs); err != nil {
+			if _, err := tx.NamedStmt(s.q.UpdateThumbsUpdownComment).Exec(commentThumbs); err != nil {
 				return err
 			}
 		} else {

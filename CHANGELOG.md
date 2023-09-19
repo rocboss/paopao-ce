@@ -74,6 +74,7 @@ All notable changes to paopao-ce are documented in this file.
   );
   ```sql
   - add cache support for index/home etc. page.
+  - add hots comments support for post detail page.
   
 ## 0.4.2
 ### Fixed
