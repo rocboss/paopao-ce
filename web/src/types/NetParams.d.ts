@@ -199,7 +199,7 @@ declare module NetParams {
 
   interface PostGetPostComments {
     id: number;
-    sort_strategy: "default" | "hots" | "newest";
+    style: "default" | "hots" | "newest";
     page?: number;
     page_size?: number;
   }
