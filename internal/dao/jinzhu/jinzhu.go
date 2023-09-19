@@ -29,7 +29,6 @@ var (
 )
 
 type dataSrv struct {
-	// core.IndexPostsService
 	core.WalletService
 	core.MessageService
 	core.TopicService
@@ -55,12 +54,10 @@ type webDataSrvA struct {
 
 func NewDataService() (core.DataService, core.VersionInfo) {
 	lazyInitial()
-
 	db := conf.MustGormDB()
 	pvs := security.NewPhoneVerifyService()
 	tms := NewTweetMetricServentA(db)
 	cis := cache.NewEventCacheIndexSrv(tms)
-
 	ds := &dataSrv{
 		TweetMetricServantA:    tms,
 		WalletService:          newWalletService(db),
