@@ -163,7 +163,7 @@ CREATE TABLE `p_post` (
 	`collection_count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '收藏数',
 	`upvote_count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '点赞数',
 	`share_count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '分享数',
-	`visibility` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '可见性 0公开 1私密 2好友可见',
+	`visibility` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开',
 	`is_top` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否置顶',
 	`is_essence` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否精华',
 	`is_lock` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否锁定',
@@ -180,6 +180,25 @@ CREATE TABLE `p_post` (
 	KEY `idx_post_user_id` (`user_id`) USING BTREE,
 	KEY `idx_post_visibility` (`visibility`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1080017989 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='冒泡/文章';
+
+-- ----------------------------
+-- Table structure for p_post_metric
+-- ----------------------------
+DROP TABLE IF EXISTS `p_post_metric`;
+CREATE TABLE `p_post_metric` (
+	`id` bigint unsigned NOT NULL AUTO_INCREMENT,
+	`post_id` bigint unsigned NOT NULL,
+	`rank_score` bigint unsigned NOT NULL DEFAULT 0,
+	`incentive_score` int unsigned NOT NULL DEFAULT 0,
+	`decay_factor` int unsigned NOT NULL DEFAULT 0,
+	`motivation_factor` int unsigned NOT NULL DEFAULT 0,
+	`is_del` tinyint NOT NULL DEFAULT 0, -- 是否删除, 0否, 1是
+	`created_on` bigint unsigned NOT NULL DEFAULT '0',
+	`modified_on` bigint unsigned NOT NULL DEFAULT '0',
+	`deleted_on` bigint unsigned NOT NULL DEFAULT '0',
+	PRIMARY KEY (`id`) USING BTREE,
+	KEY `idx_post_metric_post_id_rank_score` (`post_id`,`rank_score`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ----------------------------
 -- Table structure for p_post_attachment_bill

@@ -158,7 +158,7 @@ CREATE TABLE p_post (
 	collection_count BIGINT NOT NULL DEFAULT 0,
 	upvote_count BIGINT NOT NULL DEFAULT 0,
 	share_count BIGINT NOT NULL DEFAULT 0,
-	visibility SMALLINT NOT NULL DEFAULT 0, -- 可见性 0公开 1私密 2好友可见
+	visibility SMALLINT NOT NULL DEFAULT 0, -- 可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开
 	is_top SMALLINT NOT NULL DEFAULT 0, -- 是否置顶
 	is_essence SMALLINT NOT NULL DEFAULT 0, -- 是否精华
 	is_lock SMALLINT NOT NULL DEFAULT 0, -- 是否锁定
@@ -175,6 +175,21 @@ CREATE TABLE p_post (
 );
 CREATE INDEX idx_post_user_id ON p_post USING btree (user_id);
 CREATE INDEX idx_post_visibility ON p_post USING btree (visibility);
+
+DROP TABLE IF EXISTS p_post_metric;
+CREATE TABLE p_post_metric (
+	ID BIGSERIAL PRIMARY KEY,
+	post_id BIGINT NOT NULL,
+	rank_score BIGINT NOT NULL DEFAULT 0,
+	incentive_score INT NOT NULL DEFAULT 0,
+	decay_factor INT NOT NULL DEFAULT 0,
+	motivation_factor INT NOT NULL DEFAULT 0,
+	is_del SMALLINT NOT NULL DEFAULT 0,
+	created_on BIGINT NOT NULL DEFAULT 0,
+	modified_on BIGINT NOT NULL DEFAULT 0,
+	deleted_on BIGINT NOT NULL DEFAULT 0 
+);
+CREATE INDEX idx_post_metric_post_id_rank_score ON p_post_metric USING btree (post_id, rank_score);
 
 DROP TABLE IF EXISTS p_post_attachment_bill;
 CREATE TABLE p_post_attachment_bill (

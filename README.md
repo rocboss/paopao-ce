@@ -364,8 +364,8 @@ release/paopao serve --no-default-features --features sqlite3,localoss,loggerfil
 |`OSS:TempDir` | 对象存储 | 内测 |基于对象存储系统的对象拷贝/移动特性实现 先创建临时对象再持久化的功能|
 |`Redis` | 缓存 | 稳定 | Redis缓存功能 |
 |`SimpleCacheIndex` | 缓存 | Deprecated | 提供简单的 广场推文列表 的缓存功能 |
-|`BigCacheIndex` | 缓存 | 稳定(推荐) | 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面 |
-|`RedisCacheIndex` | 缓存 | 内测(推荐) | 使用Redis缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面 |
+|`BigCacheIndex` | 缓存 | Deprecated | 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面 |
+|`RedisCacheIndex` | 缓存 | Deprecated | 使用Redis缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面 |
 |`Zinc` | 搜索 | 稳定(推荐) | 基于[Zinc](https://github.com/zinclabs/zinc)搜索引擎提供推文搜索服务 |
 |`Meili` | 搜索 | 稳定(推荐) | 基于[Meilisearch](https://github.com/meilisearch/meilisearch)搜索引擎提供推文搜索服务 |
 |`Bleve` | 搜索 | WIP | 基于[Bleve](https://github.com/blevesearch/bleve)搜索引擎提供推文搜索服务 |
@@ -384,7 +384,7 @@ release/paopao serve --no-default-features --features sqlite3,localoss,loggerfil
 |[`Pprof`](docs/proposal/23062905-添加Pprof功能特性用于获取Profile.md)| 性能优化 | 内测 | 开启Pprof功能收集Profile信息 |  
 |`PhoneBind` | 其他 | 稳定 | 手机绑定功能 |   
 |`UseAuditHook` | 其他 | 内测 | 使用审核hook功能 |   
-|`UseJobManager` | 其他 | 内测 | 使用JobManager功能 |   
+|`DisableJobManager` | 其他 | 内测 | 禁止使用JobManager功能 |   
 |`Web:DisallowUserRegister` | 功能特性 | 稳定 | 不允许用户注册 |     
 
 > 功能项状态详情参考 [features-status](features-status.md).

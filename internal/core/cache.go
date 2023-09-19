@@ -68,14 +68,14 @@ func NewIndexActionA(act IdxAct, tweet *cs.TweetInfo) *IndexActionA {
 
 // CacheIndexService cache index service interface
 type CacheIndexService interface {
-	IndexPostsService
+	// IndexPostsService
 
 	SendAction(act IdxAct, post *dbr.Post)
 }
 
 // CacheIndexServantA cache index service interface
 type CacheIndexServantA interface {
-	IndexPostsServantA
+	// IndexPostsServantA
 
 	SendAction(act IdxAct, tweet *cs.TweetInfo)
 }
@@ -114,4 +114,5 @@ type WebCache interface {
 	PutUnreadMsgCountResp(uid int64, data []byte) error
 	DelUnreadMsgCountResp(uid int64) error
 	ExistUnreadMsgCountResp(uid int64) bool
+	PutHistoryMaxOnline(newScore int) (int, error)
 }

@@ -209,8 +209,26 @@ CREATE TABLE "p_post" (
   "modified_on" integer NOT NULL,
   "deleted_on" integer NOT NULL,
   "is_del" integer NOT NULL,
-  "visibility" integer NOT NULL,
+  "visibility" integer NOT NULL,  -- 可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开
   PRIMARY KEY ("id")
+);
+
+-- ----------------------------
+-- Table structure for p_post_metric
+-- ----------------------------
+DROP TABLE IF EXISTS "p_post_metric";
+CREATE TABLE "p_post_metric" (
+	"id" integer NOT NULL,
+	"post_id" integer NOT NULL,
+	"rank_score" integer NOT NULL,
+	"incentive_score" integer NOT NULL DEFAULT 0,
+	"decay_factor" integer NOT NULL DEFAULT 0,
+	"motivation_factor" integer NOT NULL DEFAULT 0,
+	"is_del" integer NOT NULL DEFAULT 0,
+	"created_on" integer NOT NULL DEFAULT 0,
+	"modified_on" integer NOT NULL DEFAULT 0,
+	"deleted_on" integer NOT NULL DEFAULT 0,
+	PRIMARY KEY ("id")
 );
 
 -- ----------------------------
@@ -529,6 +547,15 @@ ON "p_post" (
 CREATE INDEX "idx_post_visibility"
 ON "p_post" (
   "visibility" ASC
+);
+
+-- ----------------------------
+-- Indexes structure for table idx_post_metric_post_id_rank_score
+-- ----------------------------
+CREATE INDEX "idx_post_metric_post_id_rank_score"
+ON "p_post_metric" (
+  "post_id" ASC,
+  "rank_score" ASC
 );
 
 -- ----------------------------

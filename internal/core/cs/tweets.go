@@ -16,10 +16,17 @@ const (
 	TweetBlockChargeAttachment
 
 	// 推文可见性
-	TweetVisitPublic TweetVisibleType = iota
-	TweetVisitPrivate
-	TweetVisitFriend
-	TweetVisitInvalid
+	TweetVisitPublic    TweetVisibleType = 90
+	TweetVisitPrivate   TweetVisibleType = 0
+	TweetVisitFriend    TweetVisibleType = 50
+	TweetVisitFollowing TweetVisibleType = 60
+
+	// 用户推文列表样式
+	StyleUserTweetsGuest uint8 = iota
+	StyleUserTweetsSelf
+	StyleUserTweetsAdmin
+	StyleUserTweetsFriend
+	StyleUserTweetsFollowing
 
 	// 附件类型
 	AttachmentTypeImage AttachmentType = iota + 1
@@ -32,7 +39,7 @@ type (
 	// TODO: 优化一下类型为 uint8， 需要底层数据库同步修改
 	TweetBlockType int
 
-	// TweetVisibleType 推文可见性，0公开，1私密，2好友
+	// TweetVisibleType 推文可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开',
 	TweetVisibleType uint8
 
 	// AttachmentType 附件类型， 1图片， 2视频， 3其他
@@ -138,4 +145,20 @@ type NewTweetReq struct {
 	AttachmentPrice int64            `json:"attachment_price"`
 	Visibility      TweetVisibleType `json:"visibility"`
 	ClientIP        string           `json:"-" binding:"-"`
+}
+
+func (t TweetVisibleType) ToOutValue() (res uint8) {
+	switch t {
+	case TweetVisitPublic:
+		res = 0
+	case TweetVisitPrivate:
+		res = 1
+	case TweetVisitFriend:
+		res = 2
+	case TweetVisitFollowing:
+		res = 3
+	default:
+		res = 1
+	}
+	return
 }

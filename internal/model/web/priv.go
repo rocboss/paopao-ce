@@ -13,12 +13,24 @@ import (
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
+
+const (
+	// 推文可见性
+	TweetVisitPublic TweetVisibleType = iota
+	TweetVisitPrivate
+	TweetVisitFriend
+	TweetVisitFollowing
+	TweetVisitInvalid
+)
+
+type TweetVisibleType cs.TweetVisibleType
 
 type TweetCommentThumbsReq struct {
 	SimpleInfo `json:"-" binding:"-"`
@@ -45,7 +57,7 @@ type CreateTweetReq struct {
 	Tags            []string           `json:"tags" binding:"required"`
 	Users           []string           `json:"users" binding:"required"`
 	AttachmentPrice int64              `json:"attachment_price"`
-	Visibility      core.PostVisibleT  `json:"visibility"`
+	Visibility      TweetVisibleType   `json:"visibility"`
 	ClientIP        string             `json:"-" binding:"-"`
 }
 
@@ -103,12 +115,12 @@ type HighlightTweetResp struct {
 
 type VisibleTweetReq struct {
 	BaseInfo   `json:"-" binding:"-"`
-	ID         int64             `json:"id"`
-	Visibility core.PostVisibleT `json:"visibility"`
+	ID         int64            `json:"id"`
+	Visibility TweetVisibleType `json:"visibility"`
 }
 
 type VisibleTweetResp struct {
-	Visibility core.PostVisibleT `json:"visibility"`
+	Visibility TweetVisibleType `json:"visibility"`
 }
 
 type CreateCommentReq struct {
@@ -295,4 +307,23 @@ func (r *CreateTweetResp) Render(c *gin.Context) {
 		Style: AuditStyleUserTweet,
 		Id:    r.ID,
 	})
+}
+
+func (t TweetVisibleType) ToVisibleValue() (res cs.TweetVisibleType) {
+	// 原来的可见性: 0公开 1私密 2好友可见 3关注可见
+	//  现在的可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开
+	switch t {
+	case TweetVisitPublic:
+		res = cs.TweetVisitPublic
+	case TweetVisitPrivate:
+		res = cs.TweetVisitPrivate
+	case TweetVisitFriend:
+		res = cs.TweetVisitFriend
+	case TweetVisitFollowing:
+		res = cs.TweetVisitFollowing
+	default:
+		// TODO: 默认私密
+		res = cs.TweetVisitPrivate
+	}
+	return
 }

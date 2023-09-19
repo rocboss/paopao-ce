@@ -71,29 +71,47 @@ const (
 	_Security_GetLatestPhoneCaptcha            = `SELECT * FROM @captcha WHERE phone=? AND is_del=0`
 	_Security_UsePhoneCaptcha                  = `UPDATE @captcha SET use_times=use_times+1, modified_on=? WHERE id=? AND is_del=0`
 	_ShipIndex_IndexByAdmin                    = `SELECT * FROM @post WHERE is_del=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
-	_ShipIndex_IndexByGuest                    = `SELECT * FROM @post WHERE visibility=0 AND is_del=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
-	_ShipIndex_IndexBySelf                     = `SELECT * FROM @post WHERE is_del=0 AND 	(visibility=0 OR 	(visibility=1 AND user_id=?) OR 	(visibility=2 AND user_id IN (?))) ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
+	_ShipIndex_IndexByGuest                    = `SELECT * FROM @post WHERE visibility=90 AND is_del=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
+	_ShipIndex_IndexBySelf                     = `SELECT * FROM @post WHERE is_del=0 AND 	(visibility=90 OR 	(visibility=0 AND user_id=?) OR 	(visibility=50 AND user_id IN (?))) ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
 	_ShipIndex_IndexCountByAdmin               = `SELECT count(*) FROM @post WHERE is_del=0`
-	_ShipIndex_IndexCountByGuest               = `SELECT count(*) FROM @post WHERE visibility=0 AND is_del=0`
-	_ShipIndex_IndexCountBySelf                = `SELECT count(*) FROM @post WHERE is_del=0 AND 	(visibility=0 OR 	(visibility=1 AND user_id=?) OR 	(visibility=2 AND user_id IN (?)))`
-	_SimpleIndex_Index                         = `SELECT * FROM @post WHERE visibility=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
-	_SimpleIndex_IndexCount                    = `SELECT count(*) FROM @post WHERE visibility=0`
+	_ShipIndex_IndexCountByGuest               = `SELECT count(*) FROM @post WHERE visibility=90 AND is_del=0`
+	_ShipIndex_IndexCountBySelf                = `SELECT count(*) FROM @post WHERE is_del=0 AND 	(visibility=90 OR 	(visibility=0 AND user_id=?) OR 	(visibility=50 AND user_id IN (?)))`
+	_SimpleIndex_Index                         = `SELECT * FROM @post WHERE visibility=90 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
+	_SimpleIndex_IndexCount                    = `SELECT count(*) FROM @post WHERE visibility=90`
+	_Tweet_CountFollowingTweets                = `SELECT count(*) FROM @post WHERE user_id=? AND is_del=0`
+	_Tweet_CountFollowingTweetsFollow          = `SELECT count(*) FROM @post WHERE (user_id=? OR (visibility>=60 AND user_id IN(?))) AND is_del=0`
+	_Tweet_CountFollowingTweetsFriend          = `SELECT count(*) FROM @post WHERE (user_id=? OR (visibility>=50 AND user_id IN(?))) AND is_del=0`
+	_Tweet_CountFollowingTweetsFriendFollow    = `SELECT count(*) FROM @post WHERE (user_id=? OR (visibility>=50 AND user_id IN(?)) OR (visibility>=60 AND user_id IN(?))) AND is_del=0`
+	_Tweet_CountIndexHotsTweets                = `SELECT count(*) FROM @post post LEFT JOIN @post_metric metric ON post.id=metric.post_id AND metric.is_del=0 WHERE post.visibility>=90 AND post.is_del=0`
+	_Tweet_CountIndexNewestTweets              = `SELECT count(*) FROM @post WHERE visibility>=90 AND is_del=0`
+	_Tweet_CountSyncSearchTweets               = `SELECT count(*) FROM @post WHERE visibility>=50 AND is_del=0`
+	_Tweet_CountUserTweets                     = `SELECT count(*) FROM @post WHERE user_id=? AND visibility>=? AND is_essence=? AND is_del=0`
 	_Tweet_GetAnyPostCount                     = `SELECT count(*) FROM @post WHERE visibility IN (?)`
 	_Tweet_GetAnyPosts                         = `SELECT * FROM @post WHERE visibility IN (?) AND is_del=0 LIMIT ? OFFSET ?`
+	_Tweet_GetBeFollowIds                      = `SELECT follow_id FROM @following WHERE user_id=? AND is_del=0`
+	_Tweet_GetBeFriendIds                      = `SELECT user_id FROM @contact WHERE friend_id=? AND is_del=0`
 	_Tweet_GetPostAttachmentBill               = `SELECT * FROM @post_attachment_bill WHERE post_id=? AND user_id=? AND is_del=0`
 	_Tweet_GetPostById                         = `SELECT * FROM @post WHERE id=? AND is_del=0`
 	_Tweet_GetPostContentById                  = `SELECT * FROM @post_content WHERE id=? AND is_del=0`
 	_Tweet_GetPostContentsByIds                = `SELECT * FROM @post_content WHERE post_id IN (?) AND is_del=0`
-	_Tweet_GetUserPostCollection               = `SELECT 	s.*, 	P.ID "post.id", 	P.user_id "post.user_id", 	P.comment_count "post.comment_count", 	P.collection_count "post.collection_count", 	P.upvote_count "post.upvote_count", 	P.share_count "post.share_count", 	P.visibility "post.visibility", 	P.is_top "post.is_top", 	P.is_essence "post.is_essence", 	P.is_lock "post.is_lock", 	P.latest_replied_on "post.latest_replied_on", 	P.tags "post.tags", 	P.attachment_price "post.attachment_price", 	P.ip "post.ip", 	P.ip_loc "post.ip_loc", 	P.is_del "post.is_del", 	P.created_on "post.created_on", 	P.modified_on "post.modified_on", 	P.deleted_on "post.deleted_on" FROM 	@post_collection s 	JOIN @post P ON s.post_id = P.ID WHERE 	s.post_id = ? 	AND s.user_id = ? 	AND s.is_del = 0 	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) ) ORDER BY 	P.ID DESC`
-	_Tweet_GetUserPostCollectionCount          = `SELECT count(*) FROM 	@post_collection s 	JOIN @post P ON s.post_id = P.ID WHERE 	s.user_id = ? 	AND s.is_del = 0 	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) )`
-	_Tweet_GetUserPostCollections              = `SELECT 	s.*, 	P.ID "post.id", 	P.user_id "post.user_id", 	P.comment_count "post.comment_count", 	P.collection_count "post.collection_count", 	P.upvote_count "post.upvote_count", 	P.share_count "post.share_count", 	P.visibility "post.visibility", 	P.is_top "post.is_top", 	P.is_essence "post.is_essence", 	P.is_lock "post.is_lock", 	P.latest_replied_on "post.latest_replied_on", 	P.tags "post.tags", 	P.attachment_price "post.attachment_price", 	P.ip "post.ip", 	P.ip_loc "post.ip_loc", 	P.is_del "post.is_del", 	P.created_on "post.created_on", 	P.modified_on "post.modified_on", 	P.deleted_on "post.deleted_on" FROM 	@post_collection s 	JOIN @post P ON s.post_id = P.ID WHERE 	s.user_id = ? 	AND s.is_del = 0 	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) ) ORDER BY s.ID DESC, 	P.ID DESC LIMIT ? OFFSET ?`
+	_Tweet_GetUserPostCollection               = `SELECT 	s.*, 	P.ID "post.id", 	P.user_id "post.user_id", 	P.comment_count "post.comment_count", 	P.collection_count "post.collection_count", 	P.upvote_count "post.upvote_count", 	P.share_count "post.share_count", 	P.visibility "post.visibility", 	P.is_top "post.is_top", 	P.is_essence "post.is_essence", 	P.is_lock "post.is_lock", 	P.latest_replied_on "post.latest_replied_on", 	P.tags "post.tags", 	P.attachment_price "post.attachment_price", 	P.ip "post.ip", 	P.ip_loc "post.ip_loc", 	P.is_del "post.is_del", 	P.created_on "post.created_on", 	P.modified_on "post.modified_on", 	P.deleted_on "post.deleted_on" FROM 	@post_collection s 	JOIN @post P ON s.post_id = P.ID WHERE 	s.post_id = ? 	AND s.user_id = ? 	AND s.is_del = 0 	AND ( visibility >= 50 OR ( visibility = 0 AND P.user_id = ? ) ) ORDER BY 	P.ID DESC`
+	_Tweet_GetUserPostCollectionCount          = `SELECT count(*) FROM 	@post_collection s 	JOIN @post P ON s.post_id = P.ID WHERE 	s.user_id = ? 	AND s.is_del = 0 	AND ( visibility >= 50 OR ( visibility = 0 AND P.user_id = ? ) )`
+	_Tweet_GetUserPostCollections              = `SELECT 	s.*, 	P.ID "post.id", 	P.user_id "post.user_id", 	P.comment_count "post.comment_count", 	P.collection_count "post.collection_count", 	P.upvote_count "post.upvote_count", 	P.share_count "post.share_count", 	P.visibility "post.visibility", 	P.is_top "post.is_top", 	P.is_essence "post.is_essence", 	P.is_lock "post.is_lock", 	P.latest_replied_on "post.latest_replied_on", 	P.tags "post.tags", 	P.attachment_price "post.attachment_price", 	P.ip "post.ip", 	P.ip_loc "post.ip_loc", 	P.is_del "post.is_del", 	P.created_on "post.created_on", 	P.modified_on "post.modified_on", 	P.deleted_on "post.deleted_on" FROM 	@post_collection s 	JOIN @post P ON s.post_id = P.ID WHERE 	s.user_id = ? 	AND s.is_del = 0 	AND ( visibility >= 50 OR ( visibility = 0 AND P.user_id = ? ) ) ORDER BY s.ID DESC, 	P.ID DESC LIMIT ? OFFSET ?`
 	_Tweet_GetUserPostCount                    = `SELECT count(*) FROM @post WHERE user_id=? AND visibility IN (?)`
-	_Tweet_GetUserPostStar                     = `SELECT 	s.*, 	P.ID "post.id", 	P.user_id "post.user_id", 	P.comment_count "post.comment_count", 	P.collection_count "post.collection_count", 	P.upvote_count "post.upvote_count", 	P.share_count "post.share_count", 	P.visibility "post.visibility", 	P.is_top "post.is_top", 	P.is_essence "post.is_essence", 	P.is_lock "post.is_lock", 	P.latest_replied_on "post.latest_replied_on", 	P.tags "post.tags", 	P.attachment_price "post.attachment_price", 	P.ip "post.ip", 	P.ip_loc "post.ip_loc", 	P.is_del "post.is_del", 	P.created_on "post.created_on", 	P.modified_on "post.modified_on", 	P.deleted_on "post.deleted_on" FROM 	@post_star s 	JOIN @post P ON s.post_id = P.ID WHERE 	s.post_id = ? 	AND s.user_id = ? 	AND s.is_del = 0 	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) ) ORDER BY 	P.ID DESC`
-	_Tweet_GetUserPostStarCount                = `SELECT count(*) FROM 	@post_star s 	JOIN @post P ON s.post_id = P.ID WHERE 	s.user_id = ? 	AND s.is_del = 0 	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) )`
-	_Tweet_GetUserPostStars                    = `SELECT 	s.*, 	P.ID "post.id", 	P.user_id "post.user_id", 	P.comment_count "post.comment_count", 	P.collection_count "post.collection_count", 	P.upvote_count "post.upvote_count", 	P.share_count "post.share_count", 	P.visibility "post.visibility", 	P.is_top "post.is_top", 	P.is_essence "post.is_essence", 	P.is_lock "post.is_lock", 	P.latest_replied_on "post.latest_replied_on", 	P.tags "post.tags", 	P.attachment_price "post.attachment_price", 	P.ip "post.ip", 	P.ip_loc "post.ip_loc", 	P.is_del "post.is_del", 	P.created_on "post.created_on", 	P.modified_on "post.modified_on", 	P.deleted_on "post.deleted_on" FROM 	@post_star s 	JOIN @post P ON s.post_id = P.ID WHERE 	s.user_id = ? 	AND s.is_del = 0 	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) ) ORDER BY s.ID DESC, 	P.ID DESC LIMIT ? OFFSET ?`
+	_Tweet_GetUserPostStar                     = `SELECT 	s.*, 	P.ID "post.id", 	P.user_id "post.user_id", 	P.comment_count "post.comment_count", 	P.collection_count "post.collection_count", 	P.upvote_count "post.upvote_count", 	P.share_count "post.share_count", 	P.visibility "post.visibility", 	P.is_top "post.is_top", 	P.is_essence "post.is_essence", 	P.is_lock "post.is_lock", 	P.latest_replied_on "post.latest_replied_on", 	P.tags "post.tags", 	P.attachment_price "post.attachment_price", 	P.ip "post.ip", 	P.ip_loc "post.ip_loc", 	P.is_del "post.is_del", 	P.created_on "post.created_on", 	P.modified_on "post.modified_on", 	P.deleted_on "post.deleted_on" FROM 	@post_star s 	JOIN @post P ON s.post_id = P.ID WHERE 	s.post_id = ? 	AND s.user_id = ? 	AND s.is_del = 0 	AND ( visibility >= 50 OR ( visibility = 0 AND P.user_id = ? ) ) ORDER BY 	P.ID DESC`
+	_Tweet_GetUserPostStarCount                = `SELECT count(*) FROM 	@post_star s 	JOIN @post P ON s.post_id = P.ID WHERE 	s.user_id = ? 	AND s.is_del = 0 	AND ( visibility >= 50 OR ( visibility = 0 AND P.user_id = ? ) )`
+	_Tweet_GetUserPostStars                    = `SELECT 	s.*, 	P.ID "post.id", 	P.user_id "post.user_id", 	P.comment_count "post.comment_count", 	P.collection_count "post.collection_count", 	P.upvote_count "post.upvote_count", 	P.share_count "post.share_count", 	P.visibility "post.visibility", 	P.is_top "post.is_top", 	P.is_essence "post.is_essence", 	P.is_lock "post.is_lock", 	P.latest_replied_on "post.latest_replied_on", 	P.tags "post.tags", 	P.attachment_price "post.attachment_price", 	P.ip "post.ip", 	P.ip_loc "post.ip_loc", 	P.is_del "post.is_del", 	P.created_on "post.created_on", 	P.modified_on "post.modified_on", 	P.deleted_on "post.deleted_on" FROM 	@post_star s 	JOIN @post P ON s.post_id = P.ID WHERE 	s.user_id = ? 	AND s.is_del = 0 	AND ( visibility >= 50 OR ( visibility = 0 AND P.user_id = ? ) ) ORDER BY s.ID DESC, 	P.ID DESC LIMIT ? OFFSET ?`
 	_Tweet_GetUserPosts                        = `SELECT * FROM @post WHERE user_id=? AND visibility IN (?) ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
 	_TweetHelp_GetPostContentByIds             = `SELECT id, post_id, content, type, sort FROM @post_content WHERE post_id IN (?) AND is_del=0`
 	_TweetHelp_GetUsersByIds                   = `SELECT id, username, nickname, status, avatar, is_admin FROM @user WHERE id IN (?) AND is_del=0`
+	_Tweet_ListFollowingTweets                 = `SELECT * FROM @post WHERE user_id=? AND is_del=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_ListFollowingTweetsFollow           = `SELECT * FROM @post WHERE (user_id=? OR (visibility>=60 AND user_id IN(?))) AND is_del=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_ListFollowingTweetsFriend           = `SELECT * FROM @post WHERE (user_id=? OR (visibility>=50 AND user_id IN(?))) AND is_del=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_ListFollowingTweetsFriendFollow     = `SELECT * FROM @post WHERE (user_id=? OR (visibility>=50 AND user_id IN(?)) OR (visibility>=60 AND user_id IN(?))) AND is_del=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_ListIndexHotsTweets                 = `SELECT post.* FROM @post post LEFT JOIN @post_metric metric ON post.id=metric.post_id WHERE post.visibility>=90 AND post.is_del=0 ORDER BY post.is_top DESC, metric.rank_score DESC, post.latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_ListIndexNewestTweets               = `SELECT * FROM @post WHERE visibility>=90 AND is_del=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_ListSyncSearchTweets                = `SELECT * FROM @post WHERE visibility>=50 AND is_del=0 LIMIT ? OFFSET ?`
+	_Tweet_ListUserTweets                      = `SELECT * FROM @post WHERE user_id=? AND visibility>=? AND is_essence=? AND is_del=0 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
 	_TweetManage_AddAttachment                 = `INSERT INTO @attachment (user_id, file_size, img_width, img_height, type, content, created_on) VALUES (?, ?, ?, ?, ?, ?, ?)`
 	_TweetManage_AddPost                       = `INSERT INTO @post (user_id, tags, ip, ip_loc, attachment_price, visibility, latest_replied_on, created_on) VALUES (:user_id, :tags, :ip, :ip_loc, :attachment_price, :visibility, :latest_replied_on, :created_on)`
 	_TweetManage_AddPostCollection             = `INSERT INTO @post_collection (post_id, user_id, created_on) VALUES (?, ?, ?)`
@@ -114,26 +132,30 @@ const (
 	_TweetManage_StickPost                     = `UPDATE @post SET is_top=1-is_top, modified_on=? WHERE id=? AND is_del=0`
 	_TweetManage_UpdatePost                    = `UPDATE @post SET comment_count=:comment_count, upvote_count=:upvote_count, collection_count=:collection_count, latest_replied_on=:latest_replied_on, modified_on=:modified_on WHERE id=:id AND is_del=0`
 	_TweetManage_VisiblePost                   = `UPDATE @post SET visibility=?, is_top=?, modified_on=? WHERE id=? AND is_del=0`
-	_Tweet_UserCommentTweetsByFriend           = `SELECT id, 	user_id, 	comment_count, 	collection_count, 	upvote_count, 	share_count, 	visibility, 	is_top, 	is_essence, 	is_lock, 	latest_replied_on, 	tags, 	attachment_price, 	ip, 	ip_loc, 	created_on, 	modified_on, 	deleted_on, 	is_del FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND (visibility=0 OR visibility=2) ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
-	_Tweet_UserCommentTweetsByGuest            = `SELECT id, 	user_id, 	comment_count, 	collection_count, 	upvote_count, 	share_count, 	visibility, 	is_top, 	is_essence, 	is_lock, 	latest_replied_on, 	tags, 	attachment_price, 	ip, 	ip_loc, 	created_on, 	modified_on, 	deleted_on, 	is_del FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND visibility=0 ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
+	_TweetMetrics_AddTweetMetric               = `INSERT INTO @post_metric (post_id, created_on) VALUES (?, ?)`
+	_TweetMetrics_DeleteTweetMetric            = `UPDATE @post_metric SET is_del=1, deleted_on=? WHERE post_id=? AND is_del=0`
+	_TweetMetrics_GetMotivationFactor          = `SELECT motivation_factor FROM @post_metric WHERE post_id=? AND is_del=0`
+	_TweetMetrics_UpdateRankScore              = `UPDATE @post_metric SET rank_score=?, modified_on=? WHERE post_id=? AND is_del=0`
+	_Tweet_UserCommentTweetsByFriend           = `SELECT id, 	user_id, 	comment_count, 	collection_count, 	upvote_count, 	share_count, 	visibility, 	is_top, 	is_essence, 	is_lock, 	latest_replied_on, 	tags, 	attachment_price, 	ip, 	ip_loc, 	created_on, 	modified_on, 	deleted_on, 	is_del FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND visibility>=50 ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserCommentTweetsByGuest            = `SELECT id, 	user_id, 	comment_count, 	collection_count, 	upvote_count, 	share_count, 	visibility, 	is_top, 	is_essence, 	is_lock, 	latest_replied_on, 	tags, 	attachment_price, 	ip, 	ip_loc, 	created_on, 	modified_on, 	deleted_on, 	is_del FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND visibility>=90 ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
 	_Tweet_UserCommentTweetsBySelf             = `SELECT id, 	user_id, 	comment_count, 	collection_count, 	upvote_count, 	share_count, 	visibility, 	is_top, 	is_essence, 	is_lock, 	latest_replied_on, 	tags, 	attachment_price, 	ip, 	ip_loc, 	created_on, 	modified_on, 	deleted_on, 	is_del FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
-	_Tweet_UserCommentTweetsCountByFriend      = `SELECT count(*) FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND (visibility=0 OR visibility=2)`
-	_Tweet_UserCommentTweetsCountByGuest       = `SELECT count(*) FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND visibility=0`
+	_Tweet_UserCommentTweetsCountByFriend      = `SELECT count(*) FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND visibility>=50`
+	_Tweet_UserCommentTweetsCountByGuest       = `SELECT count(*) FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND visibility>=90`
 	_Tweet_UserCommentTweetsCountBySelf        = `SELECT count(*) FROM @post_by_comment WHERE is_del=0 AND comment_user_id=?`
-	_Tweet_UserMediaTweetsByFriend             = `SELECT id, 	user_id, 	comment_count, 	collection_count, 	upvote_count, 	share_count, 	visibility, 	is_top, 	is_essence, 	is_lock, 	latest_replied_on, 	tags, 	attachment_price, 	ip, 	ip_loc, 	created_on, 	modified_on, 	deleted_on, 	is_del FROM @post_by_media WHERE is_del=0 AND user_id=? AND (visibility=0 OR visibility=2) ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
-	_Tweet_UserMediaTweetsByGuest              = `SELECT id, 	user_id, 	comment_count, 	collection_count, 	upvote_count, 	share_count, 	visibility, 	is_top, 	is_essence, 	is_lock, 	latest_replied_on, 	tags, 	attachment_price, 	ip, 	ip_loc, 	created_on, 	modified_on, 	deleted_on, 	is_del FROM @post_by_media WHERE is_del=0 AND user_id=? AND visibility=0 ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserMediaTweetsByFriend             = `SELECT id, 	user_id, 	comment_count, 	collection_count, 	upvote_count, 	share_count, 	visibility, 	is_top, 	is_essence, 	is_lock, 	latest_replied_on, 	tags, 	attachment_price, 	ip, 	ip_loc, 	created_on, 	modified_on, 	deleted_on, 	is_del FROM @post_by_media WHERE is_del=0 AND user_id=? AND visibility>=50 ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserMediaTweetsByGuest              = `SELECT id, 	user_id, 	comment_count, 	collection_count, 	upvote_count, 	share_count, 	visibility, 	is_top, 	is_essence, 	is_lock, 	latest_replied_on, 	tags, 	attachment_price, 	ip, 	ip_loc, 	created_on, 	modified_on, 	deleted_on, 	is_del FROM @post_by_media WHERE is_del=0 AND user_id=? AND visibility=90 ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
 	_Tweet_UserMediaTweetsBySelf               = `SELECT id, 	user_id, 	comment_count, 	collection_count, 	upvote_count, 	share_count, 	visibility, 	is_top, 	is_essence, 	is_lock, 	latest_replied_on, 	tags, 	attachment_price, 	ip, 	ip_loc, 	created_on, 	modified_on, 	deleted_on, 	is_del FROM @post_by_media WHERE is_del=0 AND user_id=? ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
-	_Tweet_UserMediaTweetsCountByFriend        = `SELECT count(*) FROM @post_by_media WHERE is_del=0 AND user_id=? AND (visibility=0 OR visibility=2)`
-	_Tweet_UserMediaTweetsCountByGuest         = `SELECT count(*) FROM @post_by_media WHERE is_del=0 AND user_id=? AND visibility=0`
+	_Tweet_UserMediaTweetsCountByFriend        = `SELECT count(*) FROM @post_by_media WHERE is_del=0 AND user_id=? AND visibility>=50`
+	_Tweet_UserMediaTweetsCountByGuest         = `SELECT count(*) FROM @post_by_media WHERE is_del=0 AND user_id=? AND visibility>=90`
 	_Tweet_UserMediaTweetsCountBySelf          = `SELECT count(*) FROM @post_by_media WHERE is_del=0 AND user_id=?`
 	_Tweet_UserStarTweetsByAdmin               = `SELECT 	star.*, 	post.ID "post.id", 	post.created_on "post.created_on", 	post.modified_on "post.modified_on", 	post.deleted_on "post.deleted_on", 	post.is_del "post.is_del", 	post.user_id "post.user_id", 	post.comment_count "post.comment_count", 	post.collection_count "post.collection_count", 	post.share_count "post.share_count", 	post.upvote_count "post.upvote_count", 	post.visibility "post.visibility", 	post.is_top "post.is_top", 	post.is_essence "post.is_essence", 	post.is_lock "post.is_lock", 	post.latest_replied_on "post.latest_replied_on", 	post.tags "post.tags", 	post.attachment_price "post.attachment_price", 	post.ip "post.ip", 	post.ip_loc "post.ip_loc" FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? ORDER BY post.latest_replied_on DESC LIMIT ? OFFSET ?`
-	_Tweet_UserStarTweetsByFriend              = `SELECT 	star.*, 	post.ID "post.id", 	post.created_on "post.created_on", 	post.modified_on "post.modified_on", 	post.deleted_on "post.deleted_on", 	post.is_del "post.is_del", 	post.user_id "post.user_id", 	post.comment_count "post.comment_count", 	post.collection_count "post.collection_count", 	post.share_count "post.share_count", 	post.upvote_count "post.upvote_count", 	post.visibility "post.visibility", 	post.is_top "post.is_top", 	post.is_essence "post.is_essence", 	post.is_lock "post.is_lock", 	post.latest_replied_on "post.latest_replied_on", 	post.tags "post.tags", 	post.attachment_price "post.attachment_price", 	post.ip "post.ip", 	post.ip_loc "post.ip_loc" FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND (post.visibility=0 OR post.visibility=2) ORDER BY post.latest_replied_on DESC LIMIT ? OFFSET ?`
-	_Tweet_UserStarTweetsByGuest               = `SELECT 	star.*, 	post.ID "post.id", 	post.created_on "post.created_on", 	post.modified_on "post.modified_on", 	post.deleted_on "post.deleted_on", 	post.is_del "post.is_del", 	post.user_id "post.user_id", 	post.comment_count "post.comment_count", 	post.collection_count "post.collection_count", 	post.share_count "post.share_count", 	post.upvote_count "post.upvote_count", 	post.visibility "post.visibility", 	post.is_top "post.is_top", 	post.is_essence "post.is_essence", 	post.is_lock "post.is_lock", 	post.latest_replied_on "post.latest_replied_on", 	post.tags "post.tags", 	post.attachment_price "post.attachment_price", 	post.ip "post.ip", 	post.ip_loc "post.ip_loc" FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE 	star.is_del = 0 	AND star.user_id =? 	AND post.visibility = 0 ORDER BY post.latest_replied_on DESC LIMIT ? OFFSET ?`
-	_Tweet_UserStarTweetsBySelf                = `SELECT 	star.*, 	post.ID "post.id", 	post.created_on "post.created_on", 	post.modified_on "post.modified_on", 	post.deleted_on "post.deleted_on", 	post.is_del "post.is_del", 	post.user_id "post.user_id", 	post.comment_count "post.comment_count", 	post.collection_count "post.collection_count", 	post.share_count "post.share_count", 	post.upvote_count "post.upvote_count", 	post.visibility "post.visibility", 	post.is_top "post.is_top", 	post.is_essence "post.is_essence", 	post.is_lock "post.is_lock", 	post.latest_replied_on "post.latest_replied_on", 	post.tags "post.tags", 	post.attachment_price "post.attachment_price", 	post.ip "post.ip", 	post.ip_loc "post.ip_loc" FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 OR (post.visibility=0 AND post.user_id=?)) ORDER BY post.latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserStarTweetsByFriend              = `SELECT 	star.*, 	post.ID "post.id", 	post.created_on "post.created_on", 	post.modified_on "post.modified_on", 	post.deleted_on "post.deleted_on", 	post.is_del "post.is_del", 	post.user_id "post.user_id", 	post.comment_count "post.comment_count", 	post.collection_count "post.collection_count", 	post.share_count "post.share_count", 	post.upvote_count "post.upvote_count", 	post.visibility "post.visibility", 	post.is_top "post.is_top", 	post.is_essence "post.is_essence", 	post.is_lock "post.is_lock", 	post.latest_replied_on "post.latest_replied_on", 	post.tags "post.tags", 	post.attachment_price "post.attachment_price", 	post.ip "post.ip", 	post.ip_loc "post.ip_loc" FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND post.visibility>=50 ORDER BY post.latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserStarTweetsByGuest               = `SELECT 	star.*, 	post.ID "post.id", 	post.created_on "post.created_on", 	post.modified_on "post.modified_on", 	post.deleted_on "post.deleted_on", 	post.is_del "post.is_del", 	post.user_id "post.user_id", 	post.comment_count "post.comment_count", 	post.collection_count "post.collection_count", 	post.share_count "post.share_count", 	post.upvote_count "post.upvote_count", 	post.visibility "post.visibility", 	post.is_top "post.is_top", 	post.is_essence "post.is_essence", 	post.is_lock "post.is_lock", 	post.latest_replied_on "post.latest_replied_on", 	post.tags "post.tags", 	post.attachment_price "post.attachment_price", 	post.ip "post.ip", 	post.ip_loc "post.ip_loc" FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE 	star.is_del=0 	AND star.user_id=? 	AND post.visibility>=90 ORDER BY post.latest_replied_on DESC LIMIT ? OFFSET ?`
+	_Tweet_UserStarTweetsBySelf                = `SELECT 	star.*, 	post.ID "post.id", 	post.created_on "post.created_on", 	post.modified_on "post.modified_on", 	post.deleted_on "post.deleted_on", 	post.is_del "post.is_del", 	post.user_id "post.user_id", 	post.comment_count "post.comment_count", 	post.collection_count "post.collection_count", 	post.share_count "post.share_count", 	post.upvote_count "post.upvote_count", 	post.visibility "post.visibility", 	post.is_top "post.is_top", 	post.is_essence "post.is_essence", 	post.is_lock "post.is_lock", 	post.latest_replied_on "post.latest_replied_on", 	post.tags "post.tags", 	post.attachment_price "post.attachment_price", 	post.ip "post.ip", 	post.ip_loc "post.ip_loc" FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>90 OR (post.visibility>=90 AND post.user_id=?)) ORDER BY post.latest_replied_on DESC LIMIT ? OFFSET ?`
 	_Tweet_UserStarTweetsCountByAdmin          = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=?`
-	_Tweet_UserStarTweetsCountByFriend         = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND (post.visibility=0 OR post.visibility=2)`
-	_Tweet_UserStarTweetsCountByGuest          = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND post.visibility=0`
-	_Tweet_UserStarTweetsCountBySelf           = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 OR (post.visibility=0 AND post.user_id=?))`
+	_Tweet_UserStarTweetsCountByFriend         = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND post.visibility>=50`
+	_Tweet_UserStarTweetsCountByGuest          = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND post.visibility>=90`
+	_Tweet_UserStarTweetsCountBySelf           = `SELECT count(*) FROM 	@post_star star 	JOIN @post post ON star.post_id = post.ID WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>90 OR (post.visibility>=90 AND post.user_id=?))`
 	_UserManage_CreateUser                     = `INSERT INTO @user (username, nickname, password, salt, avatar, status, created_on, balance) VALUES (:username, :nickname, :password, :salt, :avatar, :status, :created_on, 0)`
 	_UserManage_GetAnyUsers                    = `SELECT * FROM @user WHERE is_del=0 ORDER BY id ASC limit 6`
 	_UserManage_GetRegisterUserCount           = `SELECT count(*) FROM @user WHERE is_del=0`
@@ -275,41 +297,59 @@ type SimpleIndex struct {
 }
 
 type Tweet struct {
-	yesql.Namespace                `yesql:"tweet"`
-	GetAnyPostCount                string     `yesql:"get_any_post_count"`
-	GetAnyPosts                    string     `yesql:"get_any_posts"`
-	GetPostContentsByIds           string     `yesql:"get_post_contents_by_ids"`
-	GetUserPostCount               string     `yesql:"get_user_post_count"`
-	GetUserPosts                   string     `yesql:"get_user_posts"`
-	GetPostAttachmentBill          *sqlx.Stmt `yesql:"get_post_attachment_bill"`
-	GetPostById                    *sqlx.Stmt `yesql:"get_post_by_id"`
-	GetPostContentById             *sqlx.Stmt `yesql:"get_post_content_by_id"`
-	GetUserPostCollection          *sqlx.Stmt `yesql:"get_user_post_collection"`
-	GetUserPostCollectionCount     *sqlx.Stmt `yesql:"get_user_post_collection_count"`
-	GetUserPostCollections         *sqlx.Stmt `yesql:"get_user_post_collections"`
-	GetUserPostStar                *sqlx.Stmt `yesql:"get_user_post_star"`
-	GetUserPostStarCount           *sqlx.Stmt `yesql:"get_user_post_star_count"`
-	GetUserPostStars               *sqlx.Stmt `yesql:"get_user_post_stars"`
-	UserCommentTweetsByFriend      *sqlx.Stmt `yesql:"user_comment_tweets_by_friend"`
-	UserCommentTweetsByGuest       *sqlx.Stmt `yesql:"user_comment_tweets_by_guest"`
-	UserCommentTweetsBySelf        *sqlx.Stmt `yesql:"user_comment_tweets_by_self"`
-	UserCommentTweetsCountByFriend *sqlx.Stmt `yesql:"user_comment_tweets_count_by_friend"`
-	UserCommentTweetsCountByGuest  *sqlx.Stmt `yesql:"user_comment_tweets_count_by_guest"`
-	UserCommentTweetsCountBySelf   *sqlx.Stmt `yesql:"user_comment_tweets_count_by_self"`
-	UserMediaTweetsByFriend        *sqlx.Stmt `yesql:"user_media_tweets_by_friend"`
-	UserMediaTweetsByGuest         *sqlx.Stmt `yesql:"user_media_tweets_by_guest"`
-	UserMediaTweetsBySelf          *sqlx.Stmt `yesql:"user_media_tweets_by_self"`
-	UserMediaTweetsCountByFriend   *sqlx.Stmt `yesql:"user_media_tweets_count_by_friend"`
-	UserMediaTweetsCountByGuest    *sqlx.Stmt `yesql:"user_media_tweets_count_by_guest"`
-	UserMediaTweetsCountBySelf     *sqlx.Stmt `yesql:"user_media_tweets_count_by_self"`
-	UserStarTweetsByAdmin          *sqlx.Stmt `yesql:"user_star_tweets_by_admin"`
-	UserStarTweetsByFriend         *sqlx.Stmt `yesql:"user_star_tweets_by_friend"`
-	UserStarTweetsByGuest          *sqlx.Stmt `yesql:"user_star_tweets_by_guest"`
-	UserStarTweetsBySelf           *sqlx.Stmt `yesql:"user_star_tweets_by_self"`
-	UserStarTweetsCountByAdmin     *sqlx.Stmt `yesql:"user_star_tweets_count_by_admin"`
-	UserStarTweetsCountByFriend    *sqlx.Stmt `yesql:"user_star_tweets_count_by_friend"`
-	UserStarTweetsCountByGuest     *sqlx.Stmt `yesql:"user_star_tweets_count_by_guest"`
-	UserStarTweetsCountBySelf      *sqlx.Stmt `yesql:"user_star_tweets_count_by_self"`
+	yesql.Namespace                  `yesql:"tweet"`
+	CountFollowingTweetsFollow       string     `yesql:"count_following_tweets_follow"`
+	CountFollowingTweetsFriend       string     `yesql:"count_following_tweets_friend"`
+	CountFollowingTweetsFriendFollow string     `yesql:"count_following_tweets_friend_follow"`
+	GetAnyPostCount                  string     `yesql:"get_any_post_count"`
+	GetAnyPosts                      string     `yesql:"get_any_posts"`
+	GetPostContentsByIds             string     `yesql:"get_post_contents_by_ids"`
+	GetUserPostCount                 string     `yesql:"get_user_post_count"`
+	GetUserPosts                     string     `yesql:"get_user_posts"`
+	ListFollowingTweetsFollow        string     `yesql:"list_following_tweets_follow"`
+	ListFollowingTweetsFriend        string     `yesql:"list_following_tweets_friend"`
+	ListFollowingTweetsFriendFollow  string     `yesql:"list_following_tweets_friend_follow"`
+	CountFollowingTweets             *sqlx.Stmt `yesql:"count_following_tweets"`
+	CountIndexHotsTweets             *sqlx.Stmt `yesql:"count_index_hots_tweets"`
+	CountIndexNewestTweets           *sqlx.Stmt `yesql:"count_index_newest_tweets"`
+	CountSyncSearchTweets            *sqlx.Stmt `yesql:"count_sync_search_tweets"`
+	CountUserTweets                  *sqlx.Stmt `yesql:"count_user_tweets"`
+	GetBeFollowIds                   *sqlx.Stmt `yesql:"get_be_follow_ids"`
+	GetBeFriendIds                   *sqlx.Stmt `yesql:"get_be_friend_ids"`
+	GetPostAttachmentBill            *sqlx.Stmt `yesql:"get_post_attachment_bill"`
+	GetPostById                      *sqlx.Stmt `yesql:"get_post_by_id"`
+	GetPostContentById               *sqlx.Stmt `yesql:"get_post_content_by_id"`
+	GetUserPostCollection            *sqlx.Stmt `yesql:"get_user_post_collection"`
+	GetUserPostCollectionCount       *sqlx.Stmt `yesql:"get_user_post_collection_count"`
+	GetUserPostCollections           *sqlx.Stmt `yesql:"get_user_post_collections"`
+	GetUserPostStar                  *sqlx.Stmt `yesql:"get_user_post_star"`
+	GetUserPostStarCount             *sqlx.Stmt `yesql:"get_user_post_star_count"`
+	GetUserPostStars                 *sqlx.Stmt `yesql:"get_user_post_stars"`
+	ListFollowingTweets              *sqlx.Stmt `yesql:"list_following_tweets"`
+	ListIndexHotsTweets              *sqlx.Stmt `yesql:"list_index_hots_tweets"`
+	ListIndexNewestTweets            *sqlx.Stmt `yesql:"list_index_newest_tweets"`
+	ListSyncSearchTweets             *sqlx.Stmt `yesql:"list_sync_search_tweets"`
+	ListUserTweets                   *sqlx.Stmt `yesql:"list_user_tweets"`
+	UserCommentTweetsByFriend        *sqlx.Stmt `yesql:"user_comment_tweets_by_friend"`
+	UserCommentTweetsByGuest         *sqlx.Stmt `yesql:"user_comment_tweets_by_guest"`
+	UserCommentTweetsBySelf          *sqlx.Stmt `yesql:"user_comment_tweets_by_self"`
+	UserCommentTweetsCountByFriend   *sqlx.Stmt `yesql:"user_comment_tweets_count_by_friend"`
+	UserCommentTweetsCountByGuest    *sqlx.Stmt `yesql:"user_comment_tweets_count_by_guest"`
+	UserCommentTweetsCountBySelf     *sqlx.Stmt `yesql:"user_comment_tweets_count_by_self"`
+	UserMediaTweetsByFriend          *sqlx.Stmt `yesql:"user_media_tweets_by_friend"`
+	UserMediaTweetsByGuest           *sqlx.Stmt `yesql:"user_media_tweets_by_guest"`
+	UserMediaTweetsBySelf            *sqlx.Stmt `yesql:"user_media_tweets_by_self"`
+	UserMediaTweetsCountByFriend     *sqlx.Stmt `yesql:"user_media_tweets_count_by_friend"`
+	UserMediaTweetsCountByGuest      *sqlx.Stmt `yesql:"user_media_tweets_count_by_guest"`
+	UserMediaTweetsCountBySelf       *sqlx.Stmt `yesql:"user_media_tweets_count_by_self"`
+	UserStarTweetsByAdmin            *sqlx.Stmt `yesql:"user_star_tweets_by_admin"`
+	UserStarTweetsByFriend           *sqlx.Stmt `yesql:"user_star_tweets_by_friend"`
+	UserStarTweetsByGuest            *sqlx.Stmt `yesql:"user_star_tweets_by_guest"`
+	UserStarTweetsBySelf             *sqlx.Stmt `yesql:"user_star_tweets_by_self"`
+	UserStarTweetsCountByAdmin       *sqlx.Stmt `yesql:"user_star_tweets_count_by_admin"`
+	UserStarTweetsCountByFriend      *sqlx.Stmt `yesql:"user_star_tweets_count_by_friend"`
+	UserStarTweetsCountByGuest       *sqlx.Stmt `yesql:"user_star_tweets_count_by_guest"`
+	UserStarTweetsCountBySelf        *sqlx.Stmt `yesql:"user_star_tweets_count_by_self"`
 }
 
 type TweetHelp struct {
@@ -340,6 +380,14 @@ type TweetManage struct {
 	AddPost                       *sqlx.NamedStmt `yesql:"add_post"`
 	AddPostContent                *sqlx.NamedStmt `yesql:"add_post_content"`
 	UpdatePost                    *sqlx.NamedStmt `yesql:"update_post"`
+}
+
+type TweetMetrics struct {
+	yesql.Namespace     `yesql:"tweet_metrics"`
+	AddTweetMetric      *sqlx.Stmt `yesql:"add_tweet_metric"`
+	DeleteTweetMetric   *sqlx.Stmt `yesql:"delete_tweet_metric"`
+	GetMotivationFactor *sqlx.Stmt `yesql:"get_motivation_factor"`
+	UpdateRankScore     *sqlx.Stmt `yesql:"update_rank_score"`
 }
 
 type UserManage struct {
@@ -653,11 +701,38 @@ func BuildTweet(p PreparexBuilder, ctx ...context.Context) (obj *Tweet, err erro
 		c = context.Background()
 	}
 	obj = &Tweet{
-		GetAnyPostCount:      p.QueryHook(_Tweet_GetAnyPostCount),
-		GetAnyPosts:          p.QueryHook(_Tweet_GetAnyPosts),
-		GetPostContentsByIds: p.QueryHook(_Tweet_GetPostContentsByIds),
-		GetUserPostCount:     p.QueryHook(_Tweet_GetUserPostCount),
-		GetUserPosts:         p.QueryHook(_Tweet_GetUserPosts),
+		CountFollowingTweetsFollow:       p.QueryHook(_Tweet_CountFollowingTweetsFollow),
+		CountFollowingTweetsFriend:       p.QueryHook(_Tweet_CountFollowingTweetsFriend),
+		CountFollowingTweetsFriendFollow: p.QueryHook(_Tweet_CountFollowingTweetsFriendFollow),
+		GetAnyPostCount:                  p.QueryHook(_Tweet_GetAnyPostCount),
+		GetAnyPosts:                      p.QueryHook(_Tweet_GetAnyPosts),
+		GetPostContentsByIds:             p.QueryHook(_Tweet_GetPostContentsByIds),
+		GetUserPostCount:                 p.QueryHook(_Tweet_GetUserPostCount),
+		GetUserPosts:                     p.QueryHook(_Tweet_GetUserPosts),
+		ListFollowingTweetsFollow:        p.QueryHook(_Tweet_ListFollowingTweetsFollow),
+		ListFollowingTweetsFriend:        p.QueryHook(_Tweet_ListFollowingTweetsFriend),
+		ListFollowingTweetsFriendFollow:  p.QueryHook(_Tweet_ListFollowingTweetsFriendFollow),
+	}
+	if obj.CountFollowingTweets, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_CountFollowingTweets))); err != nil {
+		return nil, fmt.Errorf("prepare _Tweet_CountFollowingTweets error: %w", err)
+	}
+	if obj.CountIndexHotsTweets, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_CountIndexHotsTweets))); err != nil {
+		return nil, fmt.Errorf("prepare _Tweet_CountIndexHotsTweets error: %w", err)
+	}
+	if obj.CountIndexNewestTweets, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_CountIndexNewestTweets))); err != nil {
+		return nil, fmt.Errorf("prepare _Tweet_CountIndexNewestTweets error: %w", err)
+	}
+	if obj.CountSyncSearchTweets, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_CountSyncSearchTweets))); err != nil {
+		return nil, fmt.Errorf("prepare _Tweet_CountSyncSearchTweets error: %w", err)
+	}
+	if obj.CountUserTweets, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_CountUserTweets))); err != nil {
+		return nil, fmt.Errorf("prepare _Tweet_CountUserTweets error: %w", err)
+	}
+	if obj.GetBeFollowIds, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_GetBeFollowIds))); err != nil {
+		return nil, fmt.Errorf("prepare _Tweet_GetBeFollowIds error: %w", err)
+	}
+	if obj.GetBeFriendIds, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_GetBeFriendIds))); err != nil {
+		return nil, fmt.Errorf("prepare _Tweet_GetBeFriendIds error: %w", err)
 	}
 	if obj.GetPostAttachmentBill, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_GetPostAttachmentBill))); err != nil {
 		return nil, fmt.Errorf("prepare _Tweet_GetPostAttachmentBill error: %w", err)
@@ -685,6 +760,21 @@ func BuildTweet(p PreparexBuilder, ctx ...context.Context) (obj *Tweet, err erro
 	}
 	if obj.GetUserPostStars, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_GetUserPostStars))); err != nil {
 		return nil, fmt.Errorf("prepare _Tweet_GetUserPostStars error: %w", err)
+	}
+	if obj.ListFollowingTweets, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_ListFollowingTweets))); err != nil {
+		return nil, fmt.Errorf("prepare _Tweet_ListFollowingTweets error: %w", err)
+	}
+	if obj.ListIndexHotsTweets, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_ListIndexHotsTweets))); err != nil {
+		return nil, fmt.Errorf("prepare _Tweet_ListIndexHotsTweets error: %w", err)
+	}
+	if obj.ListIndexNewestTweets, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_ListIndexNewestTweets))); err != nil {
+		return nil, fmt.Errorf("prepare _Tweet_ListIndexNewestTweets error: %w", err)
+	}
+	if obj.ListSyncSearchTweets, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_ListSyncSearchTweets))); err != nil {
+		return nil, fmt.Errorf("prepare _Tweet_ListSyncSearchTweets error: %w", err)
+	}
+	if obj.ListUserTweets, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_ListUserTweets))); err != nil {
+		return nil, fmt.Errorf("prepare _Tweet_ListUserTweets error: %w", err)
 	}
 	if obj.UserCommentTweetsByFriend, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_UserCommentTweetsByFriend))); err != nil {
 		return nil, fmt.Errorf("prepare _Tweet_UserCommentTweetsByFriend error: %w", err)
@@ -819,6 +909,29 @@ func BuildTweetManage(p PreparexBuilder, ctx ...context.Context) (obj *TweetMana
 	}
 	if obj.UpdatePost, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_TweetManage_UpdatePost))); err != nil {
 		return nil, fmt.Errorf("prepare _TweetManage_UpdatePost error: %w", err)
+	}
+	return
+}
+
+func BuildTweetMetrics(p PreparexBuilder, ctx ...context.Context) (obj *TweetMetrics, err error) {
+	var c context.Context
+	if len(ctx) > 0 && ctx[0] != nil {
+		c = ctx[0]
+	} else {
+		c = context.Background()
+	}
+	obj = &TweetMetrics{}
+	if obj.AddTweetMetric, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetMetrics_AddTweetMetric))); err != nil {
+		return nil, fmt.Errorf("prepare _TweetMetrics_AddTweetMetric error: %w", err)
+	}
+	if obj.DeleteTweetMetric, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetMetrics_DeleteTweetMetric))); err != nil {
+		return nil, fmt.Errorf("prepare _TweetMetrics_DeleteTweetMetric error: %w", err)
+	}
+	if obj.GetMotivationFactor, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetMetrics_GetMotivationFactor))); err != nil {
+		return nil, fmt.Errorf("prepare _TweetMetrics_GetMotivationFactor error: %w", err)
+	}
+	if obj.UpdateRankScore, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetMetrics_UpdateRankScore))); err != nil {
+		return nil, fmt.Errorf("prepare _TweetMetrics_UpdateRankScore error: %w", err)
 	}
 	return
 }

@@ -17,4 +17,6 @@ type SiteInfoReq struct {
 type SiteInfoResp struct {
 	RegisterUserCount int64 `json:"register_user_count"`
 	OnlineUserCount   int   `json:"online_user_count"`
+	HistoryMaxOnline  int   `json:"history_max_online"`
+	ServerUpTime      int64 `json:"server_up_time"`
 }

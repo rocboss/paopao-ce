@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alimy/tryst/cfg"
+	"github.com/alimy/tryst/lets"
 	"github.com/bitbus/sqlx"
 	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
@@ -269,15 +270,15 @@ func (s *tweetManageSrv) HighlightPost(userId, postId int64) (is_essence int, er
 	return
 }
 
-func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT) (err error) {
+func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility cs.TweetVisibleType) (err error) {
 	oldVisibility := post.Visibility
-	post.Visibility = visibility
+	post.Visibility = ms.PostVisibleT(visibility)
 	// TODO: 这个判断是否可以不要呢
-	if oldVisibility == visibility {
+	if oldVisibility == ms.PostVisibleT(visibility) {
 		return nil
 	}
 	// 私密推文 特殊处理
-	if visibility == ms.PostVisitPrivate {
+	if visibility == cs.TweetVisitPrivate {
 		// 强制取消置顶
 		// TODO: 置顶推文用户是否有权设置成私密？ 后续完善
 		post.IsTop = 0
@@ -290,7 +291,7 @@ func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT
 		if oldVisibility == ms.PostVisitPrivate {
 			// 从私密转为非私密才需要重新创建tag
 			s.createTags(tx, post.UserID, tags)
-		} else if visibility == ms.PostVisitPrivate {
+		} else if visibility == cs.TweetVisitPrivate {
 			// 从非私密转为私密才需要删除tag
 			s.deleteTags(tx, tags)
 		}
@@ -430,6 +431,99 @@ func (s *tweetSrv) ListUserCommentTweets(user *cs.VistUser, limit int, offset in
 	}
 	if err = gStmt.Select(&res, user.UserId, limit, offset); err == nil {
 		err = cStmt.Get(&total, user.UserId)
+	}
+	return
+}
+
+func (s *tweetSrv) ListUserTweets(userId int64, style uint8, justEssence bool, limit, offset int) (res []*ms.Post, total int64, err error) {
+	visibility := cs.TweetVisitPublic
+	isEssence := lets.If(justEssence, 1, 0)
+	switch style {
+	case cs.StyleUserTweetsAdmin:
+		fallthrough
+	case cs.StyleUserTweetsSelf:
+		visibility = cs.TweetVisitPrivate
+	case cs.StyleUserTweetsFriend:
+		visibility = cs.TweetVisitFriend
+	case cs.StyleUserTweetsFollowing:
+		visibility = cs.TweetVisitFollowing
+	case cs.StyleUserTweetsGuest:
+		fallthrough
+	default:
+		// visibility = cs.TweetVisitPublic
+	}
+	if err = s.q.ListUserTweets.Select(&res, userId, visibility, isEssence, limit, offset); err == nil {
+		err = s.q.CountUserTweets.Get(&total, userId, visibility, isEssence)
+	}
+	return
+}
+
+func (s *tweetSrv) ListFollowingTweets(userId int64, limit, offset int) (res []*ms.Post, total int64, err error) {
+	beFriendIds, beFollowIds, xerr := s.getUserRelation(userId)
+	if xerr != nil {
+		return nil, 0, xerr
+	}
+	beFriendCount, beFollowCount := len(beFriendIds), len(beFollowIds)
+	switch {
+	case beFriendCount > 0 && beFollowCount > 0:
+		if err = s.db.InSelect(&res, s.q.ListFollowingTweetsFriendFollow, userId, beFriendIds, beFollowIds, limit, offset); err == nil {
+			err = s.db.InGet(&total, s.q.CountFollowingTweetsFriendFollow, userId, beFriendIds, beFollowIds)
+		}
+	case beFriendCount > 0 && beFollowCount == 0:
+		if err = s.db.InSelect(&res, s.q.ListFollowingTweetsFriend, userId, beFriendIds, limit, offset); err == nil {
+			err = s.db.InGet(&total, s.q.CountFollowingTweetsFriend, userId, beFriendIds)
+		}
+	case beFriendCount == 0 && beFollowCount > 0:
+		if err = s.db.InSelect(&res, s.q.ListFollowingTweetsFollow, userId, beFollowIds, limit, offset); err == nil {
+			err = s.db.InGet(&total, s.q.CountFollowingTweetsFollow, userId, beFollowIds)
+		}
+	case beFriendCount == 0 && beFollowCount == 0:
+		if err = s.q.ListFollowingTweets.Select(&res, userId, limit, offset); err == nil {
+			err = s.q.CountFollowingTweets.Get(&total, userId)
+		}
+	}
+	return
+}
+
+func (s *tweetSrv) ListIndexNewestTweets(limit int, offset int) (res []*ms.Post, total int64, err error) {
+	if err = s.q.ListIndexNewestTweets.Select(&res, limit, offset); err == nil {
+		err = s.q.CountIndexNewestTweets.Get(&total)
+	}
+	return
+}
+
+func (s *tweetSrv) ListIndexHotsTweets(limit int, offset int) (res []*ms.Post, total int64, err error) {
+	if err = s.q.ListIndexHotsTweets.Select(&res, limit, offset); err == nil {
+		err = s.q.CountIndexHotsTweets.Get(&total)
+	}
+	return
+}
+
+func (s *tweetSrv) ListSyncSearchTweets(limit int, offset int) (res []*ms.Post, total int64, err error) {
+	if err = s.q.ListSyncSearchTweets.Select(&res, limit, offset); err == nil {
+		err = s.q.ListSyncSearchTweets.Get(&total)
+	}
+	return
+}
+
+func (s *tweetSrv) getUserRelation(userId int64) (beFriendIds []int64, beFollowIds []int64, err error) {
+	if err = s.q.GetBeFriendIds.Select(&beFriendIds, userId); err != nil {
+		return
+	}
+	if err = s.q.GetBeFollowIds.Select(&beFollowIds, userId); err != nil {
+		return
+	}
+	// 即是好友又是关注者，保留好友去除关注者
+	for _, id := range beFriendIds {
+		for i := 0; i < len(beFollowIds); i++ {
+			// 找到item即删，数据库已经保证唯一性
+			if beFollowIds[i] == id {
+				lastIdx := len(beFollowIds) - 1
+				beFriendIds[i] = beFriendIds[lastIdx]
+				beFollowIds = beFollowIds[:lastIdx]
+				break
+			}
+		}
 	}
 	return
 }

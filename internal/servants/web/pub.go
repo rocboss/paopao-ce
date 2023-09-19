@@ -68,6 +68,8 @@ func (s *pubSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir
 			postFormated.Contents = append(postFormated.Contents, content.Format())
 		}
 	}
+	// TODO: 暂时处理办法，后续需要优化去掉这个步骤
+	postFormated.Visibility = ms.PostVisibleT(postFormated.Visibility.ToOutValue())
 	return (*web.TweetDetailResp)(postFormated), nil
 }
 

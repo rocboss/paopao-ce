@@ -335,7 +335,7 @@ WHERE is_del=0;
 -- prepare: stmt
 SELECT * 
 FROM @post 
-WHERE visibility=0 AND is_del=0 
+WHERE visibility=90 AND is_del=0 
 ORDER BY is_top DESC, latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
@@ -343,7 +343,7 @@ LIMIT ? OFFSET ?;
 -- prepare: stmt
 SELECT count(*)
 FROM @post
-WHERE visibility=0 AND is_del=0;
+WHERE visibility=90 AND is_del=0;
 
 -- name: index_by_self@ship_index
 -- prepare: raw
@@ -351,9 +351,9 @@ WHERE visibility=0 AND is_del=0;
 SELECT *
 FROM @post
 WHERE is_del=0 AND 
-	(visibility=0 OR
-	(visibility=1 AND user_id=?) OR
-	(visibility=2 AND user_id IN (?)))
+	(visibility=90 OR
+	(visibility=0 AND user_id=?) OR
+	(visibility=50 AND user_id IN (?)))
 ORDER BY is_top DESC, latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
@@ -363,9 +363,9 @@ LIMIT ? OFFSET ?;
 SELECT count(*)
 FROM @post
 WHERE is_del=0 AND 
-	(visibility=0 OR
-	(visibility=1 AND user_id=?) OR
-	(visibility=2 AND user_id IN (?))); 
+	(visibility=90 OR
+	(visibility=0 AND user_id=?) OR
+	(visibility=50 AND user_id IN (?))); 
 
 --------------------------------------------------------------------------------
 -- simple_index sql dml
@@ -375,7 +375,7 @@ WHERE is_del=0 AND
 -- prepare: stmt
 SELECT * 
 FROM @post 
-WHERE visibility=0
+WHERE visibility=90
 ORDER BY is_top DESC, latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
@@ -383,7 +383,7 @@ LIMIT ? OFFSET ?;
 -- prepare: stmt
 SELECT count(*) 
 FROM @post 
-WHERE visibility=0;
+WHERE visibility=90;
 
 --------------------------------------------------------------------------------
 -- tweet sql dml
@@ -446,7 +446,7 @@ WHERE
 	s.post_id = ? 
 	AND s.user_id = ? 
 	AND s.is_del = 0 
-	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) ) 
+	AND ( visibility >= 50 OR ( visibility = 0 AND P.user_id = ? ) ) 
 ORDER BY
 	P.ID DESC;
 
@@ -479,7 +479,7 @@ FROM
 WHERE
 	s.user_id = ? 
 	AND s.is_del = 0 
-	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) ) 
+	AND ( visibility >= 50 OR ( visibility = 0 AND P.user_id = ? ) ) 
 ORDER BY
     s.ID DESC,
 	P.ID DESC
@@ -495,7 +495,7 @@ FROM
 WHERE
 	s.user_id = ? 
 	AND s.is_del = 0 
-	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) );
+	AND ( visibility >= 50 OR ( visibility = 0 AND P.user_id = ? ) );
 
 -- name: get_user_post_collection@tweet
 -- prepare: stmt
@@ -527,7 +527,7 @@ WHERE
 	s.post_id = ? 
 	AND s.user_id = ? 
 	AND s.is_del = 0 
-	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) ) 
+	AND ( visibility >= 50 OR ( visibility = 0 AND P.user_id = ? ) ) 
 ORDER BY
 	P.ID DESC;
 
@@ -560,7 +560,7 @@ FROM
 WHERE
 	s.user_id = ? 
 	AND s.is_del = 0 
-	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) ) 
+	AND ( visibility >= 50 OR ( visibility = 0 AND P.user_id = ? ) ) 
 ORDER BY
     s.ID DESC,
 	P.ID DESC
@@ -576,7 +576,7 @@ FROM
 WHERE
 	s.user_id = ? 
 	AND s.is_del = 0 
-	AND ( visibility <> 1 OR ( visibility = 1 AND P.user_id = ? ) );
+	AND ( visibility >= 50 OR ( visibility = 0 AND P.user_id = ? ) );
 
 -- name: get_post_attachment_bill@tweet
 -- prepare: stmt
@@ -615,7 +615,7 @@ SELECT id,
 	deleted_on,
 	is_del
 FROM @post_by_media
-WHERE is_del=0 AND user_id=? AND visibility=0
+WHERE is_del=0 AND user_id=? AND visibility=90
 ORDER BY latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
@@ -623,7 +623,7 @@ LIMIT ? OFFSET ?;
 -- prepare: stmt
 SELECT count(*)
 FROM @post_by_media
-WHERE is_del=0 AND user_id=? AND visibility=0;
+WHERE is_del=0 AND user_id=? AND visibility>=90;
 
 -- name: user_media_tweets_by_friend@tweet
 -- prepare: stmt
@@ -647,7 +647,7 @@ SELECT id,
 	deleted_on,
 	is_del
 FROM @post_by_media
-WHERE is_del=0 AND user_id=? AND (visibility=0 OR visibility=2)
+WHERE is_del=0 AND user_id=? AND visibility>=50
 ORDER BY latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
@@ -655,7 +655,7 @@ LIMIT ? OFFSET ?;
 -- prepare: stmt
 SELECT count(*)
 FROM @post_by_media
-WHERE is_del=0 AND user_id=? AND (visibility=0 OR visibility=2);
+WHERE is_del=0 AND user_id=? AND visibility>=50;
 
 -- name: user_media_tweets_by_self@tweet
 -- prepare: stmt
@@ -711,7 +711,7 @@ SELECT id,
 	deleted_on,
 	is_del
 FROM @post_by_comment
-WHERE is_del=0 AND comment_user_id=? AND visibility=0
+WHERE is_del=0 AND comment_user_id=? AND visibility>=90
 ORDER BY latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
@@ -719,7 +719,7 @@ LIMIT ? OFFSET ?;
 -- prepare: stmt
 SELECT count(*)
 FROM @post_by_comment
-WHERE is_del=0 AND comment_user_id=? AND visibility=0;
+WHERE is_del=0 AND comment_user_id=? AND visibility>=90;
 
 -- name: user_comment_tweets_by_friend@tweet
 -- prepare: stmt
@@ -743,7 +743,7 @@ SELECT id,
 	deleted_on,
 	is_del
 FROM @post_by_comment
-WHERE is_del=0 AND comment_user_id=? AND (visibility=0 OR visibility=2)
+WHERE is_del=0 AND comment_user_id=? AND visibility>=50
 ORDER BY latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
@@ -751,7 +751,7 @@ LIMIT ? OFFSET ?;
 -- prepare: stmt
 SELECT count(*)
 FROM @post_by_comment
-WHERE is_del=0 AND comment_user_id=? AND (visibility=0 OR visibility=2);
+WHERE is_del=0 AND comment_user_id=? AND visibility>=50
 
 -- name: user_comment_tweets_by_self@tweet
 -- prepare: stmt
@@ -812,9 +812,9 @@ FROM
 	@post_star star
 	JOIN @post post ON star.post_id = post.ID 
 WHERE
-	star.is_del = 0 
-	AND star.user_id =? 
-	AND post.visibility = 0 
+	star.is_del=0 
+	AND star.user_id=? 
+	AND post.visibility>=90
 ORDER BY post.latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
@@ -824,7 +824,7 @@ SELECT count(*)
 FROM
 	@post_star star
 	JOIN @post post ON star.post_id = post.ID 
-WHERE star.is_del=0 AND star.user_id=? AND post.visibility=0;
+WHERE star.is_del=0 AND star.user_id=? AND post.visibility>=90;
 
 -- name: user_star_tweets_by_friend@tweet
 -- prepare: stmt
@@ -852,7 +852,7 @@ SELECT
 FROM
 	@post_star star
 	JOIN @post post ON star.post_id = post.ID 
-WHERE star.is_del=0 AND star.user_id=? AND (post.visibility=0 OR post.visibility=2)
+WHERE star.is_del=0 AND star.user_id=? AND post.visibility>=50
 ORDER BY post.latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
@@ -862,7 +862,7 @@ SELECT count(*)
 FROM
 	@post_star star
 	JOIN @post post ON star.post_id = post.ID 
-WHERE star.is_del=0 AND star.user_id=? AND (post.visibility=0 OR post.visibility=2);
+WHERE star.is_del=0 AND star.user_id=? AND post.visibility>=50;
 
 -- name: user_star_tweets_by_self@tweet
 -- prepare: stmt
@@ -890,7 +890,7 @@ SELECT
 FROM
 	@post_star star
 	JOIN @post post ON star.post_id = post.ID 
-WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 OR (post.visibility=0 AND post.user_id=?))
+WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>90 OR (post.visibility>=90 AND post.user_id=?))
 ORDER BY post.latest_replied_on DESC
 LIMIT ? OFFSET ?;
 
@@ -900,7 +900,7 @@ SELECT count(*)
 FROM
 	@post_star star
 	JOIN @post post ON star.post_id = post.ID 
-WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>0 OR (post.visibility=0 AND post.user_id=?));
+WHERE star.is_del=0 AND star.user_id=? AND (post.visibility<>90 OR (post.visibility>=90 AND post.user_id=?));
 
 -- name: user_star_tweets_by_admin@tweet
 -- prepare: stmt
@@ -939,6 +939,135 @@ FROM
 	@post_star star
 	JOIN @post post ON star.post_id = post.ID 
 WHERE star.is_del=0 AND star.user_id=?;
+
+-- name: list_user_tweets@tweet
+-- prepare: stmt
+SELECT * 
+FROM @post
+WHERE user_id=? AND visibility>=? AND is_essence=? AND is_del=0
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: count_user_tweets@tweet
+-- prepare: stmt
+SELECT count(*) 
+FROM @post
+WHERE user_id=? AND visibility>=? AND is_essence=? AND is_del=0;
+
+-- name: list_index_newest_tweets@tweet
+-- prepare: stmt
+SELECT *
+FROM @post
+WHERE visibility>=90 AND is_del=0
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: count_index_newest_tweets@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM @post
+WHERE visibility>=90 AND is_del=0;
+
+-- name: list_index_hots_tweets@tweet
+-- prepare: stmt
+SELECT post.*
+FROM @post post
+LEFT JOIN @post_metric metric
+ON post.id=metric.post_id
+WHERE post.visibility>=90 AND post.is_del=0
+ORDER BY post.is_top DESC, metric.rank_score DESC, post.latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: count_index_hots_tweets@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM @post post
+LEFT JOIN @post_metric metric
+ON post.id=metric.post_id AND metric.is_del=0
+WHERE post.visibility>=90 AND post.is_del=0;
+
+-- name: list_sync_search_tweets@tweet
+-- prepare: stmt
+SELECT *
+FROM @post
+WHERE visibility>=50 AND is_del=0
+LIMIT ? OFFSET ?;
+
+-- name: count_sync_search_tweets@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM @post
+WHERE visibility>=50 AND is_del=0;
+
+-- name: list_following_tweets_friend_follow@tweet
+-- prepare: raw
+-- clause: in
+SELECT *
+FROM @post
+WHERE (user_id=? OR (visibility>=50 AND user_id IN(?)) OR (visibility>=60 AND user_id IN(?))) AND is_del=0
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: count_following_tweets_friend_follow@tweet
+-- prepare: raw
+-- clause: in
+SELECT count(*)
+FROM @post
+WHERE (user_id=? OR (visibility>=50 AND user_id IN(?)) OR (visibility>=60 AND user_id IN(?))) AND is_del=0;
+
+-- name: list_following_tweets_friend@tweet
+-- prepare: raw
+-- clause: in
+SELECT *
+FROM @post
+WHERE (user_id=? OR (visibility>=50 AND user_id IN(?))) AND is_del=0
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: count_following_tweets_friend@tweet
+-- prepare: raw
+-- clause: in
+SELECT count(*)
+FROM @post
+WHERE (user_id=? OR (visibility>=50 AND user_id IN(?))) AND is_del=0;
+
+-- name: list_following_tweets_follow@tweet
+-- prepare: raw
+-- clause: in
+SELECT *
+FROM @post
+WHERE (user_id=? OR (visibility>=60 AND user_id IN(?))) AND is_del=0
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: count_following_tweets_follow@tweet
+-- prepare: raw
+-- clause: in
+SELECT count(*)
+FROM @post
+WHERE (user_id=? OR (visibility>=60 AND user_id IN(?))) AND is_del=0;
+
+-- name: list_following_tweets@tweet
+-- prepare: stmt
+SELECT *
+FROM @post
+WHERE user_id=? AND is_del=0
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+-- name: count_following_tweets@tweet
+-- prepare: stmt
+SELECT count(*)
+FROM @post
+WHERE user_id=? AND is_del=0;
+
+-- name: get_be_friend_ids@tweet
+-- prepare: stmt
+SELECT user_id FROM @contact WHERE friend_id=? AND is_del=0;
+
+-- name: get_be_follow_ids@tweet
+-- prepare: stmt
+SELECT follow_id FROM @following WHERE user_id=? AND is_del=0;
 
 --------------------------------------------------------------------------------
 -- tweet_manage sql dml
@@ -1054,6 +1183,25 @@ WHERE post_id IN (?) AND is_del=0;
 SELECT id, username, nickname, status, avatar, is_admin
 FROM @user
 WHERE id IN (?) AND is_del=0;
+
+--------------------------------------------------------------------------------
+-- tweet_metrics sql dml
+--------------------------------------------------------------------------------
+-- name: update_rank_score@tweet_metrics
+-- prepare: stmt
+UPDATE @post_metric SET rank_score=?, modified_on=? WHERE post_id=? AND is_del=0;
+
+-- name: get_motivation_factor@tweet_metrics
+-- prepare: stmt
+SELECT motivation_factor FROM @post_metric WHERE post_id=? AND is_del=0;
+
+-- name: add_tweet_metric@tweet_metrics
+-- prepare: stmt
+INSERT INTO @post_metric (post_id, created_on) VALUES (?, ?);
+
+-- name: delete_tweet_metric@tweet_metrics
+-- prepare: stmt
+UPDATE @post_metric SET is_del=1, deleted_on=? WHERE post_id=? AND is_del=0;
 
 --------------------------------------------------------------------------------
 -- user_manage sql dml

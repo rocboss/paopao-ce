@@ -38,6 +38,7 @@ var (
 	CacheSetting            *cacheConf
 	EventManagerSetting     *eventManagerConf
 	MetricManagerSetting    *metricManagerConf
+	JobManagerSetting       *jobManagerConf
 	CacheIndexSetting       *cacheIndexConf
 	SimpleCacheIndexSetting *simpleCacheIndexConf
 	BigCacheIndexSetting    *bigCacheIndexConf
@@ -75,6 +76,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"Cache":             &CacheSetting,
 		"EventManager":      &EventManagerSetting,
 		"MetricManager":     &MetricManagerSetting,
+		"JobManager":        &JobManagerSetting,
 		"PprofServer":       &PprofServerSetting,
 		"WebServer":         &WebServerSetting,
 		"AdminServer":       &AdminServerSetting,

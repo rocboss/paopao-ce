@@ -5,6 +5,8 @@
 package web
 
 import (
+	"time"
+
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
@@ -24,7 +26,8 @@ var (
 type adminSrv struct {
 	api.UnimplementedAdminServant
 	*base.DaoServant
-	ac core.AppCache
+	wc           core.WebCache
+	serverUpTime int64
 }
 
 func (s *adminSrv) Chain() gin.HandlersChain {
@@ -45,24 +48,28 @@ func (s *adminSrv) ChangeUserStatus(req *web.ChangeUserStatusReq) mir.Error {
 }
 
 func (s *adminSrv) SiteInfo(req *web.SiteInfoReq) (*web.SiteInfoResp, mir.Error) {
-	registerUserCount, err := s.Ds.GetRegisterUserCount()
+	res, err := &web.SiteInfoResp{ServerUpTime: s.serverUpTime}, error(nil)
+	res.RegisterUserCount, err = s.Ds.GetRegisterUserCount()
 	if err != nil {
 		logrus.Errorf("get SiteInfo[1] occurs error: %s", err)
 	}
-	onlineUserKeys, err := s.ac.Keys(conf.PrefixOnlineUser + "*")
-	if err != nil {
+	onlineUserKeys, xerr := s.wc.Keys(conf.PrefixOnlineUser + "*")
+	if xerr == nil {
+		res.OnlineUserCount = len(onlineUserKeys)
+		if res.HistoryMaxOnline, err = s.wc.PutHistoryMaxOnline(res.OnlineUserCount); err != nil {
+			logrus.Errorf("get Siteinfo[3] occurs error: %s", err)
+		}
+	} else {
 		logrus.Errorf("get Siteinfo[2] occurs error: %s", err)
 	}
 	// 错误进行宽松赦免处理
-	return &web.SiteInfoResp{
-		RegisterUserCount: registerUserCount,
-		OnlineUserCount:   len(onlineUserKeys),
-	}, nil
+	return res, nil
 }
 
-func newAdminSrv(s *base.DaoServant, ac core.AppCache) api.Admin {
+func newAdminSrv(s *base.DaoServant, wc core.WebCache) api.Admin {
 	return &adminSrv{
-		DaoServant: s,
-		ac:         ac,
+		DaoServant:   s,
+		wc:           wc,
+		serverUpTime: time.Now().Unix(),
 	}
 }
