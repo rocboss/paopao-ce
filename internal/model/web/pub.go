@@ -5,38 +5,15 @@
 package web
 
 import (
-	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/core/cs"
-	"github.com/rocboss/paopao-ce/internal/servants/base"
-	"github.com/rocboss/paopao-ce/pkg/debug"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/pkg/version"
 )
-
-type TagType = cs.TagType
 
 type TweetDetailReq struct {
 	TweetId int64 `form:"id"`
 }
 
-type TweetDetailResp core.PostFormated
-
-type TweetCommentsReq struct {
-	TweetId  int64 `form:"id"`
-	Page     int   `form:"-"`
-	PageSize int   `form:"-"`
-}
-
-type TweetCommentsResp base.PageResp
-
-type TopicListReq struct {
-	Type TagType `json:"type" form:"type" binding:"required"`
-	Num  int     `json:"num" form:"num" binding:"required"`
-}
-
-// TopicListResp 主题返回值
-// TODO: 优化内容定义
-type TopicListResp struct {
-	Topics cs.TagList `json:"topics"`
-}
+type TweetDetailResp ms.PostFormated
 
 type GetCaptchaResp struct {
 	Id      string `json:"id"`
@@ -50,7 +27,7 @@ type SendCaptchaReq struct {
 }
 
 type VersionResp struct {
-	BuildInfo *debug.BuildInfo `json:"build_info"`
+	BuildInfo *version.BuildInfo `json:"build_info"`
 }
 
 type LoginReq struct {

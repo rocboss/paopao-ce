@@ -5,7 +5,11 @@
 package web
 
 import (
+	"github.com/alimy/mir/v4"
+	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
+	"github.com/rocboss/paopao-ce/pkg/convert"
+	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
 
 type ChangeAvatarReq struct {
@@ -23,22 +27,17 @@ type UserInfoReq struct {
 }
 
 type UserInfoResp struct {
-	Id       int64  `json:"id"`
-	Nickname string `json:"nickname"`
-	Username string `json:"username"`
-	Status   int    `json:"status"`
-	Avatar   string `json:"avatar"`
-	Balance  int64  `json:"balance"`
-	Phone    string `json:"phone"`
-	IsAdmin  bool   `json:"is_admin"`
-}
-
-type GetUnreadMsgCountReq struct {
-	SimpleInfo `json:"-" binding:"-"`
-}
-
-type GetUnreadMsgCountResp struct {
-	Count int64 `json:"count"`
+	Id         int64  `json:"id"`
+	Nickname   string `json:"nickname"`
+	Username   string `json:"username"`
+	Status     int    `json:"status"`
+	Avatar     string `json:"avatar"`
+	Balance    int64  `json:"balance"`
+	Phone      string `json:"phone"`
+	IsAdmin    bool   `json:"is_admin"`
+	CreatedOn  int64  `json:"created_on"`
+	Follows    int64  `json:"follows"`
+	Followings int64  `json:"followings"`
 }
 
 type GetMessagesReq BasePageReq
@@ -110,4 +109,59 @@ type TweetCollectionStatusReq struct {
 
 type TweetCollectionStatusResp struct {
 	Status bool `json:"status"`
+}
+
+func (r *UserInfoReq) Bind(c *gin.Context) mir.Error {
+	username, exist := base.UserNameFrom(c)
+	if !exist {
+		return xerror.UnauthorizedAuthNotExist
+	}
+	r.Username = username
+	return nil
+}
+
+func (r *GetMessagesReq) Bind(c *gin.Context) mir.Error {
+	return (*BasePageReq)(r).Bind(c)
+}
+
+func (r *GetCollectionsReq) Bind(c *gin.Context) mir.Error {
+	return (*BasePageReq)(r).Bind(c)
+}
+
+func (r *GetStarsReq) Bind(c *gin.Context) mir.Error {
+	return (*BasePageReq)(r).Bind(c)
+}
+
+func (r *SuggestTagsReq) Bind(c *gin.Context) mir.Error {
+	r.Keyword = c.Query("k")
+	return nil
+}
+
+func (r *SuggestUsersReq) Bind(c *gin.Context) mir.Error {
+	r.Keyword = c.Query("k")
+	return nil
+}
+
+func (r *TweetCollectionStatusReq) Bind(c *gin.Context) mir.Error {
+	userId, exist := base.UserIdFrom(c)
+	if !exist {
+		return xerror.UnauthorizedAuthNotExist
+	}
+	r.SimpleInfo = SimpleInfo{
+		Uid: userId,
+	}
+	r.TweetId = convert.StrTo(c.Query("id")).MustInt64()
+	return nil
+}
+
+func (r *TweetStarStatusReq) Bind(c *gin.Context) mir.Error {
+	UserId, exist := base.UserIdFrom(c)
+	if !exist {
+		return xerror.UnauthorizedAuthNotExist
+	}
+	r.SimpleInfo = SimpleInfo{
+		Uid: UserId,
+	}
+	r.TweetId = convert.StrTo(c.Query("id")).MustInt64()
+	return nil
 }

@@ -11,21 +11,26 @@ import (
 	"gorm.io/gorm"
 )
 
-// PostVisibleT 可访问类型，0公开，1私密，2好友
+// PostVisibleT 可访问类型，可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开',
 type PostVisibleT uint8
 
 const (
-	PostVisitPublic PostVisibleT = iota
-	PostVisitPrivate
-	PostVisitFriend
-	PostVisitInvalid
+	PostVisitPublic    PostVisibleT = 90
+	PostVisitPrivate   PostVisibleT = 0
+	PostVisitFriend    PostVisibleT = 50
+	PostVisitFollowing PostVisibleT = 60
 )
+
+type PostByMedia = Post
+
+type PostByComment = Post
 
 type Post struct {
 	*Model
 	UserID          int64        `json:"user_id"`
 	CommentCount    int64        `json:"comment_count"`
 	CollectionCount int64        `json:"collection_count"`
+	ShareCount      int64        `json:"share_count"`
 	UpvoteCount     int64        `json:"upvote_count"`
 	Visibility      PostVisibleT `json:"visibility"`
 	IsTop           int          `json:"is_top"`
@@ -45,6 +50,7 @@ type PostFormated struct {
 	Contents        []*PostContentFormated `json:"contents"`
 	CommentCount    int64                  `json:"comment_count"`
 	CollectionCount int64                  `json:"collection_count"`
+	ShareCount      int64                  `json:"share_count"`
 	UpvoteCount     int64                  `json:"upvote_count"`
 	Visibility      PostVisibleT           `json:"visibility"`
 	IsTop           int                    `json:"is_top"`
@@ -56,6 +62,22 @@ type PostFormated struct {
 	Tags            map[string]int8        `json:"tags"`
 	AttachmentPrice int64                  `json:"attachment_price"`
 	IPLoc           string                 `json:"ip_loc"`
+}
+
+func (t PostVisibleT) ToOutValue() (res uint8) {
+	switch t {
+	case PostVisitPublic:
+		res = 0
+	case PostVisitPrivate:
+		res = 1
+	case PostVisitFriend:
+		res = 2
+	case PostVisitFollowing:
+		res = 3
+	default:
+		res = 1
+	}
+	return
 }
 
 func (p *Post) Format() *PostFormated {
@@ -71,6 +93,7 @@ func (p *Post) Format() *PostFormated {
 			Contents:        []*PostContentFormated{},
 			CommentCount:    p.CommentCount,
 			CollectionCount: p.CollectionCount,
+			ShareCount:      p.ShareCount,
 			UpvoteCount:     p.UpvoteCount,
 			Visibility:      p.Visibility,
 			IsTop:           p.IsTop,
@@ -117,7 +140,7 @@ func (p *Post) Get(db *gorm.DB) (*Post, error) {
 	return &post, nil
 }
 
-func (p *Post) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]*Post, error) {
+func (p *Post) List(db *gorm.DB, conditions ConditionsT, offset, limit int) ([]*Post, error) {
 	var posts []*Post
 	var err error
 	if offset >= 0 && limit > 0 {
@@ -126,7 +149,7 @@ func (p *Post) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]
 	if p.UserID > 0 {
 		db = db.Where("user_id = ?", p.UserID)
 	}
-	for k, v := range *conditions {
+	for k, v := range conditions {
 		if k == "ORDER" {
 			db = db.Order(v)
 		} else {
@@ -175,12 +198,12 @@ func (p *Post) CountBy(db *gorm.DB, predicates Predicates) (count int64, err err
 	return
 }
 
-func (p *Post) Count(db *gorm.DB, conditions *ConditionsT) (int64, error) {
+func (p *Post) Count(db *gorm.DB, conditions ConditionsT) (int64, error) {
 	var count int64
 	if p.UserID > 0 {
 		db = db.Where("user_id = ?", p.UserID)
 	}
-	for k, v := range *conditions {
+	for k, v := range conditions {
 		if k != "ORDER" {
 			db = db.Where(k, v)
 		}
@@ -204,8 +227,6 @@ func (p PostVisibleT) String() string {
 		return "private"
 	case PostVisitFriend:
 		return "friend"
-	case PostVisitInvalid:
-		return "invalid"
 	default:
 		return "unknow"
 	}

@@ -10,6 +10,7 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/fatih/color"
+	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
@@ -52,6 +53,12 @@ func newWebEngine() *gin.Engine {
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AddAllowHeaders("Authorization")
 	e.Use(cors.New(corsConfig))
+	// 使用Sentry hook
+	if conf.UseSentryGin() {
+		e.Use(sentrygin.New(sentrygin.Options{
+			Repanic: true,
+		}))
+	}
 
 	// 默认404
 	e.NoRoute(func(c *gin.Context) {

@@ -1,28 +1,25 @@
 package v1
 
 import (
-	. "github.com/alimy/mir/v3"
-	. "github.com/alimy/mir/v3/engine"
+	. "github.com/alimy/mir/v4"
+	. "github.com/alimy/mir/v4/engine"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
 func init() {
-	AddEntry(new(Core))
+	Entry[Core]()
 }
 
 // Core 核心服务，需要授权访问
 type Core struct {
-	Chain Chain `mir:"-"`
-	Group Group `mir:"v1"`
+	Chain `mir:"-"`
+	Group `mir:"v1"`
 
 	// SyncSearchIndex 同步索引
 	SyncSearchIndex func(Get, web.SyncSearchIndexReq) `mir:"/sync/index"`
 
 	// GetUserInfo 获取当前用户信息
 	GetUserInfo func(Get, web.UserInfoReq) web.UserInfoResp `mir:"/user/info"`
-
-	// GetUnreadMsgCount 获取当前用户未读消息数量
-	GetUnreadMsgCount func(Get, web.GetUnreadMsgCountReq) web.GetUnreadMsgCountResp `mir:"/user/msgcount/unread"`
 
 	// GetMessages 获取消息列表
 	GetMessages func(Get, web.GetMessagesReq) web.GetMessagesResp `mir:"/user/messages"`

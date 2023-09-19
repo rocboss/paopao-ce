@@ -3,17 +3,6 @@
         <main-nav title="收藏" />
 
         <n-list class="main-content-wrap" bordered>
-            <template #footer>
-                <div class="pagination-wrap" v-if="totalPage > 1">
-                    <n-pagination
-                        :page="page"
-                        @update:page="updatePage"
-                        :page-slot="!store.state.collapsedRight ? 8 : 5"
-                        :page-count="totalPage"
-                    />
-                </div>
-            </template>
-
             <div v-if="loading" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />
             </div>
@@ -22,29 +11,68 @@
                     <n-empty size="large" description="暂无数据" />
                 </div>
 
-                <n-list-item v-for="post in list" :key="post.id">
-                    <post-item :post="post" />
-                </n-list-item>
+                <div v-if="store.state.desktopModelShow">
+                    <n-list-item v-for="post in list" :key="post.id">
+                        <post-item :post="post" @send-whisper="onSendWhisper" />
+                    </n-list-item>
+                </div>
+                <div v-else>
+                    <n-list-item v-for="post in list" :key="post.id">
+                        <mobile-post-item :post="post" @send-whisper="onSendWhisper" />
+                    </n-list-item>
+                </div>
             </div>
+            <!-- 私信组件 -->
+            <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
         </n-list>
+
+        <div class="pagination-wrap" v-if="totalPage > 0">
+            <n-pagination
+            :page="page"
+            @update:page="updatePage"
+            :page-slot="!store.state.collapsedRight ? 8 : 5"
+            :page-count="totalPage" />
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { getCollections } from '@/api/user';
 
 const store = useStore();
 const route = useRoute();
-const router = useRouter();
 
 const loading = ref(false);
 const list = ref<any[]>([]);
 const page = ref(+(route.query.p as any) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
+const showWhisper = ref(false);
+const whisperReceiver = ref<Item.UserInfo>({
+    id: 0,
+    avatar: '',
+    username: '',
+    nickname: '',
+    is_admin: false,
+    is_friend: true,
+    is_following: false,
+    created_on: 0,
+    follows: 0,
+    followings: 0,
+    status: 1,
+});
+
+const onSendWhisper =  (user: Item.UserInfo) => {
+    whisperReceiver.value = user;
+    showWhisper.value = true;
+};
+
+const whisperSuccess = () => {
+    showWhisper.value = false;
+};
 
 const loadPosts = () => {
     loading.value = true;
@@ -78,5 +106,10 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     overflow: hidden;
+}
+.dark {
+    .main-content-wrap, .empty-wrap, .skeleton-wrap {
+        background-color: rgba(16, 16, 20, 0.75);
+    }
 }
 </style>

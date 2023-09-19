@@ -5,10 +5,10 @@
 package mobile
 
 import (
-	api "github.com/rocboss/paopao-ce/auto/rpc/v1"
+	api "github.com/rocboss/paopao-ce/auto/rpc/greet/v1"
 	"google.golang.org/grpc"
 )
 
 func RegisterServants(s *grpc.Server) {
-	api.RegisterAuthenticateServer(s, newAuthenticateServer())
+	api.RegisterGreetServiceServer(s, newGreetServiceServer())
 }

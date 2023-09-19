@@ -7,9 +7,9 @@ package app
 import (
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 )
 
 type Claims struct {
@@ -22,7 +22,7 @@ func GetJWTSecret() []byte {
 	return []byte(conf.JWTSetting.Secret)
 }
 
-func GenerateToken(User *core.User) (string, error) {
+func GenerateToken(User *ms.User) (string, error) {
 	expireTime := time.Now().Add(conf.JWTSetting.Expire)
 	claims := Claims{
 		UID:      User.ID,
@@ -38,18 +38,15 @@ func GenerateToken(User *core.User) (string, error) {
 	return token, err
 }
 
-func ParseToken(token string) (*Claims, error) {
-	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (any, error) {
+func ParseToken(token string) (res *Claims, err error) {
+	var tokenClaims *jwt.Token
+	tokenClaims, err = jwt.ParseWithClaims(token, &Claims{}, func(_ *jwt.Token) (any, error) {
 		return GetJWTSecret(), nil
 	})
-	if err != nil {
-		return nil, err
+	if err == nil && tokenClaims != nil && tokenClaims.Valid {
+		res, _ = tokenClaims.Claims.(*Claims)
+	} else {
+		err = jwt.ErrTokenNotValidYet
 	}
-	if tokenClaims != nil {
-		if claims, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid {
-			return claims, nil
-		}
-	}
-
-	return nil, err
+	return
 }

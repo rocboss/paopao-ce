@@ -51,6 +51,8 @@ CREATE TABLE `p_comment` (
 	`user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
 	`ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'IP地址',
 	`ip_loc` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'IP城市地址',
+	`thumbs_up_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点赞数',
+	`thumbs_down_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点踩数',
 	`created_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
 	`modified_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
 	`deleted_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
@@ -68,7 +70,7 @@ CREATE TABLE `p_comment_content` (
 	`id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '内容ID',
 	`comment_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '评论ID',
 	`user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
-	`content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
+	`content` varchar(4000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
 	`type` tinyint unsigned NOT NULL DEFAULT '2' COMMENT '类型，1标题，2文字段落，3图片地址，4视频地址，5语音地址，6链接地址',
 	`sort` bigint unsigned NOT NULL DEFAULT '100' COMMENT '排序，越小越靠前',
 	`created_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
@@ -91,9 +93,11 @@ CREATE TABLE `p_comment_reply` (
 	`comment_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '评论ID',
 	`user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
 	`at_user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '@用户ID',
-	`content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
+	`content` varchar(4000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
 	`ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'IP地址',
 	`ip_loc` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'IP城市地址',
+	`thumbs_up_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点赞数',
+	`thumbs_down_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点踩数',
 	`created_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
 	`modified_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
 	`deleted_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
@@ -101,6 +105,27 @@ CREATE TABLE `p_comment_reply` (
 	PRIMARY KEY (`id`) USING BTREE,
 	KEY `idx_comment_reply_comment_id` (`comment_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=12000015 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='评论回复';
+
+-- ----------------------------
+-- Table structure for p_tweet_comment_thumbs
+-- ----------------------------
+DROP TABLE IF EXISTS `p_tweet_comment_thumbs`;
+CREATE TABLE `p_tweet_comment_thumbs` (
+  `id` BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT 'thumbs ID',
+  `user_id` BIGINT unsigned NOT NULL,
+  `tweet_id` BIGINT unsigned NOT NULL COMMENT '推文ID',
+  `comment_id` BIGINT unsigned NOT NULL COMMENT '评论ID',
+  `reply_id` BIGINT unsigned COMMENT '评论回复ID',
+  `comment_type` TINYINT NOT NULL DEFAULT '0' COMMENT '评论类型 0为推文评论、1为评论回复',
+  `is_thumbs_up` TINYINT unsigned NOT NULL DEFAULT '0' COMMENT '是否点赞',
+  `is_thumbs_down` TINYINT unsigned NOT NULL DEFAULT '0' COMMENT '是否点踩',
+  `created_on` BIGINT unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `modified_on` BIGINT unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `deleted_on` BIGINT unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
+  `is_del` TINYINT unsigned NOT NULL DEFAULT '0' COMMENT '是否删除 0 为未删除、1 为已删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_tweet_comment_thumbs_uid_tid` (`user_id`, `tweet_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='推文评论点赞';
 
 -- ----------------------------
 -- Table structure for p_message
@@ -137,7 +162,8 @@ CREATE TABLE `p_post` (
 	`comment_count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '评论数',
 	`collection_count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '收藏数',
 	`upvote_count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '点赞数',
-	`visibility` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '可见性 0公开 1私密 2好友可见',
+	`share_count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '分享数',
+	`visibility` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开',
 	`is_top` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否置顶',
 	`is_essence` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否精华',
 	`is_lock` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否锁定',
@@ -154,6 +180,25 @@ CREATE TABLE `p_post` (
 	KEY `idx_post_user_id` (`user_id`) USING BTREE,
 	KEY `idx_post_visibility` (`visibility`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1080017989 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='冒泡/文章';
+
+-- ----------------------------
+-- Table structure for p_post_metric
+-- ----------------------------
+DROP TABLE IF EXISTS `p_post_metric`;
+CREATE TABLE `p_post_metric` (
+	`id` bigint unsigned NOT NULL AUTO_INCREMENT,
+	`post_id` bigint unsigned NOT NULL,
+	`rank_score` bigint unsigned NOT NULL DEFAULT 0,
+	`incentive_score` int unsigned NOT NULL DEFAULT 0,
+	`decay_factor` int unsigned NOT NULL DEFAULT 0,
+	`motivation_factor` int unsigned NOT NULL DEFAULT 0,
+	`is_del` tinyint NOT NULL DEFAULT 0, -- 是否删除, 0否, 1是
+	`created_on` bigint unsigned NOT NULL DEFAULT '0',
+	`modified_on` bigint unsigned NOT NULL DEFAULT '0',
+	`deleted_on` bigint unsigned NOT NULL DEFAULT '0',
+	PRIMARY KEY (`id`) USING BTREE,
+	KEY `idx_post_metric_post_id_rank_score` (`post_id`,`rank_score`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ----------------------------
 -- Table structure for p_post_attachment_bill
@@ -198,7 +243,7 @@ CREATE TABLE `p_post_content` (
 	`id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '内容ID',
 	`post_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'POST ID',
 	`user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
-	`content` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
+	`content` varchar(4000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
 	`type` tinyint unsigned NOT NULL DEFAULT '2' COMMENT '类型，1标题，2文字段落，3图片地址，4视频地址，5语音地址，6链接地址，7附件资源，8收费资源',
 	`sort` int unsigned NOT NULL DEFAULT '100' COMMENT '排序，越小越靠前',
 	`created_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
@@ -247,6 +292,28 @@ CREATE TABLE `p_tag` (
 ) ENGINE=InnoDB AUTO_INCREMENT=9000065 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='标签';
 
 -- ----------------------------
+-- Table structure for p_topic_user
+-- ----------------------------
+DROP TABLE IF EXISTS `p_topic_user`;
+CREATE TABLE `p_topic_user` (
+	`id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`topic_id` BIGINT UNSIGNED NOT NULL COMMENT '标签ID',
+	`user_id` BIGINT UNSIGNED NOT NULL COMMENT '创建者ID',
+	`alias_name` VARCHAR ( 255 ) COMMENT '别名',
+	`remark` VARCHAR ( 512 ) COMMENT '备注',
+	`quote_num` BIGINT UNSIGNED COMMENT '引用数',
+	`is_top` TINYINT UNSIGNED NOT NULL DEFAULT '0' COMMENT '是否置顶 0 为未置顶、1 为已置顶',
+	`created_on` BIGINT UNSIGNED NOT NULL DEFAULT '0' COMMENT '创建时间',
+	`modified_on` BIGINT UNSIGNED NOT NULL DEFAULT '0' COMMENT '修改时间',
+	`deleted_on` BIGINT UNSIGNED NOT NULL DEFAULT '0' COMMENT '删除时间',
+	`is_del` TINYINT UNSIGNED NOT NULL DEFAULT '0' COMMENT '是否删除 0 为未删除、1 为已删除',
+	`reserve_a` VARCHAR ( 255 ) COMMENT '保留字段a',
+	`reserve_b` VARCHAR ( 255 ) COMMENT '保留字段b',
+	PRIMARY KEY ( `id` ) USING BTREE,
+	UNIQUE KEY `idx_topic_user_uid_tid` ( `topic_id`, `user_id` ) USING BTREE 
+) ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户话题';
+
+-- ----------------------------
 -- Table structure for p_user
 -- ----------------------------
 DROP TABLE IF EXISTS `p_user`;
@@ -271,6 +338,22 @@ CREATE TABLE `p_user` (
 ) ENGINE=InnoDB AUTO_INCREMENT=100058 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户';
 
 -- ----------------------------
+-- Table structure for p_following
+-- ----------------------------
+DROP TABLE IF EXISTS `p_following`;
+CREATE TABLE `p_following` (
+	`id` bigint unsigned NOT NULL AUTO_INCREMENT,
+	`user_id` bigint unsigned NOT NULL,
+	`follow_id` bigint unsigned NOT NULL,
+	`is_del` tinyint NOT NULL DEFAULT 0, -- 是否删除, 0否, 1是
+	`created_on` bigint unsigned NOT NULL DEFAULT '0',
+	`modified_on` bigint unsigned NOT NULL DEFAULT '0',
+	`deleted_on` bigint unsigned NOT NULL DEFAULT '0',
+	PRIMARY KEY (`id`) USING BTREE,
+	KEY `idx_following_user_follow` (`user_id`,`follow_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ----------------------------
 -- Table structure for p_contact
 -- ----------------------------
 DROP TABLE IF EXISTS `p_contact`;
@@ -283,7 +366,7 @@ CREATE TABLE `p_contact` (
 	`status` tinyint NOT NULL DEFAULT '0' COMMENT '好友状态: 1请求好友, 2已好友, 3拒绝好友, 4已删好友',
 	`is_top` tinyint NOT NULL DEFAULT '0' COMMENT '是否置顶, 0否, 1是',
 	`is_black` tinyint NOT NULL DEFAULT '0' COMMENT '是否为黑名单, 0否, 1是',
-	`is_delete` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除好友, 0否, 1是',
+	`is_del` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除好友, 0否, 1是',
 	`notice_enable` tinyint NOT NULL DEFAULT '0' COMMENT '是否有消息提醒, 0否, 1是',
 	`created_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
 	`modified_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
@@ -301,7 +384,7 @@ CREATE TABLE `p_contact_group` (
 	`id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '联系人ID',
 	`user_id` int NOT NULL DEFAULT '0' COMMENT '用户id',
 	`name` varchar(32) NOT NULL DEFAULT '' COMMENT '分组名称',
-	`is_delete` tinyint NOT NULL DEFAULT '1' COMMENT '是否删除, 0否, 1是',
+	`is_del` tinyint NOT NULL DEFAULT '1' COMMENT '是否删除, 0否, 1是',
 	`created_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
 	`modified_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
 	`deleted_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
@@ -346,5 +429,40 @@ CREATE TABLE `p_wallet_statement` (
 	PRIMARY KEY (`id`) USING BTREE,
 	KEY `idx_wallet_statement_user_id` (`user_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=10010 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='钱包流水';
+
+DROP VIEW IF EXISTS p_post_by_media;
+CREATE VIEW p_post_by_media AS 
+SELECT post.* 
+FROM
+	( SELECT DISTINCT post_id FROM p_post_content WHERE ( TYPE = 3 OR TYPE = 4 OR TYPE = 7 OR TYPE = 8 ) AND is_del = 0 ) media
+	JOIN p_post post ON media.post_id = post.ID 
+WHERE
+	post.is_del = 0;
+
+DROP VIEW IF EXISTS p_post_by_comment;
+CREATE VIEW p_post_by_comment AS 
+SELECT P.*, C.user_id comment_user_id
+FROM
+	(
+	SELECT
+		post_id,
+		user_id
+	FROM
+		p_comment 
+	WHERE
+		is_del = 0 UNION
+	SELECT
+		post_id,
+		reply.user_id user_id
+	FROM
+		p_comment_reply reply
+		JOIN p_comment COMMENT ON reply.comment_id = COMMENT.ID 
+	WHERE
+		reply.is_del = 0 
+		AND COMMENT.is_del = 0 
+	)
+	C JOIN p_post P ON C.post_id = P.ID 
+WHERE
+	P.is_del = 0;
 
 SET FOREIGN_KEY_CHECKS = 1;

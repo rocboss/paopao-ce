@@ -1,197 +1,196 @@
 declare module NetReq {
+  interface AuthUserLogin {
+    token: string;
+  }
 
-    interface AuthUserLogin {
-        token: string
-    }
+  interface AuthUserRegister {
+    /** 用户UID */
+    id: number;
+    /** 用户名 */
+    username: string;
+  }
 
-    interface AuthUserRegister {
-        /** 用户UID */
-        id: number,
-        /** 用户名 */
-        username: string
-    }
+  type AuthUserInfo = Item.UserInfo;
 
-    type AuthUserInfo = Item.UserInfo
+  interface AuthUpdateUserPassword {}
 
-    interface AuthUpdateUserPassword {
+  interface UserGetCollections {
+    /** 帖子列表 */
+    list: Item.PostProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    }
+  interface UserGetSuggestUsers {
+    suggest: string[];
+  }
 
-    interface UserGetCollections {
-        /** 帖子列表 */
-        list: Item.PostProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
+  interface UserGetSuggestTags {
+    suggest: string[];
+  }
 
-    interface UserGetSuggestUsers {
-        suggest: string[]
-    }
+  interface UserPrecheckAttachment {
+    paid: number;
+  }
 
-    interface UserGetSuggestTags {
-        suggest: string[]
-    }
+  interface UserGetAttachment {
+    signed_url: string;
+  }
 
-    interface UserPrecheckAttachment {
-        paid: number
-    }
+  interface UserGetUnreadMsgCount {
+    count: number;
+  }
 
-    interface UserGetAttachment {
-        signed_url: string
-    } 
+  interface UserGetMessages {
+    /** 消息列表 */
+    list: Item.MessageProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    interface UserGetUnreadMsgCount {
-        count: number
-    }
+  interface UserGetUserPosts {
+    /** 帖子列表 */
+    list: Item.PostProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    interface UserGetMessages {
-        /** 消息列表 */
-        list: Item.MessageProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
+  type UserGetUserProfile = Item.UserInfo;
 
-    interface UserGetUserPosts {
-        /** 帖子列表 */
-        list: Item.PostProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
+  interface UserGetBills {
+    list: Item.BillProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    type UserGetUserProfile = Item.UserInfo
+  interface UserReqRecharge {
+    id: number;
+    pay: string;
+  }
 
-    interface UserGetBills {
-        list: Item.BillProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
+  interface UserGetRecharge {
+    status: string;
+  }
 
-    interface UserReqRecharge {
-        id: number,
-        pay: string
-    }
+  interface UserBindUserPhone {}
 
-    interface UserGetRecharge {
-        status: string
-    }
+  interface UserGetCaptcha {
+    id: string;
+    /** 头像图片 base64 */
+    b64s: string;
+  }
 
-    interface UserBindUserPhone {
+  interface UserChangeNickname {}
 
-    }
+  interface UserChangePassword {}
 
-    interface UserGetCaptcha {
-        id: string,
-        /** 头像图片 base64 */
-        b64s: string
-    }
+  interface UserChangeStatus {}
 
-    interface UserChangeNickname {
+  interface SiteInfoResp {
+    register_user_count: number;
+    online_user_count: number;
+    history_max_online: number;
+    server_up_time: number;
+  }
 
-    }
+  interface FollowUserResp {}
 
-    interface UserChangePassword {
+  interface UnfollowUserResp {}
 
-    }
+  interface AddFriend {}
 
-    interface UserChangeStatus {
+  interface DeleteFriend {}
 
-    }
+  interface RejectFriend {}
 
-    interface AddFriend {
+  interface RequestingFriend {}
 
-    }
+  type PostGetPost = Item.PostProps;
 
-    interface DeleteFriend {
+  interface PostGetPosts {
+    /** 帖子列表 */
+    list: Item.PostProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    }
+  interface PostLockPost {
+    /** 锁定状态：0为未锁定，1为锁定 */
+    lock_status: 0 | 1;
+  }
 
-    interface GetContacts {
-        contacts: Item.ContactsItemProps,
-        total: number
-    }
+  interface PostStickPost {
+    /** 置顶状态：0为未置顶，1为置顶 */
+    top_status: 0 | 1;
+  }
 
-    interface RejectFriend {
+  interface PostHighlightPost {
+    /** 置顶状态：0为未亮点，1为亮点 */
+    highlight_status: 0 | 1;
+  }
 
-    }
+  interface PostVisibilityPost {
+    /** 可见性：0为公开，1为私密，2为好友可见 */
+    visibility_status: import("@/utils/IEnum").VisibilityEnum;
+  }
 
-    interface RequestingFriend {
+  interface PostGetPostStar {
+    status: boolean;
+  }
 
-    }
+  interface PostPostStar {
+    status: boolean;
+  }
 
-    type PostGetPost = Item.PostProps
+  interface PostGetPostCollection {
+    status: boolean;
+  }
 
-    interface PostGetPosts {
-        /** 帖子列表 */
-        list: Item.PostProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
+  interface PostPostCollection {
+    status: boolean;
+  }
 
-    interface PostLockPost {
-        /** 锁定状态：0为未锁定，1为锁定 */
-        lock_status: 0 | 1
-    }
+  interface PostGetTags {
+    topics: Item.TagProps[];
+    extral_topics?: Item.TagProps[];
+  }
 
-    interface PostStickPost {
-        /** 置顶状态：0为未置顶，1为置顶 */
-        top_status: 0 | 1
-    }
+  interface PostGetPostComments {
+    /** 评论列表 */
+    list: Item.CommentProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    interface PostVisibilityPost {
-        /** 可见性：0为公开，1为私密，2为好友可见 */
-        visibility_status: import('@/utils/IEnum').VisibilityEnum
-    }
+  type PostCreatePost = Item.PostProps;
 
-    interface PostGetPostStar {
-        status: boolean
-    }
+  interface PostDeletePost {}
 
-    interface PostPostStar {
-        status: boolean
-    }
+  interface PostTweetCommentThumbs {}
 
-    interface PostGetPostCollection {
-        status: boolean
-    }
+  interface PostTweetReplyThumbs {}
 
-    interface PostPostCollection {
-        status: boolean
-    }
+  type PostCreateComment = Item.CommentProps;
 
-    interface PostGetTags {
-        topics: Item.TagProps[]
-    }
+  interface PostDeleteComment {}
 
-    interface PostGetPostComments {
-        /** 评论列表 */
-        list: Item.CommentProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
+  type PostCreateCommentReply = Item.ReplyProps;
 
-    type PostCreatePost = Item.PostProps
+  interface PostDeleteCommentReply {}
 
-    interface PostDeletePost {
+  interface GetContacts {
+    /** 评论列表 */
+    list: Item.ContactItemProps[];
+    /** 页码信息 */
+    pager: Item.PagerProps;
+  }
 
-    }
+  interface PostStickTopic {
+    /** 置顶状态：0为未置顶，1为置顶 */
+    top_status: 0 | 1;
+  }
 
-    type PostCreateComment = Item.CommentProps
+  interface PostFollowTopic {}
 
-    interface PostDeleteComment {
-
-    }
-
-    type PostCreateCommentReply = Item.ReplyProps
-
-    interface PostDeleteCommentReply {
-
-    }
-
-    interface GetContacts {
-        /** 评论列表 */
-        list: Item.ContactItemProps[],
-        /** 页码信息 */
-        pager: Item.PagerProps
-    }
-
+  interface PostUnfollowTopic {}
 }

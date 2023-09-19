@@ -6,19 +6,18 @@ package web
 
 import (
 	"context"
-	"fmt"
 
 	"time"
 	"unicode/utf8"
 
-	"github.com/alimy/mir/v3"
+	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
-	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
 )
@@ -30,9 +29,7 @@ const (
 )
 
 var (
-	_ api.Core        = (*coreSrv)(nil)
-	_ api.CoreBinding = (*coreBinding)(nil)
-	_ api.CoreRender  = (*coreRender)(nil)
+	_ api.Core = (*coreSrv)(nil)
 )
 
 type coreSrv struct {
@@ -40,77 +37,7 @@ type coreSrv struct {
 	*base.DaoServant
 
 	oss core.ObjectStorageService
-}
-
-type coreBinding struct {
-	*api.UnimplementedCoreBinding
-}
-
-type coreRender struct {
-	*api.UnimplementedCoreRender
-}
-
-func (b *coreBinding) BindGetUserInfo(c *gin.Context) (*web.UserInfoReq, mir.Error) {
-	username, exist := base.UserNameFrom(c)
-	if !exist {
-		return nil, xerror.UnauthorizedAuthNotExist
-	}
-	return &web.UserInfoReq{
-		Username: username,
-	}, nil
-}
-
-func (b *coreBinding) BindGetMessages(c *gin.Context) (*web.GetMessagesReq, mir.Error) {
-	v, err := web.BasePageReqFrom(c)
-	return (*web.GetMessagesReq)(v), err
-}
-
-func (b *coreBinding) BindGetCollections(c *gin.Context) (*web.GetCollectionsReq, mir.Error) {
-	v, err := web.BasePageReqFrom(c)
-	return (*web.GetCollectionsReq)(v), err
-}
-
-func (b *coreBinding) BindGetStars(c *gin.Context) (*web.GetStarsReq, mir.Error) {
-	v, err := web.BasePageReqFrom(c)
-	return (*web.GetStarsReq)(v), err
-}
-
-func (b *coreBinding) BindSuggestTags(c *gin.Context) (*web.SuggestTagsReq, mir.Error) {
-	return &web.SuggestTagsReq{
-		Keyword: c.Query("k"),
-	}, nil
-}
-
-func (b *coreBinding) BindSuggestUsers(c *gin.Context) (*web.SuggestUsersReq, mir.Error) {
-	return &web.SuggestUsersReq{
-		Keyword: c.Query("k"),
-	}, nil
-}
-
-func (b *coreBinding) BindTweetCollectionStatus(c *gin.Context) (*web.TweetCollectionStatusReq, mir.Error) {
-	UserId, exist := base.UserIdFrom(c)
-	if !exist {
-		return nil, xerror.UnauthorizedAuthNotExist
-	}
-	return &web.TweetCollectionStatusReq{
-		SimpleInfo: web.SimpleInfo{
-			Uid: UserId,
-		},
-		TweetId: convert.StrTo(c.Query("id")).MustInt64(),
-	}, nil
-}
-
-func (b *coreBinding) BindTweetStarStatus(c *gin.Context) (*web.TweetStarStatusReq, mir.Error) {
-	UserId, exist := base.UserIdFrom(c)
-	if !exist {
-		return nil, xerror.UnauthorizedAuthNotExist
-	}
-	return &web.TweetStarStatusReq{
-		SimpleInfo: web.SimpleInfo{
-			Uid: UserId,
-		},
-		TweetId: convert.StrTo(c.Query("id")).MustInt64(),
-	}, nil
+	wc  core.WebCache
 }
 
 func (s *coreSrv) Chain() gin.HandlersChain {
@@ -119,7 +46,9 @@ func (s *coreSrv) Chain() gin.HandlersChain {
 
 func (s *coreSrv) SyncSearchIndex(req *web.SyncSearchIndexReq) mir.Error {
 	if req.User != nil && req.User.IsAdmin {
-		go s.PushPostsToSearch(context.Background())
+		s.PushAllPostToSearch()
+	} else {
+		logrus.Warnf("sync search index need admin permision user: %#v", req.User)
 	}
 	return nil
 }
@@ -132,14 +61,22 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 	if user.Model == nil || user.ID < 0 {
 		return nil, xerror.UnauthorizedAuthNotExist
 	}
+	follows, followings, err := s.Ds.GetFollowCount(user.ID)
+	if err != nil {
+		logrus.Errorf("get follow count error: %s", err)
+		return nil, web.ErrGetFollowCountFailed
+	}
 	resp := &web.UserInfoResp{
-		Id:       user.ID,
-		Nickname: user.Nickname,
-		Username: user.Username,
-		Status:   user.Status,
-		Avatar:   user.Avatar,
-		Balance:  user.Balance,
-		IsAdmin:  user.IsAdmin,
+		Id:         user.ID,
+		Nickname:   user.Nickname,
+		Username:   user.Username,
+		Status:     user.Status,
+		Avatar:     user.Avatar,
+		Balance:    user.Balance,
+		IsAdmin:    user.IsAdmin,
+		CreatedOn:  user.CreatedOn,
+		Follows:    follows,
+		Followings: followings,
 	}
 	if user.Phone != "" && len(user.Phone) == 11 {
 		resp.Phone = user.Phone[0:3] + "****" + user.Phone[7:]
@@ -147,31 +84,22 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 	return resp, nil
 }
 
-func (s *coreSrv) GetUnreadMsgCount(req *web.GetUnreadMsgCountReq) (*web.GetUnreadMsgCountResp, mir.Error) {
-	count, err := s.Ds.GetUnreadCount(req.Uid)
-	if err != nil {
-		return nil, xerror.ServerError
-	}
-	return &web.GetUnreadMsgCountResp{
-		Count: count,
-	}, nil
-}
-
 func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mir.Error) {
-	conditions := &core.ConditionsT{
-		"receiver_user_id": req.UserId,
-		"ORDER":            "id DESC",
-	}
-	messages, err := s.Ds.GetMessages(conditions, (req.Page-1)*req.PageSize, req.PageSize)
+	messages, err := s.Ds.GetMessages(req.UserId, (req.Page-1)*req.PageSize, req.PageSize)
 	for _, mf := range messages {
+		// TODO: 优化处理这里的user获取逻辑以及错误处理
 		if mf.SenderUserID > 0 {
-			user, err := s.Ds.GetUserByID(mf.SenderUserID)
-			if err == nil {
+			if user, err := s.Ds.GetUserByID(mf.SenderUserID); err == nil {
 				mf.SenderUser = user.Format()
 			}
 		}
+		if mf.Type == ms.MsgTypeWhisper && mf.ReceiverUserID != req.UserId {
+			if user, err := s.Ds.GetUserByID(mf.ReceiverUserID); err == nil {
+				mf.ReceiverUser = user.Format()
+			}
+		}
 		// 好友申请消息不需要获取其他信息
-		if mf.Type == core.MsgTypeRequestingFriend {
+		if mf.Type == ms.MsgTypeRequestingFriend {
 			continue
 		}
 		if mf.PostID > 0 {
@@ -195,9 +123,9 @@ func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mi
 	}
 	if err != nil {
 		logrus.Errorf("Ds.GetMessages err: %v\n", err)
-		return nil, _errGetMessagesFailed
+		return nil, web.ErrGetMessagesFailed
 	}
-	totalRows, _ := s.Ds.GetMessageCount(conditions)
+	totalRows, _ := s.Ds.GetMessageCount(req.UserId)
 	resp := base.PageRespFrom(messages, req.Page, req.PageSize, totalRows)
 	return (*web.GetMessagesResp)(resp), nil
 }
@@ -205,49 +133,50 @@ func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mi
 func (s *coreSrv) ReadMessage(req *web.ReadMessageReq) mir.Error {
 	message, err := s.Ds.GetMessageByID(req.ID)
 	if err != nil {
-		return _errReadMessageFailed
+		return web.ErrReadMessageFailed
 	}
 	if message.ReceiverUserID != req.Uid {
-		return _errNoPermission
+		return web.ErrNoPermission
 	}
 	if err = s.Ds.ReadMessage(message); err != nil {
 		logrus.Errorf("Ds.ReadMessage err: %s", err)
-		return _errReadMessageFailed
+		return web.ErrReadMessageFailed
 	}
+	// 清除未读消息数缓存，不需要处理错误
+	s.wc.DelUnreadMsgCountResp(req.Uid)
 	return nil
 }
 
 func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 	// 不允许发送私信给自己
 	if req.Uid == req.UserID {
-		return _errNoWhisperToSelf
+		return web.ErrNoWhisperToSelf
 	}
 
 	// 今日频次限制
 	ctx := context.Background()
-	whisperKey := fmt.Sprintf("WhisperTimes:%d", req.Uid)
-	if res, _ := s.Redis.Get(ctx, whisperKey).Result(); convert.StrTo(res).MustInt() >= _MaxWhisperNumDaily {
-		return _errTooManyWhisperNum
+	if count, _ := s.Redis.GetCountWhisper(ctx, req.Uid); count >= _MaxWhisperNumDaily {
+		return web.ErrTooManyWhisperNum
 	}
 
 	// 创建私信
-	_, err := s.Ds.CreateMessage(&core.Message{
+	_, err := s.Ds.CreateMessage(&ms.Message{
 		SenderUserID:   req.Uid,
 		ReceiverUserID: req.UserID,
-		Type:           core.MsgTypeWhisper,
+		Type:           ms.MsgTypeWhisper,
 		Brief:          "给你发送新私信了",
 		Content:        req.Content,
 	})
 	if err != nil {
 		logrus.Errorf("Ds.CreateWhisper err: %s", err)
-		return _errSendWhisperFailed
+		return web.ErrSendWhisperFailed
 	}
 
+	// 清除接收者未读消息缓存, 不需要处理错误
+	s.wc.DelUnreadMsgCountResp(req.UserID)
+
 	// 写入当日（自然日）计数缓存
-	s.Redis.Incr(ctx, whisperKey).Result()
-	currentTime := time.Now()
-	endTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
-	s.Redis.Expire(ctx, whisperKey, endTime.Sub(currentTime))
+	s.Redis.IncrCountWhisper(ctx, req.Uid)
 
 	return nil
 }
@@ -256,22 +185,22 @@ func (s *coreSrv) GetCollections(req *web.GetCollectionsReq) (*web.GetCollection
 	collections, err := s.Ds.GetUserPostCollections(req.UserId, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserPostCollections err: %s", err)
-		return nil, _errGetCollectionsFailed
+		return nil, web.ErrGetCollectionsFailed
 	}
 	totalRows, err := s.Ds.GetUserPostCollectionCount(req.UserId)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserPostCollectionCount err: %s", err)
-		return nil, _errGetCollectionsFailed
+		return nil, web.ErrGetCollectionsFailed
 	}
 
-	var posts []*core.Post
+	var posts []*ms.Post
 	for _, collection := range collections {
 		posts = append(posts, collection.Post)
 	}
 	postsFormated, err := s.Ds.MergePosts(posts)
 	if err != nil {
 		logrus.Errorf("Ds.MergePosts err: %s", err)
-		return nil, _errGetCollectionsFailed
+		return nil, web.ErrGetCollectionsFailed
 	}
 	resp := base.PageRespFrom(postsFormated, req.Page, req.PageSize, totalRows)
 
@@ -282,23 +211,23 @@ func (s *coreSrv) UserPhoneBind(req *web.UserPhoneBindReq) mir.Error {
 	// 手机重复性检查
 	u, err := s.Ds.GetUserByPhone(req.Phone)
 	if err == nil && u.Model != nil && u.ID != 0 && u.ID != req.User.ID {
-		return _errExistedUserPhone
+		return web.ErrExistedUserPhone
 	}
 
 	// 如果禁止phone verify 则允许通过任意验证码
-	if _EnablePhoneVerify {
+	if _enablePhoneVerify {
 		c, err := s.Ds.GetLatestPhoneCaptcha(req.Phone)
 		if err != nil {
-			return _errErrorPhoneCaptcha
+			return web.ErrErrorPhoneCaptcha
 		}
 		if c.Captcha != req.Captcha {
-			return _errErrorPhoneCaptcha
+			return web.ErrErrorPhoneCaptcha
 		}
 		if c.ExpiredOn < time.Now().Unix() {
-			return _errErrorPhoneCaptcha
+			return web.ErrErrorPhoneCaptcha
 		}
 		if c.UseTimes >= _MaxCaptchaTimes {
-			return _errMaxPhoneCaptchaUseTimes
+			return web.ErrMaxPhoneCaptchaUseTimes
 		}
 		// 更新检测次数
 		s.Ds.UsePhoneCaptcha(c)
@@ -316,28 +245,26 @@ func (s *coreSrv) UserPhoneBind(req *web.UserPhoneBindReq) mir.Error {
 }
 
 func (s *coreSrv) GetStars(req *web.GetStarsReq) (*web.GetStarsResp, mir.Error) {
-	stars, err := s.Ds.GetUserPostStars(req.UserId, (req.Page-1)*req.PageSize, req.PageSize)
+	stars, err := s.Ds.GetUserPostStars(req.UserId, req.PageSize, (req.Page-1)*req.PageSize)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserPostStars err: %s", err)
-		return nil, _errGetStarsFailed
+		return nil, web.ErrGetStarsFailed
 	}
 	totalRows, err := s.Ds.GetUserPostStarCount(req.UserId)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserPostStars err: %s", err)
-		return nil, _errGetStarsFailed
+		return nil, web.ErrGetStarsFailed
 	}
-
-	var posts []*core.Post
+	var posts []*ms.Post
 	for _, star := range stars {
 		posts = append(posts, star.Post)
 	}
 	postsFormated, err := s.Ds.MergePosts(posts)
 	if err != nil {
 		logrus.Errorf("Ds.MergePosts err: %s", err)
-		return nil, _errGetStarsFailed
+		return nil, web.ErrGetStarsFailed
 	}
 	resp := base.PageRespFrom(postsFormated, req.Page, req.PageSize, totalRows)
-
 	return (*web.GetStarsResp)(resp), nil
 }
 
@@ -349,7 +276,7 @@ func (s *coreSrv) ChangePassword(req *web.ChangePasswordReq) mir.Error {
 	// 旧密码校验
 	user := req.User
 	if !validPassword(user.Password, req.OldPassword, req.User.Salt) {
-		return _errErrorOldPassword
+		return web.ErrErrorOldPassword
 	}
 	// 更新入库
 	user.Password, user.Salt = encryptPasswordAndSalt(req.Password)
@@ -388,7 +315,7 @@ func (s *coreSrv) SuggestUsers(req *web.SuggestUsersReq) (*web.SuggestUsersResp,
 
 func (s *coreSrv) ChangeNickname(req *web.ChangeNicknameReq) mir.Error {
 	if utf8.RuneCountInString(req.Nickname) < 2 || utf8.RuneCountInString(req.Nickname) > 12 {
-		return _errNicknameLengthLimit
+		return web.ErrNicknameLengthLimit
 	}
 	user := req.User
 	user.Nickname = req.Nickname
@@ -445,25 +372,10 @@ func (s *coreSrv) TweetStarStatus(req *web.TweetStarStatusReq) (*web.TweetStarSt
 	return resp, nil
 }
 
-func newCoreSrv(s *base.DaoServant, oss core.ObjectStorageService) api.Core {
+func newCoreSrv(s *base.DaoServant, oss core.ObjectStorageService, wc core.WebCache) api.Core {
 	return &coreSrv{
 		DaoServant: s,
 		oss:        oss,
-	}
-}
-
-func newCoreBinding() api.CoreBinding {
-	return &coreBinding{
-		UnimplementedCoreBinding: &api.UnimplementedCoreBinding{
-			BindAny: base.BindAny,
-		},
-	}
-}
-
-func newCoreRender() api.CoreRender {
-	return &coreRender{
-		UnimplementedCoreRender: &api.UnimplementedCoreRender{
-			RenderAny: base.RenderAny,
-		},
+		wc:         wc,
 	}
 }

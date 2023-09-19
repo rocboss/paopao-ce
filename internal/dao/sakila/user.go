@@ -5,69 +5,90 @@
 package sakila
 
 import (
-	"github.com/jmoiron/sqlx"
+	"strings"
+	"time"
+
+	"github.com/alimy/tryst/cfg"
+	"github.com/bitbus/sqlx"
+	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/pkg/debug"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
 )
 
 var (
-	_ core.UserManageService = (*userManageServant)(nil)
+	_ core.UserManageService = (*userManageSrv)(nil)
 )
 
-type userManageServant struct {
-	*sqlxServant
-	stmtAddUser    *sqlx.Stmt
-	stmtUpdateUser *sqlx.Stmt
-	stmtGetUser    *sqlx.Stmt
+type userManageSrv struct {
+	*sqlxSrv
+	q *cc.UserManage
 }
 
-func (s *userManageServant) GetUserByID(id int64) (*core.User, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *userManageSrv) GetUserByID(id int64) (*ms.User, error) {
+	return db.Get[ms.User](s.q.GetUserById, id)
 }
 
-func (s *userManageServant) GetUserByUsername(username string) (*core.User, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *userManageSrv) GetUserByUsername(username string) (*ms.User, error) {
+	return db.Get[ms.User](s.q.GetUserByUsername, username)
 }
 
-func (s *userManageServant) GetUserByPhone(phone string) (*core.User, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *userManageSrv) GetUserByPhone(phone string) (*ms.User, error) {
+	return db.Get[ms.User](s.q.GetUserByPhone, phone)
 }
 
-func (s *userManageServant) GetUsersByIDs(ids []int64) ([]*core.User, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *userManageServant) GetUsersByKeyword(keyword string) ([]*core.User, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *userManageServant) CreateUser(user *core.User) (*core.User, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *userManageServant) UpdateUser(user *core.User) error {
-	// TODO
-	debug.NotImplemented()
-	return nil
-}
-
-func newUserManageService(db *sqlx.DB) core.UserManageService {
-	return &userManageServant{
-		sqlxServant:    newSqlxServant(db),
-		stmtAddUser:    c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtUpdateUser: c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtGetUser:    c(`SELECT * FROM @person WHERE first_name=?`),
+func (s *userManageSrv) GetUsersByIDs(ids []int64) (res []*ms.User, err error) {
+	if len(ids) == 0 {
+		return nil, nil
 	}
+	err = s.db.InSelect(&res, s.q.GetUsersByIds, ids)
+	return
+}
+
+func (s *userManageSrv) GetUsersByKeyword(keyword string) (res []*ms.User, err error) {
+	keyword = strings.Trim(keyword, " ") + "%"
+	if keyword == "%" {
+		err = s.q.GetAnyUsers.Get(&res)
+	} else {
+		err = s.q.GetUsersByKeyword.Select(&res, keyword)
+	}
+	return
+}
+
+func (s *userManageSrv) CreateUser(r *ms.User) (*ms.User, error) {
+	r.Model = &ms.Model{
+		CreatedOn: time.Now().Unix(),
+	}
+	res, err := s.q.CreateUser.Exec(r)
+	if err != nil {
+		return nil, err
+	}
+	r.ID, err = res.LastInsertId()
+	return r, err
+}
+
+func (s *userManageSrv) UpdateUser(r *ms.User) error {
+	_, err := s.q.UpdateUser.Exec(r)
+	return err
+}
+
+func (s *userManageSrv) GetRegisterUserCount() (res int64, err error) {
+	err = s.q.GetRegisterUserCount.Get(&res)
+	return
+}
+
+func newUserManageService(db *sqlx.DB) (s core.UserManageService) {
+	ums := &userManageSrv{
+		sqlxSrv: newSqlxSrv(db),
+		q:       ccBuild(db, cc.BuildUserManage),
+	}
+	s = ums
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		s = &pgcUserManageSrv{
+			userManageSrv: ums,
+			p:             pgcBuild(db, pgc.BuildUserManage),
+		}
+	}
+	return
 }

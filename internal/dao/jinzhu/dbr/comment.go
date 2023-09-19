@@ -7,27 +7,33 @@ package dbr
 import (
 	"time"
 
+	"github.com/rocboss/paopao-ce/pkg/types"
 	"gorm.io/gorm"
 )
 
 type Comment struct {
 	*Model
-	PostID int64  `json:"post_id"`
-	UserID int64  `json:"user_id"`
-	IP     string `json:"ip"`
-	IPLoc  string `json:"ip_loc"`
+	PostID          int64  `json:"post_id"`
+	UserID          int64  `json:"user_id"`
+	IP              string `json:"ip"`
+	IPLoc           string `json:"ip_loc"`
+	ThumbsUpCount   int32  `json:"thumbs_up_count"`
+	ThumbsDownCount int32  `json:"-"`
 }
 
 type CommentFormated struct {
-	ID         int64                   `json:"id"`
-	PostID     int64                   `json:"post_id"`
-	UserID     int64                   `json:"user_id"`
-	User       *UserFormated           `json:"user"`
-	Contents   []*CommentContent       `json:"contents"`
-	Replies    []*CommentReplyFormated `json:"replies"`
-	IPLoc      string                  `json:"ip_loc"`
-	CreatedOn  int64                   `json:"created_on"`
-	ModifiedOn int64                   `json:"modified_on"`
+	ID            int64                   `json:"id"`
+	PostID        int64                   `json:"post_id"`
+	UserID        int64                   `json:"user_id"`
+	User          *UserFormated           `json:"user"`
+	Contents      []*CommentContent       `json:"contents"`
+	Replies       []*CommentReplyFormated `json:"replies"`
+	IPLoc         string                  `json:"ip_loc"`
+	ThumbsUpCount int32                   `json:"thumbs_up_count"`
+	IsThumbsUp    int8                    `json:"is_thumbs_up"`
+	IsThumbsDown  int8                    `json:"is_thumbs_down"`
+	CreatedOn     int64                   `json:"created_on"`
+	ModifiedOn    int64                   `json:"modified_on"`
 }
 
 func (c *Comment) Format() *CommentFormated {
@@ -35,15 +41,18 @@ func (c *Comment) Format() *CommentFormated {
 		return &CommentFormated{}
 	}
 	return &CommentFormated{
-		ID:         c.Model.ID,
-		PostID:     c.PostID,
-		UserID:     c.UserID,
-		User:       &UserFormated{},
-		Contents:   []*CommentContent{},
-		Replies:    []*CommentReplyFormated{},
-		IPLoc:      c.IPLoc,
-		CreatedOn:  c.CreatedOn,
-		ModifiedOn: c.ModifiedOn,
+		ID:            c.Model.ID,
+		PostID:        c.PostID,
+		UserID:        c.UserID,
+		User:          &UserFormated{},
+		Contents:      []*CommentContent{},
+		Replies:       []*CommentReplyFormated{},
+		IPLoc:         c.IPLoc,
+		ThumbsUpCount: c.ThumbsUpCount,
+		IsThumbsUp:    types.No,
+		IsThumbsDown:  types.No,
+		CreatedOn:     c.CreatedOn,
+		ModifiedOn:    c.ModifiedOn,
 	}
 }
 
@@ -70,7 +79,7 @@ func (c *Comment) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) 
 		db = db.Offset(offset).Limit(limit)
 	}
 	if c.PostID > 0 {
-		db = db.Where("id = ?", c.PostID)
+		db = db.Where("post_id = ?", c.PostID)
 	}
 
 	for k, v := range *conditions {

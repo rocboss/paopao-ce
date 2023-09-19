@@ -6,6 +6,7 @@ package search
 
 import (
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/pkg/types"
 )
 
@@ -13,13 +14,13 @@ type tweetSearchFilter struct {
 	ams core.AuthorizationManageService
 }
 
-func (s *tweetSearchFilter) filterResp(user *core.User, resp *core.QueryResp) {
+func (s *tweetSearchFilter) filterResp(user *ms.User, resp *core.QueryResp) {
 	// 管理员不过滤
 	if user != nil && user.IsAdmin {
 		return
 	}
 
-	var item *core.PostFormated
+	var item *ms.PostFormated
 	items := resp.Items
 	latestIndex := len(items) - 1
 	if user == nil {

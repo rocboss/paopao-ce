@@ -5,6 +5,8 @@
 package cache
 
 import (
+	"context"
+	"sync"
 	"time"
 
 	"github.com/allegro/bigcache/v3"
@@ -12,6 +14,16 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/sirupsen/logrus"
 )
+
+var (
+	_onceInit sync.Once
+)
+
+func NewRedisCache() core.RedisCache {
+	return &redisCache{
+		c: conf.MustRedisClient(),
+	}
+}
 
 func NewBigCacheIndexService(ips core.IndexPostsService, ams core.AuthorizationManageService) (core.CacheIndexService, core.VersionInfo) {
 	s := conf.BigCacheIndexSetting
@@ -21,33 +33,34 @@ func NewBigCacheIndexService(ips core.IndexPostsService, ams core.AuthorizationM
 	c.Verbose = s.Verbose
 	c.MaxEntrySize = 10000
 	c.Logger = logrus.StandardLogger()
-	cache, err := bigcache.NewBigCache(c)
+
+	bc, err := bigcache.New(context.Background(), c)
 	if err != nil {
 		logrus.Fatalf("initial bigCahceIndex failure by err: %v", err)
 	}
-
-	cacheIndex := &bigCacheIndexServant{
-		ips:             ips,
-		ams:             ams,
-		cache:           cache,
-		preventDuration: 10 * time.Second,
-	}
-
-	// indexActionCh capacity custom configure by conf.yaml need in [10, 10000]
-	// or re-compile source to adjust min/max capacity
-	capacity := conf.CacheIndexSetting.MaxUpdateQPS
-	if capacity < 10 {
-		capacity = 10
-	} else if capacity > 10000 {
-		capacity = 10000
-	}
-	cacheIndex.indexActionCh = make(chan *core.IndexAction, capacity)
-	cacheIndex.cachePostsCh = make(chan *postsEntry, capacity)
-
-	// 启动索引更新器
-	go cacheIndex.startIndexPosts()
-
+	cacheIndex := newCacheIndexSrv(ips, ams, &bigCacheTweetsCache{
+		bc: bc,
+	})
 	return cacheIndex, cacheIndex
+}
+
+func NewRedisCacheIndexService(ips core.IndexPostsService, ams core.AuthorizationManageService) (core.CacheIndexService, core.VersionInfo) {
+	cacheIndex := newCacheIndexSrv(ips, ams, &redisCacheTweetsCache{
+		expireDuration: conf.RedisCacheIndexSetting.ExpireInSecond,
+		expireInSecond: int64(conf.RedisCacheIndexSetting.ExpireInSecond / time.Second),
+		c:              conf.MustRedisClient(),
+	})
+	return cacheIndex, cacheIndex
+}
+
+func NewWebCache() core.WebCache {
+	lazyInitial()
+	return _webCache
+}
+
+func NewAppCache() core.AppCache {
+	lazyInitial()
+	return _appCache
 }
 
 func NewSimpleCacheIndexService(indexPosts core.IndexPostsService) (core.CacheIndexService, core.VersionInfo) {
@@ -89,4 +102,11 @@ func NewNoneCacheIndexService(indexPosts core.IndexPostsService) (core.CacheInde
 		ips: indexPosts,
 	}
 	return obj, obj
+}
+
+func lazyInitial() {
+	_onceInit.Do(func() {
+		_appCache = newAppCache()
+		_webCache = newWebCache(_appCache)
+	})
 }

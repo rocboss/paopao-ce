@@ -5,116 +5,94 @@
 package sakila
 
 import (
-	"github.com/jmoiron/sqlx"
+	"github.com/bitbus/sqlx"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/core/cs"
-	"github.com/rocboss/paopao-ce/pkg/debug"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
+	"github.com/sirupsen/logrus"
 )
 
 var (
-	_ core.IndexPostsService = (*friendIndexServant)(nil)
-	_ core.IndexPostsService = (*followIndexServant)(nil)
-	_ core.IndexPostsService = (*lightIndexServant)(nil)
-	_ core.IndexPostsService = (*simpleIndexPostsServant)(nil)
+	_ core.IndexPostsService = (*shipIndexSrv)(nil)
+	_ core.IndexPostsService = (*simpleIndexPostsSrv)(nil)
 )
 
-type friendIndexServant struct {
-	*sqlxServant
-	ams       core.AuthorizationManageService
-	ths       core.TweetHelpService
-	stmtIndex *sqlx.Stmt
+type shipIndexSrv struct {
+	*sqlxSrv
+	ams core.AuthorizationManageService
+	ths core.TweetHelpService
+	q   *cc.ShipIndex
 }
 
-type followIndexServant struct {
-	*sqlxServant
-	ths       core.TweetHelpService
-	stmtIndex *sqlx.Stmt
-}
-
-type lightIndexServant struct {
-	*sqlxServant
-	ths       core.TweetHelpService
-	stmtIndex *sqlx.Stmt
-}
-
-type simpleIndexPostsServant struct {
-	*sqlxServant
-	ths       core.TweetHelpService
-	stmtIndex *sqlx.Stmt
+type simpleIndexPostsSrv struct {
+	*sqlxSrv
+	ths core.TweetHelpService
+	q   *cc.SimpleIndex
 }
 
 // IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *friendIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *friendIndexServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-// IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *followIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *followIndexServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-// IndexPosts 根据userId查询广场推文列表，简单做到不同用户的主页都是不同的；
-func (s *lightIndexServant) IndexPosts(user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *lightIndexServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
+func (s *shipIndexSrv) IndexPosts(user *ms.User, offset int, limit int) (res *ms.IndexTweetList, err error) {
+	var posts []*ms.Post
+	res = &ms.IndexTweetList{}
+	switch {
+	case user == nil:
+		if err = s.q.IndexByGuest.Select(&posts, limit, offset); err == nil {
+			err = s.q.IndexCountByGuest.Get(&res.Total)
+		}
+	case user != nil && user.IsAdmin:
+		if err = s.q.IndexByAdmin.Select(&posts, limit, offset); err == nil {
+			err = s.q.IndexCountByAdmin.Get(&res.Total)
+		}
+	default:
+		friendIds, _ := s.ams.BeFriendIds(user.ID)
+		friendIds = append(friendIds, user.ID)
+		err = s.db.InSelect(&posts, s.q.IndexBySelf, user.ID, friendIds, limit, offset)
+		if err == nil {
+			err = s.db.InGet(&res.Total, s.q.IndexCountBySelf, user.ID, friendIds)
+		}
+	}
+	if err != nil {
+		logrus.Debugf("shipIndex.IndexPosts err: %s", err)
+		return
+	}
+	if res.Tweets, err = s.ths.MergePosts(posts); err != nil {
+		logrus.Debugf("shipIndex.IndexPosts merge posts err: %s", err)
+		return
+	}
+	return
 }
 
 // simpleCacheIndexGetPosts simpleCacheIndex 专属获取广场推文列表函数
-func (s *simpleIndexPostsServant) IndexPosts(_user *core.User, offset int, limit int) (*core.IndexTweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *simpleIndexPostsServant) TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func newFriendIndexService(db *sqlx.DB, ams core.AuthorizationManageService, ths core.TweetHelpService) core.IndexPostsService {
-	return &friendIndexServant{
-		ams:         ams,
-		sqlxServant: newSqlxServant(db),
-		stmtIndex:   c(`SELECT * FROM @person WHERE first_name=?`),
+func (s *simpleIndexPostsSrv) IndexPosts(_user *ms.User, offset int, limit int) (res *ms.IndexTweetList, err error) {
+	var posts []*ms.Post
+	res = &ms.IndexTweetList{}
+	if err = s.q.Index.Select(&posts, limit, offset); err == nil {
+		err = s.q.IndexCount.Get(&res.Total)
 	}
-}
-
-func newFollowIndexService(db *sqlx.DB, ths core.TweetHelpService) core.IndexPostsService {
-	return &followIndexServant{
-		ths:         ths,
-		sqlxServant: newSqlxServant(db),
-		stmtIndex:   c(`SELECT * FROM @person WHERE first_name=?`),
+	if err != nil {
+		logrus.Debugf("simpleIndexPostsSrv.IndexPosts err: %s", err)
+		return
 	}
+	if res.Tweets, err = s.ths.MergePosts(posts); err != nil {
+		logrus.Debugf("shipIndex.IndexPosts merge posts err: %s", err)
+		return
+	}
+	return
 }
 
-func newLightIndexService(db *sqlx.DB, ths core.TweetHelpService) core.IndexPostsService {
-	return &lightIndexServant{
-		ths:         ths,
-		sqlxServant: newSqlxServant(db),
-		stmtIndex:   c(`SELECT * FROM @person WHERE first_name=?`),
+func newShipIndexService(db *sqlx.DB, ams core.AuthorizationManageService, ths core.TweetHelpService) core.IndexPostsService {
+	return &shipIndexSrv{
+		ams:     ams,
+		ths:     ths,
+		sqlxSrv: newSqlxSrv(db),
+		q:       ccBuild(db, cc.BuildShipIndex),
 	}
 }
 
 func newSimpleIndexPostsService(db *sqlx.DB, ths core.TweetHelpService) core.IndexPostsService {
-	return &simpleIndexPostsServant{
-		ths:         ths,
-		sqlxServant: newSqlxServant(db),
-		stmtIndex:   c(`SELECT * FROM @person WHERE first_name=?`),
+	return &simpleIndexPostsSrv{
+		ths:     ths,
+		sqlxSrv: newSqlxSrv(db),
+		q:       ccBuild(db, cc.BuildSimpleIndex),
 	}
 }

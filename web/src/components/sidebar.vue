@@ -3,9 +3,8 @@
         <div class="logo-wrap">
             <n-image class="logo-img" width="36" :src="LOGO" :preview-disabled="true" @click="goHome" />
         </div>
-        <n-menu :accordion="true" :collapsed="store.state.collapsedLeft" :collapsed-width="64" :icon-size="24"
-            :options="menuOptions" :render-label="renderMenuLabel" :render-icon="renderMenuIcon" :value="selectedPath"
-            @update:value="goRouter" />
+        <n-menu :accordion="true" :icon-size="24" :options="menuOptions" :render-label="renderMenuLabel"
+            :render-icon="renderMenuIcon" :value="selectedPath" @update:value="goRouter" />
 
         <div class="user-wrap" v-if="store.state.userInfo.id > 0">
             <n-avatar class="user-avatar" round :size="34" :src="store.state.userInfo.avatar" />
@@ -37,7 +36,12 @@
             </div>
         </div>
         <div class="user-wrap" v-else>
-            <div class="login-wrap">
+            <div v-if="!allowUserRegister" class="login-only-wrap">
+                <n-button strong secondary round type="primary" @click="triggerAuth('signin')">
+                    登录
+                </n-button>
+            </div>
+            <div v-if="allowUserRegister" class="login-wrap">
                 <n-button strong secondary round type="primary" @click="triggerAuth('signin')">
                     登录
                 </n-button>
@@ -54,12 +58,10 @@ import { h, ref, watch, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { NIcon, NBadge, useMessage } from 'naive-ui';
-import type { RouteRecordName } from "vue-router";
 import {
     HomeOutline,
     BookmarksOutline,
     MegaphoneOutline,
-    SparklesOutline,
     ChatbubblesOutline,
     LeafOutline,
     PeopleOutline,
@@ -77,6 +79,12 @@ const router = useRouter();
 const hasUnreadMsg = ref(false);
 const selectedPath = ref<any>(route.name || '');
 const msgLoop = ref();
+
+const useFrindship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true');
+const enableAnnoucement = (import.meta.env.VITE_ENABLE_ANOUNCEMENT.toLowerCase() === 'true');
+const enableWallet = (import.meta.env.VITE_ENABLE_WALLET.toLocaleLowerCase() === 'true');
+const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true');
+const defMsgLoopInterval = Number(import.meta.env.VITE_DEFAULT_MSG_LOOP_INTERVAL);
 
 watch(route, () => {
     selectedPath.value = route.name;
@@ -100,7 +108,7 @@ watch(store.state, () => {
                     .catch((err) => {
                         console.log(err);
                     });
-            }, 5000);
+            }, defMsgLoopInterval);
         }
     } else {
         if (msgLoop.value) {
@@ -129,8 +137,8 @@ const menuOptions = computed(() => {
             href: '/topic',
         },
     ];
-    if (import.meta.env.VITE_ENABLE_ANOUNCEMENT.toLowerCase() === 'true') {
-        options.push( {
+    if (enableAnnoucement) {
+        options.push({
             label: '公告',
             key: 'anouncement',
             icon: () => h(MegaphoneOutline),
@@ -155,13 +163,15 @@ const menuOptions = computed(() => {
         icon: () => h(BookmarksOutline),
         href: '/collection',
     });
-    options.push({
-        label: '好友',
-        key: 'contacts',
-        icon: () => h(PeopleOutline),
-        href: '/contacts',
-    });
-    if (import.meta.env.VITE_ENABLE_WALLET.toLocaleLowerCase() === 'true') {
+    if (useFrindship) {
+        options.push({
+            label: '好友',
+            key: 'contacts',
+            icon: () => h(PeopleOutline),
+            href: '/contacts',
+        });
+    }   
+    if (enableWallet) {
         options.push({
             label: '钱包',
             key: 'wallet',
@@ -229,13 +239,16 @@ const renderMenuIcon = (option: AnyObject) => {
 
 const goRouter = (name: string, item: any = {}) => {
     selectedPath.value = name;
-    router.push({ name });
+    router.push({
+        name, query: {
+            t: (new Date().getTime())
+        }
+    });
 };
 const goHome = () => {
     if (route.path === '/') {
         store.commit('refresh');
     }
-
     goRouter('home');
 };
 const triggerAuth = (key: string) => {
@@ -244,12 +257,21 @@ const triggerAuth = (key: string) => {
 };
 const handleLogout = () => {
     store.commit('userLogout');
+    store.commit('refresh')
+    goHome()
 };
 window.$store = store;
 window.$message = useMessage();
 </script>
 
 <style lang="less">
+.sidebar-wrap::-webkit-scrollbar {
+    width: 0;
+    /* 隐藏滚动条的宽度 */
+    height: 0;
+    /* 隐藏滚动条的高度 */
+}
+
 .sidebar-wrap {
     z-index: 99;
     width: 200px;
@@ -258,86 +280,101 @@ window.$message = useMessage();
     right: calc(50% + var(--content-main) / 2 + 10px);
     padding: 12px 0;
     box-sizing: border-box;
+    max-height: calc(100vh);
+    /* 调整高度 */
+    overflow: auto;
 
     .n-menu .n-menu-item-content::before {
         border-radius: 21px;
     }
-}
 
-.logo-wrap {
-    display: flex;
-    justify-content: flex-start;
-    margin-bottom: 12px;
 
-    .logo-img {
-        margin-left: 24px;
+    .logo-wrap {
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 12px;
 
-        &:hover {
-            cursor: pointer;
+        .logo-img {
+            margin-left: 24px;
+
+            &:hover {
+                cursor: pointer;
+            }
         }
     }
-}
 
-.user-wrap {
-    display: flex;
-    align-items: center;
-    position: absolute;
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
-
-    .user-mini-wrap {
-        display: none;
-    }
-
-    .user-avatar {
-        margin-right: 8px;
-    }
-
-    .user-info {
+    .user-wrap {
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        right: 12px;
 
-        .nickname {
-            font-size: 16px;
-            font-weight: bold;
-            line-height: 16px;
-            height: 16px;
-            margin-bottom: 2px;
+        .user-mini-wrap {
+            display: none;
+        }
+
+        .user-avatar {
+            margin-right: 8px;
+        }
+
+        .user-info {
             display: flex;
-            align-items: center;
+            flex-direction: column;
 
-            .nickname-txt {
-                max-width: 90px;
+            .nickname {
+                font-size: 16px;
+                font-weight: bold;
+                line-height: 16px;
+                height: 16px;
+                margin-bottom: 2px;
+                display: flex;
+                align-items: center;
+
+                .nickname-txt {
+                    max-width: 90px;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                }
+
+                .logout {
+                    margin-left: 6px;
+                }
+            }
+
+            .username {
+                font-size: 14px;
+                line-height: 16px;
+                height: 16px;
+                width: 120px;
                 text-overflow: ellipsis;
                 overflow: hidden;
                 white-space: nowrap;
-            }
-
-            .logout {
-                margin-left: 6px;
+                opacity: 0.75;
             }
         }
 
-        .username {
-            font-size: 14px;
-            line-height: 16px;
-            height: 16px;
-            width: 120px;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-            opacity: 0.75;
+        .login-only-wrap {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+
+            button {
+                margin: 0 4px;
+                width: 80%
+            }
         }
-    }
 
-    .login-wrap {
-        display: flex;
-        justify-content: center;
-        width: 100%;
+        .login-wrap {
+            display: flex;
+            justify-content: center;
+            width: 100%;
 
-        button {
-            margin: 0 4px;
+            button {
+                margin: 0 4px;
+            }
         }
     }
 }
@@ -350,8 +387,8 @@ window.$message = useMessage();
 
 @media screen and (max-width: 821px) {
     .sidebar-wrap {
-        width: 65px;
-        right: calc(100% - 60px);
+        width: 200px;
+        right: calc(100% - 200px);
     }
 
     .logo-wrap {
@@ -364,13 +401,13 @@ window.$message = useMessage();
 
         .user-avatar,
         .user-info,
+        .login-only-wrap,
         .login-wrap {
-            display: none;
+            margin-bottom: 32px;
         }
 
-        .user-mini-wrap {
-            display: block !important;
-        }
+        //     .user-mini-wrap {
+        //         display: block !important;
+        //     }
     }
-}
-</style>
+}</style>

@@ -8,22 +8,23 @@ import (
 	"sync"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/alimy/cfg"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/dao/security"
-	"github.com/sirupsen/logrus"
 )
 
 var (
-	_ core.DataService = (*dataServant)(nil)
-	_ core.VersionInfo = (*dataServant)(nil)
+	_ core.DataService = (*dataSrv)(nil)
+	_ core.VersionInfo = (*dataSrv)(nil)
+
+	_ core.WebDataServantA = (*webDataSrvA)(nil)
+	_ core.VersionInfo     = (*webDataSrvA)(nil)
 
 	_onceInitial sync.Once
 )
 
-type dataServant struct {
-	core.IndexPostsService
+type dataSrv struct {
 	core.WalletService
 	core.MessageService
 	core.TopicService
@@ -34,49 +35,26 @@ type dataServant struct {
 	core.CommentManageService
 	core.UserManageService
 	core.ContactManageService
+	core.FollowingManageService
 	core.SecurityService
 	core.AttachmentCheckService
+	core.TweetMetricServantA
+}
+
+type webDataSrvA struct {
+	core.TopicServantA
+	core.TweetServantA
+	core.TweetManageServantA
+	core.TweetHelpServantA
 }
 
 func NewDataService() (core.DataService, core.VersionInfo) {
 	lazyInitial()
-
-	var (
-		v   core.VersionInfo
-		cis core.CacheIndexService
-		ips core.IndexPostsService
-	)
 	pvs := security.NewPhoneVerifyService()
-	ams := NewAuthorizationManageService()
-	ths := newTweetHelpService(_db)
-
-	// initialize core.IndexPostsService
-	if cfg.If("Friendship") {
-		ips = newFriendIndexService(_db, ams, ths)
-	} else if cfg.If("Followship") {
-		ips = newFollowIndexService(_db, ths)
-	} else if cfg.If("Lightship") {
-		ips = newLightIndexService(_db, ths)
-	} else {
-		// default use lightship post index service
-		ips = newLightIndexService(_db, ths)
-	}
-
-	// initialize core.CacheIndexService
-	if cfg.If("SimpleCacheIndex") {
-		// simpleCache use special post index service
-		ips = newSimpleIndexPostsService(_db, ths)
-		cis, v = cache.NewSimpleCacheIndexService(ips)
-	} else if cfg.If("BigCacheIndex") {
-		// TODO: make cache index post in different scence like friendship/followship/lightship
-		cis, v = cache.NewBigCacheIndexService(ips, ams)
-	} else {
-		cis, v = cache.NewNoneCacheIndexService(ips)
-	}
-	logrus.Infof("use %s as cache index service by version: %s", v.Name(), v.Version())
-
-	ds := &dataServant{
-		IndexPostsService:      cis,
+	tms := NewTweetMetricServentA(_db)
+	cis := cache.NewEventCacheIndexSrv(tms)
+	ds := &dataSrv{
+		TweetMetricServantA:    tms,
 		WalletService:          newWalletService(_db),
 		MessageService:         newMessageService(_db),
 		TopicService:           newTopicService(_db),
@@ -87,8 +65,25 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		CommentManageService:   newCommentManageService(_db),
 		UserManageService:      newUserManageService(_db),
 		ContactManageService:   newContactManageService(_db),
+		FollowingManageService: newFollowingManageService(_db),
 		SecurityService:        newSecurityService(_db, pvs),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
+	}
+	return cache.NewCacheDataService(ds), ds
+}
+
+func NewWebDataServantA() (core.WebDataServantA, core.VersionInfo) {
+	lazyInitial()
+
+	tms := NewTweetMetricServentA(_db)
+	cis := cache.NewEventCacheIndexSrv(tms)
+
+	db := conf.MustSqlxDB()
+	ds := &webDataSrvA{
+		TopicServantA:       newTopicServantA(db),
+		TweetServantA:       newTweetServantA(db),
+		TweetManageServantA: newTweetManageServantA(db, cis),
+		TweetHelpServantA:   newTweetHelpServantA(db),
 	}
 	return ds, ds
 }
@@ -98,12 +93,20 @@ func NewAuthorizationManageService() core.AuthorizationManageService {
 	return newAuthorizationManageService(_db)
 }
 
-func (s *dataServant) Name() string {
+func (s *dataSrv) Name() string {
 	return "Sqlx"
 }
 
-func (s *dataServant) Version() *semver.Version {
-	return semver.MustParse("v0.1.0")
+func (s *dataSrv) Version() *semver.Version {
+	return semver.MustParse("v0.3.0")
+}
+
+func (s *webDataSrvA) Name() string {
+	return "Sqlx"
+}
+
+func (s *webDataSrvA) Version() *semver.Version {
+	return semver.MustParse("v0.0.1")
 }
 
 // lazyInitial do some package lazy initialize for performance

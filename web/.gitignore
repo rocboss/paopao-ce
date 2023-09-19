@@ -26,3 +26,4 @@ dist-ssr
 yarn.lock
 package-lock.json
 components.d.ts
+/stats.html

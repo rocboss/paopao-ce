@@ -19,8 +19,12 @@ func TestSnakeNamingStrategy_Naming(t *testing.T) {
 		{name: "RESTfulAPI", expected: "res_tful_api"},
 		{name: "HTTPS_API", expected: "https_api"},
 		{name: "PKG_Name", expected: "pkg_name"},
+		{name: "UserID", expected: "user_id"},
+		{name: "UserId", expected: "user_id"},
+		{name: "IPLoc", expected: "ip_loc"},
 		{name: "API", expected: "api"},
 		{name: "HTTP", expected: "http"},
+		{name: "IP", expected: "ip"},
 	} {
 		result := ns.Naming(cs.name)
 		if result != cs.expected {

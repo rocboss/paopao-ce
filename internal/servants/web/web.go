@@ -7,77 +7,57 @@ package web
 import (
 	"sync"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao"
+	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
-	"github.com/sirupsen/logrus"
-	"github.com/smartwalle/alipay/v3"
 )
 
 var (
-	_EnablePhoneVerify bool
-	_onceInitial       sync.Once
+	_enablePhoneVerify    bool
+	_disallowUserRegister bool
+	_ds                   core.DataService
+	_ac                   core.AppCache
+	_wc                   core.WebCache
+	_oss                  core.ObjectStorageService
+	_onceInitial          sync.Once
 )
 
 // RouteWeb register web route
 func RouteWeb(e *gin.Engine) {
 	lazyInitial()
-	oss := dao.ObjectStorageService()
-	ds := &base.DaoServant{
-		Redis: conf.MustRedis(),
-		Ds:    dao.DataService(),
-		Ts:    dao.TweetSearchService(),
-	}
+	ds := base.NewDaoServant()
 	// aways register servants
-	api.RegisterAdminServant(e, newAdminSrv(ds), newAdminBinding(), newAdminRender())
-	api.RegisterCoreServant(e, newCoreSrv(ds, oss), newCoreBinding(), newCoreRender())
-	api.RegisterLooseServant(e, newLooseSrv(ds), newLooseBinding(), newLooseRender())
-	api.RegisterPrivServant(e, newPrivSrv(ds, oss), newPrivBinding(), newPrivRender())
-	api.RegisterPubServant(e, newPubSrv(ds), newPubBinding(), newPubRender())
+	api.RegisterAdminServant(e, newAdminSrv(ds, _wc))
+	api.RegisterCoreServant(e, newCoreSrv(ds, _oss, _wc))
+	api.RegisterRelaxServant(e, newRelaxSrv(ds, _wc), newRelaxChain())
+	api.RegisterLooseServant(e, newLooseSrv(ds, _ac))
+	api.RegisterPrivServant(e, newPrivSrv(ds, _oss), newPrivChain())
+	api.RegisterPubServant(e, newPubSrv(ds))
+	api.RegisterFollowshipServant(e, newFollowshipSrv(ds))
+	api.RegisterFriendshipServant(e, newFriendshipSrv(ds))
 	// regster servants if needed by configure
-	cfg.In(cfg.Actions{
-		"Alipay": func() {
-			client := mustAlipayClient()
-			api.RegisterAlipayPubServant(e, newAlipayPubSrv(ds), newAlipayPubBinding(client), newAlipayPubRender())
-			api.RegisterAlipayPrivServant(e, newAlipayPrivSrv(ds, client), newAlipayPrivBinding(), newAlipayPrivRender())
-		},
-		"Followship": func() {
-			api.RegisterFollowshipServant(e, newFollowshipSrv(ds), newFollowshipBinding(), newFollowshipRender())
-		},
-		"Friendship": func() {
-			api.RegisterFriendshipServant(e, newFriendshipSrv(ds), newFriendshipBinding(), newFriendshipRender())
-		},
+	cfg.Be("Alipay", func() {
+		client := conf.MustAlipayClient()
+		api.RegisterAlipayPubServant(e, newAlipayPubSrv(ds))
+		api.RegisterAlipayPrivServant(e, newAlipayPrivSrv(ds, client))
 	})
-}
-
-func mustAlipayClient() *alipay.Client {
-	s := conf.AlipaySetting
-	// 将 key 的验证调整到初始化阶段
-	client, err := alipay.New(s.AppID, s.PrivateKey, s.InProduction)
-	if err != nil {
-		logrus.Fatalf("alipay.New err: %s", err)
-	}
-	// 加载应用公钥证书
-	if err = client.LoadAppPublicCertFromFile(s.AppPublicCertFile); err != nil {
-		logrus.Fatalf("client.LoadAppPublicCertFromFile err: %s\n", err)
-	}
-	// 加载支付宝根证书
-	if err = client.LoadAliPayRootCertFromFile(s.RootCertFile); err != nil {
-		logrus.Fatalf("client.LoadAliPayRootCertFromFile err: %s\n", err)
-	}
-	// 加载支付宝公钥证书
-	if err = client.LoadAliPayPublicCertFromFile(s.PublicCertFile); err != nil {
-		logrus.Fatalf("client.LoadAliPayPublicCertFromFile err: %s\n", err)
-	}
-	return client
+	// shedule jobs if need
+	scheduleJobs()
 }
 
 // lazyInitial do some package lazy initialize for performance
 func lazyInitial() {
 	_onceInitial.Do(func() {
-		_EnablePhoneVerify = cfg.If("Sms")
+		_enablePhoneVerify = cfg.If("Sms")
+		_disallowUserRegister = cfg.If("Web:DisallowUserRegister")
+		_oss = dao.ObjectStorageService()
+		_ds = dao.DataService()
+		_ac = cache.NewAppCache()
+		_wc = cache.NewWebCache()
 	})
 }

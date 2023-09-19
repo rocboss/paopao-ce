@@ -2,15 +2,30 @@
 [paopao-ce](https://github.com/rocboss/paopao-ce/tree/dev)/[paopao-ce-plus](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-plus)/[paopao-ce-pro](https://github.com/rocboss/paopao-ce/tree/r/paopao-ce-pro) features develop or optimize and bug fix  roadmap.
 
 ## paopao-ce roadmap
-#### v0.3.0
-* [ ] add `Followship` feature
+#### dev+
 * [ ] add `Auth:Bcrypt` feature
 * [ ] add `Auth:MD5` feature (just for compatible)
-* [ ] add extend base ORM code for implement data logic base sqlx/sqlc
 * [ ] optimize media tweet submit logic
 * [ ] optimize search logic service
-* [x] remove `Deprecated:OldWeb` feature
+* [ ] optimize backend data logic service(optimize database CRUD operate)
+* [ ] optimize current message push logic service use `ims` module 
+* [ ] add `NativeOBS` feature
 
+#### v0.4.0
+* [x] add `Followship` feature.
+* [x] add extend base ORM code for implement data logic base sqlx/sqlc.
+* [x] user/profile page add comment/highlight/media/likes sub-page.
+* [x] add tweet highlight feature to enable user set a tweet as highlight.
+* [x] new execute file base sub-command style.
+* [x] add extend base ORM code for implement data logic base sqlx/sqlc
+
+#### v0.3.0
+* [x] remove `Deprecated:OldWeb` feature
+* [x] add user topic follow feature support
+* [x] add tweet link share support
+* [x] add comment thumbsUp/thumbsDown support
+* [x] add `RedisCacheIndex` feature
+* [x] add `Sentry` feature
 
 #### v0.2.0
 * [x] add `Friendship` feature
@@ -27,7 +42,6 @@
 * [ ] add `SpaceX` feature
 * [ ] add `Bot` feature
 * [ ] add `Admin` feature
-* [ ] add `NativeOBS` feature
 * [ ] add `Mobile` gRPC API service feature
 * [ ] add admin web frontend
 * [ ] add tweet forwarding support
@@ -38,20 +52,19 @@
 * [ ] add reactions support
 * [ ] add tweet thread like twitter support
 * [ ] add short link support
-* [ ] optimize current message push logic service use `ims` module 
 * [ ] optimize topics service
-* [ ] optimize backend data logic service(optimize database CRUD operate)
 
 ## paopao-ce-plus roadmap
-#### paopao-ce-plus/v0.3.0
-* [ ] adapt for paopao-ce v0.3.0
+#### paopao-ce-plus/v0.5.0
+* [x] adapt for paopao-ce v0.5.0
 
-#### paopao-ce-plus/v0.2.0
-* [ ] adapt for paopao-ce v0.2.0
+#### paopao-ce-plus/v0.4.0
+* [x] adapt for paopao-ce v0.4.0
 
 ## paopao-ce-pro roadmap
-#### paopao-ce-pro/v0.3.0
-* [ ] adapt for paopao-ce v0.3.0
+#### paopao-ce-pro/v0.5.0
+* [ ] adapt for paopao-ce v0.4.0
 
-#### paopao-ce-pro/v0.2.0
-* [ ] adapt for paopao-ce v0.2.0
+#### paopao-ce-pro/v0.4.0
+* [ ] adapt for paopao-ce v0.4.0
+

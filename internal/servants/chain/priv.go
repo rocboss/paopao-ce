@@ -5,9 +5,9 @@
 package chain
 
 import (
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/pkg/app"
 )
 
@@ -15,8 +15,8 @@ func Priv() gin.HandlerFunc {
 	if cfg.If("PhoneBind") {
 		return func(c *gin.Context) {
 			if u, exist := c.Get("USER"); exist {
-				if user, ok := u.(*core.User); ok {
-					if user.Status == core.UserStatusNormal {
+				if user, ok := u.(*ms.User); ok {
+					if user.Status == ms.UserStatusNormal {
 						if user.Phone == "" {
 							response := app.NewResponse(c)
 							response.ToErrorResponse(_errAccountNoPhoneBind)
@@ -35,7 +35,7 @@ func Priv() gin.HandlerFunc {
 	} else {
 		return func(c *gin.Context) {
 			if u, exist := c.Get("USER"); exist {
-				if user, ok := u.(*core.User); ok && user.Status == core.UserStatusNormal {
+				if user, ok := u.(*ms.User); ok && user.Status == ms.UserStatusNormal {
 					c.Next()
 					return
 				}

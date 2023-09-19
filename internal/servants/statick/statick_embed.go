@@ -2,8 +2,8 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-//go:build embed
-// +build embed
+//go:build !(slim && embed)
+// +build !slim !embed
 
 package statick
 
@@ -16,7 +16,7 @@ import (
 
 // RegisterWebStatick register web static assets route
 func RegisterWebStatick(e *gin.Engine) {
-	routeWebStatic(e, "/", "/index.html", "/favicon.ico", "/assets/*filepath")
+	routeWebStatic(e, "/", "/index.html", "/favicon.ico", "/logo.png", "/sw.js", "/manifest.json", "/assets/*filepath")
 }
 
 func routeWebStatic(e *gin.Engine, paths ...string) {

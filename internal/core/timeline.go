@@ -6,9 +6,15 @@ package core
 
 import (
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 )
 
-// TweetTimelineService 广场首页推文时间线服务
-type TweetTimelineService interface {
-	TweetTimeline(userId int64, offset int, limit int) (*cs.TweetBox, error)
+// IndexPostsService 广场首页推文列表服务
+type IndexPostsService interface {
+	IndexPosts(user *ms.User, offset int, limit int) (*ms.IndexTweetList, error)
+}
+
+// IndexPostsServantA 广场首页推文列表服务(版本A)
+type IndexPostsServantA interface {
+	IndexPosts(user *ms.User, limit int, offset int) (*cs.TweetBox, error)
 }

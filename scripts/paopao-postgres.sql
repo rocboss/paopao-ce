@@ -43,6 +43,8 @@ CREATE TABLE p_comment (
 	user_id BIGINT NOT NULL DEFAULT 0,
 	ip VARCHAR(64) NOT NULL DEFAULT '',
 	ip_loc VARCHAR(64) NOT NULL DEFAULT '',
+	thumbs_up_count int NOT NULL DEFAULT 0, -- 点赞数
+	thumbs_down_count int NOT NULL DEFAULT 0, -- 点踩数
 	created_on BIGINT NOT NULL DEFAULT 0,
 	modified_on BIGINT NOT NULL DEFAULT 0,
 	deleted_on BIGINT NOT NULL DEFAULT 0,
@@ -56,7 +58,7 @@ CREATE TABLE p_comment_content (
 	id BIGSERIAL PRIMARY KEY,
 	comment_id BIGINT NOT NULL DEFAULT 0,
 	user_id BIGINT NOT NULL DEFAULT 0,
-	content VARCHAR(255) NOT NULL DEFAULT '',
+	content TEXT NOT NULL DEFAULT '',
 	"type" SMALLINT NOT NULL DEFAULT 2, -- 类型，1标题，2文字段落，3图片地址，4视频地址，5语音地址，6链接地址,
 	sort BIGINT NOT NULL DEFAULT 100,
 	created_on BIGINT NOT NULL DEFAULT 0,
@@ -75,9 +77,11 @@ CREATE TABLE p_comment_reply (
 	comment_id BIGINT NOT NULL DEFAULT 0,
 	user_id BIGINT NOT NULL DEFAULT 0,
 	at_user_id BIGINT NOT NULL DEFAULT 0,
-	content VARCHAR(255) NOT NULL DEFAULT '',
+	content TEXT NOT NULL DEFAULT '',
 	ip VARCHAR(64) NOT NULL DEFAULT '',
 	ip_loc VARCHAR(64) NOT NULL DEFAULT '',
+	thumbs_up_count int NOT NULL DEFAULT 0, -- 点赞数
+	thumbs_down_count int NOT NULL DEFAULT 0, -- 点踩数
 	created_on BIGINT NOT NULL DEFAULT 0,
 	modified_on BIGINT NOT NULL DEFAULT 0,
 	deleted_on BIGINT NOT NULL DEFAULT 0,
@@ -85,12 +89,29 @@ CREATE TABLE p_comment_reply (
 );
 CREATE INDEX idx_comment_reply_comment_id ON p_comment_reply USING btree (comment_id);
 
+DROP TABLE IF EXISTS p_tweet_comment_thumbs;
+CREATE TABLE p_tweet_comment_thumbs (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  tweet_id BIGINT NOT NULL,
+  comment_id BIGINT NOT NULL,
+  reply_id BIGINT,
+  comment_type SMALLINT NOT NULL DEFAULT 0, -- 评论类型 0为推文评论、1为评论回复
+  is_thumbs_up SMALLINT NOT NULL DEFAULT 0, -- 是否点赞 0 为否 1为是
+  is_thumbs_down SMALLINT NOT NULL DEFAULT 0, -- 是否点踩 0 为否 1为是
+  created_on BIGINT NOT NULL DEFAULT 0,
+  modified_on BIGINT NOT NULL DEFAULT 0,
+  deleted_on BIGINT NOT NULL DEFAULT 0,
+  is_del SMALLINT NOT NULL DEFAULT 0 -- 是否删除 0 为未删除、1 为已删除
+);
+CREATE INDEX idx_tweet_comment_thumbs_uid_tid ON p_tweet_comment_thumbs USING btree (user_id, tweet_id);
+
 DROP TABLE IF EXISTS p_message;
 CREATE TABLE p_message (
 	id BIGSERIAL PRIMARY KEY,
 	sender_user_id BIGINT NOT NULL DEFAULT 0,
 	receiver_user_id BIGINT NOT NULL DEFAULT 0,
-	type SMALLINT NOT NULL DEFAULT 1,
+	"type" SMALLINT NOT NULL DEFAULT 1,
 	brief VARCHAR(255) NOT NULL DEFAULT '',
 	content VARCHAR(255) NOT NULL DEFAULT '',
 	post_id BIGINT NOT NULL DEFAULT 0,
@@ -114,7 +135,8 @@ CREATE TABLE p_post (
 	comment_count BIGINT NOT NULL DEFAULT 0,
 	collection_count BIGINT NOT NULL DEFAULT 0,
 	upvote_count BIGINT NOT NULL DEFAULT 0,
-	visibility SMALLINT NOT NULL DEFAULT 0, -- 可见性 0公开 1私密 2好友可见
+	share_count BIGINT NOT NULL DEFAULT 0,
+	visibility SMALLINT NOT NULL DEFAULT 0, -- 可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开
 	is_top SMALLINT NOT NULL DEFAULT 0, -- 是否置顶
 	is_essence SMALLINT NOT NULL DEFAULT 0, -- 是否精华
 	is_lock SMALLINT NOT NULL DEFAULT 0, -- 是否锁定
@@ -131,6 +153,21 @@ CREATE TABLE p_post (
 );
 CREATE INDEX idx_post_user_id ON p_post USING btree (user_id);
 CREATE INDEX idx_post_visibility ON p_post USING btree (visibility);
+
+DROP TABLE IF EXISTS p_post_metric;
+CREATE TABLE p_post_metric (
+	ID BIGSERIAL PRIMARY KEY,
+	post_id BIGINT NOT NULL,
+	rank_score BIGINT NOT NULL DEFAULT 0,
+	incentive_score INT NOT NULL DEFAULT 0,
+	decay_factor INT NOT NULL DEFAULT 0,
+	motivation_factor INT NOT NULL DEFAULT 0,
+	is_del SMALLINT NOT NULL DEFAULT 0,
+	created_on BIGINT NOT NULL DEFAULT 0,
+	modified_on BIGINT NOT NULL DEFAULT 0,
+	deleted_on BIGINT NOT NULL DEFAULT 0 
+);
+CREATE INDEX idx_post_metric_post_id_rank_score ON p_post_metric USING btree (post_id, rank_score);
 
 DROP TABLE IF EXISTS p_post_attachment_bill;
 CREATE TABLE p_post_attachment_bill (
@@ -164,7 +201,7 @@ CREATE TABLE p_post_content (
 	id BIGSERIAL PRIMARY KEY,
 	post_id BIGINT NOT NULL DEFAULT 0,
 	user_id BIGINT NOT NULL DEFAULT 0,
-	content VARCHAR(2000) NOT NULL DEFAULT '',
+	content TEXT NOT NULL DEFAULT '',
 	"type" SMALLINT NOT NULL DEFAULT 2, -- 类型，1标题，2文字段落，3图片地址，4视频地址，5语音地址，6链接地址，7附件资源，8收费资源
 	sort SMALLINT NOT NULL DEFAULT 100,
 	created_on BIGINT NOT NULL DEFAULT 0,
@@ -203,9 +240,28 @@ CREATE UNIQUE INDEX idx_tag_tag ON p_tag USING btree (tag);
 CREATE INDEX idx_tag_user_id ON p_tag USING btree (user_id);
 CREATE INDEX idx_tag_quote_num ON p_tag USING btree (quote_num);
 
+DROP TABLE IF EXISTS p_topic_user;
+CREATE TABLE p_topic_user (
+	ID BIGSERIAL PRIMARY KEY,
+	topic_id BIGINT NOT NULL,-- 标签ID
+	user_id BIGINT NOT NULL,-- 创建者ID
+	alias_name VARCHAR ( 255 ),-- 别名
+	remark VARCHAR ( 512 ),-- 备注
+	quote_num BIGINT,-- 引用数
+	is_top SMALLINT NOT NULL DEFAULT 0,-- 是否置顶 0 为未置顶、1 为已置顶
+	created_on BIGINT NOT NULL DEFAULT 0,-- 创建时间
+	modified_on BIGINT NOT NULL DEFAULT 0,-- 修改时间
+	deleted_on BIGINT NOT NULL DEFAULT 0,-- 删除时间
+	is_del SMALLINT NOT NULL DEFAULT 0,-- 是否删除 0 为未删除、1 为已删除
+	reserve_a VARCHAR ( 255 ),-- 保留字段a
+	reserve_b VARCHAR ( 255 ) -- 保留字段b
+);
+CREATE UNIQUE INDEX idx_topic_user_uid_tid ON p_topic_user USING btree ( topic_id, user_id );
+
+CREATE SEQUENCE IF NOT EXISTS user_id_seq AS BIGINT MINVALUE 100058 NO MAXVALUE;
 DROP TABLE IF EXISTS p_user;
 CREATE TABLE p_user (
-	id BIGSERIAL PRIMARY KEY,
+	id BIGINT NOT NULL DEFAULT nextval('user_id_seq'::regclass),
 	nickname VARCHAR(32) NOT NULL DEFAULT '',
 	username VARCHAR(32) NOT NULL DEFAULT '',
 	phone VARCHAR(16) NOT NULL DEFAULT '', -- 手机号
@@ -218,10 +274,23 @@ CREATE TABLE p_user (
 	created_on BIGINT NOT NULL DEFAULT 0,
 	modified_on BIGINT NOT NULL DEFAULT 0,
 	deleted_on BIGINT NOT NULL DEFAULT 0,
-	is_del SMALLINT NOT NULL DEFAULT 0
+	is_del SMALLINT NOT NULL DEFAULT 0,
+	PRIMARY KEY (id)
 );
 CREATE UNIQUE INDEX idx_user_username ON p_user USING btree (username);
 CREATE INDEX idx_user_phone ON p_user USING btree (phone);
+
+DROP TABLE IF EXISTS p_following;
+CREATE TABLE p_following (
+	id BIGSERIAL PRIMARY KEY,
+	user_id BIGINT NOT NULL,
+	follow_id BIGINT NOT NULL,
+	is_del SMALLINT NOT NULL DEFAULT 0, -- 是否删除, 0否, 1是
+	created_on BIGINT NOT NULL DEFAULT 0,
+	modified_on BIGINT NOT NULL DEFAULT 0,
+	deleted_on BIGINT NOT NULL DEFAULT 0
+);
+CREATE INDEX idx_following_user_follow ON p_following USING btree (user_id, follow_id);
 
 DROP TABLE IF EXISTS p_contact;
 CREATE TABLE p_contact (
@@ -283,3 +352,38 @@ CREATE TABLE p_wallet_statement (
 	is_del SMALLINT NOT NULL DEFAULT 0
 );
 CREATE INDEX idx_wallet_statement_user_id ON p_wallet_statement USING btree (user_id);
+
+DROP VIEW IF EXISTS p_post_by_media;
+CREATE VIEW p_post_by_media AS 
+SELECT post.* 
+FROM
+	( SELECT DISTINCT post_id FROM p_post_content WHERE ( TYPE = 3 OR TYPE = 4 OR TYPE = 7 OR TYPE = 8 ) AND is_del = 0 ) media
+	JOIN p_post post ON media.post_id = post.ID 
+WHERE
+	post.is_del = 0;
+
+DROP VIEW IF EXISTS p_post_by_comment;
+CREATE VIEW p_post_by_comment AS 
+SELECT P.*, C.user_id comment_user_id
+FROM
+	(
+	SELECT
+		post_id,
+		user_id
+	FROM
+		p_comment 
+	WHERE
+		is_del = 0 UNION
+	SELECT
+		post_id,
+		reply.user_id user_id
+	FROM
+		p_comment_reply reply
+		JOIN p_comment COMMENT ON reply.comment_id = COMMENT.ID 
+	WHERE
+		reply.is_del = 0 
+		AND COMMENT.is_del = 0 
+	)
+	C JOIN p_post P ON C.post_id = P.ID 
+WHERE
+	P.is_del = 0;

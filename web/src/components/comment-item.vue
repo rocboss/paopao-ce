@@ -11,7 +11,7 @@
                         class="username-link"
                         :to="{
                             name: 'user',
-                            query: { username: comment.user.username },
+                            query: { s: comment.user.username },
                         }"
                     >
                         {{ comment.user.nickname }}
@@ -24,12 +24,7 @@
             <template #header-extra>
                 <div class="opt-wrap">
                     <span class="timestamp">
-                        {{
-                            comment.ip_loc
-                                ? comment.ip_loc + ' · '
-                                : comment.ip_loc
-                        }}
-                        {{ formatRelativeTime(comment.created_on) }}
+                        {{  comment.ip_loc}}
                     </span>
 
                     <n-popconfirm
@@ -66,34 +61,33 @@
                     class="comment-text"
                     @click.stop="doClickText($event, comment.id)"
                     v-html="parsePostTag(content.content).content"
-                >
-                </span>
+                ></span>
             </template>
 
             <template #footer>
                 <post-image
                     v-if="comment.imgs.length > 0"
                     :imgs="comment.imgs" />
+                  <!-- 回复编辑器 -->
+                  <compose-reply
+                    ref="replyComposeRef"
+                    :comment="comment"
+                    :at-userid="replyAtUserID"
+                    :at-username="replyAtUsername"
+                    @reload="reload"
+                    @reset="resetReply"
+                />
                 <!-- 回复列表 -->
                 <div class="reply-wrap">
                     <reply-item
                         v-for="reply in comment.replies"
                         :key="reply.id"
                         :reply="reply"
+                        :tweet-id="comment.post_id"
                         @focusReply="focusReply"
                         @reload="reload"
                     />
                 </div>
-                <!-- 回复编辑器 -->
-                <compose-reply
-                    ref="replyComposeRef"
-                    v-if="store.state.userInfo.id > 0"
-                    :comment-id="comment.id"
-                    :at-userid="replyAtUserID"
-                    :at-username="replyAtUsername"
-                    @reload="reload"
-                    @reset="resetReply"
-                />
             </template>
         </n-thing>
     </div>
@@ -103,7 +97,6 @@
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { formatRelativeTime } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
 import { Trash } from '@vicons/tabler';
 import { deleteComment } from '@/api/post';
@@ -152,7 +145,7 @@ const doClickText = (e: MouseEvent, id: number | string) => {
                 router.push({
                     name: 'user',
                     query: {
-                        username: d[1],
+                        s: d[1],
                     },
                 });
             }
@@ -246,6 +239,9 @@ const execDelAction = () => {
 .dark {
     .reply-wrap {
         background: #18181c;
+    }
+    .comment-item {
+        background-color: rgba(16, 16, 20, 0.75);
     }
 }
 </style>

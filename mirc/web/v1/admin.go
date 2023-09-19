@@ -1,20 +1,21 @@
 package v1
 
 import (
-	. "github.com/alimy/mir/v3"
-	. "github.com/alimy/mir/v3/engine"
+	. "github.com/alimy/mir/v4"
+	. "github.com/alimy/mir/v4/engine"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
 func init() {
-	AddEntry(new(Admin))
+	Entry[Admin]()
 }
 
 // Admin 运维相关服务
 type Admin struct {
-	Chain Chain `mir:"-"`
-	Group Group `mir:"v1"`
+	Chain `mir:"-"`
+	Group `mir:"v1"`
 
 	// ChangeUserStatus 管理·禁言/解封用户
-	ChangeUserStatus func(Post, web.ChangeUserStatusReq) `mir:"/admin/user/status"`
+	ChangeUserStatus func(Post, web.ChangeUserStatusReq)         `mir:"/admin/user/status"`
+	SiteInfo         func(Get, web.SiteInfoReq) web.SiteInfoResp `mir:"/admin/site/status"`
 }

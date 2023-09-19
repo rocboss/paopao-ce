@@ -1,6 +1,6 @@
 :root {
     // 如果要变更中间栏的大小，修改此处即可
-    --content-main: 500px;
+    --content-main: 600px;
 }
 
 .app-container {
@@ -43,6 +43,28 @@
     justify-content: center;
 }
 
+.following-link {
+    color: #000;
+    color: none;
+    text-decoration: none;
+    cursor: pointer;
+    opacity: 0.75;
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.slide-bar-user-link {
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+        color: #18a058;
+        opacity: 0.8;
+    }
+}
+
 .hash-link,
 .user-link {
     color: #18a058;
@@ -81,6 +103,7 @@
         color: #63e2b7;
     }
 
+    .following-link,
     .username-link {
         color: #eee;
     }
@@ -93,8 +116,6 @@
 @media screen and (max-width: 821px) {
     .content-wrap {
         top: 0;
-        left: 60px;
         position: absolute !important;
-        width: calc(100% - 60px) !important;
     }
 }

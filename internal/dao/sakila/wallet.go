@@ -5,62 +5,136 @@
 package sakila
 
 import (
-	"github.com/jmoiron/sqlx"
+	"time"
+
+	"github.com/alimy/tryst/cfg"
+	"github.com/bitbus/sqlx"
+	"github.com/bitbus/sqlx/db"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/pkg/debug"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
 )
 
 var (
-	_ core.WalletService = (*walletServant)(nil)
+	_ core.WalletService = (*walletSrv)(nil)
 )
 
-type walletServant struct {
-	*sqlxServant
-	stmtAddRecharge *sqlx.Stmt
-	stmtGetRecharge *sqlx.Stmt
-	stmtGetBills    *sqlx.Stmt
+type walletSrv struct {
+	*sqlxSrv
+	q *cc.Wallet
 }
 
-func (s *walletServant) GetRechargeByID(id int64) (*core.WalletRecharge, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-func (s *walletServant) CreateRecharge(userId, amount int64) (*core.WalletRecharge, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *walletSrv) GetRechargeByID(id int64) (*ms.WalletRecharge, error) {
+	return db.Get[ms.WalletRecharge](s.q.GetRechargeById, id)
 }
 
-func (s *walletServant) GetUserWalletBills(userID int64, offset, limit int) ([]*core.WalletStatement, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *walletServant) GetUserWalletBillCount(userID int64) (int64, error) {
-	// TODO
-	debug.NotImplemented()
-	return 0, nil
-}
-
-func (s *walletServant) HandleRechargeSuccess(recharge *core.WalletRecharge, tradeNo string) error {
-	// TODO
-	debug.NotImplemented()
-	return nil
-}
-
-func (s *walletServant) HandlePostAttachmentBought(post *core.Post, user *core.User) error {
-	// TODO
-	debug.NotImplemented()
-	return nil
-}
-
-func newWalletService(db *sqlx.DB) core.WalletService {
-	return &walletServant{
-		sqlxServant:     newSqlxServant(db),
-		stmtAddRecharge: c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtGetRecharge: c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtGetBills:    c(`SELECT * FROM @person WHERE first_name=?`),
+func (s *walletSrv) CreateRecharge(userId, amount int64) (*ms.WalletRecharge, error) {
+	now := time.Now().Unix()
+	res, err := s.q.CreateRecharge.Exec(userId, amount, now)
+	if err != nil {
+		return nil, err
 	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	return &ms.WalletRecharge{
+		Model: &ms.Model{
+			ID:        id,
+			CreatedOn: now,
+		},
+		UserID: userId,
+		Amount: amount,
+	}, nil
+}
+
+func (s *walletSrv) GetUserWalletBills(userID int64, offset, limit int) (res []*ms.WalletStatement, err error) {
+	err = s.q.GetUserWalletBills.Select(&res, userID, limit, offset)
+	return
+}
+
+func (s *walletSrv) GetUserWalletBillCount(userID int64) (res int64, err error) {
+	err = s.q.GetUserWalletBillCount.Get(&res, userID)
+	return
+}
+
+func (s *walletSrv) HandleRechargeSuccess(r *ms.WalletRecharge, tradeNo string) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
+		var oldBalance int64
+		// 获取当前金额
+		err := tx.Stmtx(s.q.GetUserBalance).Get(&oldBalance, r.UserID)
+		if err != nil {
+			return err
+		}
+		now := time.Now().Unix()
+		// 更新金额
+		if _, err := tx.Stmtx(s.q.AddUserBalance).Exec(r.Amount, now, r.UserID); err != nil {
+			return err
+		}
+		// 新增账单
+		args := []any{r.UserID, r.Amount, oldBalance + r.Amount, "用户充值", now}
+		if _, err = tx.Stmtx(s.q.CreateWalletStatement).Exec(args...); err != nil {
+			return err
+		}
+		// 标记为已付款
+		if _, err = tx.Stmtx(s.q.MarkSuccessRecharge).Exec(tradeNo, now, r.ID); err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
+func (s *walletSrv) HandlePostAttachmentBought(post *ms.Post, user *ms.User) error {
+	return s.db.Withx(func(tx *sqlx.Tx) error {
+		now := time.Now().Unix()
+		// 扣除金额
+		_, err := tx.Stmtx(s.q.MinusUserBalance).Exec(post.AttachmentPrice, now, user.ID)
+		if err != nil {
+			return err
+		}
+		// 新增账单
+		args := []any{post.ID, user.ID, -post.AttachmentPrice, user.Balance - post.AttachmentPrice, "购买附件支出", now}
+		if _, err = tx.Stmtx(s.q.NewPostBill).Exec(args...); err != nil {
+			return err
+		}
+		// 新增附件购买记录
+		args = []any{post.ID, user.ID, post.AttachmentPrice, now}
+		if _, err = tx.Stmtx(s.q.NewPostAttachmentBill).Exec(args...); err != nil {
+			return err
+		}
+		// 对附件主新增账单
+		income := int64(float64(post.AttachmentPrice) * conf.AppSetting.AttachmentIncomeRate)
+		if income > 0 {
+			var oldBalance int64
+			if err = tx.Stmtx(s.q.GetUserBalance).Get(&oldBalance, post.UserID); err != nil {
+				return err
+			}
+			if _, err = tx.Stmtx(s.q.AddUserBalance).Exec(income, now, post.UserID); err != nil {
+				return err
+			}
+			// 新增账单
+			args = []any{post.ID, post.UserID, income, oldBalance + income, "出售附件收入", now}
+			if _, err = tx.Stmtx(s.q.NewPostBill).Exec(args...); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+func newWalletService(db *sqlx.DB) (s core.WalletService) {
+	ws := &walletSrv{
+		sqlxSrv: newSqlxSrv(db),
+		q:       ccBuild(db, cc.BuildWallet),
+	}
+	s = ws
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		s = &pgcWalletSrv{
+			walletSrv: ws,
+			p:         pgcBuild(db, pgc.BuildWallet),
+		}
+	}
+	return
 }

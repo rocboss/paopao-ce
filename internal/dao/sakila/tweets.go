@@ -5,348 +5,589 @@
 package sakila
 
 import (
-	"github.com/jmoiron/sqlx"
+	"strings"
+	"time"
+
+	"github.com/alimy/tryst/cfg"
+	"github.com/alimy/tryst/lets"
+	"github.com/bitbus/sqlx"
+	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
-	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
-	"github.com/rocboss/paopao-ce/pkg/debug"
-	"gorm.io/gorm"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
 )
 
 var (
-	_ core.TweetService       = (*tweetServant)(nil)
-	_ core.TweetManageService = (*tweetManageServant)(nil)
-	_ core.TweetHelpService   = (*tweetHelpServant)(nil)
+	_ core.TweetService       = (*tweetSrv)(nil)
+	_ core.TweetManageService = (*tweetManageSrv)(nil)
+	_ core.TweetHelpService   = (*tweetHelpSrv)(nil)
 )
 
-type tweetServant struct {
-	*sqlxServant
-	stmtGetTweet  *sqlx.Stmt
-	stmtListTweet *sqlx.Stmt
-	stmtListStar  *sqlx.Stmt
+type tweetSrv struct {
+	*sqlxSrv
+	q *cc.Tweet
 }
 
-type tweetManageServant struct {
-	*sqlxServant
-	cacheIndex     core.CacheIndexService
-	stmtAddTweet   *sqlx.Stmt
-	stmtDelTweet   *sqlx.Stmt
-	stmtStickTweet *sqlx.Stmt
+type tweetManageSrv struct {
+	*sqlxSrv
+	cis core.CacheIndexService
+	q   *cc.TweetManage
 }
 
-type tweetHelpServant struct {
-	*sqlxServant
-	stmtAddTag  *sqlx.Stmt
-	stmtDelTag  *sqlx.Stmt
-	stmtListTag *sqlx.Stmt
+type tweetHelpSrv struct {
+	*sqlxSrv
+	q *cc.TweetHelp
 }
 
 // MergePosts post数据整合
-func (s *tweetHelpServant) MergePosts(posts []*core.Post) ([]*core.PostFormated, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *tweetHelpSrv) MergePosts(posts []*ms.Post) ([]*ms.PostFormated, error) {
+	if len(posts) == 0 {
+		return nil, nil
+	}
+	postIds := make([]int64, 0, len(posts))
+	userIds := make([]int64, 0, len(posts))
+	for _, post := range posts {
+		postIds = append(postIds, post.ID)
+		userIds = append(userIds, post.UserID)
+	}
+	postContents, err := s.getPostContentsByIDs(postIds)
+	if err != nil {
+		return nil, err
+	}
+	users, err := s.getUsersByIDs(userIds)
+	if err != nil {
+		return nil, err
+	}
+	userMap := make(map[int64]*ms.UserFormated, len(users))
+	for _, user := range users {
+		userMap[user.ID] = user
+	}
+	contentMap := make(map[int64][]*ms.PostContentFormated, len(postContents))
+	for _, content := range postContents {
+		contentMap[content.PostID] = append(contentMap[content.PostID], content)
+	}
+	// 数据整合
+	postsFormated := make([]*ms.PostFormated, 0, len(posts))
+	for _, post := range posts {
+		postFormated := post.Format()
+		postFormated.User = userMap[post.UserID]
+		postFormated.Contents = contentMap[post.ID]
+		postsFormated = append(postsFormated, postFormated)
+	}
+	return postsFormated, nil
 }
 
 // RevampPosts post数据整形修复
-func (s *tweetHelpServant) RevampPosts(posts []*core.PostFormated) ([]*core.PostFormated, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *tweetHelpSrv) RevampPosts(posts []*ms.PostFormated) ([]*ms.PostFormated, error) {
+	if len(posts) == 0 {
+		return nil, nil
+	}
+	postIds := make([]int64, 0, len(posts))
+	userIds := make([]int64, 0, len(posts))
+	for _, post := range posts {
+		postIds = append(postIds, post.ID)
+		userIds = append(userIds, post.UserID)
+	}
+	postContents, err := s.getPostContentsByIDs(postIds)
+	if err != nil {
+		return nil, err
+	}
+	users, err := s.getUsersByIDs(userIds)
+	if err != nil {
+		return nil, err
+	}
+	userMap := make(map[int64]*ms.UserFormated, len(users))
+	for _, user := range users {
+		userMap[user.ID] = user
+	}
+	contentMap := make(map[int64][]*ms.PostContentFormated, len(postContents))
+	for _, content := range postContents {
+		contentMap[content.PostID] = append(contentMap[content.PostID], content)
+	}
+	// 数据整合
+	for _, post := range posts {
+		post.User = userMap[post.UserID]
+		post.Contents = contentMap[post.ID]
+	}
+	return posts, nil
 }
 
-func (s *tweetHelpServant) RevampTweets(tweets cs.TweetList) (cs.TweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
+func (s *tweetHelpSrv) getPostContentsByIDs(ids []int64) (res []*ms.PostContentFormated, err error) {
+	err = s.db.InSelect(&res, s.q.GetPostContentByIds, ids)
+	return
 }
 
-func (s *tweetHelpServant) MergeTweets(tweets cs.TweetInfo) (cs.TweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
+func (s *tweetHelpSrv) getUsersByIDs(ids []int64) (res []*ms.UserFormated, err error) {
+	err = s.db.InSelect(&res, s.q.GetUsersByIds, ids)
+	return
 }
 
-func (s *tweetHelpServant) getPostContentsByIDs(ids []int64) ([]*dbr.PostContent, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *tweetManageSrv) CreatePostCollection(postID, userID int64) (*ms.PostCollection, error) {
+	now := time.Now().Unix()
+	res, err := s.q.AddPostCollection.Exec(postID, userID, now)
+	if err != nil {
+		return nil, err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	return &ms.PostCollection{
+		Model: &ms.Model{
+			ID:        id,
+			CreatedOn: now,
+		},
+		PostID: postID,
+		UserID: userID,
+	}, nil
 }
 
-func (s *tweetHelpServant) getUsersByIDs(ids []int64) ([]*dbr.User, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *tweetManageSrv) DeletePostCollection(r *ms.PostCollection) error {
+	_, err := s.q.DelPostCollection.Exec(time.Now().Unix(), r.ID)
+	return err
 }
 
-func (s *tweetManageServant) CreatePostCollection(postID, userID int64) (*core.PostCollection, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *tweetManageSrv) CreatePostContent(r *ms.PostContent) (*ms.PostContent, error) {
+	r.Model = &ms.Model{CreatedOn: time.Now().Unix()}
+	res, err := s.q.AddPostContent.Exec(r)
+	if err != nil {
+		return nil, err
+	}
+	r.ID, err = res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
-func (s *tweetManageServant) DeletePostCollection(p *core.PostCollection) error {
-	// TODO
-	debug.NotImplemented()
+func (s *tweetManageSrv) CreateAttachment(r *ms.Attachment) (int64, error) {
+	args := []any{r.UserID, r.FileSize, r.ImgWidth, r.ImgHeight, r.Type, r.Content, time.Now().Unix()}
+	res, err := s.q.AddAttachment.Exec(args...)
+	if err != nil {
+		return 0, err
+	}
+	return res.LastInsertId()
+}
+
+func (s *tweetManageSrv) CreatePost(r *ms.Post) (*ms.Post, error) {
+	now := time.Now().Unix()
+	r.Model = &ms.Model{CreatedOn: now}
+	r.LatestRepliedOn = now
+	res, err := s.q.AddPost.Exec(r)
+	if err != nil {
+		return nil, err
+	}
+	if r.ID, err = res.LastInsertId(); err != nil {
+		return nil, err
+	}
+	s.cis.SendAction(core.IdxActCreatePost, r)
+	return r, nil
+}
+
+func (s *tweetManageSrv) DeletePost(post *ms.Post) (mediaContents []string, err error) {
+	s.db.Withx(func(tx *sqlx.Tx) error {
+		// 获取多媒体内容
+		if err = tx.Stmtx(s.q.MediaContentByPostId).Get(&mediaContents, post.ID); err != nil {
+			return err
+		}
+		// 删推文
+		now := time.Now().Unix()
+		if _, err = tx.Stmtx(s.q.DelPostById).Exec(now, post.ID); err != nil {
+			return err
+		}
+		// 删评论
+		contents, err := s.deleteCommentByPostId(tx, post.ID)
+		if err != nil {
+			return err
+		}
+		mediaContents = append(mediaContents, contents...)
+		if tags := strings.Split(post.Tags, ","); len(tags) > 0 {
+			// 删tag，宽松处理错误，有错误不会回滚
+			s.deleteTags(tx, tags)
+		}
+		return nil
+	})
+	s.cis.SendAction(core.IdxActDeletePost, post)
+	return
+}
+
+func (s *tweetManageSrv) deleteCommentByPostId(tx *sqlx.Tx, postId int64) (mediaContents []string, err error) {
+	var commentIds []int64
+	// 获取推文的所有评论id
+	err = tx.Stmtx(s.q.CommentIdsByPostId).Select(&commentIds, postId)
+	if err != nil {
+		return nil, err
+	}
+	// 获取评论的媒体内容
+	err = tx.InSelect(&mediaContents, s.q.CommentMediaFromCommentIds, commentIds)
+	if err != nil {
+		return nil, err
+	}
+	// 删评论
+	now := time.Now().Unix()
+	if _, err = tx.Stmtx(s.q.DelCommentByPostId).Exec(now, postId); err != nil {
+		return nil, err
+	}
+	// 删评论内容
+	if _, err = tx.InExec(s.q.DelCommentContentByCommentIds, now, commentIds); err != nil {
+		return nil, err
+	}
+	// 删评论的评论
+	if _, err = tx.InExec(s.q.DelReplyByCommentIds, now, commentIds); err != nil {
+		return nil, err
+	}
+	return
+}
+
+func (s *tweetManageSrv) LockPost(r *ms.Post) error {
+	_, err := s.q.LockPost.Exec(time.Now().Unix(), r.ID)
+	return err
+}
+
+func (s *tweetManageSrv) StickPost(r *ms.Post) error {
+	_, err := s.q.StickPost.Exec(time.Now().Unix(), r.ID)
+	return err
+}
+
+func (s *tweetManageSrv) HighlightPost(userId, postId int64) (is_essence int, err error) {
+	err = s.db.Withx(func(tx *sqlx.Tx) error {
+		var postUserId int64
+		err = tx.Stmtx(s.q.PostHighlightStatus).QueryRowx(postId).Scan(&postUserId, &is_essence)
+		if err != nil {
+			return err
+		}
+		if postUserId != userId {
+			return cs.ErrNoPermission
+		}
+		if _, err = tx.Stmtx(s.q.HighlightPost).Exec(postId); err != nil {
+			return err
+		}
+		is_essence = 1 - is_essence
+		return nil
+	})
+	return
+}
+
+func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility cs.TweetVisibleType) (err error) {
+	oldVisibility := post.Visibility
+	post.Visibility = ms.PostVisibleT(visibility)
+	// TODO: 这个判断是否可以不要呢
+	if oldVisibility == ms.PostVisibleT(visibility) {
+		return nil
+	}
+	// 私密推文 特殊处理
+	if visibility == cs.TweetVisitPrivate {
+		// 强制取消置顶
+		// TODO: 置顶推文用户是否有权设置成私密？ 后续完善
+		post.IsTop = 0
+	}
+	s.db.Withx(func(tx *sqlx.Tx) error {
+		_, err = s.q.VisiblePost.Exec(visibility, post.IsTop, time.Now().Unix(), post.ID)
+		// tag处理
+		tags := strings.Split(post.Tags, ",")
+		// TODO: 暂时宽松不处理错误，这里或许可以有优化，后续完善
+		if oldVisibility == ms.PostVisitPrivate {
+			// 从私密转为非私密才需要重新创建tag
+			s.createTags(tx, post.UserID, tags)
+		} else if visibility == cs.TweetVisitPrivate {
+			// 从非私密转为私密才需要删除tag
+			s.deleteTags(tx, tags)
+		}
+		return nil
+	})
+	s.cis.SendAction(core.IdxActVisiblePost, post)
+	return
+}
+
+func (s *tweetManageSrv) UpdatePost(r *ms.Post) error {
+	r.ModifiedOn = time.Now().Unix()
+	if _, err := s.q.UpdatePost.Exec(r); err != nil {
+		return err
+	}
+	s.cis.SendAction(core.IdxActUpdatePost, r)
 	return nil
 }
 
-func (s *tweetManageServant) CreatePostContent(content *core.PostContent) (*core.PostContent, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *tweetManageSrv) CreatePostStar(postID, userID int64) (*ms.PostStar, error) {
+	now := time.Now().Unix()
+	res, err := s.q.AddPostStar.Exec(postID, userID, now)
+	if err != nil {
+		return nil, err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	return &ms.PostStar{
+		Model: &ms.Model{
+			ID:        id,
+			CreatedOn: now,
+		},
+		PostID: postID,
+		UserID: userID,
+	}, nil
 }
 
-func (s *tweetManageServant) CreateAttachment(obj *cs.Attachment) (int64, error) {
-	// TODO
-	return 0, debug.ErrNotImplemented
+func (s *tweetManageSrv) DeletePostStar(r *ms.PostStar) error {
+	_, err := s.q.DelPostStar.Exec(time.Now().Unix(), r.ID)
+	return err
 }
 
-func (s *tweetManageServant) CreatePost(post *core.Post) (*core.Post, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *tweetSrv) GetPostByID(id int64) (res *ms.Post, err error) {
+	res = &ms.Post{}
+	err = s.q.GetPostById.Get(res, id)
+	return
 }
 
-func (s *tweetManageServant) DeletePost(post *core.Post) ([]string, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *tweetSrv) GetPosts(c ms.ConditionsT, offset, limit int) (res []*ms.Post, err error) {
+	userId, exist := c["user_id"]
+	visibility := c["visibility IN ?"]
+	if exist {
+		err = s.db.InSelect(&res, s.q.GetUserPosts, userId, visibility, limit, offset)
+	} else {
+		err = s.db.InSelect(&res, s.q.GetAnyPosts, visibility, limit, offset)
+	}
+	return
 }
 
-func (s *tweetManageServant) deleteCommentByPostId(db *gorm.DB, postId int64) ([]string, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *tweetSrv) GetPostCount(c ms.ConditionsT) (res int64, err error) {
+	userId, exist := c["user_id"]
+	visibility := c["visibility IN ?"]
+	if exist {
+		err = s.db.InGet(&res, s.q.GetUserPostCount, userId, visibility)
+	} else {
+		err = s.db.InGet(&res, s.q.GetAnyPostCount, visibility)
+	}
+	return
 }
 
-func (s *tweetManageServant) LockPost(post *core.Post) error {
-	// TODO
-	debug.NotImplemented()
-	return nil
+func (s *tweetSrv) GetUserPostStar(postID, userID int64) (res *ms.PostStar, err error) {
+	res = &ms.PostStar{}
+	err = s.q.GetUserPostStar.Get(res, postID, userID, userID)
+	return
 }
 
-func (s *tweetManageServant) StickPost(post *core.Post) error {
-	// TODO
-	debug.NotImplemented()
-	return nil
+func (s *tweetSrv) GetUserPostStars(userID int64, limit int, offset int) (res []*ms.PostStar, err error) {
+	err = s.q.GetUserPostStars.Select(&res, userID, userID, limit, offset)
+	return
 }
 
-func (s *tweetManageServant) VisiblePost(post *core.Post, visibility core.PostVisibleT) error {
-	// TODO
-	debug.NotImplemented()
-	return nil
+func (s *tweetSrv) ListUserStarTweets(user *cs.VistUser, limit int, offset int) (res []*ms.PostStar, total int64, err error) {
+	switch user.RelTyp {
+	case cs.RelationAdmin:
+		if err = s.q.UserStarTweetsByAdmin.Select(&res, user.UserId, limit, offset); err == nil {
+			err = s.q.UserStarTweetsCountByAdmin.Get(&total, user.UserId)
+		}
+	case cs.RelationSelf:
+		// Fixed: 这里的查询有Bug，没有考虑查询Friend star 时如果对方已经不是你好友时，应该去除这个star
+		if err = s.q.UserStarTweetsBySelf.Select(&res, user.UserId, user.UserId, limit, offset); err == nil {
+			err = s.q.UserStarTweetsCountBySelf.Get(&total, user.UserId, user.UserId)
+		}
+	case cs.RelationFriend:
+		if err = s.q.UserStarTweetsByFriend.Select(&res, user.UserId, limit, offset); err == nil {
+			err = s.q.UserStarTweetsByFriend.Get(&total, user.UserId)
+		}
+	case cs.RelationGuest:
+		fallthrough
+	default:
+		if err = s.q.UserStarTweetsByGuest.Select(&res, user.UserId, limit, offset); err == nil {
+			err = s.q.UserStarTweetsCountByGuest.Get(&total, user.UserId)
+		}
+	}
+	return
 }
 
-func (s *tweetManageServant) UpdatePost(post *core.Post) error {
-	// TODO
-	debug.NotImplemented()
-	return nil
+func (s *tweetSrv) ListUserMediaTweets(user *cs.VistUser, limit int, offset int) (res []*ms.Post, total int64, err error) {
+	gStmt, cStmt := s.q.UserMediaTweetsByGuest, s.q.UserMediaTweetsCountByGuest
+	switch user.RelTyp {
+	case cs.RelationAdmin, cs.RelationSelf:
+		gStmt, cStmt = s.q.UserMediaTweetsBySelf, s.q.UserMediaTweetsCountBySelf
+	case cs.RelationFriend:
+		gStmt, cStmt = s.q.UserMediaTweetsByFriend, s.q.UserMediaTweetsCountByFriend
+	case cs.RelationGuest:
+		fallthrough
+	default:
+		// nothing
+	}
+	if err = gStmt.Select(&res, user.UserId, limit, offset); err == nil {
+		err = cStmt.Get(&total, user.UserId)
+	}
+	return
 }
 
-func (s *tweetManageServant) CreatePostStar(postID, userID int64) (*core.PostStar, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *tweetSrv) ListUserCommentTweets(user *cs.VistUser, limit int, offset int) (res []*ms.Post, total int64, err error) {
+	gStmt, cStmt := s.q.UserCommentTweetsByGuest, s.q.UserCommentTweetsCountByGuest
+	switch user.RelTyp {
+	case cs.RelationAdmin, cs.RelationSelf:
+		gStmt, cStmt = s.q.UserCommentTweetsBySelf, s.q.UserCommentTweetsCountBySelf
+	case cs.RelationFriend:
+		gStmt, cStmt = s.q.UserCommentTweetsByFriend, s.q.UserCommentTweetsCountByFriend
+	case cs.RelationGuest:
+		fallthrough
+	default:
+		// nothing
+	}
+	if err = gStmt.Select(&res, user.UserId, limit, offset); err == nil {
+		err = cStmt.Get(&total, user.UserId)
+	}
+	return
 }
 
-func (s *tweetManageServant) DeletePostStar(p *core.PostStar) error {
-	// TODO
-	debug.NotImplemented()
-	return nil
+func (s *tweetSrv) ListUserTweets(userId int64, style uint8, justEssence bool, limit, offset int) (res []*ms.Post, total int64, err error) {
+	visibility := cs.TweetVisitPublic
+	isEssence := lets.If(justEssence, 1, 0)
+	switch style {
+	case cs.StyleUserTweetsAdmin:
+		fallthrough
+	case cs.StyleUserTweetsSelf:
+		visibility = cs.TweetVisitPrivate
+	case cs.StyleUserTweetsFriend:
+		visibility = cs.TweetVisitFriend
+	case cs.StyleUserTweetsFollowing:
+		visibility = cs.TweetVisitFollowing
+	case cs.StyleUserTweetsGuest:
+		fallthrough
+	default:
+		// visibility = cs.TweetVisitPublic
+	}
+	if err = s.q.ListUserTweets.Select(&res, userId, visibility, isEssence, limit, offset); err == nil {
+		err = s.q.CountUserTweets.Get(&total, userId, visibility, isEssence)
+	}
+	return
 }
 
-func (s *tweetManageServant) CreateTweet(userId int64, req *cs.NewTweetReq) (*cs.TweetItem, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
+func (s *tweetSrv) ListFollowingTweets(userId int64, limit, offset int) (res []*ms.Post, total int64, err error) {
+	beFriendIds, beFollowIds, xerr := s.getUserRelation(userId)
+	if xerr != nil {
+		return nil, 0, xerr
+	}
+	beFriendCount, beFollowCount := len(beFriendIds), len(beFollowIds)
+	switch {
+	case beFriendCount > 0 && beFollowCount > 0:
+		if err = s.db.InSelect(&res, s.q.ListFollowingTweetsFriendFollow, userId, beFriendIds, beFollowIds, limit, offset); err == nil {
+			err = s.db.InGet(&total, s.q.CountFollowingTweetsFriendFollow, userId, beFriendIds, beFollowIds)
+		}
+	case beFriendCount > 0 && beFollowCount == 0:
+		if err = s.db.InSelect(&res, s.q.ListFollowingTweetsFriend, userId, beFriendIds, limit, offset); err == nil {
+			err = s.db.InGet(&total, s.q.CountFollowingTweetsFriend, userId, beFriendIds)
+		}
+	case beFriendCount == 0 && beFollowCount > 0:
+		if err = s.db.InSelect(&res, s.q.ListFollowingTweetsFollow, userId, beFollowIds, limit, offset); err == nil {
+			err = s.db.InGet(&total, s.q.CountFollowingTweetsFollow, userId, beFollowIds)
+		}
+	case beFriendCount == 0 && beFollowCount == 0:
+		if err = s.q.ListFollowingTweets.Select(&res, userId, limit, offset); err == nil {
+			err = s.q.CountFollowingTweets.Get(&total, userId)
+		}
+	}
+	return
 }
 
-func (s *tweetManageServant) DeleteTweet(userId int64, tweetId int64) ([]string, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
+func (s *tweetSrv) ListIndexNewestTweets(limit int, offset int) (res []*ms.Post, total int64, err error) {
+	if err = s.q.ListIndexNewestTweets.Select(&res, limit, offset); err == nil {
+		err = s.q.CountIndexNewestTweets.Get(&total)
+	}
+	return
 }
 
-func (s *tweetManageServant) LockTweet(userId int64, tweetId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
+func (s *tweetSrv) ListIndexHotsTweets(limit int, offset int) (res []*ms.Post, total int64, err error) {
+	if err = s.q.ListIndexHotsTweets.Select(&res, limit, offset); err == nil {
+		err = s.q.CountIndexHotsTweets.Get(&total)
+	}
+	return
 }
 
-func (s *tweetManageServant) StickTweet(userId int64, tweetId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
+func (s *tweetSrv) ListSyncSearchTweets(limit int, offset int) (res []*ms.Post, total int64, err error) {
+	if err = s.q.ListSyncSearchTweets.Select(&res, limit, offset); err == nil {
+		err = s.q.ListSyncSearchTweets.Get(&total)
+	}
+	return
 }
 
-func (s *tweetManageServant) VisibleTweet(userId int64, visibility cs.TweetVisibleType) error {
-	// TODO
-	return debug.ErrNotImplemented
+func (s *tweetSrv) getUserRelation(userId int64) (beFriendIds []int64, beFollowIds []int64, err error) {
+	if err = s.q.GetBeFriendIds.Select(&beFriendIds, userId); err != nil {
+		return
+	}
+	if err = s.q.GetBeFollowIds.Select(&beFollowIds, userId); err != nil {
+		return
+	}
+	// 即是好友又是关注者，保留好友去除关注者
+	for _, id := range beFriendIds {
+		for i := 0; i < len(beFollowIds); i++ {
+			// 找到item即删，数据库已经保证唯一性
+			if beFollowIds[i] == id {
+				lastIdx := len(beFollowIds) - 1
+				beFriendIds[i] = beFriendIds[lastIdx]
+				beFollowIds = beFollowIds[:lastIdx]
+				break
+			}
+		}
+	}
+	return
 }
 
-func (s *tweetManageServant) CreateReaction(userId int64, tweetId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
+func (s *tweetSrv) GetUserPostStarCount(userID int64) (res int64, err error) {
+	err = s.q.GetUserPostStarCount.Get(&res, userID, userID)
+	return
 }
 
-func (s *tweetManageServant) DeleteReaction(userId int64, reactionId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
+func (s *tweetSrv) GetUserPostCollection(postID, userID int64) (*ms.PostCollection, error) {
+	return db.Get[ms.PostCollection](s.q.GetUserPostCollection, postID, userID, userID)
 }
 
-func (s *tweetManageServant) CreateFavorite(userId int64, tweetId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
+func (s *tweetSrv) GetUserPostCollections(userID int64, offset, limit int) (res []*ms.PostCollection, err error) {
+	err = s.q.GetUserPostCollections.Select(&res, userID, userID, limit, offset)
+	return res, err
 }
 
-func (s *tweetManageServant) DeleteFavorite(userId int64, favoriteId int64) error {
-	// TODO
-	return debug.ErrNotImplemented
+func (s *tweetSrv) GetUserPostCollectionCount(userID int64) (res int64, err error) {
+	err = s.q.GetUserPostCollectionCount.Get(&res, userID, userID)
+	return
 }
 
-func (s *tweetServant) GetPostByID(id int64) (*core.Post, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *tweetSrv) GetPostAttatchmentBill(postID, userID int64) (res *ms.PostAttachmentBill, err error) {
+	res = &ms.PostAttachmentBill{}
+	err = s.q.GetPostAttachmentBill.Get(res, postID, userID)
+	return
 }
 
-func (s *tweetServant) GetPosts(conditions *core.ConditionsT, offset, limit int) ([]*core.Post, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
+func (s *tweetSrv) GetPostContentsByIDs(ids []int64) (res []*ms.PostContent, err error) {
+	err = s.db.InSelect(&res, s.q.GetPostContentsByIds, ids)
+	return
 }
 
-func (s *tweetServant) GetPostCount(conditions *core.ConditionsT) (int64, error) {
-	// TODO
-	debug.NotImplemented()
-	return 0, nil
-}
-
-func (s *tweetServant) GetUserPostStar(postID, userID int64) (*core.PostStar, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *tweetServant) GetUserPostStars(userID int64, offset, limit int) ([]*core.PostStar, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *tweetServant) GetUserPostStarCount(userID int64) (int64, error) {
-	// TODO
-	debug.NotImplemented()
-	return 0, nil
-}
-
-func (s *tweetServant) GetUserPostCollection(postID, userID int64) (*core.PostCollection, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *tweetServant) GetUserPostCollections(userID int64, offset, limit int) ([]*core.PostCollection, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *tweetServant) GetUserPostCollectionCount(userID int64) (int64, error) {
-	// TODO
-	debug.NotImplemented()
-	return 0, nil
-}
-
-func (s *tweetServant) GetUserWalletBills(userID int64, offset, limit int) ([]*core.WalletStatement, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *tweetServant) GetUserWalletBillCount(userID int64) (int64, error) {
-	// TODO
-	debug.NotImplemented()
-	return 0, nil
-}
-
-func (s *tweetServant) GetPostAttatchmentBill(postID, userID int64) (*core.PostAttachmentBill, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *tweetServant) GetPostContentsByIDs(ids []int64) ([]*core.PostContent, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *tweetServant) GetPostContentByID(id int64) (*core.PostContent, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *tweetServant) TweetInfoById(id int64) (*cs.TweetInfo, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetServant) TweetItemById(id int64) (*cs.TweetItem, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetServant) UserTweets(visitorId, userId int64) (cs.TweetList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetServant) ReactionByTweetId(userId int64, tweetId int64) (*cs.ReactionItem, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetServant) UserReactions(userId int64, offset int, limit int) (cs.ReactionList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetServant) FavoriteByTweetId(userId int64, tweetId int64) (*cs.FavoriteItem, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetServant) UserFavorites(userId int64, offset int, limit int) (cs.FavoriteList, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
-}
-
-func (s *tweetServant) AttachmentByTweetId(userId int64, tweetId int64) (*cs.AttachmentBill, error) {
-	// TODO
-	return nil, debug.ErrNotImplemented
+func (s *tweetSrv) GetPostContentByID(id int64) (res *ms.PostContent, err error) {
+	return db.Get[ms.PostContent](s.q.GetPostContentById, &res, id)
 }
 
 func newTweetService(db *sqlx.DB) core.TweetService {
-	return &tweetServant{
-		sqlxServant:   newSqlxServant(db),
-		stmtGetTweet:  c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtListTweet: c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtListStar:  c(`SELECT * FROM @person WHERE first_name=?`),
+	return &tweetSrv{
+		sqlxSrv: newSqlxSrv(db),
+		q:       ccBuild(db, cc.BuildTweet),
 	}
 }
 
-func newTweetManageService(db *sqlx.DB, cacheIndex core.CacheIndexService) core.TweetManageService {
-	return &tweetManageServant{
-		sqlxServant:    newSqlxServant(db),
-		cacheIndex:     cacheIndex,
-		stmtAddTweet:   c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtDelTweet:   c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtStickTweet: c(`SELECT * FROM @person WHERE first_name=?`),
+func newTweetManageService(db *sqlx.DB, cacheIndex core.CacheIndexService) (s core.TweetManageService) {
+	tms := &tweetManageSrv{
+		sqlxSrv: newSqlxSrv(db),
+		cis:     cacheIndex,
+		q:       ccBuild(db, cc.BuildTweetManage),
 	}
+	s = tms
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		s = &pgcTweetManageSrv{
+			tweetManageSrv: tms,
+			p:              pgcBuild(db, pgc.BuildTweetManage),
+		}
+	}
+	return
 }
 
 func newTweetHelpService(db *sqlx.DB) core.TweetHelpService {
-	return &tweetHelpServant{
-		sqlxServant: newSqlxServant(db),
-		stmtAddTag:  c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtDelTag:  c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtListTag: c(`SELECT * FROM @person WHERE first_name=?`),
+	return &tweetHelpSrv{
+		sqlxSrv: newSqlxSrv(db),
+		q:       ccBuildFn(db, cc.BuildTweetHelp),
 	}
 }

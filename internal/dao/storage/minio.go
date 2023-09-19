@@ -140,6 +140,8 @@ func (s *minioServant) DeleteObjects(objectKeys []string) (err error) {
 			Key: objectKey,
 		}
 	}
+	// 记得一定要close，否则会被卡死，退出不了函数，造成资源泄露！！！
+	close(objectsCh)
 
 	// 宽松处理所有错误，只记录最后一次发生的错误
 	for result := range resCh {

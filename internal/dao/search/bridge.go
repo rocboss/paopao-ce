@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/sirupsen/logrus"
 )
 
@@ -46,7 +47,7 @@ func (s *bridgeTweetSearchServant) DeleteDocuments(identifiers []string) error {
 	return nil
 }
 
-func (s *bridgeTweetSearchServant) Search(user *core.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
+func (s *bridgeTweetSearchServant) Search(user *ms.User, q *core.QueryReq, offset, limit int) (*core.QueryResp, error) {
 	return s.ts.Search(user, q, offset, limit)
 }
 
@@ -64,7 +65,7 @@ func (s *bridgeTweetSearchServant) updateDocs(doc *documents) {
 
 				// watch updateDocsTempch to continue handle update if needed.
 				// cancel loop if no item had watched in 1 minute.
-				for count := 0; count > 60; count++ {
+				for count := 0; count < 60; count++ {
 					select {
 					case item := <-s.updateDocsTempCh:
 						// reset count to continue handle docs update

@@ -12,7 +12,7 @@ Server: # 服务设置
   ReadTimeout: 60
   WriteTimeout: 60
 Features:
-  Default: ["Web", "Frontend:EmbedWeb", "Zinc", "LocalOSS",  "MySQL", "BigCacheIndex", "LoggerZinc", "Friendship"]
+  Default: ["Web", "Frontend:EmbedWeb", "Meili", "LocalOSS",  "MySQL", "BigCacheIndex", "LoggerFile"]
   Develop: ["Base", "MySQL", "BigCacheIndex", "Meili", "Sms", "AliOSS", "LoggerMeili", "OSS:Retention"]
   Demo: ["Base", "MySQL", "Option", "Zinc", "Sms", "MinIO", "LoggerZinc", "Migration"]
   Slim: ["Base", "Sqlite3", "LocalOSS", "LoggerFile", "OSS:TempDir"]
@@ -181,7 +181,6 @@ Postgres: # PostgreSQL数据库
 Sqlite3: # Sqlite3数据库
   Path: custom/data/sqlite3/paopao-ce.db
 Redis:
-  Host: redis:6379
-  Password: 
-  DB: 
+  InitAddress:
+  - redis:6379
   

@@ -1,7 +1,31 @@
 <template>
+    <div v-if="store.state.drawerModelShow">
+        <n-drawer
+            v-model:show="activeDrawerRef"
+            :width=212
+            :placement="placementRef"
+            resizable
+        >
+            <n-drawer-content>
+                <sidebar />
+            </n-drawer-content>
+        </n-drawer>
+    </div>
     <n-card size="small" :bordered="true" class="nav-title-card">
         <template #header>
             <div class="navbar">
+                <n-button
+                    class="drawer-btn"
+                    v-if="store.state.drawerModelShow && !back"
+                    @click="activeDrawer"
+                    quaternary
+                    circle
+                    size="medium"
+                >
+                    <template #icon>
+                        <n-icon><dehaze-round /></n-icon>
+                    </template>
+                </n-button>
                 <n-button
                     class="back-btn"
                     v-if="back"
@@ -37,14 +61,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { useOsTheme } from 'naive-ui';
-import { LightModeOutlined, DarkModeOutlined, ChevronLeftRound } from '@vicons/material';
+import { useMessage, useOsTheme, DrawerPlacement} from 'naive-ui';
+import { LightModeOutlined, DarkModeOutlined, ChevronLeftRound, DehazeRound } from '@vicons/material';
 
 const store = useStore();
 const router = useRouter();
+const activeDrawerRef = ref(false)
+const placementRef = ref<DrawerPlacement>('left')
 
 const props = withDefaults(
     defineProps<{
@@ -76,10 +102,18 @@ const goBack = () => {
         router.go(-1);
     }
 };
+const activeDrawer = () => {
+    activeDrawerRef.value = true
+};
 
 onMounted(() => {
     if (!localStorage.getItem('PAOPAO_THEME')) {
         switchTheme((useOsTheme() as unknown as string) === 'dark');
+    }
+    // 移动端特殊处理
+    if (!store.state.desktopModelShow) {
+        window.$store = store;  
+        window.$message = useMessage();
     }
 });
 </script>
@@ -101,6 +135,7 @@ onMounted(() => {
         display: flex;
         align-items: center;
 
+        .drawer-btn, 
         .back-btn {
             margin-right: 8px;
         }

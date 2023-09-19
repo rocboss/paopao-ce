@@ -1,15 +1,38 @@
 App: # APP基础设置项
   RunMode: debug
   AttachmentIncomeRate: 0.8
-  MaxCommentCount: 10
+  MaxCommentCount: 1000
   DefaultContextTimeout: 60
   DefaultPageSize: 10
   MaxPageSize: 100
+Cache:
+  KeyPoolSize: 256            # 键的池大小， 设置范围[128, ++], 默认256
+  CientSideCacheExpire: 60    # 客户端缓存过期时间 默认60s
+  UnreadMsgExpire: 60         # 未读消息过期时间，单位秒， 默认60s
+  UserTweetsExpire: 60        # 获取用户推文列表过期时间，单位秒， 默认60s
+  IndexTweetsExpire: 120      # 获取广场推文列表过期时间，单位秒， 默认120s
+  OnlineUserExpire: 300       # 标记在线用户 过期时间，单位秒， 默认300s
+  UserInfoExpire: 300         # 获取用户信息过期时间，单位秒， 默认300s
+EventManager: # 事件管理器的配置参数
+  MinWorker: 64               # 最小后台工作者, 设置范围[5, ++], 默认64
+  MaxEventBuf: 128            # 最大log缓存条数, 设置范围[10, ++], 默认128
+  MaxTempEventBuf: 256        # 最大log缓存条数, 设置范围[10, ++], 默认256
+  MaxTickCount: 60            # 最大的循环周期, 设置范围[60, ++], 默认60
+  TickWaitTime: 1             # 一个周期的等待时间，单位：秒 默认1s
+MetricManager: # 指标监控管理器的配置参数
+  MinWorker: 32               # 最小后台工作者, 设置范围[5, ++], 默认32
+  MaxEventBuf: 128            # 最大log缓存条数, 设置范围[10, ++], 默认128
+  MaxTempEventBuf: 256        # 最大log缓存条数, 设置范围[10, ++], 默认256
+  MaxTickCount: 60            # 最大的循环周期, 设置范围[60, ++], 默认60
+  TickWaitTime: 1             # 一个周期的等待时间，单位：秒 默认1s
+JobManager: # Cron Job理器的配置参数
+  MaxOnlineInterval: "@every 5m"     # 更新最大在线人数，默认每5分钟更新一次
 Features:
   Default: []
 WebServer: # Web服务
+  RunMode: debug
   HttpIp: 0.0.0.0
-  HttpPort: 8010
+  HttpPort: 8008
   ReadTimeout: 60
   WriteTimeout: 60
 AdminServer: # Admin后台运维服务
@@ -36,6 +59,12 @@ LocalossServer: # Localoss服务
   HttpPort: 8018
   ReadTimeout: 60
   WriteTimeout: 60
+PprofServer: # Pprof服务
+  RunMode: debug
+  HttpIp: 0.0.0.0
+  HttpPort: 6060
+  ReadTimeout: 60
+  WriteTimeout: 60
 FrontendWebServer: # Web前端静态资源服务
   RunMode: debug
   HttpIp: 0.0.0.0
@@ -57,8 +86,9 @@ SmsJuhe:
   TplID:
   TplVal: "#code#=%s&#m#=%d"
 Alipay: 
-  AppID:
+  AppID: "paopao-ce-app-id"
   InProduction: True
+  PrivateKey: "MIICXAIBAAKBgQCzXV/spaX9+eOjM5f12W6eDTtszU9f9rgpXG4EQwzZI3WM5+Fe+9Bn6NQQILfF1o3Z+3BEzHMMcYwxrQw/toq2o6JPchbUK7eArKc6pl/GV3uIefZdKncz5bZvCFMgiJrpy75lYKhJgotQFEfQd+ks2t0gtC007uOjmY9QDB2EVQIDAQABAoGAMruhi0UbW2gYHCxWuiJDKI9jlJXJ8sHNO126fJgehTiDYlSgKYaeXxW7DcjDUkEqpFJ7YepWTFm9prtksIzIVQFNNjstI6cvowVF2t+lWf7mIB4w0ugarVd+SXssQK830Og3kjtZ84a3BbC6uf3a/qcgoIO8Sj1VnzOJ8fEYl+0CQQDeG6JhauGDOC8oCTwbFs9QPpjwGnp7UkYAJNg7jn4uBSVeg4lwb5uj9TshLSp49geNkPcWeCythuiz1jvoTqEjAkEAzrwIBxUPT1WmcDUXAkVPaQNADDbhMZLdw5nHZEUVwmO3o1FkJky4MLjLjT977400mhsnsQCy4sAWUZs6aEyoJwJARK3U2zy6eOHhqwaYAGRgPJbuoaf+Ya3CGX9LIbdhCwfqUzxnPk40mVFWNF8L+BVTppHB5b/JSOsjf6BqK95McwJBAL+kvUhbdHrV6lmgTXkUaV3u3mO0SCPdgui9WIKSLG6sY+LpI48BlcnMtR12WVyjKL0nKS9Dd5EOAmKaJJXlYgcCQGWbWCn9KUDUqpm4o3wr5nwXzlS74XYZo65UAM7TSzHRpcovfv5uiQ0VRLImWeiSXKK2aTOBGn5eKbevRTxN07k="
   RootCertFile: "custom/alipay/RootCert.crt"
   PublicCertFile: "custom/alipay/CertPublicKey_RSA2.crt"
   AppPublicCertFile: "custom/alipay/AppCertPublicKey.crt" 
@@ -73,11 +103,21 @@ BigCacheIndex: # 使用BigCache缓存泡泡广场消息流
   HardMaxCacheSize: 256         # 最大缓存大小(MB)，0表示无限制
   Verbose: False                # 是否打印cache操作的log
   ExpireInSecond: 300           # 多少秒(>0)后强制过期缓存
+RedisCacheIndex: # 使用Redis缓存泡泡广场消息流
+  Verbose: False                # 是否打印cache操作的log
+  ExpireInSecond: 300           # 多少秒(>0)后强制过期缓存
 Pyroscope: # Pyroscope配置
   AppName: "paopao-ce"                # application name
   Endpoint: "http://localhost:4040"   # Pyroscope server address
   AuthToken:                          # Pyroscope authentication token
   Logger:  none                       # Pyroscope logger (standard | logrus | none)
+Sentry: # Sentry配置
+  Dsn: "http://4ea0af5cd88d4512b7e52070506c80ec@localhost:9000/2"
+  Debug: True
+  AttachStacktrace: True
+  TracesSampleRate: 1.0
+  AttachLogrus: True  # logrus是否附加到Sentry
+  AttachGin: True     # gin是否附加到Sentry
 Logger: # 日志通用配置
   Level: debug # 日志级别 panic|fatal|error|warn|info|debug|trace
 LoggerFile: # 使用File写日志
@@ -94,6 +134,15 @@ LoggerMeili: # 使用Meili写日志
   Host: meili:7700
   Index: paopao-log
   ApiKey: paopao-meilisearch
+  Secure: False
+  MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
+  MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
+LoggerOpenObserve: # 使用OpenObserve写日志
+  Host: 127.0.0.1:5080
+  Organization: paopao-ce
+  Stream: default
+  User: root@paopao.info
+  Password: tiFEI8UeJWuYA7kN
   Secure: False
   MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
   MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
@@ -179,7 +228,10 @@ Postgres: # PostgreSQL数据库
 Sqlite3: # Sqlite3数据库
   Path: custom/data/sqlite3/paopao-ce.db
 Redis:
-  Host: redis:6379
-  Password: 
-  DB: 
+  InitAddress:
+  - redis:6379
+  Username:
+  Password:
+  SelectDB:
+  ConnWriteTimeout: 60   # 连接写超时时间 多少秒 默认 60秒
   

@@ -46,6 +46,8 @@ CREATE TABLE "p_comment" (
   "user_id" integer NOT NULL,
   "ip" text(64) NOT NULL,
   "ip_loc" text(64) NOT NULL,
+  "thumbs_up_count" integer NOT NULL DEFAULT 0, -- 点赞数
+	"thumbs_down_count" integer NOT NULL DEFAULT 0, -- 点踩数
   "created_on" integer NOT NULL,
   "modified_on" integer NOT NULL,
   "deleted_on" integer NOT NULL,
@@ -61,7 +63,7 @@ CREATE TABLE "p_comment_content" (
   "id" integer NOT NULL,
   "comment_id" integer NOT NULL,
   "user_id" integer NOT NULL,
-  "content" text(255) NOT NULL,
+  "content" text NOT NULL,
   "type" integer NOT NULL,
   "sort" integer NOT NULL,
   "created_on" integer NOT NULL,
@@ -80,14 +82,50 @@ CREATE TABLE "p_comment_reply" (
   "comment_id" integer NOT NULL,
   "user_id" integer NOT NULL,
   "at_user_id" integer NOT NULL,
-  "content" text(255) NOT NULL,
+  "content" text NOT NULL,
   "ip" text(64) NOT NULL,
   "ip_loc" text(64) NOT NULL,
+  "thumbs_up_count" integer NOT NULL DEFAULT 0, -- 点赞数
+	"thumbs_down_count" integer NOT NULL DEFAULT 0, -- 点踩数
   "created_on" integer NOT NULL,
   "modified_on" integer NOT NULL,
   "deleted_on" integer NOT NULL,
   "is_del" integer NOT NULL,
   PRIMARY KEY ("id")
+);
+
+-- ----------------------------
+-- Table structure for p_tweet_comment_thumbs
+-- ----------------------------
+DROP TABLE IF EXISTS p_tweet_comment_thumbs;
+CREATE TABLE "p_tweet_comment_thumbs" (
+  "id"  integer PRIMARY KEY,
+  "user_id" integer NOT NULL,
+  "tweet_id" integer NOT NULL,
+  "comment_id" integer NOT NULL,
+  "reply_id" integer,
+  "comment_type" integer NOT NULL DEFAULT 0, -- 评论类型 0为推文评论、1为评论回复
+  "is_thumbs_up" integer NOT NULL DEFAULT 0, -- 是否点赞 0 为否 1为是
+  "is_thumbs_down" integer NOT NULL DEFAULT 0, -- 是否点踩 0 为否 1为是
+  "created_on" integer NOT NULL DEFAULT 0,
+  "modified_on" integer NOT NULL DEFAULT 0,
+  "deleted_on" integer NOT NULL DEFAULT 0,
+  "is_del" integer NOT NULL DEFAULT 0 -- 是否删除 0 为未删除、1 为已删除
+);
+
+-- ----------------------------
+-- Table structure for p_following
+-- ----------------------------
+DROP TABLE IF EXISTS "p_following";
+CREATE TABLE "p_following" (
+	"id" integer NOT NULL,
+	"user_id" integer NOT NULL,
+	"follow_id" integer NOT NULL,
+	"is_del" integer NOT NULL,
+	"created_on" integer NOT NULL,
+	"modified_on" integer NOT NULL,
+	"deleted_on" integer NOT NULL,
+	PRIMARY KEY ("id")
 );
 
 -- ----------------------------
@@ -158,6 +196,7 @@ CREATE TABLE "p_post" (
   "comment_count" integer NOT NULL,
   "collection_count" integer NOT NULL,
   "upvote_count" integer NOT NULL,
+  "share_count" integer NOT NULL,
   "is_top" integer NOT NULL,
   "is_essence" integer NOT NULL,
   "is_lock" integer NOT NULL,
@@ -170,8 +209,26 @@ CREATE TABLE "p_post" (
   "modified_on" integer NOT NULL,
   "deleted_on" integer NOT NULL,
   "is_del" integer NOT NULL,
-  "visibility" integer NOT NULL,
+  "visibility" integer NOT NULL,  -- 可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开
   PRIMARY KEY ("id")
+);
+
+-- ----------------------------
+-- Table structure for p_post_metric
+-- ----------------------------
+DROP TABLE IF EXISTS "p_post_metric";
+CREATE TABLE "p_post_metric" (
+	"id" integer NOT NULL,
+	"post_id" integer NOT NULL,
+	"rank_score" integer NOT NULL,
+	"incentive_score" integer NOT NULL DEFAULT 0,
+	"decay_factor" integer NOT NULL DEFAULT 0,
+	"motivation_factor" integer NOT NULL DEFAULT 0,
+	"is_del" integer NOT NULL DEFAULT 0,
+	"created_on" integer NOT NULL DEFAULT 0,
+	"modified_on" integer NOT NULL DEFAULT 0,
+	"deleted_on" integer NOT NULL DEFAULT 0,
+	PRIMARY KEY ("id")
 );
 
 -- ----------------------------
@@ -213,7 +270,7 @@ CREATE TABLE "p_post_content" (
   "id" integer NOT NULL,
   "post_id" integer NOT NULL,
   "user_id" integer NOT NULL,
-  "content" text(2000) NOT NULL,
+  "content" text NOT NULL,
   "type" integer NOT NULL,
   "sort" integer NOT NULL,
   "created_on" integer NOT NULL,
@@ -252,6 +309,27 @@ CREATE TABLE "p_tag" (
   "deleted_on" integer NOT NULL,
   "is_del" integer NOT NULL,
   PRIMARY KEY ("id")
+);
+
+-- ----------------------------
+-- Table structure for p_topic_user
+-- ----------------------------
+DROP TABLE IF EXISTS "p_topic_user";
+CREATE TABLE "p_topic_user" (
+	"id" integer,
+	"topic_id" integer NOT NULL,-- 标签ID
+	"user_id" integer NOT NULL,-- 创建者ID
+	"alias_name" text ( 255 ),-- 别名
+	"remark" text ( 512 ),-- 备注
+	"quote_num" integer,-- 引用数
+	"is_top" integer NOT NULL DEFAULT 0,-- 是否置顶 0 为未置顶、1 为已置顶
+	"created_on" integer NOT NULL DEFAULT 0,-- 创建时间
+	"modified_on" integer NOT NULL DEFAULT 0,-- 修改时间
+	"deleted_on" integer NOT NULL DEFAULT 0,-- 删除时间
+	"is_del" integer NOT NULL DEFAULT 0,-- 是否删除 0 为未删除、1 为已删除
+	"reserve_a" text,-- 保留字段a
+	"reserve_b" text,-- 保留字段b
+	PRIMARY KEY ( "id" ) 
 );
 
 -- ----------------------------
@@ -310,6 +388,41 @@ CREATE TABLE "p_wallet_statement" (
   "is_del" integer NOT NULL,
   PRIMARY KEY ("id")
 );
+
+DROP VIEW IF EXISTS p_post_by_media;
+CREATE VIEW p_post_by_media AS 
+SELECT post.* 
+FROM
+	( SELECT DISTINCT post_id FROM p_post_content WHERE ( TYPE = 3 OR TYPE = 4 OR TYPE = 7 OR TYPE = 8 ) AND is_del = 0 ) media
+	JOIN p_post post ON media.post_id = post.ID 
+WHERE
+	post.is_del = 0;
+
+DROP VIEW IF EXISTS p_post_by_comment;
+CREATE VIEW p_post_by_comment AS 
+SELECT P.*, C.user_id comment_user_id
+FROM
+	(
+	SELECT
+		post_id,
+		user_id
+	FROM
+		p_comment 
+	WHERE
+		is_del = 0 UNION
+	SELECT
+		post_id,
+		reply.user_id user_id
+	FROM
+		p_comment_reply reply
+		JOIN p_comment COMMENT ON reply.comment_id = COMMENT.ID 
+	WHERE
+		reply.is_del = 0 
+		AND COMMENT.is_del = 0 
+	)
+	C JOIN p_post P ON C.post_id = P.ID 
+WHERE
+	P.is_del = 0;
 
 -- ----------------------------
 -- Indexes structure for table p_attachment
@@ -376,6 +489,24 @@ ON "p_comment_reply" (
 );
 
 -- ----------------------------
+-- Indexes structure for table idx_tweet_comment_thumbs_uid_tid
+-- ----------------------------
+CREATE INDEX "idx_tweet_comment_thumbs_uid_tid"
+ON "p_tweet_comment_thumbs"(
+  "user_id" ASC,
+  "tweet_id" ASC
+);
+
+-- ----------------------------
+-- Indexes structure for table p_following
+-- ----------------------------
+CREATE INDEX "idx_following_user_follow"
+ON "p_following" (
+  "user_id" ASC,
+  "follow_id" ASC
+);
+
+-- ----------------------------
 -- Indexes structure for table p_contact
 -- ----------------------------
 CREATE UNIQUE INDEX "idx_contact_user_friend"
@@ -416,6 +547,15 @@ ON "p_post" (
 CREATE INDEX "idx_post_visibility"
 ON "p_post" (
   "visibility" ASC
+);
+
+-- ----------------------------
+-- Indexes structure for table idx_post_metric_post_id_rank_score
+-- ----------------------------
+CREATE INDEX "idx_post_metric_post_id_rank_score"
+ON "p_post_metric" (
+  "post_id" ASC,
+  "rank_score" ASC
 );
 
 -- ----------------------------
@@ -480,6 +620,15 @@ ON "p_tag" (
 CREATE INDEX "idx_tag_user_id"
 ON "p_tag" (
   "user_id" ASC
+);
+
+-- ----------------------------
+-- Indexes structure for table p_topic_user
+-- ----------------------------
+CREATE UNIQUE INDEX "idx_topic_user_uid_tid" 
+ON "p_topic_user" (
+  "topic_id",
+  "user_id"
 );
 
 -- ----------------------------

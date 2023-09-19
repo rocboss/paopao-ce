@@ -3,7 +3,7 @@
 
 ## 目前支持的功能集合
 #### 子服务
-* `OldWeb` 开启旧的Web服务(目前状态: 默认)
+* `OldWeb` 开启旧的Web服务(目前状态: 已弃，不可用)
     * [ ] 提按文档
     * [x] 服务初始化逻辑
     * [x] 接口定义
@@ -39,7 +39,7 @@
 * `Frontend:Web` 开启独立前端服务(目前状态: 内测)
     * [ ] 提按文档
     * [x] 服务初始化逻辑
-* `Frontend:EmbedWeb` 开启内嵌于后端Web API服务中的前端服务(目前状态: 内测)
+* `Frontend:EmbedWeb` 开启内嵌于后端Web API服务中的前端服务(目前状态: 稳定｜默认)
     * [ ] 提按文档
     * [x] 服务初始化逻辑
 * `Deprecated:OldWeb`  开启旧的Web服务(目前状态: 已弃，不可用)
@@ -53,7 +53,7 @@
     * [x] 接口定义
     * [x] 业务逻辑实现  
 * `Sqlx` + `MySQL`/`PostgreSQL`
-使用[sqlx](https://github.com/jmoiron/sqlx)作为数据库的ORM(目前状态：WIP)；
+使用[sqlx](https://github.com/bitbus/sqlx)作为数据库的ORM(目前状态：WIP)；
     * [ ] 提按文档
     * [ ] 接口定义
     * [ ] 业务逻辑实现  
@@ -101,7 +101,11 @@
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现   
-* `BigCacheIndex` 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(推荐使用)；  
+* `BigCacheIndex` 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(目前状态: Deprecated)；  
+    * [ ] 提按文档  
+    * [x] 接口定义
+    * [x] 业务逻辑实现 
+* `RedisCacheIndex` 使用Redis缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(目前状态: Deprecated)；  
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现 
@@ -119,6 +123,7 @@
     * [ ] 提按文档  
     * [ ] 接口定义
     * [ ] 业务逻辑实现  
+
 #### 日志:
 * `LoggerFile` 使用文件写日志(目前状态: 稳定); 
     * [ ] 提按文档  
@@ -132,18 +137,28 @@
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现 
+* `LoggerOpenObserve` 使用[OpenObserve](https://github.com/openobserve/openobserve)写日志(目前状态: 内测阶段);  
+    * [ ] 提按文档  
+    * [x] 接口定义
+    * [x] 业务逻辑实现 
+
+#### 监控:
+* `Sentry` 使用Sentry进行错误跟踪与性能监控(目前状态: 内测); 
+    * [x] [提按文档](docs/proposal/23040412-关于使用sentry用于错误追踪与性能检测的设计.md)  
+    * [x] 接口定义
+    * [x] 业务逻辑实现   
 
 #### 关系模式:    
-* `Friendship` 弱关系好友模式，类似微信朋友圈(目前状态: 内测); 
-    * [x] [提按文档](docs/proposal/002-关于Friendship功能项的设计.md)
+* `Friendship` 弱关系好友模式，类似微信朋友圈(目前状态: 内置Builtin); 
+    * [x] [提按文档](docs/proposal/22110410-关于Friendship功能项的设计.md)
     * [x] 接口定义
     * [x] 业务逻辑实现     
-* `Followship` 关注者模式，类似Twitter的Follow模式(目前状态: WIP);  
-    * [ ] [提按文档](docs/proposal/003-关于Followship功能项的设计.md)
+* `Followship` 关注者模式，类似Twitter的Follow模式(目前状态: 内置Builtin);  
+    * [ ] [提按文档](docs/proposal/22110409-关于Followship功能项的设计.md)
     * [ ] 接口定义
     * [ ] 业务逻辑实现   
-* `Lightship` 开放模式，所有推文都公开可见(目前状态: 内测、默认);  
-    * [x] [提按文档](docs/proposal/011-关于Lightship功能项的设计.md)
+* `Lightship` 开放模式，所有推文都公开可见(目前状态: 已弃，不可用);  
+    * [x] [提按文档](docs/proposal/22121409-关于Lightship功能项的设计.md)
     * [x] 接口定义
     * [x] 业务逻辑实现 
 
@@ -170,12 +185,31 @@
     * [x] 业务逻辑实现   
 
 ### 性能优化
-* [`Pyroscope`](docs/proposal/016-关于使用pyroscope用于性能调试的设计.md) 开启Pyroscope功能用于性能调试(目前状态: 内测);  
+* [`Pyroscope`](docs/proposal/23021510-关于使用pyroscope用于性能调试的设计.md) 开启Pyroscope功能用于性能调试(目前状态: 内测);  
     * [x] 提按文档  
     * [x] 业务逻辑实现  
- 
+* [`Pprof`](docs/proposal/23062905-添加Pprof功能特性用于获取Profile.md) 开启Pprof功能收集Profile信息(目前状态: 内测);  
+    * [x] 提按文档  
+    * [x] 业务逻辑实现  
+
 ### 其他:    
 * `PhoneBind` 手机绑定功能； 
     * [ ] 提按文档  
     * [x] 接口定义
-    * [x] 业务逻辑实现       
+    * [x] 业务逻辑实现  
+
+* `UseAuditHook` 使用审核hook功能 (目前状态: 内测 待完善后将转为Builtin)
+    * [ ] 提按文档  
+    * [x] 接口定义
+    * [x] 业务逻辑实现  
+
+* `DisableJobManager` 禁止使用JobManager功能 (目前状态: 内测 待完善后将转为Builtin)
+    * [ ] 提按文档  
+    * [x] 接口定义
+    * [x] 业务逻辑实现  
+
+### 功能特性:
+* `Web:DisallowUserRegister` 不允许用户注册；       
+    * [ ] 提按文档  
+    * [x] 接口定义
+    * [x] 业务逻辑实现   

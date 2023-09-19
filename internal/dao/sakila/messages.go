@@ -5,63 +5,87 @@
 package sakila
 
 import (
-	"github.com/jmoiron/sqlx"
+	"time"
+
+	"github.com/alimy/tryst/cfg"
+	"github.com/bitbus/sqlx"
+	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/pkg/debug"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
+	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
+	"github.com/sirupsen/logrus"
 )
 
 var (
-	_ core.MessageService = (*messageServant)(nil)
+	_ core.MessageService = (*messageSrv)(nil)
 )
 
-type messageServant struct {
-	*sqlxServant
-	stmtAddMsg  *sqlx.Stmt
-	stmtGetMsg  *sqlx.Stmt
-	stmtReadMsg *sqlx.Stmt
+type messageSrv struct {
+	*sqlxSrv
+	q *cc.Message
 }
 
-func (s *messageServant) CreateMessage(msg *core.Message) (*core.Message, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *messageServant) GetUnreadCount(userID int64) (int64, error) {
-	// TODO
-	debug.NotImplemented()
-	return 0, nil
-}
-
-func (s *messageServant) GetMessageByID(id int64) (*core.Message, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *messageServant) ReadMessage(message *core.Message) error {
-	// TODO
-	debug.NotImplemented()
-	return nil
-}
-
-func (s *messageServant) GetMessages(conditions *core.ConditionsT, offset, limit int) ([]*core.MessageFormated, error) {
-	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *messageServant) GetMessageCount(conditions *core.ConditionsT) (int64, error) {
-	// TODO
-	debug.NotImplemented()
-	return 0, nil
-}
-
-func newMessageService(db *sqlx.DB) core.MessageService {
-	return &messageServant{
-		sqlxServant: newSqlxServant(db),
-		stmtAddMsg:  c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtGetMsg:  c(`SELECT * FROM @person WHERE first_name=?`),
-		stmtReadMsg: c(`SELECT * FROM @person WHERE first_name=?`),
+func (s *messageSrv) CreateMessage(r *ms.Message) (*ms.Message, error) {
+	r.Model = &ms.Model{
+		CreatedOn: time.Now().Unix(),
 	}
+	res, err := s.q.CreateMessage.Exec(r)
+	if err != nil {
+		return nil, err
+	}
+	r.ID, err = res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func (s *messageSrv) GetUnreadCount(userID int64) (res int64, err error) {
+	err = s.q.GetUnreadCount.Get(&res, userID)
+	return
+}
+
+func (s *messageSrv) GetMessageByID(id int64) (*ms.Message, error) {
+	return db.Get[ms.Message](s.q.GetMessageById, id)
+}
+
+func (s *messageSrv) ReadMessage(r *ms.Message) (err error) {
+	_, err = s.q.ReadMessage.Exec(time.Now().Unix(), r.ID)
+	return
+}
+
+func (s *messageSrv) GetMessages(userId int64, offset, limit int) ([]*ms.MessageFormated, error) {
+	var messages []*ms.Message
+	if err := s.q.GetMessages.Select(&messages, userId, userId, limit, offset); err != nil {
+		return nil, err
+	}
+	mfs := make([]*ms.MessageFormated, 0, len(messages))
+	for _, message := range messages {
+		mf := message.Format()
+		mfs = append(mfs, mf)
+	}
+	return mfs, nil
+}
+
+func (s *messageSrv) GetMessageCount(userId int64) (res int64, err error) {
+	if err = s.q.GetMessageCount.Get(&res, userId, userId); err != nil {
+		logrus.Errorf("get message count error: %s", err)
+	}
+	return
+}
+
+func newMessageService(db *sqlx.DB) (s core.MessageService) {
+	ms := &messageSrv{
+		sqlxSrv: newSqlxSrv(db),
+		q:       ccBuild(db, cc.BuildMessage),
+	}
+	s = ms
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		s = &pgcMessageSrv{
+			messageSrv: ms,
+			p:          pgcBuild(db, pgc.BuildMessage),
+		}
+	}
+	return
 }
