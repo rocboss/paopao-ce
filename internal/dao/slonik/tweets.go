@@ -121,10 +121,9 @@ func (s *tweetManageSrv) HighlightPost(userId, postId int64) (res int, err error
 	return
 }
 
-func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT) error {
+func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility cs.TweetVisibleType) error {
 	// TODO
-	debug.NotImplemented()
-	return nil
+	return cs.ErrNotImplemented
 }
 
 func (s *tweetManageSrv) UpdatePost(post *ms.Post) error {
@@ -332,6 +331,31 @@ func (s *tweetSrv) ListUserMediaTweets(user *cs.VistUser, limit int, offset int)
 func (s *tweetSrv) ListUserCommentTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error) {
 	// TODO
 	return nil, 0, debug.ErrNotImplemented
+}
+
+func (s *tweetSrv) ListUserTweets(userId int64, style uint8, justEssence bool, limit, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, cs.ErrNotImplemented
+}
+
+func (s *tweetSrv) ListFollowingTweets(userId int64, limit, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, cs.ErrNotImplemented
+}
+
+func (s *tweetSrv) ListIndexNewestTweets(limit, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, cs.ErrNotImplemented
+}
+
+func (s *tweetSrv) ListIndexHotsTweets(limit, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, cs.ErrNotImplemented
+}
+
+func (s *tweetSrv) ListSyncSearchTweets(limit, offset int) ([]*ms.Post, int64, error) {
+	// TODO
+	return nil, 0, cs.ErrNotImplemented
 }
 
 func newTweetService(db *pgx.Conn) core.TweetService {
