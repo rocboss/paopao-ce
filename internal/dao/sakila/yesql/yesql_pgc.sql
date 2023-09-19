@@ -5,6 +5,20 @@
 --------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
+-- tweet sql dml
+--------------------------------------------------------------------------------
+
+-- name: list_index_hots_tweets@tweet
+-- prepare: stmt
+SELECT post.*
+FROM @post post
+LEFT JOIN @post_metric metric
+ON post.id=metric.post_id
+WHERE post.visibility>=90 AND post.is_del=0
+ORDER BY post.is_top DESC, metric.rank_score DESC NULLS LAST, post.latest_replied_on DESC
+LIMIT ? OFFSET ?;
+
+--------------------------------------------------------------------------------
 -- tweet_manage sql dml
 --------------------------------------------------------------------------------
 

@@ -22,6 +22,7 @@ const (
 	_CommentManage_CreateCommentReply   = `INSERT INTO @comment_reply (comment_id, user_id, content, at_user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *`
 	_ContactManager_CreateContact       = `INSERT INTO @contact (user_id, friend_id, status, created_on) VALUES (?, ?, ?, ?) RETURNING *`
 	_Message_CreateMessage              = `INSERT INTO @message (sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, created_on) VALUES (:sender_user_id, :receiver_user_id, :type, :brief, :content, :post_id, :comment_id, :reply_id, :created_on) RETURNING id`
+	_Tweet_ListIndexHotsTweets          = `SELECT post.* FROM @post post LEFT JOIN @post_metric metric ON post.id=metric.post_id WHERE post.visibility>=90 AND post.is_del=0 ORDER BY post.is_top DESC, metric.rank_score DESC NULLS LAST, post.latest_replied_on DESC LIMIT ? OFFSET ?`
 	_TweetManage_AddAttachment          = `INSERT INTO @attachment (user_id, file_size, img_width, img_height, type, content, created_on) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id`
 	_TweetManage_AddPost                = `INSERT INTO @post (user_id, tags, ip, ip_loc, attachment_price, visibility, latest_replied_on, created_on) VALUES (:user_id, :tags, :ip, :ip_loc, :attachment_price, :visibility, :latest_replied_on, :created_on) RETURNING id`
 	_TweetManage_AddPostCollection      = `INSERT INTO @post_collection (post_id, user_id, created_on) VALUES (?, ?, ?) RETURNING *`
@@ -66,6 +67,11 @@ type ContactManager struct {
 type Message struct {
 	yesql.Namespace `yesql:"message"`
 	CreateMessage   *sqlx.NamedStmt `yesql:"create_message"`
+}
+
+type Tweet struct {
+	yesql.Namespace     `yesql:"tweet"`
+	ListIndexHotsTweets *sqlx.Stmt `yesql:"list_index_hots_tweets"`
 }
 
 type TweetManage struct {
@@ -131,6 +137,20 @@ func BuildMessage(p PreparexBuilder, ctx ...context.Context) (obj *Message, err 
 	obj = &Message{}
 	if obj.CreateMessage, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_Message_CreateMessage))); err != nil {
 		return nil, fmt.Errorf("prepare _Message_CreateMessage error: %w", err)
+	}
+	return
+}
+
+func BuildTweet(p PreparexBuilder, ctx ...context.Context) (obj *Tweet, err error) {
+	var c context.Context
+	if len(ctx) > 0 && ctx[0] != nil {
+		c = ctx[0]
+	} else {
+		c = context.Background()
+	}
+	obj = &Tweet{}
+	if obj.ListIndexHotsTweets, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Tweet_ListIndexHotsTweets))); err != nil {
+		return nil, fmt.Errorf("prepare _Tweet_ListIndexHotsTweets error: %w", err)
 	}
 	return
 }

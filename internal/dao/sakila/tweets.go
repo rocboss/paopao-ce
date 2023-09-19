@@ -562,11 +562,19 @@ func (s *tweetSrv) GetPostContentByID(id int64) (res *ms.PostContent, err error)
 	return db.Get[ms.PostContent](s.q.GetPostContentById, &res, id)
 }
 
-func newTweetService(db *sqlx.DB) core.TweetService {
-	return &tweetSrv{
+func newTweetService(db *sqlx.DB) (s core.TweetService) {
+	ts := &tweetSrv{
 		sqlxSrv: newSqlxSrv(db),
 		q:       ccBuild(db, cc.BuildTweet),
 	}
+	s = ts
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		s = &pgcTweetSrv{
+			tweetSrv: ts,
+			p:        pgcBuild(db, pgc.BuildTweet),
+		}
+	}
+	return
 }
 
 func newTweetManageService(db *sqlx.DB, cacheIndex core.CacheIndexService) (s core.TweetManageService) {
