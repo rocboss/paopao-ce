@@ -50,11 +50,9 @@ type webDataSrvA struct {
 
 func NewDataService() (core.DataService, core.VersionInfo) {
 	lazyInitial()
-
 	pvs := security.NewPhoneVerifyService()
 	tms := NewTweetMetricServentA(_db)
 	cis := cache.NewEventCacheIndexSrv(tms)
-
 	ds := &dataSrv{
 		TweetMetricServantA:    tms,
 		WalletService:          newWalletService(_db),
@@ -71,7 +69,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		SecurityService:        newSecurityService(_db, pvs),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
 	}
-	return ds, ds
+	return cache.NewCacheDataService(ds), ds
 }
 
 func NewWebDataServantA() (core.WebDataServantA, core.VersionInfo) {
