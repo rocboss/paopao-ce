@@ -24,7 +24,6 @@ func (s *tweetMetricSrvA) UpdateRankScore(metric *cs.TweetMetric) error {
 		err = db.Save(postMetric).Error
 		return
 	})
-
 }
 
 func (s *tweetMetricSrvA) AddTweetMetric(postId int64) (err error) {

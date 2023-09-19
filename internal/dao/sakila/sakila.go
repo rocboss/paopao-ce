@@ -8,12 +8,10 @@ import (
 	"sync"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/alimy/tryst/cfg"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/dao/security"
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -27,7 +25,6 @@ var (
 )
 
 type dataSrv struct {
-	core.IndexPostsService
 	core.WalletService
 	core.MessageService
 	core.TopicService
@@ -41,6 +38,7 @@ type dataSrv struct {
 	core.FollowingManageService
 	core.SecurityService
 	core.AttachmentCheckService
+	core.TweetMetricServantA
 }
 
 type webDataSrvA struct {
@@ -53,37 +51,12 @@ type webDataSrvA struct {
 func NewDataService() (core.DataService, core.VersionInfo) {
 	lazyInitial()
 
-	var (
-		v   core.VersionInfo
-		cis core.CacheIndexService
-	)
 	pvs := security.NewPhoneVerifyService()
-	ams := NewAuthorizationManageService()
-	ths := newTweetHelpService(_db)
-	ips := newShipIndexService(_db, ams, ths)
-
-	// initialize core.CacheIndexService
-	cfg.On(cfg.Actions{
-		"SimpleCacheIndex": func() {
-			// simpleCache use special post index service
-			ips = newSimpleIndexPostsService(_db, ths)
-			cis, v = cache.NewSimpleCacheIndexService(ips)
-		},
-		"BigCacheIndex": func() {
-			// TODO: make cache index post in different scence like friendship/followship/lightship
-			cis, v = cache.NewBigCacheIndexService(ips, ams)
-		},
-		"RedisCacheIndex": func() {
-			cis, v = cache.NewRedisCacheIndexService(ips, ams)
-		},
-	}, func() {
-		// defualt no cache
-		cis, v = cache.NewNoneCacheIndexService(ips)
-	})
-	logrus.Infof("use %s as cache index service by version: %s", v.Name(), v.Version())
+	tms := NewTweetMetricServentA(_db)
+	cis := cache.NewEventCacheIndexSrv(tms)
 
 	ds := &dataSrv{
-		IndexPostsService:      cis,
+		TweetMetricServantA:    tms,
 		WalletService:          newWalletService(_db),
 		MessageService:         newMessageService(_db),
 		TopicService:           newTopicService(_db),
@@ -104,34 +77,8 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 func NewWebDataServantA() (core.WebDataServantA, core.VersionInfo) {
 	lazyInitial()
 
-	var (
-		v   core.VersionInfo
-		cis core.CacheIndexService
-	)
-	// pvs := security.NewPhoneVerifyService()
-	ams := NewAuthorizationManageService()
-	ths := newTweetHelpService(_db)
-	ips := newShipIndexService(_db, ams, ths)
-
-	// initialize core.CacheIndexService
-	cfg.On(cfg.Actions{
-		"SimpleCacheIndex": func() {
-			// simpleCache use special post index service
-			ips = newSimpleIndexPostsService(_db, ths)
-			cis, v = cache.NewSimpleCacheIndexService(ips)
-		},
-		"BigCacheIndex": func() {
-			// TODO: make cache index post in different scence like friendship/followship/lightship
-			cis, v = cache.NewBigCacheIndexService(ips, ams)
-		},
-		"RedisCacheIndex": func() {
-			cis, v = cache.NewRedisCacheIndexService(ips, ams)
-		},
-	}, func() {
-		// defualt no cache
-		cis, v = cache.NewNoneCacheIndexService(ips)
-	})
-	logrus.Infof("use %s as cache index service by version: %s", v.Name(), v.Version())
+	tms := NewTweetMetricServentA(_db)
+	cis := cache.NewEventCacheIndexSrv(tms)
 
 	db := conf.MustSqlxDB()
 	ds := &webDataSrvA{
@@ -153,7 +100,7 @@ func (s *dataSrv) Name() string {
 }
 
 func (s *dataSrv) Version() *semver.Version {
-	return semver.MustParse("v0.2.0")
+	return semver.MustParse("v0.3.0")
 }
 
 func (s *webDataSrvA) Name() string {
