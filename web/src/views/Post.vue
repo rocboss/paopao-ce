@@ -121,7 +121,6 @@ const loadDefaultComments = ($state: any) => {
     if (defaultNoMore.value) {
         return
     }
-
     getPostComments({
         id: post.value.id as number,
         sort_strategy: 'default',

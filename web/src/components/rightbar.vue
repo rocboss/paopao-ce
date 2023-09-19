@@ -77,13 +77,10 @@
                     </a>
                 </n-space>
             </div>
-            <div v-if="store.state.userInfo.is_admin" ref="userInfoElement">
-            <n-space>
-                <span class="copyright">{{ registerUserCount }} 注册用户&nbsp;&nbsp;</span>
-                <span class="copyright">{{ onlineUserCount }} 人在线</span>
-            </n-space>
-        </div>
         </n-card>
+        <div class="site-info" v-if="store.state.userInfo.is_admin" ref="userInfoElement">
+            <span class="site-info-item">{{ registerUserCount }} 注册用户，{{ onlineUserCount }} 人在线，最高在线 {{ historyMaxOnline }} 人，站点上线于 {{ formatRelativeTime(serverUpTime) }}</span>
+        </div>
     </div>
 </template>
 
@@ -94,6 +91,7 @@ import { useRouter } from 'vue-router';
 import { getTags } from '@/api/post';
 import { getSiteInfo } from '@/api/user';
 import { Search } from '@vicons/ionicons5';
+import { formatRelativeTime } from '@/utils/formatTime';
 
 const hotTags = ref<Item.TagProps[]>([]);
 const followTags = ref<Item.TagProps[]>([]);
@@ -103,6 +101,8 @@ const store = useStore();
 const router = useRouter();
 const registerUserCount = ref(0)
 const onlineUserCount = ref(0)
+const historyMaxOnline = ref(0)
+const serverUpTime = ref(0)
 const userInfoElement = ref<HTMLElement | null>(null);
 const copyrightTop = import.meta.env.VITE_COPYRIGHT_TOP
 const copyrightLeft = import.meta.env.VITE_COPYRIGHT_LEFT
@@ -117,6 +117,8 @@ const loadSiteInfo = () => {
         .then((res) => {
             registerUserCount.value = res.register_user_count;
             onlineUserCount.value = res.online_user_count;
+            historyMaxOnline.value = res.history_max_online;
+            serverUpTime.value = res.server_up_time;
         })
         .catch((_err) => {
             // do nothing
@@ -236,6 +238,16 @@ onMounted(() => {
 
     .hottopic-wrap {
         margin-bottom: 10px;
+    }
+
+    .site-info {
+        margin-top: 8px;
+        padding-left: 16px;
+        padding-right: 16px;
+        .site-info-item {
+            font-size: 10px;
+            opacity: 0.75;
+        }
     }
 
     .copyright-wrap {

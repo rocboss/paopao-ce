@@ -101,7 +101,9 @@ type cacheConf struct {
 	CientSideCacheExpire time.Duration
 	UnreadMsgExpire      int64
 	UserTweetsExpire     int64
+	IndexTweetsExpire    int64
 	OnlineUserExpire     int64
+	UserInfoExpire       int64
 }
 
 type eventManagerConf struct {
@@ -118,6 +120,10 @@ type metricManagerConf struct {
 	MaxTempEventBuf int
 	MaxTickCount    int
 	TickWaitTime    time.Duration
+}
+
+type jobManagerConf struct {
+	MaxOnlineInterval string
 }
 
 type cacheIndexConf struct {
@@ -345,6 +351,7 @@ func (s *databaseConf) TableNames() (res TableNameMap) {
 		TableContactGroup,
 		TableMessage,
 		TablePost,
+		TablePostMetric,
 		TablePostByComment,
 		TablePostByMedia,
 		TablePostAttachmentBill,
