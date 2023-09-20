@@ -36,7 +36,7 @@
                         {{  comment.ip_loc}}
                     </span>
                     <n-popconfirm
-                        v-if="store.state.userInfo.id === comment.user.id"
+                        v-if="store.state.userInfo.id === postUserId"
                         negative-text="取消"
                         positive-text="确认"
                         @positive-click="execHightlightAction"
@@ -145,7 +145,8 @@ const emit = defineEmits<{
     (e: 'reload'): void
 }>();
 const props = withDefaults(defineProps<{
-    comment: Item.CommentProps
+    comment: Item.CommentProps,
+    postUserId: number
 }>(), {})
 
 const comment = computed(() => {
