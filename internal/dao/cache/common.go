@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"encoding/gob"
 
+	"github.com/RoaringBitmap/roaring/roaring64"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -58,4 +59,48 @@ func (s *cacheDataService) GetUserByUsername(username string) (res *ms.User, err
 		onCacheUserInfoEvent(key, res)
 	}
 	return
+}
+
+func (s *cacheDataService) IsMyFriend(userId int64, friendIds []int64) (res map[int64]bool, err error) {
+	size := len(friendIds)
+	res = make(map[int64]bool, size)
+	if size == 0 {
+		return
+	}
+	// 从缓存中获取
+	key := conf.KeyMyFriendIds.Get(userId)
+	if data, xerr := s.ac.Get(key); xerr == nil {
+		bitmap := roaring64.New()
+		if err = bitmap.UnmarshalBinary(data); err == nil {
+			for _, friendId := range friendIds {
+				res[friendId] = bitmap.Contains(uint64(friendId))
+			}
+			return
+		}
+	}
+	// 直接查库并触发缓存更新事件
+	OnCacheMyFriendIdsEvent(s.DataService, userId)
+	return s.DataService.IsMyFriend(userId, friendIds)
+}
+
+func (s *cacheDataService) IsMyFollow(userId int64, followIds []int64) (res map[int64]bool, err error) {
+	size := len(followIds)
+	res = make(map[int64]bool, size)
+	if size == 0 {
+		return
+	}
+	// 从缓存中获取
+	key := conf.KeyMyFollowIds.Get(userId)
+	if data, xerr := s.ac.Get(key); xerr == nil {
+		bitmap := roaring64.New()
+		if err = bitmap.UnmarshalBinary(data); err == nil {
+			for _, followId := range followIds {
+				res[followId] = bitmap.Contains(uint64(followId))
+			}
+			return
+		}
+	}
+	// 直接查库并触发缓存更新事件
+	OnCacheMyFollowIdsEvent(s.DataService, userId, key)
+	return s.DataService.IsMyFollow(userId, followIds)
 }

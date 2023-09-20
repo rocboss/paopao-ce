@@ -209,7 +209,7 @@ func checkPermision(user *ms.User, targetUserId int64) mir.Error {
 }
 
 // visbleTansform 可见性等价转换，暂时处理方式，后续需要去掉这个步骤
-func visbleTansform(list []*ms.PostFormated) {
+func _visbleTansform(list []*ms.PostFormated) {
 	for _, post := range list {
 		post.Visibility = ms.PostVisibleT(post.Visibility.ToOutValue())
 	}

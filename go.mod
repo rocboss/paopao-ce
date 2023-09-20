@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
+	github.com/RoaringBitmap/roaring v1.5.0
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/mir/v4 v4.0.0
 	github.com/alimy/tryst v0.8.3
@@ -54,6 +55,7 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
+	github.com/bits-and-blooms/bitset v1.2.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.0 // indirect
 	github.com/clbanning/mxj v1.8.4 // indirect
@@ -106,6 +108,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mozillazg/go-httpheader v0.2.1 // indirect
+	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pyroscope-io/godeltaprof v0.1.2 // indirect
