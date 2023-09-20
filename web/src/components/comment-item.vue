@@ -220,7 +220,7 @@ const execHightlightAction = () => {
     })
         .then((res) => {
             comment.value.is_essence = res.highlight_status;
-            window.$message.success(res.highlight_status == YesNoEnum.YES ? '精选评论成功' : '取消精选评论成功');
+            window.$message.success("操作成功");
             setTimeout(() => {
                 reload();
             }, 50);
