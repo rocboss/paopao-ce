@@ -61,8 +61,14 @@ func (s *looseSrv) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error)
 		logrus.Errorf("Ds.RevampPosts err: %s", err)
 		return nil, web.ErrGetPostsFailed
 	}
-	// TODO: 暂时处理，需要去掉这个步骤
-	visbleTansform(posts)
+	userId := int64(-1)
+	if req.User != nil {
+		userId = req.User.ID
+	}
+	if err := s.PrepareTweets(userId, posts); err != nil {
+		logrus.Errorf("timeline occurs error[2]: %s", err)
+		return nil, web.ErrGetPostsFailed
+	}
 	resp := joint.PageRespFrom(posts, req.Page, req.PageSize, res.Total)
 	return &web.TimelineResp{
 		CachePageResp: joint.CachePageResp{
@@ -98,7 +104,7 @@ func (s *looseSrv) getIndexTweets(req *web.TimelineReq, limit int, offset int) (
 		return nil, web.ErrGetPostsUnknowStyle
 	}
 	if xerr != nil {
-		logrus.Errorf("getIndexTweets occurs error: %s", xerr)
+		logrus.Errorf("getIndexTweets occurs error[1]: %s", xerr)
 		return nil, web.ErrGetPostFailed
 	}
 	postsFormated, verr := s.Ds.MergePosts(posts)
@@ -106,8 +112,14 @@ func (s *looseSrv) getIndexTweets(req *web.TimelineReq, limit int, offset int) (
 		logrus.Errorf("getIndexTweets in merge posts occurs error: %s", verr)
 		return nil, web.ErrGetPostFailed
 	}
-	// TODO: 暂时处理，需要去掉这个步骤
-	visbleTansform(postsFormated)
+	userId := int64(-1)
+	if req.User != nil {
+		userId = req.User.ID
+	}
+	if err := s.PrepareTweets(userId, postsFormated); err != nil {
+		logrus.Errorf("getIndexTweets occurs error[2]: %s", err)
+		return nil, web.ErrGetPostsFailed
+	}
 	resp := joint.PageRespFrom(postsFormated, req.Page, req.PageSize, total)
 	// 缓存处理
 	base.OnCacheRespEvent(s.ac, key, resp, s.idxTweetsExpire)
@@ -198,7 +210,7 @@ func (s *looseSrv) userTweetsFromCache(req *web.GetUserTweetsReq, user *cs.VistU
 func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
 	stars, totalRows, err := s.Ds.ListUserStarTweets(user, req.PageSize, (req.Page-1)*req.PageSize)
 	if err != nil {
-		logrus.Errorf("Ds.GetUserPostStars err: %s", err)
+		logrus.Errorf("getUserStarTweets err[1]: %s", err)
 		return nil, web.ErrGetStarsFailed
 	}
 	var posts []*ms.Post
@@ -212,8 +224,14 @@ func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUse
 		logrus.Errorf("Ds.MergePosts err: %s", err)
 		return nil, web.ErrGetStarsFailed
 	}
-	// TODO: 暂时处理，需要去掉这个步骤
-	visbleTansform(postsFormated)
+	userId := int64(-1)
+	if req.User != nil {
+		userId = req.User.ID
+	}
+	if err := s.PrepareTweets(userId, postsFormated); err != nil {
+		logrus.Errorf("getUserStarTweets err[2]: %s", err)
+		return nil, web.ErrGetPostsFailed
+	}
 	resp := joint.PageRespFrom(postsFormated, req.Page, req.PageSize, totalRows)
 	return &web.GetUserTweetsResp{
 		CachePageResp: joint.CachePageResp{
@@ -233,21 +251,27 @@ func (s *looseSrv) listUserTweets(req *web.GetUserTweetsReq, user *cs.VistUser) 
 	} else if req.Style == web.UserPostsStyleMedia {
 		tweets, total, err = s.Ds.ListUserMediaTweets(user, req.PageSize, (req.Page-1)*req.PageSize)
 	} else {
-		logrus.Errorf("s.listUserTweets unknow style: %s", req.Style)
+		logrus.Errorf("s.listUserTweets unknow style[1]: %s", req.Style)
 		return nil, web.ErrGetPostsFailed
 	}
 	if err != nil {
-		logrus.Errorf("s.listUserTweets err: %s", err)
+		logrus.Errorf("s.listUserTweets err[2]: %s", err)
 		return nil, web.ErrGetPostsFailed
 	}
-	postFormated, err := s.Ds.MergePosts(tweets)
+	postsFormated, err := s.Ds.MergePosts(tweets)
 	if err != nil {
-		logrus.Errorf("s.listUserTweets err: %s", err)
+		logrus.Errorf("s.listUserTweets err[3]: %s", err)
 		return nil, web.ErrGetPostsFailed
 	}
-	// TODO: 暂时处理，需要去掉这个步骤
-	visbleTansform(postFormated)
-	resp := joint.PageRespFrom(postFormated, req.Page, req.PageSize, total)
+	userId := int64(-1)
+	if req.User != nil {
+		userId = req.User.ID
+	}
+	if err := s.PrepareTweets(userId, postsFormated); err != nil {
+		logrus.Errorf("s.listUserTweets err[4]: %s", err)
+		return nil, web.ErrGetPostsFailed
+	}
+	resp := joint.PageRespFrom(postsFormated, req.Page, req.PageSize, total)
 	return &web.GetUserTweetsResp{
 		CachePageResp: joint.CachePageResp{
 			Data: resp,
@@ -281,8 +305,14 @@ func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq, user *cs.VistUse
 		logrus.Errorf("s.GetTweetList error[2]: %s", err)
 		return nil, web.ErrGetPostsFailed
 	}
-	// TODO: 暂时处理，需要去掉这个步骤
-	visbleTansform(postsFormated)
+	userId := int64(-1)
+	if req.User != nil {
+		userId = req.User.ID
+	}
+	if err := s.PrepareTweets(userId, postsFormated); err != nil {
+		logrus.Errorf("s.GetTweetList error[3]: %s", err)
+		return nil, web.ErrGetPostsFailed
+	}
 	resp := joint.PageRespFrom(postsFormated, req.Page, req.PageSize, total)
 	return &web.GetUserTweetsResp{
 		CachePageResp: joint.CachePageResp{

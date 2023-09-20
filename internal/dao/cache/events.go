@@ -9,23 +9,23 @@ import (
 	"encoding/gob"
 	"fmt"
 
+	"github.com/RoaringBitmap/roaring/roaring64"
 	"github.com/alimy/tryst/event"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/events"
+	"github.com/sirupsen/logrus"
 )
 
 type expireIndexTweetsEvent struct {
 	event.UnimplementedEvent
-	tweet       *ms.Post
 	ac          core.AppCache
 	keysPattern []string
 }
 
 type expireHotsTweetsEvent struct {
 	event.UnimplementedEvent
-	tweet      *ms.Post
 	ac         core.AppCache
 	keyPattern string
 }
@@ -46,21 +46,34 @@ type cacheUserInfoEvent struct {
 	expire int64
 }
 
-func onExpireIndexTweetEvent(tweet *ms.Post) {
+type cacheMyFriendIdsEvent struct {
+	event.UnimplementedEvent
+	ac      core.AppCache
+	urs     core.UserRelationService
+	userIds []int64
+}
+
+type cacheMyFollowIdsEvent struct {
+	event.UnimplementedEvent
+	ac     core.AppCache
+	urs    core.UserRelationService
+	userId int64
+	key    string
+}
+
+func OnExpireIndexTweetEvent(userId int64) {
 	events.OnEvent(&expireIndexTweetsEvent{
-		tweet: tweet,
-		ac:    _appCache,
+		ac: _appCache,
 		keysPattern: []string{
 			conf.PrefixIdxTweetsNewest + "*",
 			conf.PrefixIdxTweetsHots + "*",
-			fmt.Sprintf("%s%d:*", conf.PrefixUserTweets, tweet.UserID),
+			fmt.Sprintf("%s%d:*", conf.PrefixUserTweets, userId),
 		},
 	})
 }
 
-func onExpireHotsTweetEvent(tweet *ms.Post) {
+func OnExpireHotsTweetEvent() {
 	events.OnEvent(&expireHotsTweetsEvent{
-		tweet:      tweet,
 		ac:         _appCache,
 		keyPattern: conf.PrefixHotsTweets + "*",
 	})
@@ -80,6 +93,32 @@ func onCacheUserInfoEvent(key string, data *ms.User) {
 		data:   data,
 		ac:     _appCache,
 		expire: conf.CacheSetting.UserInfoExpire,
+	})
+}
+
+func OnCacheMyFriendIdsEvent(urs core.UserRelationService, userIds ...int64) {
+	if len(userIds) == 0 {
+		return
+	}
+	events.OnEvent(&cacheMyFriendIdsEvent{
+		userIds: userIds,
+		urs:     urs,
+		ac:      _appCache,
+	})
+}
+
+func OnCacheMyFollowIdsEvent(urs core.UserRelationService, userId int64, key ...string) {
+	cacheKey := ""
+	if len(key) > 0 {
+		cacheKey = key[0]
+	} else {
+		cacheKey = conf.KeyMyFollowIds.Get(userId)
+	}
+	events.OnEvent(&cacheMyFollowIdsEvent{
+		userId: userId,
+		urs:    urs,
+		key:    cacheKey,
+		ac:     _appCache,
 	})
 }
 
@@ -126,4 +165,50 @@ func (e *cacheUserInfoEvent) Action() (err error) {
 		e.ac.Set(e.key, buffer.Bytes(), e.expire)
 	}
 	return
+}
+
+func (e *cacheMyFriendIdsEvent) Name() string {
+	return "cacheMyFriendIdsEvent"
+}
+
+func (e *cacheMyFriendIdsEvent) Action() error {
+	logrus.Debug("cacheMyFriendIdsEvent action runnging")
+	for _, userId := range e.userIds {
+		myFriendIds, err := e.urs.MyFriendIds(userId)
+		if err != nil {
+			return err
+		}
+		bitmap := roaring64.New()
+		for _, friendId := range myFriendIds {
+			bitmap.Add(uint64(friendId))
+		}
+		data, err := bitmap.MarshalBinary()
+		if err != nil {
+			return err
+		}
+		e.ac.Set(conf.KeyMyFriendIds.Get(userId), data, 0)
+	}
+	return nil
+}
+
+func (e *cacheMyFollowIdsEvent) Name() string {
+	return "cacheMyFollowIdsEvent"
+}
+
+func (e *cacheMyFollowIdsEvent) Action() (err error) {
+	logrus.Debug("cacheMyFollowIdsEvent action runnging")
+	myFollowIds, err := e.urs.MyFollowIds(e.userId)
+	if err != nil {
+		return err
+	}
+	bitmap := roaring64.New()
+	for _, followId := range myFollowIds {
+		bitmap.Add(uint64(followId))
+	}
+	data, err := bitmap.MarshalBinary()
+	if err != nil {
+		return err
+	}
+	e.ac.Set(e.key, data, 0)
+	return nil
 }

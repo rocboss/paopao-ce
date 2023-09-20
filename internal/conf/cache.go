@@ -29,6 +29,8 @@ const (
 	PrefixUserInfo           = "paopao:userinfo:"
 	PrefixUserInfoById       = "paopao:userinfo:id:"
 	PrefixUserInfoByName     = "paopao:userinfo:name:"
+	PrefixMyFriendIds        = "paopao:myfriendids:"
+	PrefixMyFollowIds        = "paopao:myfollowids:"
 	KeySiteStatus            = "paopao:sitestatus"
 	KeyHistoryMaxOnline      = "history.max.online"
 )
@@ -42,6 +44,8 @@ var (
 	KeyOnlineUser      cache.KeyPool[int64]
 	KeyUserInfoById    cache.KeyPool[int64]
 	KeyUserInfoByName  cache.KeyPool[string]
+	KeyMyFriendIds     cache.KeyPool[int64]
+	KeyMyFollowIds     cache.KeyPool[int64]
 )
 
 func initCacheKeyPool() {
@@ -56,6 +60,8 @@ func initCacheKeyPool() {
 	KeyOnlineUser = intKeyPool[int64](poolSize, PrefixOnlineUser)
 	KeyUserInfoById = intKeyPool[int64](poolSize, PrefixUserInfoById)
 	KeyUserInfoByName = strKeyPool(poolSize, PrefixUserInfoById)
+	KeyMyFriendIds = intKeyPool[int64](poolSize, PrefixMyFriendIds)
+	KeyMyFollowIds = intKeyPool[int64](poolSize, PrefixMyFollowIds)
 }
 
 func strKeyPool(size int, prefix string) cache.KeyPool[string] {

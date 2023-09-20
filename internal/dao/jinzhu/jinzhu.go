@@ -41,6 +41,7 @@ type dataSrv struct {
 	core.UserManageService
 	core.ContactManageService
 	core.FollowingManageService
+	core.UserRelationService
 	core.SecurityService
 	core.AttachmentCheckService
 }
@@ -71,6 +72,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		UserManageService:      newUserManageService(db),
 		ContactManageService:   newContactManageService(db),
 		FollowingManageService: newFollowingManageService(db),
+		UserRelationService:    newUserRelationService(db),
 		SecurityService:        newSecurityService(db, pvs),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
 	}
