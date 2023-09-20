@@ -27,6 +27,7 @@ type Priv interface {
 	ThumbsUpTweetComment(*web.TweetCommentThumbsReq) mir.Error
 	DeleteCommentReply(*web.DeleteCommentReplyReq) mir.Error
 	CreateCommentReply(*web.CreateCommentReplyReq) (*web.CreateCommentReplyResp, mir.Error)
+	HighlightComment(*web.HighlightCommentReq) (*web.HighlightCommentResp, mir.Error)
 	DeleteComment(*web.DeleteCommentReq) mir.Error
 	CreateComment(*web.CreateCommentReq) (*web.CreateCommentResp, mir.Error)
 	VisibleTweet(*web.VisibleTweetReq) (*web.VisibleTweetResp, mir.Error)
@@ -182,6 +183,20 @@ func RegisterPrivServant(e *gin.Engine, s Priv, m ...PrivChain) {
 			return
 		}
 		resp, err := s.CreateCommentReply(req)
+		s.Render(c, resp, err)
+	})
+	router.Handle("POST", "/post/comment/highlight", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.HighlightCommentReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.HighlightComment(req)
 		s.Render(c, resp, err)
 	})
 	router.Handle("DELETE", "/post/comment", func(c *gin.Context) {
@@ -416,6 +431,10 @@ func (UnimplementedPrivServant) DeleteCommentReply(req *web.DeleteCommentReplyRe
 }
 
 func (UnimplementedPrivServant) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.CreateCommentReplyResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) HighlightComment(req *web.HighlightCommentReq) (*web.HighlightCommentResp, mir.Error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 

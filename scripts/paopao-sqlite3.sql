@@ -46,6 +46,7 @@ CREATE TABLE "p_comment" (
   "user_id" integer NOT NULL,
   "ip" text(64) NOT NULL,
   "ip_loc" text(64) NOT NULL,
+  "is_essence" integer NOT NULL DEFAULT 0,
   "thumbs_up_count" integer NOT NULL DEFAULT 0, -- 点赞数
 	"thumbs_down_count" integer NOT NULL DEFAULT 0, -- 点踩数
   "created_on" integer NOT NULL,

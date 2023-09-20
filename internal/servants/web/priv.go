@@ -464,6 +464,18 @@ func (s *privSrv) DeleteComment(req *web.DeleteCommentReq) mir.Error {
 	return nil
 }
 
+func (s *privSrv) HighlightComment(req *web.HighlightCommentReq) (*web.HighlightCommentResp, mir.Error) {
+	status, err := s.Ds.HighlightComment(req.Uid, req.CommentId)
+	if err == cs.ErrNoPermission {
+		return nil, web.ErrNoPermission
+	} else if err != nil {
+		return nil, web.ErrHighlightCommentFailed
+	}
+	return &web.HighlightCommentResp{
+		HighlightStatus: status,
+	}, nil
+}
+
 func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateCommentResp, xerr mir.Error) {
 	var (
 		mediaContents []string

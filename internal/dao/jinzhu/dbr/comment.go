@@ -17,6 +17,7 @@ type Comment struct {
 	UserID          int64  `json:"user_id"`
 	IP              string `json:"ip"`
 	IPLoc           string `json:"ip_loc"`
+	IsEssence       int8   `json:"is_essense"`
 	ThumbsUpCount   int32  `json:"thumbs_up_count"`
 	ThumbsDownCount int32  `json:"-"`
 }
@@ -30,6 +31,7 @@ type CommentFormated struct {
 	Replies       []*CommentReplyFormated `json:"replies"`
 	IPLoc         string                  `json:"ip_loc"`
 	ThumbsUpCount int32                   `json:"thumbs_up_count"`
+	IsEssence     int8                    `json:"is_essence"`
 	IsThumbsUp    int8                    `json:"is_thumbs_up"`
 	IsThumbsDown  int8                    `json:"is_thumbs_down"`
 	CreatedOn     int64                   `json:"created_on"`
@@ -49,6 +51,7 @@ func (c *Comment) Format() *CommentFormated {
 		Replies:       []*CommentReplyFormated{},
 		IPLoc:         c.IPLoc,
 		ThumbsUpCount: c.ThumbsUpCount,
+		IsEssence:     c.IsEssence,
 		IsThumbsUp:    types.No,
 		IsThumbsDown:  types.No,
 		CreatedOn:     c.CreatedOn,

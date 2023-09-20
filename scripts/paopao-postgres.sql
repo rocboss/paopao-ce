@@ -43,6 +43,7 @@ CREATE TABLE p_comment (
 	user_id BIGINT NOT NULL DEFAULT 0,
 	ip VARCHAR(64) NOT NULL DEFAULT '',
 	ip_loc VARCHAR(64) NOT NULL DEFAULT '',
+	is_essence SMALLINT NOT NULL DEFAULT 0,
 	thumbs_up_count int NOT NULL DEFAULT 0, -- 点赞数
 	thumbs_down_count int NOT NULL DEFAULT 0, -- 点踩数
 	created_on BIGINT NOT NULL DEFAULT 0,
