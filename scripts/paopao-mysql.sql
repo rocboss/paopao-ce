@@ -51,6 +51,7 @@ CREATE TABLE `p_comment` (
 	`user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
 	`ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'IP地址',
 	`ip_loc` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'IP城市地址',
+	`is_essence` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否精选',
 	`thumbs_up_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点赞数',
 	`thumbs_down_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点踩数',
 	`created_on` bigint unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',

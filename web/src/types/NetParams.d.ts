@@ -199,7 +199,7 @@ declare module NetParams {
 
   interface PostGetPostComments {
     id: number;
-    sort_strategy: "default" | "newest";
+    style: "default" | "hots" | "newest";
     page?: number;
     page_size?: number;
   }
@@ -244,6 +244,10 @@ declare module NetParams {
   }
 
   interface PostDeleteComment {
+    id: number;
+  }
+
+  interface PostHighlightComment {
     id: number;
   }
 

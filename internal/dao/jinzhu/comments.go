@@ -60,8 +60,26 @@ func (s *commentSrv) GetCommentThumbsMap(userId int64, tweetId int64) (cs.Commen
 	return commentThumbs, replyThumbs, nil
 }
 
-func (s *commentSrv) GetComments(conditions *ms.ConditionsT, offset, limit int) ([]*ms.Comment, error) {
-	return (&dbr.Comment{}).List(s.db, conditions, offset, limit)
+func (s *commentSrv) GetComments(tweetId int64, style cs.StyleCommentType, limit int, offset int) (res []*ms.Comment, total int64, err error) {
+	// TODO: 需要优化一下，更精细的调整评论排序策略
+	sort := "is_essence DESC, id ASC"
+	switch style {
+	case cs.StyleCommentHots:
+		// TOOD: 暂时简单排序，后续需要根据 rank_score=评论回复数*2+点赞*4-点踩, order byrank_score DESC
+		sort = "is_essence DESC, thumbs_up_count DESC, id DESC"
+	case cs.StyleCommentNewest:
+		sort = "is_essence DESC, id DESC"
+	case cs.StyleCommentDefault:
+		fallthrough
+	default:
+		// sort = "id ASC"
+	}
+	db := s.db.Table(_comment_).Where("post_id=?", tweetId)
+	if err = db.Count(&total).Error; err != nil {
+		return
+	}
+	err = db.Order(sort).Limit(limit).Offset(offset).Find(&res).Error
+	return
 }
 
 func (s *commentSrv) GetCommentByID(id int64) (*ms.Comment, error) {
@@ -129,6 +147,23 @@ func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*ms.CommentReplyForma
 	}
 
 	return repliesFormated, nil
+}
+
+func (s *commentManageSrv) HighlightComment(userId, commentId int64) (res int8, err error) {
+	post := &dbr.Post{}
+	comment := &dbr.Comment{}
+	db := s.db.Model(comment)
+	if err = db.Where("id=?", commentId).First(comment).Error; err != nil {
+		return
+	}
+	if err = s.db.Table(_post_).Where("id=?", comment.PostID).First(post).Error; err != nil {
+		return
+	}
+	if post.UserID != userId {
+		return 0, cs.ErrNoPermission
+	}
+	comment.IsEssence = 1 - comment.IsEssence
+	return comment.IsEssence, db.Save(comment).Error
 }
 
 func (s *commentManageSrv) DeleteComment(comment *ms.Comment) error {

@@ -35,12 +35,14 @@ const (
 
 type TagType = cs.TagType
 
+type CommentStyleType string
+
 type TweetCommentsReq struct {
-	SimpleInfo   `form:"-" binding:"-"`
-	TweetId      int64  `form:"id" binding:"required"`
-	SortStrategy string `form:"sort_strategy"`
-	Page         int    `form:"-" binding:"-"`
-	PageSize     int    `form:"-" binding:"-"`
+	SimpleInfo `form:"-" binding:"-"`
+	TweetId    int64            `form:"id" binding:"required"`
+	Style      CommentStyleType `form:"style"`
+	Page       int              `form:"-" binding:"-"`
+	PageSize   int              `form:"-" binding:"-"`
 }
 
 type TweetCommentsResp base.PageResp
@@ -120,4 +122,18 @@ func (r *TimelineReq) Bind(c *gin.Context) mir.Error {
 	r.Page, r.PageSize = app.GetPageInfo(c)
 	r.Query, r.Type, r.Style = c.Query("query"), "search", c.Query("style")
 	return nil
+}
+
+func (s CommentStyleType) ToInnerValue() (res cs.StyleCommentType) {
+	switch s {
+	case "hots":
+		res = cs.StyleCommentHots
+	case "newest":
+		res = cs.StyleCommentNewest
+	case "default":
+		fallthrough
+	default:
+		res = cs.StyleCommentDefault
+	}
+	return
 }
