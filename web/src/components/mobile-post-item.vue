@@ -158,7 +158,8 @@ const store = useStore();
 const props = withDefaults(defineProps<{
     post: Item.PostProps,
     isOwner: boolean,
-    addExtraAction: boolean,
+    addFriendAction: boolean,
+    addFollowAction: boolean,
 }>(), {});
 
 const emit = defineEmits<{
@@ -177,20 +178,14 @@ const renderIcon = (icon: Component) => {
 
 const tweetOptions = computed(() => {
     let options: DropdownOption[] = [];
-    // TODO: f*k 为什么这里会卡？
-    // if (store.state.userinfo.id > 0) {
-    //     options.push({
-    //         label: '私信',
-    //         key: 'whisper',
-    //         icon: renderIcon(PaperPlaneOutline)
-    //     });
-    // }
-    options.push({
-        label: '私信',
-        key: 'whisper',
-        icon: renderIcon(PaperPlaneOutline)
-    });
-    if (!props.isOwner && props.addExtraAction) {
+    if (!props.isOwner) {
+        options.push({
+            label: '私信',
+            key: 'whisper',
+            icon: renderIcon(PaperPlaneOutline)
+        });
+    }
+    if (!props.isOwner && props.addFollowAction) {
         if (props.post.user.is_following) {
             options.push({
                 label: '取消关注',
@@ -204,19 +199,21 @@ const tweetOptions = computed(() => {
                 icon: renderIcon(BodyOutline)
             })
         }
-        // if (props.post.user.is_friend) {
-        //     options.push({
-        //         label: '删除好友',
-        //         key: 'delete',
-        //         icon: renderIcon(PersonRemoveOutline)
-        //     });
-        // } else {
-        //     options.push({
-        //         label: '添加朋友',
-        //         key: 'requesting',
-        //         icon: renderIcon(PersonAddOutline)
-        //     });
-        // }
+    }
+    if (!props.isOwner && props.addFriendAction) {
+        if (props.post.user.is_friend) {
+            options.push({
+                label: '删除好友',
+                key: 'delete',
+                icon: renderIcon(PersonRemoveOutline)
+            });
+        } else {
+            options.push({
+                label: '添加朋友',
+                key: 'requesting',
+                icon: renderIcon(PersonAddOutline)
+            });
+        }
     }
     options.push({
         label: '复制链接',

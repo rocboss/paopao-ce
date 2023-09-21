@@ -62,11 +62,13 @@ type cacheMyFollowIdsEvent struct {
 }
 
 func OnExpireIndexTweetEvent(userId int64) {
+	// TODO: 这里暴躁的将所有 最新/热门/关注 的推文列表缓存都过期掉，后续需要更精细话处理
 	events.OnEvent(&expireIndexTweetsEvent{
 		ac: _appCache,
 		keysPattern: []string{
 			conf.PrefixIdxTweetsNewest + "*",
 			conf.PrefixIdxTweetsHots + "*",
+			conf.PrefixIdxTweetsFollowing + "*",
 			fmt.Sprintf("%s%d:*", conf.PrefixUserTweets, userId),
 		},
 	})
