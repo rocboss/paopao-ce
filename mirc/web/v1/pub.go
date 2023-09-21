@@ -28,7 +28,4 @@ type Pub struct {
 
 	// SendCaptcha 发送验证码
 	SendCaptcha func(Post, web.SendCaptchaReq) `mir:"/captcha"`
-
-	// TweetDetail 获取动态详情
-	TweetDetail func(Get, web.TweetDetailReq) web.TweetDetailResp `mir:"/post"`
 }

@@ -173,6 +173,79 @@ func (s *BaseServant) Render(c *gin.Context, data any, err mir.Error) {
 	}
 }
 
+func (s *DaoServant) PrepareUser(userId int64, user *ms.UserFormated) error {
+	// guest用户的userId<0
+	if userId < 0 {
+		return nil
+	}
+	// friendMap, err := s.Ds.IsMyFriend(userId, user.ID)
+	// if err != nil {
+	// 	return err
+	// }
+	followMap, err := s.Ds.IsMyFollow(userId, user.ID)
+	if err != nil {
+		return err
+	}
+	// user.IsFriend, user.IsFollowing = friendMap[user.ID], followMap[user.ID]
+	user.IsFollowing = followMap[user.ID]
+	return nil
+}
+
+func (s *DaoServant) PrepareMessages(userId int64, messages []*ms.MessageFormated) error {
+	// guest用户的userId<0
+	if userId < 0 {
+		return nil
+	}
+	userIds := make([]int64, 0, len(messages))
+	for _, msg := range messages {
+		if msg.SenderUser != nil {
+			userIds = append(userIds, msg.SenderUserID)
+		}
+		if msg.ReceiverUser != nil {
+			userIds = append(userIds, msg.ReceiverUserID)
+		}
+	}
+	// friendMap, err := s.Ds.IsMyFriend(userId, userIds...)
+	// if err != nil {
+	// 	return err
+	// }
+	followMap, err := s.Ds.IsMyFollow(userId, userIds...)
+	if err != nil {
+		return err
+	}
+	for _, msg := range messages {
+		if msg.SenderUser != nil {
+			//  msg.SenderUser.IsFriend, msg.SenderUser.IsFollowing = friendMap[msg.SenderUserID], followMap[msg.SenderUserID]
+			msg.SenderUser.IsFollowing = followMap[msg.SenderUserID]
+		}
+		if msg.ReceiverUser != nil {
+			//  msg.ReceiverUser.IsFriend, msg.ReceiverUser.IsFollowing = friendMap[msg.ReceiverUserID], followMap[msg.ReceiverUserID]
+			msg.ReceiverUser.IsFollowing = followMap[msg.ReceiverUserID]
+		}
+	}
+	return nil
+}
+
+func (s *DaoServant) PrepareTweet(userId int64, tweet *ms.PostFormated) error {
+	// 转换一下可见性的值
+	tweet.Visibility = ms.PostVisibleT(tweet.Visibility.ToOutValue())
+	// guest用户的userId<0
+	if userId < 0 {
+		return nil
+	}
+	// friendMap, err := s.Ds.IsMyFriend(userId, userIds)
+	// if err != nil {
+	// 	return err
+	// }
+	followMap, err := s.Ds.IsMyFollow(userId, tweet.UserID)
+	if err != nil {
+		return err
+	}
+	// tweet.User.IsFriend, tweet.User.IsFollowing = friendMap[tweet.UserID], followMap[tweet.UserID]
+	tweet.User.IsFollowing = followMap[tweet.UserID]
+	return nil
+}
+
 func (s *DaoServant) PrepareTweets(userId int64, tweets []*ms.PostFormated) error {
 	userIdSet := make(map[int64]types.Empty, len(tweets))
 	for _, tweet := range tweets {
@@ -188,11 +261,11 @@ func (s *DaoServant) PrepareTweets(userId int64, tweets []*ms.PostFormated) erro
 	for id := range userIdSet {
 		userIds = append(userIds, id)
 	}
-	// friendMap, err := s.Ds.IsMyFriend(userId, userIds)
+	// friendMap, err := s.Ds.IsMyFriend(userId, userIds...)
 	// if err != nil {
 	// 	return err
 	// }
-	followMap, err := s.Ds.IsMyFollow(userId, userIds)
+	followMap, err := s.Ds.IsMyFollow(userId, userIds...)
 	if err != nil {
 		return err
 	}

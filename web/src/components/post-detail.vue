@@ -217,7 +217,7 @@
 <script setup lang="ts">
 import { h, ref, onMounted, computed } from 'vue';
 import type { Component } from 'vue'
-import { NIcon } from 'naive-ui'
+import { NIcon, useDialog } from 'naive-ui'
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { formatPrettyTime } from '@/utils/formatTime';
@@ -237,6 +237,7 @@ import {
     EyeOutline,
     EyeOffOutline,
     BodyOutline,
+    WalkOutline,
     PersonOutline,
     FlameOutline,
 } from '@vicons/ionicons5';
@@ -252,6 +253,7 @@ import {
     highlightPost,
     visibilityPost
 } from '@/api/post';
+import { followUser, unfollowUser } from '@/api/user';
 import type { DropdownOption } from 'naive-ui';
 import { VisibilityEnum } from '@/utils/IEnum';
 import copy from "copy-to-clipboard";
@@ -260,6 +262,7 @@ const useFriendship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'tr
 
 const store = useStore();
 const router = useRouter();
+const dialog = useDialog();
 const hasStarred = ref(false);
 const hasCollected = ref(false);
 const props = withDefaults(
@@ -362,6 +365,19 @@ const adminOptions = computed(() => {
             key: 'whisper',
             icon: renderIcon(PaperPlaneOutline)
         });
+        if (props.post.user.is_following) {
+            options.push({
+                label: '取消关注',
+                key: 'unfollow',
+                icon: renderIcon(WalkOutline)
+            })
+        } else {
+            options.push({
+                label: '关注',
+                key: 'follow',
+                icon: renderIcon(BodyOutline)
+            })
+        }
         return options;
     }
     options.push({
@@ -460,6 +476,35 @@ const adminOptions = computed(() => {
     return options;
 });
 
+const onHandleFollowAction = (post: Item.PostProps) => {
+    dialog.success({
+        title: '提示',
+        content:
+            '确定' + (post.user.is_following ? '取消关注' : '关注') + '该用户吗？',
+        positiveText: '确定',
+        negativeText: '取消',
+        onPositiveClick: () => {
+            if (post.user.is_following) {
+                unfollowUser({
+                    user_id: post.user.id,
+                }).then((_res) => {
+                    window.$message.success('操作成功');
+                    post.user.is_following = false;
+                })
+                .catch((_err) => {});
+            } else {
+                followUser({
+                    user_id: post.user.id,
+                }).then((_res) => {
+                    window.$message.success('关注成功');
+                    post.user.is_following = true;
+                })
+                .catch((_err) => {});
+            }
+        },
+    });
+};
+
 const goPostDetail = (id: number) => {
     router.push({
         name: 'post',
@@ -495,11 +540,15 @@ const doClickText = (e: MouseEvent, id: number) => {
     goPostDetail(id);
 };
 const handlePostAction = (
-    item: 'whisper' | 'delete' | 'lock' | 'unlock' | 'stick' | 'unstick' | 'highlight' | 'unhighlight' | 'vpublic' | 'vprivate' | 'vfriend' | 'vfollowing'
+    item: 'whisper' | 'follow' | 'unfollow' | 'delete' | 'lock' | 'unlock' | 'stick' | 'unstick' | 'highlight' | 'unhighlight' | 'vpublic' | 'vprivate' | 'vfriend' | 'vfollowing' 
 ) => {
     switch (item) {
         case 'whisper':
             onSendWhisper(props.post.user);
+            break;
+        case 'follow':
+        case 'unfollow':
+            onHandleFollowAction(props.post);
             break;
         case 'delete':
             showDelModal.value = true;

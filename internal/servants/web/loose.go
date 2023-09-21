@@ -468,6 +468,33 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 	return (*web.TweetCommentsResp)(resp), nil
 }
 
+func (s *looseSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir.Error) {
+	post, err := s.Ds.GetPostByID(req.TweetId)
+	if err != nil {
+		return nil, web.ErrGetPostFailed
+	}
+	postContents, err := s.Ds.GetPostContentsByIDs([]int64{post.ID})
+	if err != nil {
+		return nil, web.ErrGetPostFailed
+	}
+	users, err := s.Ds.GetUsersByIDs([]int64{post.UserID})
+	if err != nil {
+		return nil, web.ErrGetPostFailed
+	}
+	// 数据整合
+	postFormated := post.Format()
+	for _, user := range users {
+		postFormated.User = user.Format()
+	}
+	for _, content := range postContents {
+		if content.PostID == post.ID {
+			postFormated.Contents = append(postFormated.Contents, content.Format())
+		}
+	}
+	s.PrepareTweet(req.Uid, postFormated)
+	return (*web.TweetDetailResp)(postFormated), nil
+}
+
 func newLooseSrv(s *base.DaoServant, ac core.AppCache) api.Loose {
 	cs := conf.CacheSetting
 	return &looseSrv{

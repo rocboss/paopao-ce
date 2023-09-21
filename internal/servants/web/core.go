@@ -124,6 +124,10 @@ func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mi
 		logrus.Errorf("Ds.GetMessages err: %v\n", err)
 		return nil, web.ErrGetMessagesFailed
 	}
+	if err = s.PrepareMessages(req.UserId, messages); err != nil {
+		logrus.Errorf("get messages err[2]: %v\n", err)
+		return nil, web.ErrGetMessagesFailed
+	}
 	totalRows, _ := s.Ds.GetMessageCount(req.UserId)
 	resp := base.PageRespFrom(messages, req.Page, req.PageSize, totalRows)
 	return (*web.GetMessagesResp)(resp), nil

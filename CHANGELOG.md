@@ -76,7 +76,7 @@ All notable changes to paopao-ce are documented in this file.
    ```sql
     ALTER TABLE `p_comment` ADD COLUMN `is_essence` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否精选';
    ```
-  - add follow/unfollow user support in index page.
+  - add follow/unfollow user support in index/home/collecion/message/post page.
 
   
 ## 0.4.2

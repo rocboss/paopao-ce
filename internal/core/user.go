@@ -42,6 +42,6 @@ type FollowingManageService interface {
 type UserRelationService interface {
 	MyFriendIds(userId int64) ([]int64, error)
 	MyFollowIds(userId int64) ([]int64, error)
-	IsMyFriend(userId int64, friendIds []int64) (map[int64]bool, error)
-	IsMyFollow(userId int64, followIds []int64) (map[int64]bool, error)
+	IsMyFriend(userId int64, friendIds ...int64) (map[int64]bool, error)
+	IsMyFollow(userId int64, followIds ...int64) (map[int64]bool, error)
 }

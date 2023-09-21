@@ -61,7 +61,7 @@ func (s *cacheDataService) GetUserByUsername(username string) (res *ms.User, err
 	return
 }
 
-func (s *cacheDataService) IsMyFriend(userId int64, friendIds []int64) (res map[int64]bool, err error) {
+func (s *cacheDataService) IsMyFriend(userId int64, friendIds ...int64) (res map[int64]bool, err error) {
 	size := len(friendIds)
 	res = make(map[int64]bool, size)
 	if size == 0 {
@@ -80,10 +80,10 @@ func (s *cacheDataService) IsMyFriend(userId int64, friendIds []int64) (res map[
 	}
 	// 直接查库并触发缓存更新事件
 	OnCacheMyFriendIdsEvent(s.DataService, userId)
-	return s.DataService.IsMyFriend(userId, friendIds)
+	return s.DataService.IsMyFriend(userId, friendIds...)
 }
 
-func (s *cacheDataService) IsMyFollow(userId int64, followIds []int64) (res map[int64]bool, err error) {
+func (s *cacheDataService) IsMyFollow(userId int64, followIds ...int64) (res map[int64]bool, err error) {
 	size := len(followIds)
 	res = make(map[int64]bool, size)
 	if size == 0 {
@@ -102,5 +102,5 @@ func (s *cacheDataService) IsMyFollow(userId int64, followIds []int64) (res map[
 	}
 	// 直接查库并触发缓存更新事件
 	OnCacheMyFollowIdsEvent(s.DataService, userId, key)
-	return s.DataService.IsMyFollow(userId, followIds)
+	return s.DataService.IsMyFollow(userId, followIds...)
 }

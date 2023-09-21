@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/pkg/app"
@@ -105,6 +106,13 @@ type TopicListResp struct {
 	Topics       cs.TagList `json:"topics"`
 	ExtralTopics cs.TagList `json:"extral_topics,omitempty"`
 }
+
+type TweetDetailReq struct {
+	SimpleInfo `form:"-"  binding:"-"`
+	TweetId    int64 `form:"id"`
+}
+
+type TweetDetailResp ms.PostFormated
 
 func (r *GetUserTweetsReq) SetPageInfo(page int, pageSize int) {
 	r.Page, r.PageSize = page, pageSize

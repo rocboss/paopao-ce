@@ -104,7 +104,7 @@ func (s *userRelationSrv) MyFollowIds(userId int64) (res []int64, err error) {
 	return
 }
 
-func (s *userRelationSrv) IsMyFriend(userId int64, friendIds []int64) (map[int64]bool, error) {
+func (s *userRelationSrv) IsMyFriend(userId int64, friendIds ...int64) (map[int64]bool, error) {
 	size := len(friendIds)
 	res := make(map[int64]bool, size)
 	if size == 0 {
@@ -126,7 +126,7 @@ func (s *userRelationSrv) IsMyFriend(userId int64, friendIds []int64) (map[int64
 	return res, nil
 }
 
-func (s *userRelationSrv) IsMyFollow(userId int64, followIds []int64) (map[int64]bool, error) {
+func (s *userRelationSrv) IsMyFollow(userId int64, followIds ...int64) (map[int64]bool, error) {
 	size := len(followIds)
 	res := make(map[int64]bool, size)
 	if size == 0 {
