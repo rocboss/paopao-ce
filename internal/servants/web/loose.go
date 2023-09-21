@@ -131,17 +131,17 @@ func (s *looseSrv) getIndexTweets(req *web.TimelineReq, limit int, offset int) (
 }
 
 func (s *looseSrv) indexTweetsFromCache(req *web.TimelineReq, limit int, offset int) (res *web.TimelineResp, key string, ok bool) {
+	username := "_"
+	if req.User != nil {
+		username = req.User.Username
+	}
 	switch req.Style {
 	case web.StyleTweetsFollowing:
-		username := "_"
-		if req.User != nil {
-			username = req.User.Username
-		}
 		key = fmt.Sprintf("%s%s:%d:%d", s.prefixIdxTweetsFollowing, username, offset, limit)
 	case web.StyleTweetsNewest:
-		key = fmt.Sprintf("%s%d:%d", s.prefixIdxTweetsNewest, offset, limit)
+		key = fmt.Sprintf("%s%s:%d:%d", s.prefixIdxTweetsNewest, username, offset, limit)
 	case web.StyleTweetsHots:
-		key = fmt.Sprintf("%s%d:%d", s.prefixIdxTweetsHots, offset, limit)
+		key = fmt.Sprintf("%s%s:%d:%d", s.prefixIdxTweetsHots, username, offset, limit)
 	default:
 		return
 	}

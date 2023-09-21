@@ -41,26 +41,28 @@
                 <div v-if="store.state.desktopModelShow">
                     <n-list-item v-for="post in list" :key="post.id">
                         <post-item :post="post" 
-                            :isOwner="store.state.userInfo.Id === post.user_id" 
-                            :addExtraAction="true"
+                            :isOwner="store.state.userInfo.id == post.user_id" 
+                            :addFollowAction="true"
                             @send-whisper="onSendWhisper"
-                            @handle-follow-action="onHandleFollowAction" />
+                            @handle-follow-action="onHandleFollowAction"
+                            @handle-friend-action="onHandleFriendAction" />
                     </n-list-item>
                 </div>
                 <div v-else>
                     <n-list-item v-for="post in list" :key="post.id">
                         <mobile-post-item :post="post"
-                            :isOwner="store.state.userInfo.Id === post.user_id" 
-                            :addExtraAction="true"
+                            :isOwner="store.state.userInfo.id == post.user_id" 
+                            :addFollowAction="true"
                             @send-whisper="onSendWhisper"
-                            @handle-follow-action="onHandleFollowAction" />
+                            @handle-follow-action="onHandleFollowAction"
+                            @handle-friend-action="onHandleFriendAction" />
                     </n-list-item>
                 </div>
             </div>
             <!-- 私信组件 -->
             <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
             <!-- 加好友组件 -->
-            <!-- <whisper-add-friend :show="showAddFriendWhisper" :user="user" @success="addFriendWhisperSuccess" /> -->
+            <whisper-add-friend :show="showAddFriendWhisper" :user="user" @success="addFriendWhisperSuccess" />
         </n-list>
 
         <n-space v-if="totalPage > 0" justify="center">
