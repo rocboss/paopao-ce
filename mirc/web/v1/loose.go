@@ -29,4 +29,7 @@ type Loose struct {
 
 	// TweetComments 获取动态评论
 	TweetComments func(Get, web.TweetCommentsReq) web.TweetCommentsResp `mir:"/post/comments"`
+
+	// TweetDetail 获取动态详情
+	TweetDetail func(Get, web.TweetDetailReq) web.TweetDetailResp `mir:"/post"`
 }
