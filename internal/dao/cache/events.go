@@ -51,6 +51,7 @@ type cacheMyFriendIdsEvent struct {
 	ac      core.AppCache
 	urs     core.UserRelationService
 	userIds []int64
+	expire  int64
 }
 
 type cacheMyFollowIdsEvent struct {
@@ -59,6 +60,7 @@ type cacheMyFollowIdsEvent struct {
 	urs    core.UserRelationService
 	userId int64
 	key    string
+	expire int64
 }
 
 func OnExpireIndexTweetEvent(userId int64) {
@@ -106,6 +108,7 @@ func OnCacheMyFriendIdsEvent(urs core.UserRelationService, userIds ...int64) {
 		userIds: userIds,
 		urs:     urs,
 		ac:      _appCache,
+		expire:  conf.CacheSetting.UserRelationExpire,
 	})
 }
 
@@ -121,6 +124,7 @@ func OnCacheMyFollowIdsEvent(urs core.UserRelationService, userId int64, key ...
 		urs:    urs,
 		key:    cacheKey,
 		ac:     _appCache,
+		expire: conf.CacheSetting.UserRelationExpire,
 	})
 }
 
@@ -188,7 +192,7 @@ func (e *cacheMyFriendIdsEvent) Action() error {
 		if err != nil {
 			return err
 		}
-		e.ac.Set(conf.KeyMyFriendIds.Get(userId), data, 0)
+		e.ac.Set(conf.KeyMyFriendIds.Get(userId), data, e.expire)
 	}
 	return nil
 }
@@ -211,6 +215,6 @@ func (e *cacheMyFollowIdsEvent) Action() (err error) {
 	if err != nil {
 		return err
 	}
-	e.ac.Set(e.key, data, 0)
+	e.ac.Set(e.key, data, e.expire)
 	return nil
 }
