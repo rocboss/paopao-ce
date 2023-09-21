@@ -425,3 +425,18 @@ export const getSiteInfo = (): Promise<NetReq.SiteInfoResp> => {
     url: "/v1/admin/site/status",
   });
 };
+
+/**
+ * 增加用户订阅时长
+ * @param {Object} data
+ * @returns Promise
+ */
+export const addSubscribeDays = (
+  data: NetParams.AddSubscribeDaysReq
+): Promise<NetReq.AddSubscribeDaysResp> => {
+  return request({
+    method: "post",
+    url: "/v1/admin/user/subscribe/add",
+    data,
+  });
+}

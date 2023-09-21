@@ -16,6 +16,7 @@ type UserManageService interface {
 	CreateUser(user *ms.User) (*ms.User, error)
 	UpdateUser(user *ms.User) error
 	GetRegisterUserCount() (int64, error)
+	AddUserSubscribe(user *ms.User, days int, reason string) error
 }
 
 // ContactManageService 联系人管理服务

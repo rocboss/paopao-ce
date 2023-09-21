@@ -76,38 +76,27 @@ func (s *userManageSrv) CreateUser(user *dbr.User) (*ms.User, error) {
 }
 
 func (s *userManageSrv) UpdateUser(user *ms.User) error {
-	return s.db.Transaction(func(tx *gorm.DB) error {
-		//获取用户的账单，判断是否赠送过
-		bills, err := (&dbr.WalletStatement{}).List(tx, &dbr.ConditionsT{
-			"user_id = ?": user.ID,
-			"reason = ?":  "注册赠送",
-		}, 0, 1)
-		if err != nil {
-			return err
-		}
-		if len(bills) > 0 {
-			err = user.Update(s.db)
-			if err != nil {
-				return err
-			}
-			return nil
-		}
+	return user.Update(s.db)
+}
 
-		//查询当前用户的balance
-		oldUser, err := s.GetUserByID(user.ID)
-		if err != nil {
-			return err
-		}
-		if oldUser.Balance == 0 || oldUser.Balance <= time.Now().Unix() {
-			//更新当前用户的balance时间戳，增加14天
-			//获取当前时间戳并加上14天
-			user.Balance = time.Now().Unix() + 1209600
+// GetRegisterUserCount 获取注册用户数量
+func (s *userManageSrv) GetRegisterUserCount() (res int64, err error) {
+	err = s.db.Model(&dbr.User{}).Count(&res).Error
+	return
+}
+
+// AddUserSubscribe 增加用户订阅
+func (s *userManageSrv) AddUserSubscribe(user *ms.User, days int, reason string) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if user.Balance == 0 || user.Balance <= time.Now().Unix() {
+			//更新当前用户的balance时间戳，增加days天
+			user.Balance = time.Now().Unix() + int64(days)*24*60*60
 		} else {
 			//更新当前用户的balance时间戳，增加14天
-			user.Balance = oldUser.Balance + 1209600
+			user.Balance = user.Balance + int64(days)*24*60*60
 		}
 
-		err = user.Update(s.db)
+		err := user.Update(s.db)
 		if err != nil {
 			return err
 		}
@@ -115,9 +104,9 @@ func (s *userManageSrv) UpdateUser(user *ms.User) error {
 		// 新增账单
 		if err := tx.Create(&dbr.WalletStatement{
 			UserID:          user.ID,
-			ChangeAmount:    1400,
+			ChangeAmount:    int64(days * 100),
 			BalanceSnapshot: user.Balance,
-			Reason:          "注册赠送",
+			Reason:          reason,
 		}).Error; err != nil {
 			return err
 		}
@@ -125,9 +114,4 @@ func (s *userManageSrv) UpdateUser(user *ms.User) error {
 		//返回nil，事务会被提交
 		return nil
 	})
-}
-
-func (s *userManageSrv) GetRegisterUserCount() (res int64, err error) {
-	err = s.db.Model(&dbr.User{}).Count(&res).Error
-	return
 }

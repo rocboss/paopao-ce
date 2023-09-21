@@ -288,4 +288,11 @@ declare module NetParams {
     type: string;
   }
 
+  /** 增加订阅时长请求参数 */
+  interface AddSubscribeDaysReq {
+    id: number;
+    days: number;
+    reason: string;
+  }
+
 }

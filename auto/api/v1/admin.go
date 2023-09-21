@@ -33,6 +33,7 @@ type Admin interface {
 
 	SiteInfo(*web.SiteInfoReq) (*web.SiteInfoResp, mir.Error)
 	ChangeUserStatus(*web.ChangeUserStatusReq) mir.Error
+	AddUserSubscribe(*web.AddUserSubscribeReq) mir.Error
 
 	mustEmbedUnimplementedAdminServant()
 }
@@ -44,7 +45,7 @@ func RegisterAdminServant(e *gin.Engine, s Admin) {
 	middlewares := s.Chain()
 	router.Use(middlewares...)
 
-	// register routes info to router
+	// 获取站点信息
 	router.Handle("GET", "/admin/site/status", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
@@ -71,6 +72,22 @@ func RegisterAdminServant(e *gin.Engine, s Admin) {
 			return
 		}
 		s.Render(c, nil, s.ChangeUserStatus(req))
+	})
+
+	// 为用户增加订阅值
+	router.Handle("POST", "/admin/user/subscribe/add", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.AddUserSubscribeReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+
+		s.Render(c, nil, s.AddUserSubscribe(req))
 	})
 }
 

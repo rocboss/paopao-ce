@@ -235,7 +235,7 @@ func (s *coreSrv) UserPhoneBind(req *web.UserPhoneBindReq) mir.Error {
 	// 执行绑定
 	user := req.User
 	user.Phone = req.Phone
-	if err := s.Ds.UpdateUser(user); err != nil {
+	if err := s.Ds.AddUserSubscribe(user, 14, "注册赠送"); err != nil {
 		// TODO: 优化错误处理逻辑，失败后上面的逻辑也应该回退
 		logrus.Errorf("Ds.UpdateUser err: %s", err)
 		return xerror.ServerError

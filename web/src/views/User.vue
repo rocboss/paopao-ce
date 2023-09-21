@@ -200,6 +200,45 @@
           </div>
         </div>
       </div>
+      <n-modal v-model:show="showAddSubscribeDialog">
+        <n-card
+          :bordered="false"
+          title="增加订阅"
+          role="dialog"
+          aria-modal="true"
+          style="width: 100%; max-width: 330px"
+        >
+          <n-form
+            ref="addSubscribeRef"
+            :model="addSubscribeForm"
+            :rules="addSubscribeRule"
+          >
+            <n-form-item-row label="天数" path="days">
+              <n-input-number
+                v-model:value="addSubscribeForm.days"
+                placeholder="请输入天数"
+                style="width: 330px"
+              />
+            </n-form-item-row>
+            <n-form-item-row label="理由" path="reason">
+              <n-input
+                v-model:value="addSubscribeForm.reason"
+                :maxlength="4"
+                placeholder="请输入四字理由"
+              />
+            </n-form-item-row>
+          </n-form>
+
+          <div style="text-align: right">
+            <n-button
+              style="margin-right: 8px"
+              @click="showAddSubscribeDialog = false"
+              >取消</n-button
+            >
+            <n-button type="primary" @click="addSubscribe">确定</n-button>
+          </div>
+        </n-card>
+      </n-modal>
     </n-list>
 
     <n-space v-if="totalPage > 0" justify="center">
@@ -234,8 +273,9 @@ import {
   deleteFriend,
   followUser,
   unfollowUser,
+  addSubscribeDays,
 } from "@/api/user";
-import { useDialog, DropdownOption } from "naive-ui";
+import { useDialog, DropdownOption, FormInst, FormItemRule } from "naive-ui";
 import WhisperAddFriend from "../components/whisper-add-friend.vue";
 import { MoreHorizFilled } from "@vicons/material";
 import { formatDate } from "@/utils/formatTime";
@@ -297,6 +337,46 @@ const commentTotalPage = ref(0);
 const highlightTotalPage = ref(0);
 const mediaTotalPage = ref(0);
 const starTotalPage = ref(0);
+
+let showAddSubscribeDialog = ref(false);
+
+const addSubscribeRef = ref<FormInst | null>(null);
+const addSubscribeForm = reactive({
+  days: 0,
+  reason: "",
+});
+const addSubscribeRule = {
+  days: [
+    {
+      required: true,
+      message: "请输入天数",
+    },
+    {
+      pattern: /^[0-9]*[1-9][0-9]*$/,
+      message: "天数必须大于0",
+    },
+  ],
+  reason: [
+    {
+      required: true,
+      message: "请输入理由",
+    },
+    {
+      min: 4,
+      message: "理由不能低于4个字",
+    },
+    {
+      validator: (rule: FormItemRule, value: string) => {
+        if (/^[\u4e00-\u9fa5]+$/.test(value)) {
+          return true;
+        } else {
+          return false;
+        }
+      },
+      message: "理由必须是中文",
+    },
+  ],
+};
 
 const onSendWhisper = (receiver: Item.UserInfo) => {
   user.id = receiver.id;
@@ -629,6 +709,11 @@ const userOptions = computed(() => {
         icon: renderIcon(CubeOutline),
       });
     }
+    options.push({
+      label: "增加订阅",
+      key: "subscribe",
+      icon: renderIcon(PersonAddOutline),
+    });
   }
   if (user.is_following) {
     options.push({
@@ -669,6 +754,7 @@ const handleUserAction = (
     | "requesting"
     | "banned"
     | "deblocking"
+    | "subscribe"
 ) => {
   switch (item) {
     case "whisper":
@@ -687,6 +773,9 @@ const handleUserAction = (
     case "banned":
     case "deblocking":
       banUser();
+      break;
+    case "subscribe":
+      showAddSubscribe();
       break;
     default:
       break;
@@ -785,6 +874,39 @@ const banUser = () => {
     },
   });
 };
+const showAddSubscribe = () => {
+  showAddSubscribeDialog.value = true;
+};
+
+const addSubscribe = (e: Event) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  addSubscribeRef.value?.validate((errors) => {
+    if (!errors) {
+      addSubscribeDays({
+        id: user.id,
+        days: addSubscribeForm.days,
+        reason: addSubscribeForm.reason,
+      })
+        .then((res) => {
+          if (res.code === 20022) {
+            window.$message.error(res.msg);
+            return;
+          }
+          window.$message.success("增加订阅成功");
+          showAddSubscribeDialog.value = false;
+          addSubscribeForm.days = 0;
+          addSubscribeForm.reason = "";
+        })
+        .catch((err) => {
+          window.$message.success("发生了一点小错误QAQ");
+        });
+    }
+  });
+  // userLoading.value = true;
+};
+
 const nextPage = () => {
   if (page.value < totalPage.value || totalPage.value == 0) {
     noMore.value = false;

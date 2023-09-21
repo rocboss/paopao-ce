@@ -10,6 +10,13 @@ type ChangeUserStatusReq struct {
 	Status   int   `json:"status" form:"status" binding:"required,oneof=1 2"`
 }
 
+type AddUserSubscribeReq struct {
+	BaseInfo `json:"-" binding:"-"`
+	ID       int64  `json:"id" form:"id" binding:"required"`
+	Days     int    `json:"days" form:"days" binding:"required"`
+	Reason   string `json:"reason" form:"reason" binding:"required"`
+}
+
 type SiteInfoReq struct {
 	SimpleInfo `json:"-" binding:"-"`
 }

@@ -220,4 +220,11 @@ declare module NetReq {
     type: number;
     user_id: number;
   }
+
+  /** 增加订阅响应参数 */
+  interface AddSubscribeDaysResp {
+    code: number;
+    msg:  string;
+  }
+
 }

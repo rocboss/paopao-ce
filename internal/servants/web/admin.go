@@ -30,6 +30,18 @@ type adminSrv struct {
 	serverUpTime int64
 }
 
+func (s *adminSrv) AddUserSubscribe(req *web.AddUserSubscribeReq) mir.Error {
+	// 获取用户信息
+	user, err := s.Ds.GetUserByID(req.ID)
+	if err != nil || user.Model == nil || user.ID <= 0 {
+		return web.ErrNoExistUsername
+	}
+	if err := s.Ds.AddUserSubscribe(user, req.Days, req.Reason); err != nil {
+		return xerror.ServerError
+	}
+	return nil
+}
+
 func (s *adminSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT(), chain.Admin()}
 }
