@@ -18,6 +18,7 @@ type Comment struct {
 	IP              string `json:"ip"`
 	IPLoc           string `json:"ip_loc"`
 	IsEssence       int8   `json:"is_essense"`
+	ReplyCount      int32  `json:"reply_count"`
 	ThumbsUpCount   int32  `json:"thumbs_up_count"`
 	ThumbsDownCount int32  `json:"-"`
 }
@@ -30,6 +31,7 @@ type CommentFormated struct {
 	Contents      []*CommentContent       `json:"contents"`
 	Replies       []*CommentReplyFormated `json:"replies"`
 	IPLoc         string                  `json:"ip_loc"`
+	ReplyCount    int32                   `json:"reply_count"`
 	ThumbsUpCount int32                   `json:"thumbs_up_count"`
 	IsEssence     int8                    `json:"is_essence"`
 	IsThumbsUp    int8                    `json:"is_thumbs_up"`
@@ -50,6 +52,7 @@ func (c *Comment) Format() *CommentFormated {
 		Contents:      []*CommentContent{},
 		Replies:       []*CommentReplyFormated{},
 		IPLoc:         c.IPLoc,
+		ReplyCount:    c.ReplyCount,
 		ThumbsUpCount: c.ThumbsUpCount,
 		IsEssence:     c.IsEssence,
 		IsThumbsUp:    types.No,
@@ -119,7 +122,6 @@ func (c *Comment) Count(db *gorm.DB, conditions *ConditionsT) (int64, error) {
 
 func (c *Comment) Create(db *gorm.DB) (*Comment, error) {
 	err := db.Create(&c).Error
-
 	return c, err
 }
 

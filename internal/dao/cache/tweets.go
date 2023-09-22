@@ -19,7 +19,7 @@ func (s *eventCacheIndexSrv) SendAction(act core.IdxAct, post *ms.Post) {
 	err := error(nil)
 	switch act {
 	case core.IdxActUpdatePost:
-		err = s.tms.UpdateRankScore(&cs.TweetMetric{
+		err = s.tms.UpdateTweetMetric(&cs.TweetMetric{
 			PostId:          post.ID,
 			CommentCount:    post.CommentCount,
 			UpvoteCount:     post.UpvoteCount,

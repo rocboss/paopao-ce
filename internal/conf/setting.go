@@ -346,6 +346,7 @@ func (s *databaseConf) TableNames() (res TableNameMap) {
 		TableAttachment,
 		TableCaptcha,
 		TableComment,
+		TableCommentMetric,
 		TableCommentContent,
 		TableCommentReply,
 		TableFollowing,
@@ -362,6 +363,7 @@ func (s *databaseConf) TableNames() (res TableNameMap) {
 		TablePostStar,
 		TableTag,
 		TableUser,
+		TableUserMetric,
 		TableWalletRecharge,
 		TableWalletStatement,
 	}
