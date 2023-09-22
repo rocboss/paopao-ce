@@ -27,7 +27,8 @@ MetricManager: # 指标监控管理器的配置参数
   MaxTickCount: 60            # 最大的循环周期, 设置范围[60, ++], 默认60
   TickWaitTime: 1             # 一个周期的等待时间，单位：秒 默认1s
 JobManager: # Cron Job理器的配置参数
-  MaxOnlineInterval: "@every 5m"     # 更新最大在线人数，默认每5分钟更新一次
+  MaxOnlineInterval: "@every 5m"       # 更新最大在线人数，默认每5分钟更新一次
+  UpdateMetricsInterval: "@every 5m"   # 更新Prometheus指标，默认每5分钟更新一次
 Features:
   Default: []
 WebServer: # Web服务
@@ -64,6 +65,12 @@ PprofServer: # Pprof服务
   RunMode: debug
   HttpIp: 0.0.0.0
   HttpPort: 6060
+  ReadTimeout: 60
+  WriteTimeout: 60
+MetricsServer: # Prometheus Metrics服务
+  RunMode: debug
+  HttpIp: 0.0.0.0
+  HttpPort: 6080
   ReadTimeout: 60
   WriteTimeout: 60
 FrontendWebServer: # Web前端静态资源服务

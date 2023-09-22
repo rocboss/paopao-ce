@@ -124,7 +124,8 @@ type metricManagerConf struct {
 }
 
 type jobManagerConf struct {
-	MaxOnlineInterval string
+	MaxOnlineInterval     string
+	UpdateMetricsInterval string
 }
 
 type cacheIndexConf struct {
