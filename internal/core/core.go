@@ -15,9 +15,6 @@ type DataService interface {
 	// 话题服务
 	TopicService
 
-	// 广场泡泡服务
-	// IndexPostsService
-
 	// 推文服务
 	TweetService
 	TweetManageService

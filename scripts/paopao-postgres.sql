@@ -44,8 +44,9 @@ CREATE TABLE p_comment (
 	ip VARCHAR(64) NOT NULL DEFAULT '',
 	ip_loc VARCHAR(64) NOT NULL DEFAULT '',
 	is_essence SMALLINT NOT NULL DEFAULT 0,
-	thumbs_up_count int NOT NULL DEFAULT 0, -- 点赞数
-	thumbs_down_count int NOT NULL DEFAULT 0, -- 点踩数
+	reply_count INT NOT NULL DEFAULT 0, -- 回复数
+	thumbs_up_count INT NOT NULL DEFAULT 0, -- 点赞数
+	thumbs_down_count INT NOT NULL DEFAULT 0, -- 点踩数
 	created_on BIGINT NOT NULL DEFAULT 0,
 	modified_on BIGINT NOT NULL DEFAULT 0,
 	deleted_on BIGINT NOT NULL DEFAULT 0,
@@ -89,6 +90,20 @@ CREATE TABLE p_comment_reply (
 	is_del SMALLINT NOT NULL DEFAULT 0
 );
 CREATE INDEX idx_comment_reply_comment_id ON p_comment_reply USING btree (comment_id);
+
+CREATE TABLE p_comment_metric (
+	id BIGSERIAL PRIMARY KEY,
+	comment_id BIGINT NOT NULL,
+	rank_score BIGINT NOT NULL DEFAULT 0,
+	incentive_score INT NOT NULL DEFAULT 0,
+	decay_factor INT NOT NULL DEFAULT 0,
+	motivation_factor INT NOT NULL DEFAULT 0,
+	is_del SMALLINT NOT NULL DEFAULT 0,
+	created_on BIGINT NOT NULL DEFAULT 0,
+	modified_on BIGINT NOT NULL DEFAULT 0,
+	deleted_on BIGINT NOT NULL DEFAULT 0
+);
+CREATE INDEX idx_comment_metric_comment_id_rank_score ON p_comment_metric USING btree (comment_id, rank_score);
 
 DROP TABLE IF EXISTS p_tweet_comment_thumbs;
 CREATE TABLE p_tweet_comment_thumbs (
@@ -280,6 +295,18 @@ CREATE TABLE p_user (
 );
 CREATE UNIQUE INDEX idx_user_username ON p_user USING btree (username);
 CREATE INDEX idx_user_phone ON p_user USING btree (phone);
+
+CREATE TABLE p_user_metric (
+	id BIGSERIAL PRIMARY KEY,
+	user_id BIGINT NOT NULL,
+	tweets_count INT NOT NULL DEFAULT 0,
+	latest_trends_on BIGINT NOT NULL DEFAULT 0,
+	is_del SMALLINT NOT NULL DEFAULT 0,
+	created_on BIGINT NOT NULL DEFAULT 0,
+	modified_on BIGINT NOT NULL DEFAULT 0,
+	deleted_on BIGINT NOT NULL DEFAULT 0
+);
+CREATE INDEX idx_user_metric_user_id_tweets_count_trends ON p_user_metric USING btree (user_id, tweets_count, latest_trends_on);
 
 DROP TABLE IF EXISTS p_following;
 CREATE TABLE p_following (
