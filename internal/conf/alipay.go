@@ -21,16 +21,16 @@ func MustAlipayClient() *alipay.Client {
 			logrus.Fatalf("alipay.New err: %s", err)
 		}
 		// 加载应用公钥证书
-		if err = client.LoadAppPublicCertFromFile(s.AppPublicCertFile); err != nil {
-			logrus.Fatalf("client.LoadAppPublicCertFromFile err: %s\n", err)
+		if err = client.LoadAppCertPublicKeyFromFile(s.AppPublicCertFile); err != nil {
+			logrus.Fatalf("client.LoadAppCertPublicKeyFromFile err: %s\n", err)
 		}
 		// 加载支付宝根证书
 		if err = client.LoadAliPayRootCertFromFile(s.RootCertFile); err != nil {
 			logrus.Fatalf("client.LoadAliPayRootCertFromFile err: %s\n", err)
 		}
 		// 加载支付宝公钥证书
-		if err = client.LoadAliPayPublicCertFromFile(s.PublicCertFile); err != nil {
-			logrus.Fatalf("client.LoadAliPayPublicCertFromFile err: %s\n", err)
+		if err = client.LoadAlipayCertPublicKeyFromFile(s.PublicCertFile); err != nil {
+			logrus.Fatalf("client.LoadAlipayCertPublicKeyFromFile err: %s\n", err)
 		}
 		_alipayClient = client
 	})
