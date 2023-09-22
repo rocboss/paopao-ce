@@ -70,7 +70,7 @@ func (s *commentSrv) GetComments(tweetId int64, style cs.StyleCommentType, limit
 	case cs.StyleCommentHots:
 		// rank_score=评论回复数*2+点赞*4-点踩, order byrank_score DESC
 		db = db.Joins(fmt.Sprintf("LEFT JOIN %s m ON %s.id=m.comment_id AND m.is_del=0", _commentMetric_, _comment_))
-		sort = "is_essence DESC, m.rank_score DESC, id DESC"
+		sort = fmt.Sprintf("is_essence DESC, m.rank_score DESC, %s.id DESC", _comment_)
 	case cs.StyleCommentNewest:
 		sort = "is_essence DESC, id DESC"
 	case cs.StyleCommentDefault:
