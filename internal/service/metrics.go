@@ -43,7 +43,6 @@ func (s *metricsService) String() string {
 
 func newMetricsService() Service {
 	addr := conf.MetricsServerSetting.HttpIp + ":" + conf.MetricsServerSetting.HttpPort
-	// notice this step just to register pprof server to start. don't share server with pprof.
 	server := httpServers.from(addr, func() *httpServer {
 		ds, wc := dao.DataService(), cache.NewWebCache()
 		mux := http.NewServeMux()
