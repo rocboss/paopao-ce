@@ -10,7 +10,6 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/fatih/color"
-	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 )
 
@@ -31,7 +30,7 @@ func (s *pprofService) Version() *semver.Version {
 }
 
 func (s *pprofService) OnInit() error {
-	s.registerRoute(s, func(*gin.Engine) {})
+	s.registerRoute(s, nil)
 	return nil
 }
 
@@ -43,10 +42,8 @@ func newPprofService() Service {
 	addr := conf.PprofServerSetting.HttpIp + ":" + conf.PprofServerSetting.HttpPort
 	// notice this step just to register pprof server to start. don't share server with pprof.
 	server := httpServers.from(addr, func() *httpServer {
-		engine := newWebEngine()
 		return &httpServer{
 			baseServer: newBaseServe(),
-			e:          engine,
 			server: &http.Server{
 				Addr:    addr,
 				Handler: http.DefaultServeMux,
