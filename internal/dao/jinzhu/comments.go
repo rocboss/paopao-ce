@@ -5,6 +5,7 @@
 package jinzhu
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/rocboss/paopao-ce/internal/core"
@@ -61,20 +62,21 @@ func (s *commentSrv) GetCommentThumbsMap(userId int64, tweetId int64) (cs.Commen
 }
 
 func (s *commentSrv) GetComments(tweetId int64, style cs.StyleCommentType, limit int, offset int) (res []*ms.Comment, total int64, err error) {
-	// TODO: 需要优化一下，更精细的调整评论排序策略
-	sort := "id ASC"
+	db := s.db.Table(_comment_)
+	sort := "is_essence DESC, id ASC"
 	switch style {
 	case cs.StyleCommentHots:
-		// TOOD: 暂时简单排序，后续需要根据 rank_score=评论回复数*2+点赞*4-点踩, order byrank_score DESC
-		sort = "thumbs_up_count DESC, id DESC"
+		// rank_score=评论回复数*2+点赞*4-点踩, order byrank_score DESC
+		db = db.Joins(fmt.Sprintf("LEFT JOIN %s m ON %s.id=m.comment_id AND m.is_del=0", _commentMetric_, _comment_))
+		sort = fmt.Sprintf("is_essence DESC, m.rank_score DESC, %s.id DESC", _comment_)
 	case cs.StyleCommentNewest:
-		sort = "id DESC"
+		sort = "is_essence DESC, id DESC"
 	case cs.StyleCommentDefault:
 		fallthrough
 	default:
-		// sort = "id ASC"
+		// nothing
 	}
-	db := s.db.Table(_comment_).Where("post_id=?", tweetId)
+	db = db.Where("post_id=?", tweetId)
 	if err = db.Count(&total).Error; err != nil {
 		return
 	}
@@ -117,11 +119,9 @@ func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*ms.CommentReplyForma
 		"comment_id IN ?": ids,
 		"ORDER":           "id ASC",
 	}, 0, 0)
-
 	if err != nil {
 		return nil, err
 	}
-
 	userIds := []int64{}
 	for _, reply := range replies {
 		userIds = append(userIds, reply.UserID, reply.AtUserID)
@@ -142,44 +142,61 @@ func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*ms.CommentReplyForma
 				replyFormated.AtUser = user.Format()
 			}
 		}
-
 		repliesFormated = append(repliesFormated, replyFormated)
 	}
 
 	return repliesFormated, nil
 }
 
-func (s *commentManageSrv) DeleteComment(comment *ms.Comment) error {
+func (s *commentManageSrv) HighlightComment(userId, commentId int64) (res int8, err error) {
+	post := &dbr.Post{}
+	comment := &dbr.Comment{}
+	db := s.db.Model(comment)
+	if err = db.Where("id=?", commentId).First(comment).Error; err != nil {
+		return
+	}
+	if err = s.db.Table(_post_).Where("id=?", comment.PostID).First(post).Error; err != nil {
+		return
+	}
+	if post.UserID != userId {
+		return 0, cs.ErrNoPermission
+	}
+	comment.IsEssence = 1 - comment.IsEssence
+	return comment.IsEssence, db.Save(comment).Error
+}
+
+func (s *commentManageSrv) DeleteComment(comment *ms.Comment) (err error) {
 	db := s.db.Begin()
 	defer db.Rollback()
-
-	err := comment.Delete(s.db)
-	if err != nil {
-		return err
+	if err = comment.Delete(db); err != nil {
+		return
 	}
 	err = db.Model(&dbr.TweetCommentThumbs{}).Where("user_id=? AND tweet_id=? AND comment_id=?", comment.UserID, comment.PostID, comment.ID).Updates(map[string]any{
 		"deleted_on": time.Now().Unix(),
 		"is_del":     1,
 	}).Error
 	if err != nil {
-		return err
+		return
 	}
 	db.Commit()
-	return nil
+	return
 }
 
 func (s *commentManageSrv) CreateComment(comment *ms.Comment) (*ms.Comment, error) {
 	return comment.Create(s.db)
 }
 
-func (s *commentManageSrv) CreateCommentReply(reply *ms.CommentReply) (*ms.CommentReply, error) {
-	return reply.Create(s.db)
+func (s *commentManageSrv) CreateCommentReply(reply *ms.CommentReply) (res *ms.CommentReply, err error) {
+	if res, err = reply.Create(s.db); err == nil {
+		// 宽松处理错误
+		s.db.Table(_comment_).Where("id=?", reply.CommentID).Update("reply_count", gorm.Expr("reply_count+1"))
+	}
+	return
 }
 
 func (s *commentManageSrv) DeleteCommentReply(reply *ms.CommentReply) (err error) {
 	db := s.db.Begin()
 	defer db.Rollback()
-
 	err = reply.Delete(s.db)
 	if err != nil {
 		return
@@ -192,6 +209,8 @@ func (s *commentManageSrv) DeleteCommentReply(reply *ms.CommentReply) (err error
 	if err != nil {
 		return
 	}
+	// 宽松处理错误
+	db.Table(_comment_).Where("id=?", reply.CommentID).Update("reply_count", gorm.Expr("reply_count-1"))
 	db.Commit()
 	return
 }

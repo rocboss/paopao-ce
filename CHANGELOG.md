@@ -30,52 +30,124 @@ All notable changes to paopao-ce are documented in this file.
   # 模块开启
   VITE_ENABLE_FRIENDS_BAR=true
   ```
-  - add Newest/Hots/Following tweets support in friend bar feature. 
+- add Newest/Hots/Following tweets support in friend bar feature. 
   mirgration database first(sql ddl file in `scripts/migration/**/*_home_timeline.up.sql`):
-  ```sql
-  CREATE TABLE `p_post_metric` (
-	`id` bigint unsigned NOT NULL AUTO_INCREMENT,
-	`post_id` bigint unsigned NOT NULL,
-	`rank_score` bigint unsigned NOT NULL DEFAULT 0,
-	`incentive_score` int unsigned NOT NULL DEFAULT 0,
-	`decay_factor` int unsigned NOT NULL DEFAULT 0,
-	`motivation_factor` int unsigned NOT NULL DEFAULT 0,
-	`is_del` tinyint NOT NULL DEFAULT 0, -- 是否删除, 0否, 1是
-	`created_on` bigint unsigned NOT NULL DEFAULT '0',
-	`modified_on` bigint unsigned NOT NULL DEFAULT '0',
-	`deleted_on` bigint unsigned NOT NULL DEFAULT '0',
-	PRIMARY KEY (`id`) USING BTREE,
-	KEY `idx_post_metric_post_id_rank_score` (`post_id`,`rank_score`) USING BTREE
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+    ```sql
+    CREATE TABLE `p_post_metric` (
+	  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+	  `post_id` bigint unsigned NOT NULL,
+	  `rank_score` bigint unsigned NOT NULL DEFAULT 0,
+	  `incentive_score` int unsigned NOT NULL DEFAULT 0,
+	  `decay_factor` int unsigned NOT NULL DEFAULT 0,
+	  `motivation_factor` int unsigned NOT NULL DEFAULT 0,
+	  `is_del` tinyint NOT NULL DEFAULT 0, -- 是否删除, 0否, 1是
+	  `created_on` bigint unsigned NOT NULL DEFAULT '0',
+	  `modified_on` bigint unsigned NOT NULL DEFAULT '0',
+	  `deleted_on` bigint unsigned NOT NULL DEFAULT '0',
+	  PRIMARY KEY (`id`) USING BTREE,
+	  KEY `idx_post_metric_post_id_rank_score` (`post_id`,`rank_score`) USING BTREE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-  INSERT INTO p_post_metric (post_id, rank_score, created_on) 
-  SELECT id AS post_id, 
-	  comment_count + upvote_count*2 + collection_count*4 AS rank_score,
-	  created_on
-  FROM p_post
-  WHERE is_del=0;
+    INSERT INTO p_post_metric (post_id, rank_score, created_on) 
+    SELECT id AS post_id, 
+	    comment_count + upvote_count*2 + collection_count*4 AS rank_score,
+	    created_on
+    FROM p_post
+    WHERE is_del=0;
 
-  -- 原来的可见性: 0公开 1私密 2好友可见 3关注可见
-  -- 现在的可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开
-  UPDATE p_post a 
-  SET visibility = (
-	  SELECT
-	  CASE visibility 
-		  WHEN 0 THEN 90 
-		  WHEN 1 THEN 0 
-		  WHEN 2 THEN 50 
-		  WHEN 3 THEN 60 
-		  ELSE 0
-	  END 
-	  FROM
-		  p_post b 
-	  WHERE
-		  a.ID = b.ID 
-  );
-  ```sql
-  - add cache support for index/home etc. page.
-  - add hots comments support for post detail page.
-  
+    -- 原来的可见性: 0公开 1私密 2好友可见 3关注可见
+    -- 现在的可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开
+    UPDATE p_post a, p_post b 
+    SET a.visibility = (
+	    CASE b.visibility 
+		    WHEN 0 THEN 90 
+		    WHEN 1 THEN 0 
+		    WHEN 2 THEN 50 
+		    WHEN 3 THEN 60 
+		    ELSE 0
+	    END 
+    )
+    WHERE a.ID = b.ID;
+    ```
+- add cache support for index/home etc. page.
+- add hots comments support for post detail page.
+- add highlight comments support for post detail page.
+    mirgration database first(sql ddl file in `scripts/migration/**/*_comment_esence.up.sql`):
+    ```sql
+      ALTER TABLE `p_comment` ADD COLUMN `is_essence` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否精选';
+    ```
+- add follow/unfollow user support in index/home/collecion/message/post page.
+- add simple prometheus metrics support.
+    add `Metrics` to `conf.yaml` 's `Features` section to enable this feature like below:
+    ```yaml
+    # file config.yaml
+    ...
+    Features:
+      Default: ["Base", "Postgres", "Meili", "LocalOSS", "Metrics", "web"]
+    JobManager: # Cron Job理器的配置参数
+      MaxOnlineInterval: "@every 5m"       # 更新最大在线人数，默认每5分钟更新一次
+      UpdateMetricsInterval: "@every 5m"   # 更新Prometheus指标，默认每5分钟更新一次
+    MetricsServer: # Prometheus Metrics服务
+      RunMode: debug
+      HttpIp: 0.0.0.0
+      HttpPort: 6080
+      ReadTimeout: 60
+      WriteTimeout: 60
+    ...
+    ```
+- add full support for tweet hots comment logic and add cache support for tweet comments.
+    mirgration database first(sql ddl file in `scripts/migration/**/*_rank_metrics.up.sql`):
+    ```sql
+    ALTER TABLE `p_comment` ADD COLUMN `reply_count` int unsigned NOT NULL DEFAULT 0 COMMENT '回复数';
+
+    UPDATE p_comment comment 
+    SET reply_count = (
+      SELECT count(*) FROM p_comment_reply reply WHERE reply.comment_id=comment.id AND reply.is_del=0
+    )
+    WHERE is_del=0;
+
+    CREATE TABLE `p_comment_metric` (
+	    `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  	  `comment_id` bigint unsigned NOT NULL,
+	    `rank_score` bigint unsigned NOT NULL DEFAULT 0,
+	    `incentive_score` int unsigned NOT NULL DEFAULT 0,
+	    `decay_factor` int unsigned NOT NULL DEFAULT 0,
+	    `motivation_factor` int unsigned NOT NULL DEFAULT 0,
+	    `is_del` tinyint NOT NULL DEFAULT 0,
+	    `created_on` bigint unsigned NOT NULL DEFAULT 0,
+	    `modified_on` bigint unsigned NOT NULL DEFAULT 0,
+	    `deleted_on` bigint unsigned NOT NULL DEFAULT 0,
+	    PRIMARY KEY (`id`) USING BTREE,
+	    KEY `idx_comment_metric_comment_id_rank_score` (`comment_id`, `rank_score`) USING BTREE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    INSERT INTO p_comment_metric (comment_id, rank_score, created_on) 
+    SELECT id AS comment_id, 
+	    reply_count*2 + thumbs_up_count*4 - thumbs_down_count AS rank_score,
+	    created_on
+    FROM p_comment
+    WHERE is_del=0;
+
+    CREATE TABLE `p_user_metric` (
+	    `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+	    `user_id` bigint unsigned NOT NULL,
+	    `tweets_count` int unsigned NOT NULL DEFAULT 0,
+      `latest_trends_on` bigint unsigned NOT NULL DEFAULT 0 COMMENT '最新动态时间',
+	    `is_del` tinyint NOT NULL DEFAULT 0,
+	    `created_on` bigint unsigned NOT NULL DEFAULT 0,
+	    `modified_on` bigint unsigned NOT NULL DEFAULT 0,
+	    `deleted_on` bigint unsigned NOT NULL DEFAULT 0,
+	    PRIMARY KEY (`id`) USING BTREE,
+	    KEY `idx_user_metric_user_id_tweets_count_trends` (`user_id`, `tweets_count`, `latest_trends_on`) USING BTREE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    INSERT INTO p_user_metric (user_id, tweets_count) 
+    SELECT user_id, count(*) AS tweets_count
+    FROM p_post
+    WHERE is_del=0
+    GROUP BY user_id;
+    ```
+    
 ## 0.4.2
 ### Fixed
 - fixed remove multi-objects no effects and occurs resource leak error when use Minio as OSS(Object Storage System).[#371](https://github.com/rocboss/paopao-ce/pull/371) [#372](https://github.com/rocboss/paopao-ce/pull/372)  

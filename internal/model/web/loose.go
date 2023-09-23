@@ -7,8 +7,10 @@ package web
 import (
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/pkg/app"
@@ -45,7 +47,9 @@ type TweetCommentsReq struct {
 	PageSize   int              `form:"-" binding:"-"`
 }
 
-type TweetCommentsResp base.PageResp
+type TweetCommentsResp struct {
+	joint.CachePageResp
+}
 
 type TimelineReq struct {
 	BaseInfo   `form:"-"  binding:"-"`
@@ -106,6 +110,13 @@ type TopicListResp struct {
 	ExtralTopics cs.TagList `json:"extral_topics,omitempty"`
 }
 
+type TweetDetailReq struct {
+	SimpleInfo `form:"-"  binding:"-"`
+	TweetId    int64 `form:"id"`
+}
+
+type TweetDetailResp ms.PostFormated
+
 func (r *GetUserTweetsReq) SetPageInfo(page int, pageSize int) {
 	r.Page, r.PageSize = page, pageSize
 }
@@ -134,6 +145,20 @@ func (s CommentStyleType) ToInnerValue() (res cs.StyleCommentType) {
 		fallthrough
 	default:
 		res = cs.StyleCommentDefault
+	}
+	return
+}
+
+func (s CommentStyleType) String() (res string) {
+	switch s {
+	case "default":
+		res = conf.InfixCommentDefault
+	case "hots":
+		res = conf.InfixCommentHots
+	case "newest":
+		res = conf.InfixCommentNewest
+	default:
+		res = "_"
 	}
 	return
 }

@@ -6,6 +6,7 @@ package events
 
 import (
 	"github.com/robfig/cron/v3"
+	"github.com/rocboss/paopao-ce/pkg/types"
 )
 
 type (
@@ -38,31 +39,49 @@ type JobManager interface {
 	Schedule(Job) EntryID
 }
 
-type jobManager struct {
+type emptyJobManager types.Empty
+
+type simpleJobManager struct {
 	m *cron.Cron
 }
 
-func (j *jobManager) Start() {
+func (emptyJobManager) Start() {
+	// nothing
+}
+
+func (emptyJobManager) Stop() {
+	// nothing
+}
+
+func (emptyJobManager) Remove(id EntryID) {
+	// nothing
+}
+
+func (emptyJobManager) Schedule(job Job) EntryID {
+	return 0
+}
+
+func (j *simpleJobManager) Start() {
 	j.m.Start()
 }
 
-func (j *jobManager) Stop() {
+func (j *simpleJobManager) Stop() {
 	j.m.Stop()
 }
 
 // Remove an entry from being run in the future.
-func (j *jobManager) Remove(id EntryID) {
+func (j *simpleJobManager) Remove(id EntryID) {
 	j.m.Remove(id)
 }
 
 // Schedule adds a Job to the Cron to be run on the given schedule.
 // The job is wrapped with the configured Chain.
-func (j *jobManager) Schedule(job Job) EntryID {
+func (j *simpleJobManager) Schedule(job Job) EntryID {
 	return j.m.Schedule(job, job)
 }
 
 func NewJobManager() JobManager {
-	return &jobManager{
+	return &simpleJobManager{
 		m: cron.New(),
 	}
 }

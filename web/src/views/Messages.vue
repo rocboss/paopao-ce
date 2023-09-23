@@ -14,7 +14,7 @@
                 </div>
 
                 <n-list-item v-for="m in list" :key="m.id">
-                    <message-item :message="m" @send-whisper="onSendWhisper"/>
+                    <message-item :message="m" @send-whisper="onSendWhisper" @reload="loadMessages" />
                 </n-list-item>
             </div>
         </n-list>

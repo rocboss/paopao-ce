@@ -13,12 +13,20 @@
 
                 <div v-if="store.state.desktopModelShow">
                     <n-list-item v-for="post in list" :key="post.id">
-                        <post-item :post="post" @send-whisper="onSendWhisper" />
+                        <post-item :post="post" 
+                            :isOwner="store.state.userInfo.id == post.user_id" 
+                            :addFollowAction="true"
+                            @send-whisper="onSendWhisper"
+                            @handle-follow-action="onHandleFollowAction" />
                     </n-list-item>
                 </div>
                 <div v-else>
                     <n-list-item v-for="post in list" :key="post.id">
-                        <mobile-post-item :post="post" @send-whisper="onSendWhisper" />
+                        <mobile-post-item :post="post"
+                            :isOwner="store.state.userInfo.id == post.user_id" 
+                            :addFollowAction="true"
+                            @send-whisper="onSendWhisper"
+                            @handle-follow-action="onHandleFollowAction" />
                     </n-list-item>
                 </div>
             </div>
@@ -40,10 +48,12 @@
 import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
-import { getCollections } from '@/api/user';
+import { useDialog } from 'naive-ui';
+import { getCollections, followUser, unfollowUser } from '@/api/user';
 
 const store = useStore();
 const route = useRoute();
+const dialog = useDialog();
 
 const loading = ref(false);
 const list = ref<any[]>([]);
@@ -72,6 +82,35 @@ const onSendWhisper =  (user: Item.UserInfo) => {
 
 const whisperSuccess = () => {
     showWhisper.value = false;
+};
+
+const onHandleFollowAction = (post: Item.PostProps) => {
+    dialog.success({
+        title: '提示',
+        content:
+            '确定' + (post.user.is_following ? '取消关注' : '关注') + '该用户吗？',
+        positiveText: '确定',
+        negativeText: '取消',
+        onPositiveClick: () => {
+            if (post.user.is_following) {
+                unfollowUser({
+                    user_id: post.user.id,
+                }).then((_res) => {
+                    window.$message.success('操作成功');
+                    post.user.is_following = false;
+                })
+                .catch((_err) => {});
+            } else {
+                followUser({
+                    user_id: post.user.id,
+                }).then((_res) => {
+                    window.$message.success('关注成功');
+                    post.user.is_following = true;
+                })
+                .catch((_err) => {});
+            }
+        },
+    });
 };
 
 const loadPosts = () => {

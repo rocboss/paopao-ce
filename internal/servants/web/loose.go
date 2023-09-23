@@ -32,10 +32,12 @@ type looseSrv struct {
 	ac                       core.AppCache
 	userTweetsExpire         int64
 	idxTweetsExpire          int64
+	tweetCommentsExpire      int64
 	prefixUserTweets         string
 	prefixIdxTweetsNewest    string
 	prefixIdxTweetsHots      string
 	prefixIdxTweetsFollowing string
+	prefixTweetComment       string
 }
 
 func (s *looseSrv) Chain() gin.HandlersChain {
@@ -61,8 +63,14 @@ func (s *looseSrv) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error)
 		logrus.Errorf("Ds.RevampPosts err: %s", err)
 		return nil, web.ErrGetPostsFailed
 	}
-	// TODO: 暂时处理，需要去掉这个步骤
-	visbleTansform(posts)
+	userId := int64(-1)
+	if req.User != nil {
+		userId = req.User.ID
+	}
+	if err := s.PrepareTweets(userId, posts); err != nil {
+		logrus.Errorf("timeline occurs error[2]: %s", err)
+		return nil, web.ErrGetPostsFailed
+	}
 	resp := joint.PageRespFrom(posts, req.Page, req.PageSize, res.Total)
 	return &web.TimelineResp{
 		CachePageResp: joint.CachePageResp{
@@ -98,7 +106,7 @@ func (s *looseSrv) getIndexTweets(req *web.TimelineReq, limit int, offset int) (
 		return nil, web.ErrGetPostsUnknowStyle
 	}
 	if xerr != nil {
-		logrus.Errorf("getIndexTweets occurs error: %s", xerr)
+		logrus.Errorf("getIndexTweets occurs error[1]: %s", xerr)
 		return nil, web.ErrGetPostFailed
 	}
 	postsFormated, verr := s.Ds.MergePosts(posts)
@@ -106,8 +114,14 @@ func (s *looseSrv) getIndexTweets(req *web.TimelineReq, limit int, offset int) (
 		logrus.Errorf("getIndexTweets in merge posts occurs error: %s", verr)
 		return nil, web.ErrGetPostFailed
 	}
-	// TODO: 暂时处理，需要去掉这个步骤
-	visbleTansform(postsFormated)
+	userId := int64(-1)
+	if req.User != nil {
+		userId = req.User.ID
+	}
+	if err := s.PrepareTweets(userId, postsFormated); err != nil {
+		logrus.Errorf("getIndexTweets occurs error[2]: %s", err)
+		return nil, web.ErrGetPostsFailed
+	}
 	resp := joint.PageRespFrom(postsFormated, req.Page, req.PageSize, total)
 	// 缓存处理
 	base.OnCacheRespEvent(s.ac, key, resp, s.idxTweetsExpire)
@@ -119,22 +133,34 @@ func (s *looseSrv) getIndexTweets(req *web.TimelineReq, limit int, offset int) (
 }
 
 func (s *looseSrv) indexTweetsFromCache(req *web.TimelineReq, limit int, offset int) (res *web.TimelineResp, key string, ok bool) {
+	username := "_"
+	if req.User != nil {
+		username = req.User.Username
+	}
 	switch req.Style {
 	case web.StyleTweetsFollowing:
-		username := "_"
-		if req.User != nil {
-			username = req.User.Username
-		}
 		key = fmt.Sprintf("%s%s:%d:%d", s.prefixIdxTweetsFollowing, username, offset, limit)
 	case web.StyleTweetsNewest:
-		key = fmt.Sprintf("%s%d:%d", s.prefixIdxTweetsNewest, offset, limit)
+		key = fmt.Sprintf("%s%s:%d:%d", s.prefixIdxTweetsNewest, username, offset, limit)
 	case web.StyleTweetsHots:
-		key = fmt.Sprintf("%s%d:%d", s.prefixIdxTweetsHots, offset, limit)
+		key = fmt.Sprintf("%s%s:%d:%d", s.prefixIdxTweetsHots, username, offset, limit)
 	default:
 		return
 	}
 	if data, err := s.ac.Get(key); err == nil {
 		ok, res = true, &web.TimelineResp{
+			CachePageResp: joint.CachePageResp{
+				JsonResp: data,
+			},
+		}
+	}
+	return
+}
+
+func (s *looseSrv) tweetCommentsFromCache(req *web.TweetCommentsReq, limit int, offset int) (res *web.TweetCommentsResp, key string, ok bool) {
+	key = fmt.Sprintf("%s%d:%s:%d:%d", s.prefixTweetComment, req.TweetId, req.Style, limit, offset)
+	if data, err := s.ac.Get(key); err == nil {
+		ok, res = true, &web.TweetCommentsResp{
 			CachePageResp: joint.CachePageResp{
 				JsonResp: data,
 			},
@@ -198,7 +224,7 @@ func (s *looseSrv) userTweetsFromCache(req *web.GetUserTweetsReq, user *cs.VistU
 func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
 	stars, totalRows, err := s.Ds.ListUserStarTweets(user, req.PageSize, (req.Page-1)*req.PageSize)
 	if err != nil {
-		logrus.Errorf("Ds.GetUserPostStars err: %s", err)
+		logrus.Errorf("getUserStarTweets err[1]: %s", err)
 		return nil, web.ErrGetStarsFailed
 	}
 	var posts []*ms.Post
@@ -212,8 +238,14 @@ func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUse
 		logrus.Errorf("Ds.MergePosts err: %s", err)
 		return nil, web.ErrGetStarsFailed
 	}
-	// TODO: 暂时处理，需要去掉这个步骤
-	visbleTansform(postsFormated)
+	userId := int64(-1)
+	if req.User != nil {
+		userId = req.User.ID
+	}
+	if err := s.PrepareTweets(userId, postsFormated); err != nil {
+		logrus.Errorf("getUserStarTweets err[2]: %s", err)
+		return nil, web.ErrGetPostsFailed
+	}
 	resp := joint.PageRespFrom(postsFormated, req.Page, req.PageSize, totalRows)
 	return &web.GetUserTweetsResp{
 		CachePageResp: joint.CachePageResp{
@@ -233,21 +265,27 @@ func (s *looseSrv) listUserTweets(req *web.GetUserTweetsReq, user *cs.VistUser) 
 	} else if req.Style == web.UserPostsStyleMedia {
 		tweets, total, err = s.Ds.ListUserMediaTweets(user, req.PageSize, (req.Page-1)*req.PageSize)
 	} else {
-		logrus.Errorf("s.listUserTweets unknow style: %s", req.Style)
+		logrus.Errorf("s.listUserTweets unknow style[1]: %s", req.Style)
 		return nil, web.ErrGetPostsFailed
 	}
 	if err != nil {
-		logrus.Errorf("s.listUserTweets err: %s", err)
+		logrus.Errorf("s.listUserTweets err[2]: %s", err)
 		return nil, web.ErrGetPostsFailed
 	}
-	postFormated, err := s.Ds.MergePosts(tweets)
+	postsFormated, err := s.Ds.MergePosts(tweets)
 	if err != nil {
-		logrus.Errorf("s.listUserTweets err: %s", err)
+		logrus.Errorf("s.listUserTweets err[3]: %s", err)
 		return nil, web.ErrGetPostsFailed
 	}
-	// TODO: 暂时处理，需要去掉这个步骤
-	visbleTansform(postFormated)
-	resp := joint.PageRespFrom(postFormated, req.Page, req.PageSize, total)
+	userId := int64(-1)
+	if req.User != nil {
+		userId = req.User.ID
+	}
+	if err := s.PrepareTweets(userId, postsFormated); err != nil {
+		logrus.Errorf("s.listUserTweets err[4]: %s", err)
+		return nil, web.ErrGetPostsFailed
+	}
+	resp := joint.PageRespFrom(postsFormated, req.Page, req.PageSize, total)
 	return &web.GetUserTweetsResp{
 		CachePageResp: joint.CachePageResp{
 			Data: resp,
@@ -281,8 +319,14 @@ func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq, user *cs.VistUse
 		logrus.Errorf("s.GetTweetList error[2]: %s", err)
 		return nil, web.ErrGetPostsFailed
 	}
-	// TODO: 暂时处理，需要去掉这个步骤
-	visbleTansform(postsFormated)
+	userId := int64(-1)
+	if req.User != nil {
+		userId = req.User.ID
+	}
+	if err := s.PrepareTweets(userId, postsFormated); err != nil {
+		logrus.Errorf("s.GetTweetList error[3]: %s", err)
+		return nil, web.ErrGetPostsFailed
+	}
 	resp := joint.PageRespFrom(postsFormated, req.Page, req.PageSize, total)
 	return &web.GetUserTweetsResp{
 		CachePageResp: joint.CachePageResp{
@@ -363,9 +407,18 @@ func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Err
 	}, nil
 }
 
-func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsResp, mir.Error) {
-	comments, totalRows, err := s.Ds.GetComments(req.TweetId, req.Style.ToInnerValue(), req.PageSize, (req.Page-1)*req.PageSize)
-	if err != nil {
+func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (res *web.TweetCommentsResp, err mir.Error) {
+	limit, offset := req.PageSize, (req.Page-1)*req.PageSize
+	// 尝试直接从缓存中获取数据
+	key, ok := "", false
+	if res, key, ok = s.tweetCommentsFromCache(req, limit, offset); ok {
+		logrus.Debugf("looseSrv.TweetComments from cache key:%s", key)
+		return
+	}
+
+	comments, totalRows, xerr := s.Ds.GetComments(req.TweetId, req.Style.ToInnerValue(), limit, offset)
+	if xerr != nil {
+		logrus.Errorf("looseSrv.TweetComments occurs error[1]: %s", xerr)
 		return nil, web.ErrGetCommentsFailed
 	}
 
@@ -376,25 +429,29 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 		commentIDs = append(commentIDs, comment.ID)
 	}
 
-	users, err := s.Ds.GetUsersByIDs(userIDs)
-	if err != nil {
+	users, xerr := s.Ds.GetUsersByIDs(userIDs)
+	if xerr != nil {
+		logrus.Errorf("looseSrv.TweetComments occurs error[2]: %s", xerr)
 		return nil, web.ErrGetCommentsFailed
 	}
 
-	contents, err := s.Ds.GetCommentContentsByIDs(commentIDs)
-	if err != nil {
+	contents, xerr := s.Ds.GetCommentContentsByIDs(commentIDs)
+	if xerr != nil {
+		logrus.Errorf("looseSrv.TweetComments occurs error[3]: %s", xerr)
 		return nil, web.ErrGetCommentsFailed
 	}
 
-	replies, err := s.Ds.GetCommentRepliesByID(commentIDs)
-	if err != nil {
+	replies, xerr := s.Ds.GetCommentRepliesByID(commentIDs)
+	if xerr != nil {
+		logrus.Errorf("looseSrv.TweetComments occurs error[4]: %s", xerr)
 		return nil, web.ErrGetCommentsFailed
 	}
 
 	var commentThumbs, replyThumbs cs.CommentThumbsMap
 	if req.Uid > 0 {
-		commentThumbs, replyThumbs, err = s.Ds.GetCommentThumbsMap(req.Uid, req.TweetId)
-		if err != nil {
+		commentThumbs, replyThumbs, xerr = s.Ds.GetCommentThumbsMap(req.Uid, req.TweetId)
+		if xerr != nil {
+			logrus.Errorf("looseSrv.TweetComments occurs error[5]: %s", xerr)
 			return nil, web.ErrGetCommentsFailed
 		}
 	}
@@ -434,8 +491,41 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 		}
 		commentsFormated = append(commentsFormated, commentFormated)
 	}
-	resp := base.PageRespFrom(commentsFormated, req.Page, req.PageSize, totalRows)
-	return (*web.TweetCommentsResp)(resp), nil
+	resp := joint.PageRespFrom(commentsFormated, req.Page, req.PageSize, totalRows)
+	// 缓存处理
+	base.OnCacheRespEvent(s.ac, key, resp, s.tweetCommentsExpire)
+	return &web.TweetCommentsResp{
+		CachePageResp: joint.CachePageResp{
+			Data: resp,
+		},
+	}, nil
+}
+
+func (s *looseSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir.Error) {
+	post, err := s.Ds.GetPostByID(req.TweetId)
+	if err != nil {
+		return nil, web.ErrGetPostFailed
+	}
+	postContents, err := s.Ds.GetPostContentsByIDs([]int64{post.ID})
+	if err != nil {
+		return nil, web.ErrGetPostFailed
+	}
+	users, err := s.Ds.GetUsersByIDs([]int64{post.UserID})
+	if err != nil {
+		return nil, web.ErrGetPostFailed
+	}
+	// 数据整合
+	postFormated := post.Format()
+	for _, user := range users {
+		postFormated.User = user.Format()
+	}
+	for _, content := range postContents {
+		if content.PostID == post.ID {
+			postFormated.Contents = append(postFormated.Contents, content.Format())
+		}
+	}
+	s.PrepareTweet(req.Uid, postFormated)
+	return (*web.TweetDetailResp)(postFormated), nil
 }
 
 func newLooseSrv(s *base.DaoServant, ac core.AppCache) api.Loose {
@@ -445,9 +535,11 @@ func newLooseSrv(s *base.DaoServant, ac core.AppCache) api.Loose {
 		ac:                       ac,
 		userTweetsExpire:         cs.UserTweetsExpire,
 		idxTweetsExpire:          cs.IndexTweetsExpire,
+		tweetCommentsExpire:      cs.TweetCommentsExpire,
 		prefixUserTweets:         conf.PrefixUserTweets,
 		prefixIdxTweetsNewest:    conf.PrefixIdxTweetsNewest,
 		prefixIdxTweetsHots:      conf.PrefixIdxTweetsHots,
 		prefixIdxTweetsFollowing: conf.PrefixIdxTweetsFollowing,
+		prefixTweetComment:       conf.PrefixTweetComment,
 	}
 }

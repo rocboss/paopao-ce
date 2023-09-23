@@ -65,6 +65,11 @@ func (s *commentManageSrv) DeleteComment(comment *ms.Comment) error {
 	return nil
 }
 
+func (s *commentManageSrv) HighlightComment(userId, commentId int64) (res int8, err error) {
+	// TODO
+	return 0, cs.ErrNotImplemented
+}
+
 func (s *commentManageSrv) CreateComment(comment *ms.Comment) (*ms.Comment, error) {
 	// TODO
 	debug.NotImplemented()
