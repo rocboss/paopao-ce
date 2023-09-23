@@ -143,6 +143,10 @@ import {
     BookmarkOutline,
     ChatboxOutline,
     ShareSocialOutline,
+    PersonAddOutline,
+    PersonRemoveOutline,
+    BodyOutline,
+    WalkOutline,
 } from '@vicons/ionicons5';
 import { MoreHorizFilled } from '@vicons/material';
 import copy from "copy-to-clipboard";
@@ -151,10 +155,15 @@ const router = useRouter();
 const store = useStore();
 const props = withDefaults(defineProps<{
     post: Item.PostProps,
+    isOwner: boolean,
+    addFriendAction: boolean,
+    addFollowAction: boolean,
 }>(), {});
 
 const emit = defineEmits<{
-    (e: 'send-whisper', user: Item.UserInfo): void;
+    (e: 'send-whisper', user: Item.UserInfo): void
+    (e: 'handle-follow-action', user: Item.PostProps): void
+    (e: 'handle-friend-action', user: Item.PostProps): void
 }>();
 
 const renderIcon = (icon: Component) => {
@@ -167,19 +176,43 @@ const renderIcon = (icon: Component) => {
 
 const tweetOptions = computed(() => {
     let options: DropdownOption[] = [];
-    // TODO: f*k 为什么这里会卡？
-    // if (store.state.userinfo.id > 0) {
-    //     options.push({
-    //         label: '私信',
-    //         key: 'whisper',
-    //         icon: renderIcon(PaperPlaneOutline)
-    //     });
-    // }
-    options.push({
-        label: '私信',
-        key: 'whisper',
-        icon: renderIcon(PaperPlaneOutline)
-    });
+    if (!props.isOwner) {
+        options.push({
+            label: '私信',
+            key: 'whisper',
+            icon: renderIcon(PaperPlaneOutline)
+        });
+    }
+    if (!props.isOwner && props.addFollowAction) {
+        if (props.post.user.is_following) {
+            options.push({
+                label: '取消关注',
+                key: 'unfollow',
+                icon: renderIcon(WalkOutline)
+            })
+        } else {
+            options.push({
+                label: '关注',
+                key: 'follow',
+                icon: renderIcon(BodyOutline)
+            })
+        }
+    }
+    if (!props.isOwner && props.addFriendAction) {
+        if (props.post.user.is_friend) {
+            options.push({
+                label: '删除好友',
+                key: 'delete',
+                icon: renderIcon(PersonRemoveOutline)
+            });
+        } else {
+            options.push({
+                label: '添加朋友',
+                key: 'requesting',
+                icon: renderIcon(PersonAddOutline)
+            });
+        }
+    }
     options.push({
         label: '复制链接',
         key: 'copyTweetLink',
@@ -189,7 +222,7 @@ const tweetOptions = computed(() => {
 });
 
 const handleTweetAction = async (
-    item: 'copyTweetLink' | 'whisper'
+    item: 'copyTweetLink' | 'whisper' | 'follow' | 'unfollow' | 'delete' | 'requesting'
 ) => {
     switch (item) {
         case 'copyTweetLink':
@@ -198,6 +231,14 @@ const handleTweetAction = async (
             break;
         case 'whisper':
             emit('send-whisper', props.post.user);
+            break;
+        case 'delete':
+        case 'requesting':
+            emit('handle-friend-action', props.post);
+            break;
+        case 'follow':
+        case 'unfollow':
+            emit('handle-follow-action', props.post);
             break;
         default:
             break;

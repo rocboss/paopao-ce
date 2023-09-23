@@ -174,6 +174,10 @@ declare module NetReq {
 
   interface PostDeleteComment {}
 
+  interface PostHighlightComment {
+    highlight_status: import("@/utils/IEnum").YesNoEnum;
+  }
+
   type PostCreateCommentReply = Item.ReplyProps;
 
   interface PostDeleteCommentReply {}

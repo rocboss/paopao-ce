@@ -37,3 +37,11 @@ type FollowingManageService interface {
 	GetFollowCount(userId int64) (int64, int64, error)
 	IsFollow(userId int64, followId int64) bool
 }
+
+// UserRelationService 用户关系服务
+type UserRelationService interface {
+	MyFriendIds(userId int64) ([]int64, error)
+	MyFollowIds(userId int64) ([]int64, error)
+	IsMyFriend(userId int64, friendIds ...int64) (map[int64]bool, error)
+	IsMyFollow(userId int64, followIds ...int64) (map[int64]bool, error)
+}

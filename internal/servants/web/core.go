@@ -125,6 +125,10 @@ func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mi
 		logrus.Errorf("Ds.GetMessages err: %v\n", err)
 		return nil, web.ErrGetMessagesFailed
 	}
+	if err = s.PrepareMessages(req.UserId, messages); err != nil {
+		logrus.Errorf("get messages err[2]: %v\n", err)
+		return nil, web.ErrGetMessagesFailed
+	}
 	totalRows, _ := s.Ds.GetMessageCount(req.UserId)
 	resp := base.PageRespFrom(messages, req.Page, req.PageSize, totalRows)
 	return (*web.GetMessagesResp)(resp), nil
@@ -192,7 +196,6 @@ func (s *coreSrv) GetCollections(req *web.GetCollectionsReq) (*web.GetCollection
 		logrus.Errorf("Ds.GetUserPostCollectionCount err: %s", err)
 		return nil, web.ErrGetCollectionsFailed
 	}
-
 	var posts []*ms.Post
 	for _, collection := range collections {
 		posts = append(posts, collection.Post)
@@ -202,8 +205,11 @@ func (s *coreSrv) GetCollections(req *web.GetCollectionsReq) (*web.GetCollection
 		logrus.Errorf("Ds.MergePosts err: %s", err)
 		return nil, web.ErrGetCollectionsFailed
 	}
+	if err = s.PrepareTweets(req.UserId, postsFormated); err != nil {
+		logrus.Errorf("get collections prepare tweets err: %s", err)
+		return nil, web.ErrGetCollectionsFailed
+	}
 	resp := base.PageRespFrom(postsFormated, req.Page, req.PageSize, totalRows)
-
 	return (*web.GetCollectionsResp)(resp), nil
 }
 

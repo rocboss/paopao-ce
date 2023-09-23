@@ -16,7 +16,7 @@ import (
 
 var (
 	_defaultEventManager EventManager
-	_defaultJobManager   JobManager
+	_defaultJobManager   JobManager = emptyJobManager{}
 	_onceInitial         sync.Once
 )
 

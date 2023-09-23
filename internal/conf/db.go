@@ -23,6 +23,7 @@ const (
 	TableAttachment         = "attachment"
 	TableCaptcha            = "captcha"
 	TableComment            = "comment"
+	TableCommentMetric      = "comment_metric"
 	TableCommentContent     = "comment_content"
 	TableCommentReply       = "comment_reply"
 	TableFollowing          = "following"
@@ -39,6 +40,7 @@ const (
 	TablePostStar           = "post_star"
 	TableTag                = "tag"
 	TableUser               = "user"
+	TableUserMetric         = "user_metric"
 	TableWalletRecharge     = "wallet_recharge"
 	TableWalletStatement    = "wallet_statement"
 )

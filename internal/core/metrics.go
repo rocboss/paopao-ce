@@ -9,7 +9,19 @@ import (
 )
 
 type TweetMetricServantA interface {
-	UpdateRankScore(metric *cs.TweetMetric) error
+	UpdateTweetMetric(metric *cs.TweetMetric) error
 	AddTweetMetric(postId int64) error
 	DeleteTweetMetric(postId int64) error
+}
+
+type CommentMetricServantA interface {
+	UpdateCommentMetric(metric *cs.CommentMetric) error
+	AddCommentMetric(commentId int64) error
+	DeleteCommentMetric(commentId int64) error
+}
+
+type UserMetricServantA interface {
+	UpdateUserMetric(userId int64, action uint8) error
+	AddUserMetric(userId int64) error
+	DeleteUserMetric(userId int64) error
 }

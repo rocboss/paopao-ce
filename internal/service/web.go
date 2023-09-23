@@ -30,7 +30,7 @@ func (s *webService) Name() string {
 }
 
 func (s *webService) Version() *semver.Version {
-	return semver.MustParse("v0.1.0")
+	return semver.MustParse("v0.5.0")
 }
 
 func (s *webService) OnInit() error {
