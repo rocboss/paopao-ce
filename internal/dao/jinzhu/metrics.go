@@ -15,7 +15,15 @@ type tweetMetricSrvA struct {
 	db *gorm.DB
 }
 
-func (s *tweetMetricSrvA) UpdateRankScore(metric *cs.TweetMetric) error {
+type commentMetricSrvA struct {
+	db *gorm.DB
+}
+
+type userMetricSrvA struct {
+	db *gorm.DB
+}
+
+func (s *tweetMetricSrvA) UpdateTweetMetric(metric *cs.TweetMetric) error {
 	return s.db.Transaction(func(tx *gorm.DB) (err error) {
 		postMetric := &dbr.PostMetric{PostId: metric.PostId}
 		db := s.db.Model(postMetric).Where("post_id=?", metric.PostId)
@@ -35,8 +43,54 @@ func (s *tweetMetricSrvA) DeleteTweetMetric(postId int64) (err error) {
 	return (&dbr.PostMetric{PostId: postId}).Delete(s.db)
 }
 
-func NewTweetMetricServentA(db *gorm.DB) core.TweetMetricServantA {
+func (s *commentMetricSrvA) UpdateCommentMetric(metric *cs.CommentMetric) error {
+	return s.db.Transaction(func(tx *gorm.DB) (err error) {
+		commentMetric := &dbr.CommentMetric{CommentId: metric.CommentId}
+		db := s.db.Model(commentMetric).Where("comment_id=?", metric.CommentId)
+		db.First(commentMetric)
+		commentMetric.RankScore = metric.RankScore(commentMetric.MotivationFactor)
+		err = db.Save(commentMetric).Error
+		return
+	})
+}
+
+func (s *commentMetricSrvA) AddCommentMetric(commentId int64) (err error) {
+	_, err = (&dbr.CommentMetric{CommentId: commentId}).Create(s.db)
+	return
+}
+
+func (s *commentMetricSrvA) DeleteCommentMetric(commentId int64) (err error) {
+	return (&dbr.CommentMetric{CommentId: commentId}).Delete(s.db)
+}
+
+func (s *userMetricSrvA) UpdateUserMetric(userId int64, action uint8) error {
+	// TODO
+	return cs.ErrNotImplemented
+}
+
+func (s *userMetricSrvA) AddUserMetric(userId int64) (err error) {
+	_, err = (&dbr.UserMetric{UserId: userId}).Create(s.db)
+	return
+}
+
+func (s *userMetricSrvA) DeleteUserMetric(userId int64) (err error) {
+	return (&dbr.UserMetric{UserId: userId}).Delete(s.db)
+}
+
+func newTweetMetricServentA(db *gorm.DB) core.TweetMetricServantA {
 	return &tweetMetricSrvA{
+		db: db,
+	}
+}
+
+func newCommentMetricServentA(db *gorm.DB) core.CommentMetricServantA {
+	return &commentMetricSrvA{
+		db: db,
+	}
+}
+
+func newUserMetricServentA(db *gorm.DB) core.UserMetricServantA {
+	return &userMetricSrvA{
 		db: db,
 	}
 }

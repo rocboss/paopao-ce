@@ -19,13 +19,53 @@ type PostMetric struct {
 	MotivationFactor int
 }
 
-func (p *PostMetric) Create(db *gorm.DB) (*PostMetric, error) {
-	err := db.Create(&p).Error
-	return p, err
+type CommentMetric struct {
+	*Model
+	CommentId        int64
+	RankScore        int64
+	IncentiveScore   int
+	DecayFactor      int
+	MotivationFactor int
 }
 
-func (p *PostMetric) Delete(db *gorm.DB) error {
-	return db.Model(p).Where("post_id", p.PostId).Updates(map[string]any{
+type UserMetric struct {
+	*Model
+	UserId         int64
+	TweetsCount    int
+	LatestTrendsOn int64
+}
+
+func (m *PostMetric) Create(db *gorm.DB) (*PostMetric, error) {
+	err := db.Create(&m).Error
+	return m, err
+}
+
+func (m *PostMetric) Delete(db *gorm.DB) error {
+	return db.Model(m).Where("post_id", m.PostId).Updates(map[string]any{
+		"deleted_on": time.Now().Unix(),
+		"is_del":     1,
+	}).Error
+}
+
+func (m *CommentMetric) Create(db *gorm.DB) (*CommentMetric, error) {
+	err := db.Create(&m).Error
+	return m, err
+}
+
+func (m *CommentMetric) Delete(db *gorm.DB) error {
+	return db.Model(m).Where("comment_id", m.CommentId).Updates(map[string]any{
+		"deleted_on": time.Now().Unix(),
+		"is_del":     1,
+	}).Error
+}
+
+func (m *UserMetric) Create(db *gorm.DB) (*UserMetric, error) {
+	err := db.Create(&m).Error
+	return m, err
+}
+
+func (m *UserMetric) Delete(db *gorm.DB) error {
+	return db.Model(m).Where("user_id", m.UserId).Updates(map[string]any{
 		"deleted_on": time.Now().Unix(),
 		"is_del":     1,
 	}).Error

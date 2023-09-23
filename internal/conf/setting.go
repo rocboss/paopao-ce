@@ -102,8 +102,10 @@ type cacheConf struct {
 	UnreadMsgExpire      int64
 	UserTweetsExpire     int64
 	IndexTweetsExpire    int64
+	TweetCommentsExpire  int64
 	OnlineUserExpire     int64
 	UserInfoExpire       int64
+	UserRelationExpire   int64
 }
 
 type eventManagerConf struct {
@@ -123,7 +125,8 @@ type metricManagerConf struct {
 }
 
 type jobManagerConf struct {
-	MaxOnlineInterval string
+	MaxOnlineInterval     string
+	UpdateMetricsInterval string
 }
 
 type cacheIndexConf struct {
@@ -344,6 +347,7 @@ func (s *databaseConf) TableNames() (res TableNameMap) {
 		TableAttachment,
 		TableCaptcha,
 		TableComment,
+		TableCommentMetric,
 		TableCommentContent,
 		TableCommentReply,
 		TableFollowing,
@@ -360,6 +364,7 @@ func (s *databaseConf) TableNames() (res TableNameMap) {
 		TablePostStar,
 		TableTag,
 		TableUser,
+		TableUserMetric,
 		TableWalletRecharge,
 		TableWalletStatement,
 	}

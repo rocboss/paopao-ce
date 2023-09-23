@@ -247,6 +247,10 @@ declare module NetParams {
     id: number;
   }
 
+  interface PostHighlightComment {
+    id: number;
+  }
+
   interface PostCreateCommentReply {
     /** 艾特的用户UID */
     at_user_id: number;

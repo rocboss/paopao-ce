@@ -18,6 +18,7 @@ type Loose interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
+	TweetDetail(*web.TweetDetailReq) (*web.TweetDetailResp, mir.Error)
 	TweetComments(*web.TweetCommentsReq) (*web.TweetCommentsResp, mir.Error)
 	TopicList(*web.TopicListReq) (*web.TopicListResp, mir.Error)
 	GetUserProfile(*web.GetUserProfileReq) (*web.GetUserProfileResp, mir.Error)
@@ -35,6 +36,20 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 	router.Use(middlewares...)
 
 	// register routes info to router
+	router.Handle("GET", "/post", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.TweetDetailReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.TweetDetail(req)
+		s.Render(c, resp, err)
+	})
 	router.Handle("GET", "/post/comments", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
@@ -47,7 +62,12 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 			return
 		}
 		resp, err := s.TweetComments(req)
-		s.Render(c, resp, err)
+		if err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		var rv _render_ = resp
+		rv.Render(c)
 	})
 	router.Handle("GET", "/tags", func(c *gin.Context) {
 		select {
@@ -123,6 +143,10 @@ type UnimplementedLooseServant struct{}
 
 func (UnimplementedLooseServant) Chain() gin.HandlersChain {
 	return nil
+}
+
+func (UnimplementedLooseServant) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
 func (UnimplementedLooseServant) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsResp, mir.Error) {

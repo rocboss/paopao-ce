@@ -9,11 +9,24 @@ import (
 	"fmt"
 
 	"github.com/alimy/tryst/event"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/events"
 	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/model/web"
+)
+
+const (
+	_commentActionCreate uint8 = iota
+	_commentActionDelete
+	_commentActionThumbsUp
+	_commentActionThumbsDown
+	_commentActionReplyCreate
+	_commentActionReplyDelete
+	_commentActionReplyThumbsUp
+	_commentActionReplyThumbsDown
 )
 
 type cacheUnreadMsgEvent struct {
@@ -28,6 +41,25 @@ type createMessageEvent struct {
 	ds      core.DataService
 	wc      core.WebCache
 	message *ms.Message
+}
+
+type commentActionEvent struct {
+	event.UnimplementedEvent
+	ds        core.DataService
+	ac        core.AppCache
+	tweetId   int64
+	commentId int64
+	action    uint8
+}
+
+func onCommentActionEvent(tweetId int64, commentId int64, action uint8) {
+	events.OnEvent(&commentActionEvent{
+		ds:        _ds,
+		ac:        _ac,
+		tweetId:   tweetId,
+		commentId: commentId,
+		action:    action,
+	})
 }
 
 func onCacheUnreadMsgEvent(uid int64) {
@@ -85,4 +117,52 @@ func (e *createMessageEvent) Action() (err error) {
 		err = e.wc.DelUnreadMsgCountResp(e.message.ReceiverUserID)
 	}
 	return
+}
+
+func (e *commentActionEvent) Name() string {
+	return "updateCommentMetricEvent"
+}
+
+func (e *commentActionEvent) Action() (err error) {
+	// logrus.Debugf("trigger commentActionEvent action commentId[%d]", e.commentId)
+	switch e.action {
+	case _commentActionCreate:
+		err = e.ds.AddCommentMetric(e.commentId)
+		e.expireAllStyleComments()
+	case _commentActionDelete:
+		err = e.ds.DeleteCommentMetric(e.commentId)
+		e.expireAllStyleComments()
+	case _commentActionReplyCreate, _commentActionReplyDelete:
+		err = e.updateCommentMetric()
+		e.expireAllStyleComments()
+	case _commentActionThumbsUp, _commentActionThumbsDown:
+		err = e.updateCommentMetric()
+		e.expireHotsComments()
+	default:
+		// nothing
+	}
+	return
+}
+
+func (e *commentActionEvent) expireHotsComments() {
+	e.ac.DelAny(fmt.Sprintf("%s%d:%s:*", conf.PrefixTweetComment, e.tweetId, conf.InfixCommentHots))
+}
+
+func (e *commentActionEvent) expireAllStyleComments() {
+	e.ac.DelAny(fmt.Sprintf("%s%d:*", conf.PrefixTweetComment, e.tweetId))
+}
+
+func (e *commentActionEvent) updateCommentMetric() error {
+	// logrus.Debug("trigger commentActionEvent action[updateCommentMetric]")
+	comment, err := e.ds.GetCommentByID(e.commentId)
+	if err != nil {
+		return err
+	}
+	e.ds.UpdateCommentMetric(&cs.CommentMetric{
+		CommentId:       e.commentId,
+		ReplyCount:      comment.ReplyCount,
+		ThumbsUpCount:   comment.ThumbsUpCount,
+		ThumbsDownCount: comment.ThumbsDownCount,
+	})
+	return nil
 }

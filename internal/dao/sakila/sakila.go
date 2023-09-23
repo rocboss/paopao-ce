@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/dao/security"
@@ -35,10 +34,12 @@ type dataSrv struct {
 	core.CommentManageService
 	core.UserManageService
 	core.ContactManageService
+	core.UserRelationService
 	core.FollowingManageService
 	core.SecurityService
 	core.AttachmentCheckService
 	core.TweetMetricServantA
+	core.CommentMetricServantA
 }
 
 type webDataSrvA struct {
@@ -51,10 +52,12 @@ type webDataSrvA struct {
 func NewDataService() (core.DataService, core.VersionInfo) {
 	lazyInitial()
 	pvs := security.NewPhoneVerifyService()
-	tms := NewTweetMetricServentA(_db)
+	cms := newCommentMetricServentA(_db)
+	tms := newTweetMetricServentA(_db)
 	cis := cache.NewEventCacheIndexSrv(tms)
 	ds := &dataSrv{
 		TweetMetricServantA:    tms,
+		CommentMetricServantA:  cms,
 		WalletService:          newWalletService(_db),
 		MessageService:         newMessageService(_db),
 		TopicService:           newTopicService(_db),
@@ -74,16 +77,13 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 
 func NewWebDataServantA() (core.WebDataServantA, core.VersionInfo) {
 	lazyInitial()
-
-	tms := NewTweetMetricServentA(_db)
+	tms := newTweetMetricServentA(_db)
 	cis := cache.NewEventCacheIndexSrv(tms)
-
-	db := conf.MustSqlxDB()
 	ds := &webDataSrvA{
-		TopicServantA:       newTopicServantA(db),
-		TweetServantA:       newTweetServantA(db),
-		TweetManageServantA: newTweetManageServantA(db, cis),
-		TweetHelpServantA:   newTweetHelpServantA(db),
+		TopicServantA:       newTopicServantA(_db),
+		TweetServantA:       newTweetServantA(_db),
+		TweetManageServantA: newTweetManageServantA(_db, cis),
+		TweetHelpServantA:   newTweetHelpServantA(_db),
 	}
 	return ds, ds
 }

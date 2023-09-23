@@ -147,6 +147,16 @@ type DeleteCommentReq struct {
 	BaseInfo `json:"-" binding:"-"`
 	ID       int64 `json:"id" binding:"required"`
 }
+
+type HighlightCommentReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	CommentId  int64 `json:"id" binding:"required"`
+}
+
+type HighlightCommentResp struct {
+	HighlightStatus int8 `json:"highlight_status"`
+}
+
 type DeleteCommentReplyReq struct {
 	BaseInfo `json:"-" binding:"-"`
 	ID       int64 `json:"id" binding:"required"`

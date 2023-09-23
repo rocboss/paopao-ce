@@ -18,7 +18,15 @@ type tweetMetricSrvA struct {
 	q *cc.TweetMetrics
 }
 
-func (s *tweetMetricSrvA) UpdateRankScore(metric *cs.TweetMetric) error {
+type commentMetricSrvA struct {
+	*sqlxSrv
+}
+
+type userMetricSrvA struct {
+	*sqlxSrv
+}
+
+func (s *tweetMetricSrvA) UpdateTweetMetric(metric *cs.TweetMetric) error {
 	return s.db.Withx(func(tx *sqlx.Tx) error {
 		var motivationFactor int
 		tx.Stmtx(s.q.GetMotivationFactor).Get(&motivationFactor, metric.PostId)
@@ -37,9 +45,51 @@ func (s *tweetMetricSrvA) DeleteTweetMetric(postId int64) error {
 	return err
 }
 
-func NewTweetMetricServentA(db *sqlx.DB) core.TweetMetricServantA {
+func (s *commentMetricSrvA) UpdateCommentMetric(metric *cs.CommentMetric) error {
+	// TDOO
+	return cs.ErrNotImplemented
+}
+
+func (s *commentMetricSrvA) AddCommentMetric(commentId int64) (err error) {
+	// TDOO
+	return cs.ErrNotImplemented
+}
+
+func (s *commentMetricSrvA) DeleteCommentMetric(commentId int64) (err error) {
+	// TDOO
+	return cs.ErrNotImplemented
+}
+
+func (s *userMetricSrvA) UpdateUserMetric(userId int64, action uint8) error {
+	// TODO
+	return cs.ErrNotImplemented
+}
+
+func (s *userMetricSrvA) AddUserMetric(userId int64) (err error) {
+	// TDOO
+	return cs.ErrNotImplemented
+}
+
+func (s *userMetricSrvA) DeleteUserMetric(userId int64) (err error) {
+	// TDOO
+	return cs.ErrNotImplemented
+}
+
+func newTweetMetricServentA(db *sqlx.DB) core.TweetMetricServantA {
 	return &tweetMetricSrvA{
 		sqlxSrv: newSqlxSrv(db),
 		q:       ccBuild(db, cc.BuildTweetMetrics),
+	}
+}
+
+func newCommentMetricServentA(db *sqlx.DB) core.CommentMetricServantA {
+	return &commentMetricSrvA{
+		sqlxSrv: newSqlxSrv(db),
+	}
+}
+
+func newUserMetricServentA(db *sqlx.DB) core.UserMetricServantA {
+	return &userMetricSrvA{
+		sqlxSrv: newSqlxSrv(db),
 	}
 }

@@ -37,7 +37,7 @@
                     </div>
 
                     <n-list-item v-for="comment in comments" :key="comment.id">
-                        <comment-item :comment="comment" @reload="reloadComments" />
+                        <comment-item :comment="comment" :postUserId="post.user_id" @reload="reloadComments" />
                     </n-list-item>
                 </div>
             </div>

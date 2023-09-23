@@ -15,7 +15,9 @@ type baseHttpService struct {
 }
 
 func (s *baseHttpService) registerRoute(srv Service, h func(e *gin.Engine)) {
-	h(s.server.e)
+	if h != nil {
+		h(s.server.e)
+	}
 	s.server.addService(srv)
 }
 

@@ -26,6 +26,7 @@ var (
 	PostgresSetting         *postgresConf
 	Sqlite3Setting          *sqlite3Conf
 	PprofServerSetting      *httpServerConf
+	MetricsServerSetting    *httpServerConf
 	WebServerSetting        *httpServerConf
 	AdminServerSetting      *httpServerConf
 	SpaceXServerSetting     *httpServerConf
@@ -78,6 +79,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"MetricManager":     &MetricManagerSetting,
 		"JobManager":        &JobManagerSetting,
 		"PprofServer":       &PprofServerSetting,
+		"MetricsServer":     &MetricsServerSetting,
 		"WebServer":         &WebServerSetting,
 		"AdminServer":       &AdminServerSetting,
 		"SpaceXServer":      &SpaceXServerSetting,

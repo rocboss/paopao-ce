@@ -21,6 +21,7 @@ type CommentService interface {
 
 // CommentManageService 评论管理服务
 type CommentManageService interface {
+	HighlightComment(userId, commentId int64) (int8, error)
 	DeleteComment(comment *ms.Comment) error
 	CreateComment(comment *ms.Comment) (*ms.Comment, error)
 	CreateCommentReply(reply *ms.CommentReply) (*ms.CommentReply, error)
