@@ -68,6 +68,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		CommentManageService:   newCommentManageService(_db),
 		UserManageService:      newUserManageService(_db),
 		ContactManageService:   newContactManageService(_db),
+		UserRelationService:    newUserRelationService(_db),
 		FollowingManageService: newFollowingManageService(_db),
 		SecurityService:        newSecurityService(_db, pvs),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
