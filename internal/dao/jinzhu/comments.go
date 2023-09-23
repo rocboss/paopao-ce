@@ -26,8 +26,7 @@ type commentSrv struct {
 }
 
 type commentManageSrv struct {
-	db  *gorm.DB
-	cms core.CommentMetricServantA
+	db *gorm.DB
 }
 
 func newCommentService(db *gorm.DB) core.CommentService {
@@ -36,10 +35,9 @@ func newCommentService(db *gorm.DB) core.CommentService {
 	}
 }
 
-func newCommentManageService(db *gorm.DB, cms core.CommentMetricServantA) core.CommentManageService {
+func newCommentManageService(db *gorm.DB) core.CommentManageService {
 	return &commentManageSrv{
-		db:  db,
-		cms: cms,
+		db: db,
 	}
 }
 
@@ -181,19 +179,11 @@ func (s *commentManageSrv) DeleteComment(comment *ms.Comment) (err error) {
 		return
 	}
 	db.Commit()
-	if err == nil {
-		// 对错误宽松处理，暂时就不处理
-		s.cms.DeleteCommentMetric(comment.ID)
-	}
 	return
 }
 
-func (s *commentManageSrv) CreateComment(comment *ms.Comment) (res *ms.Comment, err error) {
-	if res, err = comment.Create(s.db); err == nil {
-		// 对错误宽松处理，暂时就不处理
-		s.cms.AddCommentMetric(res.ID)
-	}
-	return
+func (s *commentManageSrv) CreateComment(comment *ms.Comment) (*ms.Comment, error) {
+	return comment.Create(s.db)
 }
 
 func (s *commentManageSrv) CreateCommentReply(reply *ms.CommentReply) (res *ms.CommentReply, err error) {
