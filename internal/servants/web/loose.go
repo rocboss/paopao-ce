@@ -32,10 +32,12 @@ type looseSrv struct {
 	ac                       core.AppCache
 	userTweetsExpire         int64
 	idxTweetsExpire          int64
+	tweetCommentsExpire      int64
 	prefixUserTweets         string
 	prefixIdxTweetsNewest    string
 	prefixIdxTweetsHots      string
 	prefixIdxTweetsFollowing string
+	prefixTweetComment       string
 }
 
 func (s *looseSrv) Chain() gin.HandlersChain {
@@ -147,6 +149,18 @@ func (s *looseSrv) indexTweetsFromCache(req *web.TimelineReq, limit int, offset 
 	}
 	if data, err := s.ac.Get(key); err == nil {
 		ok, res = true, &web.TimelineResp{
+			CachePageResp: joint.CachePageResp{
+				JsonResp: data,
+			},
+		}
+	}
+	return
+}
+
+func (s *looseSrv) tweetCommentsFromCache(req *web.TweetCommentsReq, limit int, offset int) (res *web.TweetCommentsResp, key string, ok bool) {
+	key = fmt.Sprintf("%s%d:%s:%d:%d", s.prefixTweetComment, req.TweetId, req.Style, limit, offset)
+	if data, err := s.ac.Get(key); err == nil {
+		ok, res = true, &web.TweetCommentsResp{
 			CachePageResp: joint.CachePageResp{
 				JsonResp: data,
 			},
@@ -393,9 +407,18 @@ func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Err
 	}, nil
 }
 
-func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsResp, mir.Error) {
-	comments, totalRows, err := s.Ds.GetComments(req.TweetId, req.Style.ToInnerValue(), req.PageSize, (req.Page-1)*req.PageSize)
-	if err != nil {
+func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (res *web.TweetCommentsResp, err mir.Error) {
+	limit, offset := req.PageSize, (req.Page-1)*req.PageSize
+	// 尝试直接从缓存中获取数据
+	key, ok := "", false
+	if res, key, ok = s.tweetCommentsFromCache(req, limit, offset); ok {
+		logrus.Debugf("looseSrv.TweetComments from cache key:%s", key)
+		return
+	}
+
+	comments, totalRows, xerr := s.Ds.GetComments(req.TweetId, req.Style.ToInnerValue(), limit, offset)
+	if xerr != nil {
+		logrus.Errorf("looseSrv.TweetComments occurs error[1]: %s", xerr)
 		return nil, web.ErrGetCommentsFailed
 	}
 
@@ -406,25 +429,29 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 		commentIDs = append(commentIDs, comment.ID)
 	}
 
-	users, err := s.Ds.GetUsersByIDs(userIDs)
-	if err != nil {
+	users, xerr := s.Ds.GetUsersByIDs(userIDs)
+	if xerr != nil {
+		logrus.Errorf("looseSrv.TweetComments occurs error[2]: %s", xerr)
 		return nil, web.ErrGetCommentsFailed
 	}
 
-	contents, err := s.Ds.GetCommentContentsByIDs(commentIDs)
-	if err != nil {
+	contents, xerr := s.Ds.GetCommentContentsByIDs(commentIDs)
+	if xerr != nil {
+		logrus.Errorf("looseSrv.TweetComments occurs error[3]: %s", xerr)
 		return nil, web.ErrGetCommentsFailed
 	}
 
-	replies, err := s.Ds.GetCommentRepliesByID(commentIDs)
-	if err != nil {
+	replies, xerr := s.Ds.GetCommentRepliesByID(commentIDs)
+	if xerr != nil {
+		logrus.Errorf("looseSrv.TweetComments occurs error[4]: %s", xerr)
 		return nil, web.ErrGetCommentsFailed
 	}
 
 	var commentThumbs, replyThumbs cs.CommentThumbsMap
 	if req.Uid > 0 {
-		commentThumbs, replyThumbs, err = s.Ds.GetCommentThumbsMap(req.Uid, req.TweetId)
-		if err != nil {
+		commentThumbs, replyThumbs, xerr = s.Ds.GetCommentThumbsMap(req.Uid, req.TweetId)
+		if xerr != nil {
+			logrus.Errorf("looseSrv.TweetComments occurs error[5]: %s", xerr)
 			return nil, web.ErrGetCommentsFailed
 		}
 	}
@@ -464,8 +491,14 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (*web.TweetCommentsR
 		}
 		commentsFormated = append(commentsFormated, commentFormated)
 	}
-	resp := base.PageRespFrom(commentsFormated, req.Page, req.PageSize, totalRows)
-	return (*web.TweetCommentsResp)(resp), nil
+	resp := joint.PageRespFrom(commentsFormated, req.Page, req.PageSize, totalRows)
+	// 缓存处理
+	base.OnCacheRespEvent(s.ac, key, resp, s.tweetCommentsExpire)
+	return &web.TweetCommentsResp{
+		CachePageResp: joint.CachePageResp{
+			Data: resp,
+		},
+	}, nil
 }
 
 func (s *looseSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir.Error) {
@@ -502,9 +535,11 @@ func newLooseSrv(s *base.DaoServant, ac core.AppCache) api.Loose {
 		ac:                       ac,
 		userTweetsExpire:         cs.UserTweetsExpire,
 		idxTweetsExpire:          cs.IndexTweetsExpire,
+		tweetCommentsExpire:      cs.TweetCommentsExpire,
 		prefixUserTweets:         conf.PrefixUserTweets,
 		prefixIdxTweetsNewest:    conf.PrefixIdxTweetsNewest,
 		prefixIdxTweetsHots:      conf.PrefixIdxTweetsHots,
 		prefixIdxTweetsFollowing: conf.PrefixIdxTweetsFollowing,
+		prefixTweetComment:       conf.PrefixTweetComment,
 	}
 }

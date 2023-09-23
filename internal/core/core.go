@@ -22,6 +22,7 @@ type DataService interface {
 
 	// 推文指标服务
 	TweetMetricServantA
+	CommentMetricServantA
 
 	// 评论服务
 	CommentService
