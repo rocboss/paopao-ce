@@ -388,6 +388,11 @@ func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, rep
 	})
 }
 
+func (s *commentManageSrv) HighlightComment(userId, commentId int64) (int8, error) {
+	// TODO
+	return 0, cs.ErrNotImplemented
+}
+
 func newCommentService(db *sqlx.DB) core.CommentService {
 	return &commentSrv{
 		sqlxSrv: newSqlxSrv(db),

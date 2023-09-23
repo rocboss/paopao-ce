@@ -12,6 +12,7 @@ import (
 	"github.com/bitbus/sqlx"
 	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
@@ -24,6 +25,10 @@ var (
 type userManageSrv struct {
 	*sqlxSrv
 	q *cc.UserManage
+}
+
+type userRelationSrv struct {
+	*sqlxSrv
 }
 
 func (s *userManageSrv) GetUserByID(id int64) (*ms.User, error) {
@@ -78,6 +83,26 @@ func (s *userManageSrv) GetRegisterUserCount() (res int64, err error) {
 	return
 }
 
+func (s *userRelationSrv) MyFriendIds(userId int64) (res []int64, err error) {
+	// TODO
+	return
+}
+
+func (s *userRelationSrv) MyFollowIds(userId int64) (res []int64, err error) {
+	// TODO
+	return
+}
+
+func (s *userRelationSrv) IsMyFriend(userId int64, friendIds ...int64) (map[int64]bool, error) {
+	// TODO
+	return nil, cs.ErrNotImplemented
+}
+
+func (s *userRelationSrv) IsMyFollow(userId int64, followIds ...int64) (map[int64]bool, error) {
+	// TODO
+	return nil, cs.ErrNotImplemented
+}
+
 func newUserManageService(db *sqlx.DB) (s core.UserManageService) {
 	ums := &userManageSrv{
 		sqlxSrv: newSqlxSrv(db),
@@ -91,4 +116,10 @@ func newUserManageService(db *sqlx.DB) (s core.UserManageService) {
 		}
 	}
 	return
+}
+
+func newUserRelationService(db *sqlx.DB) core.UserRelationService {
+	return &userRelationSrv{
+		sqlxSrv: newSqlxSrv(db),
+	}
 }
