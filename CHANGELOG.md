@@ -30,8 +30,8 @@ All notable changes to paopao-ce are documented in this file.
   # 模块开启
   VITE_ENABLE_FRIENDS_BAR=true
   ```
-  - add Newest/Hots/Following tweets support in friend bar feature. 
-    mirgration database first(sql ddl file in `scripts/migration/**/*_home_timeline.up.sql`):
+- add Newest/Hots/Following tweets support in friend bar feature. 
+  mirgration database first(sql ddl file in `scripts/migration/**/*_home_timeline.up.sql`):
     ```sql
     CREATE TABLE `p_post_metric` (
 	  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -69,15 +69,15 @@ All notable changes to paopao-ce are documented in this file.
     )
     WHERE a.ID = b.ID;
     ```
-  - add cache support for index/home etc. page.
-  - add hots comments support for post detail page.
-  - add highlight comments support for post detail page.
+- add cache support for index/home etc. page.
+- add hots comments support for post detail page.
+- add highlight comments support for post detail page.
     mirgration database first(sql ddl file in `scripts/migration/**/*_comment_esence.up.sql`):
     ```sql
       ALTER TABLE `p_comment` ADD COLUMN `is_essence` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否精选';
     ```
-  - add follow/unfollow user support in index/home/collecion/message/post page.
-  - add simple prometheus metrics support.
+- add follow/unfollow user support in index/home/collecion/message/post page.
+- add simple prometheus metrics support.
     add `Metrics` to `conf.yaml` 's `Features` section to enable this feature like below:
     ```yaml
     # file config.yaml
@@ -93,8 +93,9 @@ All notable changes to paopao-ce are documented in this file.
       HttpPort: 6080
       ReadTimeout: 60
       WriteTimeout: 60
-  ...
-  - add full support for tweet hots comment logic and add cache support for tweet comments.
+    ...
+    ```
+- add full support for tweet hots comment logic and add cache support for tweet comments.
     mirgration database first(sql ddl file in `scripts/migration/**/*_rank_metrics.up.sql`):
     ```sql
     ALTER TABLE `p_comment` ADD COLUMN `reply_count` int unsigned NOT NULL DEFAULT 0 COMMENT '回复数';
