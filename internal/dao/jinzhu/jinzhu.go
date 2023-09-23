@@ -63,6 +63,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	cis := cache.NewEventCacheIndexSrv(tms)
 	ds := &dataSrv{
 		TweetMetricServantA:    tms,
+		CommentMetricServantA:  cms,
 		WalletService:          newWalletService(db),
 		MessageService:         newMessageService(db),
 		TopicService:           newTopicService(db),

@@ -11,6 +11,7 @@ Cache:
   UnreadMsgExpire: 60         # 未读消息过期时间，单位秒， 默认60s
   UserTweetsExpire: 60        # 获取用户推文列表过期时间，单位秒， 默认60s
   IndexTweetsExpire: 120      # 获取广场推文列表过期时间，单位秒， 默认120s
+  TweetCommentsExpire: 180    # 获取推文评论过期时间，单位秒， 默认180s
   OnlineUserExpire: 300       # 标记在线用户 过期时间，单位秒， 默认300s
   UserInfoExpire: 300         # 获取用户信息过期时间，单位秒， 默认300s
   UserRelationExpire: 600     # 用户关系信息过期时间，单位秒， 默认600s

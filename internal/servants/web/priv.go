@@ -82,6 +82,8 @@ func (s *privSrv) ThumbsDownTweetComment(req *web.TweetCommentThumbsReq) mir.Err
 		logrus.Errorf("thumbs down tweet comment error: %s req:%v", err, req)
 		return web.ErrThumbsDownTweetComment
 	}
+	// 缓存处理
+	onCommentActionEvent(req.TweetId, req.CommentId, _commentActionThumbsDown)
 	return nil
 }
 
@@ -90,6 +92,8 @@ func (s *privSrv) ThumbsUpTweetComment(req *web.TweetCommentThumbsReq) mir.Error
 		logrus.Errorf("thumbs up tweet comment error: %s req:%v", err, req)
 		return web.ErrThumbsUpTweetComment
 	}
+	// 缓存处理
+	onCommentActionEvent(req.TweetId, req.CommentId, _commentActionThumbsUp)
 	return nil
 }
 
@@ -355,10 +359,14 @@ func (s *privSrv) DeleteCommentReply(req *web.DeleteCommentReplyReq) mir.Error {
 		logrus.Errorf("s.deletePostCommentReply err: %s", err)
 		return web.ErrDeleteCommentFailed
 	}
+	// 缓存处理， 宽松处理错误
+	if comment, err := s.Ds.GetCommentByID(reply.CommentID); err == nil {
+		onCommentActionEvent(comment.PostID, comment.ID, _commentActionReplyDelete)
+	}
 	return nil
 }
 
-func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.CreateCommentReplyResp, mir.Error) {
+func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (_ *web.CreateCommentReplyResp, xerr mir.Error) {
 	var (
 		post     *ms.Post
 		comment  *ms.Comment
@@ -433,6 +441,8 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (*web.Creat
 			})
 		}
 	}
+	// 缓存处理
+	onCommentActionEvent(comment.PostID, comment.ID, _commentActionReplyCreate)
 	return (*web.CreateCommentReplyResp)(reply), nil
 }
 
@@ -461,6 +471,7 @@ func (s *privSrv) DeleteComment(req *web.DeleteCommentReq) mir.Error {
 		logrus.Errorf("Ds.DeleteComment err: %s", err)
 		return web.ErrDeleteCommentFailed
 	}
+	onCommentActionEvent(comment.PostID, comment.ID, _commentActionDelete)
 	return nil
 }
 
@@ -565,7 +576,8 @@ func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateComment
 			CommentID:      comment.ID,
 		})
 	}
-
+	// 缓存处理
+	onCommentActionEvent(comment.PostID, comment.ID, _commentActionCreate)
 	return (*web.CreateCommentResp)(comment), nil
 }
 

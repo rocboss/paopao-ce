@@ -200,7 +200,6 @@ func (s *commentManageSrv) CreateCommentReply(reply *ms.CommentReply) (res *ms.C
 	if res, err = reply.Create(s.db); err == nil {
 		// 宽松处理错误
 		s.db.Table(_comment_).Where("id=?", reply.CommentID).Update("reply_count", gorm.Expr("reply_count+1"))
-		onUpdateCommentMetricEvent(reply.CommentID, s.db, s.cms)
 	}
 	return
 }
@@ -222,7 +221,6 @@ func (s *commentManageSrv) DeleteCommentReply(reply *ms.CommentReply) (err error
 	}
 	// 宽松处理错误
 	db.Table(_comment_).Where("id=?", reply.CommentID).Update("reply_count", gorm.Expr("reply_count-1"))
-	onUpdateCommentMetricEvent(reply.CommentID, s.db, s.cms)
 	db.Commit()
 	return
 }
@@ -277,9 +275,6 @@ func (s *commentManageSrv) ThumbsUpComment(userId int64, tweetId, commentId int6
 		return err
 	}
 	db.Commit()
-	if err == nil {
-		onUpdateCommentMetricEvent(commentId, s.db, s.cms)
-	}
 	return nil
 }
 
@@ -330,9 +325,6 @@ func (s *commentManageSrv) ThumbsDownComment(userId int64, tweetId, commentId in
 		return err
 	}
 	db.Commit()
-	if err == nil {
-		onUpdateCommentMetricEvent(commentId, s.db, s.cms)
-	}
 	return nil
 }
 

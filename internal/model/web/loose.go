@@ -7,6 +7,7 @@ package web
 import (
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -46,7 +47,9 @@ type TweetCommentsReq struct {
 	PageSize   int              `form:"-" binding:"-"`
 }
 
-type TweetCommentsResp base.PageResp
+type TweetCommentsResp struct {
+	joint.CachePageResp
+}
 
 type TimelineReq struct {
 	BaseInfo   `form:"-"  binding:"-"`
@@ -142,6 +145,20 @@ func (s CommentStyleType) ToInnerValue() (res cs.StyleCommentType) {
 		fallthrough
 	default:
 		res = cs.StyleCommentDefault
+	}
+	return
+}
+
+func (s CommentStyleType) String() (res string) {
+	switch s {
+	case "default":
+		res = conf.InfixCommentDefault
+	case "hots":
+		res = conf.InfixCommentHots
+	case "newest":
+		res = conf.InfixCommentNewest
+	default:
+		res = "_"
 	}
 	return
 }

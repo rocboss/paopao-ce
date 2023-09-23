@@ -17,6 +17,9 @@ const (
 
 // 以下包含一些在cache中会用到的key的前缀
 const (
+	InfixCommentDefault      = "default"
+	InfixCommentHots         = "hots"
+	InfixCommentNewest       = "newest"
 	PrefixNewestTweets       = "paopao:newesttweets:"
 	PrefixHotsTweets         = "paopao:hotstweets:"
 	PrefixFollowingTweets    = "paopao:followingtweets:"
@@ -31,6 +34,7 @@ const (
 	PrefixUserInfoByName     = "paopao:userinfo:name:"
 	PrefixMyFriendIds        = "paopao:myfriendids:"
 	PrefixMyFollowIds        = "paopao:myfollowids:"
+	PrefixTweetComment       = "paopao:comment:"
 	KeySiteStatus            = "paopao:sitestatus"
 	KeyHistoryMaxOnline      = "history.max.online"
 )
