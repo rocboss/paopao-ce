@@ -41,31 +41,13 @@
                     </span>
                     <span class="nickname" v-else> 系统 </span>
                     <n-tag
-                        v-if="message.type == 4 && store.state.desktopModelShow"
-                        class="top-tag"
-                        type="success"
-                        size="small"
-                        round
-                    >
-                        私信
-                    </n-tag>
-                    <!-- <n-tag
-                        v-if="message.type != 4"
-                        class="top-tag"
-                        type="info"
-                        size="small"
-                        round
-                    >
-                        系统
-                    </n-tag> -->
-                    <n-tag
                         v-if="isWhisperSender"
                         class="top-tag"
                         type="info"
                         size="small"
                         round
                     >
-                        {{ sentTagLabel }}
+                        私信已发送
                         <template #icon>
                              <n-icon :component="CheckmarkCircle" />
                         </template>
@@ -77,7 +59,7 @@
                         size="small"
                         round
                     >
-                        {{ receivedTagLabel }}
+                        私信已接收
                         <template #icon>
                              <n-icon :component="CheckmarkCircle" />
                         </template>
@@ -183,22 +165,6 @@ const props = withDefaults(
     }>(),
     {}
 );
-
-const sentTagLabel = computed(() => {
-    if (store.state.desktopModelShow) {
-        return '已发送'
-    } else {
-        return '私信已发送'
-    }
-});
-
-const receivedTagLabel = computed(() => {
-    if (store.state.desktopModelShow) {
-        return '已接收'
-    } else {
-        return '私信已接收'
-    }
-});
 
 const renderIcon = (icon: Component) => {
   return () => {
