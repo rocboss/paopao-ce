@@ -33,6 +33,7 @@ const (
 const (
 	_messageActionCreate uint8 = iota
 	_messageActionRead
+	_messageActionFollow
 )
 
 type cacheUnreadMsgEvent struct {
@@ -200,7 +201,8 @@ func (e *messageActionEvent) Action() (err error) {
 		case _messageActionRead:
 			// 清除未读消息数缓存，不需要处理错误
 			e.wc.DelUnreadMsgCountResp(userId)
-		case _messageActionCreate:
+		case _messageActionCreate,
+			_messageActionFollow:
 			fallthrough
 		default:
 			// TODO
