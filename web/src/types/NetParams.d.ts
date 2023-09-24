@@ -38,6 +38,7 @@ declare module NetParams {
   interface UserGetUnreadMsgCount {}
 
   interface UserGetMessages {
+    style: "all" | "system" | "whisper" | "requesting" | "unread";
     page: number;
     page_size: number;
   }

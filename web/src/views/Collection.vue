@@ -33,14 +33,16 @@
             <!-- 私信组件 -->
             <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
         </n-list>
-
-        <div class="pagination-wrap" v-if="totalPage > 0">
-            <n-pagination
-            :page="page"
-            @update:page="updatePage"
-            :page-slot="!store.state.collapsedRight ? 8 : 5"
-            :page-count="totalPage" />
-        </div>
+        <n-space v-if="totalPage > 0" justify="center">
+            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多收藏了', error: '加载出错' }" @infinite="nextPage">
+                <template #spinner>
+                    <div class="load-more-wrap">
+                        <n-spin :size="14" v-if="!noMore" />
+                        <span class="load-more-spinner">{{ noMore ? '没有更多收藏了' : '加载更多' }}</span>
+                    </div>
+                </template>
+            </InfiniteLoading>
+        </n-space>
     </div>
 </template>
 
@@ -49,6 +51,7 @@ import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import { useDialog } from 'naive-ui';
+import InfiniteLoading from "v3-infinite-loading";
 import { getCollections, followUser, unfollowUser } from '@/api/user';
 
 const store = useStore();
@@ -56,6 +59,7 @@ const route = useRoute();
 const dialog = useDialog();
 
 const loading = ref(false);
+const noMore = ref(false);
 const list = ref<any[]>([]);
 const page = ref(+(route.query.p as any) || 1);
 const pageSize = ref(20);
@@ -118,21 +122,34 @@ const loadPosts = () => {
     getCollections({
         page: page.value,
         page_size: pageSize.value,
-    })
-        .then((rsp) => {
-            loading.value = false;
-            list.value = rsp.list;
-            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-
+    }).then((res) => {
+        loading.value = false;
+        if (res.list.length === 0) {
+            noMore.value = true
+        }
+        if (page.value > 1) {
+            list.value = list.value.concat(res.list);
+        } else {
+            list.value = res.list;
             window.scrollTo(0, 0);
-        })
-        .catch((err) => {
-            loading.value = false;
-        });
+        }
+        totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
+    })
+    .catch((_err) => {
+        loading.value = false;
+        if (page.value > 1) {
+            page.value--
+        }
+    });
 };
-const updatePage = (p: number) => {
-    page.value = p;
-    loadPosts();
+const nextPage = () => {
+    if (page.value < totalPage.value || totalPage.value == 0) {
+        noMore.value = false;
+        page.value++;
+        loadPosts();
+    } else {
+        noMore.value = true;
+    }
 };
 onMounted(() => {
     loadPosts();
@@ -140,11 +157,21 @@ onMounted(() => {
 </script>
 
 <style lang="less" scoped>
-.pagination-wrap {
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
+.load-more {
+    margin: 20px;
+
+    .load-more-wrap {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 14px;
+
+        .load-more-spinner {
+            font-size: 14px;
+            opacity: 0.65;
+        }
+    }
 }
 .dark {
     .main-content-wrap, .empty-wrap, .skeleton-wrap {
