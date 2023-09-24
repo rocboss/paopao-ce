@@ -15,7 +15,7 @@
                 <div v-else>
                     <n-space justify="space-between">
                         <div class="title title-action">
-                            <n-button text @click="handleUnreadMessage">
+                            <n-button text size="small" @click="handleUnreadMessage">
                                 <template #icon>
                                     <n-icon>
                                         <UnreadIcon />
@@ -350,6 +350,7 @@ onMounted(() => {
 }
 .title {
     padding-top: 4px;
+    opacity: 0.9;
 }
 .title-action {
     display: flex;

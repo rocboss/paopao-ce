@@ -24,11 +24,11 @@
         </n-list>
     </div>
     <n-space v-if="totalPage > 0" justify="center">
-            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多了', error: '加载出错' }" @infinite="nextPage">
+            <InfiniteLoading class="load-more" :slots="{ complete: completeStr, error: '加载出错' }" @infinite="nextPage">
                 <template #spinner>
                     <div class="load-more-wrap">
                         <n-spin :size="14" v-if="!noMore" />
-                        <span class="load-more-spinner">{{ noMore ? '没有更多了' : '加载更多' }}</span>
+                        <span class="load-more-spinner">{{ noMore ? completeStr : '加载更多' }}</span>
                     </div>
                 </template>
             </InfiniteLoading>
@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { getUserFollows, getUserFollowings } from '@/api/user';
 import InfiniteLoading from "v3-infinite-loading";
 import { useRoute } from 'vue-router';
@@ -64,6 +64,14 @@ const whisperReceiver = ref<Item.UserInfo>({
     follows: 0,
     followings: 0,
     status: 1,
+});
+
+const completeStr = computed(() => {
+    if (tabler.value == "follows") {
+        return '没有更多关注了'
+    } else {
+        return '没有更多粉丝了'
+    }
 });
 
 const onSendWhisper =  (user: Item.UserInfo) => {
