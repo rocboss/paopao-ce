@@ -482,6 +482,10 @@ func (s *privSrv) HighlightComment(req *web.HighlightCommentReq) (*web.Highlight
 	} else if err != nil {
 		return nil, web.ErrHighlightCommentFailed
 	}
+	// 缓存处理， 宽松处理错误
+	if comment, err := s.Ds.GetCommentByID(req.CommentId); err == nil {
+		onCommentActionEvent(comment.PostID, comment.ID, _commentActionHighlight)
+	}
 	return &web.HighlightCommentResp{
 		HighlightStatus: status,
 	}, nil

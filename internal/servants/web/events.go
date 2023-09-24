@@ -27,6 +27,7 @@ const (
 	_commentActionReplyDelete
 	_commentActionReplyThumbsUp
 	_commentActionReplyThumbsDown
+	_commentActionHighlight
 )
 
 type cacheUnreadMsgEvent struct {
@@ -138,6 +139,8 @@ func (e *commentActionEvent) Action() (err error) {
 	case _commentActionThumbsUp, _commentActionThumbsDown:
 		err = e.updateCommentMetric()
 		e.expireHotsComments()
+	case _commentActionHighlight:
+		e.expireAllStyleComments()
 	default:
 		// nothing
 	}
