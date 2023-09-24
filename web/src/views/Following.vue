@@ -7,7 +7,7 @@
                 <n-tab-pane name="follows" tab="正在关注" />
                 <n-tab-pane name="followings" tab="我的粉丝" />
             </n-tabs>
-            <div v-if="loading" class="skeleton-wrap">
+            <div v-if="loading && list.length === 0" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />
             </div>
             <div v-else>
