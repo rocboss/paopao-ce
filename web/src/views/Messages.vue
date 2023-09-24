@@ -230,7 +230,7 @@ const options = computed(() => {
                 icon: renderIcon(SystemIcon)
             },
             {
-                label: '私信消息',
+                label: '我的私信',
                 key: 'whisper',
                 icon: renderIcon(WhisperIcon)
             },
