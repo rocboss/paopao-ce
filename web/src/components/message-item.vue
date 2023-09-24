@@ -22,7 +22,7 @@
                         }">
                             {{ message.sender_user.nickname }}
                         </router-link>
-                        <span class="username">
+                        <span v-if="store.state.desktopModelShow" class="username">
                             @{{ message.sender_user.username }}
                         </span>
                     </span>
@@ -35,13 +35,13 @@
                         }">
                             {{ message.receiver_user.nickname }}
                         </router-link>
-                        <span class="username">
+                        <span v-if="store.state.desktopModelShow" class="username">
                             @{{ message.receiver_user.username }}
                         </span>
                     </span>
                     <span class="nickname" v-else> 系统 </span>
                     <n-tag
-                        v-if="message.type == 4"
+                        v-if="message.type == 4 && store.state.desktopModelShow"
                         class="top-tag"
                         type="success"
                         size="small"
@@ -65,7 +65,7 @@
                         size="small"
                         round
                     >
-                        已发送
+                        {{ sentTagLabel }}
                         <template #icon>
                              <n-icon :component="CheckmarkCircle" />
                         </template>
@@ -77,7 +77,7 @@
                         size="small"
                         round
                     >
-                        已接收
+                        {{ receivedTagLabel }}
                         <template #icon>
                              <n-icon :component="CheckmarkCircle" />
                         </template>
@@ -183,6 +183,22 @@ const props = withDefaults(
     }>(),
     {}
 );
+
+const sentTagLabel = computed(() => {
+    if (store.state.desktopModelShow) {
+        return '已发送'
+    } else {
+        return '私信已发送'
+    }
+});
+
+const receivedTagLabel = computed(() => {
+    if (store.state.desktopModelShow) {
+        return '已接收'
+    } else {
+        return '私信已接收'
+    }
+});
 
 const renderIcon = (icon: Component) => {
   return () => {

@@ -9,13 +9,9 @@
                 <message-skeleton :num="pageSize" />
             </div>
             <div v-else>
-                <div class="empty-wrap" v-if="list.length === 0">
-                    <n-empty size="large" description="暂无数据" />
-                </div>
-                <div v-else>
-                    <n-space justify="space-between">
+                <n-space justify="space-between">
                         <div class="title title-action">
-                            <n-button text @click="handleUnreadMessage">
+                            <n-button text size="small" @click="handleUnreadMessage">
                                 <template #icon>
                                     <n-icon>
                                         <UnreadIcon />
@@ -24,7 +20,7 @@
                                 0 条未读
                             </n-button>
                             <n-divider vertical />
-                            <n-button text @click="handleReadAll">全标已读</n-button>
+                            <n-button text size="small" @click="handleReadAll">全标已读</n-button>
                         </div>
                         <div class="title title-filter">
                             <n-dropdown 
@@ -43,7 +39,11 @@
                                 </n-button>
                             </n-dropdown>
                         </div>
-                    </n-space>
+                </n-space>
+                <div class="empty-wrap" v-if="list.length === 0">
+                    <n-empty size="large" description="暂无数据" />
+                </div>
+                <div v-else>
                     <n-list-item v-for="m in list" :key="m.id">
                         <message-item :message="m" @send-whisper="onSendWhisper" @reload="loadMessages" />
                      </n-list-item>
@@ -107,6 +107,7 @@ const reset = () => {
     noMore.value = false;
     page.value = 1;
     totalPage.value = 0;
+    list.value = [];
 }
 
 const renderIcon = (icon: Component) => {
@@ -350,6 +351,7 @@ onMounted(() => {
 }
 .title {
     padding-top: 4px;
+    opacity: 0.9;
 }
 .title-action {
     display: flex;
