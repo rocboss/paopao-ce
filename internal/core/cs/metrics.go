@@ -4,6 +4,11 @@
 
 package cs
 
+const (
+	MetricActionCreateTweet uint8 = iota
+	MetricActionDeleteTweet
+)
+
 type TweetMetric struct {
 	PostId          int64
 	CommentCount    int64

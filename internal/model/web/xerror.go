@@ -90,6 +90,8 @@ var (
 	ErrNotAllowFollowSelf         = xerror.NewError(80105, "不能关注自己")
 	ErrNotAllowUnfollowSelf       = xerror.NewError(80106, "不能取消关注自己")
 
+	ErrGetIndexTrendsFailed = xerror.NewError(802001, "获取动态条栏信息失败")
+
 	ErrFollowTopicFailed      = xerror.NewError(90001, "关注话题失败")
 	ErrUnfollowTopicFailed    = xerror.NewError(90002, "取消关注话题失败")
 	ErrStickTopicFailed       = xerror.NewError(90003, "更行话题置顶状态失败")

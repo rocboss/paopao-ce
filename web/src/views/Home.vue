@@ -84,7 +84,7 @@ import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import { useDialog } from 'naive-ui';
 import InfiniteLoading from "v3-infinite-loading";
-import { getPosts, getContacts } from '@/api/post';
+import { getPosts, getIndexTrends } from '@/api/post';
 import { getUserPosts, deleteFriend, followUser, unfollowUser } from '@/api/user';
 import SlideBar from '@opentiny/vue-slide-bar';
 import allTweets from '@/assets/img/fresh-tweets.png';
@@ -289,7 +289,7 @@ const loadContacts = () => {
     if (!useFriendship || !enableFriendsBar || store.state.userInfo.id === 0) {
         return
     }
-    getContacts({
+    getIndexTrends({
         page: 1,
         page_size: 50,
     }).then((res) => {
@@ -297,13 +297,13 @@ const loadContacts = () => {
         const list = res.list || []
         let barItems: Item.SlideBarItem[] = []
         for (; i < list.length; i++) {
-            let item: Item.ContactItemProps = list[i];
+            let item: Item.IndexTrendsItem = list[i];
             barItems.push({
                 title: item.nickname, 
                 style: 21,
                 username: item.username,
                 avatar: item.avatar, 
-                show: false
+                show: item.is_fresh,
             });   
         }
         if (barItems.length > 0) {

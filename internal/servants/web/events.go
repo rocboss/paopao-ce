@@ -16,6 +16,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/events"
 	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/model/web"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -34,6 +35,11 @@ const (
 	_messageActionCreate uint8 = iota
 	_messageActionRead
 	_messageActionFollow
+)
+
+const (
+	_trendsActionCreateTweet uint8 = iota
+	_trendsActionDeleteTweet
 )
 
 type cacheUnreadMsgEvent struct {
@@ -64,6 +70,23 @@ type messageActionEvent struct {
 	wc     core.WebCache
 	action uint8
 	userId []int64
+}
+
+type trendsActionEvent struct {
+	event.UnimplementedEvent
+	ac     core.AppCache
+	ds     core.DataService
+	action uint8
+	userId int64
+}
+
+func onTrendsActionEvent(action uint8, userId int64) {
+	events.OnEvent(&trendsActionEvent{
+		ac:     _ac,
+		ds:     _ds,
+		action: action,
+		userId: userId,
+	})
 }
 
 func onMessageActionEvent(action uint8, userIds ...int64) {
@@ -210,5 +233,34 @@ func (e *messageActionEvent) Action() (err error) {
 		//清除该用户所有消息缓存
 		err = e.wc.DelAny(fmt.Sprintf("%s%d:*", conf.PrefixMessages, userId))
 	}
+	return
+}
+
+func (e *trendsActionEvent) Name() string {
+	return "trendsActionEvent"
+}
+
+func (e *trendsActionEvent) Action() (err error) {
+	switch e.action {
+	case _trendsActionCreateTweet:
+		logrus.Debug("trigger trendsActionEvent by create tweet ")
+		e.ds.UpdateUserMetric(e.userId, cs.MetricActionCreateTweet)
+		goto ExpireTrends
+	case _trendsActionDeleteTweet:
+		logrus.Debug("trigger trendsActionEvent by delete tweet ")
+		e.ds.UpdateUserMetric(e.userId, cs.MetricActionDeleteTweet)
+		goto ExpireTrends
+	default:
+		// nothing
+		goto JustReturn
+	}
+ExpireTrends:
+	if friendIds, err := e.ds.MyFriendIds(e.userId); err == nil {
+		for _, id := range friendIds {
+			e.ac.DelAny(fmt.Sprintf("%s%d:*", conf.PrefixIdxTrends, id))
+		}
+		return err
+	}
+JustReturn:
 	return
 }

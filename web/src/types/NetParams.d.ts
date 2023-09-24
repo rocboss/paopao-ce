@@ -122,6 +122,11 @@ declare module NetParams {
     page_size: number;
   }
 
+  interface IndexTrendsReq {
+    page: number;
+    page_size: number;
+  }
+
   interface GetUserFollows {
     username: string;
     page: number;
