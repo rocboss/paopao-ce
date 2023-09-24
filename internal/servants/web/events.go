@@ -30,6 +30,11 @@ const (
 	_commentActionHighlight
 )
 
+const (
+	_messageActionCreate uint8 = iota
+	_messageActionRead
+)
+
 type cacheUnreadMsgEvent struct {
 	event.UnimplementedEvent
 	ds  core.DataService
@@ -51,6 +56,21 @@ type commentActionEvent struct {
 	tweetId   int64
 	commentId int64
 	action    uint8
+}
+
+type messageActionEvent struct {
+	event.UnimplementedEvent
+	wc     core.WebCache
+	action uint8
+	userId []int64
+}
+
+func onMessageActionEvent(action uint8, userIds ...int64) {
+	events.OnEvent(&messageActionEvent{
+		wc:     _wc,
+		action: action,
+		userId: userIds,
+	})
 }
 
 func onCommentActionEvent(tweetId int64, commentId int64, action uint8) {
@@ -168,4 +188,25 @@ func (e *commentActionEvent) updateCommentMetric() error {
 		ThumbsDownCount: comment.ThumbsDownCount,
 	})
 	return nil
+}
+
+func (e *messageActionEvent) Name() string {
+	return "expireMessagesEvent"
+}
+
+func (e *messageActionEvent) Action() (err error) {
+	for _, userId := range e.userId {
+		switch e.action {
+		case _messageActionRead:
+			// 清除未读消息数缓存，不需要处理错误
+			e.wc.DelUnreadMsgCountResp(userId)
+		case _messageActionCreate:
+			fallthrough
+		default:
+			// TODO
+		}
+		//清除该用户所有消息缓存
+		err = e.wc.DelAny(fmt.Sprintf("%s%d:*", conf.PrefixMessages, userId))
+	}
+	return
 }

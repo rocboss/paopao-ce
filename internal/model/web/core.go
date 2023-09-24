@@ -7,10 +7,14 @@ package web
 import (
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
+
+type MessageStyle = cs.MessageStyle
 
 type ChangeAvatarReq struct {
 	BaseInfo `json:"-" binding:"-"`
@@ -40,9 +44,15 @@ type UserInfoResp struct {
 	Followings int64  `json:"followings"`
 }
 
-type GetMessagesReq BasePageReq
+type GetMessagesReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	joint.BasePageInfo
+	Style MessageStyle `form:"style" binding:"required"`
+}
 
-type GetMessagesResp base.PageResp
+type GetMessagesResp struct {
+	joint.CachePageResp
+}
 
 type ReadMessageReq struct {
 	SimpleInfo `json:"-" binding:"-"`
@@ -118,10 +128,6 @@ func (r *UserInfoReq) Bind(c *gin.Context) mir.Error {
 	}
 	r.Username = username
 	return nil
-}
-
-func (r *GetMessagesReq) Bind(c *gin.Context) mir.Error {
-	return (*BasePageReq)(r).Bind(c)
 }
 
 func (r *GetCollectionsReq) Bind(c *gin.Context) mir.Error {
