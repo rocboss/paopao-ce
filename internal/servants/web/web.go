@@ -38,6 +38,7 @@ func RouteWeb(e *gin.Engine) {
 	api.RegisterLooseServant(e, newLooseSrv(ds, _ac))
 	api.RegisterPrivServant(e, newPrivSrv(ds, _oss), newPrivChain())
 	api.RegisterPubServant(e, newPubSrv(ds))
+	api.RegisterTrendsServant(e, newTrendsSrv(ds))
 	api.RegisterFollowshipServant(e, newFollowshipSrv(ds))
 	api.RegisterFriendshipServant(e, newFriendshipSrv(ds))
 	// regster servants if needed by configure

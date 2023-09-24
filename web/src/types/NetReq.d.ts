@@ -189,6 +189,11 @@ declare module NetReq {
     pager: Item.PagerProps;
   }
 
+  interface IndexTrendsResp {
+    list: Item.IndexTrendsItem[];
+    pager: Item.PagerProps;
+  }
+
   interface PostStickTopic {
     /** 置顶状态：0为未置顶，1为置顶 */
     top_status: 0 | 1;

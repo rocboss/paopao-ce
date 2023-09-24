@@ -508,7 +508,7 @@ func (s *tweetSrv) getUserRelation(userId int64) (beFriendIds []int64, beFollowI
 			// 找到item即删，数据库已经保证唯一性
 			if beFollowIds[i] == id {
 				lastIdx := len(beFollowIds) - 1
-				beFriendIds[i] = beFriendIds[lastIdx]
+				beFollowIds[i] = beFollowIds[lastIdx]
 				beFollowIds = beFollowIds[:lastIdx]
 				break
 			}

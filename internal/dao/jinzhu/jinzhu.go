@@ -39,7 +39,9 @@ type dataSrv struct {
 	core.CommentService
 	core.CommentManageService
 	core.CommentMetricServantA
+	core.TrendsManageServantA
 	core.UserManageService
+	core.UserMetricServantA
 	core.ContactManageService
 	core.FollowingManageService
 	core.UserRelationService
@@ -59,11 +61,13 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	db := conf.MustGormDB()
 	pvs := security.NewPhoneVerifyService()
 	tms := newTweetMetricServentA(db)
+	ums := newUserMetricServentA(db)
 	cms := newCommentMetricServentA(db)
 	cis := cache.NewEventCacheIndexSrv(tms)
 	ds := &dataSrv{
 		TweetMetricServantA:    tms,
 		CommentMetricServantA:  cms,
+		UserMetricServantA:     ums,
 		WalletService:          newWalletService(db),
 		MessageService:         newMessageService(db),
 		TopicService:           newTopicService(db),
@@ -72,7 +76,8 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		TweetHelpService:       newTweetHelpService(db),
 		CommentService:         newCommentService(db),
 		CommentManageService:   newCommentManageService(db),
-		UserManageService:      newUserManageService(db),
+		TrendsManageServantA:   newTrendsManageServentA(db),
+		UserManageService:      newUserManageService(db, ums),
 		ContactManageService:   newContactManageService(db),
 		FollowingManageService: newFollowingManageService(db),
 		UserRelationService:    newUserRelationService(db),

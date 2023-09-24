@@ -4,7 +4,9 @@
 
 package core
 
-import "github.com/rocboss/paopao-ce/internal/core/ms"
+import (
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+)
 
 // UserManageService 用户管理服务
 type UserManageService interface {

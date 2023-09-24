@@ -29,6 +29,7 @@ const (
 	PrefixIdxTweetsNewest    = "paopao:index:tweets:newest:"
 	PrefixIdxTweetsHots      = "paopao:index:tweets:hots:"
 	PrefixIdxTweetsFollowing = "paopao:index:tweets:following:"
+	PrefixIdxTrends          = "paopao:index:trends:"
 	PrefixMessages           = "paopao:messages:"
 	PrefixUserInfo           = "paopao:userinfo:"
 	PrefixUserInfoById       = "paopao:userinfo:id:"

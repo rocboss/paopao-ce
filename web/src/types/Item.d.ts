@@ -142,6 +142,13 @@ declare module Item {
     created_on: number;
   }
 
+  interface IndexTrendsItem {
+    nickname: string;
+    username: string;
+    avatar: string;
+    is_fresh: boolean;
+  }
+
   /** slide bar item */
   interface SlideBarItem {
     title: string;
