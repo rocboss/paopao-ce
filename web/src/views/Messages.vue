@@ -24,7 +24,7 @@
                                 0 条未读
                             </n-button>
                             <n-divider vertical />
-                            <n-button text @click="handleReadAll">全标已读</n-button>
+                            <n-button text size="small" @click="handleReadAll">全标已读</n-button>
                         </div>
                         <div class="title title-filter">
                             <n-dropdown 
