@@ -5,7 +5,7 @@
         <n-list class="main-content-wrap messages-wrap" bordered>
              <!-- 私信组件 -->
             <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
-            <div v-if="loading" class="skeleton-wrap">
+            <div v-if="loading && list.length === 0" class="skeleton-wrap">
                 <message-skeleton :num="pageSize" />
             </div>
             <div v-else>
