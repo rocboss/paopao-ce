@@ -5,11 +5,7 @@
         <n-list class="main-content-wrap messages-wrap" bordered>
              <!-- 私信组件 -->
             <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
-            <div v-if="loading && list.length === 0" class="skeleton-wrap">
-                <message-skeleton :num="pageSize" />
-            </div>
-            <div v-else>
-                <n-space justify="space-between">
+            <n-space justify="space-between">
                         <div class="title title-action">
                             <n-button text size="small" @click="handleUnreadMessage">
                                 <template #icon>
@@ -39,13 +35,17 @@
                                 </n-button>
                             </n-dropdown>
                         </div>
-                </n-space>
+            </n-space>
+            <div v-if="loading && list.length === 0" class="skeleton-wrap">
+                <message-skeleton :num="pageSize" />
+            </div>
+            <div v-else>
                 <div class="empty-wrap" v-if="list.length === 0">
                     <n-empty size="large" description="暂无数据" />
                 </div>
                 <div v-else>
                     <n-list-item v-for="m in list" :key="m.id">
-                        <message-item :message="m" @send-whisper="onSendWhisper" @reload="loadMessages" />
+                        <message-item :message="m" @send-whisper="onSendWhisper" @reload="reloadMessages" />
                      </n-list-item>
                 </div>
             </div>
@@ -290,6 +290,11 @@ const onSendWhisper =  (user: Item.UserInfo) => {
 
 const whisperSuccess = () => {
     showWhisper.value = false;
+};
+
+const reloadMessages = () => {
+    reset();
+    loadMessages();
 };
 
 const loadMessages = () => {
