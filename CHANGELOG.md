@@ -147,6 +147,7 @@ All notable changes to paopao-ce are documented in this file.
     WHERE is_del=0
     GROUP BY user_id;
     ```
+- add message filter support for message page.
     
 ## 0.4.2
 ### Fixed
