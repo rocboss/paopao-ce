@@ -16,6 +16,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/events"
 	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/model/web"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -27,6 +28,18 @@ const (
 	_commentActionReplyDelete
 	_commentActionReplyThumbsUp
 	_commentActionReplyThumbsDown
+	_commentActionHighlight
+)
+
+const (
+	_messageActionCreate uint8 = iota
+	_messageActionRead
+	_messageActionFollow
+)
+
+const (
+	_trendsActionCreateTweet uint8 = iota
+	_trendsActionDeleteTweet
 )
 
 type cacheUnreadMsgEvent struct {
@@ -50,6 +63,38 @@ type commentActionEvent struct {
 	tweetId   int64
 	commentId int64
 	action    uint8
+}
+
+type messageActionEvent struct {
+	event.UnimplementedEvent
+	wc     core.WebCache
+	action uint8
+	userId []int64
+}
+
+type trendsActionEvent struct {
+	event.UnimplementedEvent
+	ac     core.AppCache
+	ds     core.DataService
+	action uint8
+	userId int64
+}
+
+func onTrendsActionEvent(action uint8, userId int64) {
+	events.OnEvent(&trendsActionEvent{
+		ac:     _ac,
+		ds:     _ds,
+		action: action,
+		userId: userId,
+	})
+}
+
+func onMessageActionEvent(action uint8, userIds ...int64) {
+	events.OnEvent(&messageActionEvent{
+		wc:     _wc,
+		action: action,
+		userId: userIds,
+	})
 }
 
 func onCommentActionEvent(tweetId int64, commentId int64, action uint8) {
@@ -138,6 +183,8 @@ func (e *commentActionEvent) Action() (err error) {
 	case _commentActionThumbsUp, _commentActionThumbsDown:
 		err = e.updateCommentMetric()
 		e.expireHotsComments()
+	case _commentActionHighlight:
+		e.expireAllStyleComments()
 	default:
 		// nothing
 	}
@@ -165,4 +212,55 @@ func (e *commentActionEvent) updateCommentMetric() error {
 		ThumbsDownCount: comment.ThumbsDownCount,
 	})
 	return nil
+}
+
+func (e *messageActionEvent) Name() string {
+	return "expireMessagesEvent"
+}
+
+func (e *messageActionEvent) Action() (err error) {
+	for _, userId := range e.userId {
+		switch e.action {
+		case _messageActionRead:
+			// 清除未读消息数缓存，不需要处理错误
+			e.wc.DelUnreadMsgCountResp(userId)
+		case _messageActionCreate,
+			_messageActionFollow:
+			fallthrough
+		default:
+			// TODO
+		}
+		//清除该用户所有消息缓存
+		err = e.wc.DelAny(fmt.Sprintf("%s%d:*", conf.PrefixMessages, userId))
+	}
+	return
+}
+
+func (e *trendsActionEvent) Name() string {
+	return "trendsActionEvent"
+}
+
+func (e *trendsActionEvent) Action() (err error) {
+	switch e.action {
+	case _trendsActionCreateTweet:
+		logrus.Debug("trigger trendsActionEvent by create tweet ")
+		e.ds.UpdateUserMetric(e.userId, cs.MetricActionCreateTweet)
+		goto ExpireTrends
+	case _trendsActionDeleteTweet:
+		logrus.Debug("trigger trendsActionEvent by delete tweet ")
+		e.ds.UpdateUserMetric(e.userId, cs.MetricActionDeleteTweet)
+		goto ExpireTrends
+	default:
+		// nothing
+		goto JustReturn
+	}
+ExpireTrends:
+	if friendIds, err := e.ds.MyFriendIds(e.userId); err == nil {
+		for _, id := range friendIds {
+			e.ac.DelAny(fmt.Sprintf("%s%d:*", conf.PrefixIdxTrends, id))
+		}
+		return err
+	}
+JustReturn:
+	return
 }

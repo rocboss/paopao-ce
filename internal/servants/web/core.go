@@ -6,6 +6,7 @@ package web
 
 import (
 	"context"
+	"fmt"
 
 	"time"
 	"unicode/utf8"
@@ -13,8 +14,10 @@ import (
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
@@ -35,9 +38,10 @@ var (
 type coreSrv struct {
 	api.UnimplementedCoreServant
 	*base.DaoServant
-
-	oss core.ObjectStorageService
-	wc  core.WebCache
+	oss            core.ObjectStorageService
+	wc             core.WebCache
+	messagesExpire int64
+	prefixMessages string
 }
 
 func (s *coreSrv) Chain() gin.HandlersChain {
@@ -84,8 +88,19 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 	return resp, nil
 }
 
-func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mir.Error) {
-	messages, err := s.Ds.GetMessages(req.UserId, (req.Page-1)*req.PageSize, req.PageSize)
+func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (res *web.GetMessagesResp, _ mir.Error) {
+	limit, offset := req.PageSize, (req.Page-1)*req.PageSize
+	// 尝试直接从缓存中获取数据
+	key, ok := "", false
+	if res, key, ok = s.messagesFromCache(req, limit, offset); ok {
+		// logrus.Debugf("coreSrv.GetMessages from cache key:%s", key)
+		return
+	}
+	messages, totalRows, err := s.Ds.GetMessages(req.Uid, req.Style, limit, offset)
+	if err != nil {
+		logrus.Errorf("Ds.GetMessages err[1]: %s", err)
+		return nil, web.ErrGetMessagesFailed
+	}
 	for _, mf := range messages {
 		// TODO: 优化处理这里的user获取逻辑以及错误处理
 		if mf.SenderUserID > 0 {
@@ -93,7 +108,7 @@ func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mi
 				mf.SenderUser = user.Format()
 			}
 		}
-		if mf.Type == ms.MsgTypeWhisper && mf.ReceiverUserID != req.UserId {
+		if mf.Type == ms.MsgTypeWhisper && mf.ReceiverUserID != req.Uid {
 			if user, err := s.Ds.GetUserByID(mf.ReceiverUserID); err == nil {
 				mf.ReceiverUser = user.Format()
 			}
@@ -122,16 +137,21 @@ func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mi
 		}
 	}
 	if err != nil {
-		logrus.Errorf("Ds.GetMessages err: %v\n", err)
+		logrus.Errorf("Ds.GetMessages err[2]: %s", err)
 		return nil, web.ErrGetMessagesFailed
 	}
-	if err = s.PrepareMessages(req.UserId, messages); err != nil {
-		logrus.Errorf("get messages err[2]: %v\n", err)
+	if err = s.PrepareMessages(req.Uid, messages); err != nil {
+		logrus.Errorf("get messages err[3]: %s", err)
 		return nil, web.ErrGetMessagesFailed
 	}
-	totalRows, _ := s.Ds.GetMessageCount(req.UserId)
-	resp := base.PageRespFrom(messages, req.Page, req.PageSize, totalRows)
-	return (*web.GetMessagesResp)(resp), nil
+	resp := joint.PageRespFrom(messages, req.Page, req.PageSize, totalRows)
+	// 缓存处理
+	base.OnCacheRespEvent(s.wc, key, resp, s.messagesExpire)
+	return &web.GetMessagesResp{
+		CachePageResp: joint.CachePageResp{
+			Data: resp,
+		},
+	}, nil
 }
 
 func (s *coreSrv) ReadMessage(req *web.ReadMessageReq) mir.Error {
@@ -146,8 +166,8 @@ func (s *coreSrv) ReadMessage(req *web.ReadMessageReq) mir.Error {
 		logrus.Errorf("Ds.ReadMessage err: %s", err)
 		return web.ErrReadMessageFailed
 	}
-	// 清除未读消息数缓存，不需要处理错误
-	s.wc.DelUnreadMsgCountResp(req.Uid)
+	// 缓存处理
+	onMessageActionEvent(_messageActionRead, req.Uid)
 	return nil
 }
 
@@ -378,10 +398,25 @@ func (s *coreSrv) TweetStarStatus(req *web.TweetStarStatusReq) (*web.TweetStarSt
 	return resp, nil
 }
 
+func (s *coreSrv) messagesFromCache(req *web.GetMessagesReq, limit int, offset int) (res *web.GetMessagesResp, key string, ok bool) {
+	key = fmt.Sprintf("%s%d:%s:%d:%d", s.prefixMessages, req.Uid, req.Style, limit, offset)
+	if data, err := s.wc.Get(key); err == nil {
+		ok, res = true, &web.GetMessagesResp{
+			CachePageResp: joint.CachePageResp{
+				JsonResp: data,
+			},
+		}
+	}
+	return
+}
+
 func newCoreSrv(s *base.DaoServant, oss core.ObjectStorageService, wc core.WebCache) api.Core {
+	cs := conf.CacheSetting
 	return &coreSrv{
-		DaoServant: s,
-		oss:        oss,
-		wc:         wc,
+		DaoServant:     s,
+		oss:            oss,
+		wc:             wc,
+		messagesExpire: cs.MessagesExpire,
+		prefixMessages: conf.PrefixMessages,
 	}
 }

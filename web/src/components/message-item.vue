@@ -22,7 +22,7 @@
                         }">
                             {{ message.sender_user.nickname }}
                         </router-link>
-                        <span class="username">
+                        <span v-if="store.state.desktopModelShow" class="username">
                             @{{ message.sender_user.username }}
                         </span>
                     </span>
@@ -35,29 +35,11 @@
                         }">
                             {{ message.receiver_user.nickname }}
                         </router-link>
-                        <span class="username">
+                        <span v-if="store.state.desktopModelShow" class="username">
                             @{{ message.receiver_user.username }}
                         </span>
                     </span>
                     <span class="nickname" v-else> 系统 </span>
-                    <n-tag
-                        v-if="message.type == 4"
-                        class="top-tag"
-                        type="success"
-                        size="small"
-                        round
-                    >
-                        私信
-                    </n-tag>
-                    <!-- <n-tag
-                        v-if="message.type != 4"
-                        class="top-tag"
-                        type="info"
-                        size="small"
-                        round
-                    >
-                        系统
-                    </n-tag> -->
                     <n-tag
                         v-if="isWhisperSender"
                         class="top-tag"
@@ -65,7 +47,7 @@
                         size="small"
                         round
                     >
-                        已发送
+                        私信已发送
                         <template #icon>
                              <n-icon :component="CheckmarkCircle" />
                         </template>
@@ -77,7 +59,7 @@
                         size="small"
                         round
                     >
-                        已接收
+                        私信已接收
                         <template #icon>
                              <n-icon :component="CheckmarkCircle" />
                         </template>

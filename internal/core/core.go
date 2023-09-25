@@ -21,8 +21,12 @@ type DataService interface {
 	TweetHelpService
 
 	// 推文指标服务
+	UserMetricServantA
 	TweetMetricServantA
 	CommentMetricServantA
+
+	// 动态信息相关服务
+	TrendsManageServantA
 
 	// 评论服务
 	CommentService

@@ -313,6 +313,8 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 		logrus.Infof("Ds.RevampPosts err: %s", err)
 		return nil, web.ErrCreatePostFailed
 	}
+	// 缓存处理
+	onTrendsActionEvent(_trendsActionCreateTweet, req.User.ID)
 	return (*web.CreateTweetResp)(formatedPosts[0]), nil
 }
 
@@ -341,6 +343,8 @@ func (s *privSrv) DeleteTweet(req *web.DeleteTweetReq) mir.Error {
 		logrus.Errorf("s.DeleteSearchPost failed: %s", err)
 		return web.ErrDeletePostFailed
 	}
+	// 缓存处理
+	onTrendsActionEvent(_trendsActionDeleteTweet, req.User.ID)
 	return nil
 }
 
@@ -483,6 +487,10 @@ func (s *privSrv) HighlightComment(req *web.HighlightCommentReq) (*web.Highlight
 		return nil, web.ErrNoPermission
 	} else if err != nil {
 		return nil, web.ErrHighlightCommentFailed
+	}
+	// 缓存处理， 宽松处理错误
+	if comment, err := s.Ds.GetCommentByID(req.CommentId); err == nil {
+		onCommentActionEvent(comment.PostID, comment.ID, _commentActionHighlight)
 	}
 	return &web.HighlightCommentResp{
 		HighlightStatus: status,

@@ -5,6 +5,7 @@
 package core
 
 import (
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 )
 
@@ -14,6 +15,5 @@ type MessageService interface {
 	GetUnreadCount(userID int64) (int64, error)
 	GetMessageByID(id int64) (*ms.Message, error)
 	ReadMessage(message *ms.Message) error
-	GetMessages(userId int64, offset, limit int) ([]*ms.MessageFormated, error)
-	GetMessageCount(userId int64) (int64, error)
+	GetMessages(userId int64, style cs.MessageStyle, limit, offset int) ([]*ms.MessageFormated, int64, error)
 }

@@ -7,7 +7,7 @@
                 <n-tab-pane name="follows" tab="正在关注" />
                 <n-tab-pane name="followings" tab="我的粉丝" />
             </n-tabs>
-            <div v-if="loading" class="skeleton-wrap">
+            <div v-if="loading && list.length === 0" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />
             </div>
             <div v-else>
@@ -23,26 +23,27 @@
             <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
         </n-list>
     </div>
-
-    <div class="pagination-wrap" v-if="totalPage > 0">
-        <n-pagination 
-            :page="page" 
-            @update:page="updatePage"
-            :page-slot="!store.state.collapsedRight ? 8 : 5" 
-            :page-count="totalPage" />
-    </div>
+    <n-space v-if="totalPage > 0" justify="center">
+            <InfiniteLoading class="load-more" :slots="{ complete: completeStr, error: '加载出错' }" @infinite="nextPage">
+                <template #spinner>
+                    <div class="load-more-wrap">
+                        <n-spin :size="14" v-if="!noMore" />
+                        <span class="load-more-spinner">{{ noMore ? completeStr : '加载更多' }}</span>
+                    </div>
+                </template>
+            </InfiniteLoading>
+    </n-space>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { getUserFollows, getUserFollowings } from '@/api/user';
-import { useStore } from 'vuex';
+import InfiniteLoading from "v3-infinite-loading";
 import { useRoute } from 'vue-router';
 
-const store = useStore();
 const route = useRoute();
-
 const loading = ref(false);
+const noMore = ref(false);
 const list = ref<Item.ContactItemProps[]>([]);
 const nickname= route.query.n as string || "粉丝详情";
 const username = route.query.s as string || "";
@@ -65,6 +66,14 @@ const whisperReceiver = ref<Item.UserInfo>({
     status: 1,
 });
 
+const completeStr = computed(() => {
+    if (tabler.value == "follows") {
+        return '没有更多关注了'
+    } else {
+        return '没有更多粉丝了'
+    }
+});
+
 const onSendWhisper =  (user: Item.UserInfo) => {
     whisperReceiver.value = user;
     showWhisper.value = true;
@@ -74,9 +83,14 @@ const whisperSuccess = () => {
     showWhisper.value = false;
 };
 
-const updatePage = (p: number) => {
-    page.value = p;
-    loadPage();
+const nextPage = () => {
+    if (page.value < totalPage.value || totalPage.value == 0) {
+        noMore.value = false;
+        page.value++;
+        loadPage();
+    } else {
+        noMore.value = true;
+    }
 };
 
 const changeTab = (tab: "follows" | "followings") => {
@@ -100,21 +114,29 @@ const loadFollows = (username: string, scrollToBottom: boolean = false) => {
         username: username,
         page: page.value,
         page_size: pageSize.value,
-    })
-        .then((res) => {
-            loading.value = false;
-            list.value = res.list || [];
-            totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
-
+    }).then((res) => {
+        loading.value = false;
+        if (res.list.length === 0) {
+            noMore.value = true
+        }
+        if (page.value > 1) {
+            list.value = list.value.concat(res.list);
+        } else {
+            list.value = res.list;
             if (scrollToBottom) {
                 setTimeout(() => {
                     window.scrollTo(0, 99999);
                 }, 50);
             }
-        })
-        .catch((err) => {
-            loading.value = false;
-        });
+        }
+        totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
+    })
+    .catch((_err) => {
+        loading.value = false;
+        if (page.value > 1) {
+            page.value--;
+        }
+    });
 };
 
 const loadFollowings = (username: string, scrollToBottom: boolean = false) => {
@@ -125,21 +147,29 @@ const loadFollowings = (username: string, scrollToBottom: boolean = false) => {
         username: username,
         page: page.value,
         page_size: pageSize.value,
-    })
-        .then((res) => {
-            loading.value = false;
-            list.value = res.list || [];
-            totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
-
+    }).then((res) => {
+        loading.value = false;
+        if (res.list.length === 0) {
+            noMore.value = true
+        }
+        if (page.value > 1) {
+            list.value = list.value.concat(res.list);
+        } else {
+            list.value = res.list;
             if (scrollToBottom) {
                 setTimeout(() => {
                     window.scrollTo(0, 99999);
                 }, 50);
             }
-        })
-        .catch((err) => {
-            loading.value = false;
-        });
+        }
+        totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
+    })
+    .catch((_err) => {
+        loading.value = false;
+        if (page.value > 1) {
+            page.value--;
+        }
+    });
 };
 
 onMounted(() => {
@@ -153,11 +183,21 @@ onMounted(() => {
     padding: 20px;
 }
 
-.pagination-wrap {
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
+.load-more {
+    margin: 20px;
+
+    .load-more-wrap {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 14px;
+
+        .load-more-spinner {
+            font-size: 14px;
+            opacity: 0.65;
+        }
+    }
 }
 
 .dark {
