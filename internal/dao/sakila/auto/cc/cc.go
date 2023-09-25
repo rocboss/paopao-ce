@@ -26,23 +26,30 @@ const (
 	_Comment_GetCommentReplyById               = `SELECT * FROM @comment_reply WHERE id=? AND is_del=0`
 	_Comment_GetCommentThumbs                  = `SELECT user_id, 	tweet_id, 	comment_id, 	reply_id, 	comment_type, 	is_thumbs_up, 	is_thumbs_down FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=?`
 	_Comment_GetCommmentRepliesByIds           = `SELECT * FROM @comment_reply WHERE comment_id IN (?) ORDER BY id ASC`
-	_Comment_GetDefaultComments                = `SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY id ASC LIMIT ? OFFSET ?`
-	_Comment_GetHotsComments                   = `SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY thumbs_up_count DESC, id DESC LIMIT ? OFFSET ?`
-	_Comment_GetNewestComments                 = `SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?`
+	_Comment_GetDefaultComments                = `SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY is_essence DESC, id ASC LIMIT ? OFFSET ?`
+	_Comment_GetHotsComments                   = `SELECT c.* FROM @comment c LEFT JOIN @comment_metric m ON c.id=m.comment_id WHERE c.post_id=? AND c.is_del=0 AND m.is_del=0 ORDER BY is_essence DESC, m.rank_score DESC, id DESC LIMIT ? OFFSET ?`
+	_Comment_GetNewestComments                 = `SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY is_essence DESC, id DESC LIMIT ? OFFSET ?`
 	_Comment_GetUsersByIds                     = `SELECT id, nickname, username, status, avatar, is_admin FROM @user WHERE id IN (?)`
 	_CommentManage_CreateComment               = `INSERT INTO @comment (post_id, user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?)`
 	_CommentManage_CreateCommentContent        = `INSERT INTO @comment_content (comment_id, user_id, content, type, sort, created_on) VALUES (?, ?, ?, ?, ?, ?)`
 	_CommentManage_CreateCommentReply          = `INSERT INTO @comment_reply (comment_id, user_id, content, at_user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?, ?, ?)`
 	_CommentManage_CreateThumbsUpdownComment   = `INSERT INTO @tweet_comment_thumbs (user_id, tweet_id, comment_id, reply_id, is_thumbs_up, is_thumbs_down, comment_type, created_on) VALUES (:user_id, :tweet_id, :comment_id, :reply_id, :is_thumbs_up, :is_thumbs_down, :comment_type, :created_on)`
+	_CommentManage_DecrCommentReplyCount       = `UPDATE @comment SET reply_count=reply_count-1, 	modified_on=? WHERE id=? AND is_del=0`
 	_CommentManage_DeleteComment               = `UPDATE @comment SET deleted_on=?, is_del=1 WHERE id=? AND is_del=0`
 	_CommentManage_DeleteCommentReply          = `UPDATE @comment_reply SET deleted_on=?, is_del=1 WHERE id=? AND is_del=0`
 	_CommentManage_DeleteCommentThumbs         = `UPDATE @tweet_comment_thumbs SET deleted_on=?, is_del=1 WHERE user_id=? AND tweet_id=? AND comment_id=? AND is_del=0`
 	_CommentManage_DeleteReplyThumbs           = `UPDATE @tweet_comment_thumbs SET deleted_on=?, is_del=1 WHERE user_id=? AND comment_id=? AND reply_id=? AND is_del=0`
 	_CommentManage_GetCommentReplyThumb        = `SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=? AND comment_id=? AND reply_id=? AND comment_type=1 AND is_del=0`
 	_CommentManage_GetTweetCommentThumb        = `SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=? AND comment_id=? AND comment_type=0 AND is_del=0`
+	_CommentManage_IncrCommentReplyCount       = `UPDATE @comment SET reply_count=reply_count+1, 	modified_on=? WHERE id=? AND is_del=0`
 	_CommentManage_UpdateCommentThumbsCount    = `UPDATE @comment SET thumbs_up_count=?, thumbs_down_count=?, modified_on=? WHERE id=? AND is_del=0`
 	_CommentManage_UpdateReplyThumbsCount      = `UPDATE @comment_reply SET thumbs_up_count=?, thumbs_down_count=?, modified_on=? WHERE id=? AND is_del=0`
 	_CommentManage_UpdateThumbsUpdownComment   = `UPDATE @tweet_comment_thumbs SET is_thumbs_up=:is_thumbs_up, is_thumbs_down=:is_thumbs_down, modified_on=:modified_on WHERE id=:id AND is_del=0`
+	_CommentMetrics_AddCommentMetric           = `INSERT INTO @comment_metric (comment_id, created_on) VALUES (?, ?)`
+	_CommentMetrics_DeleteCommentMetric        = `UPDATE @comment_metric SET is_del=1, deleted_on=? WHERE comment_id=? AND is_del=0`
+	_CommentMetrics_GetMotivationFactor        = `SELECT motivation_factor FROM @comment_metric WHERE comment_id=? AND is_del=0`
+	_CommentMetrics_UpdateRankScore            = `UPDATE @comment_metric SET rank_score=?, modified_on=? WHERE comment_id=? AND is_del=0`
+	_CommentMetrics_UpsertCommentMetric        = `INSERT INTO @comment_metric (comment_id, rank_score, created_on) VALUES (?, ?, ?)`
 	_ContactManager_AddFriendMsgsUpdate        = `UPDATE @message SET reply_id=?, modified_on=? WHERE ((sender_user_id = ? AND receiver_user_id = ?) OR (sender_user_id = ? AND receiver_user_id = ?)) AND type = ? AND reply_id = ?`
 	_ContactManager_CreateContact              = `INSERT INTO @contact (user_id, friend_id, status, created_on) VALUES (?, ?, ?, ?)`
 	_ContactManager_CreateMessage              = `INSERT INTO @message (sender_user_id, receiver_user_id, type, brief, content, reply_id, created_on) VALUES (:sender_user_id, :receiver_user_id, :type, :brief, :content, :reply_id, :created_on)`
@@ -62,11 +69,19 @@ const (
 	_FollowingManager_ExistFollowing           = `SELECT 1 FROM @following WHERE user_id=? AND follow_id=? AND is_del=0`
 	_FollowingManager_ListFollowings           = `SELECT u.id user_id, 	u.username username, 	u.nickname nickname, 	u.avatar avatar, 	u.created_on created_on FROM @following f JOIN @user u ON f.user_id=u.id WHERE f.follow_id=? AND f.is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
 	_FollowingManager_ListFollows              = `SELECT u.id user_id, 	u.username username, 	u.nickname nickname, 	u.avatar avatar, 	u.created_on created_on FROM @following f JOIN @user u ON f.follow_id=u.id WHERE f.user_id=? AND f.is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
+	_Message_CountAllMessages                  = `SELECT count(*) FROM @message WHERE (receiver_user_id=? OR (sender_user_id=? AND type=4)) AND is_del=0`
+	_Message_CountRequestingMessages           = `SELECT count(*) FROM @message WHERE receiver_user_id=? AND type=5 AND is_del=0`
+	_Message_CountSystemMessages               = `SELECT count(*) FROM @message WHERE receiver_user_id=? AND type IN (1, 2, 3, 99) AND is_del=0`
+	_Message_CountUnreadMessages               = `SELECT count(*) FROM @message WHERE receiver_user_id=? AND is_read=0 AND is_del=0`
+	_Message_CountWhisperMessages              = `SELECT count(*) FROM @message WHERE ((receiver_user_id=? OR sender_user_id=?) AND type=4) AND is_del=0`
 	_Message_CreateMessage                     = `INSERT INTO @message (sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, created_on) VALUES (:sender_user_id, :receiver_user_id, :type, :brief, :content, :post_id, :comment_id, :reply_id, :created_on)`
+	_Message_GetAllMessages                    = `SELECT * FROM @message WHERE (receiver_user_id=? OR (sender_user_id=? AND type=4)) AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?`
 	_Message_GetMessageById                    = `SELECT * FROM @message WHERE id=? AND is_del=0`
-	_Message_GetMessageCount                   = `SELECT count(*) FROM @message WHERE (receiver_user_id=? OR (sender_user_id=? AND type=4)) AND is_del=0`
-	_Message_GetMessages                       = `SELECT * FROM @message WHERE (receiver_user_id=? OR (sender_user_id=? AND type=4)) AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?`
+	_Message_GetRequestingMessages             = `SELECT * FROM @message WHERE receiver_user_id=? AND type=5 AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?`
+	_Message_GetSystemMessages                 = `SELECT * FROM @message WHERE receiver_user_id=? AND type IN (1, 2, 3, 99) AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?`
 	_Message_GetUnreadCount                    = `SELECT count(*) FROM @message WHERE receiver_user_id=? AND is_read=0 AND is_del=0`
+	_Message_GetUnreadMessages                 = `SELECT * FROM @message WHERE receiver_user_id=? AND is_read=0 AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?`
+	_Message_GetWhisperMessages                = `SELECT * FROM @message WHERE ((receiver_user_id=? OR sender_user_id=?) AND type=4) AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?`
 	_Message_ReadMessage                       = `UPDATE @message SET is_read=1, modified_on=? WHERE id=?`
 	_Security_CreatePhoneCaptcha               = `INSERT INTO @captcha (phone, captcha, expired_on, created_on) VALUES (:phone, :captcha, :expired_on, :created_on)`
 	_Security_GetLatestPhoneCaptcha            = `SELECT * FROM @captcha WHERE phone=? AND is_del=0`
@@ -79,6 +94,8 @@ const (
 	_ShipIndex_IndexCountBySelf                = `SELECT count(*) FROM @post WHERE is_del=0 AND 	(visibility=90 OR 	(visibility=0 AND user_id=?) OR 	(visibility=50 AND user_id IN (?)))`
 	_SimpleIndex_Index                         = `SELECT * FROM @post WHERE visibility=90 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
 	_SimpleIndex_IndexCount                    = `SELECT count(*) FROM @post WHERE visibility=90`
+	_TrendsManager_CountIndexTrends            = `SELECT count(*) FROM @contact c JOIN @user u ON c.friend_id=u.id JOIN @user_metric m ON c.friend_id=m.user_id WHERE c.user_id=? 	AND c.is_del=0 	AND u.is_del=0 	AND m.is_del=0 	AND m.tweets_count>0`
+	_TrendsManager_GetIndexTrends              = `SELECT u.username username, 	u.nickname nickname, 	u.avatar avatar FROM @contact c JOIN @user u ON c.friend_id=u.id JOIN @user_metric m ON c.friend_id=m.user_id WHERE c.user_id=? 	AND c.is_del=0 	AND u.is_del=0 	AND m.is_del=0 	AND m.tweets_count>0 LIMIT ? OFFSET ?`
 	_Tweet_CountFollowingTweets                = `SELECT count(*) FROM @post WHERE user_id=? AND is_del=0`
 	_Tweet_CountFollowingTweetsFollow          = `SELECT count(*) FROM @post WHERE (user_id=? OR (visibility>=60 AND user_id IN(?))) AND is_del=0`
 	_Tweet_CountFollowingTweetsFriend          = `SELECT count(*) FROM @post WHERE (user_id=? OR (visibility>=50 AND user_id IN(?))) AND is_del=0`
@@ -137,6 +154,7 @@ const (
 	_TweetMetrics_DeleteTweetMetric            = `UPDATE @post_metric SET is_del=1, deleted_on=? WHERE post_id=? AND is_del=0`
 	_TweetMetrics_GetMotivationFactor          = `SELECT motivation_factor FROM @post_metric WHERE post_id=? AND is_del=0`
 	_TweetMetrics_UpdateRankScore              = `UPDATE @post_metric SET rank_score=?, modified_on=? WHERE post_id=? AND is_del=0`
+	_TweetMetrics_UpsertTweetMetric            = `INSERT INTO @post_metric (post_id, rank_score, created_on) VALUES (?, ?, ?)`
 	_Tweet_UserCommentTweetsByFriend           = `SELECT id, 	user_id, 	comment_count, 	collection_count, 	upvote_count, 	share_count, 	visibility, 	is_top, 	is_essence, 	is_lock, 	latest_replied_on, 	tags, 	attachment_price, 	ip, 	ip_loc, 	created_on, 	modified_on, 	deleted_on, 	is_del FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND visibility>=50 ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
 	_Tweet_UserCommentTweetsByGuest            = `SELECT id, 	user_id, 	comment_count, 	collection_count, 	upvote_count, 	share_count, 	visibility, 	is_top, 	is_essence, 	is_lock, 	latest_replied_on, 	tags, 	attachment_price, 	ip, 	ip_loc, 	created_on, 	modified_on, 	deleted_on, 	is_del FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? AND visibility>=90 ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
 	_Tweet_UserCommentTweetsBySelf             = `SELECT id, 	user_id, 	comment_count, 	collection_count, 	upvote_count, 	share_count, 	visibility, 	is_top, 	is_essence, 	is_lock, 	latest_replied_on, 	tags, 	attachment_price, 	ip, 	ip_loc, 	created_on, 	modified_on, 	deleted_on, 	is_del FROM @post_by_comment WHERE is_del=0 AND comment_user_id=? ORDER BY latest_replied_on DESC LIMIT ? OFFSET ?`
@@ -166,6 +184,12 @@ const (
 	_UserManage_GetUsersByIds                  = `SELECT * FROM @user WHERE id IN (?) AND is_del=0`
 	_UserManage_GetUsersByKeyword              = `SELECT * FROM @user WHERE username LIKE ? AND is_del=0 limit 6`
 	_UserManage_UpdateUser                     = `UPDATE @user SET username=:username, nickname=:nickname, phone=:phone, password=:password, salt=:salt, status=:status, avatar=:avatar, balance=:balance, is_admin=:is_admin, modified_on=:modified_on WHERE id=? AND is_del=0`
+	_UserMetrics_AddUserMetric                 = `INSERT INTO @user_metric (user_id, created_on) VALUES (?, ?)`
+	_UserMetrics_DeleteUserMetric              = `UPDATE @user_metric SET is_del=1, deleted_on=? WHERE user_id=? AND is_del=0`
+	_UserMetrics_GetTweetsCount                = `SELECT tweets_count FROM @user_metric WHERE user_id=? AND is_del=0`
+	_UserMetrics_UpdateUserMetric              = `UPDATE @user_metric SET tweets_count=?, modified_on=? WHERE user_id=? AND is_del=0`
+	_UserRelation_MyFollowIds                  = `SELECT follow_id FROM @following WHERE user_id=? AND is_del=0`
+	_UserRelation_MyFriendIds                  = `SELECT friend_id FROM @contact WHERE user_id=? AND is_del=0`
 	_Wallet_AddUserBalance                     = `UPDATE @user SET balance=balance+?, modified_on=? WHERE id=? AND is_del=0`
 	_Wallet_CreateRecharge                     = `INSERT INTO @wallet_recharge (user_id, amount, created_on) VALUES (?, ?, ?)`
 	_Wallet_CreateWalletStatement              = `INSERT INTO @wallet_statement (user_id, change_amount, balance_snapshot, reason, created_on) VALUES (?, ?, ?, ?, ?)`
@@ -226,16 +250,27 @@ type CommentManage struct {
 	CreateComment             *sqlx.Stmt      `yesql:"create_comment"`
 	CreateCommentContent      *sqlx.Stmt      `yesql:"create_comment_content"`
 	CreateCommentReply        *sqlx.Stmt      `yesql:"create_comment_reply"`
+	DecrCommentReplyCount     *sqlx.Stmt      `yesql:"decr_comment_reply_count"`
 	DeleteComment             *sqlx.Stmt      `yesql:"delete_comment"`
 	DeleteCommentReply        *sqlx.Stmt      `yesql:"delete_comment_reply"`
 	DeleteCommentThumbs       *sqlx.Stmt      `yesql:"delete_comment_thumbs"`
 	DeleteReplyThumbs         *sqlx.Stmt      `yesql:"delete_reply_thumbs"`
 	GetCommentReplyThumb      *sqlx.Stmt      `yesql:"get_comment_reply_thumb"`
 	GetTweetCommentThumb      *sqlx.Stmt      `yesql:"get_tweet_comment_thumb"`
+	IncrCommentReplyCount     *sqlx.Stmt      `yesql:"incr_comment_reply_count"`
 	UpdateCommentThumbsCount  *sqlx.Stmt      `yesql:"update_comment_thumbs_count"`
 	UpdateReplyThumbsCount    *sqlx.Stmt      `yesql:"update_reply_thumbs_count"`
 	CreateThumbsUpdownComment *sqlx.NamedStmt `yesql:"create_thumbs_updown_comment"`
 	UpdateThumbsUpdownComment *sqlx.NamedStmt `yesql:"update_thumbs_updown_comment"`
+}
+
+type CommentMetrics struct {
+	yesql.Namespace     `yesql:"comment_metrics"`
+	AddCommentMetric    *sqlx.Stmt `yesql:"add_comment_metric"`
+	DeleteCommentMetric *sqlx.Stmt `yesql:"delete_comment_metric"`
+	GetMotivationFactor *sqlx.Stmt `yesql:"get_motivation_factor"`
+	UpdateRankScore     *sqlx.Stmt `yesql:"update_rank_score"`
+	UpsertCommentMetric *sqlx.Stmt `yesql:"upsert_comment_metric"`
 }
 
 type ContactManager struct {
@@ -266,13 +301,21 @@ type FollowingManager struct {
 }
 
 type Message struct {
-	yesql.Namespace `yesql:"message"`
-	GetMessageById  *sqlx.Stmt      `yesql:"get_message_by_id"`
-	GetMessageCount *sqlx.Stmt      `yesql:"get_message_count"`
-	GetMessages     *sqlx.Stmt      `yesql:"get_messages"`
-	GetUnreadCount  *sqlx.Stmt      `yesql:"get_unread_count"`
-	ReadMessage     *sqlx.Stmt      `yesql:"read_message"`
-	CreateMessage   *sqlx.NamedStmt `yesql:"create_message"`
+	yesql.Namespace         `yesql:"message"`
+	CountAllMessages        *sqlx.Stmt      `yesql:"count_all_messages"`
+	CountRequestingMessages *sqlx.Stmt      `yesql:"count_requesting_messages"`
+	CountSystemMessages     *sqlx.Stmt      `yesql:"count_system_messages"`
+	CountUnreadMessages     *sqlx.Stmt      `yesql:"count_unread_messages"`
+	CountWhisperMessages    *sqlx.Stmt      `yesql:"count_whisper_messages"`
+	GetAllMessages          *sqlx.Stmt      `yesql:"get_all_messages"`
+	GetMessageById          *sqlx.Stmt      `yesql:"get_message_by_id"`
+	GetRequestingMessages   *sqlx.Stmt      `yesql:"get_requesting_messages"`
+	GetSystemMessages       *sqlx.Stmt      `yesql:"get_system_messages"`
+	GetUnreadCount          *sqlx.Stmt      `yesql:"get_unread_count"`
+	GetUnreadMessages       *sqlx.Stmt      `yesql:"get_unread_messages"`
+	GetWhisperMessages      *sqlx.Stmt      `yesql:"get_whisper_messages"`
+	ReadMessage             *sqlx.Stmt      `yesql:"read_message"`
+	CreateMessage           *sqlx.NamedStmt `yesql:"create_message"`
 }
 
 type Security struct {
@@ -296,6 +339,12 @@ type SimpleIndex struct {
 	yesql.Namespace `yesql:"simple_index"`
 	Index           *sqlx.Stmt `yesql:"index"`
 	IndexCount      *sqlx.Stmt `yesql:"index_count"`
+}
+
+type TrendsManager struct {
+	yesql.Namespace  `yesql:"trends_manager"`
+	CountIndexTrends *sqlx.Stmt `yesql:"count_index_trends"`
+	GetIndexTrends   *sqlx.Stmt `yesql:"get_index_trends"`
 }
 
 type Tweet struct {
@@ -390,6 +439,7 @@ type TweetMetrics struct {
 	DeleteTweetMetric   *sqlx.Stmt `yesql:"delete_tweet_metric"`
 	GetMotivationFactor *sqlx.Stmt `yesql:"get_motivation_factor"`
 	UpdateRankScore     *sqlx.Stmt `yesql:"update_rank_score"`
+	UpsertTweetMetric   *sqlx.Stmt `yesql:"upsert_tweet_metric"`
 }
 
 type UserManage struct {
@@ -403,6 +453,20 @@ type UserManage struct {
 	GetUsersByKeyword    *sqlx.Stmt      `yesql:"get_users_by_keyword"`
 	CreateUser           *sqlx.NamedStmt `yesql:"create_user"`
 	UpdateUser           *sqlx.NamedStmt `yesql:"update_user"`
+}
+
+type UserMetrics struct {
+	yesql.Namespace  `yesql:"user_metrics"`
+	AddUserMetric    *sqlx.Stmt `yesql:"add_user_metric"`
+	DeleteUserMetric *sqlx.Stmt `yesql:"delete_user_metric"`
+	GetTweetsCount   *sqlx.Stmt `yesql:"get_tweets_count"`
+	UpdateUserMetric *sqlx.Stmt `yesql:"update_user_metric"`
+}
+
+type UserRelation struct {
+	yesql.Namespace `yesql:"user_relation"`
+	MyFollowIds     *sqlx.Stmt `yesql:"my_follow_ids"`
+	MyFriendIds     *sqlx.Stmt `yesql:"my_friend_ids"`
 }
 
 type Wallet struct {
@@ -494,6 +558,9 @@ func BuildCommentManage(p PreparexBuilder, ctx ...context.Context) (obj *Comment
 	if obj.CreateCommentReply, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_CreateCommentReply))); err != nil {
 		return nil, fmt.Errorf("prepare _CommentManage_CreateCommentReply error: %w", err)
 	}
+	if obj.DecrCommentReplyCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_DecrCommentReplyCount))); err != nil {
+		return nil, fmt.Errorf("prepare _CommentManage_DecrCommentReplyCount error: %w", err)
+	}
 	if obj.DeleteComment, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_DeleteComment))); err != nil {
 		return nil, fmt.Errorf("prepare _CommentManage_DeleteComment error: %w", err)
 	}
@@ -512,6 +579,9 @@ func BuildCommentManage(p PreparexBuilder, ctx ...context.Context) (obj *Comment
 	if obj.GetTweetCommentThumb, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_GetTweetCommentThumb))); err != nil {
 		return nil, fmt.Errorf("prepare _CommentManage_GetTweetCommentThumb error: %w", err)
 	}
+	if obj.IncrCommentReplyCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_IncrCommentReplyCount))); err != nil {
+		return nil, fmt.Errorf("prepare _CommentManage_IncrCommentReplyCount error: %w", err)
+	}
 	if obj.UpdateCommentThumbsCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_UpdateCommentThumbsCount))); err != nil {
 		return nil, fmt.Errorf("prepare _CommentManage_UpdateCommentThumbsCount error: %w", err)
 	}
@@ -523,6 +593,32 @@ func BuildCommentManage(p PreparexBuilder, ctx ...context.Context) (obj *Comment
 	}
 	if obj.UpdateThumbsUpdownComment, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_CommentManage_UpdateThumbsUpdownComment))); err != nil {
 		return nil, fmt.Errorf("prepare _CommentManage_UpdateThumbsUpdownComment error: %w", err)
+	}
+	return
+}
+
+func BuildCommentMetrics(p PreparexBuilder, ctx ...context.Context) (obj *CommentMetrics, err error) {
+	var c context.Context
+	if len(ctx) > 0 && ctx[0] != nil {
+		c = ctx[0]
+	} else {
+		c = context.Background()
+	}
+	obj = &CommentMetrics{}
+	if obj.AddCommentMetric, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentMetrics_AddCommentMetric))); err != nil {
+		return nil, fmt.Errorf("prepare _CommentMetrics_AddCommentMetric error: %w", err)
+	}
+	if obj.DeleteCommentMetric, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentMetrics_DeleteCommentMetric))); err != nil {
+		return nil, fmt.Errorf("prepare _CommentMetrics_DeleteCommentMetric error: %w", err)
+	}
+	if obj.GetMotivationFactor, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentMetrics_GetMotivationFactor))); err != nil {
+		return nil, fmt.Errorf("prepare _CommentMetrics_GetMotivationFactor error: %w", err)
+	}
+	if obj.UpdateRankScore, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentMetrics_UpdateRankScore))); err != nil {
+		return nil, fmt.Errorf("prepare _CommentMetrics_UpdateRankScore error: %w", err)
+	}
+	if obj.UpsertCommentMetric, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentMetrics_UpsertCommentMetric))); err != nil {
+		return nil, fmt.Errorf("prepare _CommentMetrics_UpsertCommentMetric error: %w", err)
 	}
 	return
 }
@@ -614,17 +710,41 @@ func BuildMessage(p PreparexBuilder, ctx ...context.Context) (obj *Message, err 
 		c = context.Background()
 	}
 	obj = &Message{}
+	if obj.CountAllMessages, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_CountAllMessages))); err != nil {
+		return nil, fmt.Errorf("prepare _Message_CountAllMessages error: %w", err)
+	}
+	if obj.CountRequestingMessages, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_CountRequestingMessages))); err != nil {
+		return nil, fmt.Errorf("prepare _Message_CountRequestingMessages error: %w", err)
+	}
+	if obj.CountSystemMessages, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_CountSystemMessages))); err != nil {
+		return nil, fmt.Errorf("prepare _Message_CountSystemMessages error: %w", err)
+	}
+	if obj.CountUnreadMessages, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_CountUnreadMessages))); err != nil {
+		return nil, fmt.Errorf("prepare _Message_CountUnreadMessages error: %w", err)
+	}
+	if obj.CountWhisperMessages, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_CountWhisperMessages))); err != nil {
+		return nil, fmt.Errorf("prepare _Message_CountWhisperMessages error: %w", err)
+	}
+	if obj.GetAllMessages, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_GetAllMessages))); err != nil {
+		return nil, fmt.Errorf("prepare _Message_GetAllMessages error: %w", err)
+	}
 	if obj.GetMessageById, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_GetMessageById))); err != nil {
 		return nil, fmt.Errorf("prepare _Message_GetMessageById error: %w", err)
 	}
-	if obj.GetMessageCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_GetMessageCount))); err != nil {
-		return nil, fmt.Errorf("prepare _Message_GetMessageCount error: %w", err)
+	if obj.GetRequestingMessages, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_GetRequestingMessages))); err != nil {
+		return nil, fmt.Errorf("prepare _Message_GetRequestingMessages error: %w", err)
 	}
-	if obj.GetMessages, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_GetMessages))); err != nil {
-		return nil, fmt.Errorf("prepare _Message_GetMessages error: %w", err)
+	if obj.GetSystemMessages, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_GetSystemMessages))); err != nil {
+		return nil, fmt.Errorf("prepare _Message_GetSystemMessages error: %w", err)
 	}
 	if obj.GetUnreadCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_GetUnreadCount))); err != nil {
 		return nil, fmt.Errorf("prepare _Message_GetUnreadCount error: %w", err)
+	}
+	if obj.GetUnreadMessages, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_GetUnreadMessages))); err != nil {
+		return nil, fmt.Errorf("prepare _Message_GetUnreadMessages error: %w", err)
+	}
+	if obj.GetWhisperMessages, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_GetWhisperMessages))); err != nil {
+		return nil, fmt.Errorf("prepare _Message_GetWhisperMessages error: %w", err)
 	}
 	if obj.ReadMessage, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_ReadMessage))); err != nil {
 		return nil, fmt.Errorf("prepare _Message_ReadMessage error: %w", err)
@@ -694,6 +814,23 @@ func BuildSimpleIndex(p PreparexBuilder, ctx ...context.Context) (obj *SimpleInd
 	}
 	if obj.IndexCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_SimpleIndex_IndexCount))); err != nil {
 		return nil, fmt.Errorf("prepare _SimpleIndex_IndexCount error: %w", err)
+	}
+	return
+}
+
+func BuildTrendsManager(p PreparexBuilder, ctx ...context.Context) (obj *TrendsManager, err error) {
+	var c context.Context
+	if len(ctx) > 0 && ctx[0] != nil {
+		c = ctx[0]
+	} else {
+		c = context.Background()
+	}
+	obj = &TrendsManager{}
+	if obj.CountIndexTrends, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TrendsManager_CountIndexTrends))); err != nil {
+		return nil, fmt.Errorf("prepare _TrendsManager_CountIndexTrends error: %w", err)
+	}
+	if obj.GetIndexTrends, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TrendsManager_GetIndexTrends))); err != nil {
+		return nil, fmt.Errorf("prepare _TrendsManager_GetIndexTrends error: %w", err)
 	}
 	return
 }
@@ -938,6 +1075,9 @@ func BuildTweetMetrics(p PreparexBuilder, ctx ...context.Context) (obj *TweetMet
 	if obj.UpdateRankScore, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetMetrics_UpdateRankScore))); err != nil {
 		return nil, fmt.Errorf("prepare _TweetMetrics_UpdateRankScore error: %w", err)
 	}
+	if obj.UpsertTweetMetric, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TweetMetrics_UpsertTweetMetric))); err != nil {
+		return nil, fmt.Errorf("prepare _TweetMetrics_UpsertTweetMetric error: %w", err)
+	}
 	return
 }
 
@@ -974,6 +1114,46 @@ func BuildUserManage(p PreparexBuilder, ctx ...context.Context) (obj *UserManage
 	}
 	if obj.UpdateUser, err = p.PrepareNamedContext(c, p.Rebind(p.QueryHook(_UserManage_UpdateUser))); err != nil {
 		return nil, fmt.Errorf("prepare _UserManage_UpdateUser error: %w", err)
+	}
+	return
+}
+
+func BuildUserMetrics(p PreparexBuilder, ctx ...context.Context) (obj *UserMetrics, err error) {
+	var c context.Context
+	if len(ctx) > 0 && ctx[0] != nil {
+		c = ctx[0]
+	} else {
+		c = context.Background()
+	}
+	obj = &UserMetrics{}
+	if obj.AddUserMetric, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserMetrics_AddUserMetric))); err != nil {
+		return nil, fmt.Errorf("prepare _UserMetrics_AddUserMetric error: %w", err)
+	}
+	if obj.DeleteUserMetric, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserMetrics_DeleteUserMetric))); err != nil {
+		return nil, fmt.Errorf("prepare _UserMetrics_DeleteUserMetric error: %w", err)
+	}
+	if obj.GetTweetsCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserMetrics_GetTweetsCount))); err != nil {
+		return nil, fmt.Errorf("prepare _UserMetrics_GetTweetsCount error: %w", err)
+	}
+	if obj.UpdateUserMetric, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserMetrics_UpdateUserMetric))); err != nil {
+		return nil, fmt.Errorf("prepare _UserMetrics_UpdateUserMetric error: %w", err)
+	}
+	return
+}
+
+func BuildUserRelation(p PreparexBuilder, ctx ...context.Context) (obj *UserRelation, err error) {
+	var c context.Context
+	if len(ctx) > 0 && ctx[0] != nil {
+		c = ctx[0]
+	} else {
+		c = context.Background()
+	}
+	obj = &UserRelation{}
+	if obj.MyFollowIds, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserRelation_MyFollowIds))); err != nil {
+		return nil, fmt.Errorf("prepare _UserRelation_MyFollowIds error: %w", err)
+	}
+	if obj.MyFriendIds, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_UserRelation_MyFriendIds))); err != nil {
+		return nil, fmt.Errorf("prepare _UserRelation_MyFriendIds error: %w", err)
 	}
 	return
 }

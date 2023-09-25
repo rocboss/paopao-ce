@@ -53,6 +53,20 @@ VALUES (?, ?, ?)
 RETURNING *;
 
 --------------------------------------------------------------------------------
+-- comment sql dml
+--------------------------------------------------------------------------------
+
+-- name: get_hots_comments@comment
+-- prepare: stmt
+SELECT c.* 
+FROM @comment c
+LEFT JOIN @comment_metric m
+ON c.id=m.comment_id
+WHERE c.post_id=? AND c.is_del=0 AND m.is_del=0
+ORDER BY is_essence DESC, m.rank_score DESC NULLS LAST, id DESC
+LIMIT ? OFFSET ?; 
+
+--------------------------------------------------------------------------------
 -- user_manage sql dml
 --------------------------------------------------------------------------------
 

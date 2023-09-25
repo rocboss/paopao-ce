@@ -25,15 +25,29 @@ SELECT status FROM @contact WHERE user_id=? AND friend_id=? AND is_del=0;
 
 -- name: get_newest_comments@comment
 -- prepare: stmt
-SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?; 
+SELECT * 
+FROM @comment 
+WHERE post_id=? AND is_del=0 
+ORDER BY is_essence DESC, id DESC 
+LIMIT ? OFFSET ?; 
 
 -- name: get_hots_comments@comment
 -- prepare: stmt
-SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY thumbs_up_count DESC, id DESC LIMIT ? OFFSET ?; 
+SELECT c.* 
+FROM @comment c
+LEFT JOIN @comment_metric m
+ON c.id=m.comment_id
+WHERE c.post_id=? AND c.is_del=0 AND m.is_del=0
+ORDER BY is_essence DESC, m.rank_score DESC, id DESC
+LIMIT ? OFFSET ?; 
 
 -- name: get_default_comments@comment
 -- prepare: stmt
-SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY id ASC LIMIT ? OFFSET ?; 
+SELECT * 
+FROM @comment 
+WHERE post_id=? AND is_del=0 
+ORDER BY is_essence DESC, id ASC 
+LIMIT ? OFFSET ?; 
 
 -- name: get_comment_by_id@comment
 -- prepare: stmt
@@ -96,6 +110,20 @@ VALUES (?, ?, ?, ?, ?);
 -- prepare: stmt
 INSERT INTO @comment_reply (comment_id, user_id, content, at_user_id, ip, ip_loc, created_on) 
 VALUES (?, ?, ?, ?, ?, ?, ?);
+
+-- name: incr_comment_reply_count@comment_manage
+-- prepare: stmt
+UPDATE @comment 
+SET reply_count=reply_count+1,
+	modified_on=?
+WHERE id=? AND is_del=0;
+
+-- name: decr_comment_reply_count@comment_manage
+-- prepare: stmt
+UPDATE @comment 
+SET reply_count=reply_count-1,
+	modified_on=?
+WHERE id=? AND is_del=0;
 
 -- name: delete_comment_reply@comment_manage
 -- prepare: stmt
@@ -198,6 +226,41 @@ LIMIT ? OFFSET ?;
 SELECT count(*) FROM @following WHERE follow_id=? AND is_del=0;
 
 --------------------------------------------------------------------------------
+-- trends_manager sql dml
+--------------------------------------------------------------------------------
+
+-- name: get_index_trends@trends_manager
+-- prepare: stmt
+SELECT u.username username, 
+	u.nickname nickname,
+	u.avatar avatar
+FROM @contact c 
+JOIN @user u 
+ON c.friend_id=u.id
+JOIN @user_metric m 
+ON c.friend_id=m.user_id
+WHERE c.user_id=? 
+	AND c.is_del=0 
+	AND u.is_del=0 
+	AND m.is_del=0
+	AND m.tweets_count>0
+LIMIT ? OFFSET ?;
+
+-- name: count_index_trends@trends_manager
+-- prepare: stmt
+SELECT count(*)
+FROM @contact c 
+JOIN @user u 
+ON c.friend_id=u.id
+JOIN @user_metric m 
+ON c.friend_id=m.user_id
+WHERE c.user_id=? 
+	AND c.is_del=0 
+	AND u.is_del=0 
+	AND m.is_del=0
+	AND m.tweets_count>0;
+
+--------------------------------------------------------------------------------
 -- contact_manager sql dml
 --------------------------------------------------------------------------------
 
@@ -288,17 +351,75 @@ SELECT * FROM @message WHERE id=? AND is_del=0;
 -- prepare: stmt
 UPDATE @message SET is_read=1, modified_on=? WHERE id=?;
 
--- name: get_messages@message
+-- name: get_system_messages@message
+-- prepare: stmt
+SELECT * 
+FROM @message 
+WHERE receiver_user_id=? AND type IN (1, 2, 3, 99) AND is_del=0 
+ORDER BY id DESC
+LIMIT ? OFFSET ?;
+
+-- name: count_system_messages@message
+-- prepare: stmt
+SELECT count(*) 
+FROM @message 
+WHERE receiver_user_id=? AND type IN (1, 2, 3, 99) AND is_del=0; 
+
+-- name: get_whisper_messages@message
+-- prepare: stmt
+SELECT * 
+FROM @message 
+WHERE ((receiver_user_id=? OR sender_user_id=?) AND type=4) AND is_del=0 
+ORDER BY id DESC
+LIMIT ? OFFSET ?;
+
+-- name: count_whisper_messages@message
+-- prepare: stmt
+SELECT count(*) 
+FROM @message 
+WHERE ((receiver_user_id=? OR sender_user_id=?) AND type=4) AND is_del=0;
+
+-- name: get_requesting_messages@message
+-- prepare: stmt
+SELECT * 
+FROM @message 
+WHERE receiver_user_id=? AND type=5 AND is_del=0 
+ORDER BY id DESC
+LIMIT ? OFFSET ?;
+
+-- name: count_requesting_messages@message
+-- prepare: stmt
+SELECT count(*) 
+FROM @message 
+WHERE receiver_user_id=? AND type=5 AND is_del=0;
+
+-- name: get_unread_messages@message
+-- prepare: stmt
+SELECT * 
+FROM @message 
+WHERE receiver_user_id=? AND is_read=0 AND is_del=0 
+ORDER BY id DESC
+LIMIT ? OFFSET ?;
+
+-- name: count_unread_messages@message
+-- prepare: stmt
+SELECT count(*) 
+FROM @message 
+WHERE receiver_user_id=? AND is_read=0 AND is_del=0;
+
+-- name: get_all_messages@message
 -- prepare: stmt
 SELECT * 
 FROM @message 
 WHERE (receiver_user_id=? OR (sender_user_id=? AND type=4)) AND is_del=0 
 ORDER BY id DESC
-LIMIT ? OFFSET ?
+LIMIT ? OFFSET ?;
 
--- name: get_message_count@message
+-- name: count_all_messages@message
 -- prepare: stmt
-SELECT count(*) FROM @message WHERE (receiver_user_id=? OR (sender_user_id=? AND type=4)) AND is_del=0 
+SELECT count(*)
+FROM @message 
+WHERE (receiver_user_id=? OR (sender_user_id=? AND type=4)) AND is_del=0;
 
 --------------------------------------------------------------------------------
 -- security sql dml
@@ -1191,6 +1312,7 @@ WHERE id IN (?) AND is_del=0;
 --------------------------------------------------------------------------------
 -- tweet_metrics sql dml
 --------------------------------------------------------------------------------
+
 -- name: update_rank_score@tweet_metrics
 -- prepare: stmt
 UPDATE @post_metric SET rank_score=?, modified_on=? WHERE post_id=? AND is_del=0;
@@ -1203,9 +1325,57 @@ SELECT motivation_factor FROM @post_metric WHERE post_id=? AND is_del=0;
 -- prepare: stmt
 INSERT INTO @post_metric (post_id, created_on) VALUES (?, ?);
 
+-- name: upsert_tweet_metric@tweet_metrics
+-- prepare: stmt
+INSERT INTO @post_metric (post_id, rank_score, created_on) VALUES (?, ?, ?);
+
 -- name: delete_tweet_metric@tweet_metrics
 -- prepare: stmt
 UPDATE @post_metric SET is_del=1, deleted_on=? WHERE post_id=? AND is_del=0;
+
+--------------------------------------------------------------------------------
+-- comment_metrics sql dml
+--------------------------------------------------------------------------------
+
+-- name: update_rank_score@comment_metrics
+-- prepare: stmt
+UPDATE @comment_metric SET rank_score=?, modified_on=? WHERE comment_id=? AND is_del=0;
+
+-- name: get_motivation_factor@comment_metrics
+-- prepare: stmt
+SELECT motivation_factor FROM @comment_metric WHERE comment_id=? AND is_del=0;
+
+-- name: add_comment_metric@comment_metrics
+-- prepare: stmt
+INSERT INTO @comment_metric (comment_id, created_on) VALUES (?, ?);
+
+-- name: upsert_comment_metric@comment_metrics
+-- prepare: stmt
+INSERT INTO @comment_metric (comment_id, rank_score, created_on) VALUES (?, ?, ?);
+
+-- name: delete_comment_metric@comment_metrics
+-- prepare: stmt
+UPDATE @comment_metric SET is_del=1, deleted_on=? WHERE comment_id=? AND is_del=0;
+
+--------------------------------------------------------------------------------
+-- user_metrics sql dml
+--------------------------------------------------------------------------------
+
+-- name: update_user_metric@user_metrics
+-- prepare: stmt
+UPDATE @user_metric SET tweets_count=?, modified_on=? WHERE user_id=? AND is_del=0;
+
+-- name: get_tweets_count@user_metrics
+-- prepare: stmt
+SELECT tweets_count FROM @user_metric WHERE user_id=? AND is_del=0;
+
+-- name: add_user_metric@user_metrics
+-- prepare: stmt
+INSERT INTO @user_metric (user_id, created_on) VALUES (?, ?);
+
+-- name: delete_user_metric@user_metrics
+-- prepare: stmt
+UPDATE @user_metric SET is_del=1, deleted_on=? WHERE user_id=? AND is_del=0;
 
 --------------------------------------------------------------------------------
 -- user_manage sql dml
@@ -1259,6 +1429,18 @@ SET username=:username,
     is_admin=:is_admin,
     modified_on=:modified_on 
 WHERE id=? AND is_del=0;
+
+--------------------------------------------------------------------------------
+-- user_relation sql dml
+--------------------------------------------------------------------------------
+
+-- name: my_friend_ids@user_relation
+-- prepare: stmt
+SELECT friend_id FROM @contact WHERE user_id=? AND is_del=0;
+
+-- name: my_follow_ids@user_relation
+-- prepare: stmt
+SELECT follow_id FROM @following WHERE user_id=? AND is_del=0;
 
 --------------------------------------------------------------------------------
 -- wallet sql dml

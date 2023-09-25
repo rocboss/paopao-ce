@@ -21,10 +21,11 @@ type pgcUserManageSrv struct {
 	p *pgc.UserManage
 }
 
-func (s *pgcUserManageSrv) CreateUser(r *ms.User) (*ms.User, error) {
-	r.Model = &ms.Model{CreatedOn: time.Now().Unix()}
-	if err := s.p.CreateUser.Get(&r.ID, r); err != nil {
-		return nil, err
+func (s *pgcUserManageSrv) CreateUser(r *ms.User) (res *ms.User, err error) {
+	res, r.Model = r, &ms.Model{CreatedOn: time.Now().Unix()}
+	if err = s.p.CreateUser.Get(&r.ID, r); err == nil {
+		// 宽松处理错误
+		s.ums.AddUserMetric(r.ID)
 	}
-	return r, nil
+	return
 }

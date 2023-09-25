@@ -8,5 +8,5 @@ type TrendsItem struct {
 	Username string `json:"username"`
 	Nickname string `json:"nickname"`
 	Avatar   string `json:"avatar"`
-	IsFresh  bool   `json:"is_fresh" gorm:"-"`
+	IsFresh  bool   `json:"is_fresh" gorm:"-" db:"-"`
 }
