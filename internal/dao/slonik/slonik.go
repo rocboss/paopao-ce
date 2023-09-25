@@ -37,6 +37,8 @@ type dataSrv struct {
 	core.AttachmentCheckService
 	core.TweetMetricServantA
 	core.CommentMetricServantA
+	core.UserMetricServantA
+	core.TrendsManageServantA
 }
 
 type webDataSrvA struct {
@@ -50,11 +52,14 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	db := pgxDB()
 	pvs := security.NewPhoneVerifyService()
 	cms := newCommentMetricServentA(db)
+	ums := newUserMetricServentA(db)
 	tms := newTweetMetricServentA(db)
 	cis := cache.NewEventCacheIndexSrv(tms)
 	ds := &dataSrv{
 		TweetMetricServantA:    tms,
 		CommentMetricServantA:  cms,
+		UserMetricServantA:     ums,
+		TrendsManageServantA:   newTrendsManageServentA(db),
 		WalletService:          newWalletService(db),
 		MessageService:         newMessageService(db),
 		TopicService:           newTopicService(db),

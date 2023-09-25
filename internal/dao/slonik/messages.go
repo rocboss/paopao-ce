@@ -7,6 +7,7 @@ package slonik
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
@@ -43,16 +44,9 @@ func (s *messageSrv) ReadMessage(message *ms.Message) error {
 	return nil
 }
 
-func (s *messageSrv) GetMessages(userId int64, offset, limit int) ([]*ms.MessageFormated, error) {
+func (s *messageSrv) GetMessages(userId int64, style cs.MessageStyle, limit, offset int) ([]*ms.MessageFormated, int64, error) {
 	// TODO
-	debug.NotImplemented()
-	return nil, nil
-}
-
-func (s *messageSrv) GetMessageCount(userId int64) (int64, error) {
-	// TODO
-	debug.NotImplemented()
-	return 0, nil
+	return nil, 0, cs.ErrNotImplemented
 }
 
 func newMessageService(db *pgx.Conn) core.MessageService {
