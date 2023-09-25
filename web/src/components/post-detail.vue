@@ -303,7 +303,7 @@ const whisperSuccess = () => {
 };
 
 const emit = defineEmits<{
-    (e: 'reload'): void;
+    (e: 'reload', post_id: number): void;
 }>();
 
 const post = computed({
@@ -606,7 +606,7 @@ const execLockAction = () => {
         id: post.value.id,
     })
         .then((res) => {
-            emit('reload');
+            emit('reload', post.value.id);
             if (res.lock_status === 1) {
                 window.$message.success('锁定成功');
             } else {
@@ -622,7 +622,7 @@ const execStickAction = () => {
         id: post.value.id,
     })
         .then((res) => {
-            emit('reload');
+            emit('reload', post.value.id);
             if (res.top_status === 1) {
                 window.$message.success('置顶成功');
             } else {
@@ -658,7 +658,7 @@ const execVisibilityAction = () => {
         visibility: tempVisibility.value
     })
         .then((_res) => {
-            emit('reload');
+            emit('reload', post.value.id);
             window.$message.success('修改可见性成功');
         })
         .catch((_err) => {

@@ -86,8 +86,10 @@ func (s *followshipSrv) UnfollowUser(r *web.UnfollowUserReq) mir.Error {
 		return web.ErrUnfollowUserFailed
 	}
 	// 触发缓存更新事件
+	// TODO: 合并成一个事件
 	cache.OnCacheMyFollowIdsEvent(s.Ds, r.User.ID)
 	cache.OnExpireIndexTweetEvent(r.User.ID)
+	onMessageActionEvent(_messageActionFollow, r.User.ID)
 	return nil
 }
 
@@ -102,8 +104,10 @@ func (s *followshipSrv) FollowUser(r *web.FollowUserReq) mir.Error {
 		return web.ErrUnfollowUserFailed
 	}
 	// 触发缓存更新事件
+	// TODO: 合并成一个事件
 	cache.OnCacheMyFollowIdsEvent(s.Ds, r.User.ID)
 	cache.OnExpireIndexTweetEvent(r.User.ID)
+	onMessageActionEvent(_messageActionFollow, r.User.ID)
 	return nil
 }
 

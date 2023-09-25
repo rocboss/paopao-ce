@@ -6,7 +6,7 @@
             <n-list-item>
                 <n-spin :show="loading">
                     <div class="detail-wrap" v-if="post.id > 1">
-                        <post-detail :post="post" @reload="loadPost" />
+                        <post-detail :post="post" @reload="reloadPost" />
                     </div>
                     <div class="empty-wrap" v-else>
                         <n-empty size="large" description="暂无数据" />
@@ -95,6 +95,14 @@ const commentTab = (tab: "default" | "newest") => {
         defaultCommentsSort.value = true
     }
     loadComments(stateHandler);
+};
+
+const reloadPost = (post_id: number) => {
+    getPost({
+        id: post_id,
+    }).then((res) => {
+            post.value = res;
+    }).catch((_err) => {});
 };
 
 const loadPost = () => {
