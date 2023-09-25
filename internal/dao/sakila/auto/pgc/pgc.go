@@ -17,6 +17,7 @@ var (
 )
 
 const (
+	_Comment_GetHotsComments            = `SELECT c.* FROM @comment c LEFT JOIN @comment_metric m ON c.id=m.comment_id WHERE c.post_id=? AND c.is_del=0 AND m.is_del=0 ORDER BY is_essence DESC, m.rank_score DESC NULLS LAST, id DESC LIMIT ? OFFSET ?`
 	_CommentManage_CreateComment        = `INSERT INTO @comment (post_id, user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?) RETURNING *`
 	_CommentManage_CreateCommentContent = `INSERT INTO @comment_content (comment_id, user_id, content, type, sort, created_on) VALUES (?, ?, ?, ?, ?, ?) RETURNING *`
 	_CommentManage_CreateCommentReply   = `INSERT INTO @comment_reply (comment_id, user_id, content, at_user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *`
@@ -50,6 +51,11 @@ type PreparexContext interface {
 type PreparexBuilder interface {
 	PreparexContext
 	QueryHook(query string) string
+}
+
+type Comment struct {
+	yesql.Namespace `yesql:"comment"`
+	GetHotsComments *sqlx.Stmt `yesql:"get_hots_comments"`
 }
 
 type CommentManage struct {
@@ -91,6 +97,20 @@ type UserManage struct {
 type Wallet struct {
 	yesql.Namespace `yesql:"wallet"`
 	CreateRecharge  *sqlx.Stmt `yesql:"create_recharge"`
+}
+
+func BuildComment(p PreparexBuilder, ctx ...context.Context) (obj *Comment, err error) {
+	var c context.Context
+	if len(ctx) > 0 && ctx[0] != nil {
+		c = ctx[0]
+	} else {
+		c = context.Background()
+	}
+	obj = &Comment{}
+	if obj.GetHotsComments, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Comment_GetHotsComments))); err != nil {
+		return nil, fmt.Errorf("prepare _Comment_GetHotsComments error: %w", err)
+	}
+	return
 }
 
 func BuildCommentManage(p PreparexBuilder, ctx ...context.Context) (obj *CommentManage, err error) {

@@ -11,10 +11,10 @@ import (
 	"github.com/bitbus/sqlx"
 	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -55,24 +55,40 @@ func (s *messageSrv) ReadMessage(r *ms.Message) (err error) {
 	return
 }
 
-func (s *messageSrv) GetMessages(userId int64, offset, limit int) ([]*ms.MessageFormated, error) {
+func (s *messageSrv) GetMessages(userId int64, style cs.MessageStyle, limit, offset int) (res []*ms.MessageFormated, total int64, err error) {
 	var messages []*ms.Message
-	if err := s.q.GetMessages.Select(&messages, userId, userId, limit, offset); err != nil {
-		return nil, err
+	// 1动态，2评论，3回复，4私信，5好友申请，99系统通知
+	switch style {
+	case cs.StyleMsgSystem:
+		if err = s.q.CountSystemMessages.Get(&total, userId); err == nil && total > 0 {
+			err = s.q.GetSystemMessages.Select(&messages, userId, limit, offset)
+		}
+	case cs.StyleMsgWhisper:
+		if err = s.q.CountWhisperMessages.Get(&total, userId, userId); err == nil && total > 0 {
+			err = s.q.GetWhisperMessages.Select(&messages, userId, userId, limit, offset)
+		}
+	case cs.StyleMsgRequesting:
+		if err = s.q.CountRequestingMessages.Get(&total, userId); err == nil && total > 0 {
+			err = s.q.GetRequestingMessages.Select(&messages, userId, limit, offset)
+		}
+	case cs.StyleMsgUnread:
+		if err = s.q.CountUnreadMessages.Get(&total, userId); err == nil && total > 0 {
+			err = s.q.GetUnreadMessages.Select(&messages, userId, limit, offset)
+		}
+	case cs.StyleMsgAll:
+		fallthrough
+	default:
+		if err = s.q.CountAllMessages.Get(&total, userId, userId); err == nil && total > 0 {
+			err = s.q.GetAllMessages.Select(&messages, userId, userId, limit, offset)
+		}
 	}
-	mfs := make([]*ms.MessageFormated, 0, len(messages))
-	for _, message := range messages {
-		mf := message.Format()
-		mfs = append(mfs, mf)
-	}
-	return mfs, nil
-}
-
-func (s *messageSrv) GetMessageCount(userId int64) (res int64, err error) {
-	if err = s.q.GetMessageCount.Get(&res, userId, userId); err != nil {
-		logrus.Errorf("get message count error: %s", err)
+	if err == nil {
+		for _, message := range messages {
+			res = append(res, message.Format())
+		}
 	}
 	return
+
 }
 
 func newMessageService(db *sqlx.DB) (s core.MessageService) {

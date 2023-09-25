@@ -4,7 +4,9 @@
 
 package web
 
-import "github.com/rocboss/paopao-ce/internal/servants/base"
+import (
+	"github.com/rocboss/paopao-ce/internal/servants/base"
+)
 
 type RequestingFriendReq struct {
 	BaseInfo  `json:"-" binding:"-"`

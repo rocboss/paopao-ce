@@ -23,7 +23,7 @@
                         <span v-if="!showAction" class="tag-quote">({{ tag.quote_num }})</span>
                         <span v-if="showAction" class="tag-quote tag-follow">({{ tag.quote_num }})</span>
                         <template #avatar>
-                            <n-avatar :src="tag.user.avatar" />
+                            <n-avatar :src="tagUserAvatar" />
                         </template>
                     </n-tag>
             </template>
@@ -57,6 +57,7 @@ import { ref, onMounted, computed } from 'vue';
 import { MoreVertOutlined } from '@vicons/material';
 import type { DropdownOption } from 'naive-ui';
 import { stickTopic, followTopic, unfollowTopic } from '@/api/post';
+import defaultUserAvatar from '@/assets/img/logo.png';
 
 const hasFollowing= ref(false);
 const props = withDefaults(
@@ -67,6 +68,15 @@ const props = withDefaults(
     }>(),
     {}
 );
+
+const tagUserAvatar = computed(() => {
+    if (props.tag.user) {
+        return props.tag.user.avatar
+    } else {
+        return defaultUserAvatar
+    }
+})
+
 
 const tagOptions = computed(() => {
     let options: DropdownOption[] = [];

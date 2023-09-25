@@ -220,13 +220,17 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 		default:
 		}
 		req := new(web.GetMessagesReq)
-		var bv _binding_ = req
-		if err := bv.Bind(c); err != nil {
+		if err := s.Bind(c, req); err != nil {
 			s.Render(c, nil, err)
 			return
 		}
 		resp, err := s.GetMessages(req)
-		s.Render(c, resp, err)
+		if err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		var rv _render_ = resp
+		rv.Render(c)
 	})
 	router.Handle("GET", "/user/info", func(c *gin.Context) {
 		select {

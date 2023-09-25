@@ -12,7 +12,6 @@ import (
 	"github.com/bitbus/sqlx"
 	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
@@ -24,11 +23,13 @@ var (
 
 type userManageSrv struct {
 	*sqlxSrv
-	q *cc.UserManage
+	q   *cc.UserManage
+	ums core.UserMetricServantA
 }
 
 type userRelationSrv struct {
 	*sqlxSrv
+	q *cc.UserRelation
 }
 
 func (s *userManageSrv) GetUserByID(id int64) (*ms.User, error) {
@@ -69,7 +70,10 @@ func (s *userManageSrv) CreateUser(r *ms.User) (*ms.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	r.ID, err = res.LastInsertId()
+	if r.ID, err = res.LastInsertId(); err == nil {
+		// 宽松处理错误
+		s.ums.AddUserMetric(r.ID)
+	}
 	return r, err
 }
 
@@ -84,29 +88,64 @@ func (s *userManageSrv) GetRegisterUserCount() (res int64, err error) {
 }
 
 func (s *userRelationSrv) MyFriendIds(userId int64) (res []int64, err error) {
-	// TODO
+	err = s.q.MyFriendIds.Select(&res, userId)
 	return
 }
 
 func (s *userRelationSrv) MyFollowIds(userId int64) (res []int64, err error) {
-	// TODO
+	err = s.q.MyFollowIds.Select(&res, userId)
 	return
 }
 
 func (s *userRelationSrv) IsMyFriend(userId int64, friendIds ...int64) (map[int64]bool, error) {
-	// TODO
-	return nil, cs.ErrNotImplemented
+	size := len(friendIds)
+	res := make(map[int64]bool, size)
+	if size == 0 {
+		return res, nil
+	}
+	myFriendIds, err := s.MyFriendIds(userId)
+	if err != nil {
+		return nil, err
+	}
+	for _, friendId := range friendIds {
+		res[friendId] = false
+		for _, myFriendId := range myFriendIds {
+			if friendId == myFriendId {
+				res[friendId] = true
+				break
+			}
+		}
+	}
+	return res, nil
 }
 
 func (s *userRelationSrv) IsMyFollow(userId int64, followIds ...int64) (map[int64]bool, error) {
-	// TODO
-	return nil, cs.ErrNotImplemented
+	size := len(followIds)
+	res := make(map[int64]bool, size)
+	if size == 0 {
+		return res, nil
+	}
+	myFollowIds, err := s.MyFollowIds(userId)
+	if err != nil {
+		return nil, err
+	}
+	for _, followId := range followIds {
+		res[followId] = false
+		for _, myFollowId := range myFollowIds {
+			if followId == myFollowId {
+				res[followId] = true
+				break
+			}
+		}
+	}
+	return res, nil
 }
 
-func newUserManageService(db *sqlx.DB) (s core.UserManageService) {
+func newUserManageService(db *sqlx.DB, userMetric core.UserMetricServantA) (s core.UserManageService) {
 	ums := &userManageSrv{
 		sqlxSrv: newSqlxSrv(db),
 		q:       ccBuild(db, cc.BuildUserManage),
+		ums:     userMetric,
 	}
 	s = ums
 	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
@@ -121,5 +160,6 @@ func newUserManageService(db *sqlx.DB) (s core.UserManageService) {
 func newUserRelationService(db *sqlx.DB) core.UserRelationService {
 	return &userRelationSrv{
 		sqlxSrv: newSqlxSrv(db),
+		q:       ccBuild(db, cc.BuildUserRelation),
 	}
 }

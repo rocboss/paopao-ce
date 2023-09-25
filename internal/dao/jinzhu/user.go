@@ -18,16 +18,18 @@ var (
 )
 
 type userManageSrv struct {
-	db *gorm.DB
+	db  *gorm.DB
+	ums core.UserMetricServantA
 }
 
 type userRelationSrv struct {
 	db *gorm.DB
 }
 
-func newUserManageService(db *gorm.DB) core.UserManageService {
+func newUserManageService(db *gorm.DB, ums core.UserMetricServantA) core.UserManageService {
 	return &userManageSrv{
 		db: db,
+		ums: ums,
 	}
 }
 
@@ -81,8 +83,12 @@ func (s *userManageSrv) GetUsersByKeyword(keyword string) ([]*ms.User, error) {
 	}
 }
 
-func (s *userManageSrv) CreateUser(user *dbr.User) (*ms.User, error) {
-	return user.Create(s.db)
+func (s *userManageSrv) CreateUser(user *dbr.User) (res *ms.User, err error) {
+	if res, err = user.Create(s.db); err == nil {
+		// 宽松处理错误
+		s.ums.AddUserMetric(res.ID)
+	}
+	return
 }
 
 func (s *userManageSrv) UpdateUser(user *ms.User) error {

@@ -63,9 +63,23 @@ func (s *commentMetricSrvA) DeleteCommentMetric(commentId int64) (err error) {
 	return (&dbr.CommentMetric{CommentId: commentId}).Delete(s.db)
 }
 
-func (s *userMetricSrvA) UpdateUserMetric(userId int64, action uint8) error {
-	// TODO
-	return cs.ErrNotImplemented
+func (s *userMetricSrvA) UpdateUserMetric(userId int64, action uint8) (err error) {
+	metric := &dbr.UserMetric{}
+	db := s.db.Model(metric)
+	if err = db.Where("user_id=?", userId).First(metric).Error; err != nil {
+		metric = &dbr.UserMetric{
+			UserId: userId,
+		}
+	}
+	switch action {
+	case cs.MetricActionCreateTweet:
+		metric.TweetsCount++
+	case cs.MetricActionDeleteTweet:
+		if metric.TweetsCount > 0 {
+			metric.TweetsCount--
+		}
+	}
+	return db.Save(metric).Error
 }
 
 func (s *userMetricSrvA) AddUserMetric(userId int64) (err error) {

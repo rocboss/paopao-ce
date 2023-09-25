@@ -156,8 +156,9 @@ func (s *commentManageSrv) CreateComment(r *ms.Comment) (*ms.Comment, error) {
 }
 
 func (s *commentManageSrv) CreateCommentReply(r *ms.CommentReply) (*ms.CommentReply, error) {
+	now := time.Now().Unix()
 	res, err := s.q.CreateCommentReply.Exec(r.CommentID, r.UserID, r.Content,
-		r.AtUserID, r.IP, r.IPLoc, time.Now().Unix())
+		r.AtUserID, r.IP, r.IPLoc, now)
 	if err != nil {
 		return nil, err
 	}
@@ -166,17 +167,22 @@ func (s *commentManageSrv) CreateCommentReply(r *ms.CommentReply) (*ms.CommentRe
 		return nil, err
 	}
 	r.Model = &ms.Model{ID: id}
+	// 宽松处理错误
+	s.q.IncrCommentReplyCount.Exec(now, r.CommentID)
 	return r, nil
 }
 
 func (s *commentManageSrv) DeleteCommentReply(r *ms.CommentReply) error {
-	return s.db.Withx(func(tx *sqlx.Tx) error {
+	return s.db.Withx(func(tx *sqlx.Tx) (err error) {
 		now := time.Now().Unix()
-		if _, err := tx.Stmtx(s.q.DeleteCommentReply).Exec(now, r.ID); err != nil {
-			return err
+		if _, err = tx.Stmtx(s.q.DeleteCommentReply).Exec(now, r.ID); err != nil {
+			return
 		}
-		_, err := tx.Stmtx(s.q.DeleteCommentThumbs).Exec(now, r.UserID, r.CommentID, r.ID)
-		return err
+		if _, err = tx.Stmtx(s.q.DeleteCommentThumbs).Exec(now, r.UserID, r.CommentID, r.ID); err == nil {
+			// 宽松处理错误
+			tx.Stmtx(s.q.DecrCommentReplyCount).Exec(now, r.CommentID)
+		}
+		return
 	})
 }
 
@@ -393,11 +399,20 @@ func (s *commentManageSrv) HighlightComment(userId, commentId int64) (int8, erro
 	return 0, cs.ErrNotImplemented
 }
 
-func newCommentService(db *sqlx.DB) core.CommentService {
-	return &commentSrv{
+func newCommentService(db *sqlx.DB) (s core.CommentService) {
+	cs := &commentSrv{
 		sqlxSrv: newSqlxSrv(db),
 		q:       ccBuild(db, cc.BuildComment),
 	}
+	s = cs
+	if cfg.Any("PostgreSQL", "PgSQL", "Postgres") {
+		s = &pgcCommentSrv{
+			commentSrv: cs,
+			p:          pgcBuild(db, pgc.BuildComment),
+		}
+	}
+	return
+
 }
 
 func newCommentManageService(db *sqlx.DB) (s core.CommentManageService) {

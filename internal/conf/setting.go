@@ -102,6 +102,8 @@ type cacheConf struct {
 	UnreadMsgExpire      int64
 	UserTweetsExpire     int64
 	IndexTweetsExpire    int64
+	MessagesExpire       int64
+	IndexTrendsExpire    int64
 	TweetCommentsExpire  int64
 	OnlineUserExpire     int64
 	UserInfoExpire       int64
