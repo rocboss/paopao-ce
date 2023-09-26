@@ -148,6 +148,7 @@ All notable changes to paopao-ce are documented in this file.
     GROUP BY user_id;
     ```
 - add message filter support for message page.
+- add read all unread message and display unread message count support for message page.
     
 ## 0.4.2
 ### Fixed

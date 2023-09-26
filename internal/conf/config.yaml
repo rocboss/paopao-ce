@@ -2,6 +2,8 @@ App: # APP基础设置项
   RunMode: debug
   AttachmentIncomeRate: 0.8
   MaxCommentCount: 1000
+  MaxWhisperDaily: 1000       # 一天可以发送的最大私信总数，临时措施，后续将去掉这个限制
+  MaxCaptchaTimes: 2          # 最大获取captcha的次数
   DefaultContextTimeout: 60
   DefaultPageSize: 10
   MaxPageSize: 100

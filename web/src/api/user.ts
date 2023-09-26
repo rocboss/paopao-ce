@@ -258,11 +258,24 @@ export const getMessages = (
  * @param {Object} data
  * @returns Promise
  */
-export const readMessage = (data: any) => {
+export const readMessage = (
+  params: NetParams.ReadMessageReq
+): Promise<NetReq.ReadMessageResp> => {
   return request({
     method: "post",
     url: "/v1/user/message/read",
-    data,
+    params,
+  });
+};
+
+/**
+ * 阅读所有消息
+ * @returns Promise
+ */
+export const readAllMessage = (): Promise<NetReq.ReadAllMessageResp> => {
+  return request({
+    method: "post",
+    url: "/v1/user/message/readall",
   });
 };
 

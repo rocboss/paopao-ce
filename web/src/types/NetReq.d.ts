@@ -41,6 +41,10 @@ declare module NetReq {
     count: number;
   }
 
+  interface ReadMessageResp {}
+
+  interface ReadAllMessageResp {}
+
   interface UserGetMessages {
     /** 消息列表 */
     list: Item.MessageProps[];
