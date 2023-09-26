@@ -58,6 +58,11 @@ type ReadMessageReq struct {
 	SimpleInfo `json:"-" binding:"-"`
 	ID         int64 `json:"id" binding:"required"`
 }
+
+type ReadAllMessageReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+}
+
 type SendWhisperReq struct {
 	SimpleInfo `json:"-" binding:"-"`
 	UserID     int64  `json:"user_id" binding:"required"`

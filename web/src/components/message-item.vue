@@ -333,13 +333,12 @@ const handleReadMessage = (message: Item.MessageProps) => {
     if (message.is_read === 0) {
         readMessage({
             id: message.id,
+        }).then((_res) => {
+            message.is_read = 1;
         })
-            .then((res) => {
-                message.is_read = 1;
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+        .catch((err) => {
+            console.log(err);
+        });
     }
 };
 </script>

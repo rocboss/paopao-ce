@@ -90,6 +90,8 @@ type grpcServerConf struct {
 type appConf struct {
 	RunMode               string
 	MaxCommentCount       int64
+	MaxWhisperDaily       int64
+	MaxCaptchaTimes       int
 	AttachmentIncomeRate  float64
 	DefaultContextTimeout time.Duration
 	DefaultPageSize       int
