@@ -11,6 +11,7 @@ export default createStore({
     desktopModelShow: document.body.clientWidth > 821,
     authModalShow: false,
     authModelTab: "signin",
+    unreadMsgCount: 0,
     userLogined: false,
     userInfo: {
       id: 0,
@@ -28,6 +29,9 @@ export default createStore({
     },
     refreshTopicFollow(state) {
       state.refreshTopicFollow = Date.now();
+    },
+    updateUnreadMsgCount(state, count) {
+      state.unreadMsgCount = count;
     },
     triggerTheme(state, theme) {
       state.theme = theme;
