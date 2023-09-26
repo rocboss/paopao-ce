@@ -70,7 +70,7 @@ import { NIcon, DropdownOption } from 'naive-ui'
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import InfiniteLoading from "v3-infinite-loading";
-import { getMessages } from '@/api/user';
+import { getMessages, readAllMessage } from '@/api/user';
 import { 
     LayersOutline as AllIcon,
     AtOutline as SystemIcon,
@@ -280,9 +280,17 @@ const handleUnreadMessage = () => {
 }
 
 const handleReadAll = () => {
-    // TODO: 标记全部未读消息为已读
-    reset();
-    loadMessages();
+    if (store.state.unreadMsgCount > 0 && list.value.length > 0) {
+        readAllMessage().then((_res) => {
+            for (let idx in list.value) {
+                list.value[idx].is_read = 1;
+            }
+            store.commit("updateUnreadMsgCount", 0)
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
 }
 
 const onSendWhisper =  (user: Item.UserInfo) => {

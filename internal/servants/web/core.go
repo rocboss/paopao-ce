@@ -170,6 +170,16 @@ func (s *coreSrv) ReadMessage(req *web.ReadMessageReq) mir.Error {
 	return nil
 }
 
+func (s *coreSrv) ReadAllMessage(req *web.ReadAllMessageReq) mir.Error {
+	if err := s.Ds.ReadAllMessage(req.Uid); err != nil {
+		logrus.Errorf("coreSrv.Ds.ReadAllMessage err: %s", err)
+		return web.ErrReadMessageFailed
+	}
+	// 缓存处理
+	onMessageActionEvent(_messageActionRead, req.Uid)
+	return nil
+}
+
 func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 	// 不允许发送私信给自己
 	if req.Uid == req.UserID {
