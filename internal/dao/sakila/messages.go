@@ -55,6 +55,11 @@ func (s *messageSrv) ReadMessage(r *ms.Message) (err error) {
 	return
 }
 
+func (s *messageSrv) ReadAllMessage(userId int64) (err error) {
+	_, err = s.q.ReadAllMessage.Exec(time.Now().Unix(), userId)
+	return
+}
+
 func (s *messageSrv) GetMessages(userId int64, style cs.MessageStyle, limit, offset int) (res []*ms.MessageFormated, total int64, err error) {
 	var messages []*ms.Message
 	// 1动态，2评论，3回复，4私信，5好友申请，99系统通知
