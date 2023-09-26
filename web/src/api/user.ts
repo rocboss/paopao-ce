@@ -259,12 +259,12 @@ export const getMessages = (
  * @returns Promise
  */
 export const readMessage = (
-  params: NetParams.ReadMessageReq
+  data: NetParams.ReadMessageReq
 ): Promise<NetReq.ReadMessageResp> => {
   return request({
     method: "post",
     url: "/v1/user/message/read",
-    params,
+    data,
   });
 };
 
