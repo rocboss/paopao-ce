@@ -40,8 +40,12 @@ func (s *messageSrv) GetMessageByID(id int64) (*ms.Message, error) {
 
 func (s *messageSrv) ReadMessage(message *ms.Message) error {
 	// TODO
-	debug.NotImplemented()
-	return nil
+	return cs.ErrNotImplemented
+}
+
+func (s *messageSrv) ReadAllMessage(userId int64) error {
+	// TODO
+	return cs.ErrNotImplemented
 }
 
 func (s *messageSrv) GetMessages(userId int64, style cs.MessageStyle, limit, offset int) ([]*ms.MessageFormated, int64, error) {
