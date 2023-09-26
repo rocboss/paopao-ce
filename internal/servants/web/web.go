@@ -56,6 +56,8 @@ func lazyInitial() {
 	_onceInitial.Do(func() {
 		_enablePhoneVerify = cfg.If("Sms")
 		_disallowUserRegister = cfg.If("Web:DisallowUserRegister")
+		_maxWhisperNumDaily = conf.AppSetting.MaxWhisperDaily
+		_maxCaptchaTimes = conf.AppSetting.MaxCaptchaTimes
 		_oss = dao.ObjectStorageService()
 		_ds = dao.DataService()
 		_ac = cache.NewAppCache()

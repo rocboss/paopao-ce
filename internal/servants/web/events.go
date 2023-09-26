@@ -35,6 +35,7 @@ const (
 	_messageActionCreate uint8 = iota
 	_messageActionRead
 	_messageActionFollow
+	_messageActionSendWhisper
 )
 
 const (
@@ -221,7 +222,8 @@ func (e *messageActionEvent) Name() string {
 func (e *messageActionEvent) Action() (err error) {
 	for _, userId := range e.userId {
 		switch e.action {
-		case _messageActionRead:
+		case _messageActionRead,
+			_messageActionSendWhisper:
 			// 清除未读消息数缓存，不需要处理错误
 			e.wc.DelUnreadMsgCountResp(userId)
 		case _messageActionCreate,

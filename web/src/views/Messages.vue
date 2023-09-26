@@ -13,7 +13,7 @@
                                         <UnreadIcon />
                                     </n-icon>
                                 </template>
-                                0 条未读
+                                {{ store.state.unreadMsgCount }} 条未读
                             </n-button>
                             <n-divider vertical />
                             <n-button text size="small" @click="handleReadAll">全标已读</n-button>
@@ -67,6 +67,7 @@
 import { h, ref, onMounted, computed } from 'vue';
 import type { Component } from 'vue'
 import { NIcon, DropdownOption } from 'naive-ui'
+import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import InfiniteLoading from "v3-infinite-loading";
 import { getMessages } from '@/api/user';
@@ -79,6 +80,7 @@ import {
     OptionsOutline as OptionsIcon, 
  } from '@vicons/ionicons5'
 
+ const store = useStore();
 const route = useRoute();
 const loading = ref(false);
 const noMore = ref(false);

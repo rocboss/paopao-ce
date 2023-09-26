@@ -25,10 +25,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
+var (
 	// _MaxWhisperNumDaily 当日单用户私信总数限制（TODO 配置化、积分兑换等）
-	_MaxWhisperNumDaily = 20
-	_MaxCaptchaTimes    = 2
+	_maxWhisperNumDaily int64 = 200
+	_maxCaptchaTimes    int   = 2
 )
 
 var (
@@ -175,13 +175,11 @@ func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 	if req.Uid == req.UserID {
 		return web.ErrNoWhisperToSelf
 	}
-
 	// 今日频次限制
 	ctx := context.Background()
-	if count, _ := s.Redis.GetCountWhisper(ctx, req.Uid); count >= _MaxWhisperNumDaily {
+	if count, _ := s.Redis.GetCountWhisper(ctx, req.Uid); count >= _maxWhisperNumDaily {
 		return web.ErrTooManyWhisperNum
 	}
-
 	// 创建私信
 	_, err := s.Ds.CreateMessage(&ms.Message{
 		SenderUserID:   req.Uid,
@@ -194,10 +192,8 @@ func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 		logrus.Errorf("Ds.CreateWhisper err: %s", err)
 		return web.ErrSendWhisperFailed
 	}
-
-	// 清除接收者未读消息缓存, 不需要处理错误
-	s.wc.DelUnreadMsgCountResp(req.UserID)
-
+	// 缓存处理, 不需要处理错误
+	onMessageActionEvent(_messageActionSendWhisper, req.Uid, req.UserID)
 	// 写入当日（自然日）计数缓存
 	s.Redis.IncrCountWhisper(ctx, req.Uid)
 
@@ -251,7 +247,7 @@ func (s *coreSrv) UserPhoneBind(req *web.UserPhoneBindReq) mir.Error {
 		if c.ExpiredOn < time.Now().Unix() {
 			return web.ErrErrorPhoneCaptcha
 		}
-		if c.UseTimes >= _MaxCaptchaTimes {
+		if c.UseTimes >= _maxCaptchaTimes {
 			return web.ErrMaxPhoneCaptchaUseTimes
 		}
 		// 更新检测次数
