@@ -351,6 +351,10 @@ SELECT * FROM @message WHERE id=? AND is_del=0;
 -- prepare: stmt
 UPDATE @message SET is_read=1, modified_on=? WHERE id=?;
 
+-- name: read_all_message@message
+-- prepare: stmt
+UPDATE @message SET is_read=1, modified_on=? WHERE receiver_user_id=?;
+
 -- name: get_system_messages@message
 -- prepare: stmt
 SELECT * 

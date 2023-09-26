@@ -90,11 +90,13 @@ watch(route, () => {
     selectedPath.value = route.name;
 });
 watch(store.state, () => {
+    hasUnreadMsg.value = store.state.unreadMsgCount > 0;
     if (store.state.userInfo.id > 0) {
         if (!msgLoop.value) {
             getUnreadMsgCount()
                 .then((res) => {
                     hasUnreadMsg.value = res.count > 0;
+                    store.commit("updateUnreadMsgCount", res.count)
                 })
                 .catch((err) => {
                     console.log(err);
@@ -104,6 +106,7 @@ watch(store.state, () => {
                 getUnreadMsgCount()
                     .then((res) => {
                         hasUnreadMsg.value = res.count > 0;
+                        store.commit("updateUnreadMsgCount", res.count)
                     })
                     .catch((err) => {
                         console.log(err);

@@ -82,6 +82,7 @@ const (
 	_Message_GetUnreadCount                    = `SELECT count(*) FROM @message WHERE receiver_user_id=? AND is_read=0 AND is_del=0`
 	_Message_GetUnreadMessages                 = `SELECT * FROM @message WHERE receiver_user_id=? AND is_read=0 AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?`
 	_Message_GetWhisperMessages                = `SELECT * FROM @message WHERE ((receiver_user_id=? OR sender_user_id=?) AND type=4) AND is_del=0 ORDER BY id DESC LIMIT ? OFFSET ?`
+	_Message_ReadAllMessage                    = `UPDATE @message SET is_read=1, modified_on=? WHERE receiver_user_id=?`
 	_Message_ReadMessage                       = `UPDATE @message SET is_read=1, modified_on=? WHERE id=?`
 	_Security_CreatePhoneCaptcha               = `INSERT INTO @captcha (phone, captcha, expired_on, created_on) VALUES (:phone, :captcha, :expired_on, :created_on)`
 	_Security_GetLatestPhoneCaptcha            = `SELECT * FROM @captcha WHERE phone=? AND is_del=0`
@@ -314,6 +315,7 @@ type Message struct {
 	GetUnreadCount          *sqlx.Stmt      `yesql:"get_unread_count"`
 	GetUnreadMessages       *sqlx.Stmt      `yesql:"get_unread_messages"`
 	GetWhisperMessages      *sqlx.Stmt      `yesql:"get_whisper_messages"`
+	ReadAllMessage          *sqlx.Stmt      `yesql:"read_all_message"`
 	ReadMessage             *sqlx.Stmt      `yesql:"read_message"`
 	CreateMessage           *sqlx.NamedStmt `yesql:"create_message"`
 }
@@ -745,6 +747,9 @@ func BuildMessage(p PreparexBuilder, ctx ...context.Context) (obj *Message, err 
 	}
 	if obj.GetWhisperMessages, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_GetWhisperMessages))); err != nil {
 		return nil, fmt.Errorf("prepare _Message_GetWhisperMessages error: %w", err)
+	}
+	if obj.ReadAllMessage, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_ReadAllMessage))); err != nil {
+		return nil, fmt.Errorf("prepare _Message_ReadAllMessage error: %w", err)
 	}
 	if obj.ReadMessage, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_Message_ReadMessage))); err != nil {
 		return nil, fmt.Errorf("prepare _Message_ReadMessage error: %w", err)
