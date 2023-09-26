@@ -90,6 +90,7 @@ watch(route, () => {
     selectedPath.value = route.name;
 });
 watch(store.state, () => {
+    hasUnreadMsg.value = store.state.unreadMsgCount > 0;
     if (store.state.userInfo.id > 0) {
         if (!msgLoop.value) {
             getUnreadMsgCount()

@@ -7,7 +7,7 @@
             <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
             <n-space justify="space-between">
                         <div class="title title-action">
-                            <n-button text size="small" @click="handleUnreadMessage">
+                            <n-button text size="small" :focusable="false" @click="handleUnreadMessage">
                                 <template #icon>
                                     <n-icon>
                                         <UnreadIcon />
@@ -16,7 +16,7 @@
                                 {{ store.state.unreadMsgCount }} 条未读
                             </n-button>
                             <n-divider vertical />
-                            <n-button text size="small" @click="handleReadAll">全标已读</n-button>
+                            <n-button text size="small" :focusable="false" @click="handleReadAll">全标已读</n-button>
                         </div>
                         <div class="title title-filter">
                             <n-dropdown 
@@ -282,8 +282,12 @@ const handleUnreadMessage = () => {
 const handleReadAll = () => {
     if (store.state.unreadMsgCount > 0 && list.value.length > 0) {
         readAllMessage().then((_res) => {
-            for (let idx in list.value) {
-                list.value[idx].is_read = 1;
+            if (messageStyleVal.value != "unread") {
+                for (let idx in list.value) {
+                    list.value[idx].is_read = 1;
+                }
+            } else {
+                list.value = [];
             }
             store.commit("updateUnreadMsgCount", 0)
         })
