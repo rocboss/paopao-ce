@@ -46,6 +46,8 @@ type PComment struct {
 	IsDel           int16
 	ThumbsUpCount   int32
 	ThumbsDownCount int32
+	IsEssence       int16
+	ReplyCount      int32
 }
 
 type PCommentContent struct {
@@ -59,6 +61,19 @@ type PCommentContent struct {
 	ModifiedOn int64
 	DeletedOn  int64
 	IsDel      int16
+}
+
+type PCommentMetric struct {
+	ID               int64
+	CommentID        int64
+	RankScore        int64
+	IncentiveScore   int32
+	DecayFactor      int32
+	MotivationFactor int32
+	IsDel            int16
+	CreatedOn        int64
+	ModifiedOn       int64
+	DeletedOn        int64
 }
 
 type PCommentReply struct {
@@ -231,6 +246,19 @@ type PPostContent struct {
 	IsDel      int16
 }
 
+type PPostMetric struct {
+	ID               int64
+	PostID           int64
+	RankScore        int64
+	IncentiveScore   int32
+	DecayFactor      int32
+	MotivationFactor int32
+	IsDel            int16
+	CreatedOn        int64
+	ModifiedOn       int64
+	DeletedOn        int64
+}
+
 type PPostStar struct {
 	ID         int64
 	PostID     int64
@@ -298,6 +326,17 @@ type PUser struct {
 	ModifiedOn int64
 	DeletedOn  int64
 	IsDel      int16
+}
+
+type PUserMetric struct {
+	ID             int64
+	UserID         int64
+	TweetsCount    int32
+	LatestTrendsOn int64
+	IsDel          int16
+	CreatedOn      int64
+	ModifiedOn     int64
+	DeletedOn      int64
 }
 
 type PWalletRecharge struct {

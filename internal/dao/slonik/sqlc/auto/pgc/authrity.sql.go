@@ -37,22 +37,6 @@ func (q *Queries) BeFriendIds(ctx context.Context, friendID int64) ([]int64, err
 	return items, nil
 }
 
-const isFriend = `-- name: IsFriend :one
-SELECT status FROM p_contact WHERE user_id=$1 AND friend_id=$2 AND is_del=0
-`
-
-type IsFriendParams struct {
-	UserID   int64
-	FriendID int64
-}
-
-func (q *Queries) IsFriend(ctx context.Context, arg *IsFriendParams) (int16, error) {
-	row := q.db.QueryRow(ctx, isFriend, arg.UserID, arg.FriendID)
-	var status int16
-	err := row.Scan(&status)
-	return status, err
-}
-
 const myFriendSet = `-- name: MyFriendSet :many
 SELECT friend_id FROM p_contact WHERE user_id=$1 AND status=2 AND is_del=0
 `

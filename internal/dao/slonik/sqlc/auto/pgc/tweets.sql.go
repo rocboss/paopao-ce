@@ -9,6 +9,718 @@ import (
 	"context"
 )
 
+const addAttachment = `-- name: AddAttachment :one
+INSERT INTO p_attachment (user_id, file_size, img_width, img_height, type, content, created_on)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id
+`
+
+type AddAttachmentParams struct {
+	UserID    int64
+	FileSize  int64
+	ImgWidth  int64
+	ImgHeight int64
+	Type      int16
+	Content   string
+	CreatedOn int64
+}
+
+func (q *Queries) AddAttachment(ctx context.Context, arg *AddAttachmentParams) (int64, error) {
+	row := q.db.QueryRow(ctx, addAttachment,
+		arg.UserID,
+		arg.FileSize,
+		arg.ImgWidth,
+		arg.ImgHeight,
+		arg.Type,
+		arg.Content,
+		arg.CreatedOn,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const addPost = `-- name: AddPost :exec
+
+INSERT INTO p_post (user_id, tags, ip, ip_loc, attachment_price, visibility, latest_replied_on, created_on)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING id
+`
+
+type AddPostParams struct {
+	UserID          int64
+	Tags            string
+	Ip              string
+	IpLoc           string
+	AttachmentPrice int64
+	Visibility      int16
+	LatestRepliedOn int64
+	CreatedOn       int64
+}
+
+// ------------------------------------------------------------------------------
+// tweet_manage sql dml
+// ------------------------------------------------------------------------------
+func (q *Queries) AddPost(ctx context.Context, arg *AddPostParams) error {
+	_, err := q.db.Exec(ctx, addPost,
+		arg.UserID,
+		arg.Tags,
+		arg.Ip,
+		arg.IpLoc,
+		arg.AttachmentPrice,
+		arg.Visibility,
+		arg.LatestRepliedOn,
+		arg.CreatedOn,
+	)
+	return err
+}
+
+const addPostCollection = `-- name: AddPostCollection :one
+INSERT INTO p_post_collection (post_id, user_id, created_on)
+VALUES ($1, $2, $3)
+RETURNING id
+`
+
+type AddPostCollectionParams struct {
+	PostID    int64
+	UserID    int64
+	CreatedOn int64
+}
+
+func (q *Queries) AddPostCollection(ctx context.Context, arg *AddPostCollectionParams) (int64, error) {
+	row := q.db.QueryRow(ctx, addPostCollection, arg.PostID, arg.UserID, arg.CreatedOn)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const addPostContent = `-- name: AddPostContent :one
+INSERT INTO p_post_content (post_id, user_id, content, type, sort, created_on)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id
+`
+
+type AddPostContentParams struct {
+	PostID    int64
+	UserID    int64
+	Content   string
+	Type      int16
+	Sort      int16
+	CreatedOn int64
+}
+
+func (q *Queries) AddPostContent(ctx context.Context, arg *AddPostContentParams) (int64, error) {
+	row := q.db.QueryRow(ctx, addPostContent,
+		arg.PostID,
+		arg.UserID,
+		arg.Content,
+		arg.Type,
+		arg.Sort,
+		arg.CreatedOn,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const addPostStar = `-- name: AddPostStar :one
+INSERT INTO p_post_star (post_id, user_id, created_on)
+VALUES ($1, $2, $3)
+RETURNING id
+`
+
+type AddPostStarParams struct {
+	PostID    int64
+	UserID    int64
+	CreatedOn int64
+}
+
+func (q *Queries) AddPostStar(ctx context.Context, arg *AddPostStarParams) (int64, error) {
+	row := q.db.QueryRow(ctx, addPostStar, arg.PostID, arg.UserID, arg.CreatedOn)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const commentIdsByPostId = `-- name: CommentIdsByPostId :many
+SELECT id FROM p_comment WHERE post_id=$1 AND is_del=0
+`
+
+func (q *Queries) CommentIdsByPostId(ctx context.Context, postID int64) ([]int64, error) {
+	rows, err := q.db.Query(ctx, commentIdsByPostId, postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int64
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const commentMediaFromCommentIds = `-- name: CommentMediaFromCommentIds :many
+SELECT content FROM p_comment_content WHERE comment_id = ANY($1::BIGINT[]) AND type=3 AND is_del=0
+`
+
+func (q *Queries) CommentMediaFromCommentIds(ctx context.Context, ids []int64) ([]string, error) {
+	rows, err := q.db.Query(ctx, commentMediaFromCommentIds, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var content string
+		if err := rows.Scan(&content); err != nil {
+			return nil, err
+		}
+		items = append(items, content)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const countAnyPost = `-- name: CountAnyPost :one
+SELECT count(*) FROM p_post WHERE visibility IN ($1) AND is_del=0
+`
+
+func (q *Queries) CountAnyPost(ctx context.Context, visibility int16) (int64, error) {
+	row := q.db.QueryRow(ctx, countAnyPost, visibility)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countFollowingTweets = `-- name: CountFollowingTweets :one
+SELECT count(*)
+FROM p_post
+WHERE user_id=$1 AND is_del=0
+`
+
+func (q *Queries) CountFollowingTweets(ctx context.Context, userID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countFollowingTweets, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countFollowingTweetsFollow = `-- name: CountFollowingTweetsFollow :one
+SELECT count(*)
+FROM p_post
+WHERE (user_id=$1 OR (visibility>=60 AND user_id = ANY($2::BIGINT[]))) AND is_del=0
+`
+
+type CountFollowingTweetsFollowParams struct {
+	UserID    int64
+	Followids []int64
+}
+
+func (q *Queries) CountFollowingTweetsFollow(ctx context.Context, arg *CountFollowingTweetsFollowParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countFollowingTweetsFollow, arg.UserID, arg.Followids)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countFollowingTweetsFriendFollow = `-- name: CountFollowingTweetsFriendFollow :one
+SELECT count(*)
+FROM p_post
+WHERE (user_id=$1 OR (visibility>=50 AND user_id = ANY($2::BIGINT[])) OR (visibility>=60 AND user_id = ANY($3::BIGINT[]))) AND is_del=0
+`
+
+type CountFollowingTweetsFriendFollowParams struct {
+	UserID    int64
+	Fiendids  []int64
+	Followids []int64
+}
+
+func (q *Queries) CountFollowingTweetsFriendFollow(ctx context.Context, arg *CountFollowingTweetsFriendFollowParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countFollowingTweetsFriendFollow, arg.UserID, arg.Fiendids, arg.Followids)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countIndexHotsTweets = `-- name: CountIndexHotsTweets :one
+SELECT count(*)
+FROM p_post post
+LEFT JOIN p_post_metric metric
+ON post.id=metric.post_id AND metric.is_del=0
+WHERE post.visibility>=90 AND post.is_del=0
+`
+
+func (q *Queries) CountIndexHotsTweets(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countIndexHotsTweets)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countIndexNewestTweets = `-- name: CountIndexNewestTweets :one
+SELECT count(*)
+FROM p_post
+WHERE visibility>=90 AND is_del=0
+`
+
+func (q *Queries) CountIndexNewestTweets(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countIndexNewestTweets)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countListFollowingTweetsFriend = `-- name: CountListFollowingTweetsFriend :one
+SELECT count(*)
+FROM p_post
+WHERE (user_id=$1 OR (visibility>=50 AND user_id = ANY($2::BIGINT[]))) AND is_del=0
+`
+
+type CountListFollowingTweetsFriendParams struct {
+	UserID    int64
+	Friendids []int64
+}
+
+func (q *Queries) CountListFollowingTweetsFriend(ctx context.Context, arg *CountListFollowingTweetsFriendParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countListFollowingTweetsFriend, arg.UserID, arg.Friendids)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countSyncSearchTweets = `-- name: CountSyncSearchTweets :one
+SELECT count(*)
+FROM p_post
+WHERE visibility>=50 AND is_del=0
+`
+
+func (q *Queries) CountSyncSearchTweets(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countSyncSearchTweets)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserCommentTweetsByFriend = `-- name: CountUserCommentTweetsByFriend :one
+SELECT count(*)
+FROM p_post_by_comment
+WHERE is_del=0 AND comment_user_id=$1 AND visibility>=50
+`
+
+func (q *Queries) CountUserCommentTweetsByFriend(ctx context.Context, commentUserID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserCommentTweetsByFriend, commentUserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserCommentTweetsByGuest = `-- name: CountUserCommentTweetsByGuest :one
+SELECT count(*)
+FROM p_post_by_comment
+WHERE is_del=0 AND comment_user_id=$1 AND visibility>=90
+`
+
+func (q *Queries) CountUserCommentTweetsByGuest(ctx context.Context, commentUserID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserCommentTweetsByGuest, commentUserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserCommentTweetsBySelf = `-- name: CountUserCommentTweetsBySelf :one
+SELECT count(*)
+FROM p_post_by_comment
+WHERE is_del=0 AND comment_user_id=$1
+`
+
+func (q *Queries) CountUserCommentTweetsBySelf(ctx context.Context, commentUserID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserCommentTweetsBySelf, commentUserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserMediaTweetsByFriend = `-- name: CountUserMediaTweetsByFriend :one
+SELECT count(*)
+FROM p_post_by_media
+WHERE is_del=0 AND user_id=$1 AND visibility>=50
+`
+
+func (q *Queries) CountUserMediaTweetsByFriend(ctx context.Context, userID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserMediaTweetsByFriend, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserMediaTweetsByGuest = `-- name: CountUserMediaTweetsByGuest :one
+SELECT count(*)
+FROM p_post_by_media
+WHERE is_del=0 AND user_id=$1 AND visibility>=90
+`
+
+func (q *Queries) CountUserMediaTweetsByGuest(ctx context.Context, userID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserMediaTweetsByGuest, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserMediaTweetsBySelf = `-- name: CountUserMediaTweetsBySelf :one
+SELECT count(*)
+FROM p_post_by_media
+WHERE is_del=0 AND user_id=$1
+`
+
+func (q *Queries) CountUserMediaTweetsBySelf(ctx context.Context, userID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserMediaTweetsBySelf, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserPostStars = `-- name: CountUserPostStars :one
+SELECT
+    count(*) 
+FROM
+	p_post_star s
+	JOIN p_post P ON s.post_id = P.ID 
+WHERE
+	s.user_id = $1 
+	AND s.is_del = 0 
+	AND (visibility >= 50 OR (visibility = 0 AND P.user_id = $2))
+`
+
+type CountUserPostStarsParams struct {
+	UserID   int64
+	UserID_2 int64
+}
+
+func (q *Queries) CountUserPostStars(ctx context.Context, arg *CountUserPostStarsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserPostStars, arg.UserID, arg.UserID_2)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserPosts = `-- name: CountUserPosts :one
+SELECT count(*) FROM p_post WHERE user_id=$1 AND visibility IN ($2) AND is_del=0
+`
+
+type CountUserPostsParams struct {
+	UserID     int64
+	Visibility int16
+}
+
+func (q *Queries) CountUserPosts(ctx context.Context, arg *CountUserPostsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserPosts, arg.UserID, arg.Visibility)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserStarTweetsByAdmin = `-- name: CountUserStarTweetsByAdmin :one
+SELECT count(*)
+FROM
+	p_post_star star
+	JOIN p_post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=$1
+`
+
+func (q *Queries) CountUserStarTweetsByAdmin(ctx context.Context, userID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserStarTweetsByAdmin, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserStarTweetsByFriend = `-- name: CountUserStarTweetsByFriend :one
+SELECT count(*)
+FROM
+	p_post_star star
+	JOIN p_post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=$1 AND post.visibility>=50
+`
+
+func (q *Queries) CountUserStarTweetsByFriend(ctx context.Context, userID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserStarTweetsByFriend, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserStarTweetsByGuest = `-- name: CountUserStarTweetsByGuest :one
+SELECT count(*)
+FROM
+	p_post_star star
+	JOIN p_post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=$1 AND post.visibility>=90
+`
+
+func (q *Queries) CountUserStarTweetsByGuest(ctx context.Context, userID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserStarTweetsByGuest, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserStarTweetsBySelf = `-- name: CountUserStarTweetsBySelf :one
+SELECT count(*)
+FROM
+	p_post_star star
+	JOIN p_post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=$1 AND (post.visibility<>90 OR (post.visibility>=90 AND post.user_id=$2))
+`
+
+type CountUserStarTweetsBySelfParams struct {
+	UserID   int64
+	UserID_2 int64
+}
+
+func (q *Queries) CountUserStarTweetsBySelf(ctx context.Context, arg *CountUserStarTweetsBySelfParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserStarTweetsBySelf, arg.UserID, arg.UserID_2)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserTweets = `-- name: CountUserTweets :one
+SELECT count(*) 
+FROM p_post
+WHERE user_id=$1 AND visibility>=$2 AND is_essence=$3 AND is_del=0
+`
+
+type CountUserTweetsParams struct {
+	UserID     int64
+	Visibility int16
+	IsEssence  int16
+}
+
+func (q *Queries) CountUserTweets(ctx context.Context, arg *CountUserTweetsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserTweets, arg.UserID, arg.Visibility, arg.IsEssence)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const deleteCommentByPostId = `-- name: DeleteCommentByPostId :exec
+UPDATE p_comment SET deleted_on=$1, is_del=1 WHERE post_id=$2 AND is_del=0
+`
+
+type DeleteCommentByPostIdParams struct {
+	DeletedOn int64
+	PostID    int64
+}
+
+func (q *Queries) DeleteCommentByPostId(ctx context.Context, arg *DeleteCommentByPostIdParams) error {
+	_, err := q.db.Exec(ctx, deleteCommentByPostId, arg.DeletedOn, arg.PostID)
+	return err
+}
+
+const deleteCommentContentByCommentIds = `-- name: DeleteCommentContentByCommentIds :exec
+UPDATE p_comment_content SET deleted_on=$1, is_del=1 WHERE comment_id = ANY($2::BIGINT[]) AND is_del=0
+`
+
+type DeleteCommentContentByCommentIdsParams struct {
+	DeletedOn int64
+	Ids       []int64
+}
+
+func (q *Queries) DeleteCommentContentByCommentIds(ctx context.Context, arg *DeleteCommentContentByCommentIdsParams) error {
+	_, err := q.db.Exec(ctx, deleteCommentContentByCommentIds, arg.DeletedOn, arg.Ids)
+	return err
+}
+
+const deletePostById = `-- name: DeletePostById :exec
+UPDATE p_post SET is_del=1, deleted_on=$1 WHERE id=$2 AND is_del=0
+`
+
+type DeletePostByIdParams struct {
+	DeletedOn int64
+	ID        int64
+}
+
+func (q *Queries) DeletePostById(ctx context.Context, arg *DeletePostByIdParams) error {
+	_, err := q.db.Exec(ctx, deletePostById, arg.DeletedOn, arg.ID)
+	return err
+}
+
+const deletePostCollecton = `-- name: DeletePostCollecton :exec
+UPDATE p_post_collection SET is_del=1, deleted_on=$1 WHERE id=$2 AND is_del=0
+`
+
+type DeletePostCollectonParams struct {
+	DeletedOn int64
+	ID        int64
+}
+
+func (q *Queries) DeletePostCollecton(ctx context.Context, arg *DeletePostCollectonParams) error {
+	_, err := q.db.Exec(ctx, deletePostCollecton, arg.DeletedOn, arg.ID)
+	return err
+}
+
+const deletePostStar = `-- name: DeletePostStar :exec
+UPDATE p_post_star 
+SET is_del=1, deleted_on=$1 
+WHERE id=$2 AND is_del=0
+`
+
+type DeletePostStarParams struct {
+	DeletedOn int64
+	ID        int64
+}
+
+func (q *Queries) DeletePostStar(ctx context.Context, arg *DeletePostStarParams) error {
+	_, err := q.db.Exec(ctx, deletePostStar, arg.DeletedOn, arg.ID)
+	return err
+}
+
+const deleteReplyByCommentIds = `-- name: DeleteReplyByCommentIds :exec
+UPDATE p_comment_reply SET deleted_on=$1, is_del=1 WHERE comment_id = ANY($2::BIGINT[]) AND is_del=0
+`
+
+type DeleteReplyByCommentIdsParams struct {
+	DeletedOn int64
+	Ids       []int64
+}
+
+func (q *Queries) DeleteReplyByCommentIds(ctx context.Context, arg *DeleteReplyByCommentIdsParams) error {
+	_, err := q.db.Exec(ctx, deleteReplyByCommentIds, arg.DeletedOn, arg.Ids)
+	return err
+}
+
+const getAnyPosts = `-- name: GetAnyPosts :many
+SELECT id, user_id, comment_count, collection_count, upvote_count, is_top, is_essence, is_lock, latest_replied_on, tags, attachment_price, ip, ip_loc, created_on, modified_on, deleted_on, is_del, visibility, share_count FROM p_post WHERE visibility IN ($1) AND is_del=0 LIMIT $2 OFFSET $3
+`
+
+type GetAnyPostsParams struct {
+	Visibility int16
+	Limit      int32
+	Offset     int32
+}
+
+func (q *Queries) GetAnyPosts(ctx context.Context, arg *GetAnyPostsParams) ([]*PPost, error) {
+	rows, err := q.db.Query(ctx, getAnyPosts, arg.Visibility, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PPost
+	for rows.Next() {
+		var i PPost
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.Visibility,
+			&i.ShareCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getBeFollowIds = `-- name: GetBeFollowIds :many
+SELECT follow_id FROM p_following WHERE user_id=$1 AND is_del=0
+`
+
+func (q *Queries) GetBeFollowIds(ctx context.Context, userID int64) ([]int64, error) {
+	rows, err := q.db.Query(ctx, getBeFollowIds, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int64
+	for rows.Next() {
+		var follow_id int64
+		if err := rows.Scan(&follow_id); err != nil {
+			return nil, err
+		}
+		items = append(items, follow_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getBeFriendIds = `-- name: GetBeFriendIds :many
+SELECT user_id FROM p_contact WHERE friend_id=$1 AND is_del=0
+`
+
+func (q *Queries) GetBeFriendIds(ctx context.Context, friendID int64) ([]int64, error) {
+	rows, err := q.db.Query(ctx, getBeFriendIds, friendID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int64
+	for rows.Next() {
+		var user_id int64
+		if err := rows.Scan(&user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, user_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPostAttachementBill = `-- name: GetPostAttachementBill :one
+SELECT id, post_id, user_id, paid_amount, created_on, modified_on, deleted_on, is_del FROM p_post_attachment_bill WHERE post_id=$1 AND user_id=$2 AND is_del=0
+`
+
+type GetPostAttachementBillParams struct {
+	PostID int64
+	UserID int64
+}
+
+func (q *Queries) GetPostAttachementBill(ctx context.Context, arg *GetPostAttachementBillParams) (*PPostAttachmentBill, error) {
+	row := q.db.QueryRow(ctx, getPostAttachementBill, arg.PostID, arg.UserID)
+	var i PPostAttachmentBill
+	err := row.Scan(
+		&i.ID,
+		&i.PostID,
+		&i.UserID,
+		&i.PaidAmount,
+		&i.CreatedOn,
+		&i.ModifiedOn,
+		&i.DeletedOn,
+		&i.IsDel,
+	)
+	return &i, err
+}
+
 const getPostById = `-- name: GetPostById :one
 
 SELECT id, user_id, comment_count, collection_count, upvote_count, is_top, is_essence, is_lock, latest_replied_on, tags, attachment_price, ip, ip_loc, created_on, modified_on, deleted_on, is_del, visibility, share_count FROM p_post WHERE id=$1 AND is_del=0
@@ -42,4 +754,2237 @@ func (q *Queries) GetPostById(ctx context.Context, id int64) (*PPost, error) {
 		&i.ShareCount,
 	)
 	return &i, err
+}
+
+const getPostConetentByIds = `-- name: GetPostConetentByIds :many
+
+SELECT id, post_id, content, type, sort 
+FROM p_post_content
+WHERE post_id = ANY($1::BIGINT[]) AND is_del=0
+`
+
+type GetPostConetentByIdsRow struct {
+	ID      int64
+	PostID  int64
+	Content string
+	Type    int16
+	Sort    int16
+}
+
+// ------------------------------------------------------------------------------
+// tweet_help sql dml
+// ------------------------------------------------------------------------------
+func (q *Queries) GetPostConetentByIds(ctx context.Context, ids []int64) ([]*GetPostConetentByIdsRow, error) {
+	rows, err := q.db.Query(ctx, getPostConetentByIds, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetPostConetentByIdsRow
+	for rows.Next() {
+		var i GetPostConetentByIdsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.PostID,
+			&i.Content,
+			&i.Type,
+			&i.Sort,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPostContentById = `-- name: GetPostContentById :one
+SELECT id, post_id, user_id, content, type, sort, created_on, modified_on, deleted_on, is_del FROM p_post_content WHERE id=$1 AND is_del=0
+`
+
+func (q *Queries) GetPostContentById(ctx context.Context, id int64) (*PPostContent, error) {
+	row := q.db.QueryRow(ctx, getPostContentById, id)
+	var i PPostContent
+	err := row.Scan(
+		&i.ID,
+		&i.PostID,
+		&i.UserID,
+		&i.Content,
+		&i.Type,
+		&i.Sort,
+		&i.CreatedOn,
+		&i.ModifiedOn,
+		&i.DeletedOn,
+		&i.IsDel,
+	)
+	return &i, err
+}
+
+const getPostContentsByIds = `-- name: GetPostContentsByIds :many
+SELECT id, post_id, user_id, content, type, sort, created_on, modified_on, deleted_on, is_del 
+FROM p_post_content 
+WHERE post_id = ANY($1::BIGINT[]) AND is_del=0
+`
+
+func (q *Queries) GetPostContentsByIds(ctx context.Context, ids []int64) ([]*PPostContent, error) {
+	rows, err := q.db.Query(ctx, getPostContentsByIds, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PPostContent
+	for rows.Next() {
+		var i PPostContent
+		if err := rows.Scan(
+			&i.ID,
+			&i.PostID,
+			&i.UserID,
+			&i.Content,
+			&i.Type,
+			&i.Sort,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserPostCollection = `-- name: GetUserPostCollection :one
+SELECT
+	s.id, s.post_id, s.user_id, s.created_on, s.modified_on, s.deleted_on, s.is_del,
+	P.ID "post.id",
+	P.user_id "post.user_id",
+	P.comment_count "post.comment_count",
+	P.collection_count "post.collection_count",
+	P.upvote_count "post.upvote_count",
+	P.share_count "post.share_count",
+	P.visibility "post.visibility",
+	P.is_top "post.is_top",
+	P.is_essence "post.is_essence",
+	P.is_lock "post.is_lock",
+	P.latest_replied_on "post.latest_replied_on",
+	P.tags "post.tags",
+	P.attachment_price "post.attachment_price",
+	P.ip "post.ip",
+	P.ip_loc "post.ip_loc",
+	P.is_del "post.is_del",
+	P.created_on "post.created_on",
+	P.modified_on "post.modified_on",
+	P.deleted_on "post.deleted_on" 
+FROM
+	p_post_collection s
+	JOIN p_post P ON s.post_id = P.ID 
+WHERE
+	s.post_id = $1
+	AND s.user_id = $2 
+	AND s.is_del = 0 
+	AND (visibility >= 50 OR (visibility = 0 AND P.user_id = $3))
+`
+
+type GetUserPostCollectionParams struct {
+	PostID   int64
+	UserID   int64
+	UserID_2 int64
+}
+
+type GetUserPostCollectionRow struct {
+	ID                  int64
+	PostID              int64
+	UserID              int64
+	CreatedOn           int64
+	ModifiedOn          int64
+	DeletedOn           int64
+	IsDel               int16
+	PostID_2            int64
+	PostUserID          int64
+	PostCommentCount    int64
+	PostCollectionCount int64
+	PostUpvoteCount     int64
+	PostShareCount      int64
+	PostVisibility      int16
+	PostIsTop           int16
+	PostIsEssence       int16
+	PostIsLock          int16
+	PostLatestRepliedOn int64
+	PostTags            string
+	PostAttachmentPrice int64
+	PostIp              string
+	PostIpLoc           string
+	PostIsDel           int16
+	PostCreatedOn       int64
+	PostModifiedOn      int64
+	PostDeletedOn       int64
+}
+
+func (q *Queries) GetUserPostCollection(ctx context.Context, arg *GetUserPostCollectionParams) (*GetUserPostCollectionRow, error) {
+	row := q.db.QueryRow(ctx, getUserPostCollection, arg.PostID, arg.UserID, arg.UserID_2)
+	var i GetUserPostCollectionRow
+	err := row.Scan(
+		&i.ID,
+		&i.PostID,
+		&i.UserID,
+		&i.CreatedOn,
+		&i.ModifiedOn,
+		&i.DeletedOn,
+		&i.IsDel,
+		&i.PostID_2,
+		&i.PostUserID,
+		&i.PostCommentCount,
+		&i.PostCollectionCount,
+		&i.PostUpvoteCount,
+		&i.PostShareCount,
+		&i.PostVisibility,
+		&i.PostIsTop,
+		&i.PostIsEssence,
+		&i.PostIsLock,
+		&i.PostLatestRepliedOn,
+		&i.PostTags,
+		&i.PostAttachmentPrice,
+		&i.PostIp,
+		&i.PostIpLoc,
+		&i.PostIsDel,
+		&i.PostCreatedOn,
+		&i.PostModifiedOn,
+		&i.PostDeletedOn,
+	)
+	return &i, err
+}
+
+const getUserPostCollections = `-- name: GetUserPostCollections :many
+SELECT
+	s.id, s.post_id, s.user_id, s.created_on, s.modified_on, s.deleted_on, s.is_del,
+	P.ID "post.id",
+	P.user_id "post.user_id",
+	P.comment_count "post.comment_count",
+	P.collection_count "post.collection_count",
+	P.upvote_count "post.upvote_count",
+	P.share_count "post.share_count",
+	P.visibility "post.visibility",
+	P.is_top "post.is_top",
+	P.is_essence "post.is_essence",
+	P.is_lock "post.is_lock",
+	P.latest_replied_on "post.latest_replied_on",
+	P.tags "post.tags",
+	P.attachment_price "post.attachment_price",
+	P.ip "post.ip",
+	P.ip_loc "post.ip_loc",
+	P.is_del "post.is_del",
+	P.created_on "post.created_on",
+	P.modified_on "post.modified_on",
+	P.deleted_on "post.deleted_on" 
+FROM
+	p_post_collection s
+	JOIN p_post P ON s.post_id = P.ID 
+WHERE
+	s.user_id = $1 
+	AND s.is_del = 0 
+	AND (visibility >= 50 OR ( visibility = 0 AND P.user_id = $2 ) ) 
+ORDER BY
+    s.ID DESC,
+	P.ID DESC
+LIMIT $3 OFFSET $4
+`
+
+type GetUserPostCollectionsParams struct {
+	UserID   int64
+	UserID_2 int64
+	Limit    int32
+	Offset   int32
+}
+
+type GetUserPostCollectionsRow struct {
+	ID                  int64
+	PostID              int64
+	UserID              int64
+	CreatedOn           int64
+	ModifiedOn          int64
+	DeletedOn           int64
+	IsDel               int16
+	PostID_2            int64
+	PostUserID          int64
+	PostCommentCount    int64
+	PostCollectionCount int64
+	PostUpvoteCount     int64
+	PostShareCount      int64
+	PostVisibility      int16
+	PostIsTop           int16
+	PostIsEssence       int16
+	PostIsLock          int16
+	PostLatestRepliedOn int64
+	PostTags            string
+	PostAttachmentPrice int64
+	PostIp              string
+	PostIpLoc           string
+	PostIsDel           int16
+	PostCreatedOn       int64
+	PostModifiedOn      int64
+	PostDeletedOn       int64
+}
+
+func (q *Queries) GetUserPostCollections(ctx context.Context, arg *GetUserPostCollectionsParams) ([]*GetUserPostCollectionsRow, error) {
+	rows, err := q.db.Query(ctx, getUserPostCollections,
+		arg.UserID,
+		arg.UserID_2,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetUserPostCollectionsRow
+	for rows.Next() {
+		var i GetUserPostCollectionsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.PostID,
+			&i.UserID,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.PostID_2,
+			&i.PostUserID,
+			&i.PostCommentCount,
+			&i.PostCollectionCount,
+			&i.PostUpvoteCount,
+			&i.PostShareCount,
+			&i.PostVisibility,
+			&i.PostIsTop,
+			&i.PostIsEssence,
+			&i.PostIsLock,
+			&i.PostLatestRepliedOn,
+			&i.PostTags,
+			&i.PostAttachmentPrice,
+			&i.PostIp,
+			&i.PostIpLoc,
+			&i.PostIsDel,
+			&i.PostCreatedOn,
+			&i.PostModifiedOn,
+			&i.PostDeletedOn,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserPostStar = `-- name: GetUserPostStar :one
+SELECT
+	s.id, s.post_id, s.user_id, s.created_on, s.modified_on, s.deleted_on, s.is_del,
+	P.ID "post.id",
+	P.user_id "post.user_id",
+	P.comment_count "post.comment_count",
+	P.collection_count "post.collection_count",
+	P.upvote_count "post.upvote_count",
+	P.share_count "post.share_count",
+	P.visibility "post.visibility",
+	P.is_top "post.is_top",
+	P.is_essence "post.is_essence",
+	P.is_lock "post.is_lock",
+	P.latest_replied_on "post.latest_replied_on",
+	P.tags "post.tags",
+	P.attachment_price "post.attachment_price",
+	P.ip "post.ip",
+	P.ip_loc "post.ip_loc",
+	P.is_del "post.is_del",
+	P.created_on "post.created_on",
+	P.modified_on "post.modified_on",
+	P.deleted_on "post.deleted_on" 
+FROM
+	p_post_star s
+	JOIN p_post P ON s.post_id = P.ID 
+WHERE
+	s.post_id = $1
+	AND s.user_id = $2 
+	AND s.is_del = 0 
+	AND (visibility >= 50 OR (visibility = 0 AND P.user_id = $3 ))
+`
+
+type GetUserPostStarParams struct {
+	PostID   int64
+	UserID   int64
+	UserID_2 int64
+}
+
+type GetUserPostStarRow struct {
+	ID                  int64
+	PostID              int64
+	UserID              int64
+	CreatedOn           int64
+	ModifiedOn          int64
+	DeletedOn           int64
+	IsDel               int16
+	PostID_2            int64
+	PostUserID          int64
+	PostCommentCount    int64
+	PostCollectionCount int64
+	PostUpvoteCount     int64
+	PostShareCount      int64
+	PostVisibility      int16
+	PostIsTop           int16
+	PostIsEssence       int16
+	PostIsLock          int16
+	PostLatestRepliedOn int64
+	PostTags            string
+	PostAttachmentPrice int64
+	PostIp              string
+	PostIpLoc           string
+	PostIsDel           int16
+	PostCreatedOn       int64
+	PostModifiedOn      int64
+	PostDeletedOn       int64
+}
+
+func (q *Queries) GetUserPostStar(ctx context.Context, arg *GetUserPostStarParams) (*GetUserPostStarRow, error) {
+	row := q.db.QueryRow(ctx, getUserPostStar, arg.PostID, arg.UserID, arg.UserID_2)
+	var i GetUserPostStarRow
+	err := row.Scan(
+		&i.ID,
+		&i.PostID,
+		&i.UserID,
+		&i.CreatedOn,
+		&i.ModifiedOn,
+		&i.DeletedOn,
+		&i.IsDel,
+		&i.PostID_2,
+		&i.PostUserID,
+		&i.PostCommentCount,
+		&i.PostCollectionCount,
+		&i.PostUpvoteCount,
+		&i.PostShareCount,
+		&i.PostVisibility,
+		&i.PostIsTop,
+		&i.PostIsEssence,
+		&i.PostIsLock,
+		&i.PostLatestRepliedOn,
+		&i.PostTags,
+		&i.PostAttachmentPrice,
+		&i.PostIp,
+		&i.PostIpLoc,
+		&i.PostIsDel,
+		&i.PostCreatedOn,
+		&i.PostModifiedOn,
+		&i.PostDeletedOn,
+	)
+	return &i, err
+}
+
+const getUserPostStars = `-- name: GetUserPostStars :many
+SELECT
+	s.id, s.post_id, s.user_id, s.created_on, s.modified_on, s.deleted_on, s.is_del,
+	P.ID "post.id",
+	P.user_id "post.user_id",
+	P.comment_count "post.comment_count",
+	P.collection_count "post.collection_count",
+	P.upvote_count "post.upvote_count",
+	P.share_count "post.share_count",
+	P.visibility "post.visibility",
+	P.is_top "post.is_top",
+	P.is_essence "post.is_essence",
+	P.is_lock "post.is_lock",
+	P.latest_replied_on "post.latest_replied_on",
+	P.tags "post.tags",
+	P.attachment_price "post.attachment_price",
+	P.ip "post.ip",
+	P.ip_loc "post.ip_loc",
+	P.is_del "post.is_del",
+	P.created_on "post.created_on",
+	P.modified_on "post.modified_on",
+	P.deleted_on "post.deleted_on" 
+FROM
+	p_post_star s
+	JOIN p_post P ON s.post_id = P.ID 
+WHERE
+	s.user_id = $1 
+	AND s.is_del = 0 
+	AND (visibility >= 50 OR (visibility = 0 AND P.user_id = $2)) 
+ORDER BY
+    s.ID DESC,
+	P.ID DESC
+LIMIT $3 OFFSET $4
+`
+
+type GetUserPostStarsParams struct {
+	UserID   int64
+	UserID_2 int64
+	Limit    int32
+	Offset   int32
+}
+
+type GetUserPostStarsRow struct {
+	ID                  int64
+	PostID              int64
+	UserID              int64
+	CreatedOn           int64
+	ModifiedOn          int64
+	DeletedOn           int64
+	IsDel               int16
+	PostID_2            int64
+	PostUserID          int64
+	PostCommentCount    int64
+	PostCollectionCount int64
+	PostUpvoteCount     int64
+	PostShareCount      int64
+	PostVisibility      int16
+	PostIsTop           int16
+	PostIsEssence       int16
+	PostIsLock          int16
+	PostLatestRepliedOn int64
+	PostTags            string
+	PostAttachmentPrice int64
+	PostIp              string
+	PostIpLoc           string
+	PostIsDel           int16
+	PostCreatedOn       int64
+	PostModifiedOn      int64
+	PostDeletedOn       int64
+}
+
+func (q *Queries) GetUserPostStars(ctx context.Context, arg *GetUserPostStarsParams) ([]*GetUserPostStarsRow, error) {
+	rows, err := q.db.Query(ctx, getUserPostStars,
+		arg.UserID,
+		arg.UserID_2,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetUserPostStarsRow
+	for rows.Next() {
+		var i GetUserPostStarsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.PostID,
+			&i.UserID,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.PostID_2,
+			&i.PostUserID,
+			&i.PostCommentCount,
+			&i.PostCollectionCount,
+			&i.PostUpvoteCount,
+			&i.PostShareCount,
+			&i.PostVisibility,
+			&i.PostIsTop,
+			&i.PostIsEssence,
+			&i.PostIsLock,
+			&i.PostLatestRepliedOn,
+			&i.PostTags,
+			&i.PostAttachmentPrice,
+			&i.PostIp,
+			&i.PostIpLoc,
+			&i.PostIsDel,
+			&i.PostCreatedOn,
+			&i.PostModifiedOn,
+			&i.PostDeletedOn,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserPosts = `-- name: GetUserPosts :many
+SELECT id, user_id, comment_count, collection_count, upvote_count, is_top, is_essence, is_lock, latest_replied_on, tags, attachment_price, ip, ip_loc, created_on, modified_on, deleted_on, is_del, visibility, share_count FROM p_post
+WHERE user_id=$1 AND visibility IN ($1) AND is_del=0
+ORDER BY latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type GetUserPostsParams struct {
+	UserID int64
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) GetUserPosts(ctx context.Context, arg *GetUserPostsParams) ([]*PPost, error) {
+	rows, err := q.db.Query(ctx, getUserPosts, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PPost
+	for rows.Next() {
+		var i PPost
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.Visibility,
+			&i.ShareCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const highlightPost = `-- name: HighlightPost :one
+UPDATE p_post
+SET is_essence=1-is_essence 
+WHERE id=$1 AND is_del=0
+RETURNING is_essence
+`
+
+func (q *Queries) HighlightPost(ctx context.Context, id int64) (int16, error) {
+	row := q.db.QueryRow(ctx, highlightPost, id)
+	var is_essence int16
+	err := row.Scan(&is_essence)
+	return is_essence, err
+}
+
+const listFollowingTweets = `-- name: ListFollowingTweets :many
+SELECT id, user_id, comment_count, collection_count, upvote_count, is_top, is_essence, is_lock, latest_replied_on, tags, attachment_price, ip, ip_loc, created_on, modified_on, deleted_on, is_del, visibility, share_count
+FROM p_post
+WHERE user_id=$1 AND is_del=0
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type ListFollowingTweetsParams struct {
+	UserID int64
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) ListFollowingTweets(ctx context.Context, arg *ListFollowingTweetsParams) ([]*PPost, error) {
+	rows, err := q.db.Query(ctx, listFollowingTweets, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PPost
+	for rows.Next() {
+		var i PPost
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.Visibility,
+			&i.ShareCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listFollowingTweetsFollow = `-- name: ListFollowingTweetsFollow :many
+SELECT id, user_id, comment_count, collection_count, upvote_count, is_top, is_essence, is_lock, latest_replied_on, tags, attachment_price, ip, ip_loc, created_on, modified_on, deleted_on, is_del, visibility, share_count
+FROM p_post
+WHERE (user_id=$1 OR (visibility>=60 AND user_id = ANY($4::BIGINT[]))) AND is_del=0
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type ListFollowingTweetsFollowParams struct {
+	UserID    int64
+	Limit     int32
+	Offset    int32
+	Followids []int64
+}
+
+func (q *Queries) ListFollowingTweetsFollow(ctx context.Context, arg *ListFollowingTweetsFollowParams) ([]*PPost, error) {
+	rows, err := q.db.Query(ctx, listFollowingTweetsFollow,
+		arg.UserID,
+		arg.Limit,
+		arg.Offset,
+		arg.Followids,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PPost
+	for rows.Next() {
+		var i PPost
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.Visibility,
+			&i.ShareCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listFollowingTweetsFriend = `-- name: ListFollowingTweetsFriend :many
+SELECT id, user_id, comment_count, collection_count, upvote_count, is_top, is_essence, is_lock, latest_replied_on, tags, attachment_price, ip, ip_loc, created_on, modified_on, deleted_on, is_del, visibility, share_count
+FROM p_post
+WHERE (user_id=$1 OR (visibility>=50 AND user_id = ANY($4::BIGINT[]))) AND is_del=0
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type ListFollowingTweetsFriendParams struct {
+	UserID    int64
+	Limit     int32
+	Offset    int32
+	Friendids []int64
+}
+
+func (q *Queries) ListFollowingTweetsFriend(ctx context.Context, arg *ListFollowingTweetsFriendParams) ([]*PPost, error) {
+	rows, err := q.db.Query(ctx, listFollowingTweetsFriend,
+		arg.UserID,
+		arg.Limit,
+		arg.Offset,
+		arg.Friendids,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PPost
+	for rows.Next() {
+		var i PPost
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.Visibility,
+			&i.ShareCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listFollowingTweetsFriendFollow = `-- name: ListFollowingTweetsFriendFollow :many
+SELECT id, user_id, comment_count, collection_count, upvote_count, is_top, is_essence, is_lock, latest_replied_on, tags, attachment_price, ip, ip_loc, created_on, modified_on, deleted_on, is_del, visibility, share_count
+FROM p_post
+WHERE (user_id=$1 OR (visibility>=50 AND user_id = ANY($4::BIGINT[])) OR (visibility>=60 AND user_id = ANY($5::BIGINT[]))) AND is_del=0
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type ListFollowingTweetsFriendFollowParams struct {
+	UserID    int64
+	Limit     int32
+	Offset    int32
+	Friendids []int64
+	Followids []int64
+}
+
+func (q *Queries) ListFollowingTweetsFriendFollow(ctx context.Context, arg *ListFollowingTweetsFriendFollowParams) ([]*PPost, error) {
+	rows, err := q.db.Query(ctx, listFollowingTweetsFriendFollow,
+		arg.UserID,
+		arg.Limit,
+		arg.Offset,
+		arg.Friendids,
+		arg.Followids,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PPost
+	for rows.Next() {
+		var i PPost
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.Visibility,
+			&i.ShareCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listIndexHotsTweets = `-- name: ListIndexHotsTweets :many
+SELECT post.id, post.user_id, post.comment_count, post.collection_count, post.upvote_count, post.is_top, post.is_essence, post.is_lock, post.latest_replied_on, post.tags, post.attachment_price, post.ip, post.ip_loc, post.created_on, post.modified_on, post.deleted_on, post.is_del, post.visibility, post.share_count
+FROM p_post post
+LEFT JOIN p_post_metric metric
+ON post.id=metric.post_id
+WHERE post.visibility>=90 AND post.is_del=0
+ORDER BY post.is_top DESC, metric.rank_score DESC, post.latest_replied_on DESC
+LIMIT $1 OFFSET $2
+`
+
+type ListIndexHotsTweetsParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) ListIndexHotsTweets(ctx context.Context, arg *ListIndexHotsTweetsParams) ([]*PPost, error) {
+	rows, err := q.db.Query(ctx, listIndexHotsTweets, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PPost
+	for rows.Next() {
+		var i PPost
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.Visibility,
+			&i.ShareCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listIndexNewestTweets = `-- name: ListIndexNewestTweets :many
+SELECT id, user_id, comment_count, collection_count, upvote_count, is_top, is_essence, is_lock, latest_replied_on, tags, attachment_price, ip, ip_loc, created_on, modified_on, deleted_on, is_del, visibility, share_count
+FROM p_post
+WHERE visibility>=90 AND is_del=0
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT $1 OFFSET $2
+`
+
+type ListIndexNewestTweetsParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) ListIndexNewestTweets(ctx context.Context, arg *ListIndexNewestTweetsParams) ([]*PPost, error) {
+	rows, err := q.db.Query(ctx, listIndexNewestTweets, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PPost
+	for rows.Next() {
+		var i PPost
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.Visibility,
+			&i.ShareCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listSyncSearchTweets = `-- name: ListSyncSearchTweets :many
+SELECT id, user_id, comment_count, collection_count, upvote_count, is_top, is_essence, is_lock, latest_replied_on, tags, attachment_price, ip, ip_loc, created_on, modified_on, deleted_on, is_del, visibility, share_count
+FROM p_post
+WHERE visibility>=50 AND is_del=0
+LIMIT $1 OFFSET $2
+`
+
+type ListSyncSearchTweetsParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) ListSyncSearchTweets(ctx context.Context, arg *ListSyncSearchTweetsParams) ([]*PPost, error) {
+	rows, err := q.db.Query(ctx, listSyncSearchTweets, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PPost
+	for rows.Next() {
+		var i PPost
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.Visibility,
+			&i.ShareCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listUserTweets = `-- name: ListUserTweets :many
+SELECT id, user_id, comment_count, collection_count, upvote_count, is_top, is_essence, is_lock, latest_replied_on, tags, attachment_price, ip, ip_loc, created_on, modified_on, deleted_on, is_del, visibility, share_count 
+FROM p_post
+WHERE user_id=$1 AND visibility>=$2 AND is_essence=$3 AND is_del=0
+ORDER BY is_top DESC, latest_replied_on DESC
+LIMIT $4 OFFSET $5
+`
+
+type ListUserTweetsParams struct {
+	UserID     int64
+	Visibility int16
+	IsEssence  int16
+	Limit      int32
+	Offset     int32
+}
+
+func (q *Queries) ListUserTweets(ctx context.Context, arg *ListUserTweetsParams) ([]*PPost, error) {
+	rows, err := q.db.Query(ctx, listUserTweets,
+		arg.UserID,
+		arg.Visibility,
+		arg.IsEssence,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PPost
+	for rows.Next() {
+		var i PPost
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.Visibility,
+			&i.ShareCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const lockPost = `-- name: LockPost :one
+UPDATE p_post 
+SET is_lock=1-is_lock, modified_on=$1 
+WHERE id=$2 AND is_del=0 
+RETURNING is_lock
+`
+
+type LockPostParams struct {
+	ModifiedOn int64
+	ID         int64
+}
+
+func (q *Queries) LockPost(ctx context.Context, arg *LockPostParams) (int16, error) {
+	row := q.db.QueryRow(ctx, lockPost, arg.ModifiedOn, arg.ID)
+	var is_lock int16
+	err := row.Scan(&is_lock)
+	return is_lock, err
+}
+
+const mediaContentByPostId = `-- name: MediaContentByPostId :many
+SELECT content FROM p_post_content WHERE post_id=$1 AND is_del=0 AND type IN (3, 4, 5, 7, 8)
+`
+
+func (q *Queries) MediaContentByPostId(ctx context.Context, postID int64) ([]string, error) {
+	rows, err := q.db.Query(ctx, mediaContentByPostId, postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var content string
+		if err := rows.Scan(&content); err != nil {
+			return nil, err
+		}
+		items = append(items, content)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const postHighlightStatus = `-- name: PostHighlightStatus :one
+SELECT user_id, is_essence 
+FROM p_post 
+WHERE id=$1 AND is_del=0
+`
+
+type PostHighlightStatusRow struct {
+	UserID    int64
+	IsEssence int16
+}
+
+func (q *Queries) PostHighlightStatus(ctx context.Context, id int64) (*PostHighlightStatusRow, error) {
+	row := q.db.QueryRow(ctx, postHighlightStatus, id)
+	var i PostHighlightStatusRow
+	err := row.Scan(&i.UserID, &i.IsEssence)
+	return &i, err
+}
+
+const stickPost = `-- name: StickPost :one
+UPDATE p_post 
+SET is_top=1-is_top, modified_on=$1 
+WHERE id=$2 AND is_del=0
+RETURNING is_top
+`
+
+type StickPostParams struct {
+	ModifiedOn int64
+	ID         int64
+}
+
+func (q *Queries) StickPost(ctx context.Context, arg *StickPostParams) (int16, error) {
+	row := q.db.QueryRow(ctx, stickPost, arg.ModifiedOn, arg.ID)
+	var is_top int16
+	err := row.Scan(&is_top)
+	return is_top, err
+}
+
+const updatePost = `-- name: UpdatePost :exec
+UPDATE p_post SET comment_count=$1, 
+    upvote_count=$2,
+    collection_count=$3,
+    latest_replied_on=$4,
+    modified_on=$5
+WHERE id=$6 AND is_del=0
+`
+
+type UpdatePostParams struct {
+	CommentCount    int64
+	UpvoteCount     int64
+	CollectionCount int64
+	LatestRepliedOn int64
+	ModifiedOn      int64
+	ID              int64
+}
+
+func (q *Queries) UpdatePost(ctx context.Context, arg *UpdatePostParams) error {
+	_, err := q.db.Exec(ctx, updatePost,
+		arg.CommentCount,
+		arg.UpvoteCount,
+		arg.CollectionCount,
+		arg.LatestRepliedOn,
+		arg.ModifiedOn,
+		arg.ID,
+	)
+	return err
+}
+
+const userCommentTweetsByFriend = `-- name: UserCommentTweetsByFriend :many
+SELECT id,
+	user_id,
+	comment_count,
+	collection_count,
+	upvote_count,
+	share_count,
+	visibility,
+	is_top,
+	is_essence,
+	is_lock,
+	latest_replied_on,
+	tags,
+	attachment_price,
+	ip,
+	ip_loc,
+	created_on,
+	modified_on,
+	deleted_on,
+	is_del
+FROM p_post_by_comment
+WHERE is_del=0 AND comment_user_id=$1 AND visibility>=50
+ORDER BY latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type UserCommentTweetsByFriendParams struct {
+	CommentUserID int64
+	Limit         int32
+	Offset        int32
+}
+
+type UserCommentTweetsByFriendRow struct {
+	ID              int64
+	UserID          int64
+	CommentCount    int64
+	CollectionCount int64
+	UpvoteCount     int64
+	ShareCount      int64
+	Visibility      int16
+	IsTop           int16
+	IsEssence       int16
+	IsLock          int16
+	LatestRepliedOn int64
+	Tags            string
+	AttachmentPrice int64
+	Ip              string
+	IpLoc           string
+	CreatedOn       int64
+	ModifiedOn      int64
+	DeletedOn       int64
+	IsDel           int16
+}
+
+func (q *Queries) UserCommentTweetsByFriend(ctx context.Context, arg *UserCommentTweetsByFriendParams) ([]*UserCommentTweetsByFriendRow, error) {
+	rows, err := q.db.Query(ctx, userCommentTweetsByFriend, arg.CommentUserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*UserCommentTweetsByFriendRow
+	for rows.Next() {
+		var i UserCommentTweetsByFriendRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.ShareCount,
+			&i.Visibility,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const userCommentTweetsByGuest = `-- name: UserCommentTweetsByGuest :many
+SELECT id,
+	user_id,
+	comment_count,
+	collection_count,
+	upvote_count,
+	share_count,
+	visibility,
+	is_top,
+	is_essence,
+	is_lock,
+	latest_replied_on,
+	tags,
+	attachment_price,
+	ip,
+	ip_loc,
+	created_on,
+	modified_on,
+	deleted_on,
+	is_del
+FROM p_post_by_comment
+WHERE is_del=0 AND comment_user_id=$1 AND visibility>=90
+ORDER BY latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type UserCommentTweetsByGuestParams struct {
+	CommentUserID int64
+	Limit         int32
+	Offset        int32
+}
+
+type UserCommentTweetsByGuestRow struct {
+	ID              int64
+	UserID          int64
+	CommentCount    int64
+	CollectionCount int64
+	UpvoteCount     int64
+	ShareCount      int64
+	Visibility      int16
+	IsTop           int16
+	IsEssence       int16
+	IsLock          int16
+	LatestRepliedOn int64
+	Tags            string
+	AttachmentPrice int64
+	Ip              string
+	IpLoc           string
+	CreatedOn       int64
+	ModifiedOn      int64
+	DeletedOn       int64
+	IsDel           int16
+}
+
+func (q *Queries) UserCommentTweetsByGuest(ctx context.Context, arg *UserCommentTweetsByGuestParams) ([]*UserCommentTweetsByGuestRow, error) {
+	rows, err := q.db.Query(ctx, userCommentTweetsByGuest, arg.CommentUserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*UserCommentTweetsByGuestRow
+	for rows.Next() {
+		var i UserCommentTweetsByGuestRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.ShareCount,
+			&i.Visibility,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const userCommentTweetsBySelf = `-- name: UserCommentTweetsBySelf :many
+SELECT id,
+	user_id,
+	comment_count,
+	collection_count,
+	upvote_count,
+	share_count,
+	visibility,
+	is_top,
+	is_essence,
+	is_lock,
+	latest_replied_on,
+	tags,
+	attachment_price,
+	ip,
+	ip_loc,
+	created_on,
+	modified_on,
+	deleted_on,
+	is_del
+FROM p_post_by_comment
+WHERE is_del=0 AND comment_user_id=$1
+ORDER BY latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type UserCommentTweetsBySelfParams struct {
+	CommentUserID int64
+	Limit         int32
+	Offset        int32
+}
+
+type UserCommentTweetsBySelfRow struct {
+	ID              int64
+	UserID          int64
+	CommentCount    int64
+	CollectionCount int64
+	UpvoteCount     int64
+	ShareCount      int64
+	Visibility      int16
+	IsTop           int16
+	IsEssence       int16
+	IsLock          int16
+	LatestRepliedOn int64
+	Tags            string
+	AttachmentPrice int64
+	Ip              string
+	IpLoc           string
+	CreatedOn       int64
+	ModifiedOn      int64
+	DeletedOn       int64
+	IsDel           int16
+}
+
+func (q *Queries) UserCommentTweetsBySelf(ctx context.Context, arg *UserCommentTweetsBySelfParams) ([]*UserCommentTweetsBySelfRow, error) {
+	rows, err := q.db.Query(ctx, userCommentTweetsBySelf, arg.CommentUserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*UserCommentTweetsBySelfRow
+	for rows.Next() {
+		var i UserCommentTweetsBySelfRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.ShareCount,
+			&i.Visibility,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const userMediaTweetsByFriend = `-- name: UserMediaTweetsByFriend :many
+SELECT id,
+	user_id,
+	comment_count,
+	collection_count,
+	upvote_count,
+	share_count,
+	visibility,
+	is_top,
+	is_essence,
+	is_lock,
+	latest_replied_on,
+	tags,
+	attachment_price,
+	ip,
+	ip_loc,
+	created_on,
+	modified_on,
+	deleted_on,
+	is_del
+FROM p_post_by_media
+WHERE is_del=0 AND user_id=$1 AND visibility>=50
+ORDER BY latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type UserMediaTweetsByFriendParams struct {
+	UserID int64
+	Limit  int32
+	Offset int32
+}
+
+type UserMediaTweetsByFriendRow struct {
+	ID              int64
+	UserID          int64
+	CommentCount    int64
+	CollectionCount int64
+	UpvoteCount     int64
+	ShareCount      int64
+	Visibility      int16
+	IsTop           int16
+	IsEssence       int16
+	IsLock          int16
+	LatestRepliedOn int64
+	Tags            string
+	AttachmentPrice int64
+	Ip              string
+	IpLoc           string
+	CreatedOn       int64
+	ModifiedOn      int64
+	DeletedOn       int64
+	IsDel           int16
+}
+
+func (q *Queries) UserMediaTweetsByFriend(ctx context.Context, arg *UserMediaTweetsByFriendParams) ([]*UserMediaTweetsByFriendRow, error) {
+	rows, err := q.db.Query(ctx, userMediaTweetsByFriend, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*UserMediaTweetsByFriendRow
+	for rows.Next() {
+		var i UserMediaTweetsByFriendRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.ShareCount,
+			&i.Visibility,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const userMediaTweetsByGuest = `-- name: UserMediaTweetsByGuest :many
+SELECT id,
+	user_id,
+	comment_count,
+	collection_count,
+	upvote_count,
+	share_count,
+	visibility,
+	is_top,
+	is_essence,
+	is_lock,
+	latest_replied_on,
+	tags,
+	attachment_price,
+	ip,
+	ip_loc,
+	created_on,
+	modified_on,
+	deleted_on,
+	is_del
+FROM p_post_by_media
+WHERE is_del=0 AND user_id=$1 AND visibility=90
+ORDER BY latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type UserMediaTweetsByGuestParams struct {
+	UserID int64
+	Limit  int32
+	Offset int32
+}
+
+type UserMediaTweetsByGuestRow struct {
+	ID              int64
+	UserID          int64
+	CommentCount    int64
+	CollectionCount int64
+	UpvoteCount     int64
+	ShareCount      int64
+	Visibility      int16
+	IsTop           int16
+	IsEssence       int16
+	IsLock          int16
+	LatestRepliedOn int64
+	Tags            string
+	AttachmentPrice int64
+	Ip              string
+	IpLoc           string
+	CreatedOn       int64
+	ModifiedOn      int64
+	DeletedOn       int64
+	IsDel           int16
+}
+
+func (q *Queries) UserMediaTweetsByGuest(ctx context.Context, arg *UserMediaTweetsByGuestParams) ([]*UserMediaTweetsByGuestRow, error) {
+	rows, err := q.db.Query(ctx, userMediaTweetsByGuest, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*UserMediaTweetsByGuestRow
+	for rows.Next() {
+		var i UserMediaTweetsByGuestRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.ShareCount,
+			&i.Visibility,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const userMediaTweetsBySelf = `-- name: UserMediaTweetsBySelf :many
+SELECT id,
+	user_id,
+	comment_count,
+	collection_count,
+	upvote_count,
+	share_count,
+	visibility,
+	is_top,
+	is_essence,
+	is_lock,
+	latest_replied_on,
+	tags,
+	attachment_price,
+	ip,
+	ip_loc,
+	created_on,
+	modified_on,
+	deleted_on,
+	is_del
+FROM p_post_by_media
+WHERE is_del=0 AND user_id=$1
+ORDER BY latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type UserMediaTweetsBySelfParams struct {
+	UserID int64
+	Limit  int32
+	Offset int32
+}
+
+type UserMediaTweetsBySelfRow struct {
+	ID              int64
+	UserID          int64
+	CommentCount    int64
+	CollectionCount int64
+	UpvoteCount     int64
+	ShareCount      int64
+	Visibility      int16
+	IsTop           int16
+	IsEssence       int16
+	IsLock          int16
+	LatestRepliedOn int64
+	Tags            string
+	AttachmentPrice int64
+	Ip              string
+	IpLoc           string
+	CreatedOn       int64
+	ModifiedOn      int64
+	DeletedOn       int64
+	IsDel           int16
+}
+
+func (q *Queries) UserMediaTweetsBySelf(ctx context.Context, arg *UserMediaTweetsBySelfParams) ([]*UserMediaTweetsBySelfRow, error) {
+	rows, err := q.db.Query(ctx, userMediaTweetsBySelf, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*UserMediaTweetsBySelfRow
+	for rows.Next() {
+		var i UserMediaTweetsBySelfRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CommentCount,
+			&i.CollectionCount,
+			&i.UpvoteCount,
+			&i.ShareCount,
+			&i.Visibility,
+			&i.IsTop,
+			&i.IsEssence,
+			&i.IsLock,
+			&i.LatestRepliedOn,
+			&i.Tags,
+			&i.AttachmentPrice,
+			&i.Ip,
+			&i.IpLoc,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const userStarTweetsByAdmin = `-- name: UserStarTweetsByAdmin :many
+SELECT
+	star.id, star.post_id, star.user_id, star.created_on, star.modified_on, star.deleted_on, star.is_del,
+	post.ID "post.id",
+	post.created_on "post.created_on",
+	post.modified_on "post.modified_on",
+	post.deleted_on "post.deleted_on",
+	post.is_del "post.is_del",
+	post.user_id "post.user_id",
+	post.comment_count "post.comment_count",
+	post.collection_count "post.collection_count",
+	post.share_count "post.share_count",
+	post.upvote_count "post.upvote_count",
+	post.visibility "post.visibility",
+	post.is_top "post.is_top",
+	post.is_essence "post.is_essence",
+	post.is_lock "post.is_lock",
+	post.latest_replied_on "post.latest_replied_on",
+	post.tags "post.tags",
+	post.attachment_price "post.attachment_price",
+	post.ip "post.ip",
+	post.ip_loc "post.ip_loc" 
+FROM
+	p_post_star star
+	JOIN p_post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=$1
+ORDER BY post.latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type UserStarTweetsByAdminParams struct {
+	UserID int64
+	Limit  int32
+	Offset int32
+}
+
+type UserStarTweetsByAdminRow struct {
+	ID                  int64
+	PostID              int64
+	UserID              int64
+	CreatedOn           int64
+	ModifiedOn          int64
+	DeletedOn           int64
+	IsDel               int16
+	PostID_2            int64
+	PostCreatedOn       int64
+	PostModifiedOn      int64
+	PostDeletedOn       int64
+	PostIsDel           int16
+	PostUserID          int64
+	PostCommentCount    int64
+	PostCollectionCount int64
+	PostShareCount      int64
+	PostUpvoteCount     int64
+	PostVisibility      int16
+	PostIsTop           int16
+	PostIsEssence       int16
+	PostIsLock          int16
+	PostLatestRepliedOn int64
+	PostTags            string
+	PostAttachmentPrice int64
+	PostIp              string
+	PostIpLoc           string
+}
+
+func (q *Queries) UserStarTweetsByAdmin(ctx context.Context, arg *UserStarTweetsByAdminParams) ([]*UserStarTweetsByAdminRow, error) {
+	rows, err := q.db.Query(ctx, userStarTweetsByAdmin, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*UserStarTweetsByAdminRow
+	for rows.Next() {
+		var i UserStarTweetsByAdminRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.PostID,
+			&i.UserID,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.PostID_2,
+			&i.PostCreatedOn,
+			&i.PostModifiedOn,
+			&i.PostDeletedOn,
+			&i.PostIsDel,
+			&i.PostUserID,
+			&i.PostCommentCount,
+			&i.PostCollectionCount,
+			&i.PostShareCount,
+			&i.PostUpvoteCount,
+			&i.PostVisibility,
+			&i.PostIsTop,
+			&i.PostIsEssence,
+			&i.PostIsLock,
+			&i.PostLatestRepliedOn,
+			&i.PostTags,
+			&i.PostAttachmentPrice,
+			&i.PostIp,
+			&i.PostIpLoc,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const userStarTweetsByFriend = `-- name: UserStarTweetsByFriend :many
+SELECT
+	star.id, star.post_id, star.user_id, star.created_on, star.modified_on, star.deleted_on, star.is_del,
+	post.ID "post.id",
+	post.created_on "post.created_on",
+	post.modified_on "post.modified_on",
+	post.deleted_on "post.deleted_on",
+	post.is_del "post.is_del",
+	post.user_id "post.user_id",
+	post.comment_count "post.comment_count",
+	post.collection_count "post.collection_count",
+	post.share_count "post.share_count",
+	post.upvote_count "post.upvote_count",
+	post.visibility "post.visibility",
+	post.is_top "post.is_top",
+	post.is_essence "post.is_essence",
+	post.is_lock "post.is_lock",
+	post.latest_replied_on "post.latest_replied_on",
+	post.tags "post.tags",
+	post.attachment_price "post.attachment_price",
+	post.ip "post.ip",
+	post.ip_loc "post.ip_loc" 
+FROM
+	p_post_star star
+	JOIN p_post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=$1 AND post.visibility>=50
+ORDER BY post.latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type UserStarTweetsByFriendParams struct {
+	UserID int64
+	Limit  int32
+	Offset int32
+}
+
+type UserStarTweetsByFriendRow struct {
+	ID                  int64
+	PostID              int64
+	UserID              int64
+	CreatedOn           int64
+	ModifiedOn          int64
+	DeletedOn           int64
+	IsDel               int16
+	PostID_2            int64
+	PostCreatedOn       int64
+	PostModifiedOn      int64
+	PostDeletedOn       int64
+	PostIsDel           int16
+	PostUserID          int64
+	PostCommentCount    int64
+	PostCollectionCount int64
+	PostShareCount      int64
+	PostUpvoteCount     int64
+	PostVisibility      int16
+	PostIsTop           int16
+	PostIsEssence       int16
+	PostIsLock          int16
+	PostLatestRepliedOn int64
+	PostTags            string
+	PostAttachmentPrice int64
+	PostIp              string
+	PostIpLoc           string
+}
+
+func (q *Queries) UserStarTweetsByFriend(ctx context.Context, arg *UserStarTweetsByFriendParams) ([]*UserStarTweetsByFriendRow, error) {
+	rows, err := q.db.Query(ctx, userStarTweetsByFriend, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*UserStarTweetsByFriendRow
+	for rows.Next() {
+		var i UserStarTweetsByFriendRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.PostID,
+			&i.UserID,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.PostID_2,
+			&i.PostCreatedOn,
+			&i.PostModifiedOn,
+			&i.PostDeletedOn,
+			&i.PostIsDel,
+			&i.PostUserID,
+			&i.PostCommentCount,
+			&i.PostCollectionCount,
+			&i.PostShareCount,
+			&i.PostUpvoteCount,
+			&i.PostVisibility,
+			&i.PostIsTop,
+			&i.PostIsEssence,
+			&i.PostIsLock,
+			&i.PostLatestRepliedOn,
+			&i.PostTags,
+			&i.PostAttachmentPrice,
+			&i.PostIp,
+			&i.PostIpLoc,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const userStarTweetsByGuest = `-- name: UserStarTweetsByGuest :many
+SELECT
+	star.id, star.post_id, star.user_id, star.created_on, star.modified_on, star.deleted_on, star.is_del,
+	post.ID "post.id",
+	post.created_on "post.created_on",
+	post.modified_on "post.modified_on",
+	post.deleted_on "post.deleted_on",
+	post.is_del "post.is_del",
+	post.user_id "post.user_id",
+	post.comment_count "post.comment_count",
+	post.collection_count "post.collection_count",
+	post.share_count "post.share_count",
+	post.upvote_count "post.upvote_count",
+	post.visibility "post.visibility",
+	post.is_top "post.is_top",
+	post.is_essence "post.is_essence",
+	post.is_lock "post.is_lock",
+	post.latest_replied_on "post.latest_replied_on",
+	post.tags "post.tags",
+	post.attachment_price "post.attachment_price",
+	post.ip "post.ip",
+	post.ip_loc "post.ip_loc" 
+FROM
+	p_post_star star
+	JOIN p_post post ON star.post_id = post.ID 
+WHERE
+	star.is_del=0 
+	AND star.user_id=$1 
+	AND post.visibility>=90
+ORDER BY post.latest_replied_on DESC
+LIMIT $2 OFFSET $3
+`
+
+type UserStarTweetsByGuestParams struct {
+	UserID int64
+	Limit  int32
+	Offset int32
+}
+
+type UserStarTweetsByGuestRow struct {
+	ID                  int64
+	PostID              int64
+	UserID              int64
+	CreatedOn           int64
+	ModifiedOn          int64
+	DeletedOn           int64
+	IsDel               int16
+	PostID_2            int64
+	PostCreatedOn       int64
+	PostModifiedOn      int64
+	PostDeletedOn       int64
+	PostIsDel           int16
+	PostUserID          int64
+	PostCommentCount    int64
+	PostCollectionCount int64
+	PostShareCount      int64
+	PostUpvoteCount     int64
+	PostVisibility      int16
+	PostIsTop           int16
+	PostIsEssence       int16
+	PostIsLock          int16
+	PostLatestRepliedOn int64
+	PostTags            string
+	PostAttachmentPrice int64
+	PostIp              string
+	PostIpLoc           string
+}
+
+func (q *Queries) UserStarTweetsByGuest(ctx context.Context, arg *UserStarTweetsByGuestParams) ([]*UserStarTweetsByGuestRow, error) {
+	rows, err := q.db.Query(ctx, userStarTweetsByGuest, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*UserStarTweetsByGuestRow
+	for rows.Next() {
+		var i UserStarTweetsByGuestRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.PostID,
+			&i.UserID,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.PostID_2,
+			&i.PostCreatedOn,
+			&i.PostModifiedOn,
+			&i.PostDeletedOn,
+			&i.PostIsDel,
+			&i.PostUserID,
+			&i.PostCommentCount,
+			&i.PostCollectionCount,
+			&i.PostShareCount,
+			&i.PostUpvoteCount,
+			&i.PostVisibility,
+			&i.PostIsTop,
+			&i.PostIsEssence,
+			&i.PostIsLock,
+			&i.PostLatestRepliedOn,
+			&i.PostTags,
+			&i.PostAttachmentPrice,
+			&i.PostIp,
+			&i.PostIpLoc,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const userStarTweetsBySelf = `-- name: UserStarTweetsBySelf :many
+SELECT
+	star.id, star.post_id, star.user_id, star.created_on, star.modified_on, star.deleted_on, star.is_del,
+	post.ID "post.id",
+	post.created_on "post.created_on",
+	post.modified_on "post.modified_on",
+	post.deleted_on "post.deleted_on",
+	post.is_del "post.is_del",
+	post.user_id "post.user_id",
+	post.comment_count "post.comment_count",
+	post.collection_count "post.collection_count",
+	post.share_count "post.share_count",
+	post.upvote_count "post.upvote_count",
+	post.visibility "post.visibility",
+	post.is_top "post.is_top",
+	post.is_essence "post.is_essence",
+	post.is_lock "post.is_lock",
+	post.latest_replied_on "post.latest_replied_on",
+	post.tags "post.tags",
+	post.attachment_price "post.attachment_price",
+	post.ip "post.ip",
+	post.ip_loc "post.ip_loc" 
+FROM
+	p_post_star star
+	JOIN p_post post ON star.post_id = post.ID 
+WHERE star.is_del=0 AND star.user_id=$1 AND (post.visibility<>90 OR (post.visibility>=90 AND post.user_id=$2))
+ORDER BY post.latest_replied_on DESC
+LIMIT $3 OFFSET $4
+`
+
+type UserStarTweetsBySelfParams struct {
+	UserID   int64
+	UserID_2 int64
+	Limit    int32
+	Offset   int32
+}
+
+type UserStarTweetsBySelfRow struct {
+	ID                  int64
+	PostID              int64
+	UserID              int64
+	CreatedOn           int64
+	ModifiedOn          int64
+	DeletedOn           int64
+	IsDel               int16
+	PostID_2            int64
+	PostCreatedOn       int64
+	PostModifiedOn      int64
+	PostDeletedOn       int64
+	PostIsDel           int16
+	PostUserID          int64
+	PostCommentCount    int64
+	PostCollectionCount int64
+	PostShareCount      int64
+	PostUpvoteCount     int64
+	PostVisibility      int16
+	PostIsTop           int16
+	PostIsEssence       int16
+	PostIsLock          int16
+	PostLatestRepliedOn int64
+	PostTags            string
+	PostAttachmentPrice int64
+	PostIp              string
+	PostIpLoc           string
+}
+
+func (q *Queries) UserStarTweetsBySelf(ctx context.Context, arg *UserStarTweetsBySelfParams) ([]*UserStarTweetsBySelfRow, error) {
+	rows, err := q.db.Query(ctx, userStarTweetsBySelf,
+		arg.UserID,
+		arg.UserID_2,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*UserStarTweetsBySelfRow
+	for rows.Next() {
+		var i UserStarTweetsBySelfRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.PostID,
+			&i.UserID,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+			&i.PostID_2,
+			&i.PostCreatedOn,
+			&i.PostModifiedOn,
+			&i.PostDeletedOn,
+			&i.PostIsDel,
+			&i.PostUserID,
+			&i.PostCommentCount,
+			&i.PostCollectionCount,
+			&i.PostShareCount,
+			&i.PostUpvoteCount,
+			&i.PostVisibility,
+			&i.PostIsTop,
+			&i.PostIsEssence,
+			&i.PostIsLock,
+			&i.PostLatestRepliedOn,
+			&i.PostTags,
+			&i.PostAttachmentPrice,
+			&i.PostIp,
+			&i.PostIpLoc,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const visiblePost = `-- name: VisiblePost :one
+UPDATE p_post 
+SET visibility=$1, is_top=$2, modified_on=$3 
+WHERE id=$4 AND is_del=0
+RETURNING visibility
+`
+
+type VisiblePostParams struct {
+	Visibility int16
+	IsTop      int16
+	ModifiedOn int64
+	ID         int64
+}
+
+func (q *Queries) VisiblePost(ctx context.Context, arg *VisiblePostParams) (int16, error) {
+	row := q.db.QueryRow(ctx, visiblePost,
+		arg.Visibility,
+		arg.IsTop,
+		arg.ModifiedOn,
+		arg.ID,
+	)
+	var visibility int16
+	err := row.Scan(&visibility)
+	return visibility, err
 }
