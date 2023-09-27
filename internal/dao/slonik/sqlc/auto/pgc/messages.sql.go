@@ -9,6 +9,260 @@ import (
 	"context"
 )
 
+const countAllMessages = `-- name: CountAllMessages :one
+SELECT count(*)
+FROM p_message 
+WHERE (receiver_user_id=$1 OR (sender_user_id=$2 AND type=4)) AND is_del=0
+`
+
+type CountAllMessagesParams struct {
+	ReceiverUserID int64
+	SenderUserID   int64
+}
+
+func (q *Queries) CountAllMessages(ctx context.Context, arg *CountAllMessagesParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countAllMessages, arg.ReceiverUserID, arg.SenderUserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countRequestingMessages = `-- name: CountRequestingMessages :one
+SELECT count(*) 
+FROM p_message 
+WHERE receiver_user_id=$1 AND type=5 AND is_del=0
+`
+
+func (q *Queries) CountRequestingMessages(ctx context.Context, receiverUserID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countRequestingMessages, receiverUserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countSystemMessages = `-- name: CountSystemMessages :one
+SELECT count(*) 
+FROM p_message 
+WHERE receiver_user_id=$1 AND type IN (1, 2, 3, 99) AND is_del=0
+`
+
+func (q *Queries) CountSystemMessages(ctx context.Context, receiverUserID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countSystemMessages, receiverUserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUnreadMessages = `-- name: CountUnreadMessages :one
+SELECT count(*) 
+FROM p_message 
+WHERE receiver_user_id=$1 AND is_read=0 AND is_del=0
+`
+
+func (q *Queries) CountUnreadMessages(ctx context.Context, receiverUserID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countUnreadMessages, receiverUserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countWhisperMessages = `-- name: CountWhisperMessages :one
+SELECT count(*) 
+FROM p_message 
+WHERE ((receiver_user_id=$1 OR sender_user_id=$2) AND type=4) AND is_del=0
+`
+
+type CountWhisperMessagesParams struct {
+	ReceiverUserID int64
+	SenderUserID   int64
+}
+
+func (q *Queries) CountWhisperMessages(ctx context.Context, arg *CountWhisperMessagesParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countWhisperMessages, arg.ReceiverUserID, arg.SenderUserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const getAllMessages = `-- name: GetAllMessages :many
+SELECT id, sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, is_read, created_on, modified_on, deleted_on, is_del 
+FROM p_message 
+WHERE (receiver_user_id=$1 OR (sender_user_id=$2 AND type=4)) AND is_del=0 
+ORDER BY id DESC
+LIMIT $3 OFFSET $4
+`
+
+type GetAllMessagesParams struct {
+	ReceiverUserID int64
+	SenderUserID   int64
+	Limit          int32
+	Offset         int32
+}
+
+func (q *Queries) GetAllMessages(ctx context.Context, arg *GetAllMessagesParams) ([]*PMessage, error) {
+	rows, err := q.db.Query(ctx, getAllMessages,
+		arg.ReceiverUserID,
+		arg.SenderUserID,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PMessage
+	for rows.Next() {
+		var i PMessage
+		if err := rows.Scan(
+			&i.ID,
+			&i.SenderUserID,
+			&i.ReceiverUserID,
+			&i.Type,
+			&i.Brief,
+			&i.Content,
+			&i.PostID,
+			&i.CommentID,
+			&i.ReplyID,
+			&i.IsRead,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getMessageById = `-- name: GetMessageById :one
+SELECT id, sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, is_read, created_on, modified_on, deleted_on, is_del FROM p_message WHERE id=$1 AND is_del=0
+`
+
+func (q *Queries) GetMessageById(ctx context.Context, id int64) (*PMessage, error) {
+	row := q.db.QueryRow(ctx, getMessageById, id)
+	var i PMessage
+	err := row.Scan(
+		&i.ID,
+		&i.SenderUserID,
+		&i.ReceiverUserID,
+		&i.Type,
+		&i.Brief,
+		&i.Content,
+		&i.PostID,
+		&i.CommentID,
+		&i.ReplyID,
+		&i.IsRead,
+		&i.CreatedOn,
+		&i.ModifiedOn,
+		&i.DeletedOn,
+		&i.IsDel,
+	)
+	return &i, err
+}
+
+const getRequestingMessages = `-- name: GetRequestingMessages :many
+SELECT id, sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, is_read, created_on, modified_on, deleted_on, is_del 
+FROM p_message 
+WHERE receiver_user_id=$1 AND type=5 AND is_del=0 
+ORDER BY id DESC
+LIMIT $2 OFFSET $3
+`
+
+type GetRequestingMessagesParams struct {
+	ReceiverUserID int64
+	Limit          int32
+	Offset         int32
+}
+
+func (q *Queries) GetRequestingMessages(ctx context.Context, arg *GetRequestingMessagesParams) ([]*PMessage, error) {
+	rows, err := q.db.Query(ctx, getRequestingMessages, arg.ReceiverUserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PMessage
+	for rows.Next() {
+		var i PMessage
+		if err := rows.Scan(
+			&i.ID,
+			&i.SenderUserID,
+			&i.ReceiverUserID,
+			&i.Type,
+			&i.Brief,
+			&i.Content,
+			&i.PostID,
+			&i.CommentID,
+			&i.ReplyID,
+			&i.IsRead,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSystemMessages = `-- name: GetSystemMessages :many
+SELECT id, sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, is_read, created_on, modified_on, deleted_on, is_del 
+FROM p_message 
+WHERE receiver_user_id=$1 AND type IN (1, 2, 3, 99) AND is_del=0 
+ORDER BY id DESC
+LIMIT $2 OFFSET $3
+`
+
+type GetSystemMessagesParams struct {
+	ReceiverUserID int64
+	Limit          int32
+	Offset         int32
+}
+
+func (q *Queries) GetSystemMessages(ctx context.Context, arg *GetSystemMessagesParams) ([]*PMessage, error) {
+	rows, err := q.db.Query(ctx, getSystemMessages, arg.ReceiverUserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PMessage
+	for rows.Next() {
+		var i PMessage
+		if err := rows.Scan(
+			&i.ID,
+			&i.SenderUserID,
+			&i.ReceiverUserID,
+			&i.Type,
+			&i.Brief,
+			&i.Content,
+			&i.PostID,
+			&i.CommentID,
+			&i.ReplyID,
+			&i.IsRead,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUnreadCount = `-- name: GetUnreadCount :one
 
 SELECT count(*) FROM p_message WHERE receiver_user_id=$1 AND is_read=0 AND is_del=0
@@ -22,4 +276,136 @@ func (q *Queries) GetUnreadCount(ctx context.Context, receiverUserID int64) (int
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const getUnreadMessages = `-- name: GetUnreadMessages :many
+SELECT id, sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, is_read, created_on, modified_on, deleted_on, is_del 
+FROM p_message 
+WHERE receiver_user_id=$1 AND is_read=0 AND is_del=0 
+ORDER BY id DESC
+LIMIT $2 OFFSET $3
+`
+
+type GetUnreadMessagesParams struct {
+	ReceiverUserID int64
+	Limit          int32
+	Offset         int32
+}
+
+func (q *Queries) GetUnreadMessages(ctx context.Context, arg *GetUnreadMessagesParams) ([]*PMessage, error) {
+	rows, err := q.db.Query(ctx, getUnreadMessages, arg.ReceiverUserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PMessage
+	for rows.Next() {
+		var i PMessage
+		if err := rows.Scan(
+			&i.ID,
+			&i.SenderUserID,
+			&i.ReceiverUserID,
+			&i.Type,
+			&i.Brief,
+			&i.Content,
+			&i.PostID,
+			&i.CommentID,
+			&i.ReplyID,
+			&i.IsRead,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getWhisperMessages = `-- name: GetWhisperMessages :many
+SELECT id, sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, is_read, created_on, modified_on, deleted_on, is_del 
+FROM p_message 
+WHERE ((receiver_user_id=$1 OR sender_user_id=$2) AND type=4) AND is_del=0 
+ORDER BY id DESC
+LIMIT $3 OFFSET $4
+`
+
+type GetWhisperMessagesParams struct {
+	ReceiverUserID int64
+	SenderUserID   int64
+	Limit          int32
+	Offset         int32
+}
+
+func (q *Queries) GetWhisperMessages(ctx context.Context, arg *GetWhisperMessagesParams) ([]*PMessage, error) {
+	rows, err := q.db.Query(ctx, getWhisperMessages,
+		arg.ReceiverUserID,
+		arg.SenderUserID,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PMessage
+	for rows.Next() {
+		var i PMessage
+		if err := rows.Scan(
+			&i.ID,
+			&i.SenderUserID,
+			&i.ReceiverUserID,
+			&i.Type,
+			&i.Brief,
+			&i.Content,
+			&i.PostID,
+			&i.CommentID,
+			&i.ReplyID,
+			&i.IsRead,
+			&i.CreatedOn,
+			&i.ModifiedOn,
+			&i.DeletedOn,
+			&i.IsDel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const readAllMessage = `-- name: ReadAllMessage :exec
+UPDATE p_message SET is_read=1, modified_on=$1 WHERE receiver_user_id=$2
+`
+
+type ReadAllMessageParams struct {
+	ModifiedOn     int64
+	ReceiverUserID int64
+}
+
+func (q *Queries) ReadAllMessage(ctx context.Context, arg *ReadAllMessageParams) error {
+	_, err := q.db.Exec(ctx, readAllMessage, arg.ModifiedOn, arg.ReceiverUserID)
+	return err
+}
+
+const readMessage = `-- name: ReadMessage :exec
+UPDATE p_message SET is_read=1, modified_on=$1 WHERE id=$2
+`
+
+type ReadMessageParams struct {
+	ModifiedOn int64
+	ID         int64
+}
+
+func (q *Queries) ReadMessage(ctx context.Context, arg *ReadMessageParams) error {
+	_, err := q.db.Exec(ctx, readMessage, arg.ModifiedOn, arg.ID)
+	return err
 }

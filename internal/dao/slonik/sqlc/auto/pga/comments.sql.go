@@ -28,7 +28,7 @@ func (q *Queries) DeleteComment(ctx context.Context, arg *DeleteCommentParams) e
 }
 
 const getDefaultComments = `-- name: GetDefaultComments :many
-SELECT id, post_id, user_id, ip, ip_loc, created_on, modified_on, deleted_on, is_del, thumbs_up_count, thumbs_down_count FROM p_comment WHERE post_id=$1 AND is_del=0 ORDER BY id ASC LIMIT $2 OFFSET $3
+SELECT id, post_id, user_id, ip, ip_loc, created_on, modified_on, deleted_on, is_del, thumbs_up_count, thumbs_down_count, is_essence, reply_count FROM p_comment WHERE post_id=$1 AND is_del=0 ORDER BY id ASC LIMIT $2 OFFSET $3
 `
 
 type GetDefaultCommentsParams struct {
@@ -58,6 +58,8 @@ func (q *Queries) GetDefaultComments(ctx context.Context, arg *GetDefaultComment
 			&i.IsDel,
 			&i.ThumbsUpCount,
 			&i.ThumbsDownCount,
+			&i.IsEssence,
+			&i.ReplyCount,
 		); err != nil {
 			return nil, err
 		}
@@ -71,7 +73,7 @@ func (q *Queries) GetDefaultComments(ctx context.Context, arg *GetDefaultComment
 
 const getNewestComments = `-- name: GetNewestComments :many
 
-SELECT id, post_id, user_id, ip, ip_loc, created_on, modified_on, deleted_on, is_del, thumbs_up_count, thumbs_down_count FROM p_comment WHERE post_id=$1 AND is_del=0 ORDER BY id DESC LIMIT $2 OFFSET $3
+SELECT id, post_id, user_id, ip, ip_loc, created_on, modified_on, deleted_on, is_del, thumbs_up_count, thumbs_down_count, is_essence, reply_count FROM p_comment WHERE post_id=$1 AND is_del=0 ORDER BY id DESC LIMIT $2 OFFSET $3
 `
 
 type GetNewestCommentsParams struct {
@@ -104,6 +106,8 @@ func (q *Queries) GetNewestComments(ctx context.Context, arg *GetNewestCommentsP
 			&i.IsDel,
 			&i.ThumbsUpCount,
 			&i.ThumbsDownCount,
+			&i.IsEssence,
+			&i.ReplyCount,
 		); err != nil {
 			return nil, err
 		}

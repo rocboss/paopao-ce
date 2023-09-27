@@ -9,6 +9,46 @@ import (
 	"context"
 )
 
+const addFriendMsgsUpdate = `-- name: AddFriendMsgsUpdate :exec
+UPDATE p_message
+SET reply_id=$1, modified_on=$2
+WHERE ((sender_user_id = $3 AND receiver_user_id = $4) OR
+        (sender_user_id = $4 AND receiver_user_id = $3)) AND
+    type = $5 AND reply_id = $6
+`
+
+type AddFriendMsgsUpdateParams struct {
+	ReplyID        int64
+	ModifiedOn     int64
+	SenderUserID   int64
+	ReceiverUserID int64
+	Type           int16
+	ReplyID_2      int64
+}
+
+func (q *Queries) AddFriendMsgsUpdate(ctx context.Context, arg *AddFriendMsgsUpdateParams) error {
+	_, err := q.db.Exec(ctx, addFriendMsgsUpdate,
+		arg.ReplyID,
+		arg.ModifiedOn,
+		arg.SenderUserID,
+		arg.ReceiverUserID,
+		arg.Type,
+		arg.ReplyID_2,
+	)
+	return err
+}
+
+const countFriendsById = `-- name: CountFriendsById :one
+SELECT count(*) FROM p_contact WHERE user_id=$1 AND status=2 AND is_del=0
+`
+
+func (q *Queries) CountFriendsById(ctx context.Context, userID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countFriendsById, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createContact = `-- name: CreateContact :exec
 
 INSERT INTO p_contact (user_id, friend_id, status, created_on) VALUES ($1, $2, $3, $4)
@@ -30,6 +70,309 @@ func (q *Queries) CreateContact(ctx context.Context, arg *CreateContactParams) e
 		arg.FriendID,
 		arg.Status,
 		arg.CreatedOn,
+	)
+	return err
+}
+
+const createMessage = `-- name: CreateMessage :one
+INSERT INTO p_message (sender_user_id, receiver_user_id, type, brief, content, reply_id, created_on)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id
+`
+
+type CreateMessageParams struct {
+	SenderUserID   int64
+	ReceiverUserID int64
+	Type           int16
+	Brief          string
+	Content        string
+	ReplyID        int64
+	CreatedOn      int64
+}
+
+func (q *Queries) CreateMessage(ctx context.Context, arg *CreateMessageParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createMessage,
+		arg.SenderUserID,
+		arg.ReceiverUserID,
+		arg.Type,
+		arg.Brief,
+		arg.Content,
+		arg.ReplyID,
+		arg.CreatedOn,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const deleteFriend = `-- name: DeleteFriend :exec
+UPDATE p_contact SET status=4, is_del=1, deleted_on=$1 WHERE id=$2
+`
+
+type DeleteFriendParams struct {
+	DeletedOn int64
+	ID        int64
+}
+
+func (q *Queries) DeleteFriend(ctx context.Context, arg *DeleteFriendParams) error {
+	_, err := q.db.Exec(ctx, deleteFriend, arg.DeletedOn, arg.ID)
+	return err
+}
+
+const freshContactStatus = `-- name: FreshContactStatus :exec
+UPDATE p_contact SET status=$1, modified_on=$2, is_del=0 WHERE id=$3
+`
+
+type FreshContactStatusParams struct {
+	Status     int16
+	ModifiedOn int64
+	ID         int64
+}
+
+func (q *Queries) FreshContactStatus(ctx context.Context, arg *FreshContactStatusParams) error {
+	_, err := q.db.Exec(ctx, freshContactStatus, arg.Status, arg.ModifiedOn, arg.ID)
+	return err
+}
+
+const getContact = `-- name: GetContact :one
+SELECT id, user_id, friend_id, group_id, remark, status, is_top, is_black, notice_enable, is_del
+FROM p_contact
+WHERE user_id=$1 AND friend_id=$2
+`
+
+type GetContactParams struct {
+	UserID   int64
+	FriendID int64
+}
+
+type GetContactRow struct {
+	ID           int64
+	UserID       int64
+	FriendID     int64
+	GroupID      int64
+	Remark       string
+	Status       int16
+	IsTop        int16
+	IsBlack      int16
+	NoticeEnable int16
+	IsDel        int16
+}
+
+func (q *Queries) GetContact(ctx context.Context, arg *GetContactParams) (*GetContactRow, error) {
+	row := q.db.QueryRow(ctx, getContact, arg.UserID, arg.FriendID)
+	var i GetContactRow
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.FriendID,
+		&i.GroupID,
+		&i.Remark,
+		&i.Status,
+		&i.IsTop,
+		&i.IsBlack,
+		&i.NoticeEnable,
+		&i.IsDel,
+	)
+	return &i, err
+}
+
+const getContacts = `-- name: GetContacts :many
+SELECT id, user_id, friend_id, group_id, remark, status, is_top, is_black, notice_enable, is_del
+FROM p_contact
+WHERE (user_id=$1 AND friend_id=$2) OR (user_id=$3 AND friend_id=$4)
+`
+
+type GetContactsParams struct {
+	UserID     int64
+	FriendID   int64
+	UserID_2   int64
+	FriendID_2 int64
+}
+
+type GetContactsRow struct {
+	ID           int64
+	UserID       int64
+	FriendID     int64
+	GroupID      int64
+	Remark       string
+	Status       int16
+	IsTop        int16
+	IsBlack      int16
+	NoticeEnable int16
+	IsDel        int16
+}
+
+func (q *Queries) GetContacts(ctx context.Context, arg *GetContactsParams) ([]*GetContactsRow, error) {
+	rows, err := q.db.Query(ctx, getContacts,
+		arg.UserID,
+		arg.FriendID,
+		arg.UserID_2,
+		arg.FriendID_2,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetContactsRow
+	for rows.Next() {
+		var i GetContactsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.FriendID,
+			&i.GroupID,
+			&i.Remark,
+			&i.Status,
+			&i.IsTop,
+			&i.IsBlack,
+			&i.NoticeEnable,
+			&i.IsDel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserFriend = `-- name: GetUserFriend :one
+SELECT id, user_id, friend_id, group_id, remark, status, is_top, is_black, notice_enable, is_del
+FROM p_contact
+WHERE user_id=$1 AND friend_id=$2 AND is_del=0
+`
+
+type GetUserFriendParams struct {
+	UserID   int64
+	FriendID int64
+}
+
+type GetUserFriendRow struct {
+	ID           int64
+	UserID       int64
+	FriendID     int64
+	GroupID      int64
+	Remark       string
+	Status       int16
+	IsTop        int16
+	IsBlack      int16
+	NoticeEnable int16
+	IsDel        int16
+}
+
+func (q *Queries) GetUserFriend(ctx context.Context, arg *GetUserFriendParams) (*GetUserFriendRow, error) {
+	row := q.db.QueryRow(ctx, getUserFriend, arg.UserID, arg.FriendID)
+	var i GetUserFriendRow
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.FriendID,
+		&i.GroupID,
+		&i.Remark,
+		&i.Status,
+		&i.IsTop,
+		&i.IsBlack,
+		&i.NoticeEnable,
+		&i.IsDel,
+	)
+	return &i, err
+}
+
+const isFriend = `-- name: IsFriend :one
+SELECT true FROM p_contact WHERE user_id=$1 AND friend_id=$2 AND is_del=0 AND status=2
+`
+
+type IsFriendParams struct {
+	UserID   int64
+	FriendID int64
+}
+
+func (q *Queries) IsFriend(ctx context.Context, arg *IsFriendParams) (bool, error) {
+	row := q.db.QueryRow(ctx, isFriend, arg.UserID, arg.FriendID)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const listFriend = `-- name: ListFriend :many
+SELECT c.friend_id user_id,
+    u.username username,
+    u.nickname nickname,
+    u.avatar avatar,
+    u.phone phone
+FROM p_contact c 
+JOIN p_user u 
+ON c.friend_id=u.id
+WHERE c.user_id=$1 AND c.status=2 AND c.is_del=0
+ORDER BY u.nickname ASC
+LIMIT $2 OFFSET $3
+`
+
+type ListFriendParams struct {
+	UserID int64
+	Limit  int32
+	Offset int32
+}
+
+type ListFriendRow struct {
+	UserID   int64
+	Username string
+	Nickname string
+	Avatar   string
+	Phone    string
+}
+
+func (q *Queries) ListFriend(ctx context.Context, arg *ListFriendParams) ([]*ListFriendRow, error) {
+	rows, err := q.db.Query(ctx, listFriend, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*ListFriendRow
+	for rows.Next() {
+		var i ListFriendRow
+		if err := rows.Scan(
+			&i.UserID,
+			&i.Username,
+			&i.Nickname,
+			&i.Avatar,
+			&i.Phone,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const rejectFriendMsgsUpdate = `-- name: RejectFriendMsgsUpdate :exec
+UPDATE p_message
+SET reply_id=$1, modified_on=$2
+WHERE sender_user_id=$3 AND receiver_user_id=$4 AND type=$5 AND reply_id=$6
+`
+
+type RejectFriendMsgsUpdateParams struct {
+	ReplyID        int64
+	ModifiedOn     int64
+	SenderUserID   int64
+	ReceiverUserID int64
+	Type           int16
+	ReplyID_2      int64
+}
+
+func (q *Queries) RejectFriendMsgsUpdate(ctx context.Context, arg *RejectFriendMsgsUpdateParams) error {
+	_, err := q.db.Exec(ctx, rejectFriendMsgsUpdate,
+		arg.ReplyID,
+		arg.ModifiedOn,
+		arg.SenderUserID,
+		arg.ReceiverUserID,
+		arg.Type,
+		arg.ReplyID_2,
 	)
 	return err
 }

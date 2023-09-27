@@ -11,6 +11,31 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createPhoneCaptcha = `-- name: CreatePhoneCaptcha :one
+INSERT INTO p_captcha (phone, captcha, expired_on, created_on) 
+VALUES ($1, $2, $3, $4)
+RETURNING id
+`
+
+type CreatePhoneCaptchaParams struct {
+	Phone     pgtype.Text
+	Captcha   pgtype.Text
+	ExpiredOn int64
+	CreatedOn int64
+}
+
+func (q *Queries) CreatePhoneCaptcha(ctx context.Context, arg *CreatePhoneCaptchaParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createPhoneCaptcha,
+		arg.Phone,
+		arg.Captcha,
+		arg.ExpiredOn,
+		arg.CreatedOn,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getLatestPhoneCaptcha = `-- name: GetLatestPhoneCaptcha :one
 
 SELECT id, phone, captcha, use_times, expired_on, created_on, modified_on, deleted_on, is_del FROM p_captcha WHERE phone=$1 AND is_del=0
@@ -34,4 +59,18 @@ func (q *Queries) GetLatestPhoneCaptcha(ctx context.Context, phone pgtype.Text) 
 		&i.IsDel,
 	)
 	return &i, err
+}
+
+const usePhoneCaptcha = `-- name: UsePhoneCaptcha :exec
+UPDATE p_captcha SET use_times=use_times+1, modified_on=$1 WHERE id=$2 AND is_del=0
+`
+
+type UsePhoneCaptchaParams struct {
+	ModifiedOn int64
+	ID         int64
+}
+
+func (q *Queries) UsePhoneCaptcha(ctx context.Context, arg *UsePhoneCaptchaParams) error {
+	_, err := q.db.Exec(ctx, usePhoneCaptcha, arg.ModifiedOn, arg.ID)
+	return err
 }
