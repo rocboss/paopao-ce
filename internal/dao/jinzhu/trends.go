@@ -18,7 +18,7 @@ type trendsSrvA struct {
 
 func (s *trendsSrvA) GetIndexTrends(userId int64, limit int, offset int) (res []*cs.TrendsItem, total int64, err error) {
 	db := s.db.Table(_user_).
-		Joins(fmt.Sprintf("JOIN %s c ON c.friend_id=%s.id AND c.user_id=? AND c.is_del=0", _contact_, _user_), userId).
+		Joins(fmt.Sprintf("JOIN %s c ON c.friend_id=%s.id AND c.user_id=? AND c.status=2 AND c.is_del=0", _contact_, _user_), userId).
 		Joins(fmt.Sprintf("JOIN %s m ON c.friend_id=m.user_id AND m.tweets_count>0 AND m.is_del=0", _userMetric_)).
 		Where(fmt.Sprintf("%s.is_del=0", _user_))
 	if err = db.Count(&total).Error; err != nil || total == 0 {
