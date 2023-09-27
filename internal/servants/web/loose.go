@@ -96,7 +96,9 @@ func (s *looseSrv) getIndexTweets(req *web.TimelineReq, limit int, offset int) (
 		if req.User != nil {
 			posts, total, xerr = s.Ds.ListFollowingTweets(req.User.ID, limit, offset)
 		} else {
-			return nil, web.ErrGetPostsNilUser
+			// return nil, web.ErrGetPostsNilUser
+			// 宽松处理，前端退出登录后马上获取动态列表，可能错误走到这里
+			posts, total, xerr = s.Ds.ListIndexNewestTweets(limit, offset)
 		}
 	case web.StyleTweetsNewest:
 		posts, total, xerr = s.Ds.ListIndexNewestTweets(limit, offset)

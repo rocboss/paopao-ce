@@ -257,7 +257,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
                     user_id: post.user.id,
                 }).then((_res) => {
                     window.$message.success('操作成功');
-                    post.user.is_following = false;
+                    postFollowAction(post.user_id, false);
                 })
                 .catch((_err) => {});
             } else {
@@ -265,13 +265,31 @@ const onHandleFollowAction = (post: Item.PostProps) => {
                     user_id: post.user.id,
                 }).then((_res) => {
                     window.$message.success('关注成功');
-                    post.user.is_following = true;
+                    postFollowAction(post.user_id, true);
                 })
                 .catch((_err) => {});
             }
         },
     });
 };
+
+function postFollowAction(userId: number, isFollowing: boolean) {
+    updateFolloing(postList.value, userId, isFollowing);
+    updateFolloing(commentList.value, userId, isFollowing);
+    updateFolloing(highlightList.value, userId, isFollowing);
+    updateFolloing(mediaList.value, userId, isFollowing);
+    updateFolloing(starList.value, userId, isFollowing);
+}
+
+function updateFolloing(posts: Item.PostProps[], userId: number, isFollowing: boolean) {
+    if (posts && posts.length > 0) {
+        for (let index in posts) {
+            if (posts[index].user_id == userId) {
+                posts[index].user.is_following = isFollowing;
+            }
+        }
+    }
+}
 
 const loadPage = () => {
     switch(pageType.value) {
