@@ -28,7 +28,7 @@ type userRelationSrv struct {
 
 func newUserManageService(db *gorm.DB, ums core.UserMetricServantA) core.UserManageService {
 	return &userManageSrv{
-		db: db,
+		db:  db,
 		ums: ums,
 	}
 }
@@ -101,12 +101,12 @@ func (s *userManageSrv) GetRegisterUserCount() (res int64, err error) {
 }
 
 func (s *userRelationSrv) MyFriendIds(userId int64) (res []int64, err error) {
-	err = s.db.Table(_contact_).Where("user_id=?", userId).Select("friend_id").Find(&res).Error
+	err = s.db.Table(_contact_).Where("user_id=? AND status=2 AND is_del=0", userId).Select("friend_id").Find(&res).Error
 	return
 }
 
 func (s *userRelationSrv) MyFollowIds(userId int64) (res []int64, err error) {
-	err = s.db.Table(_following_).Where("user_id=?", userId).Select("follow_id").Find(&res).Error
+	err = s.db.Table(_following_).Where("user_id=? AND is_del=0", userId).Select("follow_id").Find(&res).Error
 	return
 }
 
