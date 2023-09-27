@@ -240,6 +240,7 @@ ON c.friend_id=u.id
 JOIN @user_metric m 
 ON c.friend_id=m.user_id
 WHERE c.user_id=? 
+	AND c.status=2
 	AND c.is_del=0 
 	AND u.is_del=0 
 	AND m.is_del=0

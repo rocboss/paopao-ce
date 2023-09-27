@@ -96,7 +96,7 @@ const (
 	_SimpleIndex_Index                         = `SELECT * FROM @post WHERE visibility=90 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
 	_SimpleIndex_IndexCount                    = `SELECT count(*) FROM @post WHERE visibility=90`
 	_TrendsManager_CountIndexTrends            = `SELECT count(*) FROM @contact c JOIN @user u ON c.friend_id=u.id JOIN @user_metric m ON c.friend_id=m.user_id WHERE c.user_id=? 	AND c.is_del=0 	AND u.is_del=0 	AND m.is_del=0 	AND m.tweets_count>0`
-	_TrendsManager_GetIndexTrends              = `SELECT u.username username, 	u.nickname nickname, 	u.avatar avatar FROM @contact c JOIN @user u ON c.friend_id=u.id JOIN @user_metric m ON c.friend_id=m.user_id WHERE c.user_id=? 	AND c.is_del=0 	AND u.is_del=0 	AND m.is_del=0 	AND m.tweets_count>0 LIMIT ? OFFSET ?`
+	_TrendsManager_GetIndexTrends              = `SELECT u.username username, 	u.nickname nickname, 	u.avatar avatar FROM @contact c JOIN @user u ON c.friend_id=u.id JOIN @user_metric m ON c.friend_id=m.user_id WHERE c.user_id=? 	AND c.status=2 	AND c.is_del=0 	AND u.is_del=0 	AND m.is_del=0 	AND m.tweets_count>0 LIMIT ? OFFSET ?`
 	_Tweet_CountFollowingTweets                = `SELECT count(*) FROM @post WHERE user_id=? AND is_del=0`
 	_Tweet_CountFollowingTweetsFollow          = `SELECT count(*) FROM @post WHERE (user_id=? OR (visibility>=60 AND user_id IN(?))) AND is_del=0`
 	_Tweet_CountFollowingTweetsFriend          = `SELECT count(*) FROM @post WHERE (user_id=? OR (visibility>=50 AND user_id IN(?))) AND is_del=0`
