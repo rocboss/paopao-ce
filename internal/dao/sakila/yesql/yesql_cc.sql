@@ -38,7 +38,7 @@ FROM @comment c
 LEFT JOIN @comment_metric m
 ON c.id=m.comment_id
 WHERE c.post_id=? AND c.is_del=0 AND m.is_del=0
-ORDER BY is_essence DESC, m.rank_score DESC, id DESC
+ORDER BY is_essence DESC, m.rank_score DESC, c.id DESC
 LIMIT ? OFFSET ?; 
 
 -- name: get_default_comments@comment
@@ -190,7 +190,7 @@ SELECT 1 FROM @following WHERE user_id=? AND follow_id=? AND is_del=0;
 -- name: delete_following@following_manager
 -- prepare: stmt
 UPDATE @following 
-SET is_del=0, deleted_on=? 
+SET is_del=1, deleted_on=? 
 WHERE user_id=? AND follow_id=? AND is_del=0;
 
 -- name: list_follows@following_manager
@@ -1440,7 +1440,7 @@ WHERE id=? AND is_del=0;
 
 -- name: my_friend_ids@user_relation
 -- prepare: stmt
-SELECT friend_id FROM @contact WHERE user_id=? AND is_del=0;
+SELECT friend_id FROM @contact WHERE user_id=? AND status=2 AND is_del=0;
 
 -- name: my_follow_ids@user_relation
 -- prepare: stmt

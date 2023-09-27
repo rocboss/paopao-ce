@@ -27,7 +27,7 @@ const (
 	_Comment_GetCommentThumbs                  = `SELECT user_id, 	tweet_id, 	comment_id, 	reply_id, 	comment_type, 	is_thumbs_up, 	is_thumbs_down FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=?`
 	_Comment_GetCommmentRepliesByIds           = `SELECT * FROM @comment_reply WHERE comment_id IN (?) ORDER BY id ASC`
 	_Comment_GetDefaultComments                = `SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY is_essence DESC, id ASC LIMIT ? OFFSET ?`
-	_Comment_GetHotsComments                   = `SELECT c.* FROM @comment c LEFT JOIN @comment_metric m ON c.id=m.comment_id WHERE c.post_id=? AND c.is_del=0 AND m.is_del=0 ORDER BY is_essence DESC, m.rank_score DESC, id DESC LIMIT ? OFFSET ?`
+	_Comment_GetHotsComments                   = `SELECT c.* FROM @comment c LEFT JOIN @comment_metric m ON c.id=m.comment_id WHERE c.post_id=? AND c.is_del=0 AND m.is_del=0 ORDER BY is_essence DESC, m.rank_score DESC, c.id DESC LIMIT ? OFFSET ?`
 	_Comment_GetNewestComments                 = `SELECT * FROM @comment WHERE post_id=? AND is_del=0 ORDER BY is_essence DESC, id DESC LIMIT ? OFFSET ?`
 	_Comment_GetUsersByIds                     = `SELECT id, nickname, username, status, avatar, is_admin FROM @user WHERE id IN (?)`
 	_CommentManage_CreateComment               = `INSERT INTO @comment (post_id, user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?)`
@@ -65,7 +65,7 @@ const (
 	_FollowingManager_CountFollowings          = `SELECT count(*) FROM @following WHERE follow_id=? AND is_del=0`
 	_FollowingManager_CountFollows             = `SELECT count(*) FROM @following WHERE user_id=? AND is_del=0`
 	_FollowingManager_CreateFollowing          = `INSERT INTO @following (user_id, follow_id, created_on) VALUES (?, ?, ?)`
-	_FollowingManager_DeleteFollowing          = `UPDATE @following SET is_del=0, deleted_on=? WHERE user_id=? AND follow_id=? AND is_del=0`
+	_FollowingManager_DeleteFollowing          = `UPDATE @following SET is_del=1, deleted_on=? WHERE user_id=? AND follow_id=? AND is_del=0`
 	_FollowingManager_ExistFollowing           = `SELECT 1 FROM @following WHERE user_id=? AND follow_id=? AND is_del=0`
 	_FollowingManager_ListFollowings           = `SELECT u.id user_id, 	u.username username, 	u.nickname nickname, 	u.avatar avatar, 	u.created_on created_on FROM @following f JOIN @user u ON f.user_id=u.id WHERE f.follow_id=? AND f.is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
 	_FollowingManager_ListFollows              = `SELECT u.id user_id, 	u.username username, 	u.nickname nickname, 	u.avatar avatar, 	u.created_on created_on FROM @following f JOIN @user u ON f.follow_id=u.id WHERE f.user_id=? AND f.is_del=0 ORDER BY u.nickname ASC LIMIT ? OFFSET ?`
@@ -190,7 +190,7 @@ const (
 	_UserMetrics_GetTweetsCount                = `SELECT tweets_count FROM @user_metric WHERE user_id=? AND is_del=0`
 	_UserMetrics_UpdateUserMetric              = `UPDATE @user_metric SET tweets_count=?, modified_on=? WHERE user_id=? AND is_del=0`
 	_UserRelation_MyFollowIds                  = `SELECT follow_id FROM @following WHERE user_id=? AND is_del=0`
-	_UserRelation_MyFriendIds                  = `SELECT friend_id FROM @contact WHERE user_id=? AND is_del=0`
+	_UserRelation_MyFriendIds                  = `SELECT friend_id FROM @contact WHERE user_id=? AND status=2 AND is_del=0`
 	_Wallet_AddUserBalance                     = `UPDATE @user SET balance=balance+?, modified_on=? WHERE id=? AND is_del=0`
 	_Wallet_CreateRecharge                     = `INSERT INTO @wallet_recharge (user_id, amount, created_on) VALUES (?, ?, ?)`
 	_Wallet_CreateWalletStatement              = `INSERT INTO @wallet_statement (user_id, change_amount, balance_snapshot, reason, created_on) VALUES (?, ?, ?, ?, ?)`
