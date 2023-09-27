@@ -214,7 +214,7 @@
 <script setup lang="ts">
 import { h, ref, reactive, watch, onMounted, computed } from 'vue';
 import { NIcon } from 'naive-ui'
-import type { Component } from 'vue'
+import type { Component, Ref } from 'vue'
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import { getUserProfile, getUserPosts, changeUserStatus, deleteFriend, followUser, unfollowUser } from '@/api/user';
@@ -299,7 +299,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
                     user_id: post.user.id,
                 }).then((_res) => {
                     window.$message.success('操作成功');
-                    post.user.is_following = false;
+                    postFollowAction(post.user_id, false);
                 })
                 .catch((_err) => {});
             } else {
@@ -307,13 +307,31 @@ const onHandleFollowAction = (post: Item.PostProps) => {
                     user_id: post.user.id,
                 }).then((_res) => {
                     window.$message.success('关注成功');
-                    post.user.is_following = true;
+                    postFollowAction(post.user_id, true);
                 })
                 .catch((_err) => {});
             }
         },
     });
 };
+
+function postFollowAction(userId: number, isFollowing: boolean) {
+    updateFolloing(postList, userId, isFollowing);
+    updateFolloing(commentList, userId, isFollowing);
+    updateFolloing(highlightList, userId, isFollowing);
+    updateFolloing(mediaList, userId, isFollowing);
+    updateFolloing(starList, userId, isFollowing);
+}
+
+function updateFolloing(posts: Ref<Item.PostProps[]>, userId: number, isFollowing: boolean) {
+    if (posts.value && posts.value.length > 0) {
+        for (let index in posts.value) {
+            if (posts.value[index].user_id == userId) {
+                posts.value[index].user.is_following = isFollowing;
+            }
+        }
+    }
+}
 
 const reset = () => {
     noMore.value = false;
