@@ -8,25 +8,35 @@ import (
 	"fmt"
 )
 
-var version, commitID, buildDate string
+const (
+	series = "v0.5.0-dev"
+)
+
+var (
+	version   = "unknown"
+	commitID  = "unknown"
+	buildDate = "unknown"
+	buildTags = "unknown"
+)
 
 type BuildInfo struct {
+	Series    string `json:"series"`
 	Version   string `json:"version"`
 	Sum       string `json:"sum"`
 	BuildDate string `json:"build_date"`
+	BuildTags string `json:"build_tags"`
 }
 
 func VersionInfo() string {
-	return fmt.Sprintf("paopao %s (build:%s %s)", version, commitID, buildDate)
+	return fmt.Sprintf("paopao %s (build:%s %s)", series, commitID, buildDate)
 }
 
 func ReadBuildInfo() *BuildInfo {
-	if version == "" {
-		version = "unknow"
-	}
 	return &BuildInfo{
+		Series:    series,
 		Version:   version,
 		Sum:       commitID,
 		BuildDate: buildDate,
+		BuildTags: buildTags,
 	}
 }
