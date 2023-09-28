@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	series = "v0.5.0-alpha"
+	series = "v0.5.0-beta"
 )
 
 var (
