@@ -76,6 +76,13 @@ INSERT INTO p_comment_reply (comment_id, user_id, content, at_user_id, ip, ip_lo
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id;
 
+-- name: HighlightComment :one
+UPDATE p_comment
+SET is_essence=1-is_essence,
+    modified_on=$1
+WHERE id=$2 AND user_id=$3 AND is_del=0
+RETURNING is_essence;
+
 -- name: IncrCommentReplyCount :exec
 UPDATE p_comment
 SET reply_count=reply_count+1,

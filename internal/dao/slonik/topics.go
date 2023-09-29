@@ -28,9 +28,8 @@ type topicSrv struct {
 // UpsertTags update/insert tags info.
 // Assume tags slice is distinct elements.
 func (s *topicSrv) UpsertTags(userId int64, tags []string) (res cs.TagInfoList, err error) {
-	err = s.with(func(c context.Context, tx pgx.Tx) error {
+	err = with(s.db, s.q.WithTx, func(c context.Context, q *pgc.Queries) error {
 		now := time.Now().Unix()
-		q := s.q.WithTx(tx)
 		upTags, err := q.IncrTags(c, &pgc.IncrTagsParams{
 			Tags:       tags,
 			ModifiedOn: now,

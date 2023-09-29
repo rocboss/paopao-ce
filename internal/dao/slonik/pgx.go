@@ -11,6 +11,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	pg "github.com/rocboss/paopao-ce/internal/dao/slonik/sqlc/auto"
+	"github.com/rocboss/paopao-ce/internal/dao/slonik/sqlc/auto/pga"
+	"github.com/rocboss/paopao-ce/internal/dao/slonik/sqlc/auto/pgc"
 )
 
 var (
@@ -20,7 +22,67 @@ var (
 
 type pgxSrv struct {
 	db *pgx.Conn
-	p  pg.Querier
+	p  *pg.Queries
+}
+
+type pgcSrv struct {
+	*pgxSrv
+	q *pgc.Queries
+}
+
+type pgaSrv struct {
+	*pgxSrv
+	q *pga.Queries
+}
+
+func with[Q any](db *pgx.Conn, txFn func(pgx.Tx) Q, fn func(c context.Context, q Q) error) error {
+	ctx := context.Background()
+	tx, err := db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	if err = fn(ctx, txFn(tx)); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+
+func withTx[Q any](txOptions pgx.TxOptions, db *pgx.Conn, txFn func(pgx.Tx) Q, fn func(c context.Context, q Q) error) error {
+	ctx := context.Background()
+	tx, err := db.BeginTx(ctx, txOptions)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	if err = fn(ctx, txFn(tx)); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+
+func withCtx[Q any](ctx context.Context, db *pgx.Conn, txFn func(pgx.Tx) Q, fn func(c context.Context, q Q) error) error {
+	tx, err := db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	if err = fn(ctx, txFn(tx)); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+
+func withTxCtx[Q any](ctx context.Context, txOptions pgx.TxOptions, db *pgx.Conn, txFn func(pgx.Tx) Q, fn func(c context.Context, q Q) error) error {
+	tx, err := db.BeginTx(ctx, txOptions)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	if err = fn(ctx, txFn(tx)); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }
 
 func (s *pgxSrv) with(fn func(c context.Context, tx pgx.Tx) error) error {
@@ -77,6 +139,20 @@ func newPgxSrv(db *pgx.Conn) *pgxSrv {
 	return &pgxSrv{
 		db: db,
 		p:  pg.New(db),
+	}
+}
+
+func newPgcSrv(db *pgx.Conn) *pgcSrv {
+	return &pgcSrv{
+		pgxSrv: newPgxSrv(db),
+		q:      pgc.New(db),
+	}
+}
+
+func newPgaSrv(db *pgx.Conn) *pgaSrv {
+	return &pgaSrv{
+		pgxSrv: newPgxSrv(db),
+		q:      pga.New(db),
 	}
 }
 

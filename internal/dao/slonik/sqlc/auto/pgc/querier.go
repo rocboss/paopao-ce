@@ -94,6 +94,7 @@ type Querier interface {
 	DeleteCommentThumbs(ctx context.Context, arg *DeleteCommentThumbsParams) error
 	DeleteFollowing(ctx context.Context, arg *DeleteFollowingParams) error
 	DeleteFriend(ctx context.Context, arg *DeleteFriendParams) error
+	DeleteFriendByIds(ctx context.Context, arg *DeleteFriendByIdsParams) error
 	DeletePostById(ctx context.Context, arg *DeletePostByIdParams) error
 	DeletePostCollecton(ctx context.Context, arg *DeletePostCollectonParams) error
 	DeletePostStar(ctx context.Context, arg *DeletePostStarParams) error
@@ -174,6 +175,7 @@ type Querier interface {
 	GetUsersByIds(ctx context.Context, ids []int64) ([]*PUser, error)
 	GetUsersByKeyword(ctx context.Context, username string) ([]*PUser, error)
 	GetWhisperMessages(ctx context.Context, arg *GetWhisperMessagesParams) ([]*PMessage, error)
+	HighlightComment(ctx context.Context, arg *HighlightCommentParams) (int16, error)
 	HighlightPost(ctx context.Context, id int64) (int16, error)
 	HotTags(ctx context.Context, arg *HotTagsParams) ([]*HotTagsRow, error)
 	IncrCommentReplyCount(ctx context.Context, arg *IncrCommentReplyCountParams) error
@@ -232,6 +234,7 @@ type Querier interface {
 	//------------------------------------------------------------------------------
 	UpdateUserMetric(ctx context.Context, arg *UpdateUserMetricParams) error
 	UpsertCommentMetric(ctx context.Context, arg *UpsertCommentMetricParams) error
+	UpsertContact(ctx context.Context, arg *UpsertContactParams) (*UpsertContactRow, error)
 	UpsertTweetMetric(ctx context.Context, arg *UpsertTweetMetricParams) error
 	UsePhoneCaptcha(ctx context.Context, arg *UsePhoneCaptchaParams) error
 	UserCommentTweetsByFriend(ctx context.Context, arg *UserCommentTweetsByFriendParams) ([]*UserCommentTweetsByFriendRow, error)
