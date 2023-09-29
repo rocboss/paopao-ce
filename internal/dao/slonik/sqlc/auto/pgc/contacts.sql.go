@@ -119,6 +119,20 @@ func (q *Queries) DeleteFriend(ctx context.Context, arg *DeleteFriendParams) err
 	return err
 }
 
+const deleteFriendByIds = `-- name: DeleteFriendByIds :exec
+UPDATE p_contact SET status=4, is_del=1, deleted_on=$1 WHERE id=ANY($2::BIGINT[])
+`
+
+type DeleteFriendByIdsParams struct {
+	DeletedOn int64
+	Ids       []int64
+}
+
+func (q *Queries) DeleteFriendByIds(ctx context.Context, arg *DeleteFriendByIdsParams) error {
+	_, err := q.db.Exec(ctx, deleteFriendByIds, arg.DeletedOn, arg.Ids)
+	return err
+}
+
 const freshContactStatus = `-- name: FreshContactStatus :exec
 UPDATE p_contact SET status=$1, modified_on=$2, is_del=0 WHERE id=$3
 `
@@ -179,14 +193,12 @@ func (q *Queries) GetContact(ctx context.Context, arg *GetContactParams) (*GetCo
 const getContacts = `-- name: GetContacts :many
 SELECT id, user_id, friend_id, group_id, remark, status, is_top, is_black, notice_enable, is_del
 FROM p_contact
-WHERE (user_id=$1 AND friend_id=$2) OR (user_id=$3 AND friend_id=$4)
+WHERE (user_id=$1 AND friend_id=$2) OR (user_id=$2 AND friend_id=$1)
 `
 
 type GetContactsParams struct {
-	UserID     int64
-	FriendID   int64
-	UserID_2   int64
-	FriendID_2 int64
+	UserID   int64
+	FriendID int64
 }
 
 type GetContactsRow struct {
@@ -203,12 +215,7 @@ type GetContactsRow struct {
 }
 
 func (q *Queries) GetContacts(ctx context.Context, arg *GetContactsParams) ([]*GetContactsRow, error) {
-	rows, err := q.db.Query(ctx, getContacts,
-		arg.UserID,
-		arg.FriendID,
-		arg.UserID_2,
-		arg.FriendID_2,
-	)
+	rows, err := q.db.Query(ctx, getContacts, arg.UserID, arg.FriendID)
 	if err != nil {
 		return nil, err
 	}
@@ -375,4 +382,36 @@ func (q *Queries) RejectFriendMsgsUpdate(ctx context.Context, arg *RejectFriendM
 		arg.ReplyID_2,
 	)
 	return err
+}
+
+const upsertContact = `-- name: UpsertContact :one
+INSERT INTO p_contact (user_id, friend_id, status, created_on) 
+VALUES ($1, $2, $3, $4)
+ON CONFLICT ON CONSTRAINT idx_contact_user_friend
+    DO UPDATE SET is_del=0
+RETURNING id, status
+`
+
+type UpsertContactParams struct {
+	UserID    int64
+	FriendID  int64
+	Status    int16
+	CreatedOn int64
+}
+
+type UpsertContactRow struct {
+	ID     int64
+	Status int16
+}
+
+func (q *Queries) UpsertContact(ctx context.Context, arg *UpsertContactParams) (*UpsertContactRow, error) {
+	row := q.db.QueryRow(ctx, upsertContact,
+		arg.UserID,
+		arg.FriendID,
+		arg.Status,
+		arg.CreatedOn,
+	)
+	var i UpsertContactRow
+	err := row.Scan(&i.ID, &i.Status)
+	return &i, err
 }

@@ -5,6 +5,13 @@
 -- name: CreateContact :exec
 INSERT INTO p_contact (user_id, friend_id, status, created_on) VALUES ($1, $2, $3, $4);
 
+-- name: UpsertContact :one
+INSERT INTO p_contact (user_id, friend_id, status, created_on) 
+VALUES ($1, $2, $3, $4)
+ON CONFLICT ON CONSTRAINT idx_contact_user_friend
+    DO UPDATE SET is_del=0
+RETURNING id, status;
+
 -- name: FreshContactStatus :exec
 UPDATE p_contact SET status=$1, modified_on=$2, is_del=0 WHERE id=$3;
 
@@ -28,6 +35,9 @@ WHERE sender_user_id=$3 AND receiver_user_id=$4 AND type=$5 AND reply_id=$6;
 -- name: DeleteFriend :exec
 UPDATE p_contact SET status=4, is_del=1, deleted_on=$1 WHERE id=$2;
 
+-- name: DeleteFriendByIds :exec
+UPDATE p_contact SET status=4, is_del=1, deleted_on=$1 WHERE id=ANY(@ids::BIGINT[]);
+
 -- name: ListFriend :many
 SELECT c.friend_id user_id,
     u.username username,
@@ -47,7 +57,7 @@ SELECT count(*) FROM p_contact WHERE user_id=$1 AND status=2 AND is_del=0;
 -- name: GetContacts :many
 SELECT id, user_id, friend_id, group_id, remark, status, is_top, is_black, notice_enable, is_del
 FROM p_contact
-WHERE (user_id=$1 AND friend_id=$2) OR (user_id=$3 AND friend_id=$4);
+WHERE (user_id=$1 AND friend_id=$2) OR (user_id=$2 AND friend_id=$1);
 
 -- name: GetUserFriend :one
 SELECT id, user_id, friend_id, group_id, remark, status, is_top, is_black, notice_enable, is_del

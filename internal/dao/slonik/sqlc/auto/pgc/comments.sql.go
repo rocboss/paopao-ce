@@ -639,6 +639,27 @@ func (q *Queries) GetTweetCommentThumb(ctx context.Context, arg *GetTweetComment
 	return &i, err
 }
 
+const highlightComment = `-- name: HighlightComment :one
+UPDATE p_comment
+SET is_essence=1-is_essence,
+    modified_on=$1
+WHERE id=$2 AND user_id=$3 AND is_del=0
+RETURNING is_essence
+`
+
+type HighlightCommentParams struct {
+	ModifiedOn int64
+	ID         int64
+	UserID     int64
+}
+
+func (q *Queries) HighlightComment(ctx context.Context, arg *HighlightCommentParams) (int16, error) {
+	row := q.db.QueryRow(ctx, highlightComment, arg.ModifiedOn, arg.ID, arg.UserID)
+	var is_essence int16
+	err := row.Scan(&is_essence)
+	return is_essence, err
+}
+
 const incrCommentReplyCount = `-- name: IncrCommentReplyCount :exec
 UPDATE p_comment
 SET reply_count=reply_count+1,
