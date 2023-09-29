@@ -67,7 +67,7 @@ func (s *contactManageSrv) RequestingFriend(userId int64, friendId int64, greeti
 func (s *contactManageSrv) AddFriend(userId int64, friendId int64) error {
 	return s.db.Withx(func(tx *sqlx.Tx) error {
 		contact := &cs.Contact{}
-		err := tx.Stmtx(s.q.GetUserFriend).Get(contact, userId, friendId)
+		err := tx.Stmtx(s.q.GetUserFriend).Get(contact, friendId, userId)
 		if err != nil {
 			return err
 		}
@@ -103,7 +103,7 @@ func (s *contactManageSrv) AddFriend(userId int64, friendId int64) error {
 func (s *contactManageSrv) RejectFriend(userId int64, friendId int64) error {
 	return s.db.Withx(func(tx *sqlx.Tx) error {
 		contact := &cs.Contact{}
-		err := tx.Stmtx(s.q.GetUserFriend).Get(contact, userId, friendId)
+		err := tx.Stmtx(s.q.GetUserFriend).Get(contact, friendId, userId)
 		if err != nil {
 			return err
 		}

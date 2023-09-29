@@ -49,6 +49,11 @@ func (s *pgcCommentManageSrv) CreateCommentContent(r *ms.CommentContent) (*ms.Co
 		r.Type, r.Sort, time.Now().Unix())
 }
 
+func (s *pgcCommentManageSrv) HighlightComment(userId, commentId int64) (res int8, err error) {
+	err = s.q.HighlightComment.Get(&res, time.Now().Unix(), commentId, userId)
+	return
+}
+
 func (s *pgcCommentSrv) GetComments(tweetId int64, style cs.StyleCommentType, limit int, offset int) (res []*ms.Comment, total int64, err error) {
 	switch style {
 	case cs.StyleCommentHots:

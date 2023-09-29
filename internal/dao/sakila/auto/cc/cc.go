@@ -39,8 +39,10 @@ const (
 	_CommentManage_DeleteCommentReply          = `UPDATE @comment_reply SET deleted_on=?, is_del=1 WHERE id=? AND is_del=0`
 	_CommentManage_DeleteCommentThumbs         = `UPDATE @tweet_comment_thumbs SET deleted_on=?, is_del=1 WHERE user_id=? AND tweet_id=? AND comment_id=? AND is_del=0`
 	_CommentManage_DeleteReplyThumbs           = `UPDATE @tweet_comment_thumbs SET deleted_on=?, is_del=1 WHERE user_id=? AND comment_id=? AND reply_id=? AND is_del=0`
+	_CommentManage_GetIssenceStatusById        = `SELECT is_essence FROM @comment WHERE id=?`
 	_CommentManage_GetCommentReplyThumb        = `SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=? AND comment_id=? AND reply_id=? AND comment_type=1 AND is_del=0`
 	_CommentManage_GetTweetCommentThumb        = `SELECT * FROM @tweet_comment_thumbs WHERE user_id=? AND tweet_id=? AND comment_id=? AND comment_type=0 AND is_del=0`
+	_CommentManage_HighlightComment            = `UPDATE @comment SET is_essence=1-is_essence, 	modified_on=? WHERE id=? AND user_id=? AND is_del=0`
 	_CommentManage_IncrCommentReplyCount       = `UPDATE @comment SET reply_count=reply_count+1, 	modified_on=? WHERE id=? AND is_del=0`
 	_CommentManage_UpdateCommentThumbsCount    = `UPDATE @comment SET thumbs_up_count=?, thumbs_down_count=?, modified_on=? WHERE id=? AND is_del=0`
 	_CommentManage_UpdateReplyThumbsCount      = `UPDATE @comment_reply SET thumbs_up_count=?, thumbs_down_count=?, modified_on=? WHERE id=? AND is_del=0`
@@ -256,8 +258,10 @@ type CommentManage struct {
 	DeleteCommentReply        *sqlx.Stmt      `yesql:"delete_comment_reply"`
 	DeleteCommentThumbs       *sqlx.Stmt      `yesql:"delete_comment_thumbs"`
 	DeleteReplyThumbs         *sqlx.Stmt      `yesql:"delete_reply_thumbs"`
+	GetIssenceStatusById      *sqlx.Stmt      `yesql:"getIssenceStatusById"`
 	GetCommentReplyThumb      *sqlx.Stmt      `yesql:"get_comment_reply_thumb"`
 	GetTweetCommentThumb      *sqlx.Stmt      `yesql:"get_tweet_comment_thumb"`
+	HighlightComment          *sqlx.Stmt      `yesql:"highlight_comment"`
 	IncrCommentReplyCount     *sqlx.Stmt      `yesql:"incr_comment_reply_count"`
 	UpdateCommentThumbsCount  *sqlx.Stmt      `yesql:"update_comment_thumbs_count"`
 	UpdateReplyThumbsCount    *sqlx.Stmt      `yesql:"update_reply_thumbs_count"`
@@ -575,11 +579,17 @@ func BuildCommentManage(p PreparexBuilder, ctx ...context.Context) (obj *Comment
 	if obj.DeleteReplyThumbs, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_DeleteReplyThumbs))); err != nil {
 		return nil, fmt.Errorf("prepare _CommentManage_DeleteReplyThumbs error: %w", err)
 	}
+	if obj.GetIssenceStatusById, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_GetIssenceStatusById))); err != nil {
+		return nil, fmt.Errorf("prepare _CommentManage_GetIssenceStatusById error: %w", err)
+	}
 	if obj.GetCommentReplyThumb, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_GetCommentReplyThumb))); err != nil {
 		return nil, fmt.Errorf("prepare _CommentManage_GetCommentReplyThumb error: %w", err)
 	}
 	if obj.GetTweetCommentThumb, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_GetTweetCommentThumb))); err != nil {
 		return nil, fmt.Errorf("prepare _CommentManage_GetTweetCommentThumb error: %w", err)
+	}
+	if obj.HighlightComment, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_HighlightComment))); err != nil {
+		return nil, fmt.Errorf("prepare _CommentManage_HighlightComment error: %w", err)
 	}
 	if obj.IncrCommentReplyCount, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_IncrCommentReplyCount))); err != nil {
 		return nil, fmt.Errorf("prepare _CommentManage_IncrCommentReplyCount error: %w", err)
