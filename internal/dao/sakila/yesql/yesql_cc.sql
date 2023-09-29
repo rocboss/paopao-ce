@@ -111,6 +111,15 @@ VALUES (?, ?, ?, ?, ?);
 INSERT INTO @comment_reply (comment_id, user_id, content, at_user_id, ip, ip_loc, created_on) 
 VALUES (?, ?, ?, ?, ?, ?, ?);
 
+-- name: highlight_comment@comment_manage
+UPDATE @comment
+SET is_essence=1-is_essence,
+	modified_on=?
+WHERE id=? AND user_id=? AND is_del=0;
+
+-- name: getIssenceStatusById@comment_manage
+SELECT is_essence FROM @comment WHERE id=?;
+
 -- name: incr_comment_reply_count@comment_manage
 -- prepare: stmt
 UPDATE @comment 

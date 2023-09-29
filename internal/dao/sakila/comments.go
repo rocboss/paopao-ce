@@ -178,7 +178,7 @@ func (s *commentManageSrv) DeleteCommentReply(r *ms.CommentReply) error {
 		if _, err = tx.Stmtx(s.q.DeleteCommentReply).Exec(now, r.ID); err != nil {
 			return
 		}
-		if _, err = tx.Stmtx(s.q.DeleteCommentThumbs).Exec(now, r.UserID, r.CommentID, r.ID); err == nil {
+		if _, err = tx.Stmtx(s.q.DeleteReplyThumbs).Exec(now, r.UserID, r.CommentID, r.ID); err == nil {
 			// 宽松处理错误
 			tx.Stmtx(s.q.DecrCommentReplyCount).Exec(now, r.CommentID)
 		}
@@ -394,9 +394,11 @@ func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, rep
 	})
 }
 
-func (s *commentManageSrv) HighlightComment(userId, commentId int64) (int8, error) {
-	// TODO
-	return 0, cs.ErrNotImplemented
+func (s *commentManageSrv) HighlightComment(userId, commentId int64) (res int8, err error) {
+	if _, err = s.q.HighlightComment.Exec(time.Now().Unix(), commentId, userId); err == nil {
+		err = s.q.GetIssenceStatusById.Get(&res, commentId)
+	}
+	return
 }
 
 func newCommentService(db *sqlx.DB) (s core.CommentService) {

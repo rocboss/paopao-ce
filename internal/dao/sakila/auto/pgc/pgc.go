@@ -21,6 +21,7 @@ const (
 	_CommentManage_CreateComment        = `INSERT INTO @comment (post_id, user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?) RETURNING *`
 	_CommentManage_CreateCommentContent = `INSERT INTO @comment_content (comment_id, user_id, content, type, sort, created_on) VALUES (?, ?, ?, ?, ?, ?) RETURNING *`
 	_CommentManage_CreateCommentReply   = `INSERT INTO @comment_reply (comment_id, user_id, content, at_user_id, ip, ip_loc, created_on) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *`
+	_CommentManage_HighlightComment     = `UPDATE @comment SET is_essence=1-is_essence, 	modified_on=? WHERE id=? AND user_id=? AND is_del=0 RETURNING is_essence`
 	_ContactManager_CreateContact       = `INSERT INTO @contact (user_id, friend_id, status, created_on) VALUES (?, ?, ?, ?) RETURNING *`
 	_Message_CreateMessage              = `INSERT INTO @message (sender_user_id, receiver_user_id, type, brief, content, post_id, comment_id, reply_id, created_on) VALUES (:sender_user_id, :receiver_user_id, :type, :brief, :content, :post_id, :comment_id, :reply_id, :created_on) RETURNING id`
 	_Tweet_ListIndexHotsTweets          = `SELECT post.* FROM @post post LEFT JOIN @post_metric metric ON post.id=metric.post_id WHERE post.visibility>=90 AND post.is_del=0 ORDER BY post.is_top DESC, metric.rank_score DESC NULLS LAST, post.latest_replied_on DESC LIMIT ? OFFSET ?`
@@ -63,6 +64,7 @@ type CommentManage struct {
 	CreateComment        *sqlx.Stmt `yesql:"create_comment"`
 	CreateCommentContent *sqlx.Stmt `yesql:"create_comment_content"`
 	CreateCommentReply   *sqlx.Stmt `yesql:"create_comment_reply"`
+	HighlightComment     *sqlx.Stmt `yesql:"highlight_comment"`
 }
 
 type ContactManager struct {
@@ -129,6 +131,9 @@ func BuildCommentManage(p PreparexBuilder, ctx ...context.Context) (obj *Comment
 	}
 	if obj.CreateCommentReply, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_CreateCommentReply))); err != nil {
 		return nil, fmt.Errorf("prepare _CommentManage_CreateCommentReply error: %w", err)
+	}
+	if obj.HighlightComment, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_CommentManage_HighlightComment))); err != nil {
+		return nil, fmt.Errorf("prepare _CommentManage_HighlightComment error: %w", err)
 	}
 	return
 }
