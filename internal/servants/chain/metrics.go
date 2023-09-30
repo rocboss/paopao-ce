@@ -31,6 +31,6 @@ func (m *OnlineUserMetric) Name() string {
 
 func (m *OnlineUserMetric) Action() (err error) {
 	// 暂时仅做标记，不存储其他相关信息
-	m.ac.Set(conf.KeyOnlineUser.Get(m.uid), []byte{}, m.expire)
+	m.ac.SetNx(conf.KeyOnlineUser.Get(m.uid), []byte{}, m.expire)
 	return
 }
