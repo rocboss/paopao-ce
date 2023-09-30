@@ -368,6 +368,7 @@ func (s *databaseConf) TableNames() (res TableNameMap) {
 		TablePostStar,
 		TableTag,
 		TableUser,
+		TableUserRelation,
 		TableUserMetric,
 		TableWalletRecharge,
 		TableWalletStatement,

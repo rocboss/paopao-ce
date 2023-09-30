@@ -18,16 +18,18 @@ type trendsSrvA struct {
 
 func (s *trendsSrvA) GetIndexTrends(userId int64, limit int, offset int) (res []*cs.TrendsItem, total int64, err error) {
 	db := s.db.Table(_user_).
-		Joins(fmt.Sprintf("JOIN %s c ON c.friend_id=%s.id AND c.user_id=? AND c.status=2 AND c.is_del=0", _contact_, _user_), userId).
-		Joins(fmt.Sprintf("JOIN %s m ON c.friend_id=m.user_id AND m.tweets_count>0 AND m.is_del=0", _userMetric_)).
-		Where(fmt.Sprintf("%s.is_del=0", _user_))
+		Joins(fmt.Sprintf("JOIN %s r ON r.he_uid=%s.id", _userRelation_, _user_)).
+		Joins(fmt.Sprintf("JOIN %s m ON r.he_uid=m.user_id", _userMetric_)).
+		Where("r.user_id=? AND m.tweets_count>0 AND m.is_del=0", userId)
 	if err = db.Count(&total).Error; err != nil || total == 0 {
 		return
 	}
 	if offset >= 0 && limit > 0 {
 		db = db.Limit(limit).Offset(offset)
 	}
-	err = db.Find(&res).Error
+	if err = db.Order("r.style ASC").Select("username", "nickname", "avatar").Find(&res).Error; err == nil {
+		res = cs.DistinctTrends(res)
+	}
 	return
 }
 

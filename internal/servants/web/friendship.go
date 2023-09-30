@@ -57,6 +57,7 @@ func (s *friendshipSrv) DeleteFriend(req *web.DeleteFriendReq) mir.Error {
 	}
 	// 触发用户关系缓存更新事件
 	// cache.OnCacheMyFriendIdsEvent(s.Ds, req.User.ID, req.UserId)
+	onTrendsActionEvent(_trendsActionDeleteFriend, req.User.ID, req.UserId)
 	return nil
 }
 
@@ -93,6 +94,7 @@ func (s *friendshipSrv) AddFriend(req *web.AddFriendReq) mir.Error {
 	}
 	// 触发用户关系缓存更新事件
 	// cache.OnCacheMyFriendIdsEvent(s.Ds, req.User.ID, req.UserId)
+	onTrendsActionEvent(_trendsActionAddFriend, req.User.ID, req.UserId)
 	return nil
 }
 
