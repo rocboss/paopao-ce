@@ -32,6 +32,7 @@ var (
 	_postStar_           string
 	_tag_                string
 	_user_               string
+	_userRelation_       string
 	_userMetric_         string
 	_walletRecharge_     string
 	_walletStatement_    string
@@ -61,6 +62,7 @@ func initTableName() {
 	_postStar_ = m[conf.TablePostStar]
 	_tag_ = m[conf.TableTag]
 	_user_ = m[conf.TableUser]
+	_userRelation_ = m[conf.TableUserRelation]
 	_userMetric_ = m[conf.TableUserMetric]
 	_walletRecharge_ = m[conf.TableWalletRecharge]
 	_walletStatement_ = m[conf.TableWalletStatement]
