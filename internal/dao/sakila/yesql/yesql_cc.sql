@@ -243,30 +243,26 @@ SELECT count(*) FROM @following WHERE follow_id=? AND is_del=0;
 SELECT u.username username, 
 	u.nickname nickname,
 	u.avatar avatar
-FROM @contact c 
+FROM @user_relation r
 JOIN @user u 
-ON c.friend_id=u.id
+ON r.he_uid=u.id
 JOIN @user_metric m 
-ON c.friend_id=m.user_id
-WHERE c.user_id=? 
-	AND c.status=2
-	AND c.is_del=0 
-	AND u.is_del=0 
+ON r.he_uid=m.user_id
+WHERE r.user_id=? 
 	AND m.is_del=0
 	AND m.tweets_count>0
+ORDER BY r.style ASC
 LIMIT ? OFFSET ?;
 
 -- name: count_index_trends@trends_manager
 -- prepare: stmt
 SELECT count(*)
-FROM @contact c 
+FROM @user_relation r
 JOIN @user u 
-ON c.friend_id=u.id
+ON r.he_uid=u.id
 JOIN @user_metric m 
-ON c.friend_id=m.user_id
-WHERE c.user_id=? 
-	AND c.is_del=0 
-	AND u.is_del=0 
+ON r.he_uid=m.user_id
+WHERE r.user_id=? 
 	AND m.is_del=0
 	AND m.tweets_count>0;
 

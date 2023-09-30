@@ -551,7 +551,6 @@ div:hover .slide-bar-item {
 }
 
 .dark {
-
     .main-content-wrap,
     .pagination-wrap,
     .empty-wrap,
@@ -568,6 +567,11 @@ div:hover .slide-bar-item {
     div:hover .slide-bar-item .slide-bar-item-title {
         color: #63e2b7;
         opacity: 0.8;
+    }
+
+    .tiny-slide-bar {
+        --ti-slider-progress-box-arrow-hover-text-color: #f2f2f2;
+        --ti-slider-progress-box-arrow-normal-text-color: #808080;
     }
 }
 </style>

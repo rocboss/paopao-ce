@@ -18,7 +18,9 @@ type trendsSrvA struct {
 
 func (s *trendsSrvA) GetIndexTrends(userId int64, limit int, offset int) (res []*cs.TrendsItem, total int64, err error) {
 	if err = s.q.CountIndexTrends.Get(&total, userId); err == nil && total > 0 {
-		err = s.q.GetIndexTrends.Select(&res, userId, limit, offset)
+		if err = s.q.GetIndexTrends.Select(&res, userId, limit, offset); err == nil {
+			res = cs.DistinctTrends(res)
+		}
 	}
 	return
 }
