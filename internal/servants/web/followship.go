@@ -90,6 +90,7 @@ func (s *followshipSrv) UnfollowUser(r *web.UnfollowUserReq) mir.Error {
 	cache.OnCacheMyFollowIdsEvent(s.Ds, r.User.ID)
 	cache.OnExpireIndexTweetEvent(r.User.ID)
 	onMessageActionEvent(_messageActionFollow, r.User.ID)
+	onTrendsActionEvent(_trendsActionUnfollowUser, r.User.ID)
 	return nil
 }
 
@@ -108,6 +109,7 @@ func (s *followshipSrv) FollowUser(r *web.FollowUserReq) mir.Error {
 	cache.OnCacheMyFollowIdsEvent(s.Ds, r.User.ID)
 	cache.OnExpireIndexTweetEvent(r.User.ID)
 	onMessageActionEvent(_messageActionFollow, r.User.ID)
+	onTrendsActionEvent(_trendsActionFollowUser, r.User.ID)
 	return nil
 }
 
