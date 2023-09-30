@@ -89,7 +89,7 @@ let stateHandler = ({
   },
 });
 
-const commentTab = (tab: "default" | "newest") => {
+const commentTab = (tab: "default" |  "hots" | "newest") => {
     sortStrategy.value = tab;
     if (tab === "default") {
         defaultCommentsSort.value = true

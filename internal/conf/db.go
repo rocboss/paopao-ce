@@ -40,6 +40,7 @@ const (
 	TablePostStar           = "post_star"
 	TableTag                = "tag"
 	TableUser               = "user"
+	TableUserRelation       = "user_relation"
 	TableUserMetric         = "user_metric"
 	TableWalletRecharge     = "wallet_recharge"
 	TableWalletStatement    = "wallet_statement"

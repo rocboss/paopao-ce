@@ -18,15 +18,16 @@ RELEASE_DARWIN_AMD64 = $(RELEASE_ROOT)/darwin-amd64/$(PROJECT)
 RELEASE_DARWIN_ARM64 = $(RELEASE_ROOT)/darwin-arm64/$(PROJECT)
 RELEASE_WINDOWS_AMD64 = $(RELEASE_ROOT)/windows-amd64/$(PROJECT)
 
-BUILD_VERSION := $(shell git describe --tags --always | cut -f 1 -f 2 -d "-")
-BUILD_DATE := $(shell date +'%Y-%m-%d %H:%M:%S')
+BUILD_VERSION := $(shell git describe --tags --always)
+BUILD_DATE := $(shell date +'%Y-%m-%d %H:%M:%S %Z')
 SHA_SHORT := $(shell git rev-parse --short HEAD)
 
-TAGS = ""
 MOD_NAME = github.com/rocboss/paopao-ce
 LDFLAGS = -X "${MOD_NAME}/pkg/version.version=${BUILD_VERSION}" \
           -X "${MOD_NAME}/pkg/version.buildDate=${BUILD_DATE}" \
-          -X "${MOD_NAME}/pkg/version.commitID=${SHA_SHORT}" -w -s
+          -X "${MOD_NAME}/pkg/version.commitID=${SHA_SHORT}" \
+          -X "${MOD_NAME}/pkg/version.buildTags=${TAGS}" \
+		  -w -s
 
 all: fmt build
 

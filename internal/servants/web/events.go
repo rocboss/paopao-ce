@@ -41,6 +41,10 @@ const (
 const (
 	_trendsActionCreateTweet uint8 = iota
 	_trendsActionDeleteTweet
+	_trendsActionFollowUser
+	_trendsActionUnfollowUser
+	_trendsActionAddFriend
+	_trendsActionDeleteFriend
 )
 
 type cacheUnreadMsgEvent struct {
@@ -75,18 +79,18 @@ type messageActionEvent struct {
 
 type trendsActionEvent struct {
 	event.UnimplementedEvent
-	ac     core.AppCache
-	ds     core.DataService
-	action uint8
-	userId int64
+	ac      core.AppCache
+	ds      core.DataService
+	action  uint8
+	userIds []int64
 }
 
-func onTrendsActionEvent(action uint8, userId int64) {
+func onTrendsActionEvent(action uint8, userIds ...int64) {
 	events.OnEvent(&trendsActionEvent{
-		ac:     _ac,
-		ds:     _ds,
-		action: action,
-		userId: userId,
+		ac:      _ac,
+		ds:      _ds,
+		action:  action,
+		userIds: userIds,
 	})
 }
 
@@ -246,23 +250,39 @@ func (e *trendsActionEvent) Action() (err error) {
 	switch e.action {
 	case _trendsActionCreateTweet:
 		logrus.Debug("trigger trendsActionEvent by create tweet ")
-		e.ds.UpdateUserMetric(e.userId, cs.MetricActionCreateTweet)
-		goto ExpireTrends
+		e.updateUserMetric(cs.MetricActionCreateTweet)
+		e.expireFriendTrends()
 	case _trendsActionDeleteTweet:
 		logrus.Debug("trigger trendsActionEvent by delete tweet ")
-		e.ds.UpdateUserMetric(e.userId, cs.MetricActionDeleteTweet)
-		goto ExpireTrends
+		e.updateUserMetric(cs.MetricActionDeleteTweet)
+		e.expireFriendTrends()
+	case _trendsActionAddFriend, _trendsActionDeleteFriend,
+		_trendsActionFollowUser, _trendsActionUnfollowUser:
+		e.expireMyTrends()
 	default:
 		// nothing
-		goto JustReturn
 	}
-ExpireTrends:
-	if friendIds, err := e.ds.MyFriendIds(e.userId); err == nil {
-		for _, id := range friendIds {
-			e.ac.DelAny(fmt.Sprintf("%s%d:*", conf.PrefixIdxTrends, id))
-		}
-		return err
-	}
-JustReturn:
 	return
+}
+
+func (e *trendsActionEvent) updateUserMetric(action uint8) {
+	for _, userId := range e.userIds {
+		e.ds.UpdateUserMetric(userId, action)
+	}
+}
+
+func (e *trendsActionEvent) expireFriendTrends() {
+	for _, userId := range e.userIds {
+		if friendIds, err := e.ds.MyFriendIds(userId); err == nil {
+			for _, id := range friendIds {
+				e.ac.DelAny(fmt.Sprintf("%s%d:*", conf.PrefixIdxTrends, id))
+			}
+		}
+	}
+}
+
+func (e *trendsActionEvent) expireMyTrends() {
+	for _, userId := range e.userIds {
+		e.ac.DelAny(fmt.Sprintf("%s%d:*", conf.PrefixIdxTrends, userId))
+	}
 }
