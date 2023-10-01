@@ -78,13 +78,13 @@ services:
     networks:
       - paopao-network
 
-  meilisearch-ui:
-    image: riccoxie/meilisearch-ui:latest
-    restart: always
-    ports:
-      - 24900:24900
-    networks:
-      - paopao-network
+  # meilisearch-ui:
+  #   image: riccoxie/meilisearch-ui:latest
+  #   restart: always
+  #   ports:
+  #     - 24900:24900
+  #   networks:
+  #     - paopao-network
   
   # openobserve:
   #   image: public.ecr.aws/zinclabs/openobserve:latest
@@ -124,7 +124,7 @@ services:
   #     - paopao-network
 
   backend:
-    image: bitbus/paopao-ce:nightly
+    image: bitbus/paopao-ce:0.5.0-rc
     restart: always
     depends_on:
       - db
