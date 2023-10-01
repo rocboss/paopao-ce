@@ -24,6 +24,8 @@ declare module Item {
     follows: number;
     /** 粉丝数 */
     followings: number;
+    /** 推文数 */
+    tweets_count?: number;
     /** 用户余额（分） */
     balance?: number;
     /** 用户状态 */

@@ -58,11 +58,9 @@ func (s *coreSrv) SyncSearchIndex(req *web.SyncSearchIndexReq) mir.Error {
 }
 
 func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Error) {
-	user, err := s.Ds.GetUserByUsername(req.Username)
+	user, err := s.Ds.UserProfileByName(req.Username)
 	if err != nil {
-		return nil, xerror.UnauthorizedAuthNotExist
-	}
-	if user.Model == nil || user.ID < 0 {
+		logrus.Errorf("coreSrv.GetUserInfo occurs error[1]: %s", err)
 		return nil, xerror.UnauthorizedAuthNotExist
 	}
 	follows, followings, err := s.Ds.GetFollowCount(user.ID)
@@ -70,16 +68,17 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 		return nil, web.ErrGetFollowCountFailed
 	}
 	resp := &web.UserInfoResp{
-		Id:         user.ID,
-		Nickname:   user.Nickname,
-		Username:   user.Username,
-		Status:     user.Status,
-		Avatar:     user.Avatar,
-		Balance:    user.Balance,
-		IsAdmin:    user.IsAdmin,
-		CreatedOn:  user.CreatedOn,
-		Follows:    follows,
-		Followings: followings,
+		Id:          user.ID,
+		Nickname:    user.Nickname,
+		Username:    user.Username,
+		Status:      user.Status,
+		Avatar:      user.Avatar,
+		Balance:     user.Balance,
+		IsAdmin:     user.IsAdmin,
+		CreatedOn:   user.CreatedOn,
+		Follows:     follows,
+		Followings:  followings,
+		TweetsCount: user.TweetsCount,
 	}
 	if user.Phone != "" && len(user.Phone) == 11 {
 		resp.Phone = user.Phone[0:3] + "****" + user.Phone[7:]
