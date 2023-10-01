@@ -1403,6 +1403,23 @@ SELECT * FROM @user WHERE id=? AND is_del=0;
 -- prepare: stmt
 SELECT * FROM @user WHERE username=? AND is_del=0;
 
+-- name: user_profile_by_name@user_manage
+-- prepare: stmt
+SELECT u.id, 
+	u.username, 
+	u.nickname,
+	u.phone,
+	u.status,
+	u.avatar,
+	u.balance,
+	u.is_admin,
+	u.created_on,
+	m.tweets_count
+FROM @user u
+LEFT JOIN @user_metric m
+ON u.id=m.user_id
+WHERE u.username=? AND u.is_del=0;
+
 -- name: get_user_by_phone@user_manage
 -- prepare: stmt
 SELECT * FROM @user WHERE phone=? AND is_del=0;
