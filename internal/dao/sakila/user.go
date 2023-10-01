@@ -12,6 +12,7 @@ import (
 	"github.com/bitbus/sqlx"
 	"github.com/bitbus/sqlx/db"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/cc"
 	"github.com/rocboss/paopao-ce/internal/dao/sakila/auto/pgc"
@@ -38,6 +39,10 @@ func (s *userManageSrv) GetUserByID(id int64) (*ms.User, error) {
 
 func (s *userManageSrv) GetUserByUsername(username string) (*ms.User, error) {
 	return db.Get[ms.User](s.q.GetUserByUsername, username)
+}
+
+func (s *userManageSrv) UserProfileByName(username string) (*cs.UserProfile, error) {
+	return db.Get[cs.UserProfile](s.q.UserProfileByName, username)
 }
 
 func (s *userManageSrv) GetUserByPhone(phone string) (*ms.User, error) {

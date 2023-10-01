@@ -20,6 +20,11 @@ import (
 )
 
 const (
+	_tweetActionCreate uint8 = iota
+	_tweetActionDelete
+)
+
+const (
 	_commentActionCreate uint8 = iota
 	_commentActionDelete
 	_commentActionThumbsUp
@@ -61,6 +66,14 @@ type createMessageEvent struct {
 	message *ms.Message
 }
 
+type tweetActionEvent struct {
+	event.UnimplementedEvent
+	ac       core.AppCache
+	userId   int64
+	username string
+	action   uint8
+}
+
 type commentActionEvent struct {
 	event.UnimplementedEvent
 	ds        core.DataService
@@ -91,6 +104,15 @@ func onTrendsActionEvent(action uint8, userIds ...int64) {
 		ds:      _ds,
 		action:  action,
 		userIds: userIds,
+	})
+}
+
+func onTweetActionEvent(action uint8, userId int64, username string) {
+	events.OnEvent(&tweetActionEvent{
+		ac:       _ac,
+		action:   action,
+		userId:   userId,
+		username: username,
 	})
 }
 
@@ -285,4 +307,18 @@ func (e *trendsActionEvent) expireMyTrends() {
 	for _, userId := range e.userIds {
 		e.ac.DelAny(fmt.Sprintf("%s%d:*", conf.PrefixIdxTrends, userId))
 	}
+}
+
+func (e *tweetActionEvent) Name() string {
+	return "tweetActionEvent"
+}
+
+func (e *tweetActionEvent) Action() (err error) {
+	switch e.action {
+	case _tweetActionCreate, _tweetActionDelete:
+		e.ac.Delete(conf.KeyUserProfileByName.Get(e.username))
+	default:
+		// nothing
+	}
+	return
 }

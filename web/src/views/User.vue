@@ -64,6 +64,9 @@
                                     粉丝&nbsp;&nbsp;{{ user.followings }}
                                 </router-link>
                             </span>
+                            <span class="info-item">
+                                泡泡&nbsp;&nbsp;{{ user.tweets_count }}
+                            </span>
                         </div>
                     </div>
 
@@ -251,6 +254,7 @@ const user = reactive<Item.UserInfo>({
     created_on: 0,
     follows: 0,
     followings: 0,
+    tweets_count: 0,
     status: 1,
 });
 const userLoading = ref(false);
@@ -582,6 +586,9 @@ const loadUser = () => {
             user.follows = res.follows;
             user.followings = res.followings;
             user.status = res.status;
+            if (res.tweets_count) {
+                user.tweets_count = res.tweets_count;
+            }
             loadPage();
         })
         .catch((err) => {

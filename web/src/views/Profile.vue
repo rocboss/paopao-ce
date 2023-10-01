@@ -57,6 +57,9 @@
                                 粉丝&nbsp;&nbsp;{{ store.state.userInfo.followings }}
                             </router-link>
                         </span>
+                        <span class="info-item">
+                            泡泡&nbsp;&nbsp;{{ store.state.userInfo.tweets_count }}
+                        </span>
                     </div>
                 </div>
             </div>
