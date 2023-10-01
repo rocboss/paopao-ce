@@ -36,7 +36,7 @@ func newUserManageService(db *gorm.DB, ums core.UserMetricServantA) core.UserMan
 	return &userManageSrv{
 		db:                db,
 		ums:               ums,
-		_userProfileJoins: fmt.Sprintf("JOIN %s m ON %s.id=m.user_id", _userMetric_, _user_),
+		_userProfileJoins: fmt.Sprintf("LEFT JOIN %s m ON %s.id=m.user_id", _userMetric_, _user_),
 		_userProfileWhere: fmt.Sprintf("%s.username=? AND %s.is_del=0", _user_, _user_),
 		_userProfileColoumns: []string{
 			fmt.Sprintf("%s.id", _user_),
