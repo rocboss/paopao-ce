@@ -338,12 +338,9 @@ func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq, user *cs.VistUse
 }
 
 func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfileResp, mir.Error) {
-	he, err := s.Ds.GetUserByUsername(req.Username)
+	he, err := s.Ds.UserProfileByName(req.Username)
 	if err != nil {
-		logrus.Errorf("Ds.GetUserByUsername err: %s", err)
-		return nil, web.ErrNoExistUsername
-	}
-	if he.Model == nil && he.ID <= 0 {
+		logrus.Errorf("looseSrv.GetUserProfile occurs error[1]: %s", err)
 		return nil, web.ErrNoExistUsername
 	}
 	// 设定自己不是自己的朋友
@@ -371,6 +368,7 @@ func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfi
 		CreatedOn:   he.CreatedOn,
 		Follows:     follows,
 		Followings:  followings,
+		TweetsCount: he.TweetsCount,
 	}, nil
 }
 

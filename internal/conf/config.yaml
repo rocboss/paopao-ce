@@ -17,6 +17,7 @@ Cache:
   IndexTrendsExpire: 300      # 获取广场动态信息过期时间，单位秒， 默认300s
   OnlineUserExpire: 300       # 标记在线用户 过期时间，单位秒， 默认300s
   UserInfoExpire: 300         # 获取用户信息过期时间，单位秒， 默认300s
+  UserProfileExpire: 180      # 获取用户概要过期时间，单位秒， 默认180s
   UserRelationExpire: 600     # 用户关系信息过期时间，单位秒， 默认600s
   MessagesExpire: 60          # 消息列表过期时间，单位秒， 默认60s
 EventManager: # 事件管理器的配置参数

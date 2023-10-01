@@ -94,6 +94,7 @@ type GetUserProfileResp struct {
 	CreatedOn   int64  `json:"created_on"`
 	Follows     int64  `json:"follows"`
 	Followings  int64  `json:"followings"`
+	TweetsCount int    `json:"tweets_count"`
 }
 
 type TopicListReq struct {
