@@ -36,6 +36,11 @@ func (s *userManageSrv) GetUserByUsername(username string) (*ms.User, error) {
 	return nil, nil
 }
 
+func (s *userManageSrv) UserProfileByName(username string) (*cs.UserProfile, error) {
+	// TODO
+	return nil, cs.ErrNotImplemented
+}
+
 func (s *userManageSrv) GetUserByPhone(phone string) (*ms.User, error) {
 	// TODO
 	debug.NotImplemented()
