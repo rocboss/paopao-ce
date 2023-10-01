@@ -20,6 +20,7 @@ export default createStore({
       created_on: 0,
       follows: 0,
       followings: 0,
+      tweets_count: 0,
       is_admin: false,
     },
   },
@@ -65,6 +66,7 @@ export default createStore({
         created_on: 0,
         follows: 0,
         followings: 0,
+        tweets_count: 0,
         is_admin: false,
       };
       state.userLogined = false;

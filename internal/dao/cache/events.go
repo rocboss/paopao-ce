@@ -37,9 +37,16 @@ type expireFollowTweetsEvent struct {
 	keyPattern string
 }
 
+type cacheObjectEvent struct {
+	event.UnimplementedEvent
+	ac     core.AppCache
+	key    string
+	data   any
+	expire int64
+}
+
 type cacheUserInfoEvent struct {
 	event.UnimplementedEvent
-	tweet  *ms.Post
 	ac     core.AppCache
 	key    string
 	data   *ms.User
@@ -97,6 +104,15 @@ func onCacheUserInfoEvent(key string, data *ms.User) {
 		data:   data,
 		ac:     _appCache,
 		expire: conf.CacheSetting.UserInfoExpire,
+	})
+}
+
+func onCacheObjectEvent(key string, data any, expire int64) {
+	events.OnEvent(&cacheObjectEvent{
+		key:    key,
+		data:   data,
+		ac:     _appCache,
+		expire: expire,
 	})
 }
 
@@ -165,6 +181,19 @@ func (e *cacheUserInfoEvent) Name() string {
 }
 
 func (e *cacheUserInfoEvent) Action() (err error) {
+	buffer := &bytes.Buffer{}
+	ge := gob.NewEncoder(buffer)
+	if err = ge.Encode(e.data); err == nil {
+		e.ac.Set(e.key, buffer.Bytes(), e.expire)
+	}
+	return
+}
+
+func (e *cacheObjectEvent) Name() string {
+	return "cacheObjectEvent"
+}
+
+func (e *cacheObjectEvent) Action() (err error) {
 	buffer := &bytes.Buffer{}
 	ge := gob.NewEncoder(buffer)
 	if err = ge.Encode(e.data); err == nil {
