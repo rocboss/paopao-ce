@@ -5,9 +5,11 @@
 package jinzhu
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
@@ -20,6 +22,10 @@ var (
 type userManageSrv struct {
 	db  *gorm.DB
 	ums core.UserMetricServantA
+
+	_userProfileJoins    string
+	_userProfileWhere    string
+	_userProfileColoumns []string
 }
 
 type userRelationSrv struct {
@@ -28,8 +34,22 @@ type userRelationSrv struct {
 
 func newUserManageService(db *gorm.DB, ums core.UserMetricServantA) core.UserManageService {
 	return &userManageSrv{
-		db:  db,
-		ums: ums,
+		db:                db,
+		ums:               ums,
+		_userProfileJoins: fmt.Sprintf("JOIN %s m ON %s.id=m.user_id", _userMetric_, _user_),
+		_userProfileWhere: fmt.Sprintf("%s.username=? AND %s.is_del=0", _user_, _user_),
+		_userProfileColoumns: []string{
+			fmt.Sprintf("%s.id", _user_),
+			fmt.Sprintf("%s.username", _user_),
+			fmt.Sprintf("%s.nickname", _user_),
+			fmt.Sprintf("%s.phone", _user_),
+			fmt.Sprintf("%s.status", _user_),
+			fmt.Sprintf("%s.avatar", _user_),
+			fmt.Sprintf("%s.balance", _user_),
+			fmt.Sprintf("%s.is_admin", _user_),
+			fmt.Sprintf("%s.created_on", _user_),
+			"m.tweets_count",
+		},
 	}
 }
 
@@ -53,6 +73,14 @@ func (s *userManageSrv) GetUserByUsername(username string) (*ms.User, error) {
 		Username: username,
 	}
 	return user.Get(s.db)
+}
+
+func (s *userManageSrv) UserProfileByName(username string) (res *cs.UserProfile, err error) {
+	err = s.db.Table(_user_).Joins(s._userProfileJoins).
+		Where(s._userProfileWhere, username).
+		Select(s._userProfileColoumns).
+		First(&res).Error
+	return
 }
 
 func (s *userManageSrv) GetUserByPhone(phone string) (*ms.User, error) {

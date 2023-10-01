@@ -31,9 +31,11 @@ const (
 	PrefixIdxTweetsFollowing = "paopao:index:tweets:following:"
 	PrefixIdxTrends          = "paopao:index:trends:"
 	PrefixMessages           = "paopao:messages:"
-	PrefixUserInfo           = "paopao:userinfo:"
-	PrefixUserInfoById       = "paopao:userinfo:id:"
-	PrefixUserInfoByName     = "paopao:userinfo:name:"
+	PrefixUserInfo           = "paopao:user:info:"
+	PrefixUserProfile        = "paopao:user:profile:"
+	PrefixUserInfoById       = "paopao:user:info:id:"
+	PrefixUserInfoByName     = "paopao:user:info:name:"
+	prefixUserProfileByName  = "paopao:user:profile:name:"
 	PrefixMyFriendIds        = "paopao:myfriendids:"
 	PrefixMyFollowIds        = "paopao:myfollowids:"
 	PrefixTweetComment       = "paopao:comment:"
@@ -43,15 +45,16 @@ const (
 
 // 以下包含一些在cache中会用到的池化后的key
 var (
-	KeyNewestTweets    cache.KeyPool[int]
-	KeyHotsTweets      cache.KeyPool[int]
-	KeyFollowingTweets cache.KeyPool[string]
-	KeyUnreadMsg       cache.KeyPool[int64]
-	KeyOnlineUser      cache.KeyPool[int64]
-	KeyUserInfoById    cache.KeyPool[int64]
-	KeyUserInfoByName  cache.KeyPool[string]
-	KeyMyFriendIds     cache.KeyPool[int64]
-	KeyMyFollowIds     cache.KeyPool[int64]
+	KeyNewestTweets      cache.KeyPool[int]
+	KeyHotsTweets        cache.KeyPool[int]
+	KeyFollowingTweets   cache.KeyPool[string]
+	KeyUnreadMsg         cache.KeyPool[int64]
+	KeyOnlineUser        cache.KeyPool[int64]
+	KeyUserInfoById      cache.KeyPool[int64]
+	KeyUserInfoByName    cache.KeyPool[string]
+	KeyUserProfileByName cache.KeyPool[string]
+	KeyMyFriendIds       cache.KeyPool[int64]
+	KeyMyFollowIds       cache.KeyPool[int64]
 )
 
 func initCacheKeyPool() {
@@ -66,6 +69,7 @@ func initCacheKeyPool() {
 	KeyOnlineUser = intKeyPool[int64](poolSize, PrefixOnlineUser)
 	KeyUserInfoById = intKeyPool[int64](poolSize, PrefixUserInfoById)
 	KeyUserInfoByName = strKeyPool(poolSize, PrefixUserInfoById)
+	KeyUserProfileByName = strKeyPool(poolSize, prefixUserProfileByName)
 	KeyMyFriendIds = intKeyPool[int64](poolSize, PrefixMyFriendIds)
 	KeyMyFollowIds = intKeyPool[int64](poolSize, PrefixMyFollowIds)
 }

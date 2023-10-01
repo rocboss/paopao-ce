@@ -11,6 +11,7 @@ import (
 	"github.com/RoaringBitmap/roaring/roaring64"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 )
 
@@ -57,6 +58,23 @@ func (s *cacheDataService) GetUserByUsername(username string) (res *ms.User, err
 	if res, err = s.DataService.GetUserByUsername(username); err == nil {
 		// 更新缓存
 		onCacheUserInfoEvent(key, res)
+	}
+	return
+}
+
+func (s *cacheDataService) UserProfileByName(username string) (res *cs.UserProfile, err error) {
+	// 先从缓存获取， 不处理错误
+	key := conf.KeyUserProfileByName.Get(username)
+	if data, xerr := s.ac.Get(key); xerr == nil {
+		buf := bytes.NewBuffer(data)
+		res = &cs.UserProfile{}
+		err = gob.NewDecoder(buf).Decode(res)
+		return
+	}
+	// 最后查库
+	if res, err = s.DataService.UserProfileByName(username); err == nil {
+		// 更新缓存
+		onCacheObjectEvent(key, res, conf.CacheSetting.UserProfileExpire)
 	}
 	return
 }
