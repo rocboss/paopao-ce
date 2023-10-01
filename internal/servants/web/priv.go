@@ -314,7 +314,9 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 		return nil, web.ErrCreatePostFailed
 	}
 	// 缓存处理
+	// TODO: 缓存逻辑合并处理
 	onTrendsActionEvent(_trendsActionCreateTweet, req.User.ID)
+	onTweetActionEvent(_tweetActionCreate, req.User.ID, req.User.Username)
 	return (*web.CreateTweetResp)(formatedPosts[0]), nil
 }
 
@@ -344,7 +346,9 @@ func (s *privSrv) DeleteTweet(req *web.DeleteTweetReq) mir.Error {
 		return web.ErrDeletePostFailed
 	}
 	// 缓存处理
+	// TODO: 缓存逻辑合并处理
 	onTrendsActionEvent(_trendsActionDeleteTweet, req.User.ID)
+	onTweetActionEvent(_tweetActionDelete, req.User.ID, req.User.Username)
 	return nil
 }
 

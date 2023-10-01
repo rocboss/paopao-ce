@@ -158,6 +158,7 @@ All notable changes to paopao-ce are documented in this file.
   UNION
   SELECT user_id, follow_id he_uid, 10 AS style 
   FROM p_following WHERE is_del=0;
+- add tweets count info in Home/Profile page. 
   ```
     
 ## 0.4.2

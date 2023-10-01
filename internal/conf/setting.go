@@ -109,6 +109,7 @@ type cacheConf struct {
 	TweetCommentsExpire  int64
 	OnlineUserExpire     int64
 	UserInfoExpire       int64
+	UserProfileExpire    int64
 	UserRelationExpire   int64
 }
 
