@@ -158,9 +158,31 @@ All notable changes to paopao-ce are documented in this file.
   UNION
   SELECT user_id, follow_id he_uid, 10 AS style 
   FROM p_following WHERE is_del=0;
-- add tweets count info in Home/Profile page. 
   ```
-    
+- add tweets count info in Home/Profile page. 
+- add custom web frontend features base by a profile that fetch from backend support.
+  can add custom config to conf.yaml to custom web frontend features:
+  ```yaml
+  ...
+  WebProfile:
+    UseFriendship: true              # 前端是否使用好友体系
+    EnableTrendsBar: true            # 广场页面是否开启动态条栏功能
+    EnableWallet: false              # 是否开启钱包功能
+    AllowTweetAttachment: true       # 是否允许推文附件
+    AllowTweetAttachmentPrice: true  # 是否允许推文付费附件
+    AllowTweetVideo: true            # 是否允许视频推文
+    AllowUserRegister: true          # 是否允许用户注册
+    AllowPhoneBind: true             # 是否允许手机绑定
+    DefaultTweetVisibility: friend   # 推文可见性，默认好友可见 值: public/following/friend/private
+    DefaultMsgLoopInterval: 5000     # 拉取未读消息的间隔，单位：毫秒, 默认5000ms 
+    CopyrightTop: "2023 paopao.info"
+    CopyrightLeft: "Roc's Me"
+    CopyrightLeftLink: ""
+    CopyrightRight: "泡泡(PaoPao)开源社区"
+    CopyrightRightLink: "https://www.paopao.info"
+  ...
+  ```
+
 ## 0.4.2
 ### Fixed
 - fixed remove multi-objects no effects and occurs resource leak error when use Minio as OSS(Object Storage System).[#371](https://github.com/rocboss/paopao-ce/pull/371) [#372](https://github.com/rocboss/paopao-ce/pull/372)  
