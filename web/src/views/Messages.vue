@@ -80,7 +80,7 @@ import {
     OptionsOutline as OptionsIcon, 
  } from '@vicons/ionicons5'
 
- const store = useStore();
+const store = useStore();
 const route = useRoute();
 const loading = ref(false);
 const noMore = ref(false);

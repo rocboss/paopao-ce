@@ -14,7 +14,7 @@
                             <strong>{{ user.nickname }}</strong>
                             <span> @{{ user.username }} </span>
                             <n-tag
-                                v-if="useFriendship && store.state.userInfo.id > 0 && store.state.userInfo.username != user.username && user.is_friend"
+                                v-if="store.state.profile.useFriendship && store.state.userInfo.id > 0 && store.state.userInfo.username != user.username && user.is_friend"
                                 class="top-tag" type="info" size="small" round>
                                 好友
                             </n-tag>
@@ -238,8 +238,6 @@ import InfiniteLoading from "v3-infinite-loading";
 const dialog = useDialog();
 const store = useStore();
 const route = useRoute();
-
-const useFriendship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true');
 
 const loading = ref(false);
 const noMore = ref(false);
@@ -673,7 +671,7 @@ const userOptions = computed(() => {
             icon: renderIcon(BodyOutline)
         })
     }
-    if (useFriendship) {
+    if (store.state.profile.useFriendship) {
         if (user.is_friend) {
             options.push({
                 label: '删除好友',
