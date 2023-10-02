@@ -43,12 +43,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
 import { darkTheme } from 'naive-ui';
+import { getSiteProfile } from '@/api/site';
 
 const store = useStore();
 const theme = computed(() => (store.state.theme === 'dark' ? darkTheme : null));
+
+function loadSiteProfile() {
+    store.commit('loadDefaultSiteProfile');
+    getSiteProfile().then((res) => {
+       store.commit('updateSiteProfile', res);
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+onMounted(() => {
+   loadSiteProfile();
+});
 </script>
 
 <style lang="less">

@@ -57,6 +57,7 @@ var (
 	S3Setting               *s3Conf
 	LocalOSSSetting         *localossConf
 	JWTSetting              *jwtConf
+	WebProfileSetting       *WebProfileConf
 )
 
 func setupSetting(suite []string, noDefault bool) error {
@@ -117,6 +118,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"MinIO":             &MinIOSetting,
 		"LocalOSS":          &LocalOSSSetting,
 		"S3":                &S3Setting,
+		"WebProfile":        &WebProfileSetting,
 	}
 	for k, v := range objects {
 		err := vp.UnmarshalKey(k, v)
