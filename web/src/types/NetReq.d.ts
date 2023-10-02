@@ -206,4 +206,22 @@ declare module NetReq {
   interface PostFollowTopic {}
 
   interface PostUnfollowTopic {}
+
+  interface SiteProfile {
+    use_friendship?: boolean;
+    enable_trends_bar?: boolean;
+    enable_wallet?: boolean;
+    allow_tweet_attachment?: boolean;
+    allow_tweet_attachment_price?: boolean;
+    allow_tweet_video?: boolean;
+    allow_user_register?: boolean;
+    allow_phone_bind?: boolean;
+    default_tweet_visibility?: string;
+    default_msg_loop_interval?: number;
+    copyright_top?: string;
+    copyright_left?: string;
+    copyright_left_link?: string;
+    copyright_right?: string;
+    copyright_right_link?: string;
+  }
 }
