@@ -183,4 +183,20 @@ Sqlite3: # Sqlite3数据库
 Redis:
   InitAddress:
   - redis:6379
+WebProfile:
+  UseFriendship: true              # 前端是否使用好友体系
+  EnableTrendsBar: true            # 广场页面是否开启动态条栏功能
+  EnableWallet: false              # 是否开启钱包功能
+  AllowTweetAttachment: true       # 是否允许推文附件
+  AllowTweetAttachmentPrice: true  # 是否允许推文付费附件
+  AllowTweetVideo: true            # 是否允许视频推文
+  AllowUserRegister: true          # 是否允许用户注册
+  AllowPhoneBind: true             # 是否允许手机绑定
+  DefaultTweetVisibility: friend   # 推文可见性，默认好友可见 值: public/following/friend/private
+  DefaultMsgLoopInterval: 5000     # 拉取未读消息的间隔，单位：毫秒, 默认5000ms 
+  CopyrightTop: "2023 paopao.info"
+  CopyrightLeft: "Roc's Me"
+  CopyrightLeftLink: ""
+  CopyrightRight: "泡泡(PaoPao)开源社区"
+  CopyrightRightLink: "https://www.paopao.info"
   

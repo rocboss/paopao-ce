@@ -283,6 +283,24 @@ type jwtConf struct {
 	Expire time.Duration
 }
 
+type WebProfileConf struct {
+	UseFriendship             bool   `json:"use_friendship"`
+	EnableTrendsBar           bool   `json:"enable_trends_bar"`
+	EnableWallet              bool   `json:"enable_wallet"`
+	AllowTweetAttachment      bool   `json:"allow_tweet_attachment"`
+	AllowTweetAttachmentPrice bool   `json:"allow_tweet_attachment_price"`
+	AllowTweetVideo           bool   `json:"allow_tweet_video"`
+	AllowUserRegister         bool   `json:"allow_user_register"`
+	AllowPhoneBind            bool   `json:"allow_phone_bind"`
+	DefaultTweetVisibility    string `json:"default_tweet_visibility"`
+	DefaultMsgLoopInterval    int    `json:"default_msg_loop_interval"`
+	CopyrightTop              string `json:"copyright_top"`
+	CopyrightLeft             string `json:"copyright_left"`
+	CopyrightLeftLink         string `json:"copyright_left_link"`
+	CopyrightRight            string `json:"copyright_right"`
+	CopyrightRightLink        string `json:"copyright_right_link"`
+}
+
 func (s *httpServerConf) GetReadTimeout() time.Duration {
 	return s.ReadTimeout * time.Second
 }

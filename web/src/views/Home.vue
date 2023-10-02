@@ -91,8 +91,6 @@ import allTweets from '@/assets/img/fresh-tweets.png';
 import discoverTweets from '@/assets/img/discover-tweets.jpeg';
 import followingTweets from '@/assets/img/following-tweets.jpeg';
 
-const useFriendship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true')
-const enableFriendsBar = (import.meta.env.VITE_ENABLE_FRIENDS_BAR.toLowerCase() === 'true')
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
@@ -253,7 +251,7 @@ const updateTitle = () => {
 };
 
 const showFriendsBar = computed(() => {
-    return useFriendship && enableFriendsBar && store.state.desktopModelShow && store.state.userInfo.id > 0;
+    return store.state.profile.useFriendship && store.state.profile.enableTrendsBar && store.state.desktopModelShow && store.state.userInfo.id > 0;
 });
 
 const reset = () => {
@@ -294,7 +292,7 @@ const handleBarClick = (data: Item.SlideBarItem, index: number) => {
 
 const loadContacts = () => {
     slideBarList.value = slideBarList.value.slice(0, 3)
-    if (!useFriendship || !enableFriendsBar || store.state.userInfo.id === 0) {
+    if (!store.state.profile.useFriendship || !store.state.profile.enableTrendsBar || store.state.userInfo.id === 0) {
         return
     }
     getIndexTrends({
