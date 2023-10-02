@@ -31,7 +31,7 @@ require (
 	github.com/onsi/gomega v1.28.0
 	github.com/prometheus/client_golang v1.16.0
 	github.com/pyroscope-io/client v0.7.2
-	github.com/redis/rueidis v1.0.18
+	github.com/redis/rueidis v1.0.19
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/smartwalle/alipay/v3 v3.2.16
