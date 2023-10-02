@@ -12,7 +12,7 @@
     >
         <div class="auth-wrap">
             <n-card :bordered="false">
-                <div v-if="!allowUserRegister">
+                <div v-if="!store.state.profile.allowUserRegister">
                     <n-space justify="center"><n-h3><n-text type="success">账号登录</n-text></n-h3></n-space>
                     <n-form
                             ref="loginRef"
@@ -57,7 +57,7 @@
                         </n-button>
                 </div>
                 <n-tabs
-                    v-if="allowUserRegister" 
+                    v-if="store.state.profile.allowUserRegister" 
                     :default-value="store.state.authModelTab"
                     size="large"
                     justify-content="space-evenly"
@@ -159,7 +159,6 @@ import { useStore } from 'vuex';
 import { userLogin, userRegister, userInfo } from '@/api/auth';
 import type { FormInst, FormItemRule } from 'naive-ui';
 
-const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
 const store = useStore();
 
 const loading = ref(false);
