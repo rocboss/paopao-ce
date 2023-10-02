@@ -58,22 +58,22 @@
             </n-spin>
         </n-card>
         <n-card class="copyright-wrap" embedded :bordered="false" size="small">
-            <div class="copyright">&copy; {{ copyrightTop }}</div>
+            <div class="copyright">&copy; {{ store.state.profile.copyrightTop }}</div>
             <div>
                 <n-space>
                     <a
-                        :href="copyrightLeftLink"
+                        :href="store.state.profile.copyrightLeftLink"
                         target="_blank"
                         class="hash-link"
                     >
-                        {{ copyrightLeft }}
+                        {{ store.state.profile.copyrightLeft }}
                     </a>
                     <a
-                        :href="copyrightRightLink"
+                        :href="store.state.profile.copyrightRightLink"
                         target="_blank"
                         class="hash-link"
                     >
-                        {{ copyrightRight }}
+                        {{ store.state.profile.copyrightRight }}
                     </a>
                 </n-space>
             </div>
@@ -104,11 +104,6 @@ const onlineUserCount = ref(0)
 const historyMaxOnline = ref(0)
 const serverUpTime = ref(0)
 const userInfoElement = ref<HTMLElement | null>(null);
-const copyrightTop = import.meta.env.VITE_COPYRIGHT_TOP
-const copyrightLeft = import.meta.env.VITE_COPYRIGHT_LEFT
-const copyrightLeftLink = import.meta.env.VITE_COPYRIGHT_LEFT_LINK
-const copyrightRight = import.meta.env.VITE_COPYRIGHT_RIGHT
-const copyrightRightLink = import.meta.env.VITE_COPYRIGHT_RIGHT_LINK
 const rightFollowTopicMaxSize = Number(import.meta.env.VITE_RIGHT_FOLLOW_TOPIC_MAX_SIZE)
 const rightHotTopicMaxSize = Number(import.meta.env.VITE_RIGHT_HOT_TOPIC_MAX_SIZE)
 

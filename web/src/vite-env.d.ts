@@ -8,7 +8,7 @@ interface ImportMetaEnv {
   readonly VITE_USE_FRIENDSHIP: string;
   readonly VITE_ENABLE_ANOUNCEMENT: string;
   readonly VITE_ENABLE_WALLET: string;
-  readonly VITE_ENABLE_FRIENDS_BAR: string;
+  readonly VITE_ENABLE_TRENDS_BAR: string;
   readonly VITE_ALLOW_USER_REGISTER: string;
   readonly VITE_ALLOW_PHONE_BIND: string;
   readonly VITE_ALLOW_ACTIVATION: string;
