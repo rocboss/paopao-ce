@@ -499,7 +499,7 @@ func (s *tweetSrv) getUserRelation(userId int64) (beFriendIds []int64, beFollowI
 	if err = s.db.Table(_contact_).Where("friend_id=? AND status=2 AND is_del=0", userId).Select("user_id").Find(&beFriendIds).Error; err != nil {
 		return
 	}
-	if err = s.db.Table(_following_).Where("follow_id=? AND is_del=0", userId).Select("user_id").Find(&beFollowIds).Error; err != nil {
+	if err = s.db.Table(_following_).Where("user_id=? AND is_del=0", userId).Select("follow_id").Find(&beFollowIds).Error; err != nil {
 		return
 	}
 	// 即是好友又是关注者，保留好友去除关注者
