@@ -1198,7 +1198,7 @@ WHERE user_id=? AND is_del=0;
 
 -- name: get_be_friend_ids@tweet
 -- prepare: stmt
-SELECT user_id FROM @contact WHERE friend_id=? AND is_del=0;
+SELECT user_id FROM @contact WHERE friend_id=? AND status=2 AND is_del=0;
 
 -- name: get_be_follow_ids@tweet
 -- prepare: stmt
