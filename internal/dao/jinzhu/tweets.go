@@ -393,7 +393,7 @@ func (s *tweetSrv) GetPosts(conditions ms.ConditionsT, offset, limit int) ([]*ms
 }
 
 func (s *tweetSrv) ListUserTweets(userId int64, style uint8, justEssence bool, limit, offset int) (res []*ms.Post, total int64, err error) {
-	db := s.db.Table(_post_).Where("user_id = ?", userId)
+	db := s.db.Model(&dbr.Post{}).Where("user_id = ?", userId)
 	switch style {
 	case cs.StyleUserTweetsAdmin:
 		fallthrough
@@ -438,7 +438,7 @@ func (s *tweetSrv) ListIndexNewestTweets(limit, offset int) (res []*ms.Post, tot
 }
 
 func (s *tweetSrv) ListIndexHotsTweets(limit, offset int) (res []*ms.Post, total int64, err error) {
-	db := s.db.Table(_post_).Joins(fmt.Sprintf("LEFT JOIN %s metric ON %s.id=metric.post_id", _post_metric_, _post_)).Where("visibility >= ?", cs.TweetVisitPublic)
+	db := s.db.Table(_post_).Joins(fmt.Sprintf("LEFT JOIN %s metric ON %s.id=metric.post_id", _post_metric_, _post_)).Where(fmt.Sprintf("visibility >= ? AND %s.is_del=0 AND metric.is_del=0", _post_), cs.TweetVisitPublic)
 	if err = db.Count(&total).Error; err != nil {
 		return
 	}
@@ -471,7 +471,7 @@ func (s *tweetSrv) ListFollowingTweets(userId int64, limit, offset int) (res []*
 		return nil, 0, xerr
 	}
 	beFriendCount, beFollowCount := len(beFriendIds), len(beFollowIds)
-	db := s.db.Table(_post_)
+	db := s.db.Model(&dbr.Post{})
 	//可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开',
 	switch {
 	case beFriendCount > 0 && beFollowCount > 0:
@@ -496,10 +496,10 @@ func (s *tweetSrv) ListFollowingTweets(userId int64, limit, offset int) (res []*
 }
 
 func (s *tweetSrv) getUserRelation(userId int64) (beFriendIds []int64, beFollowIds []int64, err error) {
-	if err = s.db.Table(_contact_).Where("friend_id=?", userId).Select("user_id").Find(&beFriendIds).Error; err != nil {
+	if err = s.db.Table(_contact_).Where("friend_id=? AND status=2 AND is_del=0", userId).Select("user_id").Find(&beFriendIds).Error; err != nil {
 		return
 	}
-	if err = s.db.Table(_following_).Where("user_id=?", userId).Select("follow_id").Find(&beFollowIds).Error; err != nil {
+	if err = s.db.Table(_following_).Where("follow_id=? AND is_del=0", userId).Select("user_id").Find(&beFollowIds).Error; err != nil {
 		return
 	}
 	// 即是好友又是关注者，保留好友去除关注者

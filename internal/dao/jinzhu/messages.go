@@ -48,7 +48,7 @@ func (s *messageSrv) ReadMessage(message *ms.Message) error {
 }
 
 func (s *messageSrv) ReadAllMessage(userId int64) error {
-	return s.db.Table(_message_).Where("receiver_user_id=?", userId).Update("is_read", 1).Error
+	return s.db.Table(_message_).Where("receiver_user_id=? AND is_del=0", userId).Update("is_read", 1).Error
 }
 
 func (s *messageSrv) GetMessages(userId int64, style cs.MessageStyle, limit int, offset int) (res []*ms.MessageFormated, total int64, err error) {
