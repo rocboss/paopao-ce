@@ -110,7 +110,7 @@ const (
 	_Tweet_GetAnyPostCount                     = `SELECT count(*) FROM @post WHERE visibility IN (?)`
 	_Tweet_GetAnyPosts                         = `SELECT * FROM @post WHERE visibility IN (?) AND is_del=0 LIMIT ? OFFSET ?`
 	_Tweet_GetBeFollowIds                      = `SELECT follow_id FROM @following WHERE user_id=? AND is_del=0`
-	_Tweet_GetBeFriendIds                      = `SELECT user_id FROM @contact WHERE friend_id=? AND is_del=0`
+	_Tweet_GetBeFriendIds                      = `SELECT user_id FROM @contact WHERE friend_id=? AND status=2 AND is_del=0`
 	_Tweet_GetPostAttachmentBill               = `SELECT * FROM @post_attachment_bill WHERE post_id=? AND user_id=? AND is_del=0`
 	_Tweet_GetPostById                         = `SELECT * FROM @post WHERE id=? AND is_del=0`
 	_Tweet_GetPostContentById                  = `SELECT * FROM @post_content WHERE id=? AND is_del=0`
