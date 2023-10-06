@@ -353,6 +353,8 @@ func (s *coreSrv) ChangeNickname(req *web.ChangeNicknameReq) mir.Error {
 		logrus.Errorf("Ds.UpdateUser err: %s", err)
 		return xerror.ServerError
 	}
+	// 缓存处理
+	onChangeUsernameEvent(user.ID, user.Username)
 	return nil
 }
 
@@ -377,6 +379,8 @@ func (s *coreSrv) ChangeAvatar(req *web.ChangeAvatarReq) (xerr mir.Error) {
 		logrus.Errorf("Ds.UpdateUser failed: %s", err)
 		return xerror.ServerError
 	}
+	// 缓存处理
+	onChangeUsernameEvent(user.ID, user.Username)
 	return nil
 }
 
