@@ -32,6 +32,9 @@ export default createStore({
       allowTweetVideo: true,
       allowUserRegister: true,
       allowPhoneBind: true,
+      defaultTweetMaxLength: 2000,
+      tweetWebEllipsisSize: 400,
+      tweetMobileEllipsisSize: 300,
       defaultTweetVisibility: "friend",
       defaultMsgLoopInterval: 5000,
       copyrightTop: "2023 paopao.info",
@@ -100,6 +103,18 @@ export default createStore({
       state.profile.allowPhoneBind =
         import.meta.env.VITE_ALLOW_PHONE_BIND.toLowerCase() === "true";
 
+      state.profile.defaultTweetMaxLength = Number(
+        import.meta.env.VITE_DEFAULT_TWEET_MAX_LENGTH
+      );
+
+      state.profile.tweetWebEllipsisSize = Number(
+        import.meta.env.VITE_TWEET_WEB_ELLIPSIS_SIZE
+      );
+
+      state.profile.tweetMobileEllipsisSize = Number(
+        import.meta.env.VITE_TWEET_MOBILE_ELLIPSIS_SIZE
+      );
+
       state.profile.defaultTweetVisibility =
         import.meta.env.VITE_DEFAULT_TWEET_VISIBILITY.toLowerCase();
 
@@ -140,6 +155,15 @@ export default createStore({
         data.allow_user_register ?? p.allowUserRegister;
 
       state.profile.allowPhoneBind = data.allow_phone_bind ?? p.allowPhoneBind;
+
+      state.profile.defaultTweetMaxLength =
+        data.default_tweet_max_length ?? p.defaultTweetMaxLength;
+
+      state.profile.tweetWebEllipsisSize =
+        data.tweet_web_ellipsis_size ?? p.tweetWebEllipsisSize;
+
+      state.profile.tweetMobileEllipsisSize =
+        data.tweet_mobile_ellipsis_size ?? p.tweetMobileEllipsisSize;
 
       state.profile.defaultTweetVisibility =
         data.default_tweet_visibility ?? p.defaultTweetVisibility;
