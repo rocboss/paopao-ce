@@ -45,7 +45,7 @@
                                         },
                                     }"
                                 >
-                                    关注&nbsp;&nbsp;{{ user.follows}}
+                                    关注&nbsp;&nbsp;{{ prettyQuoteNum(user.follows)}}
                                 </router-link>
                             </span>
                             <span class="info-item">
@@ -61,11 +61,11 @@
                                         },
                                     }"
                                 >
-                                    粉丝&nbsp;&nbsp;{{ user.followings }}
+                                    粉丝&nbsp;&nbsp;{{ prettyQuoteNum(user.followings) }}
                                 </router-link>
                             </span>
                             <span class="info-item">
-                                泡泡&nbsp;&nbsp;{{ user.tweets_count }}
+                                泡泡&nbsp;&nbsp;{{ prettyQuoteNum(user.tweets_count || 0) }}
                             </span>
                         </div>
                     </div>
@@ -225,6 +225,7 @@ import { useDialog, DropdownOption } from 'naive-ui';
 import WhisperAddFriend from '../components/whisper-add-friend.vue';
 import { MoreHorizFilled } from '@vicons/material';
 import { formatDate } from '@/utils/formatTime';
+import { prettyQuoteNum } from '@/utils/count';
 import {
     PaperPlaneOutline,
     PersonAddOutline,
