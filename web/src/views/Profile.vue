@@ -38,7 +38,7 @@
                                     },
                                 }"
                             >
-                                关注&nbsp;&nbsp;{{ store.state.userInfo.follows }}
+                                关注&nbsp;&nbsp;{{ prettyQuoteNum(store.state.userInfo.follows) }}
                             </router-link>
                         </span>
                         <span class="info-item">
@@ -54,11 +54,11 @@
                                     },
                                 }"
                             >
-                                粉丝&nbsp;&nbsp;{{ store.state.userInfo.followings }}
+                                粉丝&nbsp;&nbsp;{{ prettyQuoteNum(store.state.userInfo.followings) }}
                             </router-link>
                         </span>
                         <span class="info-item">
-                            泡泡&nbsp;&nbsp;{{ store.state.userInfo.tweets_count }}
+                            泡泡&nbsp;&nbsp;{{ prettyQuoteNum(store.state.userInfo.tweets_count) }}
                         </span>
                     </div>
                 </div>
@@ -196,6 +196,7 @@ import { useRoute } from 'vue-router';
 import { useDialog } from 'naive-ui';
 import { getUserPosts, followUser, unfollowUser } from '@/api/user';
 import { formatDate } from '@/utils/formatTime';
+import { prettyQuoteNum } from '@/utils/count';
 import InfiniteLoading from "v3-infinite-loading";
 
 const store = useStore();

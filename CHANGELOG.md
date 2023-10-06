@@ -182,6 +182,7 @@ All notable changes to paopao-ce are documented in this file.
     CopyrightRightLink: "https://www.paopao.info"
   ...
   ```
+- add read more contents support for post card in tweets list.
 
 ## 0.4.2
 ### Fixed

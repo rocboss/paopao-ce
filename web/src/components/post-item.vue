@@ -75,7 +75,7 @@
                     :key="content.id"
                     class="post-text hover"
                     @click.stop="doClickText($event, post.id)"
-                    v-html="parsePostTag(content.content).content"
+                    v-html="preparePost(content.content, '查看全文', store.state.profile.tweetWebEllipsisSize)"
                 ></span>
             </template>
 
@@ -132,7 +132,7 @@ import { NIcon } from 'naive-ui'
 import type { Component } from 'vue'
 import type { DropdownOption } from 'naive-ui';
 import { formatPrettyDate } from '@/utils/formatTime';
-import { parsePostTag } from '@/utils/content';
+import { preparePost } from '@/utils/content';
 import {
     postStar,
     postCollection,
@@ -336,8 +336,9 @@ const goPostDetail = (id: number) => {
     });
 };
 const doClickText = (e: MouseEvent, id: number) => {
-    if ((e.target as any).dataset.detail) {
-        const d = (e.target as any).dataset.detail.split(':');
+    const detail = (e.target as any).dataset.detail
+    if (detail && detail !== 'post') {
+        const d = detail.split(':');
         if (d.length === 2) {
             store.commit('refresh');
             if (d[0] === 'tag') {

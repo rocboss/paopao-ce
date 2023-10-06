@@ -22,6 +22,8 @@ interface ImportMetaEnv {
   readonly VITE_DEFAULT_TWEET_VISIBILITY: string;
   readonly VITE_DEFAULT_TWEET_IMAGE_404: string;
   readonly VITE_DEFAULT_TWEET_MAX_LENGTH: number;
+  readonly VITE_TWEET_WEB_ELLIPSIS_SIZE: number;
+  readonly VITE_TWEET_MOBILE_ELLIPSIS_SIZE: number;
   readonly VITE_DEFAULT_COMMENT_MAX_LENGTH: number;
   readonly VITE_DEFAULT_REPLY_MAX_LENGTH: number;
   readonly VITE_TWEET_IMAGE_THUMBNAIL: string;
