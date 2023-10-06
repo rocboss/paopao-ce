@@ -187,7 +187,7 @@ const (
 	_UserManage_GetUsersByIds                  = `SELECT * FROM @user WHERE id IN (?) AND is_del=0`
 	_UserManage_GetUsersByKeyword              = `SELECT * FROM @user WHERE username LIKE ? AND is_del=0 limit 6`
 	_UserManage_UpdateUser                     = `UPDATE @user SET username=:username, nickname=:nickname, phone=:phone, password=:password, salt=:salt, status=:status, avatar=:avatar, balance=:balance, is_admin=:is_admin, modified_on=:modified_on WHERE id=? AND is_del=0`
-	_UserManage_UserProfileByName              = `SELECT u.id, u.username, u.nickname, u.phone, u.status, u.avatar, u.balance, u.is_admin, u.created_on, m.tweets_count FROM @user u LEFT JOIN @user_metric m ON u.id=m.user_id WHERE u.username=? AND u.is_del=0`
+	_UserManage_UserProfileByName              = `SELECT u.id, u.username, u.nickname, u.phone, u.status, u.avatar, u.balance, u.is_admin, u.created_on, CASE WHEN m.tweets_count IS NOT NULL THEN m.tweets_count WHEN m.tweets_count IS NULL THEN 0 END AS tweets_count FROM @user u LEFT JOIN @user_metric m ON u.id=m.user_id WHERE u.username=? AND u.is_del=0`
 	_UserMetrics_AddUserMetric                 = `INSERT INTO @user_metric (user_id, created_on) VALUES (?, ?)`
 	_UserMetrics_DeleteUserMetric              = `UPDATE @user_metric SET is_del=1, deleted_on=? WHERE user_id=? AND is_del=0`
 	_UserMetrics_GetTweetsCount                = `SELECT tweets_count FROM @user_metric WHERE user_id=? AND is_del=0`

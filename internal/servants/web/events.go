@@ -13,6 +13,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/events"
 	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/model/web"
@@ -96,6 +97,20 @@ type trendsActionEvent struct {
 	ds      core.DataService
 	action  uint8
 	userIds []int64
+}
+
+type changeUserEvent struct {
+	*cache.BaseCacheEvent
+	userId   int64
+	username string
+}
+
+func onChangeUsernameEvent(id int64, name string) {
+	events.OnEvent(&changeUserEvent{
+		BaseCacheEvent: cache.NewBaseCacheEvent(_ac),
+		userId:         id,
+		username:       name,
+	})
 }
 
 func onTrendsActionEvent(action uint8, userIds ...int64) {
@@ -321,4 +336,12 @@ func (e *tweetActionEvent) Action() (err error) {
 		// nothing
 	}
 	return
+}
+
+func (e *changeUserEvent) Name() string {
+	return "changeUserEvent"
+}
+
+func (e *changeUserEvent) Action() error {
+	return e.ExpireUserData(e.userId, e.username)
 }

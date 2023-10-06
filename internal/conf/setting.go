@@ -292,6 +292,9 @@ type WebProfileConf struct {
 	AllowTweetVideo           bool   `json:"allow_tweet_video"`
 	AllowUserRegister         bool   `json:"allow_user_register"`
 	AllowPhoneBind            bool   `json:"allow_phone_bind"`
+	DefaultTweetMaxLength     int    `json:"default_tweet_max_length"`
+	TweetWebEllipsisSize      int    `json:"tweet_web_ellipsis_size"`
+	TweetMobileEllipsisSize   int    `json:"tweet_mobile_ellipsis_size"`
 	DefaultTweetVisibility    string `json:"default_tweet_visibility"`
 	DefaultMsgLoopInterval    int    `json:"default_msg_loop_interval"`
 	CopyrightTop              string `json:"copyright_top"`

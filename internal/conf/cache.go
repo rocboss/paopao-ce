@@ -68,7 +68,7 @@ func initCacheKeyPool() {
 	KeyUnreadMsg = intKeyPool[int64](poolSize, PrefixUnreadmsg)
 	KeyOnlineUser = intKeyPool[int64](poolSize, PrefixOnlineUser)
 	KeyUserInfoById = intKeyPool[int64](poolSize, PrefixUserInfoById)
-	KeyUserInfoByName = strKeyPool(poolSize, PrefixUserInfoById)
+	KeyUserInfoByName = strKeyPool(poolSize, PrefixUserInfoByName)
 	KeyUserProfileByName = strKeyPool(poolSize, prefixUserProfileByName)
 	KeyMyFriendIds = intKeyPool[int64](poolSize, PrefixMyFriendIds)
 	KeyMyFollowIds = intKeyPool[int64](poolSize, PrefixMyFollowIds)

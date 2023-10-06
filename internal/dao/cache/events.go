@@ -18,6 +18,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type BaseCacheEvent struct {
+	event.UnimplementedEvent
+	ac core.AppCache
+}
+
 type expireIndexTweetsEvent struct {
 	event.UnimplementedEvent
 	ac          core.AppCache
@@ -68,6 +73,12 @@ type cacheMyFollowIdsEvent struct {
 	userId int64
 	key    string
 	expire int64
+}
+
+func NewBaseCacheEvent(ac core.AppCache) *BaseCacheEvent {
+	return &BaseCacheEvent{
+		ac: ac,
+	}
 }
 
 func OnExpireIndexTweetEvent(userId int64) {
@@ -142,6 +153,35 @@ func OnCacheMyFollowIdsEvent(urs core.UserRelationService, userId int64, key ...
 		ac:     _appCache,
 		expire: conf.CacheSetting.UserRelationExpire,
 	})
+}
+
+func (e *BaseCacheEvent) ExpireUserInfo(id int64, name string) error {
+	keys := make([]string, 0, 2)
+	if id >= 0 {
+		keys = append(keys, conf.KeyUserInfoById.Get(id))
+	}
+	if len(name) > 0 {
+		keys = append(keys, conf.KeyUserInfoByName.Get(name))
+	}
+	return e.ac.Delete(keys...)
+}
+
+func (e *BaseCacheEvent) ExpireUserProfile(name string) error {
+	if len(name) > 0 {
+		return e.ac.Delete(conf.KeyUserProfileByName.Get(name))
+	}
+	return nil
+}
+
+func (e *BaseCacheEvent) ExpireUserData(id int64, name string) error {
+	keys := make([]string, 0, 3)
+	if id >= 0 {
+		keys = append(keys, conf.KeyUserInfoById.Get(id))
+	}
+	if len(name) > 0 {
+		keys = append(keys, conf.KeyUserInfoByName.Get(name), conf.KeyUserProfileByName.Get(name))
+	}
+	return e.ac.Delete(keys...)
 }
 
 func (e *expireIndexTweetsEvent) Name() string {

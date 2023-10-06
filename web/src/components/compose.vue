@@ -171,10 +171,10 @@
                                     :show-indicator="false"
                                     status="success"
                                     :stroke-width="10"
-                                    :percentage="(content.length / defaultTweetMaxLength) * 100"
+                                    :percentage="(content.length / store.state.profile.defaultTweetMaxLength) * 100"
                                 />
                             </template>
-                            {{ content.length }} / {{ defaultTweetMaxLength }}
+                            已输入{{ content.length }}字
                         </n-tooltip>
 
                         <n-button
@@ -317,7 +317,6 @@ const attachmentContents = ref<Item.AttachmentProps[]>([]);
 const visitType = ref<VisibilityEnum>(VisibilityEnum.PUBLIC);
 const defaultVisitType = ref<VisibilityEnum>(VisibilityEnum.PUBLIC)
 
-const defaultTweetMaxLength = Number(import.meta.env.VITE_DEFAULT_TWEET_MAX_LENGTH)
 const allowTweetVisibility = ref(import.meta.env.VITE_ALLOW_TWEET_VISIBILITY.toLowerCase() === 'true')
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 
@@ -405,8 +404,8 @@ const handleSearch = (k: string, prefix: string) => {
     }
 };
 const changeContent = (v: string) => {
-    if (v.length > defaultTweetMaxLength) {
-        content.value = v.substring(0, defaultTweetMaxLength);
+    if (v.length > store.state.profile.defaultTweetMaxLength) {
+        content.value = v.substring(0, store.state.profile.defaultTweetMaxLength);
     } else {
         content.value = v;
     }

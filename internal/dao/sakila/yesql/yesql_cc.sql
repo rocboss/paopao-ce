@@ -1414,7 +1414,10 @@ SELECT u.id,
 	u.balance,
 	u.is_admin,
 	u.created_on,
-	m.tweets_count
+	CASE 		
+		WHEN m.tweets_count IS NOT NULL THEN m.tweets_count
+		WHEN m.tweets_count IS NULL THEN 0
+	END AS tweets_count
 FROM @user u
 LEFT JOIN @user_metric m
 ON u.id=m.user_id
