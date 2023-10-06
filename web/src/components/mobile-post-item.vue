@@ -76,7 +76,7 @@
                         :key="content.id"
                         class="post-text"
                         @click.stop="doClickText($event, post.id)"
-                        v-html="parsePostTag(content.content).content"
+                        v-html="preparePost(content.content, '查看全文', store.state.profile.tweetMobileEllipsisSize)"
                     ></span>
                 </div>
             </template>
@@ -134,7 +134,7 @@ import { useStore } from 'vuex';
 import type { DropdownOption } from 'naive-ui';
 import { useRouter } from 'vue-router';
 import { formatPrettyDate } from '@/utils/formatTime';
-import { parsePostTag } from '@/utils/content';
+import { preparePost } from '@/utils/content';
 import {
     postStar,
     postCollection,
