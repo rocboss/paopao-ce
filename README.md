@@ -288,7 +288,7 @@ make run TAGS='docs'
 ```sh
 cp config.yaml.sample config.yaml
 vim config.yaml # 修改参数
-paopao-ce
+paopao serve
 ```
 
 配置文件中的 `Features` 小节是声明paopao-ce运行时开启哪些功能项:

@@ -56,7 +56,7 @@
 
 ## paopao-ce-plus roadmap
 #### paopao-ce-plus/v0.5.0
-* [ ] adapt for paopao-ce v0.4.0
+* [x] adapt for paopao-ce v0.5.0
 
 #### paopao-ce-plus/v0.4.0
 * [x] adapt for paopao-ce v0.4.0

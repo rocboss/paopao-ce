@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	series = "v0.5.0-rc"
+	series = "v0.5"
 )
 
 var (
@@ -28,7 +28,7 @@ type BuildInfo struct {
 }
 
 func VersionInfo() string {
-	return fmt.Sprintf("paopao %s (build:%s %s)", series, commitID, buildDate)
+	return fmt.Sprintf("paopao %s (build:%s %s)", version, commitID, buildDate)
 }
 
 func ReadBuildInfo() *BuildInfo {
