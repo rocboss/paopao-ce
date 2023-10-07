@@ -91,7 +91,7 @@ func (s *userMetricSrvA) UpdateUserMetric(userId int64, action uint8) (err error
 			tweets_count--
 		}
 	}
-	_, err = s.q.UpdateUserMetric.Exec(userId, tweets_count)
+	_, err = s.q.UpdateUserMetric.Exec(tweets_count, now, now, userId)
 	return
 }
 

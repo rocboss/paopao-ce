@@ -251,7 +251,7 @@ ON r.he_uid=m.user_id
 WHERE r.user_id=? 
 	AND m.is_del=0
 	AND m.tweets_count>0
-ORDER BY r.style ASC
+ORDER BY r.style ASC, m.latest_trends_on DESC
 LIMIT ? OFFSET ?;
 
 -- name: count_index_trends@trends_manager
@@ -1373,7 +1373,9 @@ UPDATE @comment_metric SET is_del=1, deleted_on=? WHERE comment_id=? AND is_del=
 
 -- name: update_user_metric@user_metrics
 -- prepare: stmt
-UPDATE @user_metric SET tweets_count=?, modified_on=? WHERE user_id=? AND is_del=0;
+UPDATE @user_metric 
+SET tweets_count=?, latest_trends_on=?, modified_on=? 
+WHERE user_id=? AND is_del=0;
 
 -- name: get_tweets_count@user_metrics
 -- prepare: stmt
