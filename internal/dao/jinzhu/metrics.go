@@ -5,6 +5,8 @@
 package jinzhu
 
 import (
+	"time"
+
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
@@ -71,6 +73,7 @@ func (s *userMetricSrvA) UpdateUserMetric(userId int64, action uint8) (err error
 			UserId: userId,
 		}
 	}
+	metric.LatestTrendsOn = time.Now().Unix()
 	switch action {
 	case cs.MetricActionCreateTweet:
 		metric.TweetsCount++
