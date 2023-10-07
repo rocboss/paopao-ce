@@ -98,7 +98,7 @@ const (
 	_SimpleIndex_Index                         = `SELECT * FROM @post WHERE visibility=90 ORDER BY is_top DESC, latest_replied_on DESC LIMIT ? OFFSET ?`
 	_SimpleIndex_IndexCount                    = `SELECT count(*) FROM @post WHERE visibility=90`
 	_TrendsManager_CountIndexTrends            = `SELECT count(*) FROM @user_relation r JOIN @user u ON r.he_uid=u.id JOIN @user_metric m ON r.he_uid=m.user_id WHERE r.user_id=? AND m.is_del=0 AND m.tweets_count>0`
-	_TrendsManager_GetIndexTrends              = `SELECT u.username username, u.nickname nickname, u.avatar avatar FROM @user_relation r JOIN @user u ON r.he_uid=u.id JOIN @user_metric m ON r.he_uid=m.user_id WHERE r.user_id=? AND m.is_del=0 AND m.tweets_count>0 ORDER BY r.style ASC LIMIT ? OFFSET ?`
+	_TrendsManager_GetIndexTrends              = `SELECT u.username username, u.nickname nickname, u.avatar avatar FROM @user_relation r JOIN @user u ON r.he_uid=u.id JOIN @user_metric m ON r.he_uid=m.user_id WHERE r.user_id=? AND m.is_del=0 AND m.tweets_count>0 ORDER BY r.style ASC, m.latest_trends_on DESC LIMIT ? OFFSET ?`
 	_Tweet_CountFollowingTweets                = `SELECT count(*) FROM @post WHERE user_id=? AND is_del=0`
 	_Tweet_CountFollowingTweetsFollow          = `SELECT count(*) FROM @post WHERE (user_id=? OR (visibility>=60 AND user_id IN(?))) AND is_del=0`
 	_Tweet_CountFollowingTweetsFriend          = `SELECT count(*) FROM @post WHERE (user_id=? OR (visibility>=50 AND user_id IN(?))) AND is_del=0`
@@ -191,7 +191,7 @@ const (
 	_UserMetrics_AddUserMetric                 = `INSERT INTO @user_metric (user_id, created_on) VALUES (?, ?)`
 	_UserMetrics_DeleteUserMetric              = `UPDATE @user_metric SET is_del=1, deleted_on=? WHERE user_id=? AND is_del=0`
 	_UserMetrics_GetTweetsCount                = `SELECT tweets_count FROM @user_metric WHERE user_id=? AND is_del=0`
-	_UserMetrics_UpdateUserMetric              = `UPDATE @user_metric SET tweets_count=?, modified_on=? WHERE user_id=? AND is_del=0`
+	_UserMetrics_UpdateUserMetric              = `UPDATE @user_metric SET tweets_count=?, latest_trends_on=?, modified_on=? WHERE user_id=? AND is_del=0`
 	_UserRelation_MyFollowIds                  = `SELECT follow_id FROM @following WHERE user_id=? AND is_del=0`
 	_UserRelation_MyFriendIds                  = `SELECT friend_id FROM @contact WHERE user_id=? AND status=2 AND is_del=0`
 	_Wallet_AddUserBalance                     = `UPDATE @user SET balance=balance+?, modified_on=? WHERE id=? AND is_del=0`
