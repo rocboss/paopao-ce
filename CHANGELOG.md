@@ -173,6 +173,9 @@ All notable changes to paopao-ce are documented in this file.
     AllowTweetVideo: true            # 是否允许视频推文
     AllowUserRegister: true          # 是否允许用户注册
     AllowPhoneBind: true             # 是否允许手机绑定
+    DefaultTweetMaxLength: 2000      # 推文允许输入的最大长度， 默认2000字，值的范围需要查询后端支持的最大字数
+    TweetWebEllipsisSize: 400        # Web端推文作为feed显示的最长字数，默认400字
+    TweetMobileEllipsisSize: 300     # 移动端推文作为feed显示的最长字数，默认300字
     DefaultTweetVisibility: friend   # 推文可见性，默认好友可见 值: public/following/friend/private
     DefaultMsgLoopInterval: 5000     # 拉取未读消息的间隔，单位：毫秒, 默认5000ms 
     CopyrightTop: "2023 paopao.info"
