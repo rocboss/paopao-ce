@@ -63,6 +63,17 @@ type loggerMeiliConf struct {
 	MinWorker    int
 }
 
+type loggerOpenObserveConf struct {
+	Host         string
+	Organization string
+	Stream       string
+	User         string
+	Password     string
+	Secure       bool
+	MaxLogBuffer int
+	MinWorker    int
+}
+
 type httpServerConf struct {
 	RunMode      string
 	HttpIp       string
@@ -79,10 +90,48 @@ type grpcServerConf struct {
 type appConf struct {
 	RunMode               string
 	MaxCommentCount       int64
+	MaxWhisperDaily       int64
+	MaxCaptchaTimes       int
 	AttachmentIncomeRate  float64
 	DefaultContextTimeout time.Duration
 	DefaultPageSize       int
 	MaxPageSize           int
+}
+
+type cacheConf struct {
+	KeyPoolSize          int
+	CientSideCacheExpire time.Duration
+	UnreadMsgExpire      int64
+	UserTweetsExpire     int64
+	IndexTweetsExpire    int64
+	MessagesExpire       int64
+	IndexTrendsExpire    int64
+	TweetCommentsExpire  int64
+	OnlineUserExpire     int64
+	UserInfoExpire       int64
+	UserProfileExpire    int64
+	UserRelationExpire   int64
+}
+
+type eventManagerConf struct {
+	MinWorker       int
+	MaxEventBuf     int
+	MaxTempEventBuf int
+	MaxTickCount    int
+	TickWaitTime    time.Duration
+}
+
+type metricManagerConf struct {
+	MinWorker       int
+	MaxEventBuf     int
+	MaxTempEventBuf int
+	MaxTickCount    int
+	TickWaitTime    time.Duration
+}
+
+type jobManagerConf struct {
+	MaxOnlineInterval     string
+	UpdateMetricsInterval string
 }
 
 type cacheIndexConf struct {
@@ -234,6 +283,27 @@ type jwtConf struct {
 	Expire time.Duration
 }
 
+type WebProfileConf struct {
+	UseFriendship             bool   `json:"use_friendship"`
+	EnableTrendsBar           bool   `json:"enable_trends_bar"`
+	EnableWallet              bool   `json:"enable_wallet"`
+	AllowTweetAttachment      bool   `json:"allow_tweet_attachment"`
+	AllowTweetAttachmentPrice bool   `json:"allow_tweet_attachment_price"`
+	AllowTweetVideo           bool   `json:"allow_tweet_video"`
+	AllowUserRegister         bool   `json:"allow_user_register"`
+	AllowPhoneBind            bool   `json:"allow_phone_bind"`
+	DefaultTweetMaxLength     int    `json:"default_tweet_max_length"`
+	TweetWebEllipsisSize      int    `json:"tweet_web_ellipsis_size"`
+	TweetMobileEllipsisSize   int    `json:"tweet_mobile_ellipsis_size"`
+	DefaultTweetVisibility    string `json:"default_tweet_visibility"`
+	DefaultMsgLoopInterval    int    `json:"default_msg_loop_interval"`
+	CopyrightTop              string `json:"copyright_top"`
+	CopyrightLeft             string `json:"copyright_left"`
+	CopyrightLeftLink         string `json:"copyright_left_link"`
+	CopyrightRight            string `json:"copyright_right"`
+	CopyrightRightLink        string `json:"copyright_right_link"`
+}
+
 func (s *httpServerConf) GetReadTimeout() time.Duration {
 	return s.ReadTimeout * time.Second
 }
@@ -303,6 +373,7 @@ func (s *databaseConf) TableNames() (res TableNameMap) {
 		TableAttachment,
 		TableCaptcha,
 		TableComment,
+		TableCommentMetric,
 		TableCommentContent,
 		TableCommentReply,
 		TableFollowing,
@@ -310,6 +381,7 @@ func (s *databaseConf) TableNames() (res TableNameMap) {
 		TableContactGroup,
 		TableMessage,
 		TablePost,
+		TablePostMetric,
 		TablePostByComment,
 		TablePostByMedia,
 		TablePostAttachmentBill,
@@ -318,6 +390,8 @@ func (s *databaseConf) TableNames() (res TableNameMap) {
 		TablePostStar,
 		TableTag,
 		TableUser,
+		TableUserRelation,
+		TableUserMetric,
 		TableWalletRecharge,
 		TableWalletStatement,
 	}

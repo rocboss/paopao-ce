@@ -41,6 +41,10 @@ declare module NetReq {
     count: number;
   }
 
+  interface ReadMessageResp {}
+
+  interface ReadAllMessageResp {}
+
   interface UserGetMessages {
     /** 消息列表 */
     list: Item.MessageProps[];
@@ -85,6 +89,13 @@ declare module NetReq {
   interface UserChangePassword {}
 
   interface UserChangeStatus {}
+
+  interface SiteInfoResp {
+    register_user_count: number;
+    online_user_count: number;
+    history_max_online: number;
+    server_up_time: number;
+  }
 
   interface FollowUserResp {}
 
@@ -167,6 +178,10 @@ declare module NetReq {
 
   interface PostDeleteComment {}
 
+  interface PostHighlightComment {
+    highlight_status: import("@/utils/IEnum").YesNoEnum;
+  }
+
   type PostCreateCommentReply = Item.ReplyProps;
 
   interface PostDeleteCommentReply {}
@@ -178,6 +193,11 @@ declare module NetReq {
     pager: Item.PagerProps;
   }
 
+  interface IndexTrendsResp {
+    list: Item.IndexTrendsItem[];
+    pager: Item.PagerProps;
+  }
+
   interface PostStickTopic {
     /** 置顶状态：0为未置顶，1为置顶 */
     top_status: 0 | 1;
@@ -186,4 +206,24 @@ declare module NetReq {
   interface PostFollowTopic {}
 
   interface PostUnfollowTopic {}
+
+  interface SiteProfile {
+    use_friendship?: boolean;
+    enable_trends_bar?: boolean;
+    enable_wallet?: boolean;
+    allow_tweet_attachment?: boolean;
+    allow_tweet_attachment_price?: boolean;
+    allow_tweet_video?: boolean;
+    allow_user_register?: boolean;
+    allow_phone_bind?: boolean;
+    default_tweet_max_length?: number;
+    default_tweet_ellipsis_size?: number;
+    default_tweet_visibility?: string;
+    default_msg_loop_interval?: number;
+    copyright_top?: string;
+    copyright_left?: string;
+    copyright_left_link?: string;
+    copyright_right?: string;
+    copyright_right_link?: string;
+  }
 }

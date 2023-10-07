@@ -34,7 +34,7 @@
                             </template>
                         </n-button>
                     </template>
-                    是否确认删除？
+                    是否删除这条回复？
                 </n-popconfirm>
             </div>
         </div>

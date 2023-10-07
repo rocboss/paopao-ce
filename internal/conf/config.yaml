@@ -2,9 +2,39 @@ App: # APP基础设置项
   RunMode: debug
   AttachmentIncomeRate: 0.8
   MaxCommentCount: 1000
+  MaxWhisperDaily: 1000       # 一天可以发送的最大私信总数，临时措施，后续将去掉这个限制
+  MaxCaptchaTimes: 2          # 最大获取captcha的次数
   DefaultContextTimeout: 60
   DefaultPageSize: 10
   MaxPageSize: 100
+Cache:
+  KeyPoolSize: 256            # 键的池大小， 设置范围[128, ++], 默认256
+  CientSideCacheExpire: 60    # 客户端缓存过期时间 默认60s
+  UnreadMsgExpire: 60         # 未读消息过期时间，单位秒， 默认60s
+  UserTweetsExpire: 60        # 获取用户推文列表过期时间，单位秒， 默认60s
+  IndexTweetsExpire: 120      # 获取广场推文列表过期时间，单位秒， 默认120s
+  TweetCommentsExpire: 120    # 获取推文评论过期时间，单位秒， 默认120s
+  IndexTrendsExpire: 120      # 获取广场动态信息过期时间，单位秒， 默认120s
+  OnlineUserExpire: 300       # 标记在线用户 过期时间，单位秒， 默认300s
+  UserInfoExpire: 120         # 获取用户信息过期时间，单位秒， 默认120s
+  UserProfileExpire: 120      # 获取用户概要过期时间，单位秒， 默认120s
+  UserRelationExpire: 120     # 用户关系信息过期时间，单位秒， 默认120s
+  MessagesExpire: 60          # 消息列表过期时间，单位秒， 默认60s
+EventManager: # 事件管理器的配置参数
+  MinWorker: 64               # 最小后台工作者, 设置范围[5, ++], 默认64
+  MaxEventBuf: 128            # 最大log缓存条数, 设置范围[10, ++], 默认128
+  MaxTempEventBuf: 256        # 最大log缓存条数, 设置范围[10, ++], 默认256
+  MaxTickCount: 60            # 最大的循环周期, 设置范围[60, ++], 默认60
+  TickWaitTime: 1             # 一个周期的等待时间，单位：秒 默认1s
+MetricManager: # 指标监控管理器的配置参数
+  MinWorker: 32               # 最小后台工作者, 设置范围[5, ++], 默认32
+  MaxEventBuf: 128            # 最大log缓存条数, 设置范围[10, ++], 默认128
+  MaxTempEventBuf: 256        # 最大log缓存条数, 设置范围[10, ++], 默认256
+  MaxTickCount: 60            # 最大的循环周期, 设置范围[60, ++], 默认60
+  TickWaitTime: 1             # 一个周期的等待时间，单位：秒 默认1s
+JobManager: # Cron Job理器的配置参数
+  MaxOnlineInterval: "@every 5m"       # 更新最大在线人数，默认每5分钟更新一次
+  UpdateMetricsInterval: "@every 5m"   # 更新Prometheus指标，默认每5分钟更新一次
 Features:
   Default: []
 WebServer: # Web服务
@@ -43,6 +73,12 @@ PprofServer: # Pprof服务
   HttpPort: 6060
   ReadTimeout: 60
   WriteTimeout: 60
+MetricsServer: # Prometheus Metrics服务
+  RunMode: debug
+  HttpIp: 0.0.0.0
+  HttpPort: 6080
+  ReadTimeout: 60
+  WriteTimeout: 60
 FrontendWebServer: # Web前端静态资源服务
   RunMode: debug
   HttpIp: 0.0.0.0
@@ -64,8 +100,9 @@ SmsJuhe:
   TplID:
   TplVal: "#code#=%s&#m#=%d"
 Alipay: 
-  AppID:
+  AppID: "paopao-ce-app-id"
   InProduction: True
+  PrivateKey: "MIICXAIBAAKBgQCzXV/spaX9+eOjM5f12W6eDTtszU9f9rgpXG4EQwzZI3WM5+Fe+9Bn6NQQILfF1o3Z+3BEzHMMcYwxrQw/toq2o6JPchbUK7eArKc6pl/GV3uIefZdKncz5bZvCFMgiJrpy75lYKhJgotQFEfQd+ks2t0gtC007uOjmY9QDB2EVQIDAQABAoGAMruhi0UbW2gYHCxWuiJDKI9jlJXJ8sHNO126fJgehTiDYlSgKYaeXxW7DcjDUkEqpFJ7YepWTFm9prtksIzIVQFNNjstI6cvowVF2t+lWf7mIB4w0ugarVd+SXssQK830Og3kjtZ84a3BbC6uf3a/qcgoIO8Sj1VnzOJ8fEYl+0CQQDeG6JhauGDOC8oCTwbFs9QPpjwGnp7UkYAJNg7jn4uBSVeg4lwb5uj9TshLSp49geNkPcWeCythuiz1jvoTqEjAkEAzrwIBxUPT1WmcDUXAkVPaQNADDbhMZLdw5nHZEUVwmO3o1FkJky4MLjLjT977400mhsnsQCy4sAWUZs6aEyoJwJARK3U2zy6eOHhqwaYAGRgPJbuoaf+Ya3CGX9LIbdhCwfqUzxnPk40mVFWNF8L+BVTppHB5b/JSOsjf6BqK95McwJBAL+kvUhbdHrV6lmgTXkUaV3u3mO0SCPdgui9WIKSLG6sY+LpI48BlcnMtR12WVyjKL0nKS9Dd5EOAmKaJJXlYgcCQGWbWCn9KUDUqpm4o3wr5nwXzlS74XYZo65UAM7TSzHRpcovfv5uiQ0VRLImWeiSXKK2aTOBGn5eKbevRTxN07k="
   RootCertFile: "custom/alipay/RootCert.crt"
   PublicCertFile: "custom/alipay/CertPublicKey_RSA2.crt"
   AppPublicCertFile: "custom/alipay/AppCertPublicKey.crt" 
@@ -111,6 +148,15 @@ LoggerMeili: # 使用Meili写日志
   Host: meili:7700
   Index: paopao-log
   ApiKey: paopao-meilisearch
+  Secure: False
+  MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
+  MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
+LoggerOpenObserve: # 使用OpenObserve写日志
+  Host: 127.0.0.1:5080
+  Organization: paopao-ce
+  Stream: default
+  User: root@paopao.info
+  Password: tiFEI8UeJWuYA7kN
   Secure: False
   MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
   MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
@@ -202,4 +248,22 @@ Redis:
   Password:
   SelectDB:
   ConnWriteTimeout: 60   # 连接写超时时间 多少秒 默认 60秒
-  
+WebProfile:
+  UseFriendship: true              # 前端是否使用好友体系
+  EnableTrendsBar: true            # 广场页面是否开启动态条栏功能
+  EnableWallet: false              # 是否开启钱包功能
+  AllowTweetAttachment: true       # 是否允许推文附件
+  AllowTweetAttachmentPrice: true  # 是否允许推文付费附件
+  AllowTweetVideo: true            # 是否允许视频推文
+  AllowUserRegister: true          # 是否允许用户注册
+  AllowPhoneBind: true             # 是否允许手机绑定
+  DefaultTweetMaxLength: 2000      # 推文允许输入的最大长度， 默认2000字，值的范围需要查询后端支持的最大字数
+  TweetWebEllipsisSize: 400        # Web端推文作为feed显示的最长字数，默认400字
+  TweetMobileEllipsisSize: 300     # 移动端推文作为feed显示的最长字数，默认300字
+  DefaultTweetVisibility: friend   # 推文默认可见性，默认好友可见 值: public/following/friend/private
+  DefaultMsgLoopInterval: 5000     # 拉取未读消息的间隔，单位：毫秒, 默认5000ms 
+  CopyrightTop: "2023 paopao.info"
+  CopyrightLeft: "Roc's Me"
+  CopyrightLeftLink: ""
+  CopyrightRight: "泡泡(PaoPao)开源社区"
+  CopyrightRightLink: "https://www.paopao.info"

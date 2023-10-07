@@ -101,11 +101,11 @@
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现   
-* `BigCacheIndex` 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(推荐使用)；  
+* `BigCacheIndex` 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(目前状态: Deprecated)；  
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现 
-* `RedisCacheIndex` 使用Redis缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(目前状态: 推荐使用)；  
+* `RedisCacheIndex` 使用Redis缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面(目前状态: Deprecated)；  
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现 
@@ -134,6 +134,10 @@
     * [x] 接口定义
     * [x] 业务逻辑实现  
 * `LoggerMeili` 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志(目前状态: 内测阶段);  
+    * [ ] 提按文档  
+    * [x] 接口定义
+    * [x] 业务逻辑实现 
+* `LoggerOpenObserve` 使用[OpenObserve](https://github.com/openobserve/openobserve)写日志(目前状态: 内测阶段);  
     * [ ] 提按文档  
     * [x] 接口定义
     * [x] 业务逻辑实现 
@@ -192,7 +196,17 @@
 * `PhoneBind` 手机绑定功能； 
     * [ ] 提按文档  
     * [x] 接口定义
-    * [x] 业务逻辑实现    
+    * [x] 业务逻辑实现  
+
+* `UseAuditHook` 使用审核hook功能 (目前状态: 内测 待完善后将转为Builtin)
+    * [ ] 提按文档  
+    * [x] 接口定义
+    * [x] 业务逻辑实现  
+
+* `DisableJobManager` 禁止使用JobManager功能 (目前状态: 内测 待完善后将转为Builtin)
+    * [ ] 提按文档  
+    * [x] 接口定义
+    * [x] 业务逻辑实现  
 
 ### 功能特性:
 * `Web:DisallowUserRegister` 不允许用户注册；       

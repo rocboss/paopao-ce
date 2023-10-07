@@ -25,10 +25,10 @@ const (
 )
 
 const (
-	PostVisitPublic PostVisibleT = iota
-	PostVisitPrivate
-	PostVisitFriend
-	PostVisitInvalid
+	PostVisitPublic    = dbr.PostVisitPublic
+	PostVisitPrivate   = dbr.PostVisitPrivate
+	PostVisitFriend    = dbr.PostVisitFriend
+	PostVisitFollowing = dbr.PostVisitFollowing
 )
 
 type (

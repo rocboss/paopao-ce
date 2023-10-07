@@ -52,15 +52,30 @@
                         {{ post.ip_loc ? post.ip_loc + ' · ' : post.ip_loc }}
                         {{ formatPrettyDate(post.created_on) }}
                     </span>
+                    <n-dropdown
+                        placement="bottom-end"
+                        trigger="hover"
+                        size="small"
+                        :options="tweetOptions"
+                        @select="handleTweetAction"
+                    >
+                        <n-button quaternary circle>
+                            <template #icon>
+                                <n-icon>
+                                    <more-horiz-filled />
+                                </n-icon>
+                            </template>
+                        </n-button>
+                    </n-dropdown>
                 </div>
             </template>
             <template #description v-if="post.texts.length > 0">
                 <span
                     v-for="content in post.texts"
                     :key="content.id"
-                    class="post-text"
+                    class="post-text hover"
                     @click.stop="doClickText($event, post.id)"
-                    v-html="parsePostTag(content.content).content"
+                    v-html="preparePost(content.content, '查看全文', store.state.profile.tweetWebEllipsisSize)"
                 ></span>
             </template>
 
@@ -85,19 +100,19 @@
             </template>
             <template #action>
                 <n-space justify="space-between">
-                    <div class="opt-item">
+                    <div class="opt-item hover" @click.stop="handlePostStar">
                         <n-icon size="18" class="opt-item-icon">
                             <heart-outline />
                         </n-icon>
                         {{ post.upvote_count }}
                     </div>
-                    <div class="opt-item" @click.stop="goPostDetail(post.id)">
+                    <div class="opt-item hover" @click.stop="goPostDetail(post.id)">
                         <n-icon size="18" class="opt-item-icon">
                             <chatbox-outline />
                         </n-icon>
                         {{ post.comment_count }}
                     </div>
-                    <div class="opt-item">
+                    <div class="opt-item hover" @click.stop="handlePostCollection">
                         <n-icon size="18" class="opt-item-icon">
                             <bookmark-outline />
                         </n-icon>
@@ -110,57 +125,208 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { h, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { NIcon } from 'naive-ui'
+import type { Component } from 'vue'
+import type { DropdownOption } from 'naive-ui';
 import { formatPrettyDate } from '@/utils/formatTime';
-import { parsePostTag } from '@/utils/content';
+import { preparePost } from '@/utils/content';
 import {
+    postStar,
+    postCollection,
+} from '@/api/post';
+import {
+    PaperPlaneOutline,
     HeartOutline,
     BookmarkOutline,
     ChatboxOutline,
+    ShareSocialOutline,
+    PersonAddOutline,
+    PersonRemoveOutline,
+    BodyOutline,
+    WalkOutline,
 } from '@vicons/ionicons5';
+import { MoreHorizFilled } from '@vicons/material';
+import copy from "copy-to-clipboard";
 
 const router = useRouter();
 const store = useStore();
 const props = withDefaults(defineProps<{
     post: Item.PostProps,
+    isOwner: boolean,
+    addFriendAction: boolean,
+    addFollowAction: boolean,
 }>(), {});
 
-const post = computed(() => {
-    let post: Item.PostComponentProps = Object.assign(
-        {
-            texts: [],
-            imgs: [],
-            videos: [],
-            links: [],
-            attachments: [],
-            charge_attachments: [],
-        },
-        props.post
-    );
-    post.contents.map((content) => {
-        if (+content.type === 1 || +content.type === 2) {
-            post.texts.push(content);
+const emit = defineEmits<{
+    (e: 'send-whisper', user: Item.UserInfo): void
+    (e: 'handle-follow-action', user: Item.PostProps): void
+    (e: 'handle-friend-action', user: Item.PostProps): void
+}>();
+
+const renderIcon = (icon: Component) => {
+  return () => {
+    return h(NIcon, null, {
+      default: () => h(icon)
+    })
+  }
+};
+
+const tweetOptions = computed(() => {
+    let options: DropdownOption[] = [];
+    if (!props.isOwner) {
+        options.push({
+            label: '私信',
+            key: 'whisper',
+            icon: renderIcon(PaperPlaneOutline)
+        });
+    }
+    if (!props.isOwner && props.addFollowAction) {
+        if (props.post.user.is_following) {
+            options.push({
+                label: '取消关注',
+                key: 'unfollow',
+                icon: renderIcon(WalkOutline)
+            })
+        } else {
+            options.push({
+                label: '关注',
+                key: 'follow',
+                icon: renderIcon(BodyOutline)
+            })
         }
-        if (+content.type === 3) {
-            post.imgs.push(content);
+    }
+    if (!props.isOwner && props.addFriendAction) {
+        if (props.post.user.is_friend) {
+            options.push({
+                label: '删除好友',
+                key: 'delete',
+                icon: renderIcon(PersonRemoveOutline)
+            });
+        } else {
+            options.push({
+                label: '添加朋友',
+                key: 'requesting',
+                icon: renderIcon(PersonAddOutline)
+            });
         }
-        if (+content.type === 4) {
-            post.videos.push(content);
-        }
-        if (+content.type === 6) {
-            post.links.push(content);
-        }
-        if (+content.type === 7) {
-            post.attachments.push(content);
-        }
-        if (+content.type === 8) {
-            post.charge_attachments.push(content);
-        }
+    }
+    options.push({
+        label: '复制链接',
+        key: 'copyTweetLink',
+        icon: renderIcon(ShareSocialOutline),
     });
-    return post;
+    return options;
 });
+
+const handleTweetAction = async (
+    item: 'copyTweetLink' | 'whisper' | 'follow' | 'unfollow' | 'delete' | 'requesting'
+) => {
+    switch (item) {
+        case 'copyTweetLink':
+            copy(`${window.location.origin}/#/post?id=${post.value.id}&share=copy_link&t=${new Date().getTime()}`);
+            window.$message.success('链接已复制到剪贴板');
+            break;
+        case 'whisper':
+            emit('send-whisper', props.post.user);
+            break;
+        case 'delete':
+        case 'requesting':
+            emit('handle-friend-action', props.post);
+            break;
+        case 'follow':
+        case 'unfollow':
+            emit('handle-follow-action', props.post);
+            break;
+        default:
+            break;
+    }
+};
+
+const post = computed({
+    get: () => {
+        let post: Item.PostComponentProps = Object.assign(
+            {
+                texts: [],
+                imgs: [],
+                videos: [],
+                links: [],
+                attachments: [],
+                charge_attachments: [],
+            },
+            props.post
+        );
+        post.contents.map((content) => {
+            if (+content.type === 1 || +content.type === 2) {
+                post.texts.push(content);
+            }
+            if (+content.type === 3) {
+                post.imgs.push(content);
+            }
+            if (+content.type === 4) {
+                post.videos.push(content);
+            }
+            if (+content.type === 6) {
+                post.links.push(content);
+            }
+            if (+content.type === 7) {
+                post.attachments.push(content);
+            }
+            if (+content.type === 8) {
+                post.charge_attachments.push(content);
+            }
+        });
+        return post;
+    },
+    set: (newVal) => {
+        props.post.upvote_count = newVal.upvote_count;
+        props.post.collection_count = newVal.collection_count;
+    },
+});
+const handlePostStar = () => {
+    postStar({
+        id: post.value.id,
+    })
+        .then((res) => {
+            if (res.status) {
+                post.value = {
+                    ...post.value,
+                    upvote_count: post.value.upvote_count + 1,
+                };
+            } else {
+                post.value = {
+                    ...post.value,
+                    upvote_count: post.value.upvote_count > 0 ? post.value.upvote_count - 1 : 0,
+                };
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
+const handlePostCollection = () => {
+    postCollection({
+        id: post.value.id,
+    })
+        .then((res) => {
+            if (res.status) {
+                post.value = {
+                    ...post.value,
+                    collection_count: post.value.collection_count + 1,
+                };
+            } else {
+                post.value = {
+                    ...post.value,
+                    collection_count: post.value.collection_count > 0 ? post.value.collection_count - 1 : 0,
+                };
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
 const goPostDetail = (id: number) => {
     router.push({
         name: 'post',
@@ -170,8 +336,9 @@ const goPostDetail = (id: number) => {
     });
 };
 const doClickText = (e: MouseEvent, id: number) => {
-    if ((e.target as any).dataset.detail) {
-        const d = (e.target as any).dataset.detail.split(':');
+    const detail = (e.target as any).dataset.detail
+    if (detail && detail !== 'post') {
+        const d = detail.split(':');
         if (d.length === 2) {
             store.commit('refresh');
             if (d[0] === 'tag') {
@@ -237,9 +404,13 @@ const doClickText = (e: MouseEvent, id: number) => {
             margin-right: 10px;
         }
     }
+    
     &:hover {
         background: #f7f9f9;
-        cursor: pointer;
+    }
+    
+    &.hover {
+                cursor: pointer;
     }
 
     .n-thing-avatar {

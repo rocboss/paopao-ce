@@ -8,7 +8,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/getsentry/sentry-go"
 	sentrylogrus "github.com/getsentry/sentry-go/logrus"
 	"github.com/sirupsen/logrus"
@@ -28,7 +28,7 @@ func setupLogger() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.SetLevel(loggerSetting.logLevel())
 
-	cfg.In(cfg.Actions{
+	cfg.On(cfg.Actions{
 		"LoggerFile": func() {
 			out := newFileLogger()
 			logrus.SetOutput(out)
@@ -40,6 +40,11 @@ func setupLogger() {
 		},
 		"LoggerMeili": func() {
 			hook := newMeiliLogHook()
+			logrus.SetOutput(io.Discard)
+			logrus.AddHook(hook)
+		},
+		"LoggerOpenObserve": func() {
+			hook := newObserveLogHook()
 			logrus.SetOutput(io.Discard)
 			logrus.AddHook(hook)
 		},

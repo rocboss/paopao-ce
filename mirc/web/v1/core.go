@@ -21,14 +21,14 @@ type Core struct {
 	// GetUserInfo 获取当前用户信息
 	GetUserInfo func(Get, web.UserInfoReq) web.UserInfoResp `mir:"/user/info"`
 
-	// GetUnreadMsgCount 获取当前用户未读消息数量
-	GetUnreadMsgCount func(Get, web.GetUnreadMsgCountReq) web.GetUnreadMsgCountResp `mir:"/user/msgcount/unread"`
-
 	// GetMessages 获取消息列表
 	GetMessages func(Get, web.GetMessagesReq) web.GetMessagesResp `mir:"/user/messages"`
 
-	// ReadMessage 标记消息已读
+	// ReadMessage 标记未读消息已读
 	ReadMessage func(Post, web.ReadMessageReq) `mir:"/user/message/read"`
+
+	// ReadAllMessage 标记所有未读消息已读
+	ReadAllMessage func(Post, web.ReadAllMessageReq) `mir:"/user/message/readall"`
 
 	// SendUserWhisper 发送用户私信
 	SendUserWhisper func(Post, web.SendWhisperReq) `mir:"/user/whisper"`

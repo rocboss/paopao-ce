@@ -4,7 +4,10 @@
 
 package core
 
-import "github.com/rocboss/paopao-ce/internal/core/ms"
+import (
+	"github.com/rocboss/paopao-ce/internal/core/cs"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+)
 
 // UserManageService 用户管理服务
 type UserManageService interface {
@@ -13,8 +16,10 @@ type UserManageService interface {
 	GetUserByPhone(phone string) (*ms.User, error)
 	GetUsersByIDs(ids []int64) ([]*ms.User, error)
 	GetUsersByKeyword(keyword string) ([]*ms.User, error)
+	UserProfileByName(username string) (*cs.UserProfile, error)
 	CreateUser(user *ms.User) (*ms.User, error)
 	UpdateUser(user *ms.User) error
+	GetRegisterUserCount() (int64, error)
 }
 
 // ContactManageService 联系人管理服务
@@ -35,4 +40,12 @@ type FollowingManageService interface {
 	ListFollowings(userId int64, limit, offset int) (*ms.ContactList, error)
 	GetFollowCount(userId int64) (int64, int64, error)
 	IsFollow(userId int64, followId int64) bool
+}
+
+// UserRelationService 用户关系服务
+type UserRelationService interface {
+	MyFriendIds(userId int64) ([]int64, error)
+	MyFollowIds(userId int64) ([]int64, error)
+	IsMyFriend(userId int64, friendIds ...int64) (map[int64]bool, error)
+	IsMyFollow(userId int64, followIds ...int64) (map[int64]bool, error)
 }

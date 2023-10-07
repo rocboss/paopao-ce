@@ -1,7 +1,198 @@
 # Changelog
 
 All notable changes to paopao-ce are documented in this file.
-## 0.5.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+## 0.6.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+TODO;
+
+## 0.5.0
+### Added
+- add `LoggerOpenObserve` feature use OpenObserve to collect log.[#370](https://github.com/rocboss/paopao-ce/pull/370)    
+  add `LoggerOpenObserve` to `conf.yaml` 's `Features` section to enable this feature like below:
+  ```yaml
+  # file config.yaml
+  ...
+  Features:
+    Default: ["Base", "Postgres", "Meili", "LocalOSS", "LoggerOpenObserve", "BigCacheIndex", "web"]
+  LoggerOpenObserve: # 使用OpenObserve写日志
+  Host: 127.0.0.1:5080
+  Organization: paopao-ce
+  Stream: default
+  User: root@paopao.info
+  Password: tiFEI8UeJWuYA7kN
+  Secure: False
+  MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
+  MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
+  ...
+  ```
+- Added friend tweets bar feature support in home page. [#377](https://github.com/rocboss/paopao-ce/pull/377)    
+- web: add custom `Friendship` feature support. To custom setup `Friendship` use below configure in `web/.env` or `web/.env.local`
+  ```
+  # 功能特性开启
+  VITE_USE_FRIENDSHIP=true
+
+  # 模块开启
+  VITE_ENABLE_FRIENDS_BAR=true
+  ```
+- add Newest/Hots/Following tweets support in friend bar feature. 
+  mirgration database first(sql ddl file in `scripts/migration/**/*_home_timeline.up.sql`):
+    ```sql
+    CREATE TABLE `p_post_metric` (
+	  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+	  `post_id` bigint unsigned NOT NULL,
+	  `rank_score` bigint unsigned NOT NULL DEFAULT 0,
+	  `incentive_score` int unsigned NOT NULL DEFAULT 0,
+	  `decay_factor` int unsigned NOT NULL DEFAULT 0,
+	  `motivation_factor` int unsigned NOT NULL DEFAULT 0,
+	  `is_del` tinyint NOT NULL DEFAULT 0, -- 是否删除, 0否, 1是
+	  `created_on` bigint unsigned NOT NULL DEFAULT '0',
+	  `modified_on` bigint unsigned NOT NULL DEFAULT '0',
+	  `deleted_on` bigint unsigned NOT NULL DEFAULT '0',
+	  PRIMARY KEY (`id`) USING BTREE,
+	  KEY `idx_post_metric_post_id_rank_score` (`post_id`,`rank_score`) USING BTREE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    INSERT INTO p_post_metric (post_id, rank_score, created_on) 
+    SELECT id AS post_id, 
+	    comment_count + upvote_count*2 + collection_count*4 AS rank_score,
+	    created_on
+    FROM p_post
+    WHERE is_del=0;
+
+    -- 原来的可见性: 0公开 1私密 2好友可见 3关注可见
+    -- 现在的可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开
+    UPDATE p_post a, p_post b 
+    SET a.visibility = (
+	    CASE b.visibility 
+		    WHEN 0 THEN 90 
+		    WHEN 1 THEN 0 
+		    WHEN 2 THEN 50 
+		    WHEN 3 THEN 60 
+		    ELSE 0
+	    END 
+    )
+    WHERE a.ID = b.ID;
+    ```
+- add cache support for index/home etc. page.
+- add hots comments support for post detail page.
+- add highlight comments support for post detail page.
+    mirgration database first(sql ddl file in `scripts/migration/**/*_comment_esence.up.sql`):
+    ```sql
+      ALTER TABLE `p_comment` ADD COLUMN `is_essence` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否精选';
+    ```
+- add follow/unfollow user support in index/home/collecion/message/post page.
+- add simple prometheus metrics support.
+    add `Metrics` to `conf.yaml` 's `Features` section to enable this feature like below:
+    ```yaml
+    # file config.yaml
+    ...
+    Features:
+      Default: ["Base", "Postgres", "Meili", "LocalOSS", "Metrics", "web"]
+    JobManager: # Cron Job理器的配置参数
+      MaxOnlineInterval: "@every 5m"       # 更新最大在线人数，默认每5分钟更新一次
+      UpdateMetricsInterval: "@every 5m"   # 更新Prometheus指标，默认每5分钟更新一次
+    MetricsServer: # Prometheus Metrics服务
+      RunMode: debug
+      HttpIp: 0.0.0.0
+      HttpPort: 6080
+      ReadTimeout: 60
+      WriteTimeout: 60
+    ...
+    ```
+- add full support for tweet hots comment logic and add cache support for tweet comments.
+    mirgration database first(sql ddl file in `scripts/migration/**/*_rank_metrics.up.sql`):
+    ```sql
+    ALTER TABLE `p_comment` ADD COLUMN `reply_count` int unsigned NOT NULL DEFAULT 0 COMMENT '回复数';
+
+    UPDATE p_comment comment 
+    SET reply_count = (
+      SELECT count(*) FROM p_comment_reply reply WHERE reply.comment_id=comment.id AND reply.is_del=0
+    )
+    WHERE is_del=0;
+
+    CREATE TABLE `p_comment_metric` (
+	    `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  	  `comment_id` bigint unsigned NOT NULL,
+	    `rank_score` bigint unsigned NOT NULL DEFAULT 0,
+	    `incentive_score` int unsigned NOT NULL DEFAULT 0,
+	    `decay_factor` int unsigned NOT NULL DEFAULT 0,
+	    `motivation_factor` int unsigned NOT NULL DEFAULT 0,
+	    `is_del` tinyint NOT NULL DEFAULT 0,
+	    `created_on` bigint unsigned NOT NULL DEFAULT 0,
+	    `modified_on` bigint unsigned NOT NULL DEFAULT 0,
+	    `deleted_on` bigint unsigned NOT NULL DEFAULT 0,
+	    PRIMARY KEY (`id`) USING BTREE,
+	    KEY `idx_comment_metric_comment_id_rank_score` (`comment_id`, `rank_score`) USING BTREE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    INSERT INTO p_comment_metric (comment_id, rank_score, created_on) 
+    SELECT id AS comment_id, 
+	    reply_count*2 + thumbs_up_count*4 - thumbs_down_count AS rank_score,
+	    created_on
+    FROM p_comment
+    WHERE is_del=0;
+
+    CREATE TABLE `p_user_metric` (
+	    `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+	    `user_id` bigint unsigned NOT NULL,
+	    `tweets_count` int unsigned NOT NULL DEFAULT 0,
+      `latest_trends_on` bigint unsigned NOT NULL DEFAULT 0 COMMENT '最新动态时间',
+	    `is_del` tinyint NOT NULL DEFAULT 0,
+	    `created_on` bigint unsigned NOT NULL DEFAULT 0,
+	    `modified_on` bigint unsigned NOT NULL DEFAULT 0,
+	    `deleted_on` bigint unsigned NOT NULL DEFAULT 0,
+	    PRIMARY KEY (`id`) USING BTREE,
+	    KEY `idx_user_metric_user_id_tweets_count_trends` (`user_id`, `tweets_count`, `latest_trends_on`) USING BTREE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    INSERT INTO p_user_metric (user_id, tweets_count) 
+    SELECT user_id, count(*) AS tweets_count
+    FROM p_post
+    WHERE is_del=0
+    GROUP BY user_id;
+    ```
+- add message filter support for message page.
+- add read all unread message and display unread message count support for message page.
+- add support follow user embed to index trends enable navigation user tweets by slide bar.
+  mirgration database first(sql ddl file in `scripts/migration/**/*_user_relation.up.sql`):
+  ```sql
+  CREATE VIEW p_user_relation AS 
+  SELECT user_id, friend_id he_uid, 5 AS style 
+  FROM p_contact WHERE status=2 AND is_del=0
+  UNION
+  SELECT user_id, follow_id he_uid, 10 AS style 
+  FROM p_following WHERE is_del=0;
+  ```
+- add tweets count info in Home/Profile page. 
+- add custom web frontend features base by a profile that fetch from backend support.
+  can add custom config to conf.yaml to custom web frontend features:
+  ```yaml
+  ...
+  WebProfile:
+    UseFriendship: true              # 前端是否使用好友体系
+    EnableTrendsBar: true            # 广场页面是否开启动态条栏功能
+    EnableWallet: false              # 是否开启钱包功能
+    AllowTweetAttachment: true       # 是否允许推文附件
+    AllowTweetAttachmentPrice: true  # 是否允许推文付费附件
+    AllowTweetVideo: true            # 是否允许视频推文
+    AllowUserRegister: true          # 是否允许用户注册
+    AllowPhoneBind: true             # 是否允许手机绑定
+    DefaultTweetMaxLength: 2000      # 推文允许输入的最大长度， 默认2000字，值的范围需要查询后端支持的最大字数
+    TweetWebEllipsisSize: 400        # Web端推文作为feed显示的最长字数，默认400字
+    TweetMobileEllipsisSize: 300     # 移动端推文作为feed显示的最长字数，默认300字
+    DefaultTweetVisibility: friend   # 推文可见性，默认好友可见 值: public/following/friend/private
+    DefaultMsgLoopInterval: 5000     # 拉取未读消息的间隔，单位：毫秒, 默认5000ms 
+    CopyrightTop: "2023 paopao.info"
+    CopyrightLeft: "Roc's Me"
+    CopyrightLeftLink: ""
+    CopyrightRight: "泡泡(PaoPao)开源社区"
+    CopyrightRightLink: "https://www.paopao.info"
+  ...
+  ```
+- add read more contents support for post card in tweets list.
+
+### Changed
+- optimize jwt token generate logic.
+
 ## 0.4.2
 ### Fixed
 - fixed remove multi-objects no effects and occurs resource leak error when use Minio as OSS(Object Storage System).[#371](https://github.com/rocboss/paopao-ce/pull/371) [#372](https://github.com/rocboss/paopao-ce/pull/372)  
@@ -23,7 +214,7 @@ All notable changes to paopao-ce are documented in this file.
   ```
 - add user highlight tweet support include custom tweet set to highlight and list in user/profile page.
 - add cli subcommand to start paopao-ce serve or other task. [#354](https://github.com/rocboss/paopao-ce/pull/354)  
-- add `Friendship` feature . [#355](https://github.com/rocboss/paopao-ce/pull/355)
+- add `Followship` feature . [#355](https://github.com/rocboss/paopao-ce/pull/355)
   migration database first(sql ddl file in `scripts/migration/**/*_user_following.up.sql`):
   ```sql
   DROP TABLE IF EXISTS p_following; 

@@ -8,7 +8,7 @@ import (
 	"database/sql"
 	"sync"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/sirupsen/logrus"
 )
 
@@ -23,6 +23,7 @@ const (
 	TableAttachment         = "attachment"
 	TableCaptcha            = "captcha"
 	TableComment            = "comment"
+	TableCommentMetric      = "comment_metric"
 	TableCommentContent     = "comment_content"
 	TableCommentReply       = "comment_reply"
 	TableFollowing          = "following"
@@ -30,6 +31,7 @@ const (
 	TableContactGroup       = "contact_group"
 	TableMessage            = "message"
 	TablePost               = "post"
+	TablePostMetric         = "post_metric"
 	TablePostByComment      = "post_by_comment"
 	TablePostByMedia        = "post_by_media"
 	TablePostAttachmentBill = "post_attachment_bill"
@@ -38,6 +40,8 @@ const (
 	TablePostStar           = "post_star"
 	TableTag                = "tag"
 	TableUser               = "user"
+	TableUserRelation       = "user_relation"
+	TableUserMetric         = "user_metric"
 	TableWalletRecharge     = "wallet_recharge"
 	TableWalletStatement    = "wallet_statement"
 )

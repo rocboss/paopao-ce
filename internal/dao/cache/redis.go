@@ -59,9 +59,22 @@ func (s *redisCacheTweetsCache) delTweets(keys []string) error {
 	return s.c.Do(context.Background(), cmd).Error()
 }
 
-func (s *redisCacheTweetsCache) allKeys() ([]string, error) {
-	cmd := s.c.B().Keys().Pattern(_cacheIndexKeyPattern).Build()
-	return s.c.Do(context.Background(), cmd).AsStrSlice()
+func (s *redisCacheTweetsCache) allKeys() (res []string, err error) {
+	ctx, cursor := context.Background(), uint64(0)
+	for {
+		cmd := s.c.B().Scan().Cursor(cursor).Match(_cacheIndexKeyPattern).Count(50).Build()
+		entry, err := s.c.Do(ctx, cmd).AsScanEntry()
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, entry.Elements...)
+		if entry.Cursor != 0 {
+			cursor = entry.Cursor
+			continue
+		}
+		break
+	}
+	return
 }
 
 func (s *redisCacheTweetsCache) Name() string {

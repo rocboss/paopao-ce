@@ -6,6 +6,7 @@ package web
 
 import (
 	"context"
+	"fmt"
 
 	"time"
 	"unicode/utf8"
@@ -13,8 +14,10 @@ import (
 	"github.com/alimy/mir/v4"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
@@ -22,10 +25,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
+var (
 	// _MaxWhisperNumDaily 当日单用户私信总数限制（TODO 配置化、积分兑换等）
-	_MaxWhisperNumDaily = 20
-	_MaxCaptchaTimes    = 2
+	_maxWhisperNumDaily int64 = 200
+	_maxCaptchaTimes    int   = 2
 )
 
 var (
@@ -35,8 +38,10 @@ var (
 type coreSrv struct {
 	api.UnimplementedCoreServant
 	*base.DaoServant
-
-	oss core.ObjectStorageService
+	oss            core.ObjectStorageService
+	wc             core.WebCache
+	messagesExpire int64
+	prefixMessages string
 }
 
 func (s *coreSrv) Chain() gin.HandlersChain {
@@ -45,7 +50,7 @@ func (s *coreSrv) Chain() gin.HandlersChain {
 
 func (s *coreSrv) SyncSearchIndex(req *web.SyncSearchIndexReq) mir.Error {
 	if req.User != nil && req.User.IsAdmin {
-		go s.PushPostsToSearch(context.Background())
+		s.PushAllPostToSearch()
 	} else {
 		logrus.Warnf("sync search index need admin permision user: %#v", req.User)
 	}
@@ -53,11 +58,9 @@ func (s *coreSrv) SyncSearchIndex(req *web.SyncSearchIndexReq) mir.Error {
 }
 
 func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Error) {
-	user, err := s.Ds.GetUserByUsername(req.Username)
+	user, err := s.Ds.UserProfileByName(req.Username)
 	if err != nil {
-		return nil, xerror.UnauthorizedAuthNotExist
-	}
-	if user.Model == nil || user.ID < 0 {
+		logrus.Errorf("coreSrv.GetUserInfo occurs error[1]: %s", err)
 		return nil, xerror.UnauthorizedAuthNotExist
 	}
 	follows, followings, err := s.Ds.GetFollowCount(user.ID)
@@ -65,16 +68,17 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 		return nil, web.ErrGetFollowCountFailed
 	}
 	resp := &web.UserInfoResp{
-		Id:         user.ID,
-		Nickname:   user.Nickname,
-		Username:   user.Username,
-		Status:     user.Status,
-		Avatar:     user.Avatar,
-		Balance:    user.Balance,
-		IsAdmin:    user.IsAdmin,
-		CreatedOn:  user.CreatedOn,
-		Follows:    follows,
-		Followings: followings,
+		Id:          user.ID,
+		Nickname:    user.Nickname,
+		Username:    user.Username,
+		Status:      user.Status,
+		Avatar:      user.Avatar,
+		Balance:     user.Balance,
+		IsAdmin:     user.IsAdmin,
+		CreatedOn:   user.CreatedOn,
+		Follows:     follows,
+		Followings:  followings,
+		TweetsCount: user.TweetsCount,
 	}
 	if user.Phone != "" && len(user.Phone) == 11 {
 		resp.Phone = user.Phone[0:3] + "****" + user.Phone[7:]
@@ -82,27 +86,29 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 	return resp, nil
 }
 
-func (s *coreSrv) GetUnreadMsgCount(req *web.GetUnreadMsgCountReq) (*web.GetUnreadMsgCountResp, mir.Error) {
-	count, err := s.Ds.GetUnreadCount(req.Uid)
+func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (res *web.GetMessagesResp, _ mir.Error) {
+	limit, offset := req.PageSize, (req.Page-1)*req.PageSize
+	// 尝试直接从缓存中获取数据
+	key, ok := "", false
+	if res, key, ok = s.messagesFromCache(req, limit, offset); ok {
+		// logrus.Debugf("coreSrv.GetMessages from cache key:%s", key)
+		return
+	}
+	messages, totalRows, err := s.Ds.GetMessages(req.Uid, req.Style, limit, offset)
 	if err != nil {
-		return nil, xerror.ServerError
+		logrus.Errorf("Ds.GetMessages err[1]: %s", err)
+		return nil, web.ErrGetMessagesFailed
 	}
-	return &web.GetUnreadMsgCountResp{
-		Count: count,
-	}, nil
-}
-
-func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mir.Error) {
-	conditions := &ms.ConditionsT{
-		"receiver_user_id": req.UserId,
-		"ORDER":            "id DESC",
-	}
-	messages, err := s.Ds.GetMessages(conditions, (req.Page-1)*req.PageSize, req.PageSize)
 	for _, mf := range messages {
+		// TODO: 优化处理这里的user获取逻辑以及错误处理
 		if mf.SenderUserID > 0 {
-			user, err := s.Ds.GetUserByID(mf.SenderUserID)
-			if err == nil {
+			if user, err := s.Ds.GetUserByID(mf.SenderUserID); err == nil {
 				mf.SenderUser = user.Format()
+			}
+		}
+		if mf.Type == ms.MsgTypeWhisper && mf.ReceiverUserID != req.Uid {
+			if user, err := s.Ds.GetUserByID(mf.ReceiverUserID); err == nil {
+				mf.ReceiverUser = user.Format()
 			}
 		}
 		// 好友申请消息不需要获取其他信息
@@ -129,12 +135,21 @@ func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (*web.GetMessagesResp, mi
 		}
 	}
 	if err != nil {
-		logrus.Errorf("Ds.GetMessages err: %v\n", err)
+		logrus.Errorf("Ds.GetMessages err[2]: %s", err)
 		return nil, web.ErrGetMessagesFailed
 	}
-	totalRows, _ := s.Ds.GetMessageCount(conditions)
-	resp := base.PageRespFrom(messages, req.Page, req.PageSize, totalRows)
-	return (*web.GetMessagesResp)(resp), nil
+	if err = s.PrepareMessages(req.Uid, messages); err != nil {
+		logrus.Errorf("get messages err[3]: %s", err)
+		return nil, web.ErrGetMessagesFailed
+	}
+	resp := joint.PageRespFrom(messages, req.Page, req.PageSize, totalRows)
+	// 缓存处理
+	base.OnCacheRespEvent(s.wc, key, resp, s.messagesExpire)
+	return &web.GetMessagesResp{
+		CachePageResp: joint.CachePageResp{
+			Data: resp,
+		},
+	}, nil
 }
 
 func (s *coreSrv) ReadMessage(req *web.ReadMessageReq) mir.Error {
@@ -149,6 +164,18 @@ func (s *coreSrv) ReadMessage(req *web.ReadMessageReq) mir.Error {
 		logrus.Errorf("Ds.ReadMessage err: %s", err)
 		return web.ErrReadMessageFailed
 	}
+	// 缓存处理
+	onMessageActionEvent(_messageActionRead, req.Uid)
+	return nil
+}
+
+func (s *coreSrv) ReadAllMessage(req *web.ReadAllMessageReq) mir.Error {
+	if err := s.Ds.ReadAllMessage(req.Uid); err != nil {
+		logrus.Errorf("coreSrv.Ds.ReadAllMessage err: %s", err)
+		return web.ErrReadMessageFailed
+	}
+	// 缓存处理
+	onMessageActionEvent(_messageActionRead, req.Uid)
 	return nil
 }
 
@@ -157,13 +184,11 @@ func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 	if req.Uid == req.UserID {
 		return web.ErrNoWhisperToSelf
 	}
-
 	// 今日频次限制
 	ctx := context.Background()
-	if count, _ := s.Redis.GetCountWhisper(ctx, req.Uid); count >= _MaxWhisperNumDaily {
+	if count, _ := s.Redis.GetCountWhisper(ctx, req.Uid); count >= _maxWhisperNumDaily {
 		return web.ErrTooManyWhisperNum
 	}
-
 	// 创建私信
 	_, err := s.Ds.CreateMessage(&ms.Message{
 		SenderUserID:   req.Uid,
@@ -176,7 +201,8 @@ func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 		logrus.Errorf("Ds.CreateWhisper err: %s", err)
 		return web.ErrSendWhisperFailed
 	}
-
+	// 缓存处理, 不需要处理错误
+	onMessageActionEvent(_messageActionSendWhisper, req.Uid, req.UserID)
 	// 写入当日（自然日）计数缓存
 	s.Redis.IncrCountWhisper(ctx, req.Uid)
 
@@ -194,7 +220,6 @@ func (s *coreSrv) GetCollections(req *web.GetCollectionsReq) (*web.GetCollection
 		logrus.Errorf("Ds.GetUserPostCollectionCount err: %s", err)
 		return nil, web.ErrGetCollectionsFailed
 	}
-
 	var posts []*ms.Post
 	for _, collection := range collections {
 		posts = append(posts, collection.Post)
@@ -204,8 +229,11 @@ func (s *coreSrv) GetCollections(req *web.GetCollectionsReq) (*web.GetCollection
 		logrus.Errorf("Ds.MergePosts err: %s", err)
 		return nil, web.ErrGetCollectionsFailed
 	}
+	if err = s.PrepareTweets(req.UserId, postsFormated); err != nil {
+		logrus.Errorf("get collections prepare tweets err: %s", err)
+		return nil, web.ErrGetCollectionsFailed
+	}
 	resp := base.PageRespFrom(postsFormated, req.Page, req.PageSize, totalRows)
-
 	return (*web.GetCollectionsResp)(resp), nil
 }
 
@@ -228,7 +256,7 @@ func (s *coreSrv) UserPhoneBind(req *web.UserPhoneBindReq) mir.Error {
 		if c.ExpiredOn < time.Now().Unix() {
 			return web.ErrErrorPhoneCaptcha
 		}
-		if c.UseTimes >= _MaxCaptchaTimes {
+		if c.UseTimes >= _maxCaptchaTimes {
 			return web.ErrMaxPhoneCaptchaUseTimes
 		}
 		// 更新检测次数
@@ -325,6 +353,8 @@ func (s *coreSrv) ChangeNickname(req *web.ChangeNicknameReq) mir.Error {
 		logrus.Errorf("Ds.UpdateUser err: %s", err)
 		return xerror.ServerError
 	}
+	// 缓存处理
+	onChangeUsernameEvent(user.ID, user.Username)
 	return nil
 }
 
@@ -349,6 +379,8 @@ func (s *coreSrv) ChangeAvatar(req *web.ChangeAvatarReq) (xerr mir.Error) {
 		logrus.Errorf("Ds.UpdateUser failed: %s", err)
 		return xerror.ServerError
 	}
+	// 缓存处理
+	onChangeUsernameEvent(user.ID, user.Username)
 	return nil
 }
 
@@ -374,9 +406,25 @@ func (s *coreSrv) TweetStarStatus(req *web.TweetStarStatusReq) (*web.TweetStarSt
 	return resp, nil
 }
 
-func newCoreSrv(s *base.DaoServant, oss core.ObjectStorageService) api.Core {
+func (s *coreSrv) messagesFromCache(req *web.GetMessagesReq, limit int, offset int) (res *web.GetMessagesResp, key string, ok bool) {
+	key = fmt.Sprintf("%s%d:%s:%d:%d", s.prefixMessages, req.Uid, req.Style, limit, offset)
+	if data, err := s.wc.Get(key); err == nil {
+		ok, res = true, &web.GetMessagesResp{
+			CachePageResp: joint.CachePageResp{
+				JsonResp: data,
+			},
+		}
+	}
+	return
+}
+
+func newCoreSrv(s *base.DaoServant, oss core.ObjectStorageService, wc core.WebCache) api.Core {
+	cs := conf.CacheSetting
 	return &coreSrv{
-		DaoServant: s,
-		oss:        oss,
+		DaoServant:     s,
+		oss:            oss,
+		wc:             wc,
+		messagesExpire: cs.MessagesExpire,
+		prefixMessages: conf.PrefixMessages,
 	}
 }

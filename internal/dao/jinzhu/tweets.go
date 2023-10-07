@@ -5,6 +5,7 @@
 package jinzhu
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -214,7 +215,6 @@ func (s *tweetManageSrv) CreatePost(post *ms.Post) (*ms.Post, error) {
 
 func (s *tweetManageSrv) DeletePost(post *ms.Post) ([]string, error) {
 	var mediaContents []string
-
 	postId := post.ID
 	postContent := &dbr.PostContent{}
 	err := s.db.Transaction(
@@ -326,15 +326,15 @@ func (s *tweetManageSrv) HighlightPost(userId int64, postId int64) (res int, err
 	return post.IsEssence, nil
 }
 
-func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT) (err error) {
+func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility cs.TweetVisibleType) (err error) {
 	oldVisibility := post.Visibility
-	post.Visibility = visibility
+	post.Visibility = ms.PostVisibleT(visibility)
 	// TODO: 这个判断是否可以不要呢
-	if oldVisibility == visibility {
+	if oldVisibility == ms.PostVisibleT(visibility) {
 		return nil
 	}
 	// 私密推文 特殊处理
-	if visibility == dbr.PostVisitPrivate {
+	if visibility == cs.TweetVisitPrivate {
 		// 强制取消置顶
 		// TODO: 置顶推文用户是否有权设置成私密？ 后续完善
 		post.IsTop = 0
@@ -350,7 +350,7 @@ func (s *tweetManageSrv) VisiblePost(post *ms.Post, visibility core.PostVisibleT
 	if oldVisibility == dbr.PostVisitPrivate {
 		// 从私密转为非私密才需要重新创建tag
 		createTags(tx, post.UserID, tags)
-	} else if visibility == dbr.PostVisitPrivate {
+	} else if visibility == cs.TweetVisitPrivate {
 		// 从非私密转为私密才需要删除tag
 		deleteTags(tx, tags)
 	}
@@ -390,6 +390,131 @@ func (s *tweetSrv) GetPostByID(id int64) (*ms.Post, error) {
 
 func (s *tweetSrv) GetPosts(conditions ms.ConditionsT, offset, limit int) ([]*ms.Post, error) {
 	return (&dbr.Post{}).List(s.db, conditions, offset, limit)
+}
+
+func (s *tweetSrv) ListUserTweets(userId int64, style uint8, justEssence bool, limit, offset int) (res []*ms.Post, total int64, err error) {
+	db := s.db.Model(&dbr.Post{}).Where("user_id = ?", userId)
+	switch style {
+	case cs.StyleUserTweetsAdmin:
+		fallthrough
+	case cs.StyleUserTweetsSelf:
+		db = db.Where("visibility >= ?", cs.TweetVisitPrivate)
+	case cs.StyleUserTweetsFriend:
+		db = db.Where("visibility >= ?", cs.TweetVisitFriend)
+	case cs.StyleUserTweetsFollowing:
+		db = db.Where("visibility >= ?", cs.TweetVisitFollowing)
+	case cs.StyleUserTweetsGuest:
+		fallthrough
+	default:
+		db = db.Where("visibility >= ?", cs.TweetVisitPublic)
+	}
+	if justEssence {
+		db = db.Where("is_essence=1")
+	}
+	if err = db.Count(&total).Error; err != nil {
+		return
+	}
+	if offset >= 0 && limit > 0 {
+		db = db.Offset(offset).Limit(limit)
+	}
+	if err = db.Order("is_top DESC, latest_replied_on DESC").Find(&res).Error; err != nil {
+		return
+	}
+	return
+}
+
+func (s *tweetSrv) ListIndexNewestTweets(limit, offset int) (res []*ms.Post, total int64, err error) {
+	db := s.db.Table(_post_).Where("visibility >= ?", cs.TweetVisitPublic)
+	if err = db.Count(&total).Error; err != nil {
+		return
+	}
+	if offset >= 0 && limit > 0 {
+		db = db.Offset(offset).Limit(limit)
+	}
+	if err = db.Order("is_top DESC, latest_replied_on DESC").Find(&res).Error; err != nil {
+		return
+	}
+	return
+}
+
+func (s *tweetSrv) ListIndexHotsTweets(limit, offset int) (res []*ms.Post, total int64, err error) {
+	db := s.db.Table(_post_).Joins(fmt.Sprintf("LEFT JOIN %s metric ON %s.id=metric.post_id", _post_metric_, _post_)).Where(fmt.Sprintf("visibility >= ? AND %s.is_del=0 AND metric.is_del=0", _post_), cs.TweetVisitPublic)
+	if err = db.Count(&total).Error; err != nil {
+		return
+	}
+	if offset >= 0 && limit > 0 {
+		db = db.Offset(offset).Limit(limit)
+	}
+	if err = db.Order("is_top DESC, metric.rank_score DESC, latest_replied_on DESC").Find(&res).Error; err != nil {
+		return
+	}
+	return
+}
+
+func (s *tweetSrv) ListSyncSearchTweets(limit, offset int) (res []*ms.Post, total int64, err error) {
+	db := s.db.Table(_post_).Where("visibility >= ?", cs.TweetVisitFriend)
+	if err = db.Count(&total).Error; err != nil {
+		return
+	}
+	if offset >= 0 && limit > 0 {
+		db = db.Offset(offset).Limit(limit)
+	}
+	if err = db.Find(&res).Error; err != nil {
+		return
+	}
+	return
+}
+
+func (s *tweetSrv) ListFollowingTweets(userId int64, limit, offset int) (res []*ms.Post, total int64, err error) {
+	beFriendIds, beFollowIds, xerr := s.getUserRelation(userId)
+	if xerr != nil {
+		return nil, 0, xerr
+	}
+	beFriendCount, beFollowCount := len(beFriendIds), len(beFollowIds)
+	db := s.db.Model(&dbr.Post{})
+	//可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开',
+	switch {
+	case beFriendCount > 0 && beFollowCount > 0:
+		db = db.Where("user_id=? OR (visibility>=50 AND user_id IN(?)) OR (visibility>=60 AND user_id IN(?))", userId, beFriendIds, beFollowIds)
+	case beFriendCount > 0 && beFollowCount == 0:
+		db = db.Where("user_id=? OR (visibility>=50 AND user_id IN(?))", userId, beFriendIds)
+	case beFriendCount == 0 && beFollowCount > 0:
+		db = db.Where("user_id=? OR (visibility>=60 AND user_id IN(?))", userId, beFollowIds)
+	case beFriendCount == 0 && beFollowCount == 0:
+		db = db.Where("user_id = ?", userId)
+	}
+	if err = db.Count(&total).Error; err != nil {
+		return
+	}
+	if offset >= 0 && limit > 0 {
+		db = db.Offset(offset).Limit(limit)
+	}
+	if err = db.Order("is_top DESC, latest_replied_on DESC").Find(&res).Error; err != nil {
+		return
+	}
+	return
+}
+
+func (s *tweetSrv) getUserRelation(userId int64) (beFriendIds []int64, beFollowIds []int64, err error) {
+	if err = s.db.Table(_contact_).Where("friend_id=? AND status=2 AND is_del=0", userId).Select("user_id").Find(&beFriendIds).Error; err != nil {
+		return
+	}
+	if err = s.db.Table(_following_).Where("user_id=? AND is_del=0", userId).Select("follow_id").Find(&beFollowIds).Error; err != nil {
+		return
+	}
+	// 即是好友又是关注者，保留好友去除关注者
+	for _, id := range beFriendIds {
+		for i := 0; i < len(beFollowIds); i++ {
+			// 找到item即删，数据库已经保证唯一性
+			if beFollowIds[i] == id {
+				lastIdx := len(beFollowIds) - 1
+				beFollowIds[i] = beFollowIds[lastIdx]
+				beFollowIds = beFollowIds[:lastIdx]
+				break
+			}
+		}
+	}
+	return
 }
 
 func (s *tweetSrv) GetPostCount(conditions ms.ConditionsT) (int64, error) {

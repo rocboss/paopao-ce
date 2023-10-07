@@ -5,9 +5,11 @@
 package app
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 )
@@ -22,14 +24,14 @@ func GetJWTSecret() []byte {
 	return []byte(conf.JWTSetting.Secret)
 }
 
-func GenerateToken(User *ms.User) (string, error) {
+func GenerateToken(user *ms.User) (string, error) {
 	expireTime := time.Now().Add(conf.JWTSetting.Expire)
 	claims := Claims{
-		UID:      User.ID,
-		Username: User.Username,
+		UID:      user.ID,
+		Username: user.Username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expireTime),
-			Issuer:    conf.JWTSetting.Issuer + ":" + User.Salt,
+			Issuer:    IssuerFrom(user.Salt),
 		},
 	}
 
@@ -38,18 +40,23 @@ func GenerateToken(User *ms.User) (string, error) {
 	return token, err
 }
 
-func ParseToken(token string) (*Claims, error) {
-	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (any, error) {
+func ParseToken(token string) (res *Claims, err error) {
+	var tokenClaims *jwt.Token
+	tokenClaims, err = jwt.ParseWithClaims(token, &Claims{}, func(_ *jwt.Token) (any, error) {
 		return GetJWTSecret(), nil
 	})
-	if err != nil {
-		return nil, err
+	if err == nil && tokenClaims != nil && tokenClaims.Valid {
+		res, _ = tokenClaims.Claims.(*Claims)
+	} else {
+		err = jwt.ErrTokenNotValidYet
 	}
-	if tokenClaims != nil {
-		if claims, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid {
-			return claims, nil
-		}
-	}
+	return
+}
 
-	return nil, err
+func IssuerFrom(data string) string {
+	contents := make([]byte, 0, len(conf.JWTSetting.Issuer)+len(data))
+	copy(contents, []byte(conf.JWTSetting.Issuer))
+	contents = append(contents, []byte(data)...)
+	res := md5.Sum(contents)
+	return hex.EncodeToString(res[:])
 }

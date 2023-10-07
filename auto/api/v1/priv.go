@@ -27,6 +27,7 @@ type Priv interface {
 	ThumbsUpTweetComment(*web.TweetCommentThumbsReq) mir.Error
 	DeleteCommentReply(*web.DeleteCommentReplyReq) mir.Error
 	CreateCommentReply(*web.CreateCommentReplyReq) (*web.CreateCommentReplyResp, mir.Error)
+	HighlightComment(*web.HighlightCommentReq) (*web.HighlightCommentResp, mir.Error)
 	DeleteComment(*web.DeleteCommentReq) mir.Error
 	CreateComment(*web.CreateCommentReq) (*web.CreateCommentResp, mir.Error)
 	VisibleTweet(*web.VisibleTweetReq) (*web.VisibleTweetResp, mir.Error)
@@ -44,8 +45,20 @@ type Priv interface {
 	mustEmbedUnimplementedPrivServant()
 }
 
+type PrivChain interface {
+	ChainCreateTweet() gin.HandlersChain
+
+	mustEmbedUnimplementedPrivChain()
+}
+
 // RegisterPrivServant register Priv servant to gin
-func RegisterPrivServant(e *gin.Engine, s Priv) {
+func RegisterPrivServant(e *gin.Engine, s Priv, m ...PrivChain) {
+	var cc PrivChain
+	if len(m) > 0 {
+		cc = m[0]
+	} else {
+		cc = &UnimplementedPrivChain{}
+	}
 	router := e.Group("v1")
 	// use chain for router
 	middlewares := s.Chain()
@@ -170,6 +183,20 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		}
 		resp, err := s.CreateCommentReply(req)
+		s.Render(c, resp, err)
+	})
+	router.Handle("POST", "/post/comment/highlight", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.HighlightCommentReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.HighlightComment(req)
 		s.Render(c, resp, err)
 	})
 	router.Handle("DELETE", "/post/comment", func(c *gin.Context) {
@@ -297,7 +324,7 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 		}
 		s.Render(c, nil, s.DeleteTweet(req))
 	})
-	router.Handle("POST", "/post", func(c *gin.Context) {
+	router.Handle("POST", "/post", append(cc.ChainCreateTweet(), func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
 			return
@@ -310,8 +337,13 @@ func RegisterPrivServant(e *gin.Engine, s Priv) {
 			return
 		}
 		resp, err := s.CreateTweet(req)
-		s.Render(c, resp, err)
-	})
+		if err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		var rv _render_ = resp
+		rv.Render(c)
+	})...)
 	router.Handle("GET", "/attachment", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
@@ -402,6 +434,10 @@ func (UnimplementedPrivServant) CreateCommentReply(req *web.CreateCommentReplyRe
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
+func (UnimplementedPrivServant) HighlightComment(req *web.HighlightCommentReq) (*web.HighlightCommentResp, mir.Error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
 func (UnimplementedPrivServant) DeleteComment(req *web.DeleteCommentReq) mir.Error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
@@ -455,3 +491,12 @@ func (UnimplementedPrivServant) UploadAttachment(req *web.UploadAttachmentReq) (
 }
 
 func (UnimplementedPrivServant) mustEmbedUnimplementedPrivServant() {}
+
+// UnimplementedPrivChain can be embedded to have forward compatible implementations.
+type UnimplementedPrivChain struct{}
+
+func (b *UnimplementedPrivChain) ChainCreateTweet() gin.HandlersChain {
+	return nil
+}
+
+func (b *UnimplementedPrivChain) mustEmbedUnimplementedPrivChain() {}

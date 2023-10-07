@@ -11,9 +11,8 @@ import (
 
 // CommentService 评论检索服务
 type CommentService interface {
-	GetComments(conditions *ms.ConditionsT, offset, limit int) ([]*ms.Comment, error)
+	GetComments(tweetId int64, style cs.StyleCommentType, limit int, offset int) ([]*ms.Comment, int64, error)
 	GetCommentByID(id int64) (*ms.Comment, error)
-	GetCommentCount(conditions *ms.ConditionsT) (int64, error)
 	GetCommentReplyByID(id int64) (*ms.CommentReply, error)
 	GetCommentContentsByIDs(ids []int64) ([]*ms.CommentContent, error)
 	GetCommentRepliesByID(ids []int64) ([]*ms.CommentReplyFormated, error)
@@ -22,6 +21,7 @@ type CommentService interface {
 
 // CommentManageService 评论管理服务
 type CommentManageService interface {
+	HighlightComment(userId, commentId int64) (int8, error)
 	DeleteComment(comment *ms.Comment) error
 	CreateComment(comment *ms.Comment) (*ms.Comment, error)
 	CreateCommentReply(reply *ms.CommentReply) (*ms.CommentReply, error)

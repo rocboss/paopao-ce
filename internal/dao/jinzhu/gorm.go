@@ -15,6 +15,7 @@ var (
 	_attachment_         string
 	_captcha_            string
 	_comment_            string
+	_commentMetric_      string
 	_commentContent_     string
 	_commentReply_       string
 	_following_          string
@@ -22,6 +23,7 @@ var (
 	_contactGroup_       string
 	_message_            string
 	_post_               string
+	_post_metric_        string
 	_post_by_comment_    string
 	_post_by_media_      string
 	_postAttachmentBill_ string
@@ -30,6 +32,8 @@ var (
 	_postStar_           string
 	_tag_                string
 	_user_               string
+	_userRelation_       string
+	_userMetric_         string
 	_walletRecharge_     string
 	_walletStatement_    string
 )
@@ -41,6 +45,7 @@ func initTableName() {
 	_attachment_ = m[conf.TableAttachment]
 	_captcha_ = m[conf.TableCaptcha]
 	_comment_ = m[conf.TableComment]
+	_commentMetric_ = m[conf.TableCommentMetric]
 	_commentContent_ = m[conf.TableCommentContent]
 	_commentReply_ = m[conf.TableCommentReply]
 	_following_ = m[conf.TableFollowing]
@@ -48,6 +53,7 @@ func initTableName() {
 	_contactGroup_ = m[conf.TableContactGroup]
 	_message_ = m[conf.TableMessage]
 	_post_ = m[conf.TablePost]
+	_post_metric_ = m[conf.TablePostMetric]
 	_post_by_comment_ = m[conf.TablePostByComment]
 	_post_by_media_ = m[conf.TablePostByMedia]
 	_postAttachmentBill_ = m[conf.TablePostAttachmentBill]
@@ -56,6 +62,8 @@ func initTableName() {
 	_postStar_ = m[conf.TablePostStar]
 	_tag_ = m[conf.TableTag]
 	_user_ = m[conf.TableUser]
+	_userRelation_ = m[conf.TableUserRelation]
+	_userMetric_ = m[conf.TableUserMetric]
 	_walletRecharge_ = m[conf.TableWalletRecharge]
 	_walletStatement_ = m[conf.TableWalletStatement]
 }

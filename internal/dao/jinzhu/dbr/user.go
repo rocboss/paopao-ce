@@ -28,12 +28,14 @@ type User struct {
 }
 
 type UserFormated struct {
-	ID       int64  `db:"id" json:"id"`
-	Nickname string `json:"nickname"`
-	Username string `json:"username"`
-	Status   int    `json:"status"`
-	Avatar   string `json:"avatar"`
-	IsAdmin  bool   `json:"is_admin"`
+	ID          int64  `db:"id" json:"id"`
+	Nickname    string `json:"nickname"`
+	Username    string `json:"username"`
+	Status      int    `json:"status"`
+	Avatar      string `json:"avatar"`
+	IsAdmin     bool   `json:"is_admin"`
+	IsFriend    bool   `json:"is_friend"`
+	IsFollowing bool   `json:"is_following"`
 }
 
 func (u *User) Format() *UserFormated {
@@ -97,7 +99,6 @@ func (u *User) ListUserInfoById(db *gorm.DB, ids []int64) (res cs.UserInfoList, 
 
 func (u *User) Create(db *gorm.DB) (*User, error) {
 	err := db.Create(&u).Error
-
 	return u, err
 }
 

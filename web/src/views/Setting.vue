@@ -9,8 +9,8 @@
                     :src="store.state.userInfo.avatar"
                 />
                 <n-upload
-                    v-if="!allowPhoneBind || (
-                        allowPhoneBind &&
+                    v-if="!store.state.profile.allowPhoneBind || (
+                        store.state.profile.allowPhoneBind &&
                         store.state.userInfo.phone &&
                         store.state.userInfo.phone.length > 0)
                     "
@@ -49,8 +49,8 @@
                     round
                     type="success"
                     size="small"
-                    v-if="!showNicknameEdit && (!allowPhoneBind || (
-                        allowPhoneBind &&
+                    v-if="!showNicknameEdit && (!store.state.profile.allowPhoneBind || (
+                        store.state.profile.allowPhoneBind &&
                         store.state.userInfo.phone &&
                         store.state.userInfo.phone.length > 0 &&
                         store.state.userInfo.status == 1)
@@ -72,7 +72,7 @@
             </div>
         </n-card>
 
-        <n-card v-if="allowPhoneBind" title="手机号" size="small" class="setting-card">
+        <n-card v-if="store.state.profile.allowPhoneBind" title="手机号" size="small" class="setting-card">
             <div
                 v-if="
                     store.state.userInfo.phone &&
@@ -363,10 +363,7 @@ import type {
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
 const uploadType = ref('public/avatar');
-
-const allowPhoneBind = (import.meta.env.VITE_ALLOW_PHONE_BIND.toLowerCase() === 'true')
 const allowActivation = (import.meta.env.VITE_ALLOW_ACTIVATION.toLowerCase() === 'true')
-
 const store = useStore();
 const sending = ref(false);
 const binding = ref(false);

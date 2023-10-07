@@ -21,9 +21,11 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
+	"github.com/rocboss/paopao-ce/internal/events"
+	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/pkg/app"
+	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
-	"github.com/sirupsen/logrus"
 )
 
 type BaseServant struct {
@@ -37,12 +39,6 @@ type DaoServant struct {
 	Ds    core.DataService
 	Ts    core.TweetSearchService
 	Redis core.RedisCache
-}
-
-type JsonResp struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg,omitempty"`
-	Data any    `json:"data,omitempty"`
 }
 
 type SentryHubSetter interface {
@@ -145,13 +141,13 @@ func bindAnySentry(c *gin.Context, obj any) mir.Error {
 
 func RenderAny(c *gin.Context, data any, err mir.Error) {
 	if err == nil {
-		c.JSON(http.StatusOK, &JsonResp{
+		c.JSON(http.StatusOK, &joint.JsonResp{
 			Code: 0,
 			Msg:  "success",
 			Data: data,
 		})
 	} else {
-		c.JSON(xerror.HttpStatusCode(err), &JsonResp{
+		c.JSON(xerror.HttpStatusCode(err), &joint.JsonResp{
 			Code: err.StatusCode(),
 			Msg:  err.Error(),
 		})
@@ -164,17 +160,120 @@ func (s *BaseServant) Bind(c *gin.Context, obj any) mir.Error {
 
 func (s *BaseServant) Render(c *gin.Context, data any, err mir.Error) {
 	if err == nil {
-		c.JSON(http.StatusOK, &JsonResp{
+		c.JSON(http.StatusOK, &joint.JsonResp{
 			Code: 0,
 			Msg:  "success",
 			Data: data,
 		})
 	} else {
-		c.JSON(xerror.HttpStatusCode(err), &JsonResp{
+		c.JSON(xerror.HttpStatusCode(err), &joint.JsonResp{
 			Code: err.StatusCode(),
 			Msg:  err.Error(),
 		})
 	}
+}
+
+func (s *DaoServant) PrepareUser(userId int64, user *ms.UserFormated) error {
+	// guest用户的userId<0
+	if userId < 0 {
+		return nil
+	}
+	// friendMap, err := s.Ds.IsMyFriend(userId, user.ID)
+	// if err != nil {
+	// 	return err
+	// }
+	followMap, err := s.Ds.IsMyFollow(userId, user.ID)
+	if err != nil {
+		return err
+	}
+	// user.IsFriend, user.IsFollowing = friendMap[user.ID], followMap[user.ID]
+	user.IsFollowing = followMap[user.ID]
+	return nil
+}
+
+func (s *DaoServant) PrepareMessages(userId int64, messages []*ms.MessageFormated) error {
+	// guest用户的userId<0
+	if userId < 0 {
+		return nil
+	}
+	userIds := make([]int64, 0, len(messages))
+	for _, msg := range messages {
+		if msg.SenderUser != nil {
+			userIds = append(userIds, msg.SenderUserID)
+		}
+		if msg.ReceiverUser != nil {
+			userIds = append(userIds, msg.ReceiverUserID)
+		}
+	}
+	// friendMap, err := s.Ds.IsMyFriend(userId, userIds...)
+	// if err != nil {
+	// 	return err
+	// }
+	followMap, err := s.Ds.IsMyFollow(userId, userIds...)
+	if err != nil {
+		return err
+	}
+	for _, msg := range messages {
+		if msg.SenderUser != nil {
+			//  msg.SenderUser.IsFriend, msg.SenderUser.IsFollowing = friendMap[msg.SenderUserID], followMap[msg.SenderUserID]
+			msg.SenderUser.IsFollowing = followMap[msg.SenderUserID]
+		}
+		if msg.ReceiverUser != nil {
+			//  msg.ReceiverUser.IsFriend, msg.ReceiverUser.IsFollowing = friendMap[msg.ReceiverUserID], followMap[msg.ReceiverUserID]
+			msg.ReceiverUser.IsFollowing = followMap[msg.ReceiverUserID]
+		}
+	}
+	return nil
+}
+
+func (s *DaoServant) PrepareTweet(userId int64, tweet *ms.PostFormated) error {
+	// 转换一下可见性的值
+	tweet.Visibility = ms.PostVisibleT(tweet.Visibility.ToOutValue())
+	// guest用户的userId<0
+	if userId < 0 {
+		return nil
+	}
+	// friendMap, err := s.Ds.IsMyFriend(userId, userIds)
+	// if err != nil {
+	// 	return err
+	// }
+	followMap, err := s.Ds.IsMyFollow(userId, tweet.UserID)
+	if err != nil {
+		return err
+	}
+	// tweet.User.IsFriend, tweet.User.IsFollowing = friendMap[tweet.UserID], followMap[tweet.UserID]
+	tweet.User.IsFollowing = followMap[tweet.UserID]
+	return nil
+}
+
+func (s *DaoServant) PrepareTweets(userId int64, tweets []*ms.PostFormated) error {
+	userIdSet := make(map[int64]types.Empty, len(tweets))
+	for _, tweet := range tweets {
+		userIdSet[tweet.UserID] = types.Empty{}
+		// 顺便转换一下可见性的值
+		tweet.Visibility = ms.PostVisibleT(tweet.Visibility.ToOutValue())
+	}
+	// guest用户的userId<0
+	if userId < 0 {
+		return nil
+	}
+	userIds := make([]int64, 0, len(userIdSet))
+	for id := range userIdSet {
+		userIds = append(userIds, id)
+	}
+	// friendMap, err := s.Ds.IsMyFriend(userId, userIds...)
+	// if err != nil {
+	// 	return err
+	// }
+	followMap, err := s.Ds.IsMyFollow(userId, userIds...)
+	if err != nil {
+		return err
+	}
+	for _, tweet := range tweets {
+		// tweet.User.IsFriend, tweet.User.IsFollowing = friendMap[tweet.UserID], followMap[tweet.UserID]
+		tweet.User.IsFollowing = followMap[tweet.UserID]
+	}
+	return nil
 }
 
 func (s *DaoServant) GetTweetBy(id int64) (*ms.PostFormated, error) {
@@ -203,20 +302,25 @@ func (s *DaoServant) GetTweetBy(id int64) (*ms.PostFormated, error) {
 	return postFormated, nil
 }
 
-func (s *DaoServant) PushPostsToSearch(c context.Context) {
-	if err := s.Redis.SetPushToSearchJob(c); err == nil {
-		defer s.Redis.DelPushToSearchJob(c)
+func (s *DaoServant) PushAllPostToSearch() {
+	events.OnEvent(&pushAllPostToSearchEvent{
+		fn: s.pushAllPostToSearch,
+	})
+}
 
+func (s *DaoServant) pushAllPostToSearch() error {
+	ctx := context.Background()
+	if err := s.Redis.SetPushToSearchJob(ctx); err == nil {
+		defer s.Redis.DelPushToSearchJob(ctx)
 		splitNum := 1000
-		conditions := ms.ConditionsT{
-			"visibility IN ?": []core.PostVisibleT{core.PostVisitPublic, core.PostVisitFriend},
+		posts, totalRows, err := s.Ds.ListSyncSearchTweets(splitNum, 0)
+		if err != nil {
+			return fmt.Errorf("get first page tweets push to search failed: %s", err)
 		}
-		totalRows, _ := s.Ds.GetPostCount(conditions)
-		pages := math.Ceil(float64(totalRows) / float64(splitNum))
-		nums := int(pages)
-		for i := 0; i < nums; i++ {
-			posts, postsFormated, err := s.GetTweetList(conditions, i*splitNum, splitNum)
-			if err != nil || len(posts) != len(postsFormated) {
+		i, nums := 0, int(math.Ceil(float64(totalRows)/float64(splitNum)))
+		for {
+			postsFormated, xerr := s.Ds.MergePosts(posts)
+			if xerr != nil || len(posts) != len(postsFormated) {
 				continue
 			}
 			for i, pf := range postsFormated {
@@ -232,13 +336,27 @@ func (s *DaoServant) PushPostsToSearch(c context.Context) {
 				}}
 				s.Ts.AddDocuments(docs, fmt.Sprintf("%d", posts[i].ID))
 			}
+			if i++; i >= nums {
+				break
+			}
+			if posts, _, err = s.Ds.ListSyncSearchTweets(splitNum, i*splitNum); err != nil {
+				return fmt.Errorf("get tweets push to search failed: %s, limit[%d] offset[%d]", err, splitNum, i*splitNum)
+			}
 		}
 	} else {
-		logrus.Errorf("redis: set JOB_PUSH_TO_SEARCH error: %s", err)
+		return fmt.Errorf("redis: set JOB_PUSH_TO_SEARCH error: %w", err)
 	}
+	return nil
 }
 
 func (s *DaoServant) PushPostToSearch(post *ms.Post) {
+	events.OnEvent(&pushPostToSearchEvent{
+		fn:   s.pushPostToSearch,
+		post: post,
+	})
+}
+
+func (s *DaoServant) pushPostToSearch(post *ms.Post) {
 	postFormated := post.Format()
 	postFormated.User = &ms.UserFormated{
 		ID: post.UserID,
@@ -247,14 +365,12 @@ func (s *DaoServant) PushPostToSearch(post *ms.Post) {
 	for _, content := range contents {
 		postFormated.Contents = append(postFormated.Contents, content.Format())
 	}
-
 	contentFormated := ""
 	for _, content := range postFormated.Contents {
 		if content.Type == ms.ContentTypeText || content.Type == ms.ContentTypeTitle {
 			contentFormated = contentFormated + content.Content + "\n"
 		}
 	}
-
 	docs := []core.TsDocItem{{
 		Post:    post,
 		Content: contentFormated,
@@ -264,15 +380,6 @@ func (s *DaoServant) PushPostToSearch(post *ms.Post) {
 
 func (s *DaoServant) DeleteSearchPost(post *ms.Post) error {
 	return s.Ts.DeleteDocuments([]string{fmt.Sprintf("%d", post.ID)})
-}
-
-func (s *DaoServant) GetTweetList(conditions ms.ConditionsT, offset, limit int) ([]*ms.Post, []*ms.PostFormated, error) {
-	posts, err := s.Ds.GetPosts(conditions, offset, limit)
-	if err != nil {
-		return nil, nil, err
-	}
-	postFormated, err := s.Ds.MergePosts(posts)
-	return posts, postFormated, err
 }
 
 func (s *DaoServant) RelationTypFrom(me *ms.User, username string) (res *cs.VistUser, err error) {

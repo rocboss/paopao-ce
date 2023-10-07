@@ -2,7 +2,7 @@
 # eg.1 : sh build-image.sh
 # eg.2, set image: sh build-image.sh bitbus/paopao-ce
 
-VERSION=`git describe --tags --always | cut -f1 -f2 -d "-"` # eg.: 0.2.5
+VERSION=`git describe --tags --always | cut -f1,2 -d "-"` # eg.: 0.2.5
 IMAGE="bitbus/paopao-ce"
 
 if [ -n "$1" ]; then

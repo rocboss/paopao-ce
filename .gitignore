@@ -12,3 +12,4 @@ __debug_bin
 /data
 /custom
 /.custom
+/run.sh

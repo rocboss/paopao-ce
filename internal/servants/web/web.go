@@ -7,39 +7,49 @@ package web
 import (
 	"sync"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao"
+	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 )
 
 var (
 	_enablePhoneVerify    bool
 	_disallowUserRegister bool
+	_ds                   core.DataService
+	_ac                   core.AppCache
+	_wc                   core.WebCache
+	_oss                  core.ObjectStorageService
 	_onceInitial          sync.Once
 )
 
 // RouteWeb register web route
 func RouteWeb(e *gin.Engine) {
 	lazyInitial()
-	oss := dao.ObjectStorageService()
 	ds := base.NewDaoServant()
 	// aways register servants
-	api.RegisterAdminServant(e, newAdminSrv(ds))
-	api.RegisterCoreServant(e, newCoreSrv(ds, oss))
-	api.RegisterLooseServant(e, newLooseSrv(ds))
-	api.RegisterPrivServant(e, newPrivSrv(ds, oss))
+	api.RegisterAdminServant(e, newAdminSrv(ds, _wc))
+	api.RegisterCoreServant(e, newCoreSrv(ds, _oss, _wc))
+	api.RegisterRelaxServant(e, newRelaxSrv(ds, _wc), newRelaxChain())
+	api.RegisterLooseServant(e, newLooseSrv(ds, _ac))
+	api.RegisterPrivServant(e, newPrivSrv(ds, _oss), newPrivChain())
 	api.RegisterPubServant(e, newPubSrv(ds))
+	api.RegisterTrendsServant(e, newTrendsSrv(ds))
 	api.RegisterFollowshipServant(e, newFollowshipSrv(ds))
 	api.RegisterFriendshipServant(e, newFriendshipSrv(ds))
+	api.RegisterSiteServant(e, newSiteSrv())
 	// regster servants if needed by configure
 	cfg.Be("Alipay", func() {
 		client := conf.MustAlipayClient()
 		api.RegisterAlipayPubServant(e, newAlipayPubSrv(ds))
 		api.RegisterAlipayPrivServant(e, newAlipayPrivSrv(ds, client))
 	})
+	// shedule jobs if need
+	scheduleJobs()
 }
 
 // lazyInitial do some package lazy initialize for performance
@@ -47,5 +57,11 @@ func lazyInitial() {
 	_onceInitial.Do(func() {
 		_enablePhoneVerify = cfg.If("Sms")
 		_disallowUserRegister = cfg.If("Web:DisallowUserRegister")
+		_maxWhisperNumDaily = conf.AppSetting.MaxWhisperDaily
+		_maxCaptchaTimes = conf.AppSetting.MaxCaptchaTimes
+		_oss = dao.ObjectStorageService()
+		_ds = dao.DataService()
+		_ac = cache.NewAppCache()
+		_wc = cache.NewWebCache()
 	})
 }

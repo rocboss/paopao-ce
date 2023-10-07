@@ -99,6 +99,17 @@ export const getContacts = (
   });
 };
 
+/** 获取联系人列表 */
+export const getIndexTrends = (
+  params: NetParams.IndexTrendsReq
+): Promise<NetReq.IndexTrendsResp> => {
+  return request({
+    method: "get",
+    url: "/v1/trends/index",
+    params,
+  });
+};
+
 /** 发布动态 */
 export const createPost = (
   data: NetParams.PostCreatePost
@@ -227,6 +238,17 @@ export const deleteComment = (
   return request({
     method: "delete",
     url: "/v1/post/comment",
+    data,
+  });
+};
+
+/** 精选评论 */
+export const highlightComment = (
+  data: NetParams.PostHighlightComment
+): Promise<NetReq.PostHighlightComment> => {
+  return request({
+    method: "post",
+    url: "/v1/post/comment/highlight",
     data,
   });
 };

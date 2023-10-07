@@ -25,7 +25,7 @@ type Priv struct {
 	DownloadAttachment func(Get, web.DownloadAttachmentReq) web.DownloadAttachmentResp `mir:"/attachment"`
 
 	// CreateTweet 发布动态
-	CreateTweet func(Post, web.CreateTweetReq) web.CreateTweetResp `mir:"/post"`
+	CreateTweet func(Post, Chain, web.CreateTweetReq) web.CreateTweetResp `mir:"/post"`
 
 	// DeleteTweet 删除动态
 	DeleteTweet func(Delete, web.DeleteTweetReq) `mir:"/post"`
@@ -54,6 +54,9 @@ type Priv struct {
 	// DeletePostComment 删除动态评论
 	DeleteComment func(Delete, web.DeleteCommentReq) `mir:"/post/comment"`
 
+	// HighlightComment 精选动态评论
+	HighlightComment func(Post, web.HighlightCommentReq) web.HighlightCommentResp `mir:"/post/comment/highlight"`
+
 	// CreateCommentReply 发布评论回复
 	CreateCommentReply func(Post, web.CreateCommentReplyReq) web.CreateCommentReplyResp `mir:"/post/comment/reply"`
 
@@ -66,7 +69,7 @@ type Priv struct {
 	// ThumbsDownTweetComment 点踩评论
 	ThumbsDownTweetComment func(Post, web.TweetCommentThumbsReq) `mir:"/tweet/comment/thumbsdown"`
 
-	// ThumbsUpTweetReply 点赞评论回复
+	// ThumbsUpTweetReply 点赞评论回复·
 	ThumbsUpTweetReply func(Post, web.TweetReplyThumbsReq) `mir:"/tweet/reply/thumbsup"`
 
 	// ThumbsDownTweetReply 点踩评论回复

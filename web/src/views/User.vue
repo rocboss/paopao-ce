@@ -14,7 +14,7 @@
                             <strong>{{ user.nickname }}</strong>
                             <span> @{{ user.username }} </span>
                             <n-tag
-                                v-if="store.state.userInfo.id > 0 && store.state.userInfo.username != user.username && user.is_friend"
+                                v-if="store.state.profile.useFriendship && store.state.userInfo.id > 0 && store.state.userInfo.username != user.username && user.is_friend"
                                 class="top-tag" type="info" size="small" round>
                                 好友
                             </n-tag>
@@ -45,7 +45,7 @@
                                         },
                                     }"
                                 >
-                                    关注&nbsp;&nbsp;{{ user.follows}}
+                                    关注&nbsp;&nbsp;{{ prettyQuoteNum(user.follows)}}
                                 </router-link>
                             </span>
                             <span class="info-item">
@@ -61,8 +61,11 @@
                                         },
                                     }"
                                 >
-                                    粉丝&nbsp;&nbsp;{{ user.followings }}
+                                    粉丝&nbsp;&nbsp;{{ prettyQuoteNum(user.followings) }}
                                 </router-link>
+                            </span>
+                            <span class="info-item">
+                                泡泡&nbsp;&nbsp;{{ prettyQuoteNum(user.tweets_count || 0) }}
                             </span>
                         </div>
                     </div>
@@ -88,29 +91,112 @@
                 <whisper-add-friend :show="showAddFriendWhisper" :user="user" @success="addFriendWhisperSuccess" />
             </n-spin>
             <n-tabs class="profile-tabs-wrap" type="line" animated :value="pageType" @update:value="changeTab">
-                <n-tab-pane name="post" tab="泡泡"> </n-tab-pane>
-                <n-tab-pane name="comment" tab="评论"> </n-tab-pane>
-                <n-tab-pane name="highlight" tab="亮点"> </n-tab-pane>
-                <n-tab-pane name="media" tab="图文"> </n-tab-pane>
-                <n-tab-pane name="star" tab="喜欢"> </n-tab-pane>
+                <n-tab-pane name="post" tab="泡泡"></n-tab-pane>
+                <n-tab-pane name="comment" tab="评论"></n-tab-pane>
+                <n-tab-pane name="highlight" tab="亮点"></n-tab-pane>
+                <n-tab-pane name="media" tab="图文"></n-tab-pane>
+                <n-tab-pane name="star" tab="喜欢"></n-tab-pane>
             </n-tabs>
-            <div v-if="loading" class="skeleton-wrap">
+            <div v-if="loading && list.length === 0" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />
             </div>
             <div v-else>
                 <div class="empty-wrap" v-if="list.length === 0">
                     <n-empty size="large" description="暂无数据" />
                 </div>
-
                 <div v-if="store.state.desktopModelShow">
-                    <n-list-item v-for="post in list" :key="post.id">
-                        <post-item :post="post" />
-                    </n-list-item>
+                    <div v-if="pageType === 'post'">
+                        <n-list-item v-for="post in postList" :key="post.id">
+                            <post-item :post="post" 
+                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :addFollowAction="true"
+                                @send-whisper="onSendWhisper"
+                                @handle-follow-action="onHandleFollowAction" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'comment'">
+                        <n-list-item v-for="post in commentList" :key="post.id">
+                            <post-item :post="post" 
+                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :addFollowAction="true"
+                                @send-whisper="onSendWhisper"
+                                @handle-follow-action="onHandleFollowAction" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'highlight'">
+                        <n-list-item v-for="post in highlightList" :key="post.id">
+                            <post-item :post="post" 
+                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :addFollowAction="true"
+                                @send-whisper="onSendWhisper"
+                                @handle-follow-action="onHandleFollowAction" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'media'">
+                        <n-list-item v-for="post in mediaList" :key="post.id">
+                            <post-item :post="post" 
+                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :addFollowAction="true"
+                                @send-whisper="onSendWhisper"
+                                @handle-follow-action="onHandleFollowAction" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'star'">
+                        <n-list-item v-for="post in starList" :key="post.id">
+                            <post-item :post="post" 
+                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :addFollowAction="true"
+                                @send-whisper="onSendWhisper"
+                                @handle-follow-action="onHandleFollowAction" />
+                        </n-list-item>
+                    </div>
                 </div>
                 <div v-else>
-                    <n-list-item v-for="post in list" :key="post.id">
-                        <mobile-post-item :post="post" />
-                    </n-list-item>
+                    <div v-if="pageType === 'post'">
+                        <n-list-item v-for="post in postList" :key="post.id">
+                            <mobile-post-item :post="post"
+                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :addFollowAction="true"
+                                @send-whisper="onSendWhisper"
+                                @handle-follow-action="onHandleFollowAction" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'comment'">
+                        <n-list-item v-for="post in commentList" :key="post.id">
+                            <mobile-post-item :post="post"
+                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :addFollowAction="true"
+                                @send-whisper="onSendWhisper"
+                                @handle-follow-action="onHandleFollowAction" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'highlight'">
+                        <n-list-item v-for="post in highlightList" :key="post.id">
+                            <mobile-post-item :post="post"
+                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :addFollowAction="true"
+                                @send-whisper="onSendWhisper"
+                                @handle-follow-action="onHandleFollowAction" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'media'">
+                        <n-list-item v-for="post in mediaList" :key="post.id">
+                            <mobile-post-item :post="post"
+                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :addFollowAction="true"
+                                @send-whisper="onSendWhisper"
+                                @handle-follow-action="onHandleFollowAction" />
+                        </n-list-item>
+                    </div>
+                    <div v-if="pageType === 'star'">
+                        <n-list-item v-for="post in starList" :key="post.id">
+                            <mobile-post-item :post="post"
+                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :addFollowAction="true"
+                                @send-whisper="onSendWhisper"
+                                @handle-follow-action="onHandleFollowAction" />
+                        </n-list-item>
+                    </div>
                 </div>
             </div>
         </n-list>
@@ -131,7 +217,7 @@
 <script setup lang="ts">
 import { h, ref, reactive, watch, onMounted, computed } from 'vue';
 import { NIcon } from 'naive-ui'
-import type { Component } from 'vue'
+import type { Component, Ref } from 'vue'
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import { getUserProfile, getUserPosts, changeUserStatus, deleteFriend, followUser, unfollowUser } from '@/api/user';
@@ -139,6 +225,7 @@ import { useDialog, DropdownOption } from 'naive-ui';
 import WhisperAddFriend from '../components/whisper-add-friend.vue';
 import { MoreHorizFilled } from '@vicons/material';
 import { formatDate } from '@/utils/formatTime';
+import { prettyQuoteNum } from '@/utils/count';
 import {
     PaperPlaneOutline,
     PersonAddOutline,
@@ -166,6 +253,7 @@ const user = reactive<Item.UserInfo>({
     created_on: 0,
     follows: 0,
     followings: 0,
+    tweets_count: 0,
     status: 1,
 });
 const userLoading = ref(false);
@@ -192,6 +280,61 @@ const commentTotalPage = ref(0);
 const highlightTotalPage = ref(0);
 const mediaTotalPage = ref(0);
 const starTotalPage = ref(0);
+
+const onSendWhisper =  (receiver: Item.UserInfo) => {
+    user.id = receiver.id;
+    user.username = receiver.username
+    user.nickname = receiver.nickname
+    user.avatar = receiver.avatar
+    showWhisper.value = true;
+};
+
+const onHandleFollowAction = (post: Item.PostProps) => {
+    dialog.success({
+        title: '提示',
+        content:
+            '确定' + (post.user.is_following ? '取消关注' : '关注') + '该用户吗？',
+        positiveText: '确定',
+        negativeText: '取消',
+        onPositiveClick: () => {
+            if (post.user.is_following) {
+                unfollowUser({
+                    user_id: post.user.id,
+                }).then((_res) => {
+                    window.$message.success('操作成功');
+                    postFollowAction(post.user_id, false);
+                })
+                .catch((_err) => {});
+            } else {
+                followUser({
+                    user_id: post.user.id,
+                }).then((_res) => {
+                    window.$message.success('关注成功');
+                    postFollowAction(post.user_id, true);
+                })
+                .catch((_err) => {});
+            }
+        },
+    });
+};
+
+function postFollowAction(userId: number, isFollowing: boolean) {
+    updateFolloing(postList, userId, isFollowing);
+    updateFolloing(commentList, userId, isFollowing);
+    updateFolloing(highlightList, userId, isFollowing);
+    updateFolloing(mediaList, userId, isFollowing);
+    updateFolloing(starList, userId, isFollowing);
+}
+
+function updateFolloing(posts: Ref<Item.PostProps[]>, userId: number, isFollowing: boolean) {
+    if (posts.value && posts.value.length > 0) {
+        for (let index in posts.value) {
+            if (posts.value[index].user_id == userId) {
+                posts.value[index].user.is_following = isFollowing;
+            }
+        }
+    }
+}
 
 const reset = () => {
     noMore.value = false;
@@ -442,6 +585,9 @@ const loadUser = () => {
             user.follows = res.follows;
             user.followings = res.followings;
             user.status = res.status;
+            if (res.tweets_count) {
+                user.tweets_count = res.tweets_count;
+            }
             loadPage();
         })
         .catch((err) => {
@@ -526,18 +672,20 @@ const userOptions = computed(() => {
             icon: renderIcon(BodyOutline)
         })
     }
-    if (user.is_friend) {
-        options.push({
-            label: '删除好友',
-            key: 'delete',
-            icon: renderIcon(PersonRemoveOutline)
-        });
-    } else {
-        options.push({
-            label: '添加朋友',
-            key: 'requesting',
-            icon: renderIcon(PersonAddOutline)
-        });
+    if (store.state.profile.useFriendship) {
+        if (user.is_friend) {
+            options.push({
+                label: '删除好友',
+                key: 'delete',
+                icon: renderIcon(PersonRemoveOutline)
+            });
+        } else {
+            options.push({
+                label: '添加朋友',
+                key: 'requesting',
+                icon: renderIcon(PersonAddOutline)
+            });
+        }
     }
     return options;
 });

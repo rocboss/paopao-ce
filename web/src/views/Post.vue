@@ -6,7 +6,7 @@
             <n-list-item>
                 <n-spin :show="loading">
                     <div class="detail-wrap" v-if="post.id > 1">
-                        <post-detail :post="post" @reload="loadPost" />
+                        <post-detail :post="post" @reload="reloadPost" />
                     </div>
                     <div class="empty-wrap" v-else>
                         <n-empty size="large" description="暂无数据" />
@@ -14,11 +14,12 @@
                 </n-spin>
             </n-list-item>
             <div class="comment-opts-wrap" v-if="post.id > 0">
-                <n-tabs type="bar" justify-content="end" size="small" animated @update:value="commentTab">
+                <n-tabs type="bar" justify-content="end" size="small" tab-style="margin-left: -24px;" animated @update:value="commentTab">
                     <template #prefix>
                         <span class="comment-title-item">评论</span>
                     </template>
-                    <n-tab-pane name="default" tab="默认" />
+                    <n-tab-pane name="default" tab="推荐" />
+                    <n-tab-pane name="hots" tab="热门" />
                     <n-tab-pane name="newest" tab="最新" />
                 </n-tabs>
             </div>
@@ -36,7 +37,7 @@
                     </div>
 
                     <n-list-item v-for="comment in comments" :key="comment.id">
-                        <comment-item :comment="comment" @reload="reloadComments" />
+                        <comment-item :comment="comment" :postUserId="post.user_id" @reload="reloadComments" />
                     </n-list-item>
                 </div>
             </div>
@@ -44,8 +45,10 @@
                 <InfiniteLoading class="load-more" :slots="{complete: '没有更多数据了', error: '加载出错'}" @infinite="loadComments">
                     <template #spinner>
                         <span v-if="defaultCommentsSort && defaultNoMore" class="load-more-spinner" ><!-- 注意一定要保留这里 --></span>
+                        <span v-if="!defaultCommentsSort && hotsNoMore" class="load-more-spinner" ><!-- 注意一定要保留这里 --></span>
                         <span v-if="!defaultCommentsSort && newestNoMore" class="load-more-spinner" ><!-- 注意一定要保留这里 --></span>
                         <span v-if="defaultCommentsSort && !defaultNoMore" class="load-more-spinner" >加载评论</span>
+                        <span v-if="!defaultCommentsSort && !hotsNoMore" class="load-more-spinner" >加载评论</span>
                         <span v-if="!defaultCommentsSort && !newestNoMore" class="load-more-spinner" >加载评论</span>
                     </template>
                 </InfiniteLoading>
@@ -67,7 +70,7 @@ const loading = ref(false);
 const commentLoading = ref(false);
 const comments = ref<Item.CommentProps[]>([]);
 const postId = computed(() => +(route.query.id as string));
-const sortStrategy = ref<"default" | "newest">('default');
+const sortStrategy = ref<"default" | "hots" | "newest">('default');
 const defaultCommentsSort = ref<boolean>(true)
 const pageSize = 20
 
@@ -86,12 +89,20 @@ let stateHandler = ({
   },
 });
 
-const commentTab = (tab: "default" | "newest") => {
+const commentTab = (tab: "default" |  "hots" | "newest") => {
     sortStrategy.value = tab;
     if (tab === "default") {
         defaultCommentsSort.value = true
     }
     loadComments(stateHandler);
+};
+
+const reloadPost = (post_id: number) => {
+    getPost({
+        id: post_id,
+    }).then((res) => {
+            post.value = res;
+    }).catch((_err) => {});
 };
 
 const loadPost = () => {
@@ -121,10 +132,9 @@ const loadDefaultComments = ($state: any) => {
     if (defaultNoMore.value) {
         return
     }
-
     getPostComments({
         id: post.value.id as number,
-        sort_strategy: 'default',
+        style: 'default',
         page: defaultCommmentsPage,
         page_size: pageSize,
     })
@@ -154,6 +164,45 @@ const loadDefaultComments = ($state: any) => {
     });
 };
 
+let hotsCommmentsPage = 1;
+let hotsNoMore = ref<boolean>(false)
+const hotsComments=ref<Item.CommentProps[]>([]);
+const loadHotsComments = ($state: any) => {
+    if (hotsNoMore.value) {
+        return
+    }
+    getPostComments({
+        id: post.value.id as number,
+        style: 'hots',
+        page: hotsCommmentsPage,
+        page_size: pageSize,
+    })
+    .then((res) => {
+        if ($state !== null) {
+            stateHandler = $state
+        }
+        if (res.list.length < pageSize) {
+            hotsNoMore.value = true
+        } else {
+            hotsCommmentsPage++
+        }
+        if (res.list.length > 0) {
+            if (hotsCommmentsPage === 1) {
+                hotsComments.value = res.list;
+            } else {
+                hotsComments.value.push(...res.list);
+            }
+            comments.value = hotsComments.value
+        }
+        stateHandler.loaded();
+        commentLoading.value = false;
+    })
+    .catch((err) => {
+        commentLoading.value = false;
+        stateHandler.error();
+    });
+};
+
 let newestCommmentsPage = 1;
 let newestNoMore = ref<boolean>(false)
 const newestComments=ref<Item.CommentProps[]>([]);
@@ -161,10 +210,9 @@ const loadNewestComments = ($state: any) => {
     if (newestNoMore.value) {
         return
     }
-
     getPostComments({
         id: post.value.id as number,
-        sort_strategy: 'newest',
+        style: 'newest',
         page: newestCommmentsPage,
         page_size: pageSize,
     })
@@ -204,6 +252,9 @@ const loadComments = ($state: any) => {
     if (sortStrategy.value === 'default') {
         comments.value = defaultComments.value
         loadDefaultComments($state)
+    } else if (sortStrategy.value === 'hots') {
+        comments.value = hotsComments.value
+        loadHotsComments($state)
     } else {
         comments.value = newestComments.value
         loadNewestComments($state)
@@ -217,6 +268,10 @@ const reloadComments = () => {
     defaultCommmentsPage = 1;
     defaultNoMore.value = false
     defaultComments.value = []
+ 
+    hotsCommmentsPage = 1;
+    hotsNoMore.value = false
+    hotsComments.value = []
 
     newestCommmentsPage = 1;
     newestNoMore.value = false

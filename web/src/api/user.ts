@@ -258,11 +258,24 @@ export const getMessages = (
  * @param {Object} data
  * @returns Promise
  */
-export const readMessage = (data: any) => {
+export const readMessage = (
+  data: NetParams.ReadMessageReq
+): Promise<NetReq.ReadMessageResp> => {
   return request({
     method: "post",
     url: "/v1/user/message/read",
     data,
+  });
+};
+
+/**
+ * 阅读所有消息
+ * @returns Promise
+ */
+export const readAllMessage = (): Promise<NetReq.ReadAllMessageResp> => {
+  return request({
+    method: "post",
+    url: "/v1/user/message/readall",
   });
 };
 
@@ -412,5 +425,16 @@ export const changeUserStatus = (
     method: "post",
     url: "/v1/admin/user/status",
     data,
+  });
+};
+
+/**
+ * 获取站点状态信息
+ * @returns Promise
+ */
+export const getSiteInfo = (): Promise<NetReq.SiteInfoResp> => {
+  return request({
+    method: "get",
+    url: "/v1/admin/site/status",
   });
 };

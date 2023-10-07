@@ -39,7 +39,7 @@ Web端：
 更多演示请前往[官网](https://www.paopao.info)体验（谢绝灌水）  
 
 桌面端：  
-![](docs/proposal/.assets/000-00.png)
+![](docs/proposal/.assets/000-00.jpg)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -288,7 +288,7 @@ make run TAGS='docs'
 ```sh
 cp config.yaml.sample config.yaml
 vim config.yaml # 修改参数
-paopao-ce
+paopao serve
 ```
 
 配置文件中的 `Features` 小节是声明paopao-ce运行时开启哪些功能项:
@@ -364,8 +364,8 @@ release/paopao serve --no-default-features --features sqlite3,localoss,loggerfil
 |`OSS:TempDir` | 对象存储 | 内测 |基于对象存储系统的对象拷贝/移动特性实现 先创建临时对象再持久化的功能|
 |`Redis` | 缓存 | 稳定 | Redis缓存功能 |
 |`SimpleCacheIndex` | 缓存 | Deprecated | 提供简单的 广场推文列表 的缓存功能 |
-|`BigCacheIndex` | 缓存 | 稳定(推荐) | 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面 |
-|`RedisCacheIndex` | 缓存 | 内测(推荐) | 使用Redis缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面 |
+|`BigCacheIndex` | 缓存 | Deprecated | 使用[BigCache](https://github.com/allegro/bigcache)缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面 |
+|`RedisCacheIndex` | 缓存 | Deprecated | 使用Redis缓存 广场推文列表，缓存每个用户每一页，简单做到千人千面 |
 |`Zinc` | 搜索 | 稳定(推荐) | 基于[Zinc](https://github.com/zinclabs/zinc)搜索引擎提供推文搜索服务 |
 |`Meili` | 搜索 | 稳定(推荐) | 基于[Meilisearch](https://github.com/meilisearch/meilisearch)搜索引擎提供推文搜索服务 |
 |`Bleve` | 搜索 | WIP | 基于[Bleve](https://github.com/blevesearch/bleve)搜索引擎提供推文搜索服务 |
@@ -373,6 +373,7 @@ release/paopao serve --no-default-features --features sqlite3,localoss,loggerfil
 |`LoggerFile` | 日志 | 稳定 | 使用文件写日志 |
 |`LoggerZinc` | 日志 | 稳定(推荐) | 使用[Zinc](https://github.com/zinclabs/zinc)写日志 |
 |`LoggerMeili` | 日志 | 内测 | 使用[Meilisearch](https://github.com/meilisearch/meilisearch)写日志 |
+|`LoggerOpenObserve` | 日志 | 内测 | 使用[OpenObserve](https://github.com/openobserve/openobserve)写日志 |
 |[`Friendship`](docs/proposal/22110410-关于Friendship功能项的设计.md) | 关系模式 | 内置 Builtin | 弱关系好友模式，类似微信朋友圈 |
 |[`Followship`](docs/proposal/22110409-关于Followship功能项的设计.md) | 关系模式 | 内置 Builtin | 关注者模式，类似Twitter的Follow模式 |
 |[`Lightship`](docs/proposal/22121409-关于Lightship功能项的设计.md) | 关系模式 | 弃用 Deprecated | 开放模式，所有推文都公开可见 |
@@ -382,6 +383,8 @@ release/paopao serve --no-default-features --features sqlite3,localoss,loggerfil
 |[`Pyroscope`](docs/proposal/23021510-关于使用pyroscope用于性能调试的设计.md)| 性能优化 | 内测 | 开启Pyroscope功能用于性能调试 |   
 |[`Pprof`](docs/proposal/23062905-添加Pprof功能特性用于获取Profile.md)| 性能优化 | 内测 | 开启Pprof功能收集Profile信息 |  
 |`PhoneBind` | 其他 | 稳定 | 手机绑定功能 |   
+|`UseAuditHook` | 其他 | 内测 | 使用审核hook功能 |   
+|`DisableJobManager` | 其他 | 内测 | 禁止使用JobManager功能 |   
 |`Web:DisallowUserRegister` | 功能特性 | 稳定 | 不允许用户注册 |     
 
 > 功能项状态详情参考 [features-status](features-status.md).
@@ -495,6 +498,35 @@ MinIO: # MinIO 存储配置
 ...
 ```
 
+#### [OpenObserve](https://github.com/openobserve/openobserve) 日志收集、指标度量、轨迹跟踪
+* OpenObserve运行
+```sh
+# 使用Docker运行
+mkdir data && docker run -v $PWD/data:/data -e ZO_DATA_DIR="/data" -p 5080:5080 \
+    -e ZO_ROOT_USER_EMAIL="root@paopao.info" -e ZO_ROOT_USER_PASSWORD="paopao-ce" \
+    public.ecr.aws/zinclabs/openobserve:latest
+
+# 使用docker compose运行， 需要删除docker-compose.yaml中关于openobserve的注释
+docker compose up -d openobserve
+# visit http://loclahost:5080
+```
+
+* 修改LoggerOpenObserve配置
+```yaml
+# features中加上 LoggerOpenObserve
+Features:
+  Default: ["Meili", "LoggerOpenObserve", "Base", "Sqlite3", "BigCacheIndex"]
+...
+LoggerOpenObserve: # 使用OpenObserve写日志
+  Host: 127.0.0.1:5080
+  Organization: paopao-ce
+  Stream: default
+  User: root@paopao.info
+  Password: tiFEI8UeJWuYA7kN
+  Secure: False
+...
+```
+
 #### [Pyroscope](https://github.com/pyroscope-io/pyroscope) 性能剖析
 * Pyroscope运行
 ```sh
@@ -509,7 +541,7 @@ docker compose up -d pyroscope
 
 * 修改Pyroscope配置
 ```yaml
-# features中加上 MinIO
+# features中加上 Pyroscope
 Features:
   Default: ["Meili", "LoggerMeili", "Base", "Sqlite3", "BigCacheIndex", "Pyroscope"]
 ...

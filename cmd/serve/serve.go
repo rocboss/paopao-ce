@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/alimy/cfg"
+	"github.com/alimy/tryst/cfg"
 	"github.com/fatih/color"
 	"github.com/getsentry/sentry-go"
 	"github.com/rocboss/paopao-ce/cmd"

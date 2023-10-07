@@ -78,6 +78,28 @@ services:
     networks:
       - paopao-network
 
+  # meilisearch-ui:
+  #   image: riccoxie/meilisearch-ui:latest
+  #   restart: always
+  #   ports:
+  #     - 24900:24900
+  #   networks:
+  #     - paopao-network
+  
+  # openobserve:
+  #   image: public.ecr.aws/zinclabs/openobserve:latest
+  #   restart: always
+  #   ports:
+  #     - 5080:5080
+  #   volumes:
+  #     - ./custom/data/openobserve/data:/data
+  #   environment:
+  #     ZO_DATA_DIR: /data
+  #     ZO_ROOT_USER_EMAIL: root@paopao.info
+  #     ZO_ROOT_USER_PASSWORD: paopao-ce
+  #   networks:
+  #     - paopao-network
+
   # pyroscope:
   #   image: pyroscope/pyroscope:latest
   #   restart: always
@@ -88,21 +110,21 @@ services:
   #   networks:
   #     - paopao-network
 
-  phpmyadmin:
-    image: phpmyadmin:5.2
-    depends_on:
-      - db
-    ports:
-      - 8080:80
-    environment:
-      - PMA_HOST=db
-      - PMA_USER=paopao
-      - PMA_PASSWORD=paopao
-    networks:
-      - paopao-network
+  # phpmyadmin:
+  #   image: phpmyadmin:5.2
+  #   depends_on:
+  #     - db
+  #   ports:
+  #     - 8080:80
+  #   environment:
+  #     - PMA_HOST=db
+  #     - PMA_USER=paopao
+  #     - PMA_PASSWORD=paopao
+  #   networks:
+  #     - paopao-network
 
   backend:
-    image: bitbus/paopao-ce:0.4
+    image: bitbus/paopao-ce:0.5
     restart: always
     depends_on:
       - db
