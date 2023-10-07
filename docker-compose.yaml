@@ -33,7 +33,7 @@ services:
   #     - paopao-network
 
   # redis:
-  #   image: redis:7.0-alpine
+  #   image: redis:7.2.1-alpine
   #   restart: always
   #   ports:
   #     - 6379:6379
@@ -41,7 +41,7 @@ services:
   #     - paopao-network
 
   redis:
-    image: redis/redis-stack:7.2.0-RC3
+    image: redis/redis-stack:7.2.0-v2
     restart: always
     ports:
       - 6379:6379
@@ -67,7 +67,7 @@ services:
   #     - paopao-network
 
   meili:
-    image: getmeili/meilisearch:v1.3
+    image: getmeili/meilisearch:v1.4
     restart: always
     ports:
       - 7700:7700
@@ -78,13 +78,13 @@ services:
     networks:
       - paopao-network
 
-  meilisearch-ui:
-    image: riccoxie/meilisearch-ui:latest
-    restart: always
-    ports:
-      - 24900:24900
-    networks:
-      - paopao-network
+  # meilisearch-ui:
+  #   image: riccoxie/meilisearch-ui:latest
+  #   restart: always
+  #   ports:
+  #     - 24900:24900
+  #   networks:
+  #     - paopao-network
   
   # openobserve:
   #   image: public.ecr.aws/zinclabs/openobserve:latest
