@@ -1,7 +1,10 @@
 # Changelog
 
 All notable changes to paopao-ce are documented in this file.
-## 0.5.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+## 0.6.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
+TODO;
+
+## 0.5.0
 ### Added
 - add `LoggerOpenObserve` feature use OpenObserve to collect log.[#370](https://github.com/rocboss/paopao-ce/pull/370)    
   add `LoggerOpenObserve` to `conf.yaml` 's `Features` section to enable this feature like below:
@@ -186,6 +189,9 @@ All notable changes to paopao-ce are documented in this file.
   ...
   ```
 - add read more contents support for post card in tweets list.
+
+### Changed
+- optimize jwt token generate logic.
 
 ## 0.4.2
 ### Fixed
