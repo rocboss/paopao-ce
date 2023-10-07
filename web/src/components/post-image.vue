@@ -251,13 +251,13 @@ const props = withDefaults(defineProps<{
     }
 }
 .x1 {
-    height: 168px;
+    height: 174px;
 }
 .x2 {
-    height: 108px;
+    height: 112px;
 }
 .x3 {
-    height: 96px;
+    height: 100px;
 }
 .dark {
     .post-img {
