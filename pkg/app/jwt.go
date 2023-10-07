@@ -5,6 +5,8 @@
 package app
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -22,14 +24,14 @@ func GetJWTSecret() []byte {
 	return []byte(conf.JWTSetting.Secret)
 }
 
-func GenerateToken(User *ms.User) (string, error) {
+func GenerateToken(user *ms.User) (string, error) {
 	expireTime := time.Now().Add(conf.JWTSetting.Expire)
 	claims := Claims{
-		UID:      User.ID,
-		Username: User.Username,
+		UID:      user.ID,
+		Username: user.Username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expireTime),
-			Issuer:    conf.JWTSetting.Issuer + ":" + User.Salt,
+			Issuer:    IssuerFrom(user.Salt),
 		},
 	}
 
@@ -49,4 +51,12 @@ func ParseToken(token string) (res *Claims, err error) {
 		err = jwt.ErrTokenNotValidYet
 	}
 	return
+}
+
+func IssuerFrom(data string) string {
+	contents := make([]byte, 0, len(conf.JWTSetting.Issuer)+len(data))
+	copy(contents, []byte(conf.JWTSetting.Issuer))
+	contents = append(contents, []byte(data)...)
+	res := md5.Sum(contents)
+	return hex.EncodeToString(res[:])
 }
