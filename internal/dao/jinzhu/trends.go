@@ -27,7 +27,7 @@ func (s *trendsSrvA) GetIndexTrends(userId int64, limit int, offset int) (res []
 	if offset >= 0 && limit > 0 {
 		db = db.Limit(limit).Offset(offset)
 	}
-	if err = db.Order("r.style ASC").Select("username", "nickname", "avatar").Find(&res).Error; err == nil {
+	if err = db.Order("r.style ASC, m.latest_trends_on DESC").Select("username", "nickname", "avatar").Find(&res).Error; err == nil {
 		res = cs.DistinctTrends(res)
 	}
 	return
