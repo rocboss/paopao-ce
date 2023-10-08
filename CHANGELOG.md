@@ -2,7 +2,8 @@
 
 All notable changes to paopao-ce are documented in this file.
 ## 0.6.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
-TODO;
+### Added
+- User/Profile page add setting option when page's user is self.
 
 ## 0.5.0
 ### Added

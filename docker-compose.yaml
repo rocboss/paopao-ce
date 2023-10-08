@@ -124,7 +124,7 @@ services:
   #     - paopao-network
 
   backend:
-    image: bitbus/paopao-ce:0.5
+    image: bitbus/paopao-ce:nightly
     restart: always
     depends_on:
       - db
