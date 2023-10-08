@@ -8,7 +8,7 @@
                 <compose @post-success="onPostSuccess" />
             </n-list-item>
 
-            <n-list-item v-if="showFriendsBar" >
+            <n-list-item v-if="showTrendsBar" >
             <SlideBar v-model="slideBarList" :wheel-blocks="wheelBlocks" :init-blocks="initBlocks" @click="handleBarClick" tag="div" sub-tag="div">
                 <template #default="data">
                     <div class="slide-bar-item">
@@ -250,7 +250,7 @@ const updateTitle = () => {
     }
 };
 
-const showFriendsBar = computed(() => {
+const showTrendsBar = computed(() => {
     return store.state.profile.useFriendship && store.state.profile.enableTrendsBar && store.state.desktopModelShow && store.state.userInfo.id > 0;
 });
 
