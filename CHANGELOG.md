@@ -4,6 +4,10 @@ All notable changes to paopao-ce are documented in this file.
 ## 0.6.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
 TODO;
 
+## 0.5.1
+### Fixed
+- fixed update user metric incorrect when no user record.
+
 ## 0.5.0
 ### Added
 - add `LoggerOpenObserve` feature use OpenObserve to collect log.[#370](https://github.com/rocboss/paopao-ce/pull/370)    

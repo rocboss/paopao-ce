@@ -26,13 +26,11 @@ type userMetricSrvA struct {
 }
 
 func (s *tweetMetricSrvA) UpdateTweetMetric(metric *cs.TweetMetric) error {
-	return s.db.Transaction(func(tx *gorm.DB) (err error) {
+	return s.db.Transaction(func(tx *gorm.DB) error {
 		postMetric := &dbr.PostMetric{PostId: metric.PostId}
-		db := s.db.Model(postMetric).Where("post_id=?", metric.PostId)
-		db.First(postMetric)
+		tx.Model(postMetric).Where("post_id=?", metric.PostId).First(postMetric)
 		postMetric.RankScore = metric.RankScore(postMetric.MotivationFactor)
-		err = db.Save(postMetric).Error
-		return
+		return tx.Save(postMetric).Error
 	})
 }
 
@@ -46,13 +44,11 @@ func (s *tweetMetricSrvA) DeleteTweetMetric(postId int64) (err error) {
 }
 
 func (s *commentMetricSrvA) UpdateCommentMetric(metric *cs.CommentMetric) error {
-	return s.db.Transaction(func(tx *gorm.DB) (err error) {
+	return s.db.Transaction(func(tx *gorm.DB) error {
 		commentMetric := &dbr.CommentMetric{CommentId: metric.CommentId}
-		db := s.db.Model(commentMetric).Where("comment_id=?", metric.CommentId)
-		db.First(commentMetric)
+		tx.Model(commentMetric).Where("comment_id=?", metric.CommentId).First(commentMetric)
 		commentMetric.RankScore = metric.RankScore(commentMetric.MotivationFactor)
-		err = db.Save(commentMetric).Error
-		return
+		return tx.Save(commentMetric).Error
 	})
 }
 
@@ -65,14 +61,9 @@ func (s *commentMetricSrvA) DeleteCommentMetric(commentId int64) (err error) {
 	return (&dbr.CommentMetric{CommentId: commentId}).Delete(s.db)
 }
 
-func (s *userMetricSrvA) UpdateUserMetric(userId int64, action uint8) (err error) {
-	metric := &dbr.UserMetric{}
-	db := s.db.Model(metric)
-	if err = db.Where("user_id=?", userId).First(metric).Error; err != nil {
-		metric = &dbr.UserMetric{
-			UserId: userId,
-		}
-	}
+func (s *userMetricSrvA) UpdateUserMetric(userId int64, action uint8) error {
+	metric := &dbr.UserMetric{UserId: userId}
+	s.db.Model(metric).Where("user_id=?", userId).First(metric)
 	metric.LatestTrendsOn = time.Now().Unix()
 	switch action {
 	case cs.MetricActionCreateTweet:
@@ -82,7 +73,7 @@ func (s *userMetricSrvA) UpdateUserMetric(userId int64, action uint8) (err error
 			metric.TweetsCount--
 		}
 	}
-	return db.Save(metric).Error
+	return s.db.Save(metric).Error
 }
 
 func (s *userMetricSrvA) AddUserMetric(userId int64) (err error) {
