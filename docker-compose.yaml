@@ -123,21 +123,21 @@ services:
   #   networks:
   #     - paopao-network
 
-  backend:
-    image: bitbus/paopao-ce:0.5
-    restart: always
-    depends_on:
-      - db
-      - redis
-      - meili
-    # modify below to reflect your custom configure
-    volumes:
-      - ./config.yaml.sample:/app/paopao-ce/config.yaml
-      - ./custom:/app/paopao-ce/custom
-    ports:
-      - 8008:8008
-    networks:
-      - paopao-network
+  # backend:
+  #   image: bitbus/paopao-ce:0.5
+  #   restart: always
+  #   depends_on:
+  #     - db
+  #     - redis
+  #     - meili
+  #   # modify below to reflect your custom configure
+  #   volumes:
+  #     - ./config.yaml.sample:/app/paopao-ce/config.yaml
+  #     - ./custom:/app/paopao-ce/custom
+  #   ports:
+  #     - 8008:8008
+  #   networks:
+  #     - paopao-network
 
 networks:
   paopao-network:

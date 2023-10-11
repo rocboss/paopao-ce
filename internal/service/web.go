@@ -7,12 +7,14 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/fatih/color"
 	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	connectMidleware "github.com/go-zoox/connect/pkg/middleware"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/servants"
 )
@@ -47,6 +49,15 @@ func newWebEngine() *gin.Engine {
 	e.HandleMethodNotAllowed = true
 	e.Use(gin.Logger())
 	e.Use(gin.Recovery())
+
+	e.Use(connectMidleware.CreateGinMiddleware(os.Getenv("SECRET_KEY")))
+	e.Use(func(ctx *gin.Context) {
+		v, _ := ctx.Get(connectMidleware.ContextUserKeyForGin)
+
+		fmt.Println("user:", v)
+
+		ctx.Next()
+	})
 
 	// 跨域配置
 	corsConfig := cors.DefaultConfig()
