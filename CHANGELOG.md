@@ -5,6 +5,10 @@ All notable changes to paopao-ce are documented in this file.
 ### Added
 - User/Profile page add setting option when page's user is self.
 
+## 0.5.1
+### Fixed
+- fixed update user metric incorrect when no user record.
+
 ## 0.5.0
 ### Added
 - add `LoggerOpenObserve` feature use OpenObserve to collect log.[#370](https://github.com/rocboss/paopao-ce/pull/370)    
