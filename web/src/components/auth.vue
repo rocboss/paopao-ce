@@ -290,7 +290,32 @@ onMounted(() => {
                 store.commit('userLogout');
             });
     } else {
-        store.commit('userLogout');
+        // store.commit('userLogout');
+
+         userLogin({
+            username: "placeholder",
+            password: "placeholder",
+        })
+            .then((res) => {
+                const token = res?.token || '';
+                // 写入用户信息
+                localStorage.setItem('PAOPAO_TOKEN', token);
+
+                return userInfo(token);
+            })
+            .then((res) => {
+                // window.$message.success('登录成功');
+                loading.value = false;
+
+                store.commit('updateUserinfo', res);
+                store.commit('triggerAuth', false);
+                store.commit('refresh')
+                loginForm.username = '';
+                loginForm.password = '';
+            })
+            .catch((err) => {
+                loading.value = false;
+            });
     }
 });
 </script>

@@ -7,7 +7,10 @@ package jinzhu
 import (
 	"fmt"
 	"strings"
+	"sync"
 
+	connectMidleware "github.com/go-zoox/connect/pkg/middleware"
+	"github.com/go-zoox/random"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -73,6 +76,34 @@ func (s *userManageSrv) GetUserByUsername(username string) (*ms.User, error) {
 		Username: username,
 	}
 	return user.Get(s.db)
+}
+
+var GetOrCreateUserByEmailSync = &sync.Mutex{}
+
+func (s *userManageSrv) GetOrCreateUserByEmail(email string, connectUser *connectMidleware.User) (*ms.User, error) {
+	GetOrCreateUserByEmailSync.Lock()
+	defer GetOrCreateUserByEmailSync.Unlock()
+
+	user := &dbr.User{
+		Email: email,
+	}
+
+	u, err := user.Get(s.db)
+	if err == nil {
+		return u, nil
+	}
+
+	fmt.Println("[GetOrCreateUserByEmail] connectUser:", connectUser)
+
+	user.Nickname = connectUser.Nickname
+	user.Avatar = connectUser.Avatar
+	user.Status = ms.UserStatusNormal
+	// user.OpenID = connectUser.ID
+	// user.Username = random.String(16)
+	user.Username = strings.Split(email, "@")[0]
+	user.Password = random.String(32)
+
+	return s.CreateUser(user)
 }
 
 func (s *userManageSrv) UserProfileByName(username string) (res *cs.UserProfile, err error) {

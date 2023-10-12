@@ -18,6 +18,7 @@ type User struct {
 	*Model
 	Nickname string `json:"nickname"`
 	Username string `json:"username"`
+	Email    string `json:"email"`
 	Phone    string `json:"phone"`
 	Password string `json:"password"`
 	Salt     string `json:"salt"`
@@ -59,6 +60,8 @@ func (u *User) Get(db *gorm.DB) (*User, error) {
 		db = db.Where("id= ? AND is_del = ?", u.Model.ID, 0)
 	} else if u.Phone != "" {
 		db = db.Where("phone = ? AND is_del = ?", u.Phone, 0)
+	} else if u.Email != "" {
+		db = db.Where("email = ? AND is_del = ?", u.Email, 0)
 	} else {
 		db = db.Where("username = ? AND is_del = ?", u.Username, 0)
 	}

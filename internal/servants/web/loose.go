@@ -172,16 +172,19 @@ func (s *looseSrv) tweetCommentsFromCache(req *web.TweetCommentsReq, limit int, 
 }
 
 func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTweetsResp, err mir.Error) {
+	fmt.Println("123123")
 	user, xerr := s.RelationTypFrom(req.User, req.Username)
 	if xerr != nil {
 		return nil, err
 	}
 	// 尝试直接从缓存中获取数据
+	fmt.Println("468888")
 	key, ok := "", false
 	if res, key, ok = s.userTweetsFromCache(req, user); ok {
 		// logrus.Debugf("GetUserTweets from cache key:%s", key)
 		return
 	}
+	fmt.Println("77")
 	// 缓存获取未成功，只能查库了
 	switch req.Style {
 	case web.UserPostsStyleComment, web.UserPostsStyleMedia:

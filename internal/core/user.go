@@ -5,6 +5,7 @@
 package core
 
 import (
+	connectMidleware "github.com/go-zoox/connect/pkg/middleware"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 )
@@ -20,6 +21,8 @@ type UserManageService interface {
 	CreateUser(user *ms.User) (*ms.User, error)
 	UpdateUser(user *ms.User) error
 	GetRegisterUserCount() (int64, error)
+	//
+	GetOrCreateUserByEmail(email string, connectUser *connectMidleware.User) (*ms.User, error)
 }
 
 // ContactManageService 联系人管理服务
