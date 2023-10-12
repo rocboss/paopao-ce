@@ -4,11 +4,10 @@
 
 -- name: CreateFollowing :exec
 INSERT INTO p_following (user_id, follow_id, created_on) 
-VALUES ($1, $2, $3)
-RETURNING id;
+VALUES ($1, $2, $3);
 
 -- name: ExistFollowing :one
-SELECT 1 FROM p_following WHERE user_id=$1 AND follow_id=$2 AND is_del=0;
+SELECT true FROM p_following WHERE user_id=$1 AND follow_id=$2 AND is_del=0;
 
 -- name: DeleteFollowing :exec
 UPDATE p_following
