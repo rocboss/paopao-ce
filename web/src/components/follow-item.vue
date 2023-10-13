@@ -60,7 +60,6 @@ import { h, computed } from 'vue';
 import { NIcon } from 'naive-ui'
 import type { Component } from 'vue'
 import { useDialog, DropdownOption } from 'naive-ui';
-import { useRouter } from 'vue-router';
 import { followUser, unfollowUser } from '@/api/user';
 import { formatDate } from '@/utils/formatTime';
 import { MoreHorizFilled } from '@vicons/material';
@@ -71,7 +70,6 @@ import {
 } from '@vicons/ionicons5';
 
 const dialog = useDialog();
-const router = useRouter();
 
 const emit = defineEmits<{
     (e: 'send-whisper', user: Item.UserInfo): void;
@@ -89,7 +87,7 @@ const handleFollowUser = () => {
     dialog.success({
         title: '提示',
         content:
-            '确定' + (props.contact.is_following ? '取消关注' : '关注') + '该用户吗？',
+            '确定' + (props.contact.is_following ? '取消关注 @' : '关注 @')  + props.contact.username +' 吗？',
         positiveText: '确定',
         negativeText: '取消',
         onPositiveClick: () => {
@@ -125,20 +123,20 @@ const props = withDefaults(defineProps<{
 const actionOpts = computed(() => {
     let options: DropdownOption[] = [
         {
-            label: '私信',
+            label: '私信 @' + props.contact.username,
             key: 'whisper',
             icon: renderIcon(PaperPlaneOutline)
         },
     ];
     if (props.contact.is_following) {
         options.push({
-            label: '取消关注',
+            label: '取消关注 @' + props.contact.username,
             key: 'unfollow',
             icon: renderIcon(WalkOutline)
         })
     } else {
         options.push({
-            label: '关注',
+            label: '关注 @' + props.contact.username,
             key: 'follow',
             icon: renderIcon(BodyOutline)
         })

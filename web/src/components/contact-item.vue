@@ -85,7 +85,7 @@ const props = withDefaults(defineProps<{
 const actionOpts = computed(() => {
     let options: DropdownOption[] = [
         {
-            label: '私信',
+            label: '私信 @' + props.contact.username,
             key: 'whisper',
             icon: renderIcon(PaperPlaneOutline)
         },

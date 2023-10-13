@@ -361,19 +361,19 @@ const adminOptions = computed(() => {
     let options: DropdownOption[] = [];
     if (!store.state.userInfo.is_admin && store.state.userInfo.id != props.post.user.id) {
        options.push({
-            label: '私信',
+            label: '私信 @' + props.post.user.username,
             key: 'whisper',
             icon: renderIcon(PaperPlaneOutline)
         });
         if (props.post.user.is_following) {
             options.push({
-                label: '取消关注',
+                label: '取消关注 @' + props.post.user.username,
                 key: 'unfollow',
                 icon: renderIcon(WalkOutline)
             })
         } else {
             options.push({
-                label: '关注',
+                label: '关注 @' + props.post.user.username,
                 key: 'follow',
                 icon: renderIcon(BodyOutline)
             })
@@ -480,7 +480,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
     dialog.success({
         title: '提示',
         content:
-            '确定' + (post.user.is_following ? '取消关注' : '关注') + '该用户吗？',
+            '确定' + (post.user.is_following ? '取消关注 @' : '关注 @') + props.post.user.username + ' 吗？',
         positiveText: '确定',
         negativeText: '取消',
         onPositiveClick: () => {
@@ -496,7 +496,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
                 followUser({
                     user_id: post.user.id,
                 }).then((_res) => {
-                    window.$message.success('关注成功');
+                    window.$message.success('操作成功');
                     post.user.is_following = true;
                 })
                 .catch((_err) => {});
