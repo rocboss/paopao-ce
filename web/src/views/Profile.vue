@@ -8,6 +8,7 @@
             v-if="store.state.userInfo.id > 0"
         >
             <!-- 基础信息 -->
+            <!-- <n-spin :show="false" > -->
             <div class="profile-baseinfo">
                 <div class="avatar">
                     <n-avatar :size="72" :src="store.state.userInfo.avatar" />
@@ -62,7 +63,21 @@
                         </span>
                     </div>
                 </div>
+
+                <div class="user-opts">
+                    <n-dropdown placement="bottom-end" trigger="click" size="small" :options="userOptions"
+                        @select="handleUserAction">
+                        <n-button quaternary circle>
+                            <template #icon>
+                                <n-icon>
+                                    <more-horiz-filled />
+                                </n-icon>
+                            </template>
+                        </n-button>
+                    </n-dropdown>
+                </div>
             </div>
+            <!-- </n-spin> -->
             <n-tabs class="profile-tabs-wrap" type="line" animated @update:value="changeTab">
                 <n-tab-pane name="post" tab="泡泡"></n-tab-pane>
                 <n-tab-pane name="comment" tab="评论"></n-tab-pane>
@@ -190,17 +205,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { h, ref, Component, onMounted, computed, watch } from 'vue';
+import { NIcon } from 'naive-ui';
 import { useStore } from 'vuex';
-import { useRoute } from 'vue-router';
-import { useDialog } from 'naive-ui';
+import { useRoute, useRouter } from 'vue-router';
+import { useDialog, DropdownOption } from 'naive-ui';
 import { getUserPosts, followUser, unfollowUser } from '@/api/user';
 import { formatDate } from '@/utils/formatTime';
 import { prettyQuoteNum } from '@/utils/count';
 import InfiniteLoading from "v3-infinite-loading";
+import {
+    SettingsOutline,
+} from '@vicons/ionicons5';
+import { MoreHorizFilled } from '@vicons/material';
 
 const store = useStore();
 const route = useRoute();
+const router = useRouter();
 const dialog = useDialog();
 const loading = ref(false);
 const noMore = ref(false);
@@ -239,6 +260,40 @@ const whisperReceiver = ref<Item.UserInfo>({
     status: 1,
 });
 
+const renderIcon = (icon: Component) => {
+  return () => {
+    return h(NIcon, null, {
+      default: () => h(icon)
+    })
+  }
+};
+
+const userOptions = computed(() => {
+    let options: DropdownOption[] = [{
+        label: '设置',
+        key: 'setting',
+        icon: renderIcon(SettingsOutline)
+    }];
+    return options;
+});
+
+const handleUserAction = (
+    item: 'setting'
+) => {
+    switch (item) {
+        case 'setting':
+            router.push({
+                name: 'setting',
+                query: {
+                    t: (new Date().getTime())
+                }, 
+            });
+            break;
+        default:
+            break;
+    }
+};
+
 const onSendWhisper =  (user: Item.UserInfo) => {
     whisperReceiver.value = user;
     showWhisper.value = true;
@@ -252,7 +307,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
     dialog.success({
         title: '提示',
         content:
-            '确定' + (post.user.is_following ? '取消关注' : '关注') + '该用户吗？',
+            '确定' + (post.user.is_following ? '取消关注 @' : '关注 @') + post.user.username + ' 吗？',
         positiveText: '确定',
         negativeText: '取消',
         onPositiveClick: () => {
@@ -595,6 +650,11 @@ watch(
         .top-tag {
             transform: scale(0.75);
         }
+    }
+
+    .user-opts {
+        position: relative;
+        opacity: 0.75;
     }
 }
 

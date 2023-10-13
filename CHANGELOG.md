@@ -5,8 +5,14 @@ All notable changes to paopao-ce are documented in this file.
 TODO;
 
 ## 0.5.1
+### Added
+- User/Profile page add setting option when page's user is self.
+
 ### Fixed
 - fixed update user metric incorrect when no user record.
+
+### Change
+- frontend: follow/unfollow option hint add username info in home/user/profile/message/collections page.
 
 ## 0.5.0
 ### Added
