@@ -145,7 +145,7 @@ LoggerZinc: # 使用Zinc写日志
   Password: admin
   Secure: False
 LoggerMeili: # 使用Meili写日志
-  Host: meili:7700
+  Host: 127.0.0.1:7700
   Index: paopao-log
   ApiKey: paopao-meilisearch
   Secure: False
@@ -174,7 +174,7 @@ Zinc: # Zinc搜索配置
   Password: admin
   Secure: False
 Meili: # Meili搜索配置
-  Host: meili:7700
+  Host: 127.0.0.1:7700
   Index: paopao-data
   ApiKey: paopao-meilisearch
   Secure: False

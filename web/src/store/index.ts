@@ -35,7 +35,7 @@ export default createStore({
       defaultTweetMaxLength: 2000,
       tweetWebEllipsisSize: 400,
       tweetMobileEllipsisSize: 300,
-      defaultTweetVisibility: "friend",
+      defaultTweetVisibility: "public",
       defaultMsgLoopInterval: 5000,
       copyrightTop: "2023 paopao.info",
       copyrightLeft: "Roc's Me",
