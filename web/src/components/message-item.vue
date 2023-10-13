@@ -175,26 +175,26 @@ const renderIcon = (icon: Component) => {
 };
 
 const actionOpts = computed(() => {
+    let user = props.message.type == 4 && props.message.sender_user_id == store.state.userInfo.id 
+                    ?  props.message.receiver_user
+                    : props.message.sender_user;
     let options: DropdownOption[] = [
         {
-            label: '私信',
+            label: '私信 @' + user.username,
             key: 'whisper',
             icon: renderIcon(PaperPlaneOutline)
         },
     ]
-    let user = props.message.type == 4 && props.message.sender_user_id == store.state.userInfo.id 
-                    ?  props.message.receiver_user
-                    : props.message.sender_user;
     if (store.state.userInfo.id != user.id) {
         if (user.is_following) {
             options.push({
-                label: '取消关注',
+                label: '取消关注 @' + user.username,
                 key: 'unfollow',
                 icon: renderIcon(WalkOutline)
             })
         } else {
             options.push({
-                label: '关注',
+                label: '关注 @' + user.username,
                 key: 'follow',
                 icon: renderIcon(BodyOutline)
             })
@@ -215,7 +215,7 @@ const onHandleFollowAction = (message: Item.MessageProps) => {
     dialog.success({
         title: '提示',
         content:
-            '确定' + (user.is_following ? '取消关注' : '关注') + '该用户吗？',
+            '确定' + (user.is_following ? '取消关注 @' : '关注 @') + user.username + ' 吗？',
         positiveText: '确定',
         negativeText: '取消',
         onPositiveClick: () => {

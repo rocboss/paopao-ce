@@ -70,8 +70,7 @@
                         </div>
                     </div>
 
-                    <div class="user-opts"
-                        v-if="store.state.userInfo.id > 0 && store.state.userInfo.username != user.username">
+                    <div class="user-opts" v-if="store.state.userInfo.id > 0">
                         <n-dropdown placement="bottom-end" trigger="click" size="small" :options="userOptions"
                             @select="handleUserAction">
                             <n-button quaternary circle>
@@ -219,7 +218,7 @@ import { h, ref, reactive, watch, onMounted, computed } from 'vue';
 import { NIcon } from 'naive-ui'
 import type { Component, Ref } from 'vue'
 import { useStore } from 'vuex';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { getUserProfile, getUserPosts, changeUserStatus, deleteFriend, followUser, unfollowUser } from '@/api/user';
 import { useDialog, DropdownOption } from 'naive-ui';
 import WhisperAddFriend from '../components/whisper-add-friend.vue';
@@ -227,6 +226,7 @@ import { MoreHorizFilled } from '@vicons/material';
 import { formatDate } from '@/utils/formatTime';
 import { prettyQuoteNum } from '@/utils/count';
 import {
+    SettingsOutline,
     PaperPlaneOutline,
     PersonAddOutline,
     PersonRemoveOutline,
@@ -239,6 +239,7 @@ import InfiniteLoading from "v3-infinite-loading";
 const dialog = useDialog();
 const store = useStore();
 const route = useRoute();
+const router = useRouter();
 
 const loading = ref(false);
 const noMore = ref(false);
@@ -293,7 +294,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
     dialog.success({
         title: '提示',
         content:
-            '确定' + (post.user.is_following ? '取消关注' : '关注') + '该用户吗？',
+            '确定' + (post.user.is_following ? '取消关注 @' : '关注 @') + post.user.username + ' 吗？',
         positiveText: '确定',
         negativeText: '取消',
         onPositiveClick: () => {
@@ -639,6 +640,13 @@ const renderIcon = (icon: Component) => {
   }
 };
 const userOptions = computed(() => {
+    if (store.state.userInfo.username == user.username) {
+        return [{
+            label: '设置',
+            key: 'setting',
+            icon: renderIcon(SettingsOutline)
+        }];
+    }
     let options: DropdownOption[] = [{
         label: '私信',
         key: 'whisper',
@@ -690,7 +698,7 @@ const userOptions = computed(() => {
     return options;
 });
 const handleUserAction = (
-    item: 'whisper' | 'follow' | 'unfollow' | 'delete' | 'requesting' | 'banned' | 'deblocking'
+    item: 'whisper' | 'follow' | 'unfollow' | 'delete' | 'requesting' | 'banned' | 'deblocking' | 'setting'
 ) => {
     switch (item) {
         case 'whisper':
@@ -709,6 +717,14 @@ const handleUserAction = (
         case 'banned':
         case 'deblocking':
             banUser();
+            break;
+        case 'setting':
+            router.push({
+                name: 'setting',
+                query: {
+                    t: (new Date().getTime())
+                }, 
+            });
             break;
         default:
             break;
@@ -741,7 +757,7 @@ const handleFollowUser = () => {
     dialog.success({
         title: '提示',
         content:
-            '确定' + (user.is_following ? '取消关注' : '关注') + '该用户吗？',
+            '确定' + (user.is_following ? '取消关注 @' : '关注 @') + user.username + ' 吗？',
         positiveText: '确定',
         negativeText: '取消',
         onPositiveClick: () => {
@@ -751,7 +767,7 @@ const handleFollowUser = () => {
                     user_id: user.id,
                 }).then((_res) => {
                     userLoading.value = false;
-                    window.$message.success('取消关注成功');
+                    window.$message.success('操作成功');
                     loadUser();
                 })
                 .catch((err) => {
@@ -763,7 +779,7 @@ const handleFollowUser = () => {
                     user_id: user.id,
                 }).then((_res) => {
                     userLoading.value = false;
-                    window.$message.success('关注成功');
+                    window.$message.success('操作成功');
                     loadUser();
                 })
                 .catch((err) => {

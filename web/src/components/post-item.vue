@@ -178,7 +178,7 @@ const tweetOptions = computed(() => {
     let options: DropdownOption[] = [];
     if (!props.isOwner) {
         options.push({
-            label: '私信',
+            label: '私信 @' + props.post.user.username,
             key: 'whisper',
             icon: renderIcon(PaperPlaneOutline)
         });
@@ -186,13 +186,13 @@ const tweetOptions = computed(() => {
     if (!props.isOwner && props.addFollowAction) {
         if (props.post.user.is_following) {
             options.push({
-                label: '取消关注',
+                label: '取消关注 @' + props.post.user.username,
                 key: 'unfollow',
                 icon: renderIcon(WalkOutline)
             })
         } else {
             options.push({
-                label: '关注',
+                label: '关注 @' + props.post.user.username,
                 key: 'follow',
                 icon: renderIcon(BodyOutline)
             })
@@ -201,13 +201,13 @@ const tweetOptions = computed(() => {
     if (!props.isOwner && props.addFriendAction) {
         if (props.post.user.is_friend) {
             options.push({
-                label: '删除好友',
+                label: '删除好友 @' + props.post.user.username,
                 key: 'delete',
                 icon: renderIcon(PersonRemoveOutline)
             });
         } else {
             options.push({
-                label: '添加朋友',
+                label: '添加朋友 @' + props.post.user.username,
                 key: 'requesting',
                 icon: renderIcon(PersonAddOutline)
             });
