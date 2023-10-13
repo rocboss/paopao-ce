@@ -294,7 +294,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
     dialog.success({
         title: '提示',
         content:
-            '确定' + (post.user.is_following ? '取消关注' : '关注') + '该用户吗？',
+            '确定' + (post.user.is_following ? '取消关注 @' : '关注 @') + post.user.username + ' 吗？',
         positiveText: '确定',
         negativeText: '取消',
         onPositiveClick: () => {
@@ -757,7 +757,7 @@ const handleFollowUser = () => {
     dialog.success({
         title: '提示',
         content:
-            '确定' + (user.is_following ? '取消关注' : '关注') + '该用户吗？',
+            '确定' + (user.is_following ? '取消关注 @' : '关注 @') + user.username + ' 吗？',
         positiveText: '确定',
         negativeText: '取消',
         onPositiveClick: () => {
@@ -767,7 +767,7 @@ const handleFollowUser = () => {
                     user_id: user.id,
                 }).then((_res) => {
                     userLoading.value = false;
-                    window.$message.success('取消关注成功');
+                    window.$message.success('操作成功');
                     loadUser();
                 })
                 .catch((err) => {
@@ -779,7 +779,7 @@ const handleFollowUser = () => {
                     user_id: user.id,
                 }).then((_res) => {
                     userLoading.value = false;
-                    window.$message.success('关注成功');
+                    window.$message.success('操作成功');
                     loadUser();
                 })
                 .catch((err) => {

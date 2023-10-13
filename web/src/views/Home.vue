@@ -206,7 +206,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
     dialog.success({
         title: '提示',
         content:
-            '确定' + (post.user.is_following ? '取消关注' : '关注') + '该用户吗？',
+            '确定' + (post.user.is_following ? '取消关注 @' : '关注 @') + post.user.username + ' 吗？',
         positiveText: '确定',
         negativeText: '取消',
         onPositiveClick: () => {
