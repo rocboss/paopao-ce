@@ -75,7 +75,7 @@
                     :key="content.id"
                     class="post-text hover"
                     @click.stop="doClickText($event, post.id)"
-                    v-html="preparePost(content.content, '查看全文', store.state.profile.tweetWebEllipsisSize)"
+                    v-html="preparePost(content.content, '展开', '收起', store.state.profile.tweetWebEllipsisSize, inFoldStyle)"
                 ></span>
             </template>
 
@@ -125,7 +125,7 @@
 </template>
 
 <script setup lang="ts">
-import { h, computed } from 'vue';
+import { h, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { NIcon } from 'naive-ui'
@@ -153,6 +153,7 @@ import copy from "copy-to-clipboard";
 
 const router = useRouter();
 const store = useStore();
+const inFoldStyle = ref<boolean>(true)
 const props = withDefaults(defineProps<{
     post: Item.PostProps,
     isOwner: boolean,
@@ -357,10 +358,12 @@ const doClickText = (e: MouseEvent, id: number) => {
                     },
                 });
             }
-            return;
         }
+    } else if (detail && detail === 'post') {
+        inFoldStyle.value = !inFoldStyle.value
+    } else {
+        goPostDetail(id);
     }
-    goPostDetail(id);
 };
 </script>
 
