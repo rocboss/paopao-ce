@@ -4,6 +4,10 @@ All notable changes to paopao-ce are documented in this file.
 ## 0.6.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
 TODO;
 
+## 0.5.2
+### Change
+- frontend: optimize to use fold/unfold action for post item display.
+
 ## 0.5.1
 ### Added
 - User/Profile page add setting option when page's user is self.
