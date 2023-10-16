@@ -29,11 +29,16 @@ export const parsePostTag = (content: string) => {
   return { content, tags, users };
 };
 
-export const preparePost = (content: string, hint: string, maxSize: number) => {
-  let isEllipsis = false;
-  if (content.length > maxSize) {
+export const preparePost = (
+  content: string,
+  foldHint: string,
+  unfoldHint: string,
+  maxSize: number,
+  isFold: boolean = true
+) => {
+  const isEllipsis = content.length > maxSize;
+  if (isFold && isEllipsis) {
     content = content.substring(0, maxSize);
-    isEllipsis = true;
     let latestChar = content.charAt(maxSize - 1);
     if (latestChar == "#" || latestChar == "#" || latestChar == "@") {
       content = content.substring(0, maxSize - 1);
@@ -65,9 +70,9 @@ export const preparePost = (content: string, hint: string, maxSize: number) => {
   if (isEllipsis) {
     content =
       content.trimEnd() +
-      " ..." +
+      (isFold ? "...&nbsp;" : "&nbsp;") +
       '<a class="hash-link" data-detail="post">' +
-      hint +
+      (isFold ? foldHint : unfoldHint) +
       "</a> ";
   }
   return content;
