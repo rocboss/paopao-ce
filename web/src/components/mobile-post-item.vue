@@ -76,7 +76,7 @@
                         :key="content.id"
                         class="post-text"
                         @click.stop="doClickText($event, post.id)"
-                        v-html="preparePost(content.content, '查看全文', store.state.profile.tweetMobileEllipsisSize)"
+                        v-html="preparePost(content.content, '展开', '收起', store.state.profile.tweetMobileEllipsisSize, inFoldStyle)"
                     ></span>
                 </div>
             </template>
@@ -127,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { h, computed } from 'vue';
+import { h, ref, computed } from 'vue';
 import type { Component } from 'vue'
 import { NIcon } from 'naive-ui'
 import { useStore } from 'vuex';
@@ -155,6 +155,7 @@ import copy from "copy-to-clipboard";
 
 const router = useRouter();
 const store = useStore();
+const inFoldStyle = ref<boolean>(true)
 const props = withDefaults(defineProps<{
     post: Item.PostProps,
     isOwner: boolean,
@@ -341,8 +342,9 @@ const goPostDetail = (id: number) => {
     });
 };
 const doClickText = (e: MouseEvent, id: number) => {
-    if ((e.target as any).dataset.detail) {
-        const d = (e.target as any).dataset.detail.split(':');
+    const detail = (e.target as any).dataset.detail
+    if (detail && detail !== 'post') {
+        const d = detail.split(':');
         if (d.length === 2) {
             store.commit('refresh');
             if (d[0] === 'tag') {
@@ -361,10 +363,12 @@ const doClickText = (e: MouseEvent, id: number) => {
                     },
                 });
             }
-            return;
         }
+    } else if (detail && detail === 'post') {
+        inFoldStyle.value = !inFoldStyle.value
+    } else {
+        goPostDetail(id);
     }
-    goPostDetail(id);
 };
 </script>
 

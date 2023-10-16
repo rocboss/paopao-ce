@@ -88,14 +88,15 @@
                 <whisper :show="showWhisper" :user="user" @success="whisperSuccess" />
                 <!-- 加好友组件 -->
                 <whisper-add-friend :show="showAddFriendWhisper" :user="user" @success="addFriendWhisperSuccess" />
+            
+                <n-tabs v-if="!userLoading" class="profile-tabs-wrap" type="line" animated :value="pageType" @update:value="changeTab">
+                    <n-tab-pane name="post" tab="泡泡"></n-tab-pane>
+                    <n-tab-pane name="comment" tab="评论"></n-tab-pane>
+                    <n-tab-pane name="highlight" tab="亮点"></n-tab-pane>
+                    <n-tab-pane name="media" tab="图文"></n-tab-pane>
+                    <n-tab-pane name="star" tab="喜欢"></n-tab-pane>
+                </n-tabs>
             </n-spin>
-            <n-tabs class="profile-tabs-wrap" type="line" animated :value="pageType" @update:value="changeTab">
-                <n-tab-pane name="post" tab="泡泡"></n-tab-pane>
-                <n-tab-pane name="comment" tab="评论"></n-tab-pane>
-                <n-tab-pane name="highlight" tab="亮点"></n-tab-pane>
-                <n-tab-pane name="media" tab="图文"></n-tab-pane>
-                <n-tab-pane name="star" tab="喜欢"></n-tab-pane>
-            </n-tabs>
             <div v-if="loading && list.length === 0" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />
             </div>
