@@ -118,6 +118,6 @@ type WebCache interface {
 }
 
 type MetricCache interface {
-	SetEventTempWorkerCount(name string, count int)
-	GetEventTempWorkerCount(name string) int
+	SetEventTempWorkerCount(name string, count int32)
+	GetEventTempWorkerCount(name string) int32
 }

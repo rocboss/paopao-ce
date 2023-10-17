@@ -39,11 +39,11 @@ func (s *simpleEventManager) OnEvent(event Event) {
 	s.em.OnEvent(event)
 }
 
-func (h *simpleWorkerHook) OnJoin(count int) {
+func (h *simpleWorkerHook) OnJoin(count int32) {
 	h.cache.SetEventTempWorkerCount(h.name, count)
 }
 
-func (h *simpleWorkerHook) OnLeave(count int) {
+func (h *simpleWorkerHook) OnLeave(count int32) {
 	h.cache.SetEventTempWorkerCount(h.name, count)
 }
 

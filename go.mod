@@ -7,7 +7,7 @@ require (
 	github.com/RoaringBitmap/roaring v1.6.0
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/mir/v4 v4.0.0
-	github.com/alimy/tryst v0.9.1
+	github.com/alimy/tryst v0.9.2
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.9+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/bufbuild/connect-go v1.10.0
