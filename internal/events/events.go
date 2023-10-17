@@ -11,6 +11,7 @@ import (
 	"github.com/alimy/tryst/pool"
 	"github.com/robfig/cron/v3"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/internal/metrics/statistics"
 	"github.com/sirupsen/logrus"
 )
 
@@ -103,7 +104,10 @@ func initEventManager() {
 	} else {
 		opts = append(opts, pool.MaxRequestTempBufOpt(10))
 	}
-	opts = append(opts, pool.MaxTickCountOpt(s.MaxTickCount), pool.TickWaitTimeOpt(s.TickWaitTime))
+	opts = append(opts,
+		pool.MaxTickCountOpt(s.MaxTickCount),
+		pool.TickWaitTimeOpt(s.TickWaitTime),
+		pool.WorkerHookOpt(NewEventWorkerHook("default", statistics.NewMetricCache())))
 	_defaultEventManager = NewEventManager(func(req Event, err error) {
 		if err != nil {
 			logrus.Errorf("handle event[%s] occurs error: %s", req.Name(), err)
