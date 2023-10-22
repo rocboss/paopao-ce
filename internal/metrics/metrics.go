@@ -65,7 +65,7 @@ func initMetricManager() {
 	} else {
 		opts = append(opts, pool.MaxRequestTempBufOpt(10))
 	}
-	opts = append(opts, pool.MaxTickCountOpt(s.MaxTickCount), pool.TickWaitTimeOpt(s.TickWaitTime))
+	opts = append(opts, pool.MaxTickCountOpt(s.MaxTickCount), pool.TickWaitTimeOpt(s.TickWaitTime), pool.MaxTempWorkerOpt(s.MaxTempWorker))
 	_defaultMetricManager = event.NewEventManager(func(req Metric, err error) {
 		if err != nil {
 			logrus.Errorf("handle event[%s] occurs error: %s", req.Name(), err)

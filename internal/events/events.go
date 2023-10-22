@@ -107,7 +107,7 @@ func initEventManager() {
 	if cfg.If("Metrics") {
 		opts = append(opts, pool.WorkerHookOpt(NewEventWorkerHook("default", statistics.NewMetricCache())))
 	}
-	opts = append(opts, pool.MaxTickCountOpt(s.MaxTickCount), pool.TickWaitTimeOpt(s.TickWaitTime))
+	opts = append(opts, pool.MaxTickCountOpt(s.MaxTickCount), pool.TickWaitTimeOpt(s.TickWaitTime), pool.MaxTempWorkerOpt(s.MaxTempWorker))
 	_defaultEventManager = NewEventManager(func(req Event, err error) {
 		if err != nil {
 			logrus.Errorf("handle event[%s] occurs error: %s", req.Name(), err)
