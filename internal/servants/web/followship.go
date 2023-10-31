@@ -35,7 +35,7 @@ func (s *followshipSrv) ListFollowings(r *web.ListFollowingsReq) (*web.ListFollo
 		logrus.Errorf("Ds.GetUserByUsername err: %s", err)
 		return nil, web.ErrNoExistUsername
 	}
-	res, err := s.Ds.ListFollowings(he.ID, r.PageSize, r.Page-1)
+	res, err := s.Ds.ListFollowings(he.ID, r.PageSize, (r.Page-1)*r.PageSize)
 	if err != nil {
 		logrus.Errorf("Ds.ListFollowings err: %s", err)
 		return nil, web.ErrListFollowingsFailed
@@ -55,7 +55,7 @@ func (s *followshipSrv) ListFollows(r *web.ListFollowsReq) (*web.ListFollowsResp
 		logrus.Errorf("Ds.GetUserByUsername err: %s", err)
 		return nil, web.ErrNoExistUsername
 	}
-	res, err := s.Ds.ListFollows(he.ID, r.PageSize, r.Page-1)
+	res, err := s.Ds.ListFollows(he.ID, r.PageSize, (r.Page-1)*r.PageSize)
 	if err != nil {
 		logrus.Errorf("Ds.ListFollows err: %s", err)
 		return nil, web.ErrListFollowsFailed

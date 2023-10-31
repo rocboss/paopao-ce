@@ -13,8 +13,10 @@ import (
 
 type metrics struct {
 	siteInfo *prometheus.GaugeVec
+	runtime  *prometheus.GaugeVec
 	ds       core.DataService
 	wc       core.WebCache
+	mc       core.MetricCache
 }
 
 func (m *metrics) updateSiteInfo() {
@@ -31,13 +33,21 @@ func (m *metrics) updateSiteInfo() {
 	}
 }
 
+func (m *metrics) updateRuntime() {
+	m.runtime.With(prometheus.Labels{"name": "default"}).Set(float64(m.mc.GetEventTempWorkerCount("default")))
+}
+
 func (m *metrics) onUpdate() {
 	logrus.Debugf("update promethues metrics job running")
 	m.updateSiteInfo()
+	m.updateRuntime()
 }
 
-func newMetrics(reg prometheus.Registerer, ds core.DataService, wc core.WebCache) *metrics {
+func newMetrics(reg prometheus.Registerer, ds core.DataService, wc core.WebCache, mc core.MetricCache) *metrics {
 	m := &metrics{
+		ds: ds,
+		wc: wc,
+		mc: mc,
 		siteInfo: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "paopao",
@@ -49,9 +59,18 @@ func newMetrics(reg prometheus.Registerer, ds core.DataService, wc core.WebCache
 				// metric name
 				"name",
 			}),
-		ds: ds,
-		wc: wc,
+		runtime: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "runtime",
+				Subsystem: "event_manager",
+				Name:      "temp_worker_count",
+				Help:      "runtime's event manager temp worker count info",
+			},
+			[]string{
+				// metric name
+				"name",
+			}),
 	}
-	reg.MustRegister(m.siteInfo)
+	reg.MustRegister(m.siteInfo, m.runtime)
 	return m
 }

@@ -8,6 +8,9 @@ TODO;
 ### Change
 - frontend: optimize to use fold/unfold action for post item display.
 
+### Fixed
+- fixed follow page incorrect results.
+
 ## 0.5.1
 ### Added
 - User/Profile page add setting option when page's user is self.
