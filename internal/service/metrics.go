@@ -14,6 +14,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/metrics/prometheus"
+	"github.com/rocboss/paopao-ce/internal/metrics/statistics"
 )
 
 var (
@@ -44,9 +45,9 @@ func (s *metricsService) String() string {
 func newMetricsService() Service {
 	addr := conf.MetricsServerSetting.HttpIp + ":" + conf.MetricsServerSetting.HttpPort
 	server := httpServers.from(addr, func() *httpServer {
-		ds, wc := dao.DataService(), cache.NewWebCache()
+		ds, wc, mc := dao.DataService(), cache.NewWebCache(), statistics.NewMetricCache()
 		mux := http.NewServeMux()
-		mux.Handle("/metrics", prometheus.NewHandler(ds, wc))
+		mux.Handle("/metrics", prometheus.NewHandler(ds, wc, mc))
 		return &httpServer{
 			baseServer: newBaseServe(),
 			server: &http.Server{
