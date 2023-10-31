@@ -116,3 +116,8 @@ type WebCache interface {
 	ExistUnreadMsgCountResp(uid int64) bool
 	PutHistoryMaxOnline(newScore int) (int, error)
 }
+
+type MetricCache interface {
+	SetEventTempWorkerCount(name string, count int32)
+	GetEventTempWorkerCount(name string) int32
+}
