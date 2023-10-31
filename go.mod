@@ -38,7 +38,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.17.0
-	github.com/tencentyun/cos-go-sdk-v5 v0.7.44
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.45
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
 	go.uber.org/automaxprocs v1.5.3
 	google.golang.org/grpc v1.59.0
