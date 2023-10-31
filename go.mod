@@ -43,7 +43,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.17.0
-	github.com/sqlc-dev/sqlc v1.22.0
+	github.com/sqlc-dev/sqlc v1.23.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.45
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
 	go.uber.org/automaxprocs v1.5.3
@@ -66,7 +66,7 @@ require (
 	github.com/benbjohnson/clock v1.3.5 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.2.0 // indirect
-	github.com/bytecodealliance/wasmtime-go/v13 v13.0.0 // indirect
+	github.com/bytecodealliance/wasmtime-go/v14 v14.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.0 // indirect
@@ -103,6 +103,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
+	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -131,7 +132,7 @@ require (
 	github.com/pingcap/errors v0.11.5-0.20210425183316-da1aaba5fb63 // indirect
 	github.com/pingcap/failpoint v0.0.0-20220801062533-2eaa32854a6c // indirect
 	github.com/pingcap/log v1.1.0 // indirect
-	github.com/pingcap/tidb/parser v0.0.0-20230815160630-b69fa21942d1 // indirect
+	github.com/pingcap/tidb/parser v0.0.0-20231010133155-38cb4f3312be // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
@@ -164,7 +165,7 @@ require (
 	golang.org/x/image v0.0.0-20210216034530-4410531fe030 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sync v0.3.0 // indirect
+	golang.org/x/sync v0.4.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
@@ -177,9 +178,9 @@ require (
 	modernc.org/cc/v3 v3.40.0 // indirect
 	modernc.org/ccgo/v3 v3.16.13 // indirect
 	modernc.org/libc v1.24.1 // indirect
-	modernc.org/mathutil v1.5.0 // indirect
+	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.6.0 // indirect
 	modernc.org/opt v0.1.3 // indirect
-	modernc.org/strutil v1.1.3 // indirect
+	modernc.org/strutil v1.2.0 // indirect
 	modernc.org/token v1.0.1 // indirect
 )
