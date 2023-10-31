@@ -28,7 +28,7 @@ require (
 	github.com/meilisearch/meilisearch-go v0.25.1
 	github.com/minio/minio-go/v7 v7.0.63
 	github.com/onsi/ginkgo/v2 v2.13.0
-	github.com/onsi/gomega v1.28.1
+	github.com/onsi/gomega v1.29.0
 	github.com/prometheus/client_golang v1.17.0
 	github.com/pyroscope-io/client v0.7.2
 	github.com/redis/rueidis v1.0.20
