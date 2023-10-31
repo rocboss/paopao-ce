@@ -66,6 +66,15 @@ const whisperReceiver = ref<Item.UserInfo>({
     status: 1,
 });
 
+function resetPage(tab: "follows" | "followings") {
+    list.value = [];
+    loading.value = false;
+    noMore.value = false;
+    page.value = 1;
+    totalPage.value = 0;
+    tabler.value = tab;
+}
+
 const completeStr = computed(() => {
     if (tabler.value == "follows") {
         return '没有更多关注了'
@@ -94,7 +103,7 @@ const nextPage = () => {
 };
 
 const changeTab = (tab: "follows" | "followings") => {
-    tabler.value = tab;
+    resetPage(tab);
     loadPage();
 };
 

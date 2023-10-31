@@ -27,7 +27,7 @@ func scheduleJobs(metrics *metrics) {
 	logrus.Debug("shedule prometheus metrics update jobs complete")
 }
 
-func NewHandler(ds core.DataService, wc core.WebCache) http.Handler {
+func NewHandler(ds core.DataService, wc core.WebCache, mc core.MetricCache) http.Handler {
 	// Create non-global registry.
 	registry := prometheus.NewRegistry()
 	// Add go runtime metrics and process collectors.
@@ -35,7 +35,7 @@ func NewHandler(ds core.DataService, wc core.WebCache) http.Handler {
 		collectors.NewGoCollector(),
 		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
 	)
-	metrics := newMetrics(registry, ds, wc)
+	metrics := newMetrics(registry, ds, wc, mc)
 	scheduleJobs(metrics)
 	return promhttp.HandlerFor(registry, promhttp.HandlerOpts{EnableOpenMetrics: true})
 }

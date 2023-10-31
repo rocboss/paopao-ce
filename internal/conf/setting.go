@@ -115,18 +115,18 @@ type cacheConf struct {
 
 type eventManagerConf struct {
 	MinWorker       int
+	MaxTempWorker   int
 	MaxEventBuf     int
 	MaxTempEventBuf int
-	MaxTickCount    int
-	TickWaitTime    time.Duration
+	MaxIdleTime     time.Duration
 }
 
 type metricManagerConf struct {
 	MinWorker       int
+	MaxTempWorker   int
 	MaxEventBuf     int
 	MaxTempEventBuf int
-	MaxTickCount    int
-	TickWaitTime    time.Duration
+	MaxIdleTime     time.Duration
 }
 
 type jobManagerConf struct {
