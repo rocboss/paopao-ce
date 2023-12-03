@@ -2,6 +2,14 @@ import { createRouter, createWebHashHistory } from "vue-router";
 
 const routes = [
     {
+        path: '/download',
+        name: 'download',
+        meta: {
+            title: '下载',
+        },
+        component: () => import('@/views/Download.vue'),
+    },
+    {
         path: '/',
         name: 'home',
         meta: {

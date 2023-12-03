@@ -40,17 +40,27 @@
                 </div>
                 <div v-if="store.state.desktopModelShow">
                     <n-list-item v-for="post in list" :key="post.id">
-                        <post-item :post="post" @send-whisper="onSendWhisper" />
+                        <post-item :post="post"
+                            :isOwner="store.state.userInfo.Id === post.user_id"
+                            :addExtraAction="true"
+                            @send-whisper="onSendWhisper"
+                            @handle-follow-action="onHandleFollowAction" />
                     </n-list-item>
                 </div>
                 <div v-else>
                     <n-list-item v-for="post in list" :key="post.id">
-                        <mobile-post-item :post="post" @send-whisper="onSendWhisper" />
+                        <mobile-post-item :post="post"
+                            :isOwner="store.state.userInfo.Id === post.user_id"
+                            :addExtraAction="true"
+                            @send-whisper="onSendWhisper"
+                            @handle-follow-action="onHandleFollowAction" />
                     </n-list-item>
                 </div>
             </div>
             <!-- 私信组件 -->
             <!-- <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" /> -->
+            <!-- 加好友组件 -->
+            <!-- <whisper-add-friend :show="showAddFriendWhisper" :user="user" @success="addFriendWhisperSuccess" /> -->
         </n-list>
 
         <n-space v-if="totalPage > 0" justify="center">
@@ -67,22 +77,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, reactive, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
+import { useDialog } from 'naive-ui';
 import InfiniteLoading from "v3-infinite-loading";
 import { getPosts, getContacts } from '@/api/post';
-import { getUserPosts } from '@/api/user';
+import { getUserPosts, deleteFriend, followUser, unfollowUser } from '@/api/user';
 import SlideBar from '@opentiny/vue-slide-bar';
-import allTweets from '@/assets/img/all-tweets.png';
+import allTweets from '@/assets/img/fresh-tweets.png';
 import discoverTweets from '@/assets/img/discover-tweets.jpeg';
 import followingTweets from '@/assets/img/following-tweets.jpeg';
+import { AnyMxRecord } from 'dns';
+import { NodeJs } from '@vicons/fa';
 
 const useFriendship = (import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true')
 const enableFriendsBar = (import.meta.env.VITE_ENABLE_FRIENDS_BAR.toLowerCase() === 'true')
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
+const dialog = useDialog();
 
 const initBlocks = ref(9)
 const wheelBlocks = ref(8)
@@ -102,8 +116,22 @@ const slideBarList = ref<Item.SlideBarItem[]>([
     { title: '', style: 1, username: '', avatar: '', show: true },
     { title: '', style: 1, username: '', avatar: '', show: true }
 ]);
+const user = reactive<Item.UserInfo>({
+    id: 0,
+    avatar: '',
+    username: '',
+    nickname: '',
+    is_admin: false,
+    is_friend: false,
+    is_following: false,
+    created_on: 0,
+    follows: 0,
+    followings: 0,
+    status: 1,
+});
+const inActionPost = ref<Item.PostProps | null>(null)
 
-const title = ref<string>("泡泡广场")
+const title = ref<string>("Aimo广场")
 const loading = ref(false);
 const noMore = ref(false);
 const targetStyle = ref<number>(1)
@@ -113,6 +141,7 @@ const page = ref(1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 const showWhisper = ref(false);
+const showAddFriendWhisper = ref(false);
 const whisperReceiver = ref<Item.UserInfo>({
     id: 0,
     avatar: '',
@@ -134,6 +163,74 @@ const onSendWhisper =  (user: Item.UserInfo) => {
 
 const whisperSuccess = () => {
     showWhisper.value = false;
+};
+
+const openAddFriendWhisper = () => {
+    showAddFriendWhisper.value = true;
+};
+
+const openDeleteFriend = (post: Item.PostProps) => {
+    dialog.warning({
+        title: '删除好友',
+        content: '将好友 “' + post.user.nickname + '” 删除，将同时删除 点赞/收藏 列表中关于该朋友的 “好友可见” 推文',
+        positiveText: '确定',
+        negativeText: '取消',
+        onPositiveClick: () => {
+            deleteFriend({
+                user_id: user.id,
+            }).then((res) => {
+                window.$message.success('操作成功');
+                post.user.is_friend = false;
+            })
+            .catch((_err) => {});
+        },
+    });
+};
+
+const addFriendWhisperSuccess = () => {
+    showAddFriendWhisper.value = false;
+    inActionPost.value = null;
+};
+
+const onHandleFriendAction = (post: Item.PostProps) => {
+    inActionPost.value = post;
+    user.id = post.user.id;
+    user.username = post.user.username;
+    user.nickname = post.user.nickname;
+    if (post.user.is_friend) {
+        openDeleteFriend(post);
+    } else {
+        openAddFriendWhisper();
+    }
+};
+
+const onHandleFollowAction = (post: Item.PostProps) => {
+    dialog.success({
+        title: '提示',
+        content:
+            '确定' + (post.user.is_following ? '取消关注' : '关注') + '该用户吗？',
+        positiveText: '确定',
+        negativeText: '取消',
+        onPositiveClick: () => {
+            if (post.user.is_following) {
+                unfollowUser({
+                    user_id: post.user.id,
+                }).then((_res) => {
+                    window.$message.success('操作成功');
+                    post.user.is_following = false;
+                })
+                .catch((_err) => {});
+            } else {
+                followUser({
+                    user_id: post.user.id,
+                }).then((_res) => {
+                    window.$message.success('关注成功');
+                    post.user.is_following = true;
+                })
+                .catch((_err) => {});
+            }
+        },
+    });
 };
 
 const updateTitle = () => {
@@ -168,16 +265,14 @@ const handleBarClick = (data: Item.SlideBarItem, index: number) => {
     }
     switch (data.style) {
     case 1:
-        loadPosts();
+        loadPosts("newest");
         break;
     case 2:
-        // todo: add some other logic
-        loadPosts();
+        loadPosts("hots");
         break;
     case 3:
-        // todo: add some other logic
         route.query.q=null
-        loadPosts();
+        loadPosts("following");
         break;
     case 21:
         targetUsername.value = data.username;
@@ -220,11 +315,12 @@ const loadContacts = () => {
     });
 };
 
-const loadPosts = () => {
+const loadPosts = (style : "newest" | "hots" | "following" | "search") => {
     loading.value = true;
     getPosts({
         query: route.query.q ? decodeURIComponent(route.query.q as string) : null,
         type: route.query.t as string,
+        style: style,
         page: page.value,
         page_size: pageSize.value,
     })
@@ -282,54 +378,59 @@ const loadUserPosts = () => {
 };
 
 const onPostSuccess = (post: Item.PostProps) => {
-    // 如果不在第一页，需要跳转到详情页面
-    if (targetStyle.value != 1) {
-        router.push({
-            name: 'post',
-            query: {
-                id: post.id,
-            },
-        });
-        return;
-    }
+    // 暂时统统跳到详情页面，后续再精细化分场景优化
+    router.push({
+        name: 'post',
+        query: {
+            id: post.id,
+        },
+    });
+    // // 如果不在第一页，需要跳转到详情页面
+    // if (targetStyle.value != 1) {
+    //     router.push({
+    //         name: 'post',
+    //         query: {
+    //             id: post.id,
+    //         },
+    //     });
+    //     return;
+    // }
 
-    // 如果是在第一页，就地插入新推文到文章列表中
-   let items = [];
-   let length = list.value.length;
-   if (length == pageSize.value) {
-        length--;
-    }
-    var i = 0;
-    for (; i < length; i++) {
-        let item: Item.PostProps = list.value[i];
-        if (!item.is_top) {
-            break;
-        }
-        items.push(item);
-    }
-    items.push(post);
-    for (; i < length; i++) {
-        items.push(list.value[i]);
-    }
-    list.value = items;
+    // // 如果是在第一页，就地插入新推文到文章列表中
+    // let items = [];
+    // let length = list.value.length;
+    // if (length == pageSize.value) {
+    //     length--;
+    // }
+    // var i = 0;
+    // for (; i < length; i++) {
+    //     let item: Item.PostProps = list.value[i];
+    //     if (!item.is_top) {
+    //         break;
+    //     }
+    //     items.push(item);
+    // }
+    // items.push(post);
+    // for (; i < length; i++) {
+    //     items.push(list.value[i]);
+    // }
+    // list.value = items;
 };
 
 const loadMorePosts = () => {
     switch (targetStyle.value) {
     case 1:
-        loadPosts();
+        loadPosts("newest");
         break;
     case 2:
-        // todo: add some other logic
-        loadPosts();
+        loadPosts("hots");
         break;
     case 3:
-        // todo: add some other logic
-        loadPosts();
+        loadPosts("following");
         break;
     case 21:
         if (route.query.q) {
-            loadPosts();
+            loadPosts("search");
         } else {
             loadUserPosts();
         }
@@ -352,7 +453,7 @@ const nextPage = () => {
 onMounted(() => {
     reset();
     loadContacts()
-    loadPosts();
+    loadPosts("newest");
 });
 
 watch(

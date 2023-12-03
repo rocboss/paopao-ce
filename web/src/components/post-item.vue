@@ -1,5 +1,7 @@
 <template>
-    <div class="post-item" @click="goPostDetail(post.id)">
+   <div class="post-item" 
+     @mousedown="handleMouseDown" 
+     @mouseup="handleMouseUp($event, post.id)">
         <n-thing content-indented>
             <template #avatar>
                 <n-avatar round :size="30" :src="post.user.avatar" />
@@ -125,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { h, computed } from 'vue';
+import { h, computed,ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { NIcon } from 'naive-ui'
@@ -136,6 +138,7 @@ import { parsePostTag } from '@/utils/content';
 import {
     postStar,
     postCollection,
+    getPost,
 } from '@/api/post';
 import {
     PaperPlaneOutline,
@@ -143,6 +146,10 @@ import {
     BookmarkOutline,
     ChatboxOutline,
     ShareSocialOutline,
+    PersonAddOutline,
+    PersonRemoveOutline,
+    BodyOutline,
+    WalkOutline,
 } from '@vicons/ionicons5';
 import { MoreHorizFilled } from '@vicons/material';
 import copy from "copy-to-clipboard";
@@ -151,10 +158,14 @@ const router = useRouter();
 const store = useStore();
 const props = withDefaults(defineProps<{
     post: Item.PostProps,
+    isOwner: boolean,
+    addExtraAction: boolean,
 }>(), {});
 
 const emit = defineEmits<{
-    (e: 'send-whisper', user: Item.UserInfo): void;
+    (e: 'send-whisper', user: Item.UserInfo): void
+    (e: 'handle-follow-action', user: Item.PostProps): void
+    (e: 'handle-friend-action', user: Item.PostProps): void
 }>();
 
 const renderIcon = (icon: Component) => {
@@ -180,6 +191,34 @@ const tweetOptions = computed(() => {
     //     key: 'whisper',
     //     icon: renderIcon(PaperPlaneOutline)
     // });
+    if (!props.isOwner && props.addExtraAction) {
+        if (props.post.user.is_following) {
+            options.push({
+                label: '取消关注',
+                key: 'unfollow',
+                icon: renderIcon(WalkOutline)
+            })
+        } else {
+            options.push({
+                label: '关注',
+                key: 'follow',
+                icon: renderIcon(BodyOutline)
+            })
+        }
+        // if (props.post.user.is_friend) {
+        //     options.push({
+        //         label: '删除好友',
+        //         key: 'delete',
+        //         icon: renderIcon(PersonRemoveOutline)
+        //     });
+        // } else {
+        //     options.push({
+        //         label: '添加朋友',
+        //         key: 'requesting',
+        //         icon: renderIcon(PersonAddOutline)
+        //     });
+        // }
+    }
     options.push({
         label: '复制链接',
         key: 'copyTweetLink',
@@ -189,7 +228,7 @@ const tweetOptions = computed(() => {
 });
 
 const handleTweetAction = async (
-    item: 'copyTweetLink' | 'whisper'
+    item: 'copyTweetLink' | 'whisper' | 'follow' | 'unfollow' | 'delete' | 'requesting'
 ) => {
     switch (item) {
         case 'copyTweetLink':
@@ -198,6 +237,14 @@ const handleTweetAction = async (
             break;
         case 'whisper':
             emit('send-whisper', props.post.user);
+            break;
+        case 'delete':
+        case 'requesting':
+            emit('handle-friend-action', props.post);
+            break;
+        case 'follow':
+        case 'unfollow':
+            emit('handle-follow-action', props.post);
             break;
         default:
             break;
@@ -294,6 +341,33 @@ const goPostDetail = (id: number) => {
         },
     });
 };
+
+const longPressTimer = ref<NodeJS.Timeout | null>(null);
+const isLongPress = ref(false); // 长按标志
+
+const handleMouseDown = () => {
+    isLongPress.value = false; // 重置长按标志
+
+    longPressTimer.value = setTimeout(() => {
+        isLongPress.value = true; // 设置长按标志;
+        // console.log('Long press');
+    }, 50); // 这里设置一个较短的时间阈值，如50毫秒，来区分单击和长按
+};
+
+const handleMouseUp = (e: MouseEvent, id: number) => {
+    if (longPressTimer.value) {
+        clearTimeout(longPressTimer.value);
+        longPressTimer.value = null;
+    }
+
+    // 检查是否是单击（非长按）且使用的是左键
+    if (!isLongPress.value && e.button === 0) {
+        goPostDetail(id);
+    }
+
+    isLongPress.value = false;
+};
+
 const doClickText = (e: MouseEvent, id: number) => {
     if ((e.target as any).dataset.detail) {
         const d = (e.target as any).dataset.detail.split(':');

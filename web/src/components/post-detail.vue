@@ -604,16 +604,11 @@ const execHighlightAction = () => {
         });
 };
 const execVisibilityAction = () => {
-    // TODO: 暂时following等价于public
-    let fixedVisit = tempVisibility.value
-    if (fixedVisit == 3) {
-        fixedVisit = 0
-    }
     visibilityPost({
         id: post.value.id,
-        visibility: fixedVisit
+        visibility: tempVisibility.value
     })
-        .then((res) => {
+        .then((_res) => {
             emit('reload');
             window.$message.success('修改可见性成功');
         })

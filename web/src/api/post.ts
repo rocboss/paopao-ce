@@ -250,6 +250,17 @@ export const deleteComment = (
   });
 };
 
+/** 精选评论 */
+export const highlightComment = (
+  data: NetParams.PostHighlightComment
+): Promise<NetReq.PostHighlightComment> => {
+  return request({
+    method: "post",
+    url: "/v1/post/comment/highlight",
+    data,
+  });
+};
+
 /** 发布评论回复 */
 export const createCommentReply = (
   data: NetParams.PostCreateCommentReply

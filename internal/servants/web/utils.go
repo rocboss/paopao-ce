@@ -110,6 +110,7 @@ func (s *pubSrv) getRandomAvatarByUsername(username string) string {
 	// 保存头像图片到文件
 	avatarBuffer := &bytes.Buffer{}
 	err := saveImageToBuffer(avatar, avatarBuffer)
+	// TODO 下面代码中的在控制台打印应该改为日志记录
 	if err != nil {
 		fmt.Println("保存头像到缓冲区失败:", err)
 		return "注册失败"
@@ -343,4 +344,11 @@ func checkPermision(user *ms.User, targetUserId int64) mir.Error {
 		return web.ErrNoPermission
 	}
 	return nil
+}
+
+// visbleTansform 可见性等价转换，暂时处理方式，后续需要去掉这个步骤
+func _visbleTansform(list []*ms.PostFormated) {
+	for _, post := range list {
+		post.Visibility = ms.PostVisibleT(post.Visibility.ToOutValue())
+	}
 }

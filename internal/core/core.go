@@ -16,12 +16,15 @@ type DataService interface {
 	TopicService
 
 	// 广场泡泡服务
-	IndexPostsService
+	// IndexPostsService
 
 	// 推文服务
 	TweetService
 	TweetManageService
 	TweetHelpService
+
+	// 推文指标服务
+	TweetMetricServantA
 
 	// 评论服务
 	CommentService
@@ -31,6 +34,7 @@ type DataService interface {
 	UserManageService
 	ContactManageService
 	FollowingManageService
+	UserRelationService
 
 	// 安全服务
 	SecurityService

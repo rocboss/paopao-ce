@@ -75,6 +75,7 @@ import {
     RocketOutline,
     TodayOutline,
     NewspaperOutline,
+    CloudDownloadOutline,
 } from '@vicons/ionicons5';
 import { Hash } from '@vicons/tabler';
 import { getUnreadMsgCount } from '@/api/user';
@@ -131,6 +132,12 @@ onMounted(() => {
 });
 const menuOptions = computed(() => {
     const options = [
+        {
+            label: '下载',
+            key: 'download',
+            icon: () => h(CloudDownloadOutline),
+            href: '/download',
+        },
         {
             label: '发现',
             key: 'home',
@@ -203,6 +210,12 @@ const menuOptions = computed(() => {
     return store.state.userInfo.id > 0
         ? options
         : [
+            {
+                label: '下载',
+                key: 'download',
+                icon: () => h(CloudDownloadOutline),
+                href: '/download',
+            },
             {
                 label: '发现',
                 key: 'home',

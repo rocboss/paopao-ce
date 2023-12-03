@@ -72,7 +72,7 @@ const lightThemeOverrides = {
   }
 
 const store = useStore();
-
+// store.commit('triggerTheme', 'dark');
 const theme = computed(() => (store.state.theme === 'dark' ? darkTheme : null));
 
 </script>

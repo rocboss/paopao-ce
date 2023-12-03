@@ -94,8 +94,8 @@
                 </template>
               </n-button>
             </n-upload-trigger>
-
-            <!-- <n-upload-trigger
+<!-- 
+            <n-upload-trigger
                           v-if="allowTweetAttachment"
                           #="{ handleClick }" abstract>
                             <n-button
@@ -125,15 +125,20 @@
                             </n-button>
                         </n-upload-trigger> -->
 
-            <n-button quaternary circle type="primary" @click.stop="switchLink">
-              <template #icon>
-                <n-icon size="20" color="var(--primary-color)">
-                  <compass-outline />
-                </n-icon>
-              </template>
-            </n-button>
+                        <n-button
+                            quaternary
+                            circle
+                            type="primary"
+                            @click.stop="switchLink"
+                        >
+                            <template #icon>
+                                <n-icon size="20" color="var(--primary-color)">
+                                    <compass-outline />
+                                </n-icon>
+                            </template>
+                        </n-button>
 
-            <!-- <n-button
+                         <!-- <n-button
                             v-if="allowTweetVisibility"
                             quaternary
                             circle
@@ -146,7 +151,7 @@
                                 </n-icon>
                             </template>
                         </n-button> -->
-          </div>
+                    </div>
 
           <div class="submit-wrap">
             <n-tooltip trigger="hover" placement="bottom">
@@ -175,7 +180,7 @@
           </div>
         </div>
 
-        <div class="attachment-list-wrap">
+        <!-- <div class="attachment-list-wrap">
           <n-upload-file-list />
           <div
             class="attachment-price-wrap"
@@ -193,10 +198,10 @@
               </template>
             </n-input-number>
           </div>
-        </div>
+        </div> -->
       </n-upload>
 
-      <div class="eye-wrap" v-if="showEyeSet">
+      <!-- <div class="eye-wrap" v-if="showEyeSet">
         <n-radio-group v-model:value="visitType" name="radiogroup">
           <n-space>
             <n-radio
@@ -207,7 +212,7 @@
             />
           </n-space>
         </n-radio-group>
-      </div>
+      </div> -->
 
       <div class="link-wrap" v-if="showLinkSet">
         <n-dynamic-input
@@ -300,7 +305,7 @@ const links = ref([]);
 
 const uploadRef = ref<UploadInst>();
 const attachmentPrice = ref(0);
-const uploadType = ref("public/image");
+const uploadType = ref('public/image');
 const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
 const videoContents = ref<Item.CommentItemProps[]>([]);
@@ -331,19 +336,19 @@ const allowTweetVisibility = ref(
 const uploadGateway = import.meta.env.VITE_HOST + "/v1/attachment";
 
 const uploadToken = computed(() => {
-  return "Bearer " + localStorage.getItem("AIMO_TOKEN");
+    return 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
 });
 
-const visibilities = computed(() => {
-  let res = [
-    { value: VisibilityEnum.PUBLIC, label: "公开" },
-    { value: VisibilityEnum.PRIVATE, label: "私密" },
-    { value: VisibilityEnum.Following, label: "关注可见" },
-  ];
-  if (useFriendship) {
-    res.push({ value: VisibilityEnum.FRIEND, label: "好友可见" });
-  }
-  return res;
+const visibilities = computed(()=> {
+    let res = [
+        {value: VisibilityEnum.PUBLIC, label: "公开"},
+        {value: VisibilityEnum.PRIVATE, label: "私密"},
+        {value: VisibilityEnum.Following, label: "关注可见"},
+    ];
+    if (useFriendship) {
+        res.push({value: VisibilityEnum.FRIEND, label: "好友可见"});
+    }
+    return res;
 });
 
 const switchLink = () => {
@@ -403,15 +408,15 @@ const loadSuggestionTags = debounce((k) => {
 }, 200);
 
 const handleSearch = (k: string, prefix: string) => {
-  if (loading.value) {
-    return;
-  }
-  loading.value = true;
-  if (prefix === "@") {
-    loadSuggestionUsers(k);
-  } else {
-    loadSuggestionTags(k);
-  }
+    if (loading.value) {
+        return;
+    }
+    loading.value = true;
+    if (prefix === '@') {
+        loadSuggestionUsers(k);
+    } else {
+        loadSuggestionTags(k);
+    }
 };
 const changeContent = (v: string) => {
   if (v.length > defaultTweetMaxLength) {
@@ -441,21 +446,21 @@ const updateUpload = (list: UploadFileInfo[]) => {
   fileQueue.value = list;
 };
 const beforeUpload = async (data: any) => {
-  // 图片类型校验
-  if (
-    uploadType.value === "public/image" &&
-    !["image/png", "image/jpg", "image/jpeg", "image/gif"].includes(
-      data.file.file?.type
-    )
-  ) {
-    window.$message.warning("图片仅允许 png/jpg/gif 格式");
-    return false;
-  }
+    // 图片类型校验
+    if (
+        uploadType.value === 'public/image' &&
+        !['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(
+            data.file.file?.type
+        )
+    ) {
+        window.$message.warning('图片仅允许 png/jpg/gif 格式');
+        return false;
+    }
 
-  if (uploadType.value === "image" && data.file.file?.size > 10485760) {
-    window.$message.warning("图片大小不能超过10MB");
-    return false;
-  }
+    if (uploadType.value === 'image' && data.file.file?.size > 10485760) {
+        window.$message.warning('图片大小不能超过10MB');
+        return false;
+    }
 
   if (uploadType.value === "public/image") {
     const compressedFile = await compressionFile(data.file.file);
@@ -675,23 +680,18 @@ const submitPost = () => {
     });
   }
 
-  submitting.value = true;
-  // TODO: 临时过渡，暂时将Following等价于Public
-  let fixedVisit = visitType.value;
-  if (fixedVisit == VisibilityEnum.Following) {
-    fixedVisit = VisibilityEnum.PUBLIC;
-  }
-  createPost({
-    contents,
-    tags: Array.from(new Set(tags)),
-    users: Array.from(new Set(users)),
-    attachment_price: +attachmentPrice.value * 100,
-    visibility: fixedVisit,
-  })
-    .then((res) => {
-      window.$message.success("发布成功");
-      submitting.value = false;
-      emit("post-success", res);
+    submitting.value = true;
+    createPost({
+        contents,
+        tags: Array.from(new Set(tags)),
+        users: Array.from(new Set(users)),
+        attachment_price: +attachmentPrice.value * 100,
+        visibility: visitType.value
+    })
+        .then((res) => {
+            window.$message.success('发布成功');
+            submitting.value = false;
+            emit('post-success', res);
 
       // 置空
       showLinkSet.value = false;

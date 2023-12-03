@@ -70,6 +70,8 @@ declare module Item {
     ip?: string;
     /** 评论者城市地址 */
     ip_loc: string;
+    /** 是否精选 */
+    is_essence: import("@/utils/IEnum").YesNoEnum;
     /** 点赞数 */
     thumbs_up_count: number;
     /** 是否点赞，0为未点赞，1为已点赞 */

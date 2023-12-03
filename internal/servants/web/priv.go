@@ -249,7 +249,7 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 		IP:              req.ClientIP,
 		IPLoc:           utils.GetIPLoc(req.ClientIP),
 		AttachmentPrice: req.AttachmentPrice,
-		Visibility:      req.Visibility,
+		Visibility:      ms.PostVisibleT(req.Visibility.ToVisibleValue()),
 	}
 	post, err = s.Ds.CreatePost(post)
 	if err != nil {
@@ -464,6 +464,18 @@ func (s *privSrv) DeleteComment(req *web.DeleteCommentReq) mir.Error {
 	return nil
 }
 
+func (s *privSrv) HighlightComment(req *web.HighlightCommentReq) (*web.HighlightCommentResp, mir.Error) {
+	status, err := s.Ds.HighlightComment(req.Uid, req.CommentId)
+	if err == cs.ErrNoPermission {
+		return nil, web.ErrNoPermission
+	} else if err != nil {
+		return nil, web.ErrHighlightCommentFailed
+	}
+	return &web.HighlightCommentResp{
+		HighlightStatus: status,
+	}, nil
+}
+
 func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateCommentResp, xerr mir.Error) {
 	var (
 		mediaContents []string
@@ -598,7 +610,7 @@ func (s *privSrv) StarTweet(req *web.StarTweetReq) (*web.StarTweetResp, mir.Erro
 }
 
 func (s *privSrv) VisibleTweet(req *web.VisibleTweetReq) (*web.VisibleTweetResp, mir.Error) {
-	if req.Visibility >= core.PostVisitInvalid {
+	if req.Visibility >= web.TweetVisitInvalid {
 		return nil, xerror.InvalidParams
 	}
 	post, err := s.Ds.GetPostByID(req.ID)
@@ -608,13 +620,13 @@ func (s *privSrv) VisibleTweet(req *web.VisibleTweetReq) (*web.VisibleTweetResp,
 	if xerr := checkPermision(req.User, post.UserID); xerr != nil {
 		return nil, xerr
 	}
-	if err = s.Ds.VisiblePost(post, req.Visibility); err != nil {
+	if err = s.Ds.VisiblePost(post, req.Visibility.ToVisibleValue()); err != nil {
 		logrus.Warnf("s.Ds.VisiblePost: %s", err)
 		return nil, web.ErrVisblePostFailed
 	}
 
 	// 推送Search
-	post.Visibility = req.Visibility
+	post.Visibility = ms.PostVisibleT(req.Visibility.ToVisibleValue())
 	s.PushPostToSearch(post)
 
 	return &web.VisibleTweetResp{

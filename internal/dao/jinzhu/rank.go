@@ -1,9 +1,9 @@
 package jinzhu
 
 import (
-	"fmt"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"sort"
 	"strings"
@@ -55,7 +55,7 @@ func (s RankService) GetHighQualityRanking() ([]*core.GetHighQualityRankingResp,
 	var userScores = make(map[int64]*UserScore)
 	//判断posts是否为空
 	if len(posts) == 0 {
-		fmt.Print("posts is empty")
+		logrus.Errorf("posts is empty")
 		return nil, nil
 	}
 	for _, post := range posts {
@@ -66,7 +66,7 @@ func (s RankService) GetHighQualityRanking() ([]*core.GetHighQualityRankingResp,
 			userScores[post.UserID] = &UserScore{}
 			err = s.db.Table("p_user").Select("id,username,avatar,nickname").Where("id = ?", post.UserID).Find(&user).Error
 			if err != nil {
-				fmt.Print("get user info error")
+				logrus.Errorf("get user info error")
 				return nil, err
 			}
 			userScores[post.UserID].Username = user.Username
@@ -124,14 +124,6 @@ func (s RankService) GetHighQualityRanking() ([]*core.GetHighQualityRankingResp,
 			break
 		}
 		i++
-		//fmt.Print(userScore.Username + " " + strconv.FormatInt(userScore.CommentCount, 10) +
-		//	" " + strconv.FormatInt(userScore.LikeCount, 10) +
-		//	" " + strconv.FormatInt(userScore.ImageCount, 10) +
-		//	" " + strconv.FormatInt(userScore.PostCount, 10) +
-		//	" " + strconv.FormatInt(userScore.VideoCount, 10) +
-		//	" " + strconv.FormatInt(userScore.ShareCodeCount, 10) +
-		//	" " + strconv.FormatInt(userScore.Score, 10) +
-		//	"\n")
 		rank = append(rank, &core.GetHighQualityRankingResp{
 			UserName:           userScore.Username,
 			Avatar:             userScore.Avatar,
@@ -167,7 +159,6 @@ func (s RankService) GetDownloadRankList(listType int) ([]*core.GetDownloadRankL
 	var shareKeyInfos []ShareKeyInfoRank
 
 	//根据listType判断是获取周榜单还是月榜单
-	//fmt.Print("listType:" + strconv.Itoa(listType) + "\n")
 	if listType == 1 {
 		//获取总榜单
 		//对shareKeyInfos按照all_download_count进行排序
@@ -214,7 +205,7 @@ func (s RankService) GetDownloadRankList(listType int) ([]*core.GetDownloadRankL
 		var user ms.User
 		err := s.db.Table("p_user").Select("avatar,nickname").Where("username = ?", shareKeyInfo.UserName).First(&user).Error
 		if err != nil {
-			fmt.Print("查询用户失败")
+			logrus.Errorf("查询用户失败")
 			return nil, err
 		}
 		shareKeyInfo.Avatar = user.Avatar
@@ -224,7 +215,6 @@ func (s RankService) GetDownloadRankList(listType int) ([]*core.GetDownloadRankL
 			Avatar:   shareKeyInfo.Avatar,
 			Download: shareKeyInfo.TotalDownloadCount,
 		})
-		//fmt.Print(shareKeyInfo.UserName + " " + strconv.FormatInt(shareKeyInfo.TotalDownloadCount, 10) + " " + shareKeyInfo.Avatar + "\n")
 	}
 
 	return ranks, nil

@@ -520,7 +520,7 @@ onMounted(() => {
 
           .stat-item {
             .stat-value {
-              font-size: 1px;
+              font-size: 12px;
               margin-top: -10px;
             }
           }
