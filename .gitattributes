@@ -1,3 +1,4 @@
+*.ts linguist-language=go
 *.js linguist-language=go
 *.css linguist-language=go
 *.vue linguist-language=go
