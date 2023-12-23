@@ -1,0 +1,36 @@
+FROM getmeili/meilisearch:v1.4 as meilisearch
+
+FROM redis:7.2-alpine
+ENV TZ=Asia/Shanghai
+RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
+RUN  apk update --quiet \
+  && apk -q --no-cache --no-progress add \
+      ca-certificates \
+      libgcc \
+      curl \
+      s6 \
+      socat
+  && update-ca-certificates
+
+WORKDIR /app
+COPY ./docker ./docker
+
+# add meilisearch and meilitool to the `/bin` so you can run it from anywhere
+# and it's easy to find.
+COPY --from=meilisearch /bin/meilisearch /bin/meilisearch
+COPY --from-meilisearch /bin/meilitool /bin/meilitool
+# To stay compatible with the older version of the container (pre v0.27.0) we're
+# going to symlink the meilisearch binary in the path to `/meilisearch`
+RUN ln -s /bin/meilisearch /meilisearch
+
+ENV MEILI_DB_PATH=/meili_data
+VOLUME ["/meili_data"]
+
+RUN ./docker/build/finalize.sh
+
+# Configure Docker Container
+VOLUME ["/meili_data", "/app/custom"]
+EXPOSE 8008 7700/tcp
+HEALTHCHECK --interval=5s --timeout=3s  --retries=3  CMD ps -ef | grep paopao || exit 1
+ENTRYPOINT ["/app/docker/start.sh"]
+CMD ["/bin/s6-svscan", "/app/docker/s6/"]
