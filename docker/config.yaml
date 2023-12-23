@@ -6,7 +6,7 @@ App: # APP基础设置项
   DefaultPageSize: 10
   MaxPageSize: 100
 Features:
-  Default: ["Web", "Frontend:EmbedWeb", "Meili", "LocalOSS",  "Sqlite3", "LoggerFile"]
+  Default: ["Web", "Frontend:EmbedWeb", "Meili", "LocalOSS",  "Sqlite3", "LoggerFile", "Migration"]
   Sms: "SmsJuhe"
 WebServer: # Web服务
   HttpIp: 0.0.0.0
