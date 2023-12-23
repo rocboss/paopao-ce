@@ -5,4 +5,4 @@ if test -f ./setup; then
     source ./setup
 fi
 
-exec gosu paopao /app/paopao serve
+exec gosu ${USER} /app/paopao serve

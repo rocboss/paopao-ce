@@ -8,8 +8,7 @@ RUN  apk update --quiet \
       ca-certificates \
       libgcc \
       curl \
-      s6 \
-      socat
+      s6 
   && update-ca-certificates
 
 WORKDIR /app
@@ -23,14 +22,14 @@ COPY --from-meilisearch /bin/meilitool /bin/meilitool
 # going to symlink the meilisearch binary in the path to `/meilisearch`
 RUN ln -s /bin/meilisearch /meilisearch
 
-ENV MEILI_DB_PATH=/meili_data
-VOLUME ["/meili_data"]
+ENV MEILI_DB_PATH=/app/meili_data
+VOLUME ["/app/meili_data"]
 
 RUN ./docker/build/finalize.sh
 
 # Configure Docker Container
-VOLUME ["/meili_data", "/app/custom"]
-EXPOSE 8008 7700/tcp
+VOLUME ["/app/meili_data", "/app/custom"]
+EXPOSE 7700/tcp 6379 8008
 HEALTHCHECK --interval=5s --timeout=3s  --retries=3  CMD ps -ef | grep paopao || exit 1
 ENTRYPOINT ["/app/docker/start.sh"]
 CMD ["/bin/s6-svscan", "/app/docker/s6/"]

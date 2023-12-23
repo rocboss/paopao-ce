@@ -8,7 +8,6 @@ adduser -G paopao -H -D -g 'paopao User' paopao -h /data/paopao -s /bin/bash && 
 echo "export PAOPAO_CUSTOM=${PAOPAO_CUSTOM}" >> /etc/profile
 
 # Final cleaning
-mv /app/docker/paopao-ce_config.yaml /app/config.yaml
+mv /app/docker/config.yaml /app/config.yaml
 rm -rf /app/docker/build
-rm /app/docker/nsswitch.conf
 rm /app/docker/README.md
