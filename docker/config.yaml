@@ -21,7 +21,7 @@ SmsJuhe:
 Logger: # 日志通用配置
   Level: debug # 日志级别 panic|fatal|error|warn|info|debug|trace
 LoggerFile: # 使用File写日志
-  SavePath: custom/data/paopao-ce/logs
+  SavePath: custom/logs
   FileName: app
   FileExt: .log
 JWT: # 鉴权加密
@@ -37,7 +37,7 @@ ObjectStorage: # 对象存储通用配置
   RetainInDays: 2   # 临时对象过期时间多少天
   TempDir: tmp      # 临时对象存放目录名
 LocalOSS: # 本地文件OSS存储配置
-  SavePath: custom/data/paopao-ce/oss
+  SavePath: custom/oss
   Secure: False
   Bucket: paopao
   Domain: 127.0.0.1:8008
@@ -45,7 +45,7 @@ Database: # Database通用配置
   LogLevel: error   # 日志级别 silent|error|warn|info
   TablePrefix: p_   # 表名前缀
 Sqlite3: # Sqlite3数据库
-  Path: custom/data/sqlite3/paopao-ce.db
+  Path: custom/paopao-ce.db
 Redis:
   InitAddress:
   - 127.0.0.1:6379

@@ -52,7 +52,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
 * [Mir](https://github.com/alimy/mir 'go-mir')
 * [Buf](https://github.com/bufbuild/buf 'buf')
 * [gRPC](https://github.com/grpc/grpc-go 'grpc-go')
-* [Zinc](https://zinclabs.io/ 'zinc')
+* [Meilisearch](https://https://www.meilisearch.com/ 'meilisearch')
 
 #### 前端: 
 * [Naive UI](https://www.naiveui.com/)
@@ -69,9 +69,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
 * Node.js (14+)
 * MySQL (5.7+)
 * Redis
-* Zinc
-
-> Zinc是一款轻量级全文搜索引擎，可以查阅 <https://zincsearch.com/> 安装
+* Meilisearch
 
 以上环境版本为PaoPao官方的开发版本，仅供参考，其他版本的环境未进行充分测试
 
@@ -220,6 +218,23 @@ PaoPao主要由以下优秀的开源项目/工具构建
   # 运行
   docker run -d -p 8010:80 your/paopao-ce:web
   ```
+
+  * All-In-One:
+  ```sh
+  # 构建Image
+  docker buildx build --build-arg USE_DIST="yes" -t your/paopao-ce:all-in-one-latest -f Dockerfile.allinone .
+
+  # 运行
+  docker run --name paopao-ce-allinone  -d -p 8000:8008 -p 7700:7700 -v ./data/custom:/app/custom -v ./data/meili_data:/app/meili_data your/paopao-ce:all-in-one-latest
+
+  # 或者使用官方Image运行
+  docker run --name paopao-ce-allinone  -d -p 8000:8008 -p 7700:7700 -v ./data/custom:/app/custom -v ./data/meili_data:/app/meili_data bitbus/paopao-ce:all-in-one-latest
+
+  # 或者使用官方Image运行 + 自定义config.yaml
+  docker run --name paopao-ce-allinone  -d -p 8000:8008 -p 7700:7700 -v ./config.yaml:/app/config.yaml -v ./data/custom:/app/custom -v ./data/meili_data:/app/meili_data bitbus/paopao-ce:all-in-one-latest
+  ```
+  > 注意在`config.yaml` 中`Meili.ApiKey`的值必须与容器中meili启动时设定的`MEILI_MASTER_KEY`环境变量值相同，默认为`paopao-meilisearch`. 可以在docker启动容器时通过`-e MEILI_MASTER_KEY=<custom-key>`设置该值。
+
 
 ### 方式三. 使用 docker-compose 运行
 ```sh
