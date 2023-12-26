@@ -52,7 +52,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
 * [Mir](https://github.com/alimy/mir 'go-mir')
 * [Buf](https://github.com/bufbuild/buf 'buf')
 * [gRPC](https://github.com/grpc/grpc-go 'grpc-go')
-* [Meilisearch](https://https://www.meilisearch.com/ 'meilisearch')
+* [Meilisearch](https://www.meilisearch.com/ 'meilisearch')
 
 #### 前端: 
 * [Naive UI](https://www.naiveui.com/)
