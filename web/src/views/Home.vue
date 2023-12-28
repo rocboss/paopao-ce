@@ -29,7 +29,28 @@
                 </template>
             </SlideBar>
             </n-list-item>
-
+            <div  class="style-wrap" v-else-if="showTrendsTag">
+            <n-space >
+                <n-tag v-if="newestTweetsStyle !== 'newest'" :bordered="false" @click="onNewestTweets" class="style-item hover" round>
+                    全部
+                </n-tag>
+                <n-tag v-if="newestTweetsStyle === 'newest'" type="success" :bordered="false" @click="onNewestTweets"  class="style-item hover" round>
+                    全部
+                </n-tag>
+                <n-tag v-if="newestTweetsStyle !== 'hots'" :bordered="false" @click="onHotTweets" class="style-item hover" round>
+                    热门推荐
+                </n-tag>
+                <n-tag v-if="newestTweetsStyle === 'hots'" type="success" :bordered="false" @click="onHotTweets" class="style-item hover" round>
+                    热门推荐
+                </n-tag>
+                <n-tag v-if="newestTweetsStyle !== 'following'" :bordered="false" @click="onFollowingTweets" class="style-item hover" round>
+                    正在关注
+                </n-tag>
+                <n-tag v-if="newestTweetsStyle === 'following'" type="success" :bordered="false" @click="onFollowingTweets" class="style-item hover" round>
+                    正在关注
+                </n-tag>
+            </n-space>
+            </div>
             <div v-if="loading && list.length === 0" class="skeleton-wrap">
                 <post-skeleton :num="pageSize" />
             </div>
@@ -95,6 +116,20 @@ const store = useStore();
 const route = useRoute();
 const router = useRouter();
 const dialog = useDialog();
+
+const newestTweetsStyle = ref<'newest' | 'hots' | 'following'>('newest')
+const onNewestTweets = () => {
+    newestTweetsStyle.value='newest'
+    handleBarClick(slideBarList.value[0], 0)
+};
+const onHotTweets = () => {
+    newestTweetsStyle.value='hots'
+    handleBarClick(slideBarList.value[1], 1)
+};
+const onFollowingTweets = () => {
+    newestTweetsStyle.value='following'
+    handleBarClick(slideBarList.value[2], 2)
+};
 
 const initBlocks = ref(9)
 const wheelBlocks = ref(8)
@@ -250,6 +285,9 @@ const updateTitle = () => {
     }
 };
 
+const showTrendsTag = computed(() => {
+    return store.state.userInfo.id > 0 && !store.state.profile.enableTrendsBar && store.state.desktopModelShow
+})
 const showTrendsBar = computed(() => {
     return store.state.profile.useFriendship && store.state.profile.enableTrendsBar && store.state.desktopModelShow && store.state.userInfo.id > 0;
 });
@@ -510,7 +548,16 @@ div:hover .slide-bar-item {
         opacity: 0.8;
     }
 }
-
+.style-wrap {
+    margin-top: 10px;
+    margin-left: 16px;
+    margin-bottom: 4px;    
+    .style-item {
+        &.hover {
+                cursor: pointer;
+        }
+    }
+}
 .tiny-slide-bar {
     margin-top: -30px;
     margin-bottom: -30px;
