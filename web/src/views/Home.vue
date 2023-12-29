@@ -31,24 +31,24 @@
             </n-list-item>
             <div  class="style-wrap" v-else-if="showTrendsTag">
             <n-space >
-                <n-tag v-if="newestTweetsStyle !== 'newest'" :bordered="false" @click="onNewestTweets" class="style-item hover" round>
+                <n-button v-if="newestTweetsStyle !== 'newest'" size="small" :bordered="false" @click="onNewestTweets" class="style-item" secondary round>
                     全部
-                </n-tag>
-                <n-tag v-if="newestTweetsStyle === 'newest'" type="success" :bordered="false" @click="onNewestTweets"  class="style-item hover" round>
+                </n-button>
+                <n-button v-if="newestTweetsStyle === 'newest'" size="small" type="success"  :bordered="false" @click="onNewestTweets"  class="style-item" secondary round>
                     全部
-                </n-tag>
-                <n-tag v-if="newestTweetsStyle !== 'hots'" :bordered="false" @click="onHotTweets" class="style-item hover" round>
+                </n-button>
+                <n-button v-if="newestTweetsStyle !== 'hots'" size="small" :bordered="false" @click="onHotTweets" class="style-item" secondary round>
                     热门推荐
-                </n-tag>
-                <n-tag v-if="newestTweetsStyle === 'hots'" type="success" :bordered="false" @click="onHotTweets" class="style-item hover" round>
+                </n-button>
+                <n-button v-if="newestTweetsStyle === 'hots'" size="small" type="success" :bordered="false" @click="onHotTweets" class="style-item" secondary round>
                     热门推荐
-                </n-tag>
-                <n-tag v-if="newestTweetsStyle !== 'following'" :bordered="false" @click="onFollowingTweets" class="style-item hover" round>
+                </n-button>
+                <n-button v-if="newestTweetsStyle !== 'following'" size="small" :bordered="false" @click="onFollowingTweets" class="style-item" secondary round>
                     正在关注
-                </n-tag>
-                <n-tag v-if="newestTweetsStyle === 'following'" type="success" :bordered="false" @click="onFollowingTweets" class="style-item hover" round>
+                </n-button>
+                <n-button v-if="newestTweetsStyle === 'following'" size="small" type="success" :bordered="false" @click="onFollowingTweets" class="style-item" secondary round>
                     正在关注
-                </n-tag>
+                </n-button>
             </n-space>
             </div>
             <div v-if="loading && list.length === 0" class="skeleton-wrap">
@@ -551,7 +551,8 @@ div:hover .slide-bar-item {
 .style-wrap {
     margin-top: 10px;
     margin-left: 16px;
-    margin-bottom: 4px;    
+    margin-bottom: 4px;
+    opacity: 0.80;  
     .style-item {
         &.hover {
                 cursor: pointer;
