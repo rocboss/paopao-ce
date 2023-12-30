@@ -9,8 +9,8 @@ github.com/RoaringBitmap/roaring v1.7.0 h1:OZF303tJCER1Tj3x+aArx/S5X7hrT186ri6Jj
 github.com/RoaringBitmap/roaring v1.7.0/go.mod h1:6AXUsoIEzDTFFQCe1RbGA6uFONMhvejWj5rqITANK90=
 github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868 h1:uFrPOl1VBt/Abfl2z+A/DFc+AwmFLxEHR1+Yq6cXvww=
 github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868/go.mod h1:srphKZ1i+yGXxl/LpBS7ZIECTjCTPzZzAMtJWoG3sLo=
-github.com/alimy/mir/v4 v4.1.0-beta.1 h1:TdXNCmCSqjX8jj4KW4tTCMV2Ij1PpMoguJw5pinw/zk=
-github.com/alimy/mir/v4 v4.1.0-beta.1/go.mod h1:d58dBvw2KImcVbAUANrciEV/of0arMNsI9c/5UNCMMc=
+github.com/alimy/mir/v4 v4.1.0 h1:D6R0dkfsK1iH8MVu0b9yQ0UjdBU09goiui9PVI94G4o=
+github.com/alimy/mir/v4 v4.1.0/go.mod h1:d58dBvw2KImcVbAUANrciEV/of0arMNsI9c/5UNCMMc=
 github.com/alimy/tryst v0.10.1 h1:ks0CwITNu8VuCBeIxov7acuXWfPn1ySR/FpKbdDOy7A=
 github.com/alimy/tryst v0.10.1/go.mod h1:6FcqEImav7S62em+p+MODh+stt/UPp23HobUOK3XwFY=
 github.com/aliyun/aliyun-oss-go-sdk v3.0.1+incompatible h1:so4m5rRA32Tc5GgKg/5gKUu0CRsYmVO3ThMP6T3CwLc=
