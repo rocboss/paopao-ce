@@ -111,13 +111,13 @@ func (s *topicSrv) GetNewestTags(userId int64, limit int, offset int) (cs.TagLis
 	return s.tagsFormatA(userId, tags)
 }
 
-func (s *topicSrv) GetFollowTags(userId int64, is_pin bool, limit int, offset int) (cs.TagList, error) {
+func (s *topicSrv) GetFollowTags(userId int64, isPin bool, limit int, offset int) (cs.TagList, error) {
 	if userId < 0 {
 		return nil, nil
 	}
 	userTopics := []*topicInfo{}
 	db := s.db.Model(&dbr.TopicUser{}).Order("is_top DESC").Limit(limit).Offset(offset)
-	if is_pin {
+	if isPin {
 		db = db.Where("user_id=? AND is_pin=1", userId)
 	} else {
 		db = db.Where("user_id=?", userId)
