@@ -75,8 +75,11 @@ type Priv struct {
 	// ThumbsDownTweetReply 点踩评论回复
 	ThumbsDownTweetReply func(Post, web.TweetReplyThumbsReq) `mir:"/tweet/reply/thumbsdown"`
 
-	// StickTopic 置顶动态
+	// StickTopic 置顶话题
 	StickTopic func(Post, web.StickTopicReq) web.StickTopicResp `mir:"/topic/stick"`
+
+	// PinTopic 钉住话题
+	PinTopic func(Post, web.PinTopicReq) web.PinTopicResp `mir:"/topic/pin"`
 
 	// FollowTopic 关注话题
 	FollowTopic func(Post, web.FollowTopicReq) `mir:"/topic/follow"`

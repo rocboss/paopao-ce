@@ -95,6 +95,7 @@ var (
 	ErrFollowTopicFailed      = xerror.NewError(90001, "关注话题失败")
 	ErrUnfollowTopicFailed    = xerror.NewError(90002, "取消关注话题失败")
 	ErrStickTopicFailed       = xerror.NewError(90003, "更行话题置顶状态失败")
+	ErrPinTopicFailed         = xerror.NewError(90005, "更行话题钉住状态失败")
 	ErrThumbsUpTweetComment   = xerror.NewError(90101, "评论点赞失败")
 	ErrThumbsDownTweetComment = xerror.NewError(90102, "评论点踩失败")
 	ErrThumbsUpTweetReply     = xerror.NewError(90103, "评论回复点赞失败")

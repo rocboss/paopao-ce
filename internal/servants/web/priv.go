@@ -124,6 +124,17 @@ func (s *privSrv) StickTopic(req *web.StickTopicReq) (*web.StickTopicResp, mir.E
 	}, nil
 }
 
+func (s *privSrv) PinTopic(req *web.PinTopicReq) (*web.PinTopicResp, mir.Error) {
+	status, err := s.Ds.PinTopic(req.Uid, req.TopicId)
+	if err != nil {
+		logrus.Errorf("user(%d) pin topic(%d) failed: %s", req.Uid, req.TopicId, err)
+		return nil, web.ErrPinTopicFailed
+	}
+	return &web.PinTopicResp{
+		PinStatus: status,
+	}, nil
+}
+
 func (s *privSrv) UploadAttachment(req *web.UploadAttachmentReq) (*web.UploadAttachmentResp, mir.Error) {
 	defer req.File.Close()
 
