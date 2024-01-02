@@ -22,6 +22,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
+	"github.com/rocboss/paopao-ce/pkg/types"
 	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
@@ -141,7 +142,11 @@ func (s *privSrv) UploadAttachment(req *web.UploadAttachmentReq) (*web.UploadAtt
 	// 生成随机路径
 	randomPath := uuid.Must(uuid.NewV4()).String()
 	ossSavePath := req.UploadType + "/" + generatePath(randomPath[:8]) + "/" + randomPath[9:] + req.FileExt
-	objectUrl, err := s.oss.PutObject(ossSavePath, req.File, req.FileSize, req.ContentType, false)
+	// NOTE: 注意这里将req.File Wrap到一个io.Reader的实例对象中是为了避免下游接口去主动调Close，req.File本身是实现了
+	// io.Closer接口的，有的下游接口会断言传参是否实现了io.Closer接口，如果实现了会主动去调，我们这里因为下文中可能还要继续
+	// 使用req.File所以应避免下游Close，否则会出现潜在的bug，比如这里的场景就是传一个超大的图片(>10MB)可能就会触发bug了。
+	data := types.PureReader(req.File)
+	objectUrl, err := s.oss.PutObject(ossSavePath, data, req.FileSize, req.ContentType, false)
 	if err != nil {
 		logrus.Errorf("oss.putObject err: %s", err)
 		return nil, web.ErrFileUploadFailed
