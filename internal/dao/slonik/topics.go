@@ -175,7 +175,7 @@ func (s *topicSrv) GetNewestTags(userId int64, limit int, offset int) (cs.TagLis
 	return nil, debug.ErrNotImplemented
 }
 
-func (s *topicSrv) GetFollowTags(userId int64, limit int, offset int) (cs.TagList, error) {
+func (s *topicSrv) GetFollowTags(userId int64, isPin bool, limit int, offset int) (cs.TagList, error) {
 	// TODO
 	return nil, debug.ErrNotImplemented
 }
@@ -191,6 +191,11 @@ func (s *topicSrv) UnfollowTopic(userId int64, topicId int64) error {
 }
 
 func (s *topicSrv) StickTopic(userId int64, topicId int64) (int8, error) {
+	// TODO
+	return 0, debug.ErrNotImplemented
+}
+
+func (s *topicSrv) PinTopic(userId int64, topicId int64) (int8, error) {
 	// TODO
 	return 0, debug.ErrNotImplemented
 }
