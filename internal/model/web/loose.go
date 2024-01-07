@@ -20,6 +20,7 @@ const (
 	TagTypeHot       = cs.TagTypeHot
 	TagTypeNew       = cs.TagTypeNew
 	TagTypeFollow    = cs.TagTypeFollow
+	TagTypePin       = cs.TagTypePin
 	TagTypeHotExtral = cs.TagTypeHotExtral
 )
 

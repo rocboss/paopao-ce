@@ -17,7 +17,9 @@ var (
 )
 
 const (
-	_TopicA_InsertTag = `INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1) RETURNING id`
+	_TopicA_InsertTag  = `INSERT INTO @tag (user_id, tag, created_on, modified_on, quote_num) VALUES (?, ?, ?, ?, 1) RETURNING id`
+	_TopicA_PinTopic   = `UPDATE @topic_user SET is_pin=1-is_pin, modified_on=? WHERE user_id=? AND topic_id=? AND is_del=0; RETURNING is_pin`
+	_TopicA_StickTopic = `UPDATE @topic_user SET is_top=1-is_top, modified_on=? WHERE user_id=? AND topic_id=? AND is_del=0; RETURNING is_top`
 )
 
 // PreparexContext enhances the Conn interface with context.
@@ -43,6 +45,8 @@ type PreparexBuilder interface {
 type TopicA struct {
 	yesql.Namespace `yesql:"topic_a"`
 	InsertTag       *sqlx.Stmt `yesql:"insert_tag"`
+	PinTopic        *sqlx.Stmt `yesql:"pin_topic"`
+	StickTopic      *sqlx.Stmt `yesql:"stick_topic"`
 }
 
 func BuildTopicA(p PreparexBuilder, ctx ...context.Context) (obj *TopicA, err error) {
@@ -55,6 +59,12 @@ func BuildTopicA(p PreparexBuilder, ctx ...context.Context) (obj *TopicA, err er
 	obj = &TopicA{}
 	if obj.InsertTag, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_InsertTag))); err != nil {
 		return nil, fmt.Errorf("prepare _TopicA_InsertTag error: %w", err)
+	}
+	if obj.PinTopic, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_PinTopic))); err != nil {
+		return nil, fmt.Errorf("prepare _TopicA_PinTopic error: %w", err)
+	}
+	if obj.StickTopic, err = p.PreparexContext(c, p.Rebind(p.QueryHook(_TopicA_StickTopic))); err != nil {
+		return nil, fmt.Errorf("prepare _TopicA_StickTopic error: %w", err)
 	}
 	return
 }

@@ -2,7 +2,10 @@
 
 All notable changes to paopao-ce are documented in this file.
 ## 0.6.0+dev ([`dev`](https://github.com/rocboss/paopao-ce/tree/dev))
-TODO;
+### Added
+- add all-in-one docker image build scripts.
+- frontend: add tweets filter support use tag for home page and make it as default behavior.
+- add pin topic support.
 
 ## 0.5.2
 ### Change

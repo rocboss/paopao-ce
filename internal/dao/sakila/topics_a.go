@@ -133,8 +133,12 @@ func (s *topicSrvA) GetNewestTags(userId int64, limit int, offset int) (res cs.T
 	return
 }
 
-func (s *topicSrvA) GetFollowTags(userId int64, limit int, offset int) (res cs.TagList, err error) {
-	if err = s.q.FollowTags.Select(&res, userId, limit, offset); err != nil {
+func (s *topicSrvA) GetFollowTags(userId int64, isPin bool, limit int, offset int) (res cs.TagList, err error) {
+	stmt := s.q.FollowTags
+	if isPin {
+		stmt = s.q.FollowPinTags
+	}
+	if err = stmt.Select(&res, userId, limit, offset); err != nil {
 		return
 	}
 	return s.tagsFormatA(userId, res)
@@ -158,6 +162,17 @@ func (s *topicSrvA) StickTopic(userId int64, topicId int64) (res int8, err error
 		_, err = tx.Stmtx(s.q.StickTopic).Exec(time.Now().Unix(), userId, topicId)
 		if err == nil {
 			err = tx.Stmtx(s.q.TopicIsTop).Get(&res, userId, topicId)
+		}
+		return err
+	})
+	return
+}
+
+func (s *topicSrvA) PinTopic(userId int64, topicId int64) (res int8, err error) {
+	s.db.Withx(func(tx *sqlx.Tx) error {
+		_, err = tx.Stmtx(s.q.PinTopic).Exec(time.Now().Unix(), userId, topicId)
+		if err == nil {
+			err = tx.Stmtx(s.q.TopicIsPin).Get(&res, userId, topicId)
 		}
 		return err
 	})

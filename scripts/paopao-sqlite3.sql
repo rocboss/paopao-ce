@@ -341,6 +341,7 @@ CREATE TABLE "p_topic_user" (
 	"remark" text ( 512 ),-- 备注
 	"quote_num" integer,-- 引用数
 	"is_top" integer NOT NULL DEFAULT 0,-- 是否置顶 0 为未置顶、1 为已置顶
+  "is_pin" integer NOT NULL DEFAULT 0,-- 是否钉住 0 为未钉住、1 为已钉住
 	"created_on" integer NOT NULL DEFAULT 0,-- 创建时间
 	"modified_on" integer NOT NULL DEFAULT 0,-- 修改时间
 	"deleted_on" integer NOT NULL DEFAULT 0,-- 删除时间
@@ -679,6 +680,11 @@ CREATE UNIQUE INDEX "idx_topic_user_uid_tid"
 ON "p_topic_user" (
   "topic_id",
   "user_id"
+);
+CREATE INDEX "main"."idx_topic_user_uid_ispin"
+ON "p_topic_user" (
+  "user_id" ASC,
+  "is_pin" ASC
 );
 
 -- ----------------------------

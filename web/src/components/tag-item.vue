@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!checkFollowing || (checkFollowing && tag.is_following === 1)" class="tag-item">
+    <div v-if="(!checkFollowing && !checkPin) || (checkFollowing && tag.is_following === 1) || (checkPin && tag.is_following === 1 && tag.is_pin === 1)" class="tag-item">
         <n-thing>
             <template #header>
                 <n-tag
@@ -56,7 +56,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { MoreVertOutlined } from '@vicons/material';
 import type { DropdownOption } from 'naive-ui';
-import { stickTopic, followTopic, unfollowTopic } from '@/api/post';
+import { pinTopic, stickTopic, followTopic, unfollowTopic } from '@/api/post';
 import defaultUserAvatar from '@/assets/img/logo.png';
 
 const hasFollowing= ref(false);
@@ -65,6 +65,7 @@ const props = withDefaults(
         tag: Item.TagProps;
         showAction: boolean;
         checkFollowing: boolean;
+        checkPin: boolean;
     }>(),
     {}
 );
@@ -75,7 +76,7 @@ const tagUserAvatar = computed(() => {
     } else {
         return defaultUserAvatar
     }
-})
+});
 
 
 const tagOptions = computed(() => {
@@ -86,6 +87,17 @@ const tagOptions = computed(() => {
             key: 'follow',
         });
     } else {
+        if (props.tag.is_pin === 0) {
+            options.push({
+                label: '钉住',
+                key: 'pin',
+            });
+        } else {
+            options.push({
+                label: '取消钉住',
+                key: 'unpin',
+            });
+        }
         if (props.tag.is_top === 0) {
             options.push({
                 label: '置顶',
@@ -106,14 +118,14 @@ const tagOptions = computed(() => {
 });
 
 const handleTagAction = (
-    item: 'follow' | 'unfollow' | 'stick' | 'unstick'
+    item: 'follow' | 'unfollow' | 'pin' | 'unpin' | 'stick' | 'unstick'
 ) => {
     switch (item) {
         case 'follow':
             followTopic({
                 topic_id: props.tag.id
              })
-            .then((res) => {
+            .then((_res) => {
                 props.tag.is_following = 1
                 window.$message.success(`关注成功`);
             })
@@ -125,9 +137,33 @@ const handleTagAction = (
             unfollowTopic({
                 topic_id: props.tag.id
              })
-            .then((res) => {
+            .then((_res) => {
                 props.tag.is_following = 0
                 window.$message.success(`取消关注`);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+            break;
+        case 'pin':
+            pinTopic({
+                topic_id: props.tag.id
+             })
+            .then((_res) => {
+                props.tag.is_pin = 1;
+                window.$message.success(`钉住成功`);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+            break;
+        case 'unpin':
+            pinTopic({
+                topic_id: props.tag.id
+             })
+            .then((_res) => {
+                props.tag.is_pin = 0;
+                window.$message.success(`取消钉住`);
             })
             .catch((err) => {
                 console.log(err);
