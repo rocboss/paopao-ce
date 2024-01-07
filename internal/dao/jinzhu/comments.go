@@ -148,7 +148,7 @@ func (s *commentSrv) GetCommentRepliesByID(ids []int64) ([]*ms.CommentReplyForma
 	return repliesFormated, nil
 }
 
-func (s *commentManageSrv) HighlightComment(userId, commentId int64) (res int8, err error) {
+func (s *commentManageSrv) HighlightComment(userId, commentId int64) (isEssence int8, err error) {
 	post := &dbr.Post{}
 	comment := &dbr.Comment{}
 	db := s.db.Model(comment)
@@ -161,8 +161,12 @@ func (s *commentManageSrv) HighlightComment(userId, commentId int64) (res int8, 
 	if post.UserID != userId {
 		return 0, cs.ErrNoPermission
 	}
-	comment.IsEssence = 1 - comment.IsEssence
-	return comment.IsEssence, db.Save(comment).Error
+	isEssence = 1 - comment.IsEssence
+	err = s.db.Model(comment).UpdateColumns(map[string]any{
+		"is_essence":  isEssence,
+		"modified_on": time.Now().Unix(),
+	}).Where("id=?", commentId).Error
+	return
 }
 
 func (s *commentManageSrv) DeleteComment(comment *ms.Comment) (err error) {

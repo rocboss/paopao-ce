@@ -413,7 +413,7 @@ const doClickText = (e: MouseEvent, id: number) => {
     }
     
     &.hover {
-                cursor: pointer;
+        cursor: pointer;
     }
 
     .n-thing-avatar {

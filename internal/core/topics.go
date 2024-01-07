@@ -16,10 +16,11 @@ type TopicService interface {
 	TagsByKeyword(keyword string) (cs.TagInfoList, error)
 	GetHotTags(userId int64, limit int, offset int) (cs.TagList, error)
 	GetNewestTags(userId int64, limit int, offset int) (cs.TagList, error)
-	GetFollowTags(userId int64, limit int, offset int) (cs.TagList, error)
+	GetFollowTags(userId int64, isPin bool, limit int, offset int) (cs.TagList, error)
 	FollowTopic(userId int64, topicId int64) error
 	UnfollowTopic(userId int64, topicId int64) error
 	StickTopic(userId int64, topicId int64) (int8, error)
+	PinTopic(userId int64, topicId int64) (int8, error)
 }
 
 // TopicServantA 话题服务(版本A)

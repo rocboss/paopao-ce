@@ -207,6 +207,15 @@ type StickTopicResp struct {
 	StickStatus int8 `json:"top_status"`
 }
 
+type PinTopicReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	TopicId    int64 `json:"topic_id" binding:"required"`
+}
+
+type PinTopicResp struct {
+	PinStatus int8 `json:"pin_status"`
+}
+
 type FollowTopicReq struct {
 	SimpleInfo `json:"-" binding:"-"`
 	TopicId    int64 `json:"topic_id" binding:"required"`

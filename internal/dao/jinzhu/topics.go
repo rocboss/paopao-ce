@@ -33,6 +33,7 @@ type topicSrvA struct {
 type topicInfo struct {
 	TopicId int64
 	IsTop   int8
+	IsPin   int8
 }
 
 func newTopicService(db *gorm.DB) core.TopicService {
@@ -110,17 +111,18 @@ func (s *topicSrv) GetNewestTags(userId int64, limit int, offset int) (cs.TagLis
 	return s.tagsFormatA(userId, tags)
 }
 
-func (s *topicSrv) GetFollowTags(userId int64, limit int, offset int) (cs.TagList, error) {
+func (s *topicSrv) GetFollowTags(userId int64, isPin bool, limit int, offset int) (cs.TagList, error) {
 	if userId < 0 {
 		return nil, nil
 	}
 	userTopics := []*topicInfo{}
-	err := s.db.Model(&dbr.TopicUser{}).
-		Where("user_id=?", userId).
-		Order("is_top DESC").
-		Limit(limit).
-		Offset(offset).
-		Find(&userTopics).Error
+	db := s.db.Model(&dbr.TopicUser{}).Order("is_top DESC").Limit(limit).Offset(offset)
+	if isPin {
+		db = db.Where("user_id=? AND is_pin=1", userId)
+	} else {
+		db = db.Where("user_id=?", userId)
+	}
+	err := db.Find(&userTopics).Error
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +209,7 @@ func (s *topicSrv) tagsFormatA(userId int64, tags cs.TagList) (cs.TagList, error
 		}
 		for _, tag := range tags {
 			if info, exist := userTopicsMap[tag.ID]; exist {
-				tag.IsFollowing, tag.IsTop = 1, info.IsTop
+				tag.IsFollowing, tag.IsTop, tag.IsPin = 1, info.IsTop, info.IsPin
 			}
 		}
 	}
@@ -238,7 +240,7 @@ func (s *topicSrv) tagsFormatB(userTopicsMap map[int64]*topicInfo, tags cs.TagIn
 	if len(userTopicsMap) > 0 {
 		for _, tag := range tagList {
 			if info, exist := userTopicsMap[tag.ID]; exist {
-				tag.IsFollowing, tag.IsTop = 1, info.IsTop
+				tag.IsFollowing, tag.IsTop, tag.IsPin = 1, info.IsTop, info.IsPin
 			}
 		}
 	}
@@ -399,6 +401,30 @@ func (s *topicSrv) StickTopic(userId int64, topicId int64) (status int8, err err
 	}
 	status = -1
 	err = db.Model(m).Where("user_id=? and topic_id=?", userId, topicId).Select("is_top").Scan(&status).Error
+	if err != nil {
+		return
+	}
+	if status < 0 {
+		return -1, errors.New("topic not exist")
+	}
+
+	db.Commit()
+	return
+}
+
+func (s *topicSrv) PinTopic(userId int64, topicId int64) (status int8, err error) {
+	db := s.db.Begin()
+	defer db.Rollback()
+
+	m := &dbr.TopicUser{}
+	err = db.Model(m).
+		Where("user_id=? and topic_id=?", userId, topicId).
+		UpdateColumn("is_pin", gorm.Expr("1-is_pin")).Error
+	if err != nil {
+		return
+	}
+	status = -1
+	err = db.Model(m).Where("user_id=? and topic_id=?", userId, topicId).Select("is_pin").Scan(&status).Error
 	if err != nil {
 		return
 	}

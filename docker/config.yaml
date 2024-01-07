@@ -1,0 +1,71 @@
+App: # APP基础设置项
+  RunMode: debug
+  AttachmentIncomeRate: 0.8
+  MaxCommentCount: 10
+  DefaultContextTimeout: 60
+  DefaultPageSize: 10
+  MaxPageSize: 100
+Features:
+  Default: ["Web", "Frontend:EmbedWeb", "Meili", "LocalOSS",  "Sqlite3", "LoggerFile", "Migration"]
+  Sms: "SmsJuhe"
+WebServer: # Web服务
+  HttpIp: 0.0.0.0
+  HttpPort: 8008
+  ReadTimeout: 60
+  WriteTimeout: 60
+SmsJuhe:
+  Gateway: https://v.juhe.cn/sms/send
+  Key:
+  TplID:
+  TplVal: "#code#=%s&#m#=%d"
+Logger: # 日志通用配置
+  Level: debug # 日志级别 panic|fatal|error|warn|info|debug|trace
+LoggerFile: # 使用File写日志
+  SavePath: custom/logs
+  FileName: app
+  FileExt: .log
+JWT: # 鉴权加密
+  Secret: 18a6413dc4fe394c66345ebe501b2f26
+  Issuer: paopao-api
+  Expire: 86400
+Meili: # Meili搜索配置
+  Host: 127.0.0.1:7700
+  Index: paopao-data
+  ApiKey: paopao-meilisearch
+  Secure: False
+ObjectStorage: # 对象存储通用配置
+  RetainInDays: 2   # 临时对象过期时间多少天
+  TempDir: tmp      # 临时对象存放目录名
+LocalOSS: # 本地文件OSS存储配置
+  SavePath: custom/oss
+  Secure: False
+  Bucket: paopao
+  Domain: 127.0.0.1:8008
+Database: # Database通用配置
+  LogLevel: error   # 日志级别 silent|error|warn|info
+  TablePrefix: p_   # 表名前缀
+Sqlite3: # Sqlite3数据库
+  Path: custom/paopao-ce.db
+Redis:
+  InitAddress:
+  - 127.0.0.1:6379
+WebProfile:
+  UseFriendship: true              # 前端是否使用好友体系
+  EnableTrendsBar: true            # 广场页面是否开启动态条栏功能
+  EnableWallet: false              # 是否开启钱包功能
+  AllowTweetAttachment: true       # 是否允许推文附件
+  AllowTweetAttachmentPrice: true  # 是否允许推文付费附件
+  AllowTweetVideo: true            # 是否允许视频推文
+  AllowUserRegister: true          # 是否允许用户注册
+  AllowPhoneBind: true             # 是否允许手机绑定
+  DefaultTweetMaxLength: 2000      # 推文允许输入的最大长度， 默认2000字，值的范围需要查询后端支持的最大字数
+  TweetWebEllipsisSize: 400        # Web端推文作为feed显示的最长字数，默认400字
+  TweetMobileEllipsisSize: 300     # 移动端推文作为feed显示的最长字数，默认300字
+  DefaultTweetVisibility: friend   # 推文可见性，默认好友可见 值: public/following/friend/private
+  DefaultMsgLoopInterval: 5000     # 拉取未读消息的间隔，单位：毫秒, 默认5000ms 
+  CopyrightTop: "2023 paopao.info"
+  CopyrightLeft: "Roc's Me"
+  CopyrightLeftLink: ""
+  CopyrightRight: "泡泡(PaoPao)开源社区"
+  CopyrightRightLink: "https://www.paopao.info"
+  

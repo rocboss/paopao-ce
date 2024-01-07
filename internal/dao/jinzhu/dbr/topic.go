@@ -25,6 +25,7 @@ type TopicUser struct {
 	Remark    string `json:"-"`
 	QuoteNum  int64  `json:"quote_num"`
 	IsTop     int8   `json:"is_top"`
+	IsPin     int8   `json:"is_pin"`
 	ReserveA  string `json:"-"`
 	ReserveB  string `json:"-"`
 }

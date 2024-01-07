@@ -250,7 +250,7 @@ Redis:
   ConnWriteTimeout: 60   # 连接写超时时间 多少秒 默认 60秒
 WebProfile:
   UseFriendship: true              # 前端是否使用好友体系
-  EnableTrendsBar: true            # 广场页面是否开启动态条栏功能
+  EnableTrendsBar: false           # 广场页面是否开启动态条栏功能
   EnableWallet: false              # 是否开启钱包功能
   AllowTweetAttachment: true       # 是否允许推文附件
   AllowTweetAttachmentPrice: true  # 是否允许推文付费附件
