@@ -287,6 +287,7 @@ CREATE TABLE p_topic_user (
 	remark VARCHAR ( 512 ),-- 备注
 	quote_num BIGINT,-- 引用数
 	is_top SMALLINT NOT NULL DEFAULT 0,-- 是否置顶 0 为未置顶、1 为已置顶
+	is_pin SMALLINT NOT NULL DEFAULT 0,-- 是否钉住 0 为未钉住、1 为已钉住
 	created_on BIGINT NOT NULL DEFAULT 0,-- 创建时间
 	modified_on BIGINT NOT NULL DEFAULT 0,-- 修改时间
 	deleted_on BIGINT NOT NULL DEFAULT 0,-- 删除时间
@@ -295,6 +296,7 @@ CREATE TABLE p_topic_user (
 	reserve_b VARCHAR ( 255 ) -- 保留字段b
 );
 CREATE UNIQUE INDEX idx_topic_user_uid_tid ON p_topic_user USING btree ( topic_id, user_id );
+CREATE INDEX idx_topic_user_uid_ispin ON p_topic_user USING btree ( user_id, is_pin );
 
 CREATE SEQUENCE IF NOT EXISTS user_id_seq AS BIGINT MINVALUE 100058 NO MAXVALUE;
 DROP TABLE IF EXISTS p_user;

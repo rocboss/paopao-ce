@@ -78,3 +78,13 @@ func (s *pgaTopicSrvA) UpsertTags(userId int64, tags []string) (res cs.TagInfoLi
 	})
 	return
 }
+
+func (s *pgaTopicSrvA) StickTopic(userId int64, topicId int64) (res int8, err error) {
+	err = s.p.StickTopic.Get(&res, time.Now().Unix(), userId, topicId)
+	return
+}
+
+func (s *pgaTopicSrvA) PinTopic(userId int64, topicId int64) (res int8, err error) {
+	err = s.p.PinTopic.Get(&res, time.Now().Unix(), userId, topicId)
+	return
+}

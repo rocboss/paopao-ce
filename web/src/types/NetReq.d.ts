@@ -203,6 +203,11 @@ declare module NetReq {
     top_status: 0 | 1;
   }
 
+  interface PostPinTopic {
+    /** 钉住状态：0为未钉住，1为钉住*/
+    pin_status: 0 | 1;
+  }
+
   interface PostFollowTopic {}
 
   interface PostUnfollowTopic {}

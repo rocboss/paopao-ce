@@ -139,6 +139,7 @@ SELECT t.id id,
 	u.id "u.id", 
 	1 as is_following,
 	c.is_top,
+	c.is_pin,
 	u.nickname "u.nickname",
 	u.username "u.username", 
 	u.status "u.status",
@@ -148,6 +149,29 @@ FROM @topic_user c
 JOIN @user u ON c.user_id = u.id 
 JOIN @tag t ON c.topic_id = t.id
 WHERE c.is_del = 0 AND t.quote_num > 0 AND c.user_id=?
+ORDER BY c.is_top DESC, t.quote_num DESC
+LIMIT ? OFFSET ?;
+
+-- name: follow_pin_tags@topic_a
+-- get get follow tag information
+-- prepare: stmt
+SELECT t.id id, 
+	t.user_id user_id, 
+	t.tag tag, 
+	t.quote_num quote_num, 
+	u.id "u.id", 
+	1 as is_following,
+	c.is_top,
+	c.is_pin,
+	u.nickname "u.nickname",
+	u.username "u.username", 
+	u.status "u.status",
+	u.avatar "u.avatar",
+	u.is_admin "u.is_admin" 
+FROM @topic_user c
+JOIN @user u ON c.user_id = u.id 
+JOIN @tag t ON c.topic_id = t.id
+WHERE c.is_del = 0 AND t.quote_num > 0 AND c.user_id=? AND c.is_pin=1
 ORDER BY c.is_top DESC, t.quote_num DESC
 LIMIT ? OFFSET ?;
 
@@ -177,9 +201,19 @@ UPDATE @topic_user
 SET is_top=1-is_top, modified_on=?
 WHERE user_id=? AND topic_id=? AND is_del=0;
 
+-- name: pin_topic@topic_a
+-- prepare: stmt
+UPDATE @topic_user
+SET is_pin=1-is_pin, modified_on=?
+WHERE user_id=? AND topic_id=? AND is_del=0;
+
 -- name: topic_is_top@topic_a
 -- prepare: stmt
 SELECT is_top FROM @topic_user WHERE user_id=? AND topic_id=? AND is_del=0;
+
+-- name: topic_is_pin@topic_a
+-- prepare: stmt
+SELECT is_pin FROM @topic_user WHERE user_id=? AND topic_id=? AND is_del=0;
 
 -- name: tags_by_keyword_a@topic_a
 -- get tags by keyword

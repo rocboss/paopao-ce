@@ -202,7 +202,7 @@ declare module NetParams {
   }
 
   interface PostGetTags {
-    type: "hot" | "new" | "follow" | "hot_extral";
+    type: "hot" | "new" | "follow" | "pin" | "hot_extral";
     num: number;
     extral_num?: number;
   }
@@ -275,6 +275,10 @@ declare module NetParams {
   }
 
   interface PostStickTopic {
+    topic_id: number;
+  }
+
+  interface PostPinTopic {
     topic_id: number;
   }
 
