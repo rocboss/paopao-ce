@@ -286,6 +286,17 @@ export const stickTopic = (
   });
 };
 
+/** 置顶/取消置顶话题 */
+export const pinTopic = (
+  data: NetParams.PostPinTopic
+): Promise<NetReq.PostPinTopic> => {
+  return request({
+    method: "post",
+    url: "/v1/topic/pin",
+    data,
+  });
+};
+
 /** 关注话题 */
 export const followTopic = (
   data: NetParams.PostFollowTopic

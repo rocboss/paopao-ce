@@ -7,7 +7,7 @@ package service
 import (
 	"net/http"
 
-	"github.com/bufbuild/connect-go"
+	"connectrpc.com/connect"
 )
 
 type baseConnectService struct {

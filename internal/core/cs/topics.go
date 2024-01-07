@@ -9,6 +9,7 @@ const (
 	TagTypeHot       TagType = "hot"
 	TagTypeNew       TagType = "new"
 	TagTypeFollow    TagType = "follow"
+	TagTypePin       TagType = "pin"
 	TagTypeHotExtral TagType = "hot_extral"
 )
 
@@ -40,6 +41,7 @@ type TagItem struct {
 	QuoteNum    int64     `json:"quote_num"`
 	IsFollowing int8      `json:"is_following"`
 	IsTop       int8      `json:"is_top"`
+	IsPin       int8      `json:"is_pin"`
 }
 
 func (t *TagInfo) Format() *TagItem {
@@ -51,5 +53,6 @@ func (t *TagInfo) Format() *TagItem {
 		QuoteNum:    t.QuoteNum,
 		IsFollowing: 0,
 		IsTop:       0,
+		IsPin:       0,
 	}
 }
