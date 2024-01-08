@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM getmeili/meilisearch:v1.5 as meilisearch
 
 FROM redis:7.2-alpine
