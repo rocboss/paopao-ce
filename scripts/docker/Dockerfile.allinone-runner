@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM getmeili/meilisearch:v1.5 as meilisearch
 
-FROM redis:7.2-alpine
+FROM redis:7.2-alpine3.18
 ENV TZ=Asia/Shanghai
 RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
 RUN  apk update --quiet \
