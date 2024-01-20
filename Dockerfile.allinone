@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:experimental
+# syntax=docker/dockerfile:1
 
 # build frontend
 FROM node:19-alpine as frontend
