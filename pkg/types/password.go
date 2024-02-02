@@ -8,20 +8,25 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type PasswordGenerator interface {
-	Generate([]byte) ([]byte, error)
+type PasswordProvider interface {
+	Generate(password []byte) ([]byte, error)
+	Compare(hashedPassword, password []byte) error
 }
 
-func NewBcryptPasswordGenerator(cost int) PasswordGenerator {
-	return &bcryptPasswordGenerator{
+func NewBcryptPasswordProvider(cost int) PasswordProvider {
+	return &bcryptPasswordProvider{
 		cost: cost,
 	}
 }
 
-type bcryptPasswordGenerator struct {
+type bcryptPasswordProvider struct {
 	cost int
 }
 
-func (g *bcryptPasswordGenerator) Generate(password []byte) ([]byte, error) {
-	return bcrypt.GenerateFromPassword(password, g.cost)
+func (p *bcryptPasswordProvider) Generate(password []byte) ([]byte, error) {
+	return bcrypt.GenerateFromPassword(password, p.cost)
+}
+
+func (p *bcryptPasswordProvider) Compare(hashedPassword, password []byte) error {
+	return bcrypt.CompareHashAndPassword(hashedPassword, password)
 }
