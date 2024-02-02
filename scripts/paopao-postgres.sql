@@ -283,8 +283,7 @@ CREATE TABLE p_user (
 	nickname VARCHAR(32) NOT NULL DEFAULT '',
 	username VARCHAR(32) NOT NULL DEFAULT '',
 	phone VARCHAR(16) NOT NULL DEFAULT '', -- 手机号
-	password VARCHAR(32) NOT NULL DEFAULT '', -- MD5密码
-	salt VARCHAR(16) NOT NULL DEFAULT '', -- 盐值
+	password VARCHAR(255) NOT NULL DEFAULT '', -- 密码
 	status SMALLINT NOT NULL DEFAULT 1, -- 状态，1正常，2停用
 	avatar VARCHAR(255) NOT NULL DEFAULT '',
 	balance BIGINT NOT NULL, -- 用户余额（分）

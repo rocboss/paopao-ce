@@ -20,7 +20,6 @@ type User struct {
 	Username string `json:"username"`
 	Phone    string `json:"phone"`
 	Password string `json:"password"`
-	Salt     string `json:"salt"`
 	Status   int    `json:"status"`
 	Avatar   string `json:"avatar"`
 	Balance  int64  `json:"balance"`

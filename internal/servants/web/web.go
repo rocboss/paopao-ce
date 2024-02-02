@@ -31,13 +31,14 @@ var (
 func RouteWeb(e *gin.Engine) {
 	lazyInitial()
 	ds := base.NewDaoServant()
+	provider := conf.NewPasswordProvider()
 	// aways register servants
 	api.RegisterAdminServant(e, newAdminSrv(ds, _wc))
-	api.RegisterCoreServant(e, newCoreSrv(ds, _oss, _wc))
+	api.RegisterCoreServant(e, newCoreSrv(ds, _oss, _wc, provider))
 	api.RegisterRelaxServant(e, newRelaxSrv(ds, _wc), newRelaxChain())
 	api.RegisterLooseServant(e, newLooseSrv(ds, _ac))
 	api.RegisterPrivServant(e, newPrivSrv(ds, _oss), newPrivChain())
-	api.RegisterPubServant(e, newPubSrv(ds))
+	api.RegisterPubServant(e, newPubSrv(ds, provider))
 	api.RegisterTrendsServant(e, newTrendsSrv(ds))
 	api.RegisterFollowshipServant(e, newFollowshipSrv(ds))
 	api.RegisterFriendshipServant(e, newFriendshipSrv(ds))

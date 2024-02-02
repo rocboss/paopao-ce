@@ -21,6 +21,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
+	"github.com/rocboss/paopao-ce/pkg/auth"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
 )
@@ -38,10 +39,11 @@ var (
 type coreSrv struct {
 	api.UnimplementedCoreServant
 	*base.DaoServant
-	oss            core.ObjectStorageService
-	wc             core.WebCache
-	messagesExpire int64
-	prefixMessages string
+	oss              core.ObjectStorageService
+	wc               core.WebCache
+	passwordProvider auth.PasswordProvider
+	messagesExpire   int64
+	prefixMessages   string
 }
 
 func (s *coreSrv) Chain() gin.HandlersChain {
@@ -305,12 +307,17 @@ func (s *coreSrv) ChangePassword(req *web.ChangePasswordReq) mir.Error {
 	}
 	// 旧密码校验
 	user := req.User
-	if !validPassword(user.Password, req.OldPassword, req.User.Salt) {
+	err := s.passwordProvider.Compare(user.Password, req.OldPassword)
+	if err != nil {
 		return web.ErrErrorOldPassword
 	}
 	// 更新入库
-	user.Password, user.Salt = encryptPasswordAndSalt(req.Password)
-	if err := s.Ds.UpdateUser(user); err != nil {
+	user.Password, err = s.passwordProvider.Generate(req.Password)
+	if err != nil {
+		logrus.Errorf("generate hashed password err: %s", err)
+		return xerror.ServerError
+	}
+	if err = s.Ds.UpdateUser(user); err != nil {
 		logrus.Errorf("Ds.UpdateUser err: %s", err)
 		return xerror.ServerError
 	}
@@ -418,13 +425,14 @@ func (s *coreSrv) messagesFromCache(req *web.GetMessagesReq, limit int, offset i
 	return
 }
 
-func newCoreSrv(s *base.DaoServant, oss core.ObjectStorageService, wc core.WebCache) api.Core {
+func newCoreSrv(s *base.DaoServant, oss core.ObjectStorageService, wc core.WebCache, provider auth.PasswordProvider) api.Core {
 	cs := conf.CacheSetting
 	return &coreSrv{
-		DaoServant:     s,
-		oss:            oss,
-		wc:             wc,
-		messagesExpire: cs.MessagesExpire,
-		prefixMessages: conf.PrefixMessages,
+		DaoServant:       s,
+		oss:              oss,
+		wc:               wc,
+		messagesExpire:   cs.MessagesExpire,
+		prefixMessages:   conf.PrefixMessages,
+		passwordProvider: provider,
 	}
 }

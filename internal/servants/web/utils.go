@@ -12,11 +12,9 @@ import (
 	"unicode/utf8"
 
 	"github.com/alimy/mir/v4"
-	"github.com/gofrs/uuid/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/web"
-	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
 )
@@ -86,18 +84,6 @@ func checkPassword(password string) mir.Error {
 		return web.ErrPasswordLengthLimit
 	}
 	return nil
-}
-
-// ValidPassword 检查密码是否一致
-func validPassword(dbPassword, password, salt string) bool {
-	return strings.Compare(dbPassword, utils.EncodeMD5(utils.EncodeMD5(password)+salt)) == 0
-}
-
-// encryptPasswordAndSalt 密码加密&生成salt
-func encryptPasswordAndSalt(password string) (string, string) {
-	salt := uuid.Must(uuid.NewV4()).String()[:8]
-	password = utils.EncodeMD5(utils.EncodeMD5(password) + salt)
-	return password, salt
 }
 
 // deleteOssObjects 删除推文的媒体内容, 宽松处理错误(就是不处理), 后续完善

@@ -22,6 +22,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/web/assets"
 	"github.com/rocboss/paopao-ce/pkg/app"
+	"github.com/rocboss/paopao-ce/pkg/auth"
 	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/rocboss/paopao-ce/pkg/version"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
@@ -40,6 +41,8 @@ const (
 type pubSrv struct {
 	api.UnimplementedPubServant
 	*base.DaoServant
+
+	passwordProvider auth.PasswordProvider
 }
 
 func (s *pubSrv) SendCaptcha(req *web.SendCaptchaReq) mir.Error {
@@ -104,16 +107,19 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
 		logrus.Errorf("scheckPassword err: %v", err)
 		return nil, web.ErrUserRegisterFailed
 	}
-	password, salt := encryptPasswordAndSalt(req.Password)
+	password, err := s.passwordProvider.Generate(req.Password)
+	if err != nil {
+		logrus.Errorf("generate hashed password err: %v", err)
+		return nil, web.ErrUserRegisterFailed
+	}
 	user := &ms.User{
 		Nickname: req.Username,
 		Username: req.Username,
 		Password: password,
 		Avatar:   getRandomAvatar(),
-		Salt:     salt,
 		Status:   ms.UserStatusNormal,
 	}
-	user, err := s.Ds.CreateUser(user)
+	user, err = s.Ds.CreateUser(user)
 	if err != nil {
 		logrus.Errorf("Ds.CreateUser err: %s", err)
 		return nil, web.ErrUserRegisterFailed
@@ -137,7 +143,7 @@ func (s *pubSrv) Login(req *web.LoginReq) (*web.LoginResp, mir.Error) {
 			return nil, web.ErrTooManyLoginError
 		}
 		// 对比密码是否正确
-		if validPassword(user.Password, req.Password, user.Salt) {
+		if err := s.passwordProvider.Compare(user.Password, req.Password); err == nil {
 			if user.Status == ms.UserStatusClosed {
 				return nil, web.ErrUserHasBeenBanned
 			}
@@ -187,8 +193,9 @@ func (s *pubSrv) validUsername(username string) mir.Error {
 	return nil
 }
 
-func newPubSrv(s *base.DaoServant) api.Pub {
+func newPubSrv(s *base.DaoServant, provider auth.PasswordProvider) api.Pub {
 	return &pubSrv{
-		DaoServant: s,
+		DaoServant:       s,
+		passwordProvider: provider,
 	}
 }

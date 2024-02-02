@@ -7,6 +7,17 @@ All notable changes to paopao-ce are documented in this file.
 - frontend: add tweets filter support use tag for home page and make it as default behavior.
 - add pin topic support.
 - support upload webp format image as picture when send tweet.
+- support use bcrypt or md5 as authentication method. Use md5 as authentication default if not custom add `BcryptAuthMethod` or `Md5AuthMethod` to `conf.yaml` 's `Features` section.
+  add `BcryptAuthMethod` or `Md5AuthMethod` to `conf.yaml` 's `Features` section to enable this feature like below:
+  ```yaml
+  # file config.yaml
+  ...
+  Features:
+    Default: ["Postgres", "Meili", "LocalOSS", "LoggerOpenObserve", "BcryptAuthMethod", "web"]
+  ...
+  ```
+  
+
 
 ## 0.5.2
 ### Change

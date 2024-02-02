@@ -7,6 +7,7 @@ package app
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -31,7 +32,7 @@ func GenerateToken(user *ms.User) (string, error) {
 		Username: user.Username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expireTime),
-			Issuer:    IssuerFrom(user.Salt),
+			Issuer:    IssuerFrom(user.CreatedOn),
 		},
 	}
 
@@ -53,7 +54,8 @@ func ParseToken(token string) (res *Claims, err error) {
 	return
 }
 
-func IssuerFrom(data string) string {
+func IssuerFrom(num int64) string {
+	data := strconv.FormatInt(num, 10)
 	contents := make([]byte, 0, len(conf.JWTSetting.Issuer)+len(data))
 	copy(contents, []byte(conf.JWTSetting.Issuer))
 	contents = append(contents, []byte(data)...)
