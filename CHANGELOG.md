@@ -16,6 +16,17 @@ All notable changes to paopao-ce are documented in this file.
     Default: ["Postgres", "Meili", "LocalOSS", "LoggerOpenObserve", "BcryptAuthMethod", "web"]
   ...
   ```
+  mirgration database first(sql ddl file in `scripts/migration/**/*_password_use_bcrypt.up.sql`):
+  ```sql
+  ALTER TABLE `p_user` MODIFY COLUMN `password` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '密码';
+
+  UPDATE
+	  p_user
+  SET
+	  password = CONCAT_WS(':', password, salt);
+
+  ALTER TABLE `p_user` DROP COLUMN `salt`;
+  ```
   
 
 
