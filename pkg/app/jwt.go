@@ -6,8 +6,8 @@ package app
 
 import (
 	"crypto/md5"
+	"encoding/binary"
 	"encoding/hex"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -55,10 +55,9 @@ func ParseToken(token string) (res *Claims, err error) {
 }
 
 func IssuerFrom(num int64) string {
-	data := strconv.FormatInt(num, 10)
-	contents := make([]byte, 0, len(conf.JWTSetting.Issuer)+len(data))
+	contents := make([]byte, len(conf.JWTSetting.Issuer)+8)
 	copy(contents, []byte(conf.JWTSetting.Issuer))
-	contents = append(contents, []byte(data)...)
+	binary.LittleEndian.PutUint64(contents[len(contents)-8:], uint64(num))
 	res := md5.Sum(contents)
 	return hex.EncodeToString(res[:])
 }
