@@ -11,8 +11,8 @@ github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868 h1:uFrPOl1VBt/Abfl2
 github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868/go.mod h1:srphKZ1i+yGXxl/LpBS7ZIECTjCTPzZzAMtJWoG3sLo=
 github.com/alimy/mir/v4 v4.1.0 h1:D6R0dkfsK1iH8MVu0b9yQ0UjdBU09goiui9PVI94G4o=
 github.com/alimy/mir/v4 v4.1.0/go.mod h1:d58dBvw2KImcVbAUANrciEV/of0arMNsI9c/5UNCMMc=
-github.com/alimy/tryst v0.10.1 h1:ks0CwITNu8VuCBeIxov7acuXWfPn1ySR/FpKbdDOy7A=
-github.com/alimy/tryst v0.10.1/go.mod h1:6FcqEImav7S62em+p+MODh+stt/UPp23HobUOK3XwFY=
+github.com/alimy/tryst v0.12.0 h1:lxqCDRNKnWn53bkLCJkCakXouFalhs61nUTaH++0siY=
+github.com/alimy/tryst v0.12.0/go.mod h1:cjqH0kEtXVdaF4wgR0jE1ldIUjaFVbwVf+rtHTWiQTY=
 github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible h1:8psS8a+wKfiLt1iVDX79F7Y6wUM49Lcha2FMXt4UM8g=
 github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible/go.mod h1:T/Aws4fEfogEE9v+HPhhw+CntffsBHJ8nXQCwKr0/g8=
 github.com/allegro/bigcache/v3 v3.1.0 h1:H2Vp8VOvxcrB91o86fUSVJFqeuz8kpyyB02eH3bSzwk=
