@@ -11,7 +11,7 @@ import (
 	"os"
 
 	"github.com/alimy/tryst/cfg"
-	"github.com/pyroscope-io/client/pyroscope"
+	pyroscope "github.com/grafana/pyroscope-go"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/sirupsen/logrus"
 )
