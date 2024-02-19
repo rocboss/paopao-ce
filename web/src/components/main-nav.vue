@@ -49,10 +49,10 @@
                     class="theme-switch-wrap"
                 >
                     <template #checked-icon>
-                        <n-icon :component="LightModeOutlined" />
+                        <n-icon :component="DarkModeOutlined" />
                     </template>
                     <template #unchecked-icon>
-                        <n-icon :component="DarkModeOutlined" />
+                        <n-icon :component="LightModeOutlined" />
                     </template>
                 </n-switch>
             </div>
