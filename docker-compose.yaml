@@ -124,7 +124,7 @@ services:
   #     - paopao-network
 
   backend:
-    image: bitbus/paopao-ce:${PAOPAOCE_TAG:-nightly}
+    image: bitbus/paopao-ce:${PAOPAOCE_TAG:-0.6-alpha}
     restart: always
     depends_on:
       - db
