@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pyroscope-io/client/pyroscope"
+	pyroscope "github.com/grafana/pyroscope-go"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/gorm/logger"
