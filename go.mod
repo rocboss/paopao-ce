@@ -26,7 +26,7 @@ require (
 	github.com/grafana/pyroscope-go v1.1.1
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.23.12+incompatible
 	github.com/json-iterator/go v1.1.12
-	github.com/meilisearch/meilisearch-go v0.26.1
+	github.com/meilisearch/meilisearch-go v0.26.2
 	github.com/minio/minio-go/v7 v7.0.66
 	github.com/onsi/ginkgo/v2 v2.16.0
 	github.com/onsi/gomega v1.31.1
