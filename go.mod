@@ -52,7 +52,7 @@ require (
 	gorm.io/gorm v1.25.7
 	gorm.io/plugin/dbresolver v1.5.1
 	gorm.io/plugin/soft_delete v1.2.1
-	modernc.org/sqlite v1.29.2
+	modernc.org/sqlite v1.29.5
 )
 
 require (
@@ -105,7 +105,7 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-sqlite3 v1.14.17 // indirect
+	github.com/mattn/go-sqlite3 v1.14.22 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
