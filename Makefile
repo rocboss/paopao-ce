@@ -36,6 +36,10 @@ build:
 	@echo Build paopao-ce
 	@go build -pgo=auto -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_ROOT)/$(TARGET)
 
+buildx:
+	@echo Build paopao-ce
+	@go build -pgo=auto -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_ROOT)/$(TARGET)
+
 build-web:
 	@cd web && rm -rf dist/* && yarn build && cd -
 

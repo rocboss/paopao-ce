@@ -5,6 +5,7 @@
 package conf
 
 import (
+	"log"
 	"sync"
 	"time"
 
@@ -27,7 +28,7 @@ func MustGormDB() *gorm.DB {
 	_onceGorm.Do(func() {
 		var err error
 		if _gormdb, err = newGormDB(); err != nil {
-			logrus.Fatalf("new gorm db failed: %s", err)
+			log.Fatalf("new gorm db failed: %s", err)
 		}
 	})
 	return _gormdb

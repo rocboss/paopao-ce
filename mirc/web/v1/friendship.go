@@ -16,16 +16,16 @@ type Friendship struct {
 	Group `mir:"v1"`
 
 	// 	RequestingFriend 请求添加朋友
-	RequestingFriend func(Post, web.RequestingFriendReq) `mir:"/friend/requesting"`
+	RequestingFriend func(Post, web.RequestingFriendReq) `mir:"/friend/requesting" binding:"json"`
 
 	// AddFriend 同意添加好友
-	AddFriend func(Post, web.AddFriendReq) `mir:"/friend/add"`
+	AddFriend func(Post, web.AddFriendReq) `mir:"/friend/add" binding:"json"`
 
 	// RejectFriend 拒绝添加好友
-	RejectFriend func(Post, web.RejectFriendReq) `mir:"/friend/reject"`
+	RejectFriend func(Post, web.RejectFriendReq) `mir:"/friend/reject" binding:"json"`
 
 	// 	DeleteFriend 删除好友
-	DeleteFriend func(Post, web.DeleteFriendReq) `mir:"/friend/delete"`
+	DeleteFriend func(Post, web.DeleteFriendReq) `mir:"/friend/delete" binding:"json"`
 
 	// GetContacts 获取好友列表
 	GetContacts func(Get, web.GetContactsReq) web.GetContactsResp `mir:"/user/contacts"`
