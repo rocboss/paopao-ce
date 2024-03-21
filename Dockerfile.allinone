@@ -22,10 +22,9 @@ ARG USE_DIST=no
 WORKDIR /paopao-ce
 COPY . .
 COPY --from=frontend /web/dist ./web/dist
-ENV GOPROXY=https://goproxy.cn
-RUN --mount=type=cache,target=/root/.cache/go-build,id=paopao-ce-allinone go mod download
-RUN [ $EMBED_UI != yes ] || make buildx TAGS='go_json migration'
-RUN [ $EMBED_UI = yes ] || make buildx TAGS='slim embed go_json migration'
+ENV GOPROXY=https://goproxy.cn,direct
+RUN --mount=type=cache,target=$GOPATH/go/pkg,id=paopao-ce-gopkg [ $EMBED_UI != yes ] || make buildx TAGS='go_json migration'
+RUN --mount=type=cache,target=$GOPATH/go/pkg,id=paopao-ce-gopkg [ $EMBED_UI = yes ] || make buildx TAGS='slim embed go_json migration'
 
 FROM bitbus/paopao-ce-allinone-runner:latest
 ARG API_HOST

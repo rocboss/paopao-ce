@@ -32,11 +32,11 @@ LDFLAGS = -X "${MOD_NAME}/pkg/version.version=${BUILD_VERSION}" \
 all: fmt build
 
 build:
-	@go mod download
 	@echo Build paopao-ce
 	@go build -pgo=auto -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_ROOT)/$(TARGET)
 
 buildx:
+	@go mod download
 	@echo Build paopao-ce
 	@go build -pgo=auto -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $(RELEASE_ROOT)/$(TARGET)
 
