@@ -5,8 +5,8 @@ github.com/Masterminds/semver/v3 v3.2.1 h1:RN9w6+7QoMeJVGyfmbcgs28Br8cvmnucEXnY0
 github.com/Masterminds/semver/v3 v3.2.1/go.mod h1:qvl/7zhW3nngYb5+80sSMF+FG2BjYrf8m9wsX0PNOMQ=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/QcloudApi/qcloud_sign_golang v0.0.0-20141224014652-e4130a326409/go.mod h1:1pk82RBxDY/JZnPQrtqHlUFfCctgdorsd9M06fMynOM=
-github.com/RoaringBitmap/roaring v1.9.0 h1:lwKhr90/j0jVXJyh5X+vQN1VVn77rQFfYnh6RDRGCcE=
-github.com/RoaringBitmap/roaring v1.9.0/go.mod h1:6AXUsoIEzDTFFQCe1RbGA6uFONMhvejWj5rqITANK90=
+github.com/RoaringBitmap/roaring v1.9.1 h1:LXcSqGGGMKm+KAzUyWn7ZeREqoOkoMX+KwLOK1thc4I=
+github.com/RoaringBitmap/roaring v1.9.1/go.mod h1:6AXUsoIEzDTFFQCe1RbGA6uFONMhvejWj5rqITANK90=
 github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868 h1:uFrPOl1VBt/Abfl2z+A/DFc+AwmFLxEHR1+Yq6cXvww=
 github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868/go.mod h1:srphKZ1i+yGXxl/LpBS7ZIECTjCTPzZzAMtJWoG3sLo=
 github.com/alimy/mir/v4 v4.2.0-alpha.5 h1:ExSJpbFzKX3Avk1CoTOU3OLyvo4PTB2SnTSQXfeJNIc=
