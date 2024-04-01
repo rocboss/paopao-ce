@@ -21,7 +21,7 @@ require (
 	github.com/go-resty/resty/v2 v2.12.0
 	github.com/goccy/go-json v0.10.2
 	github.com/gofrs/uuid/v5 v5.0.0
-	github.com/golang-jwt/jwt/v5 v5.2.0
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/golang-migrate/migrate/v4 v4.17.0
 	github.com/grafana/pyroscope-go v1.1.1
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.23.12+incompatible
