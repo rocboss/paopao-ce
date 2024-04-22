@@ -5,7 +5,7 @@ go 1.20
 require (
 	connectrpc.com/connect v1.16.0
 	github.com/Masterminds/semver/v3 v3.2.1
-	github.com/RoaringBitmap/roaring v1.9.1
+	github.com/RoaringBitmap/roaring v1.9.3
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/mir/v4 v4.2.0-alpha.5
 	github.com/alimy/tryst v0.10.1
