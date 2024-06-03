@@ -3,7 +3,7 @@ module github.com/rocboss/paopao-ce
 go 1.20
 
 require (
-	connectrpc.com/connect v1.16.1
+	connectrpc.com/connect v1.16.2
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/RoaringBitmap/roaring v1.9.3
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
