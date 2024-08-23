@@ -67,7 +67,7 @@ services:
   #     - paopao-network
 
   meili:
-    image: getmeili/meilisearch:${MEILI_TAG:-v1.6}
+    image: getmeili/meilisearch:${MEILI_TAG:-v1.7}
     restart: always
     ports:
       - 7700:7700
