@@ -1,17 +1,17 @@
 module github.com/rocboss/paopao-ce
 
-go 1.20
+go 1.21
 
 require (
 	connectrpc.com/connect v1.16.2
 	github.com/Masterminds/semver/v3 v3.2.1
-	github.com/RoaringBitmap/roaring v1.9.3
+	github.com/RoaringBitmap/roaring v1.9.4
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/mir/v4 v4.2.0-alpha.5
-	github.com/alimy/tryst v0.10.1
+	github.com/alimy/tryst v0.21.0
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
-	github.com/bytedance/sonic v1.11.7
+	github.com/bytedance/sonic v1.11.9
 	github.com/cockroachdb/errors v1.11.3
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.17.0
@@ -23,7 +23,7 @@ require (
 	github.com/gofrs/uuid/v5 v5.2.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/golang-migrate/migrate/v4 v4.17.1
-	github.com/grafana/pyroscope-go v1.1.1
+	github.com/grafana/pyroscope-go v1.1.2
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.24.6+incompatible
 	github.com/json-iterator/go v1.1.12
 	github.com/meilisearch/meilisearch-go v0.27.2
@@ -41,7 +41,7 @@ require (
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.52
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
 	go.uber.org/automaxprocs v1.5.3
-	golang.org/x/crypto v0.23.0
+	golang.org/x/crypto v0.25.0
 	google.golang.org/grpc v1.64.0
 	google.golang.org/protobuf v1.34.1
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
@@ -83,7 +83,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/pprof v0.0.0-20240424215950-a892ee059fd6 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/grafana/pyroscope-go/godeltaprof v0.1.6 // indirect
+	github.com/grafana/pyroscope-go/godeltaprof v0.1.8 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
@@ -96,7 +96,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/klauspost/compress v1.17.7 // indirect
+	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
@@ -143,10 +143,10 @@ require (
 	golang.org/x/image v0.0.0-20210216034530-4410531fe030 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/text v0.15.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/tools v0.21.0 // indirect
+	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
