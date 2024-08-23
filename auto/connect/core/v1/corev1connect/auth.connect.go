@@ -5,9 +5,9 @@
 package corev1connect
 
 import (
+	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	connect_go "github.com/bufbuild/connect-go"
 	v1 "github.com/rocboss/paopao-ce/auto/rpc/core/v1"
 	http "net/http"
 	strings "strings"
@@ -18,7 +18,7 @@ import (
 // generated with a version of connect newer than the one compiled into your binary. You can fix the
 // problem by either regenerating this code with an older version of connect or updating the connect
 // version compiled into your binary.
-const _ = connect_go.IsAtLeastVersion0_1_0
+const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// AuthenticateServiceName is the fully-qualified name of the AuthenticateService service.
@@ -44,11 +44,19 @@ const (
 	AuthenticateServiceLogoutProcedure = "/core.v1.AuthenticateService/logout"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	authenticateServiceServiceDescriptor        = v1.File_core_v1_auth_proto.Services().ByName("AuthenticateService")
+	authenticateServicePreLoginMethodDescriptor = authenticateServiceServiceDescriptor.Methods().ByName("preLogin")
+	authenticateServiceLoginMethodDescriptor    = authenticateServiceServiceDescriptor.Methods().ByName("login")
+	authenticateServiceLogoutMethodDescriptor   = authenticateServiceServiceDescriptor.Methods().ByName("logout")
+)
+
 // AuthenticateServiceClient is a client for the core.v1.AuthenticateService service.
 type AuthenticateServiceClient interface {
-	PreLogin(context.Context, *connect_go.Request[v1.User]) (*connect_go.Response[v1.ActionReply], error)
-	Login(context.Context, *connect_go.Request[v1.User]) (*connect_go.Response[v1.LoginReply], error)
-	Logout(context.Context, *connect_go.Request[v1.User]) (*connect_go.Response[v1.ActionReply], error)
+	PreLogin(context.Context, *connect.Request[v1.User]) (*connect.Response[v1.ActionReply], error)
+	Login(context.Context, *connect.Request[v1.User]) (*connect.Response[v1.LoginReply], error)
+	Logout(context.Context, *connect.Request[v1.User]) (*connect.Response[v1.ActionReply], error)
 }
 
 // NewAuthenticateServiceClient constructs a client for the core.v1.AuthenticateService service. By
@@ -58,54 +66,57 @@ type AuthenticateServiceClient interface {
 //
 // The URL supplied here should be the base URL for the Connect or gRPC server (for example,
 // http://api.acme.com or https://acme.com/grpc).
-func NewAuthenticateServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) AuthenticateServiceClient {
+func NewAuthenticateServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AuthenticateServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &authenticateServiceClient{
-		preLogin: connect_go.NewClient[v1.User, v1.ActionReply](
+		preLogin: connect.NewClient[v1.User, v1.ActionReply](
 			httpClient,
 			baseURL+AuthenticateServicePreLoginProcedure,
-			opts...,
+			connect.WithSchema(authenticateServicePreLoginMethodDescriptor),
+			connect.WithClientOptions(opts...),
 		),
-		login: connect_go.NewClient[v1.User, v1.LoginReply](
+		login: connect.NewClient[v1.User, v1.LoginReply](
 			httpClient,
 			baseURL+AuthenticateServiceLoginProcedure,
-			opts...,
+			connect.WithSchema(authenticateServiceLoginMethodDescriptor),
+			connect.WithClientOptions(opts...),
 		),
-		logout: connect_go.NewClient[v1.User, v1.ActionReply](
+		logout: connect.NewClient[v1.User, v1.ActionReply](
 			httpClient,
 			baseURL+AuthenticateServiceLogoutProcedure,
-			opts...,
+			connect.WithSchema(authenticateServiceLogoutMethodDescriptor),
+			connect.WithClientOptions(opts...),
 		),
 	}
 }
 
 // authenticateServiceClient implements AuthenticateServiceClient.
 type authenticateServiceClient struct {
-	preLogin *connect_go.Client[v1.User, v1.ActionReply]
-	login    *connect_go.Client[v1.User, v1.LoginReply]
-	logout   *connect_go.Client[v1.User, v1.ActionReply]
+	preLogin *connect.Client[v1.User, v1.ActionReply]
+	login    *connect.Client[v1.User, v1.LoginReply]
+	logout   *connect.Client[v1.User, v1.ActionReply]
 }
 
 // PreLogin calls core.v1.AuthenticateService.preLogin.
-func (c *authenticateServiceClient) PreLogin(ctx context.Context, req *connect_go.Request[v1.User]) (*connect_go.Response[v1.ActionReply], error) {
+func (c *authenticateServiceClient) PreLogin(ctx context.Context, req *connect.Request[v1.User]) (*connect.Response[v1.ActionReply], error) {
 	return c.preLogin.CallUnary(ctx, req)
 }
 
 // Login calls core.v1.AuthenticateService.login.
-func (c *authenticateServiceClient) Login(ctx context.Context, req *connect_go.Request[v1.User]) (*connect_go.Response[v1.LoginReply], error) {
+func (c *authenticateServiceClient) Login(ctx context.Context, req *connect.Request[v1.User]) (*connect.Response[v1.LoginReply], error) {
 	return c.login.CallUnary(ctx, req)
 }
 
 // Logout calls core.v1.AuthenticateService.logout.
-func (c *authenticateServiceClient) Logout(ctx context.Context, req *connect_go.Request[v1.User]) (*connect_go.Response[v1.ActionReply], error) {
+func (c *authenticateServiceClient) Logout(ctx context.Context, req *connect.Request[v1.User]) (*connect.Response[v1.ActionReply], error) {
 	return c.logout.CallUnary(ctx, req)
 }
 
 // AuthenticateServiceHandler is an implementation of the core.v1.AuthenticateService service.
 type AuthenticateServiceHandler interface {
-	PreLogin(context.Context, *connect_go.Request[v1.User]) (*connect_go.Response[v1.ActionReply], error)
-	Login(context.Context, *connect_go.Request[v1.User]) (*connect_go.Response[v1.LoginReply], error)
-	Logout(context.Context, *connect_go.Request[v1.User]) (*connect_go.Response[v1.ActionReply], error)
+	PreLogin(context.Context, *connect.Request[v1.User]) (*connect.Response[v1.ActionReply], error)
+	Login(context.Context, *connect.Request[v1.User]) (*connect.Response[v1.LoginReply], error)
+	Logout(context.Context, *connect.Request[v1.User]) (*connect.Response[v1.ActionReply], error)
 }
 
 // NewAuthenticateServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -113,21 +124,24 @@ type AuthenticateServiceHandler interface {
 //
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
-func NewAuthenticateServiceHandler(svc AuthenticateServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
-	authenticateServicePreLoginHandler := connect_go.NewUnaryHandler(
+func NewAuthenticateServiceHandler(svc AuthenticateServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	authenticateServicePreLoginHandler := connect.NewUnaryHandler(
 		AuthenticateServicePreLoginProcedure,
 		svc.PreLogin,
-		opts...,
+		connect.WithSchema(authenticateServicePreLoginMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
 	)
-	authenticateServiceLoginHandler := connect_go.NewUnaryHandler(
+	authenticateServiceLoginHandler := connect.NewUnaryHandler(
 		AuthenticateServiceLoginProcedure,
 		svc.Login,
-		opts...,
+		connect.WithSchema(authenticateServiceLoginMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
 	)
-	authenticateServiceLogoutHandler := connect_go.NewUnaryHandler(
+	authenticateServiceLogoutHandler := connect.NewUnaryHandler(
 		AuthenticateServiceLogoutProcedure,
 		svc.Logout,
-		opts...,
+		connect.WithSchema(authenticateServiceLogoutMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
 	)
 	return "/core.v1.AuthenticateService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
@@ -146,14 +160,14 @@ func NewAuthenticateServiceHandler(svc AuthenticateServiceHandler, opts ...conne
 // UnimplementedAuthenticateServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedAuthenticateServiceHandler struct{}
 
-func (UnimplementedAuthenticateServiceHandler) PreLogin(context.Context, *connect_go.Request[v1.User]) (*connect_go.Response[v1.ActionReply], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("core.v1.AuthenticateService.preLogin is not implemented"))
+func (UnimplementedAuthenticateServiceHandler) PreLogin(context.Context, *connect.Request[v1.User]) (*connect.Response[v1.ActionReply], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("core.v1.AuthenticateService.preLogin is not implemented"))
 }
 
-func (UnimplementedAuthenticateServiceHandler) Login(context.Context, *connect_go.Request[v1.User]) (*connect_go.Response[v1.LoginReply], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("core.v1.AuthenticateService.login is not implemented"))
+func (UnimplementedAuthenticateServiceHandler) Login(context.Context, *connect.Request[v1.User]) (*connect.Response[v1.LoginReply], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("core.v1.AuthenticateService.login is not implemented"))
 }
 
-func (UnimplementedAuthenticateServiceHandler) Logout(context.Context, *connect_go.Request[v1.User]) (*connect_go.Response[v1.ActionReply], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("core.v1.AuthenticateService.logout is not implemented"))
+func (UnimplementedAuthenticateServiceHandler) Logout(context.Context, *connect.Request[v1.User]) (*connect.Response[v1.ActionReply], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("core.v1.AuthenticateService.logout is not implemented"))
 }

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pyroscope-io/client/pyroscope"
+	pyroscope "github.com/grafana/pyroscope-go"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/gorm/logger"
@@ -115,18 +115,18 @@ type cacheConf struct {
 
 type eventManagerConf struct {
 	MinWorker       int
+	MaxTempWorker   int
 	MaxEventBuf     int
 	MaxTempEventBuf int
-	MaxTickCount    int
-	TickWaitTime    time.Duration
+	MaxIdleTime     time.Duration
 }
 
 type metricManagerConf struct {
 	MinWorker       int
+	MaxTempWorker   int
 	MaxEventBuf     int
 	MaxTempEventBuf int
-	MaxTickCount    int
-	TickWaitTime    time.Duration
+	MaxIdleTime     time.Duration
 }
 
 type jobManagerConf struct {

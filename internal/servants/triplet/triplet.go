@@ -7,7 +7,7 @@ package triplet
 import (
 	"net/http"
 
-	"github.com/bufbuild/connect-go"
+	"connectrpc.com/connect"
 	api "github.com/rocboss/paopao-ce/auto/connect/core/v1/corev1connect"
 )
 

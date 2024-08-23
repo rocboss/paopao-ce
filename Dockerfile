@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:experimental
+# syntax=docker/dockerfile:1
 
 # build frontend
 FROM node:19-alpine as frontend
@@ -22,9 +22,9 @@ ARG USE_DIST=no
 WORKDIR /paopao-ce
 COPY . .
 COPY --from=frontend /web/dist ./web/dist
-ENV GOPROXY=https://goproxy.cn
-RUN [ $EMBED_UI != yes ] || make build TAGS='go_json'
-RUN [ $EMBED_UI = yes ] || make build TAGS='slim embed go_json'
+ENV GOPROXY=https://goproxy.cn,direct
+RUN --mount=type=cache,target=$GOPATH/go/pkg,id=paopao-ce-gopkg [ $EMBED_UI != yes ] || make buildx TAGS='go_json'
+RUN --mount=type=cache,target=$GOPATH/go/pkg,id=paopao-ce-gopkg [ $EMBED_UI = yes ] || make buildx TAGS='slim embed go_json'
 
 FROM bitbus/paopao-ce-backend-runner:latest
 ARG API_HOST

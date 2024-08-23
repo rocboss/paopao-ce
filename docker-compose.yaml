@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   db:
-    image: mysql:8.0
+    image: mysql:${MYSQL_TAG:-8.0}
     restart: always
     environment:
       MYSQL_DATABASE: paopao
@@ -33,7 +33,7 @@ services:
   #     - paopao-network
 
   # redis:
-  #   image: redis:7.2.1-alpine
+  #   image: redis:${REDIS_TAG:-7.2.1-alpine}
   #   restart: always
   #   ports:
   #     - 6379:6379
@@ -41,7 +41,7 @@ services:
   #     - paopao-network
 
   redis:
-    image: redis/redis-stack:7.2.0-v2
+    image: redis/redis-stack:${REDIS_STACK_TAG:-7.2.0-v6}
     restart: always
     ports:
       - 6379:6379
@@ -67,7 +67,7 @@ services:
   #     - paopao-network
 
   meili:
-    image: getmeili/meilisearch:v1.4
+    image: getmeili/meilisearch:${MEILI_TAG:-v1.7}
     restart: always
     ports:
       - 7700:7700
@@ -87,7 +87,7 @@ services:
   #     - paopao-network
   
   # openobserve:
-  #   image: public.ecr.aws/zinclabs/openobserve:latest
+  #   image: public.ecr.aws/zinclabs/openobserve:${OPENOBSERVE_TAG:-latest}
   #   restart: always
   #   ports:
   #     - 5080:5080
@@ -101,7 +101,7 @@ services:
   #     - paopao-network
 
   # pyroscope:
-  #   image: pyroscope/pyroscope:latest
+  #   image: pyroscope/pyroscope:${PYROSCOPE_TAG:-latest}
   #   restart: always
   #   ports:
   #     - 4040:4040
@@ -111,7 +111,7 @@ services:
   #     - paopao-network
 
   # phpmyadmin:
-  #   image: phpmyadmin:5.2
+  #   image: phpmyadmin:${PHPMYADMIN_TAG:-5.2}
   #   depends_on:
   #     - db
   #   ports:
@@ -124,7 +124,7 @@ services:
   #     - paopao-network
 
   backend:
-    image: bitbus/paopao-ce:0.5
+    image: bitbus/paopao-ce:${PAOPAOCE_TAG:-nightly}
     restart: always
     depends_on:
       - db

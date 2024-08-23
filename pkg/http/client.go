@@ -34,8 +34,7 @@ type AsyncClientConf struct {
 	MinWorker         int
 	MaxRequestBuf     int
 	MaxRequestTempBuf int
-	MaxTickCount      int
-	TickWaitTime      time.Duration
+	MaxIdleTime       time.Duration
 }
 
 type wormClient struct {
@@ -64,11 +63,10 @@ func NewAsyncClient(client *http.Client, conf *AsyncClientConf) AsyncClient {
 		pool: gp.NewGoroutinePool(func(req *http.Request) (*http.Response, error) {
 			return client.Do(req)
 		},
-			gp.MinWorkerOpt(minWorker),
-			gp.MaxRequestBufOpt(maxRequestBuf),
-			gp.MaxRequestTempBufOpt(maxRequestTempBuf),
-			gp.MaxTickCountOpt(conf.MaxTickCount),
-			gp.TickWaitTimeOpt(conf.TickWaitTime),
+			gp.WithMinWorker(minWorker),
+			gp.WithMaxRequestBuf(maxRequestBuf),
+			gp.WithMaxRequestTempBuf(maxRequestTempBuf),
+			gp.WithMaxIdelTime(conf.MaxIdleTime),
 		),
 	}
 }

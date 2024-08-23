@@ -6,8 +6,8 @@
             <n-tabs type="line" animated @update:value="changeTab">
                 <n-tab-pane name="hot" tab="热门" />
                 <n-tab-pane name="new" tab="最新" />
-                <n-tab-pane v-if="store.state.userLogined"
-                name="follow" tab="关注" />
+                <n-tab-pane name="follow" tab="关注" v-if="store.state.userLogined" />
+                <n-tab-pane name="pin" tab="钉住" v-if="store.state.userLogined" />
                 <template v-if="store.state.userLogined" #suffix>
                     <n-tag v-model:checked="tagsChecked" checkable>
                         {{tagsEditText}}
@@ -21,9 +21,13 @@
                         :tag="tag"
                         :showAction="store.state.userLogined && tagsChecked"
                         :checkFollowing="inFollowTab"
+                        :checkPin="inPinTab"
                     >
                     </tag-item>
                 </n-space>
+                <div class="empty-wrap" v-if="tags.length === 0">
+                    <n-empty size="large" description="暂无数据" />
+                </div>
             </n-spin>
         </n-list>
     </div>
@@ -36,10 +40,11 @@ import { useStore } from 'vuex';
 
 const store = useStore();
 const tags = ref<Item.TagProps[]>([]);
-const tagType = ref<"hot" | "new" | "follow">('hot');
+const tagType = ref<"hot" | "new" | "follow" | "pin">('hot');
 const loading = ref(false);
 const tagsChecked = ref(false)
 const inFollowTab = ref(false)
+const inPinTab = ref(false)
 
 watch(tagsChecked, () => {
     if (!tagsChecked.value) {
@@ -70,17 +75,15 @@ const loadTags = () => {
             loading.value = false;
         })
         .catch((err) => {
+            tags.value = [];
             console.log(err);
             loading.value = false;
         });
 };
-const changeTab = (tab: "hot" | "new" | "follow") => {
+const changeTab = (tab: "hot" | "new" | "follow" | "pin") => {
     tagType.value = tab;
-    if (tab == "follow") {
-        inFollowTab.value = true
-    } else {
-        inFollowTab.value = false
-    }
+    inFollowTab.value = (tab === "follow")
+    inPinTab.value = (tab === "pin")
     loadTags();
 };
 onMounted(() => {
@@ -93,7 +96,7 @@ onMounted(() => {
     padding: 20px;
 }
 .dark {
-    .tags-wrap {
+    .tags-wrap, .empty-wrap {
         background-color: rgba(16, 16, 20, 0.75);
     }
 }

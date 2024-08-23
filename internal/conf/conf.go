@@ -128,8 +128,8 @@ func setupSetting(suite []string, noDefault bool) error {
 	}
 
 	CacheSetting.CientSideCacheExpire *= time.Second
-	EventManagerSetting.TickWaitTime *= time.Second
-	MetricManagerSetting.TickWaitTime *= time.Second
+	EventManagerSetting.MaxIdleTime *= time.Second
+	MetricManagerSetting.MaxIdleTime *= time.Second
 	JWTSetting.Expire *= time.Second
 	SimpleCacheIndexSetting.CheckTickDuration *= time.Second
 	SimpleCacheIndexSetting.ExpireTickDuration *= time.Second

@@ -56,8 +56,7 @@ func newObserveLogHook() *observeLogHook {
 		MinWorker:         s.MinWorker,
 		MaxRequestBuf:     s.MaxLogBuffer,
 		MaxRequestTempBuf: 100,
-		MaxTickCount:      60,
-		TickWaitTime:      time.Second,
+		MaxIdleTime:       60 * time.Second,
 	}
 	return &observeLogHook{
 		client: obx.NewClient(obc, acc, func(req *http.Request, resp *http.Response, err error) {

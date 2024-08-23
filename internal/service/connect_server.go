@@ -8,7 +8,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/bufbuild/connect-go"
+	"connectrpc.com/connect"
 	hx "github.com/rocboss/paopao-ce/pkg/http"
 )
 

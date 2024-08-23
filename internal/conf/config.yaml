@@ -22,16 +22,16 @@ Cache:
   MessagesExpire: 60          # 消息列表过期时间，单位秒， 默认60s
 EventManager: # 事件管理器的配置参数
   MinWorker: 64               # 最小后台工作者, 设置范围[5, ++], 默认64
+  MaxTempWorker: -1           # 最大临时工作者, -1为无限制, 默认-1
   MaxEventBuf: 128            # 最大log缓存条数, 设置范围[10, ++], 默认128
   MaxTempEventBuf: 256        # 最大log缓存条数, 设置范围[10, ++], 默认256
-  MaxTickCount: 60            # 最大的循环周期, 设置范围[60, ++], 默认60
-  TickWaitTime: 1             # 一个周期的等待时间，单位：秒 默认1s
+  MaxIdleTime: 60             # 临时工作者最大空闲等待时间，单位：秒 默认60
 MetricManager: # 指标监控管理器的配置参数
   MinWorker: 32               # 最小后台工作者, 设置范围[5, ++], 默认32
+  MaxTempWorker: -1           # 最大临时工作者, -1为无限制, 默认-1
   MaxEventBuf: 128            # 最大log缓存条数, 设置范围[10, ++], 默认128
   MaxTempEventBuf: 256        # 最大log缓存条数, 设置范围[10, ++], 默认256
-  MaxTickCount: 60            # 最大的循环周期, 设置范围[60, ++], 默认60
-  TickWaitTime: 1             # 一个周期的等待时间，单位：秒 默认1s
+  MaxIdleTime: 60             # 临时工作者最大空闲等待时间，单位：秒 默认60
 JobManager: # Cron Job理器的配置参数
   MaxOnlineInterval: "@every 5m"       # 更新最大在线人数，默认每5分钟更新一次
   UpdateMetricsInterval: "@every 5m"   # 更新Prometheus指标，默认每5分钟更新一次
@@ -250,7 +250,7 @@ Redis:
   ConnWriteTimeout: 60   # 连接写超时时间 多少秒 默认 60秒
 WebProfile:
   UseFriendship: true              # 前端是否使用好友体系
-  EnableTrendsBar: true            # 广场页面是否开启动态条栏功能
+  EnableTrendsBar: false           # 广场页面是否开启动态条栏功能
   EnableWallet: false              # 是否开启钱包功能
   AllowTweetAttachment: true       # 是否允许推文附件
   AllowTweetAttachmentPrice: true  # 是否允许推文付费附件
