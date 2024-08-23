@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # build frontend
-FROM node:19-alpine as frontend
+FROM node:19-alpine AS frontend
 ARG API_HOST
 ARG USE_API_HOST=yes
 ARG EMBED_UI=yes
@@ -18,6 +18,8 @@ ARG API_HOST
 ARG USE_API_HOST=yes
 ARG EMBED_UI=yes
 ARG USE_DIST=no
+ENV GOPROXY=https://goproxy.cn,direct
+WORKDIR /paopao-ce
 COPY go.mod .
 COPY go.sum .
 RUN go mod download
@@ -41,11 +43,9 @@ ARG USE_API_HOST=yes
 ARG EMBED_UI=yes
 ARG USE_DIST=no
 ENV TZ=Asia/Shanghai
-
 WORKDIR /app/paopao-ce
 COPY --from=backend /paopao-ce/release/paopao .
 COPY --from=backend /paopao-ce/config.yaml.sample config.yaml
-
 VOLUME ["/app/paopao-ce/custom"]
 EXPOSE 8008
 HEALTHCHECK --interval=5s --timeout=3s  --retries=3  CMD ps -ef | grep paopao || exit 1
