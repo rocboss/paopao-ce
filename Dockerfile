@@ -12,19 +12,28 @@ RUN [ $EMBED_UI != yes ] || [ $USE_API_HOST != yes ] || echo "VITE_HOST='$API_HO
 RUN [ $EMBED_UI != yes ] || [ $USE_DIST != no ] || (yarn && yarn build)
 RUN [ $EMBED_UI = yes ] || mkdir dist || echo ""
 
-# build backend
-FROM bitbus/paopao-ce-backend-builder:latest AS backend
+# build go mod cache
+FROM bitbus/paopao-ce-backend-builder:latest AS gomodcache
 ARG API_HOST
 ARG USE_API_HOST=yes
 ARG EMBED_UI=yes
 ARG USE_DIST=no
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
 
+# build backend
+FROM gomodcache AS backend
+ARG API_HOST
+ARG USE_API_HOST=yes
+ARG EMBED_UI=yes
+ARG USE_DIST=no
 WORKDIR /paopao-ce
 COPY . .
 COPY --from=frontend /web/dist ./web/dist
 ENV GOPROXY=https://goproxy.cn,direct
-RUN --mount=type=cache,target=$GOPATH/go/pkg,id=paopao-ce-gopkg [ $EMBED_UI != yes ] || make buildx TAGS='go_json'
-RUN --mount=type=cache,target=$GOPATH/go/pkg,id=paopao-ce-gopkg [ $EMBED_UI = yes ] || make buildx TAGS='slim embed go_json'
+RUN [ $EMBED_UI != yes ] || make build TAGS='go_json'
+RUN [ $EMBED_UI = yes ] || make build TAGS='slim embed go_json'
 
 FROM bitbus/paopao-ce-backend-runner:latest
 ARG API_HOST
