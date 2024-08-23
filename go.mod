@@ -24,7 +24,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/golang-migrate/migrate/v4 v4.17.1
 	github.com/grafana/pyroscope-go v1.1.1
-	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.24.3+incompatible
+	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.24.6+incompatible
 	github.com/json-iterator/go v1.1.12
 	github.com/meilisearch/meilisearch-go v0.27.2
 	github.com/minio/minio-go/v7 v7.0.66
