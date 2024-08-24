@@ -429,11 +429,11 @@ const beforeUpload = async (data: any) => {
     // 图片类型校验
     if (
         uploadType.value === 'public/image' &&
-        !['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(
+        !['image/webp', 'image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(
             data.file.file?.type
         )
     ) {
-        window.$message.warning('图片仅允许 png/jpg/gif 格式');
+        window.$message.warning('图片仅允许 webp/png/jpg/gif 格式');
         return false;
     }
 

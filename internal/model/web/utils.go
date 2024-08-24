@@ -24,6 +24,8 @@ func fileCheck(uploadType string, size int64) mir.Error {
 
 func getFileExt(s string) (string, mir.Error) {
 	switch s {
+	case "image/webp":
+		return ".webp", nil
 	case "image/png":
 		return ".png", nil
 	case "image/jpg":
@@ -42,6 +44,6 @@ func getFileExt(s string) (string, mir.Error) {
 		"application/x-zip-compressed":
 		return ".zip", nil
 	default:
-		return "", ErrFileInvalidExt.WithDetails("仅允许 png/jpg/gif/mp4/mov/zip 类型")
+		return "", ErrFileInvalidExt.WithDetails("仅允许 webp/png/jpg/gif/mp4/mov/zip 类型")
 	}
 }

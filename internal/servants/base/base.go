@@ -29,7 +29,8 @@ import (
 )
 
 type BaseServant struct {
-	bindAny func(c *gin.Context, obj any) mir.Error
+	bindAny  func(c *gin.Context, obj any) mir.Error
+	bindJson func(c *gin.Context, obj any) mir.Error
 }
 
 type DaoServant struct {
@@ -156,6 +157,10 @@ func RenderAny(c *gin.Context, data any, err mir.Error) {
 
 func (s *BaseServant) Bind(c *gin.Context, obj any) mir.Error {
 	return s.bindAny(c, obj)
+}
+
+func (s *BaseServant) BindJson(c *gin.Context, obj any) mir.Error {
+	return s.bindJson(c, obj)
 }
 
 func (s *BaseServant) Render(c *gin.Context, data any, err mir.Error) {
@@ -420,9 +425,17 @@ func NewBindAnyFn() func(c *gin.Context, obj any) mir.Error {
 	return bindAny
 }
 
+func NewBindJsonFn() func(c *gin.Context, obj any) mir.Error {
+	if conf.UseSentryGin() {
+		return bindAnySentry
+	}
+	return bindAny
+}
+
 func NewBaseServant() *BaseServant {
 	return &BaseServant{
-		bindAny: NewBindAnyFn(),
+		bindAny:  NewBindAnyFn(),
+		bindJson: NewBindJsonFn(),
 	}
 }
 

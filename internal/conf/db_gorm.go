@@ -5,6 +5,7 @@
 package conf
 
 import (
+	"log"
 	"sync"
 	"time"
 
@@ -27,13 +28,13 @@ func MustGormDB() *gorm.DB {
 	_onceGorm.Do(func() {
 		var err error
 		if _gormdb, err = newGormDB(); err != nil {
-			logrus.Fatalf("new gorm db failed: %s", err)
+			log.Fatalf("new gorm db failed: %s", err)
 		}
 	})
 	return _gormdb
 }
 
-func newGormDB() (*gorm.DB, error) {
+func newGormDB() (db *gorm.DB, err error) {
 	newLogger := logger.New(
 		logrus.StandardLogger(), // io writer（日志输出的目标，前缀和日志包含的内容）
 		logger.Config{
@@ -58,15 +59,9 @@ func newGormDB() (*gorm.DB, error) {
 		SetMaxIdleConns(MysqlSetting.MaxIdleConns).
 		SetMaxOpenConns(MysqlSetting.MaxOpenConns)
 
-	var (
-		db  *gorm.DB
-		err error
-	)
 	if cfg.If("MySQL") {
 		logrus.Debugln("use MySQL as db")
-		if db, err = gorm.Open(mysql.Open(MysqlSetting.Dsn()), config); err == nil {
-			db.Use(plugin)
-		}
+		db, err = gorm.Open(mysql.Open(MysqlSetting.Dsn()), config)
 	} else if cfg.If("Postgres") {
 		logrus.Debugln("use PostgreSQL as db")
 		db, err = gorm.Open(postgres.Open(PostgresSetting.Dsn()), config)
@@ -75,10 +70,10 @@ func newGormDB() (*gorm.DB, error) {
 		db, err = gormOpenSqlite3(config)
 	} else {
 		logrus.Debugln("use default of MySQL as db")
-		if db, err = gorm.Open(mysql.Open(MysqlSetting.Dsn()), config); err == nil {
-			db.Use(plugin)
-		}
+		db, err = gorm.Open(mysql.Open(MysqlSetting.Dsn()), config)
 	}
-
-	return db, err
+	if err == nil {
+		err = db.Use(plugin)
+	}
+	return
 }
