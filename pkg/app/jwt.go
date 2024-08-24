@@ -55,8 +55,7 @@ func ParseToken(token string) (res *Claims, err error) {
 
 func IssuerFrom(data string) string {
 	contents := make([]byte, 0, len(conf.JWTSetting.Issuer)+len(data))
-	copy(contents, []byte(conf.JWTSetting.Issuer))
-	contents = append(contents, []byte(data)...)
+	contents = append(append(contents, []byte(conf.JWTSetting.Issuer)...), []byte(data)...)
 	res := md5.Sum(contents)
 	return hex.EncodeToString(res[:])
 }
