@@ -508,6 +508,11 @@ func (s *looseSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, m
 	if err != nil {
 		return nil, web.ErrGetPostFailed
 	}
+
+	// check current user permission
+	if xerr := checkPostViewPermission(req.User, post, s.Ds); xerr != nil {
+		return nil, xerr
+	}
 	postContents, err := s.Ds.GetPostContentsByIDs([]int64{post.ID})
 	if err != nil {
 		return nil, web.ErrGetPostFailed
