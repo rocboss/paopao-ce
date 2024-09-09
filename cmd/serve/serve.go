@@ -18,6 +18,7 @@ import (
 	"github.com/rocboss/paopao-ce/cmd"
 	"github.com/rocboss/paopao-ce/internal"
 	"github.com/rocboss/paopao-ce/internal/conf"
+	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/internal/service"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/rocboss/paopao-ce/pkg/utils"
@@ -47,6 +48,7 @@ func init() {
 }
 
 func deferFn() {
+	dao.CloseDsx()
 	if cfg.If("Sentry") {
 		// Flush buffered events before the program terminates.
 		sentry.Flush(2 * time.Second)
