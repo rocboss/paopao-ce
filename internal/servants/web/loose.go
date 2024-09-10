@@ -532,7 +532,7 @@ func (s *looseSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, m
 	// 检测访问权限
 	// TODO: 提到最前面去检测
 	switch {
-	case req.User.IsAdmin:
+	case req.User != nil && req.User.IsAdmin:
 		break
 	case post.Visibility == core.PostVisitPublic:
 		break
