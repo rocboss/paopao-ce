@@ -231,5 +231,6 @@ func checkPostViewPermission(user *ms.User, post *ms.Post, ds core.DataService) 
 			return web.ErrNoPermission
 		}
 	}
+	// TODO: add following check logic
 	return nil
 }

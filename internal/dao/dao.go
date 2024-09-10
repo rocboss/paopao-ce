@@ -88,19 +88,6 @@ func initDsX() {
 	logrus.Infof("use %s as core.ServantA with version %s", dsaVer.Name(), dsaVer.Version())
 }
 
-func CloseDsx() {
-	if cfg.If("Gorm") {
-		jinzhu.CloseDbObject()
-	} else if cfg.If("Sqlx") {
-		sakila.CloseDbObject()
-	} else if cfg.If("Sqlc") && cfg.Any("Postgres", "PostgreSQL") {
-		slonik.CloseDbObject()
-	} else {
-		// default use gorm as orm for sql database
-		jinzhu.CloseDbObject()
-	}
-}
-
 func initOSS() {
 	var v core.VersionInfo
 	if cfg.If("AliOSS") {

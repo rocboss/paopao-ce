@@ -58,6 +58,17 @@ func MustSqlDB() *sql.DB {
 	return _sqldb
 }
 
+// CloseDB close databse to prevent data missing
+func CloseDB() {
+	cfg.On(cfg.Actions{
+		"Gorm": func() {
+			closeGormDB()
+		},
+	}, func() {
+		closeGormDB()
+	})
+}
+
 func newSqlDB() (driver string, db *sql.DB, err error) {
 	if cfg.If("MySQL") {
 		driver = "mysql"

@@ -34,12 +34,14 @@ func MustGormDB() *gorm.DB {
 	return _gormdb
 }
 
-func CloseGormDB() {
+func closeGormDB() {
 	db, err := _gormdb.DB()
 	if err != nil {
-		log.Fatalf("close gorm db failed: %s", err)
+		logrus.WithError(err).Error("get db from grom failed")
 	}
-	_ = db.Close()
+	if err = db.Close(); err != nil {
+		logrus.WithError(err).Error("close db failed")
+	}
 }
 
 func newGormDB() (db *gorm.DB, err error) {

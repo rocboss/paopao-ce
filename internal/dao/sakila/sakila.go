@@ -26,7 +26,3 @@ func NewAuthorizationManageService() core.AuthorizationManageService {
 	logrus.Fatal("not support now")
 	return nil
 }
-
-func CloseDbObject() {
-	logrus.Fatal("not support now")
-}

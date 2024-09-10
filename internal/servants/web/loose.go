@@ -508,11 +508,6 @@ func (s *looseSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, m
 	if err != nil {
 		return nil, web.ErrGetPostFailed
 	}
-
-	// check current user permission
-	if xerr := checkPostViewPermission(req.User, post, s.Ds); xerr != nil {
-		return nil, xerr
-	}
 	postContents, err := s.Ds.GetPostContentsByIDs([]int64{post.ID})
 	if err != nil {
 		return nil, web.ErrGetPostFailed
@@ -531,7 +526,23 @@ func (s *looseSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, m
 			postFormated.Contents = append(postFormated.Contents, content.Format())
 		}
 	}
-	s.PrepareTweet(req.Uid, postFormated)
+	if err = s.PrepareTweet(req.User, postFormated); err != nil {
+		return nil, web.ErrGetPostFailed
+	}
+	// 检测访问权限
+	// TODO: 提到最前面去检测
+	switch {
+	case req.User.IsAdmin:
+		break
+	case post.Visibility == core.PostVisitPublic:
+		break
+	case post.Visibility == core.PostVisitFriend && postFormated.User.IsFriend:
+		break
+	case post.Visibility == core.PostVisitFollowing && postFormated.User.IsFollowing:
+		break
+	default:
+		return nil, web.ErrNoPermission
+	}
 	return (*web.TweetDetailResp)(postFormated), nil
 }
 

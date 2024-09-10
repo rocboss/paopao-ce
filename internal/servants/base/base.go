@@ -231,23 +231,22 @@ func (s *DaoServant) PrepareMessages(userId int64, messages []*ms.MessageFormate
 	return nil
 }
 
-func (s *DaoServant) PrepareTweet(userId int64, tweet *ms.PostFormated) error {
-	// 转换一下可见性的值
-	tweet.Visibility = ms.PostVisibleT(tweet.Visibility.ToOutValue())
-	// guest用户的userId<0
-	if userId < 0 {
+func (s *DaoServant) PrepareTweet(user *ms.User, tweet *ms.PostFormated) error {
+	// guest用户
+	if user == nil {
 		return nil
 	}
-	// friendMap, err := s.Ds.IsMyFriend(userId, userIds)
-	// if err != nil {
-	// 	return err
-	// }
-	followMap, err := s.Ds.IsMyFollow(userId, tweet.UserID)
+	// 转换一下可见性的值
+	tweet.Visibility = ms.PostVisibleT(tweet.Visibility.ToOutValue())
+	friendMap, err := s.Ds.IsMyFriend(user.ID, tweet.UserID)
 	if err != nil {
 		return err
 	}
-	// tweet.User.IsFriend, tweet.User.IsFollowing = friendMap[tweet.UserID], followMap[tweet.UserID]
-	tweet.User.IsFollowing = followMap[tweet.UserID]
+	followMap, err := s.Ds.IsMyFollow(user.ID, tweet.UserID)
+	if err != nil {
+		return err
+	}
+	tweet.User.IsFriend, tweet.User.IsFollowing = friendMap[tweet.UserID], followMap[tweet.UserID]
 	return nil
 }
 
