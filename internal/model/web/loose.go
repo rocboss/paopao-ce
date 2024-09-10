@@ -113,9 +113,8 @@ type TopicListResp struct {
 }
 
 type TweetDetailReq struct {
-	BaseInfo   `form:"-"  binding:"-"`
-	SimpleInfo `form:"-"  binding:"-"`
-	TweetId    int64 `form:"id"`
+	BaseInfo `form:"-"  binding:"-"`
+	TweetId  int64 `form:"id"`
 }
 
 type TweetDetailResp ms.PostFormated
