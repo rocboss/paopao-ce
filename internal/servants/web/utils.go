@@ -207,3 +207,29 @@ func checkPermision(user *ms.User, targetUserId int64) mir.Error {
 	}
 	return nil
 }
+
+// checkPostViewPermission 检查当前用户是否可读指定post
+func checkPostViewPermission(user *ms.User, post *ms.Post, ds core.DataService) mir.Error {
+	if post.Visibility == core.PostVisitPublic {
+		return nil
+	}
+
+	if user == nil {
+		return web.ErrNoPermission
+	}
+
+	if user.IsAdmin || user.ID == post.UserID {
+		return nil
+	}
+
+	if post.Visibility == core.PostVisitPrivate {
+		return web.ErrNoPermission
+	}
+
+	if post.Visibility == core.PostVisitFriend {
+		if !ds.IsFriend(post.UserID, user.ID) && !ds.IsFriend(user.ID, post.UserID) {
+			return web.ErrNoPermission
+		}
+	}
+	return nil
+}

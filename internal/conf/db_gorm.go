@@ -34,6 +34,14 @@ func MustGormDB() *gorm.DB {
 	return _gormdb
 }
 
+func CloseGormDB() {
+	db, err := _gormdb.DB()
+	if err != nil {
+		log.Fatalf("close gorm db failed: %s", err)
+	}
+	_ = db.Close()
+}
+
 func newGormDB() (db *gorm.DB, err error) {
 	newLogger := logger.New(
 		logrus.StandardLogger(), // io writer（日志输出的目标，前缀和日志包含的内容）

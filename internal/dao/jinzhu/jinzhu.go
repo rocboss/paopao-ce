@@ -87,6 +87,10 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	return cache.NewCacheDataService(ds), ds
 }
 
+func CloseDbObject() {
+	conf.CloseGormDB()
+}
+
 func NewWebDataServantA() (core.WebDataServantA, core.VersionInfo) {
 	lazyInitial()
 	db := conf.MustGormDB()
