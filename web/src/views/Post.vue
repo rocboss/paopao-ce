@@ -5,7 +5,7 @@
         <n-list class="main-content-wrap" bordered>
             <n-list-item>
                 <n-spin :show="loading">
-                    <div class="detail-wrap" v-if="post.id > 1">
+                    <div class="detail-wrap" v-if="post.id > 0">
                         <post-detail :post="post" @reload="reloadPost" />
                     </div>
                     <div class="empty-wrap" v-else>
