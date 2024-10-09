@@ -173,7 +173,7 @@ func (s *topicSrv) listTags(conditions *ms.ConditionsT, limit int, offset int) (
 			tagMap[item.UserID] = append(tagMap[item.UserID], item)
 			res = append(res, item)
 		}
-		ids := make([]int64, len(tagMap))
+		ids := make([]int64, 0, len(tagMap))
 		for userId := range tagMap {
 			ids = append(ids, userId)
 		}
@@ -332,7 +332,7 @@ func (s *topicSrvA) ListTags(typ cs.TagType, offset, limit int) (res cs.TagList,
 			tagMap[item.UserID] = append(tagMap[item.UserID], item)
 			res = append(res, item)
 		}
-		ids := make([]int64, len(tagMap))
+		ids := make([]int64, 0, len(tagMap))
 		for userId := range tagMap {
 			ids = append(ids, userId)
 		}
