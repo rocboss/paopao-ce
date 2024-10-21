@@ -15,7 +15,7 @@ require (
 	github.com/cockroachdb/errors v1.11.3
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.17.0
-	github.com/getsentry/sentry-go v0.28.1
+	github.com/getsentry/sentry-go v0.29.1
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-resty/resty/v2 v2.12.0
