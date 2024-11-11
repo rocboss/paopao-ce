@@ -18,7 +18,7 @@ require (
 	github.com/getsentry/sentry-go v0.28.1
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
-	github.com/go-resty/resty/v2 v2.12.0
+	github.com/go-resty/resty/v2 v2.16.0
 	github.com/goccy/go-json v0.10.3
 	github.com/gofrs/uuid/v5 v5.2.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
@@ -145,7 +145,7 @@ require (
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
-	golang.org/x/time v0.5.0 // indirect
+	golang.org/x/time v0.6.0 // indirect
 	golang.org/x/tools v0.23.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
