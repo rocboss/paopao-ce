@@ -540,6 +540,8 @@ func (s *looseSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, m
 		break
 	case post.Visibility == core.PostVisitFollowing && postFormated.User.IsFollowing:
 		break
+	case post.UserID == req.User.ID:
+		break
 	default:
 		return nil, web.ErrNoPermission
 	}
