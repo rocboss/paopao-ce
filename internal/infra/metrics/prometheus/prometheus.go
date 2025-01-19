@@ -13,7 +13,7 @@ import (
 	"github.com/robfig/cron/v3"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/events"
+	"github.com/rocboss/paopao-ce/internal/infra/events"
 	"github.com/sirupsen/logrus"
 )
 

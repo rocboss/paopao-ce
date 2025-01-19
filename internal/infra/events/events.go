@@ -11,7 +11,7 @@ import (
 	"github.com/alimy/tryst/pool"
 	"github.com/robfig/cron/v3"
 	"github.com/rocboss/paopao-ce/internal/conf"
-	"github.com/rocboss/paopao-ce/internal/metrics/statistics"
+	"github.com/rocboss/paopao-ce/internal/infra/metrics/statistics"
 	"github.com/sirupsen/logrus"
 )
 
