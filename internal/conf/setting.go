@@ -74,6 +74,16 @@ type loggerOpenObserveConf struct {
 	MinWorker    int
 }
 
+type loggerOtlponf struct {
+	Endpoint      string
+	Authorization string
+	Organization  string
+	TraceStream   string
+	MetricStream  string
+	LogStream     string
+	Insecure      bool
+}
+
 type httpServerConf struct {
 	RunMode      string
 	HttpIp       string

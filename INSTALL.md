@@ -1,88 +1,225 @@
-<div id="top"></div>
-
-<!-- PROJECT SHIELDS -->
-[![Go](https://github.com/rocboss/paopao-ce/actions/workflows/go.yml/badge.svg)](https://github.com/rocboss/paopao-ce/actions/workflows/go.yml)
-[![Go Report Card][goreport-shield]][goreport-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![MIT License][license-shield]][license-url]
-[![Contributors][contributors-shield]][contributors-url]
-[![Sourcegraph](https://img.shields.io/badge/view%20on-Sourcegraph-brightgreen.svg)](https://sourcegraph.com/github.com/rocboss/paopao-ce)
-
-<!-- PROJECT LOGO -->
-<div align="center">
-  <a href="https://github.com/rocboss/paopao-ce">
-    <img src="https://cdn.rocs.me/static/paopao-logo.png" alt="Logo" width="80" height="80">
-  </a>
-
-  <h3 align="center">PaoPao</h3>
-
-  <p align="center">
-    🔥一个清新文艺的微社区
-    <br />
-    <a href="https://www.paopao.info/">View Demo</a>
-    ·
-    <a href="https://github.com/rocboss/paopao-ce/pulls">Pull Request</a>
-    ·
-    <a href="https://www.yuque.com/rocs/paopao/about">Features</a>
-  </p>
-</div>
-
----
-
-## 预览
-Web端：  
-[![明色主题][product-light-screenshot]](https://www.paopao.info)
-
-[![暗色主题][product-dark-screenshot]](https://www.paopao.info)
-
-更多演示请前往[官网](https://www.paopao.info)体验（谢绝灌水）  
-
-桌面端：  
-![](docs/proposal/.assets/000-00.jpg)
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-## 🛠 技术栈
-
-PaoPao主要由以下优秀的开源项目/工具构建  
-#### 后端:
-* [Go](https://go.dev/ 'go')
-* [Gin](https://gin-gonic.com/ 'gin')
-* [Mir](https://github.com/alimy/mir 'go-mir')
-* [Meilisearch](https://www.meilisearch.com/ 'meilisearch')
-* [OpenTelemetry](https://github.com/open-telemetry/opentelemetry-go 'OpenTelemetry')
-* [OpenObserve](https://github.com/openobserve/openobserve 'OpenObserve')
-
-#### 前端: 
-* [Naive UI](https://www.naiveui.com/)
-* [Vue.js](https://vuejs.org/)
-* [Vite.js](https://vitejs.dev/)
-* [tauri](https://github.com/tauri-apps/tauri 'tauri')
-
-<!-- GETTING STARTED -->
-## 🏗 快速开始
-
-### 环境要求
-
-* Go (1.22+)
-* Node.js (14+)
-* MySQL (5.7+)
-* Redis
-* Meilisearch
-
-以上环境版本为PaoPao官方的开发版本，仅供参考，其他版本的环境未进行充分测试
-
 ### 安装说明
-参考  [安装说明 (INSTALL.md);](INSTALL.md '参考 安装说明')
+
+
+### 方式一. 手动安装（推荐）
+
+克隆代码库
+
+   ```sh
+   git clone https://github.com/rocboss/paopao-ce.git
+   ```
+
+#### 后端
+
+1. 导入项目根目录下的 `scripts/paopao.sql` 文件至MySQL数据库
+2. 拷贝项目根目录下 `config.yaml.sample` 文件至 `config.yaml`，按照注释完成配置编辑
+3. 编译后端    
+    编译api服务:
+    ```sh
+    make build
+    ```
+    编译api服务、内嵌web前端ui:
+    ```sh
+    make build
+    ```
+    也可以使用精简模式编译，不内嵌web前端ui:
+    ```sh
+    make build TAGS='slim embed'
+    ```
+    编译后在`release`目录可以找到对应可执行文件。
+    ```sh
+    release/paopao
+    ```
+
+4. 直接运行后端    
+    运行api服务:
+    ```sh
+    make run
+    ```
+    运行api服务、web前端ui服务:
+    ```sh
+    make run TAGS='embed'
+    ```
+    提示: 如果需要内嵌web前端ui，请先构建web前端(建议设置web/.env为VITE_HOST="")。
+
+5. 使用内置的Migrate机制自动升级维护SQL DDL:
+    ```sh
+    # 添加 Migration 功能到 Features 中 开启migrate功能
+    vim config.yaml
+    # file: config.yaml
+    # Features:
+    #   Default: ["Base", "MySQL", "Zinc", "MinIO", "LoggerZinc", "Migration"]
+   
+    # 编译时加入migration tag编译出支持migrate功能的可执行文件
+    make build TAGS='migration'
+    release/paopao
+
+    # 或者 带上migration tag直接运行
+    make run TAGS='migration'
+    ```
+    > 注意：默认编译出来的可执行文件是不内置migrate功能，需要编译时带上migration tag才能内置支持migrage功能。
+
+
+#### 前端
+
+1. 进入前端目录 `web`，拷贝`.env` 到 `.env.local`，编辑 `.env.local ` 文件中后端服务地址及其他配置项，下载依赖包
+
+    ```sh
+    cd ./web && cp .env .env.local
+    vim .env.local
+    yarn
+    ```
+
+2. 编译前端
+
+    ```sh
+    yarn build
+    ```
+
+    build完成后，可以在dist目录获取编译产出，配置nginx指向至该目录即可
+
+#### 桌面端
+
+1. 进入前端目录 `web`，拷贝`.env` 到 `.env.local`，编辑 `.env.local ` 文件中后端服务地址及其他配置项，下载依赖包
+
+    ```sh
+    cd ./web && cp .env .env.local
+    vim .env.local
+    yarn
+    ```
+
+2. 编译前端
+
+    ```sh
+    yarn build
+    ```
+   
+3. 构建桌面端
+   ```sh
+   yarn tauri build
+   ```
+   桌面端是使用[Rust](https://www.rust-lang.org/) + [tauri](https://github.com/tauri-apps/tauri)编写
+   的，需要安装tauri的依赖，具体参考[https://tauri.studio/v1/guides/getting-started/prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites).
+
+
+### 方式二. 使用Docker构建、运行
+  * 后端:
+  ```sh
+  # 默认参数构建, 默认内嵌web ui并设置api host为空
+  docker build -t your/paopao-ce:tag .
+
+  # 内嵌web ui并且自定义API host参数
+  docker build -t your/paopao-ce:tag --build-arg API_HOST=http://api.paopao.info .
+
+  # 内嵌web ui并且使用本地web/.env中的API host
+  docker build -t your/paopao-ce:tag --build-arg USE_API_HOST=no .
+
+  # 内嵌web ui并且使用本地编译的web/dist构建
+  docker build -t your/paopao-ce:tag --build-arg USE_DIST=yes .
+
+  # 只编译api server
+  docker build -t your/paopao-ce:tag --build-arg EMBED_UI=no .
+
+  # 运行
+  mkdir custom && docker run -d -p 8008:8008 -v ${PWD}/custom:/app/paopao-ce/custom -v ${PWD}/config.yaml.sample:/app/paopao-ce/config.yaml your/paopao-ce:tag
+
+  # 或者直接运行构建好的docker image
+  mkdir custom && docker run -d -p 8008:8008 -v ${PWD}/custom:/app/paopao-ce/custom -v ${PWD}/config.yaml.sample:/app/paopao-ce/config.yaml bitbus/paopao-ce:latest
+  ```
+
+  * 前端:
+  ```sh
+  cd web
+
+  # 默认参数构建
+  docker build -t your/paopao-ce:web .
+
+  # 自定义API host 参数构建
+  docker build -t your/paopao-ce:web --build-arg API_HOST=http://api.paopao.info .
+
+  # 使用本地编译的dist构建
+  docker build -t your/paopao-ce:web --build-arg USE_DIST=yes .
+
+  # 运行
+  docker run -d -p 8010:80 your/paopao-ce:web
+  ```
+
+  * All-In-One:
+  ```sh
+  # 构建Image
+  docker buildx build --build-arg USE_DIST="yes" -t your/paopao-ce:all-in-one-latest -f Dockerfile.allinone .
+
+  # 运行
+  docker run --name paopao-ce-allinone  -d -p 8000:8008 -p 7700:7700 -v ./data/custom:/app/custom -v ./data/meili_data:/app/meili_data your/paopao-ce:all-in-one-latest
+
+  # 或者使用官方Image运行
+  docker run --name paopao-ce-allinone  -d -p 8000:8008 -p 7700:7700 -v ./data/custom:/app/custom -v ./data/meili_data:/app/meili_data bitbus/paopao-ce:all-in-one-latest
+
+  # 或者使用官方Image运行 + 自定义config.yaml
+  docker run --name paopao-ce-allinone  -d -p 8000:8008 -p 7700:7700 -v ./config.yaml:/app/config.yaml -v ./data/custom:/app/custom -v ./data/meili_data:/app/meili_data bitbus/paopao-ce:all-in-one-latest
+  ```
+  > 注意在`config.yaml` 中`Meili.ApiKey`的值必须与容器中meili启动时设定的`MEILI_MASTER_KEY`环境变量值相同，默认为`paopao-meilisearch`. 可以在docker启动容器时通过`-e MEILI_MASTER_KEY=<custom-key>`设置该值。
+
+
+### 方式三. 使用 docker-compose 运行
+```sh
+git clone https://github.com/rocboss/paopao-ce.git
+cd paopao-ce && docker compose up -d
+# visit http://localhost:8008  👀 paopao-ce
+# visit http://localhost:8001  👀 RedisInsight
+# visit http://localhost:8080  👀 phpMyAdmin
+```
+
+默认是使用config.yaml.sample的配置，如果需要自定义配置，请拷贝默认配置文件(比如config.yaml)，修改后再同步配置到docker-compose.yaml如下：
+
+```
+# file: docker-compose.yaml
+...
+  backend:
+    image: bitbus/paopao-ce:latest
+    restart: always
+    depends_on:
+      - db
+      - redis
+      - zinc
+    # modify below to reflect your custom configure
+    volumes:
+      - ./config.yaml:/app/paopao-ce/config.yaml
+    ports:
+      - 8008:8008
+    networks:
+      - paopao-network
+....
+```
+
+> 注意：默认提供的 docker-compose.yaml 初衷是搭建本机开发调试环境，如果需要产品部署供外网访问，请自行调优配置参数或使用其他方式部署。
 
 ### 开发文档
 #### Docs文档说明
 `docs`目录提供了各种开发文档，包括：  
 * [deploy](docs/deploy/)     - paopao-ce部署文档
+* [discuss](docs/discuss/)   - 开发相关的问题交流论述文档
 * [openapi](docs/openapi/)   - paopao-ce后端导出API文档
 * [proposal](docs/proposal/) - paopao-ce功能特性提按文档
-> 比如，关于paopao-ce的设计定位，可以参考[docs/proposal/001-关于paopao-ce的设计定位](docs/proposal/22110411-关于paopao-ce的设计定位.md)，简要阐述了paopao-ce是如何定位自身的。
+> 比如，关于paopao-ce的设计定位，可以参考[docs/proposal/001-关于paopao-ce的设计定位](docs/proposal/001-关于paopao-ce的设计定位.md)，简要阐述了paopao-ce是如何定位自身的。
+
+#### API文档
+开发者可以在本地开启`Docs`服务，浏览后端导出的API服务接口文档。  
+* `config.yaml` 添加 `Docs` 功能项:
+```yaml
+...
+Features:
+  Default: ["Base", "MySQL", "Option", "LocalOSS", "LoggerFile", "Docs"]
+  Docs: ["Docs:OpenAPI"]
+...
+```
+
+* 构建时将 `docs` 添加到TAGS中:
+```sh
+make run TAGS='docs'
+
+# visit http://127.0.0.1:8011/docs/openapi
+```
 
 ### 配置说明
 
@@ -192,6 +329,170 @@ release/paopao serve --no-default-features --features sqlite3,localoss,loggerfil
 |`Web:DisallowUserRegister` | 功能特性 | 稳定 | 不允许用户注册 |     
 
 > 功能项状态详情参考 [features-status](features-status.md).
+     
+### 搭建依赖环境
+#### [Zinc](https://github.com/zinclabs/zinc) 搜索引擎:
+* Zinc运行
+```sh
+# 创建用于存放zinc数据的目录
+mkdir -p data/zinc/data
+
+# 使用Docker运行zinc
+docker run -d --name zinc --user root -v ${PWD}/data/zinc/data:/data -p 4080:4080 -e ZINC_FIRST_ADMIN_USER=admin -e ZINC_FIRST_ADMIN_PASSWORD=admin -e DATA_PATH=/data public.ecr.aws/zinclabs/zinc:latest
+
+# 查看zinc运行状态
+docker ps
+CONTAINER ID   IMAGE                                COMMAND                  CREATED        STATUS        PORTS                    NAMES
+41465feea2ff   getmeili/meilisearch:v0.27.0         "tini -- /bin/sh -c …"   20 hours ago   Up 20 hours   0.0.0.0:7700->7700/tcp   paopao-ce-meili-1
+7daf982ca062   public.ecr.aws/prabhat/zinc:latest   "/go/bin/zinc"           3 weeks ago    Up 6 days     0.0.0.0:4080->4080/tcp   zinc
+
+# 使用docker compose运行
+docker compose up -d zinc
+# visit http://localhost:4080 打开自带的ui管理界面
+```
+
+* 修改Zinc配置
+```yaml
+# features中加上 Zinc 和 LoggerZinc
+Features:
+  Default: ["Zinc", "LoggerZinc", "Base", "Sqlite3", "BigCacheIndex","MinIO"]
+...
+LoggerZinc: # 使用Zinc写日志
+  Host: 127.0.0.1:4080  # 这里的host就是paopao-ce能访问到的zinc主机
+  Index: paopao-log
+  User: admin
+  Password: admin
+  Secure: False         # 如果使用https访问zinc就设置为True
+...
+Zinc: # Zinc搜索配置
+  Host: 127.0.0.1:4080
+  Index: paopao-data
+  User: admin
+  Password: admin
+  Secure: False
+```
+
+#### [Meilisearch](https://github.com/meilisearch/meilisearch) 搜索引擎:
+* Meili运行
+```sh
+mkdir -p data/meili/data
+
+# 使用Docker运行
+docker run -d --name meili -v ${PWD}/data/meili/data:/meili_data -p 7700:7700 -e MEILI_MASTER_KEY=paopao-meilisearch getmeili/meilisearch:v0.29.0
+# visit http://localhost:7700 打开自带的搜索前端ui
+
+# 使用docker compose运行，需要删除docker-compose.yaml中关于meili的注释
+docker compose up -d meili
+
+# 查看meili运行状态
+docker compose ps
+NAME                   COMMAND                  SERVICE             STATUS              PORTS
+paopao-ce-meili-1      "tini -- /bin/sh -c …"   meili               running             0.0.0.0:7700->7700/tcp
+```
+
+* 修改Meili配置
+```yaml
+# features中加上 Meili 和 LoggerMeili
+Features:
+  Default: ["Meili", "LoggerMeili", "Base", "Sqlite3", "BigCacheIndex","MinIO"]
+...
+LoggerMeili: # 使用Meili写日志
+  Host: 127.0.0.1:7700
+  Index: paopao-log
+  ApiKey: paopao-meilisearch
+  Secure: False
+  MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
+  MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
+...
+Meili: # Meili搜索配置
+  Host: 127.0.0.1:7700      # 这里的host就是paopao-ce能访问到的meili主机
+  Index: paopao-data
+  ApiKey: paopao-meilisearch
+  Secure: False             # 如果使用https访问meili就设置为True
+```
+
+#### [MinIO](https://github.com/minio/minio) 对象存储服务
+* MinIO运行
+```sh
+mkdir -p data/minio/data
+
+# 使用Docker运行
+docker run -d --name minio -v ${PWD}/data/minio/data:/data -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER=minio-root-user -e  MINIO_ROOT_PASSWORD=minio-root-password -e MINIO_DEFAULT_BUCKETS=paopao:public bitnami/minio:latest
+
+# 使用docker compose运行， 需要删除docker-compose.yaml中关于minio的注释
+docker compose up -d minio
+```
+
+* 修改Minio配置
+```yaml
+# features中加上 MinIO
+Features:
+  Default: ["MinIO", "Meili", "LoggerMeili", "Base", "Sqlite3", "BigCacheIndex"]
+...
+MinIO: # MinIO 存储配置
+  AccessKey: Q3AM3UQ867SPQQA43P2F      # AccessKey/SecretKey 需要登入minio管理界面手动创建，管理界面地址: http://127.0.0.1:9001
+  SecretKey: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+  Secure: False
+  Endpoint: 127.0.0.1:9000             # 根据部署的minio主机修改对应地址
+  Bucket: paopao                       # 如上，需要在管理界面创建bucket并赋予外部可读写权限
+  Domain: 127.0.0.1:9000               # minio外网访问的地址(如果想让外网访问，这里需要设置为外网可访问到的minio主机地址)
+...
+```
+
+#### [OpenObserve](https://github.com/openobserve/openobserve) 日志收集、指标度量、轨迹跟踪
+* OpenObserve运行
+```sh
+# 使用Docker运行
+mkdir data && docker run -v $PWD/data:/data -e ZO_DATA_DIR="/data" -p 5080:5080 \
+    -e ZO_ROOT_USER_EMAIL="root@paopao.info" -e ZO_ROOT_USER_PASSWORD="paopao-ce" \
+    public.ecr.aws/zinclabs/openobserve:latest
+
+# 使用docker compose运行， 需要删除docker-compose.yaml中关于openobserve的注释
+docker compose up -d openobserve
+# visit http://loclahost:5080
+```
+
+* 修改LoggerOpenObserve配置
+```yaml
+# features中加上 LoggerOpenObserve
+Features:
+  Default: ["Meili", "LoggerOpenObserve", "Base", "Sqlite3", "BigCacheIndex"]
+...
+LoggerOpenObserve: # 使用OpenObserve写日志
+  Host: 127.0.0.1:5080
+  Organization: paopao-ce
+  Stream: default
+  User: root@paopao.info
+  Password: tiFEI8UeJWuYA7kN
+  Secure: False
+...
+```
+
+#### [Pyroscope](https://github.com/pyroscope-io/pyroscope) 性能剖析
+* Pyroscope运行
+```sh
+mkdir -p data/minio/data
+
+# 使用Docker运行
+docker run -it -p 4040:4040 pyroscope/pyroscope:latest server
+# 使用docker compose运行， 需要删除docker-compose.yaml中关于pyroscope的注释
+docker compose up -d pyroscope
+# visit http://loclahost:4040
+```
+
+* 修改Pyroscope配置
+```yaml
+# features中加上 Pyroscope
+Features:
+  Default: ["Meili", "LoggerMeili", "Base", "Sqlite3", "BigCacheIndex", "Pyroscope"]
+...
+Pyroscope: # Pyroscope配置
+  AppName: "paopao-ce"
+  Endpoint: "http://localhost:4040"   # Pyroscope server address
+  AuthToken:                          # Pyroscope authentication token
+  Logger:  none                       # Pyroscope logger (standard | logrus | none)
+...
+```
 
 ### 源代码分支管理 
 **主代码库`github.com/rocboss/paopao-ce`**      
@@ -200,7 +501,10 @@ git branch
 main
 beta
 dev
+feature/bleve
 feature/followship
+feature/mir
+feature/localoss
 jc/alimy
 r/paopao-plus
 r/paopao-pro
@@ -237,16 +541,20 @@ x/sqlx
 * [官方 paopao.info](https://www.paopao.info)  
 > 具体部署站点信息请查阅 [deployed-sites](./deployed-sites.md 'deployed sites'). 欢迎站长将已部署PaoPao实例的站点信息添加到 [deployed-sites](./deployed-sites.md 'deployed sites') 列表中。
 
-## 👯‍♀️ 贡献
-paopao-ce 是一个利用 *业余时间* 本着 **"Just for fun just do it."** 的心态 *持续有序* **开发/优化/维护**的开源项目，没有KPI考核、没有Roadmap进度压力、没有技术支持日程安排，或许有些许不足之处，但是重在精神可嘉。 借用网络中的话 **"F\*k talk, f\*k of tech innovation, Shut up and show me your code."** 一切都因更好的体验，一切都是为了爱好，一切都在代码里；期待老铁们加入，一起开发、一起折腾、一起快乐。
+#### Collaborator's paopao account
+| 昵称 | [@GitHub](https://github.com 'github.com') | [@PaoPao](https://www.paopao.info 'paopao.info') |
+| ----- | ----- | ----- | 
+| ROC | [ROC](https://github.com/rocboss 'ROC')|[ROC](https://www.paopao.info/#/user?username=roc 'ROC @roc')|
+| [北野](https://alimy.me '糊涂小栈') | [Michael Li](https://github.com/alimy 'Michael Li') | [alimy](https://www.paopao.info/#/user?username=alimy '北野 @alimy')|
+| orzi!| [orzi!](https://github.com/orziz 'orzi!')||
 
-喜欢的朋友记得给个Star，欢迎贡献PR。  
+### 其他说明
 
-[![Star History Chart](https://api.star-history.com/svg?repos=rocboss/paopao-ce&type=Date)](https://star-history.com/#rocboss/paopao-ce&Date)
+建议后端服务使用 `supervisor` 守护进程，并通过 `nginx` 反向代理后，提供API给前端服务调用。
 
-## License
+短信通道使用的[聚合数据](https://www.juhe.cn/)，如果申请不下来，可以考虑替换其他服务商。
 
-Distributed under the MIT License. See `LICENSE` for more information.
+代码结构比较简单，很方便扩展，开发文档请参阅[docs](docs '开发文档').
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [contributors-shield]: https://img.shields.io/github/contributors/rocboss/paopao-ce?style=flat

@@ -12,6 +12,7 @@ import (
 	"github.com/getsentry/sentry-go"
 	sentrylogrus "github.com/getsentry/sentry-go/logrus"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/bridges/otellogrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -46,6 +47,10 @@ func setupLogger() {
 		"LoggerOpenObserve": func() {
 			hook := newObserveLogHook()
 			logrus.SetOutput(io.Discard)
+			logrus.AddHook(hook)
+		},
+		"LoggerOtlp": func() {
+			hook := otellogrus.NewHook("main")
 			logrus.AddHook(hook)
 		},
 	})
