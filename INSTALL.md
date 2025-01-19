@@ -201,7 +201,7 @@ cd paopao-ce && docker compose up -d
 * [discuss](docs/discuss/)   - 开发相关的问题交流论述文档
 * [openapi](docs/openapi/)   - paopao-ce后端导出API文档
 * [proposal](docs/proposal/) - paopao-ce功能特性提按文档
-> 比如，关于paopao-ce的设计定位，可以参考[docs/proposal/001-关于paopao-ce的设计定位](docs/proposal/001-关于paopao-ce的设计定位.md)，简要阐述了paopao-ce是如何定位自身的。
+> 比如，关于paopao-ce的设计定位，可以参考[docs/proposal/22110411-关于paopao-ce的设计定位](docs/proposal/22110411-关于paopao-ce的设计定位.md)，简要阐述了paopao-ce是如何定位自身的。
 
 #### API文档
 开发者可以在本地开启`Docs`服务，浏览后端导出的API服务接口文档。  

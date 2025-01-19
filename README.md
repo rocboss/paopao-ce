@@ -82,7 +82,7 @@ PaoPao主要由以下优秀的开源项目/工具构建
 * [deploy](docs/deploy/)     - paopao-ce部署文档
 * [openapi](docs/openapi/)   - paopao-ce后端导出API文档
 * [proposal](docs/proposal/) - paopao-ce功能特性提按文档
-> 比如，关于paopao-ce的设计定位，可以参考[docs/proposal/001-关于paopao-ce的设计定位](docs/proposal/22110411-关于paopao-ce的设计定位.md)，简要阐述了paopao-ce是如何定位自身的。
+> 比如，关于paopao-ce的设计定位，可以参考[docs/proposal/22110411-关于paopao-ce的设计定位](docs/proposal/22110411-关于paopao-ce的设计定位.md)，简要阐述了paopao-ce是如何定位自身的。
 
 ### 配置说明
 
