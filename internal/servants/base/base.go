@@ -15,6 +15,7 @@ import (
 	"github.com/getsentry/sentry-go"
 	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
@@ -29,8 +30,11 @@ import (
 )
 
 type BaseServant struct {
-	bindAny  func(c *gin.Context, obj any) mir.Error
-	bindJson func(c *gin.Context, obj any) mir.Error
+	bindAny       func(c *gin.Context, obj any) mir.Error
+	bindJson      func(c *gin.Context, obj any) mir.Error
+	bindQeury     func(c *gin.Context, obj any) mir.Error
+	bindForm      func(c *gin.Context, obj any) mir.Error
+	bindMultipart func(c *gin.Context, obj any) mir.Error
 }
 
 type DaoServant struct {
@@ -58,6 +62,10 @@ type PageInfoSetter interface {
 	SetPageInfo(page, pageSize int)
 }
 
+type Ajustment interface {
+	Ajust()
+}
+
 func UserFrom(c *gin.Context) (*ms.User, bool) {
 	if u, exists := c.Get("USER"); exists {
 		user, ok := u.(*ms.User)
@@ -82,6 +90,90 @@ func UserNameFrom(c *gin.Context) (string, bool) {
 	return "", false
 }
 
+func bindQeury(c *gin.Context, obj any) mir.Error {
+	var errs xerror.ValidErrors
+	err := c.BindQuery(obj)
+	if err != nil {
+		return mir.NewError(xerror.InvalidParams.StatusCode(), xerror.InvalidParams.WithDetails(errs.Error()))
+	}
+	// setup *core.User if needed
+	if setter, ok := obj.(UserSetter); ok {
+		user, _ := UserFrom(c)
+		setter.SetUser(user)
+	}
+	// setup UserId if needed
+	if setter, ok := obj.(UserIdSetter); ok {
+		uid, _ := UserIdFrom(c)
+		setter.SetUserId(uid)
+	}
+	// setup PageInfo if needed
+	if setter, ok := obj.(PageInfoSetter); ok {
+		page, pageSize := app.GetPageInfo(c)
+		setter.SetPageInfo(page, pageSize)
+	}
+	// ajust object fields value
+	if ajustment, ok := obj.(Ajustment); ok {
+		ajustment.Ajust()
+	}
+	return nil
+}
+
+func bindMultipart(c *gin.Context, obj any) mir.Error {
+	var errs xerror.ValidErrors
+	err := c.MustBindWith(obj, binding.FormMultipart)
+	if err != nil {
+		return mir.NewError(xerror.InvalidParams.StatusCode(), xerror.InvalidParams.WithDetails(errs.Error()))
+	}
+	// setup *core.User if needed
+	if setter, ok := obj.(UserSetter); ok {
+		user, _ := UserFrom(c)
+		setter.SetUser(user)
+	}
+	// setup UserId if needed
+	if setter, ok := obj.(UserIdSetter); ok {
+		uid, _ := UserIdFrom(c)
+		setter.SetUserId(uid)
+	}
+	// setup PageInfo if needed
+	if setter, ok := obj.(PageInfoSetter); ok {
+		page, pageSize := app.GetPageInfo(c)
+		setter.SetPageInfo(page, pageSize)
+	}
+	// ajust object fields value
+	if ajustment, ok := obj.(Ajustment); ok {
+		ajustment.Ajust()
+	}
+	return nil
+}
+
+func bindForm(c *gin.Context, obj any) mir.Error {
+	var errs xerror.ValidErrors
+	err := c.MustBindWith(obj, binding.Form)
+	if err != nil {
+		return mir.NewError(xerror.InvalidParams.StatusCode(), xerror.InvalidParams.WithDetails(errs.Error()))
+	}
+	// setup *core.User if needed
+	if setter, ok := obj.(UserSetter); ok {
+		user, _ := UserFrom(c)
+		setter.SetUser(user)
+	}
+	// setup UserId if needed
+	if setter, ok := obj.(UserIdSetter); ok {
+		uid, _ := UserIdFrom(c)
+		setter.SetUserId(uid)
+	}
+	// setup PageInfo if needed
+	if setter, ok := obj.(PageInfoSetter); ok {
+		page, pageSize := app.GetPageInfo(c)
+		setter.SetPageInfo(page, pageSize)
+	}
+	// ajust object fields value
+	if ajustment, ok := obj.(Ajustment); ok {
+		ajustment.Ajust()
+	}
+	return nil
+}
+
 func bindAny(c *gin.Context, obj any) mir.Error {
 	var errs xerror.ValidErrors
 	err := c.ShouldBind(obj)
@@ -102,6 +194,10 @@ func bindAny(c *gin.Context, obj any) mir.Error {
 	if setter, ok := obj.(PageInfoSetter); ok {
 		page, pageSize := app.GetPageInfo(c)
 		setter.SetPageInfo(page, pageSize)
+	}
+	// ajust object fields value
+	if ajustment, ok := obj.(Ajustment); ok {
+		ajustment.Ajust()
 	}
 	return nil
 }
@@ -136,8 +232,122 @@ func bindAnySentry(c *gin.Context, obj any) mir.Error {
 		page, pageSize := app.GetPageInfo(c)
 		setter.SetPageInfo(page, pageSize)
 	}
+	// ajust object fields value
+	if ajustment, ok := obj.(Ajustment); ok {
+		ajustment.Ajust()
+	}
 	return nil
+}
 
+func bindQuerySentry(c *gin.Context, obj any) mir.Error {
+	hub := sentrygin.GetHubFromContext(c)
+	var errs xerror.ValidErrors
+	err := c.BindQuery(obj)
+	if err != nil {
+		xerr := mir.NewError(xerror.InvalidParams.StatusCode(), xerror.InvalidParams.WithDetails(errs.Error()))
+		if hub != nil {
+			hub.CaptureException(errors.Wrap(xerr, "bind object"))
+		}
+		return xerr
+	}
+	// setup sentry hub if needed
+	if setter, ok := obj.(SentryHubSetter); ok && hub != nil {
+		setter.SetSentryHub(hub)
+	}
+	// setup *core.User if needed
+	if setter, ok := obj.(UserSetter); ok {
+		user, _ := UserFrom(c)
+		setter.SetUser(user)
+	}
+	// setup UserId if needed
+	if setter, ok := obj.(UserIdSetter); ok {
+		uid, _ := UserIdFrom(c)
+		setter.SetUserId(uid)
+	}
+	// setup PageInfo if needed
+	if setter, ok := obj.(PageInfoSetter); ok {
+		page, pageSize := app.GetPageInfo(c)
+		setter.SetPageInfo(page, pageSize)
+	}
+	// ajust object fields value
+	if ajustment, ok := obj.(Ajustment); ok {
+		ajustment.Ajust()
+	}
+	return nil
+}
+
+func bindFormSentry(c *gin.Context, obj any) mir.Error {
+	hub := sentrygin.GetHubFromContext(c)
+	var errs xerror.ValidErrors
+	err := c.MustBindWith(obj, binding.Form)
+	if err != nil {
+		xerr := mir.NewError(xerror.InvalidParams.StatusCode(), xerror.InvalidParams.WithDetails(errs.Error()))
+		if hub != nil {
+			hub.CaptureException(errors.Wrap(xerr, "bind object"))
+		}
+		return xerr
+	}
+	// setup sentry hub if needed
+	if setter, ok := obj.(SentryHubSetter); ok && hub != nil {
+		setter.SetSentryHub(hub)
+	}
+	// setup *core.User if needed
+	if setter, ok := obj.(UserSetter); ok {
+		user, _ := UserFrom(c)
+		setter.SetUser(user)
+	}
+	// setup UserId if needed
+	if setter, ok := obj.(UserIdSetter); ok {
+		uid, _ := UserIdFrom(c)
+		setter.SetUserId(uid)
+	}
+	// setup PageInfo if needed
+	if setter, ok := obj.(PageInfoSetter); ok {
+		page, pageSize := app.GetPageInfo(c)
+		setter.SetPageInfo(page, pageSize)
+	}
+	// ajust object fields value
+	if ajustment, ok := obj.(Ajustment); ok {
+		ajustment.Ajust()
+	}
+	return nil
+}
+
+func bindMultipartSentry(c *gin.Context, obj any) mir.Error {
+	hub := sentrygin.GetHubFromContext(c)
+	var errs xerror.ValidErrors
+	err := c.MustBindWith(obj, binding.FormMultipart)
+	if err != nil {
+		xerr := mir.NewError(xerror.InvalidParams.StatusCode(), xerror.InvalidParams.WithDetails(errs.Error()))
+		if hub != nil {
+			hub.CaptureException(errors.Wrap(xerr, "bind object"))
+		}
+		return xerr
+	}
+	// setup sentry hub if needed
+	if setter, ok := obj.(SentryHubSetter); ok && hub != nil {
+		setter.SetSentryHub(hub)
+	}
+	// setup *core.User if needed
+	if setter, ok := obj.(UserSetter); ok {
+		user, _ := UserFrom(c)
+		setter.SetUser(user)
+	}
+	// setup UserId if needed
+	if setter, ok := obj.(UserIdSetter); ok {
+		uid, _ := UserIdFrom(c)
+		setter.SetUserId(uid)
+	}
+	// setup PageInfo if needed
+	if setter, ok := obj.(PageInfoSetter); ok {
+		page, pageSize := app.GetPageInfo(c)
+		setter.SetPageInfo(page, pageSize)
+	}
+	// ajust object fields value
+	if ajustment, ok := obj.(Ajustment); ok {
+		ajustment.Ajust()
+	}
+	return nil
 }
 
 func RenderAny(c *gin.Context, data any, err mir.Error) {
@@ -161,6 +371,18 @@ func (s *BaseServant) Bind(c *gin.Context, obj any) mir.Error {
 
 func (s *BaseServant) BindJson(c *gin.Context, obj any) mir.Error {
 	return s.bindJson(c, obj)
+}
+
+func (s *BaseServant) BindQuery(c *gin.Context, obj any) mir.Error {
+	return s.bindQeury(c, obj)
+}
+
+func (s *BaseServant) BindForm(c *gin.Context, obj any) mir.Error {
+	return s.bindForm(c, obj)
+}
+
+func (s *BaseServant) BindMultipart(c *gin.Context, obj any) mir.Error {
+	return s.bindMultipart(c, obj)
 }
 
 func (s *BaseServant) Render(c *gin.Context, data any, err mir.Error) {
@@ -424,6 +646,27 @@ func NewBindAnyFn() func(c *gin.Context, obj any) mir.Error {
 	return bindAny
 }
 
+func NewBindQueryFn() func(c *gin.Context, obj any) mir.Error {
+	if conf.UseSentryGin() {
+		return bindQuerySentry
+	}
+	return bindQeury
+}
+
+func NewBindFormFn() func(c *gin.Context, obj any) mir.Error {
+	if conf.UseSentryGin() {
+		return bindFormSentry
+	}
+	return bindForm
+}
+
+func NewBindMultipart() func(c *gin.Context, obj any) mir.Error {
+	if conf.UseSentryGin() {
+		return bindMultipartSentry
+	}
+	return bindMultipart
+}
+
 func NewBindJsonFn() func(c *gin.Context, obj any) mir.Error {
 	if conf.UseSentryGin() {
 		return bindAnySentry
@@ -433,8 +676,11 @@ func NewBindJsonFn() func(c *gin.Context, obj any) mir.Error {
 
 func NewBaseServant() *BaseServant {
 	return &BaseServant{
-		bindAny:  NewBindAnyFn(),
-		bindJson: NewBindJsonFn(),
+		bindAny:       NewBindAnyFn(),
+		bindJson:      NewBindJsonFn(),
+		bindQeury:     NewBindQueryFn(),
+		bindForm:      NewBindFormFn(),
+		bindMultipart: NewBindMultipart(),
 	}
 }
 

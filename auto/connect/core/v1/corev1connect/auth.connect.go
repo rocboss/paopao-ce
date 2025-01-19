@@ -44,14 +44,6 @@ const (
 	AuthenticateServiceLogoutProcedure = "/core.v1.AuthenticateService/logout"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	authenticateServiceServiceDescriptor        = v1.File_core_v1_auth_proto.Services().ByName("AuthenticateService")
-	authenticateServicePreLoginMethodDescriptor = authenticateServiceServiceDescriptor.Methods().ByName("preLogin")
-	authenticateServiceLoginMethodDescriptor    = authenticateServiceServiceDescriptor.Methods().ByName("login")
-	authenticateServiceLogoutMethodDescriptor   = authenticateServiceServiceDescriptor.Methods().ByName("logout")
-)
-
 // AuthenticateServiceClient is a client for the core.v1.AuthenticateService service.
 type AuthenticateServiceClient interface {
 	PreLogin(context.Context, *connect.Request[v1.User]) (*connect.Response[v1.ActionReply], error)
@@ -68,23 +60,24 @@ type AuthenticateServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewAuthenticateServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AuthenticateServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	authenticateServiceMethods := v1.File_core_v1_auth_proto.Services().ByName("AuthenticateService").Methods()
 	return &authenticateServiceClient{
 		preLogin: connect.NewClient[v1.User, v1.ActionReply](
 			httpClient,
 			baseURL+AuthenticateServicePreLoginProcedure,
-			connect.WithSchema(authenticateServicePreLoginMethodDescriptor),
+			connect.WithSchema(authenticateServiceMethods.ByName("preLogin")),
 			connect.WithClientOptions(opts...),
 		),
 		login: connect.NewClient[v1.User, v1.LoginReply](
 			httpClient,
 			baseURL+AuthenticateServiceLoginProcedure,
-			connect.WithSchema(authenticateServiceLoginMethodDescriptor),
+			connect.WithSchema(authenticateServiceMethods.ByName("login")),
 			connect.WithClientOptions(opts...),
 		),
 		logout: connect.NewClient[v1.User, v1.ActionReply](
 			httpClient,
 			baseURL+AuthenticateServiceLogoutProcedure,
-			connect.WithSchema(authenticateServiceLogoutMethodDescriptor),
+			connect.WithSchema(authenticateServiceMethods.ByName("logout")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -125,22 +118,23 @@ type AuthenticateServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewAuthenticateServiceHandler(svc AuthenticateServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	authenticateServiceMethods := v1.File_core_v1_auth_proto.Services().ByName("AuthenticateService").Methods()
 	authenticateServicePreLoginHandler := connect.NewUnaryHandler(
 		AuthenticateServicePreLoginProcedure,
 		svc.PreLogin,
-		connect.WithSchema(authenticateServicePreLoginMethodDescriptor),
+		connect.WithSchema(authenticateServiceMethods.ByName("preLogin")),
 		connect.WithHandlerOptions(opts...),
 	)
 	authenticateServiceLoginHandler := connect.NewUnaryHandler(
 		AuthenticateServiceLoginProcedure,
 		svc.Login,
-		connect.WithSchema(authenticateServiceLoginMethodDescriptor),
+		connect.WithSchema(authenticateServiceMethods.ByName("login")),
 		connect.WithHandlerOptions(opts...),
 	)
 	authenticateServiceLogoutHandler := connect.NewUnaryHandler(
 		AuthenticateServiceLogoutProcedure,
 		svc.Logout,
-		connect.WithSchema(authenticateServiceLogoutMethodDescriptor),
+		connect.WithSchema(authenticateServiceMethods.ByName("logout")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/core.v1.AuthenticateService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

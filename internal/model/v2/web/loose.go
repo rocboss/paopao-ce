@@ -1,19 +1,15 @@
-// Copyright 2022 ROC. All rights reserved.
+// Copyright 2025 ROC. All rights reserved.
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
 package web
 
 import (
-	"github.com/alimy/mir/v4"
-	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/joint"
-	"github.com/rocboss/paopao-ce/internal/servants/base"
-	"github.com/rocboss/paopao-ce/pkg/app"
 )
 
 const (
@@ -41,11 +37,12 @@ type TagType = cs.TagType
 type CommentStyleType string
 
 type TweetCommentsReq struct {
-	SimpleInfo `form:"-" binding:"-"`
-	TweetId    int64            `form:"id" binding:"required"`
-	Style      CommentStyleType `form:"style"`
-	Page       int              `form:"-" binding:"-"`
-	PageSize   int              `form:"-" binding:"-"`
+	SimpleInfo
+	joint.PageInfo
+	TweetId  int64            `form:"id" query:"id" binding:"required"`
+	Style    CommentStyleType `form:"style" query:"style"`
+	Page     int              `form:"page" query:"page" binding:"-"`
+	PageSize int              `form:"page_size" query:"page_size" binding:"-"`
 }
 
 type TweetCommentsResp struct {
@@ -53,13 +50,14 @@ type TweetCommentsResp struct {
 }
 
 type TimelineReq struct {
-	BaseInfo   `form:"-"  binding:"-"`
-	Query      string              `form:"query"`
-	Visibility []core.PostVisibleT `form:"visibility"`
-	Type       string              `form:"type"`
-	Style      string              `form:"style"`
-	Page       int                 `form:"-"  binding:"-"`
-	PageSize   int                 `form:"-"  binding:"-"`
+	BaseInfo
+	joint.PageInfo
+	Query      string              `form:"query" query:"query"`
+	Visibility []core.PostVisibleT `form:"visibility" query:"visibility"`
+	Type       string              `form:"type" query:"type"`
+	Style      string              `form:"style" query:"query"`
+	Page       int                 `form:"page" query:"page"`
+	PageSize   int                 `form:"page_size" query:"page_size"`
 }
 
 type TimelineResp struct {
@@ -68,10 +66,11 @@ type TimelineResp struct {
 
 type GetUserTweetsReq struct {
 	BaseInfo `form:"-" binding:"-"`
-	Username string `form:"username" binding:"required"`
-	Style    string `form:"style"`
-	Page     int    `form:"-" binding:"-"`
-	PageSize int    `form:"-" binding:"-"`
+	joint.PageInfo
+	Username string `form:"username" query:"username" binding:"required"`
+	Style    string `form:"style" query:"style"`
+	Page     int    `form:"page" query:"page"`
+	PageSize int    `form:"page_size" query:"page_size"`
 }
 
 type GetUserTweetsResp struct {
@@ -79,8 +78,8 @@ type GetUserTweetsResp struct {
 }
 
 type GetUserProfileReq struct {
-	BaseInfo `form:"-" binding:"-"`
-	Username string `form:"username" binding:"required"`
+	BaseInfo
+	Username string `form:"username" query:"username" binding:"required"`
 }
 
 type GetUserProfileResp struct {
@@ -99,10 +98,10 @@ type GetUserProfileResp struct {
 }
 
 type TopicListReq struct {
-	SimpleInfo `form:"-"  binding:"-"`
-	Type       TagType `json:"type" form:"type" binding:"required"`
-	Num        int     `json:"num" form:"num" binding:"required"`
-	ExtralNum  int     `json:"extral_num" form:"extral_num"`
+	SimpleInfo
+	Type      TagType `json:"type" form:"type" query:"type" binding:"required"`
+	Num       int     `json:"num" form:"num" query:"num" binding:"required"`
+	ExtralNum int     `json:"extral_num" form:"extral_num" query:"extral_num"`
 }
 
 // TopicListResp 主题返回值
@@ -113,28 +112,22 @@ type TopicListResp struct {
 }
 
 type TweetDetailReq struct {
-	BaseInfo `form:"-"  binding:"-"`
-	TweetId  int64 `form:"id"`
+	BaseInfo
+	TweetId int64 `form:"id" query:"id"`
 }
 
 type TweetDetailResp ms.PostFormated
 
-func (r *GetUserTweetsReq) SetPageInfo(page int, pageSize int) {
-	r.Page, r.PageSize = page, pageSize
+func (r *GetUserTweetsReq) Ajust(page int, pageSize int) {
+	r.BuildPageInfo(r.Page, r.PageSize)
 }
 
-func (r *TweetCommentsReq) SetPageInfo(page int, pageSize int) {
-	r.Page, r.PageSize = page, pageSize
+func (r *TweetCommentsReq) Ajust(page int, pageSize int) {
+	r.BuildPageInfo(r.Page, r.PageSize)
 }
 
-func (r *TimelineReq) Bind(c *gin.Context) mir.Error {
-	user, _ := base.UserFrom(c)
-	r.BaseInfo = BaseInfo{
-		User: user,
-	}
-	r.Page, r.PageSize = app.GetPageInfo(c)
-	r.Query, r.Type, r.Style = c.Query("query"), "search", c.Query("style")
-	return nil
+func (r *TimelineReq) Ajust() {
+	r.BuildPageInfo(r.Page, r.PageSize)
 }
 
 func (s CommentStyleType) ToInnerValue() (res cs.StyleCommentType) {

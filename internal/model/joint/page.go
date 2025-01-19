@@ -4,6 +4,8 @@
 
 package joint
 
+import "github.com/rocboss/paopao-ce/internal/conf"
+
 type Pager struct {
 	Page      int   `json:"page"`
 	PageSize  int   `json:"page_size"`
@@ -15,6 +17,11 @@ type PageResp struct {
 	Pager Pager `json:"pager"`
 }
 
+type PageInfo struct {
+	Limit  int `json:"-" form:"-" query:"limit" binding:"-"`
+	Offset int `json:"-" form:"-" query:"offset" binding:"-"`
+}
+
 func PageRespFrom(list any, page int, pageSize int, totalRows int64) *PageResp {
 	return &PageResp{
 		List: list,
@@ -24,4 +31,16 @@ func PageRespFrom(list any, page int, pageSize int, totalRows int64) *PageResp {
 			TotalRows: totalRows,
 		},
 	}
+}
+
+func (s *PageInfo) BuildPageInfo(page, size int) {
+	if page <= 0 {
+		page = 1
+	}
+	if size <= 0 {
+		s.Limit = conf.AppSetting.DefaultPageSize
+	} else if size > conf.AppSetting.MaxPageSize {
+		s.Limit = conf.AppSetting.MaxPageSize
+	}
+	s.Offset = (page - 1) * s.Limit
 }

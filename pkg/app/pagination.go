@@ -60,3 +60,16 @@ func GetPageInfo(c *gin.Context) (page, pageSize int) {
 	}
 	return
 }
+
+func LimitOffset(page, size int) (limit, offset int) {
+	if page <= 0 {
+		page = 1
+	}
+	if size <= 0 {
+		limit = conf.AppSetting.DefaultPageSize
+	} else if size > conf.AppSetting.MaxPageSize {
+		limit = conf.AppSetting.MaxPageSize
+	}
+	offset = (page - 1) * limit
+	return
+}

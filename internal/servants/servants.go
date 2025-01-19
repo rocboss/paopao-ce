@@ -19,6 +19,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants/statick"
 	"github.com/rocboss/paopao-ce/internal/servants/triplet"
 	"github.com/rocboss/paopao-ce/internal/servants/web"
+	webv2 "github.com/rocboss/paopao-ce/internal/servants/web/v2"
 	"google.golang.org/grpc"
 )
 
@@ -31,6 +32,8 @@ func RegisterWebServants(e *gin.Engine) {
 		localoss.RouteLocalOSS(e)
 	})
 	web.RouteWeb(e)
+	// web v2 api
+	webv2.RouteWeb(e)
 }
 
 // RegisterAdminServants register all the servants to gin.Engine

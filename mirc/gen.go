@@ -19,6 +19,7 @@ import (
 	_ "github.com/rocboss/paopao-ce/mirc/localoss/v1"
 	_ "github.com/rocboss/paopao-ce/mirc/space/v1"
 	_ "github.com/rocboss/paopao-ce/mirc/web/v1"
+	_ "github.com/rocboss/paopao-ce/mirc/web/v2"
 )
 
 //go:generate go run $GOFILE
