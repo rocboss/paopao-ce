@@ -117,11 +117,15 @@ test:
 pre-commit: fmt
 	@go mod tidy
 
+.PHONY: install-tools
+install-tools: install-protobuf-plugins
+	@go install github.com/abice/go-enum@latest
+
 .PHONY: install-protobuf-plugins
 install-protobuf-plugins:
-	@go install github.com/bufbuild/buf/cmd/buf@v1.28.1
-	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking@v1.28.1
-	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-lint@v1.28.1
+	@go install github.com/bufbuild/buf/cmd/buf@latest
+	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking@latest
+	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-lint@latest
 	@go install connectrpc.com/connect/cmd/protoc-gen-connect-go@latest
 	@go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
 	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
