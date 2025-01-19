@@ -1,7 +1,6 @@
 module github.com/rocboss/paopao-ce
 
-go 1.21
-toolchain go1.22.5
+go 1.22.0
 
 require (
 	connectrpc.com/connect v1.16.2
@@ -9,7 +8,7 @@ require (
 	github.com/RoaringBitmap/roaring v1.9.4
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/alimy/mir/v4 v4.2.0-alpha.5
-	github.com/alimy/tryst v0.21.0
+	github.com/alimy/tryst v0.22.0
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/bytedance/sonic v1.12.6
