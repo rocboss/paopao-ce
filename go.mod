@@ -54,7 +54,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.34.0
 	go.uber.org/automaxprocs v1.5.3
 	golang.org/x/crypto v0.32.0
-	google.golang.org/grpc v1.69.4
+	google.golang.org/grpc v1.70.0
 	google.golang.org/protobuf v1.36.3
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/resty.v1 v1.12.0
