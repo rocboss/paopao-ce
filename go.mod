@@ -14,7 +14,7 @@ require (
 	github.com/bytedance/sonic v1.12.6
 	github.com/cockroachdb/errors v1.11.3
 	github.com/disintegration/imaging v1.6.2
-	github.com/fatih/color v1.17.0
+	github.com/fatih/color v1.18.0
 	github.com/getsentry/sentry-go v0.31.1
 	github.com/getsentry/sentry-go/gin v0.31.1
 	github.com/getsentry/sentry-go/logrus v0.31.1
