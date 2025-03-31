@@ -2,6 +2,8 @@ module github.com/rocboss/paopao-ce
 
 go 1.22.0
 
+toolchain go1.24.1
+
 require (
 	connectrpc.com/connect v1.16.2
 	github.com/Masterminds/semver/v3 v3.2.1
@@ -40,7 +42,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
-	github.com/tencentyun/cos-go-sdk-v5 v0.7.55
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.64
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
 	go.opentelemetry.io/contrib/bridges/otellogrus v0.9.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.59.0
