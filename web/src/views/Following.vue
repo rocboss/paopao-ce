@@ -38,151 +38,153 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { getUserFollows, getUserFollowings } from '@/api/user';
-import InfiniteLoading from "v3-infinite-loading";
+import InfiniteLoading from 'v3-infinite-loading';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const loading = ref(false);
 const noMore = ref(false);
 const list = ref<Item.ContactItemProps[]>([]);
-const nickname= route.query.n as string || "粉丝详情";
-const username = route.query.s as string || "";
-const tabler = ref(route.query.t as string || "follows")
+const nickname = (route.query.n as string) || '粉丝详情';
+const username = (route.query.s as string) || '';
+const tabler = ref((route.query.t as string) || 'follows');
 const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 const showWhisper = ref(false);
 const whisperReceiver = ref<Item.UserInfo>({
-    id: 0,
-    avatar: '',
-    username: '',
-    nickname: '',
-    is_admin: false,
-    is_friend: true,
-    is_following: false,
-    created_on: 0,
-    follows: 0,
-    followings: 0,
-    status: 1,
+  id: 0,
+  avatar: '',
+  username: '',
+  nickname: '',
+  is_admin: false,
+  is_friend: true,
+  is_following: false,
+  created_on: 0,
+  follows: 0,
+  followings: 0,
+  status: 1,
 });
 
-function resetPage(tab: "follows" | "followings") {
-    list.value = [];
-    loading.value = false;
-    noMore.value = false;
-    page.value = 1;
-    totalPage.value = 0;
-    tabler.value = tab;
+function resetPage(tab: 'follows' | 'followings') {
+  list.value = [];
+  loading.value = false;
+  noMore.value = false;
+  page.value = 1;
+  totalPage.value = 0;
+  tabler.value = tab;
 }
 
 const completeStr = computed(() => {
-    if (tabler.value == "follows") {
-        return '没有更多关注了'
-    } else {
-        return '没有更多粉丝了'
-    }
+  if (tabler.value == 'follows') {
+    return '没有更多关注了';
+  } else {
+    return '没有更多粉丝了';
+  }
 });
 
-const onSendWhisper =  (user: Item.UserInfo) => {
-    whisperReceiver.value = user;
-    showWhisper.value = true;
+const onSendWhisper = (user: Item.UserInfo) => {
+  whisperReceiver.value = user;
+  showWhisper.value = true;
 };
 
 const whisperSuccess = () => {
-    showWhisper.value = false;
+  showWhisper.value = false;
 };
 
 const nextPage = () => {
-    if (page.value < totalPage.value || totalPage.value == 0) {
-        noMore.value = false;
-        page.value++;
-        loadPage();
-    } else {
-        noMore.value = true;
-    }
+  if (page.value < totalPage.value || totalPage.value == 0) {
+    noMore.value = false;
+    page.value++;
+    loadPage();
+  } else {
+    noMore.value = true;
+  }
 };
 
-const changeTab = (tab: "follows" | "followings") => {
-    resetPage(tab);
-    loadPage();
+const changeTab = (tab: 'follows' | 'followings') => {
+  resetPage(tab);
+  loadPage();
 };
 
 const loadPage = () => {
-    if (tabler.value === "follows") {
-        loadFollows(username);
-    } else if (tabler.value === "followings") {
-        loadFollowings(username);
-    }
-}
+  if (tabler.value === 'follows') {
+    loadFollows(username);
+  } else if (tabler.value === 'followings') {
+    loadFollowings(username);
+  }
+};
 
 const loadFollows = (username: string, scrollToBottom: boolean = false) => {
-    if (list.value.length === 0) {
-        loading.value = true;
-    }
-    getUserFollows({
-        username: username,
-        page: page.value,
-        page_size: pageSize.value,
-    }).then((res) => {
-        loading.value = false;
-        if (res.list.length === 0) {
-            noMore.value = true
+  if (list.value.length === 0) {
+    loading.value = true;
+  }
+  getUserFollows({
+    username: username,
+    page: page.value,
+    page_size: pageSize.value,
+  })
+    .then((res) => {
+      loading.value = false;
+      if (res.list.length === 0) {
+        noMore.value = true;
+      }
+      if (page.value > 1) {
+        list.value = list.value.concat(res.list);
+      } else {
+        list.value = res.list;
+        if (scrollToBottom) {
+          setTimeout(() => {
+            window.scrollTo(0, 99999);
+          }, 50);
         }
-        if (page.value > 1) {
-            list.value = list.value.concat(res.list);
-        } else {
-            list.value = res.list;
-            if (scrollToBottom) {
-                setTimeout(() => {
-                    window.scrollTo(0, 99999);
-                }, 50);
-            }
-        }
-        totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
+      }
+      totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
     })
     .catch((_err) => {
-        loading.value = false;
-        if (page.value > 1) {
-            page.value--;
-        }
+      loading.value = false;
+      if (page.value > 1) {
+        page.value--;
+      }
     });
 };
 
 const loadFollowings = (username: string, scrollToBottom: boolean = false) => {
-    if (list.value.length === 0) {
-        loading.value = true;
-    }
-    getUserFollowings({
-        username: username,
-        page: page.value,
-        page_size: pageSize.value,
-    }).then((res) => {
-        loading.value = false;
-        if (res.list.length === 0) {
-            noMore.value = true
+  if (list.value.length === 0) {
+    loading.value = true;
+  }
+  getUserFollowings({
+    username: username,
+    page: page.value,
+    page_size: pageSize.value,
+  })
+    .then((res) => {
+      loading.value = false;
+      if (res.list.length === 0) {
+        noMore.value = true;
+      }
+      if (page.value > 1) {
+        list.value = list.value.concat(res.list);
+      } else {
+        list.value = res.list;
+        if (scrollToBottom) {
+          setTimeout(() => {
+            window.scrollTo(0, 99999);
+          }, 50);
         }
-        if (page.value > 1) {
-            list.value = list.value.concat(res.list);
-        } else {
-            list.value = res.list;
-            if (scrollToBottom) {
-                setTimeout(() => {
-                    window.scrollTo(0, 99999);
-                }, 50);
-            }
-        }
-        totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
+      }
+      totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
     })
     .catch((_err) => {
-        loading.value = false;
-        if (page.value > 1) {
-            page.value--;
-        }
+      loading.value = false;
+      if (page.value > 1) {
+        page.value--;
+      }
     });
 };
 
 onMounted(() => {
-    loadPage();
+  loadPage();
 });
 </script>
 

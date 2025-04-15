@@ -227,11 +227,14 @@ import { ref, onMounted } from 'vue';
 
 const defaultImg = import.meta.env.VITE_DEFAULT_TWEET_IMAGE_404;
 const thumbnail = import.meta.env.VITE_TWEET_IMAGE_THUMBNAIL;
-const props = withDefaults(defineProps<{
-    imgs: Item.PostItemProps[],
-}>(), {
-    imgs: () => []
-});
+const props = withDefaults(
+  defineProps<{
+    imgs: Item.PostItemProps[];
+  }>(),
+  {
+    imgs: () => [],
+  },
+);
 </script>
 
 <style lang="less">

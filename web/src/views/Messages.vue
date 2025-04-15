@@ -65,20 +65,20 @@
 
 <script setup lang="ts">
 import { h, ref, onMounted, computed } from 'vue';
-import type { Component } from 'vue'
-import { NIcon, DropdownOption } from 'naive-ui'
+import type { Component } from 'vue';
+import { NIcon, DropdownOption } from 'naive-ui';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
-import InfiniteLoading from "v3-infinite-loading";
+import InfiniteLoading from 'v3-infinite-loading';
 import { getMessages, readAllMessage } from '@/api/user';
-import { 
-    LayersOutline as AllIcon,
-    AtOutline as SystemIcon,
-    PaperPlaneOutline as WhisperIcon,
-    PersonAddOutline as RequestingIcon,
-    ChatbubbleEllipsesOutline as UnreadIcon,
-    OptionsOutline as OptionsIcon, 
- } from '@vicons/ionicons5'
+import {
+  LayersOutline as AllIcon,
+  AtOutline as SystemIcon,
+  PaperPlaneOutline as WhisperIcon,
+  PersonAddOutline as RequestingIcon,
+  ChatbubbleEllipsesOutline as UnreadIcon,
+  OptionsOutline as OptionsIcon,
+} from '@vicons/ionicons5';
 
 const store = useStore();
 const route = useRoute();
@@ -88,266 +88,272 @@ const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
 const totalPage = ref(0);
 const list = ref<Item.MessageProps[]>([]);
-const messageStyle = ref<'所有消息' | '系统消息' | '我的私信' | '好友申请' | '未读消息'>('所有消息')
-const messageStyleVal = ref<'all' | 'system' | 'whisper' | 'requesting' | 'unread'>('all')
+const messageStyle = ref<
+  '所有消息' | '系统消息' | '我的私信' | '好友申请' | '未读消息'
+>('所有消息');
+const messageStyleVal = ref<
+  'all' | 'system' | 'whisper' | 'requesting' | 'unread'
+>('all');
 const showWhisper = ref(false);
 const whisperReceiver = ref<Item.UserInfo>({
-    id: 0,
-    avatar: '',
-    username: '',
-    nickname: '',
-    is_admin: false,
-    is_friend: true,
-    is_following: false,
-    created_on: 0,
-    follows: 0,
-    followings: 0,
-    status: 1,
+  id: 0,
+  avatar: '',
+  username: '',
+  nickname: '',
+  is_admin: false,
+  is_friend: true,
+  is_following: false,
+  created_on: 0,
+  follows: 0,
+  followings: 0,
+  status: 1,
 });
 
 const reset = () => {
-    noMore.value = false;
-    page.value = 1;
-    totalPage.value = 0;
-    list.value = [];
-}
+  noMore.value = false;
+  page.value = 1;
+  totalPage.value = 0;
+  list.value = [];
+};
 
 const renderIcon = (icon: Component) => {
   return () => {
     return h(NIcon, null, {
-      default: () => h(icon)
-    })
-  }
-}
+      default: () => h(icon),
+    });
+  };
+};
 
 const options = computed(() => {
-    let opts: DropdownOption[];
-    switch (messageStyle.value) {
+  let opts: DropdownOption[];
+  switch (messageStyle.value) {
     case '所有消息':
-        opts = [
-            {
-                label: '系统消息',
-                key: 'system',
-                icon: renderIcon(SystemIcon)
-            },
-            {
-                label: '我的私信',
-                key: 'whisper',
-                icon: renderIcon(WhisperIcon)
-            },
-            {
-                label: '好友申请',
-                key: 'requesting',
-                icon: renderIcon(RequestingIcon)
-            },
-            {
-                label: '未读消息',
-                key: 'unread',
-                icon: renderIcon(UnreadIcon)
-            }
-        ]
-        break;
+      opts = [
+        {
+          label: '系统消息',
+          key: 'system',
+          icon: renderIcon(SystemIcon),
+        },
+        {
+          label: '我的私信',
+          key: 'whisper',
+          icon: renderIcon(WhisperIcon),
+        },
+        {
+          label: '好友申请',
+          key: 'requesting',
+          icon: renderIcon(RequestingIcon),
+        },
+        {
+          label: '未读消息',
+          key: 'unread',
+          icon: renderIcon(UnreadIcon),
+        },
+      ];
+      break;
     case '系统消息':
-        opts = [
-            {
-                label: '所有消息',
-                key: 'all',
-                icon: renderIcon(AllIcon)
-            },
-            {
-                label: '我的私信',
-                key: 'whisper',
-                icon: renderIcon(WhisperIcon)
-            },
-            {
-                label: '好友申请',
-                key: 'requesting',
-                icon: renderIcon(RequestingIcon)
-            },
-            {
-                label: '未读消息',
-                key: 'unread',
-                icon: renderIcon(UnreadIcon)
-            }
-        ]
-        break;
+      opts = [
+        {
+          label: '所有消息',
+          key: 'all',
+          icon: renderIcon(AllIcon),
+        },
+        {
+          label: '我的私信',
+          key: 'whisper',
+          icon: renderIcon(WhisperIcon),
+        },
+        {
+          label: '好友申请',
+          key: 'requesting',
+          icon: renderIcon(RequestingIcon),
+        },
+        {
+          label: '未读消息',
+          key: 'unread',
+          icon: renderIcon(UnreadIcon),
+        },
+      ];
+      break;
     case '我的私信':
-        opts = [
-            {
-                label: '所有消息',
-                key: 'all',
-                icon: renderIcon(AllIcon)
-            },
-            {
-                label: '系统消息',
-                key: 'system',
-                icon: renderIcon(SystemIcon)
-            },
-            {
-                label: '好友申请',
-                key: 'requesting',
-                icon: renderIcon(RequestingIcon)
-            },
-            {
-                label: '未读消息',
-                key: 'unread',
-                icon: renderIcon(UnreadIcon)
-            }
-        ]
-        break;
+      opts = [
+        {
+          label: '所有消息',
+          key: 'all',
+          icon: renderIcon(AllIcon),
+        },
+        {
+          label: '系统消息',
+          key: 'system',
+          icon: renderIcon(SystemIcon),
+        },
+        {
+          label: '好友申请',
+          key: 'requesting',
+          icon: renderIcon(RequestingIcon),
+        },
+        {
+          label: '未读消息',
+          key: 'unread',
+          icon: renderIcon(UnreadIcon),
+        },
+      ];
+      break;
     case '好友申请':
-            opts = [
-            {
-                label: '所有消息',
-                key: 'all',
-                icon: renderIcon(AllIcon)
-            },
-            {
-                label: '系统消息',
-                key: 'system',
-                icon: renderIcon(SystemIcon)
-            },
-            {
-                label: '我的私信',
-                key: 'whisper',
-                icon: renderIcon(WhisperIcon)
-            },
-            {
-                label: '未读消息',
-                key: 'unread',
-                icon: renderIcon(UnreadIcon)
-            }
-        ]
-        break;
+      opts = [
+        {
+          label: '所有消息',
+          key: 'all',
+          icon: renderIcon(AllIcon),
+        },
+        {
+          label: '系统消息',
+          key: 'system',
+          icon: renderIcon(SystemIcon),
+        },
+        {
+          label: '我的私信',
+          key: 'whisper',
+          icon: renderIcon(WhisperIcon),
+        },
+        {
+          label: '未读消息',
+          key: 'unread',
+          icon: renderIcon(UnreadIcon),
+        },
+      ];
+      break;
     case '未读消息':
-            opts = [
-            {
-                label: '所有消息',
-                key: 'all',
-                icon: renderIcon(AllIcon)
-            },
-            {
-                label: '系统消息',
-                key: 'system',
-                icon: renderIcon(SystemIcon)
-            },
-            {
-                label: '我的私信',
-                key: 'whisper',
-                icon: renderIcon(WhisperIcon)
-            },
-            {
-                label: '好友申请',
-                key: 'requesting',
-                icon: renderIcon(RequestingIcon)
-            }
-        ]
-        break;
+      opts = [
+        {
+          label: '所有消息',
+          key: 'all',
+          icon: renderIcon(AllIcon),
+        },
+        {
+          label: '系统消息',
+          key: 'system',
+          icon: renderIcon(SystemIcon),
+        },
+        {
+          label: '我的私信',
+          key: 'whisper',
+          icon: renderIcon(WhisperIcon),
+        },
+        {
+          label: '好友申请',
+          key: 'requesting',
+          icon: renderIcon(RequestingIcon),
+        },
+      ];
+      break;
     default:
-        opts = [];
-        break;
-    }
-    return opts;
+      opts = [];
+      break;
+  }
+  return opts;
 });
 
 const handleAction = (
-    item: 'all' | 'system' | 'whisper' | 'requesting' | 'unread'
+  item: 'all' | 'system' | 'whisper' | 'requesting' | 'unread',
 ) => {
-    switch (item) {
+  switch (item) {
     case 'all':
-        messageStyle.value = '所有消息';
-        break;
+      messageStyle.value = '所有消息';
+      break;
     case 'system':
-        messageStyle.value = '系统消息';
-        break;
+      messageStyle.value = '系统消息';
+      break;
     case 'whisper':
-        messageStyle.value = '我的私信';
-        break;
+      messageStyle.value = '我的私信';
+      break;
     case 'requesting':
-        messageStyle.value = '好友申请';
-        break;
+      messageStyle.value = '好友申请';
+      break;
     case 'unread':
-        messageStyle.value = '未读消息';
-        break;
-    }
-    messageStyleVal.value = item
-    reset();
-    loadMessages();
+      messageStyle.value = '未读消息';
+      break;
+  }
+  messageStyleVal.value = item;
+  reset();
+  loadMessages();
 };
 
 const handleUnreadMessage = () => {
-    handleAction('unread')
-}
+  handleAction('unread');
+};
 
 const handleReadAll = () => {
-    if (store.state.unreadMsgCount > 0 && list.value.length > 0) {
-        readAllMessage().then((_res) => {
-            if (messageStyleVal.value != "unread") {
-                for (let idx in list.value) {
-                    list.value[idx].is_read = 1;
-                }
-            } else {
-                list.value = [];
-            }
-            store.commit("updateUnreadMsgCount", 0)
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-    }
-}
+  if (store.state.unreadMsgCount > 0 && list.value.length > 0) {
+    readAllMessage()
+      .then((_res) => {
+        if (messageStyleVal.value != 'unread') {
+          for (let idx in list.value) {
+            list.value[idx].is_read = 1;
+          }
+        } else {
+          list.value = [];
+        }
+        store.commit('updateUnreadMsgCount', 0);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+};
 
-const onSendWhisper =  (user: Item.UserInfo) => {
-    whisperReceiver.value = user;
-    showWhisper.value = true;
+const onSendWhisper = (user: Item.UserInfo) => {
+  whisperReceiver.value = user;
+  showWhisper.value = true;
 };
 
 const whisperSuccess = () => {
-    showWhisper.value = false;
+  showWhisper.value = false;
 };
 
 const reloadMessages = () => {
-    reset();
-    loadMessages();
+  reset();
+  loadMessages();
 };
 
 const loadMessages = () => {
-    loading.value = true;
-    getMessages({
-        style: messageStyleVal.value,
-        page: page.value,
-        page_size: pageSize.value,
-    }).then((res) => {
-        loading.value = false;
-        if (res.list.length === 0) {
-            noMore.value = true
-        }
-        if (page.value > 1) {
-            list.value = list.value.concat(res.list);
-        } else {
-            list.value = res.list;
-            window.scrollTo(0, 0);
-        }
-        totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
+  loading.value = true;
+  getMessages({
+    style: messageStyleVal.value,
+    page: page.value,
+    page_size: pageSize.value,
+  })
+    .then((res) => {
+      loading.value = false;
+      if (res.list.length === 0) {
+        noMore.value = true;
+      }
+      if (page.value > 1) {
+        list.value = list.value.concat(res.list);
+      } else {
+        list.value = res.list;
+        window.scrollTo(0, 0);
+      }
+      totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
     })
     .catch((_err) => {
-        loading.value = false;
-        if (page.value > 1) {
-            page.value--
-        }
+      loading.value = false;
+      if (page.value > 1) {
+        page.value--;
+      }
     });
 };
 const nextPage = () => {
-    if (page.value < totalPage.value || totalPage.value == 0) {
-        noMore.value = false;
-        page.value++;
-        loadMessages();
-    } else {
-        noMore.value = true;
-    }
+  if (page.value < totalPage.value || totalPage.value == 0) {
+    noMore.value = false;
+    page.value++;
+    loadMessages();
+  } else {
+    noMore.value = true;
+  }
 };
 onMounted(() => {
-    loadMessages();
+  loadMessages();
 });
 </script>
 

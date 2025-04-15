@@ -59,15 +59,15 @@ import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { NIcon, NBadge, useMessage } from 'naive-ui';
 import {
-    HomeOutline,
-    BookmarksOutline,
-    MegaphoneOutline,
-    ChatbubblesOutline,
-    LeafOutline,
-    PeopleOutline,
-    WalletOutline,
-    SettingsOutline,
-    LogOutOutline,
+  HomeOutline,
+  BookmarksOutline,
+  MegaphoneOutline,
+  ChatbubblesOutline,
+  LeafOutline,
+  PeopleOutline,
+  WalletOutline,
+  SettingsOutline,
+  LogOutOutline,
 } from '@vicons/ionicons5';
 import { Hash } from '@vicons/tabler';
 import { getUnreadMsgCount } from '@/api/user';
@@ -80,184 +80,186 @@ const hasUnreadMsg = ref(false);
 const selectedPath = ref<any>(route.name || '');
 const msgLoop = ref();
 
-const enableAnnoucement = (import.meta.env.VITE_ENABLE_ANOUNCEMENT.toLowerCase() === 'true');
+const enableAnnoucement =
+  import.meta.env.VITE_ENABLE_ANOUNCEMENT.toLowerCase() === 'true';
 
 watch(route, () => {
-    selectedPath.value = route.name;
+  selectedPath.value = route.name;
 });
 watch(store.state, () => {
-    hasUnreadMsg.value = store.state.unreadMsgCount > 0;
-    if (store.state.userInfo.id > 0) {
-        if (!msgLoop.value) {
-            getUnreadMsgCount()
-                .then((res) => {
-                    hasUnreadMsg.value = res.count > 0;
-                    store.commit("updateUnreadMsgCount", res.count)
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
+  hasUnreadMsg.value = store.state.unreadMsgCount > 0;
+  if (store.state.userInfo.id > 0) {
+    if (!msgLoop.value) {
+      getUnreadMsgCount()
+        .then((res) => {
+          hasUnreadMsg.value = res.count > 0;
+          store.commit('updateUnreadMsgCount', res.count);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
 
-            msgLoop.value = setInterval(() => {
-                getUnreadMsgCount()
-                    .then((res) => {
-                        hasUnreadMsg.value = res.count > 0;
-                        store.commit("updateUnreadMsgCount", res.count)
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
-            }, store.state.profile.defaultMsgLoopInterval);
-        }
-    } else {
-        if (msgLoop.value) {
-            clearInterval(msgLoop.value);
-        }
+      msgLoop.value = setInterval(() => {
+        getUnreadMsgCount()
+          .then((res) => {
+            hasUnreadMsg.value = res.count > 0;
+            store.commit('updateUnreadMsgCount', res.count);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }, store.state.profile.defaultMsgLoopInterval);
     }
+  } else {
+    if (msgLoop.value) {
+      clearInterval(msgLoop.value);
+    }
+  }
 });
 onMounted(() => {
-    window.onresize = () => {
-        store.commit('triggerCollapsedLeft', document.body.clientWidth <= 821);
-        store.commit('triggerCollapsedRight', document.body.clientWidth <= 821);
-    };
+  window.onresize = () => {
+    store.commit('triggerCollapsedLeft', document.body.clientWidth <= 821);
+    store.commit('triggerCollapsedRight', document.body.clientWidth <= 821);
+  };
 });
 const menuOptions = computed(() => {
-    const options = [
-        {
-            label: '广场',
-            key: 'home',
-            icon: () => h(HomeOutline),
-            href: '/',
-        },
-        {
-            label: '话题',
-            key: 'topic',
-            icon: () => h(Hash),
-            href: '/topic',
-        },
-    ];
-    if (enableAnnoucement) {
-        options.push({
-            label: '公告',
-            key: 'anouncement',
-            icon: () => h(MegaphoneOutline),
-            href: '/anouncement',
-        });
-    }
+  const options = [
+    {
+      label: '广场',
+      key: 'home',
+      icon: () => h(HomeOutline),
+      href: '/',
+    },
+    {
+      label: '话题',
+      key: 'topic',
+      icon: () => h(Hash),
+      href: '/topic',
+    },
+  ];
+  if (enableAnnoucement) {
     options.push({
-        label: '主页',
-        key: 'profile',
-        icon: () => h(LeafOutline),
-        href: '/profile',
+      label: '公告',
+      key: 'anouncement',
+      icon: () => h(MegaphoneOutline),
+      href: '/anouncement',
     });
+  }
+  options.push({
+    label: '主页',
+    key: 'profile',
+    icon: () => h(LeafOutline),
+    href: '/profile',
+  });
+  options.push({
+    label: '消息',
+    key: 'messages',
+    icon: () => h(ChatbubblesOutline),
+    href: '/messages',
+  });
+  options.push({
+    label: '收藏',
+    key: 'collection',
+    icon: () => h(BookmarksOutline),
+    href: '/collection',
+  });
+  if (store.state.profile.useFriendship) {
     options.push({
-        label: '消息',
-        key: 'messages',
-        icon: () => h(ChatbubblesOutline),
-        href: '/messages',
-    })
-    options.push({
-        label: '收藏',
-        key: 'collection',
-        icon: () => h(BookmarksOutline),
-        href: '/collection',
+      label: '好友',
+      key: 'contacts',
+      icon: () => h(PeopleOutline),
+      href: '/contacts',
     });
-    if (store.state.profile.useFriendship) {
-        options.push({
-            label: '好友',
-            key: 'contacts',
-            icon: () => h(PeopleOutline),
-            href: '/contacts',
-        });
-    }   
-    if (store.state.profile.enableWallet) {
-        options.push({
-            label: '钱包',
-            key: 'wallet',
-            icon: () => h(WalletOutline),
-            href: '/wallet',
-        });
-    }
+  }
+  if (store.state.profile.enableWallet) {
     options.push({
-        label: '设置',
-        key: 'setting',
-        icon: () => h(SettingsOutline),
-        href: '/setting',
+      label: '钱包',
+      key: 'wallet',
+      icon: () => h(WalletOutline),
+      href: '/wallet',
     });
+  }
+  options.push({
+    label: '设置',
+    key: 'setting',
+    icon: () => h(SettingsOutline),
+    href: '/setting',
+  });
 
-    return store.state.userInfo.id > 0
-        ? options
-        : [
-            {
-                label: '广场',
-                key: 'home',
-                icon: () => h(HomeOutline),
-                href: '/',
-            },
-            {
-                label: '话题',
-                key: 'topic',
-                icon: () => h(Hash),
-                href: '/topic',
-            },
-        ];
+  return store.state.userInfo.id > 0
+    ? options
+    : [
+        {
+          label: '广场',
+          key: 'home',
+          icon: () => h(HomeOutline),
+          href: '/',
+        },
+        {
+          label: '话题',
+          key: 'topic',
+          icon: () => h(Hash),
+          href: '/topic',
+        },
+      ];
 });
 
 const renderMenuLabel = (option: AnyObject) => {
-    if ('href' in option) {
-        return h('div', {}, option.label);
-    }
-    return option.label;
+  if ('href' in option) {
+    return h('div', {}, option.label);
+  }
+  return option.label;
 };
 const renderMenuIcon = (option: AnyObject) => {
-    if (option.key === 'messages') {
-        return h(
-            NBadge,
+  if (option.key === 'messages') {
+    return h(
+      NBadge,
+      {
+        dot: true,
+        show: hasUnreadMsg.value,
+        processing: true,
+      },
+      {
+        default: () =>
+          h(
+            NIcon,
             {
-                dot: true,
-                show: hasUnreadMsg.value,
-                processing: true,
+              color:
+                option.key === selectedPath.value
+                  ? 'var(--n-item-icon-color-active)'
+                  : 'var(--n-item-icon-color)',
             },
-            {
-                default: () =>
-                    h(
-                        NIcon,
-                        {
-                            color:
-                                option.key === selectedPath.value
-                                    ? 'var(--n-item-icon-color-active)'
-                                    : 'var(--n-item-icon-color)',
-                        },
-                        { default: option.icon }
-                    ),
-            }
-        );
-    }
-    return h(NIcon, null, { default: option.icon });
+            { default: option.icon },
+          ),
+      },
+    );
+  }
+  return h(NIcon, null, { default: option.icon });
 };
 
 const goRouter = (name: string, item: any = {}) => {
-    selectedPath.value = name;
-    router.push({
-        name, query: {
-            t: (new Date().getTime())
-        }
-    });
+  selectedPath.value = name;
+  router.push({
+    name,
+    query: {
+      t: new Date().getTime(),
+    },
+  });
 };
 const goHome = () => {
-    if (route.path === '/') {
-        store.commit('refresh');
-    }
-    goRouter('home');
+  if (route.path === '/') {
+    store.commit('refresh');
+  }
+  goRouter('home');
 };
 const triggerAuth = (key: string) => {
-    store.commit('triggerAuth', true);
-    store.commit('triggerAuthKey', key);
+  store.commit('triggerAuth', true);
+  store.commit('triggerAuthKey', key);
 };
 const handleLogout = () => {
-    store.commit('userLogout');
-    store.commit('refresh')
-    goHome()
+  store.commit('userLogout');
+  store.commit('refresh');
+  goHome();
 };
 window.$store = store;
 window.$message = useMessage();

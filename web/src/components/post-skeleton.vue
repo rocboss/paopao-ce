@@ -11,11 +11,14 @@
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(defineProps<{
-    num: number,
-}>(), {
-    num: 1
-});
+const props = withDefaults(
+  defineProps<{
+    num: number;
+  }>(),
+  {
+    num: 1,
+  },
+);
 </script>
 
 <style lang="less" scoped>

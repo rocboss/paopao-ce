@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { getContacts } from '@/api/post';
-import InfiniteLoading from "v3-infinite-loading";
+import InfiniteLoading from 'v3-infinite-loading';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
@@ -46,73 +46,74 @@ const pageSize = ref(20);
 const totalPage = ref(0);
 const showWhisper = ref(false);
 const whisperReceiver = ref<Item.UserInfo>({
-    id: 0,
-    avatar: '',
-    username: '',
-    nickname: '',
-    is_admin: false,
-    is_friend: true,
-    is_following: false,
-    created_on: 0,
-    follows: 0,
-    followings: 0,
-    status: 1,
+  id: 0,
+  avatar: '',
+  username: '',
+  nickname: '',
+  is_admin: false,
+  is_friend: true,
+  is_following: false,
+  created_on: 0,
+  follows: 0,
+  followings: 0,
+  status: 1,
 });
 
-const onSendWhisper =  (user: Item.UserInfo) => {
-    whisperReceiver.value = user;
-    showWhisper.value = true;
+const onSendWhisper = (user: Item.UserInfo) => {
+  whisperReceiver.value = user;
+  showWhisper.value = true;
 };
 
 const whisperSuccess = () => {
-    showWhisper.value = false;
+  showWhisper.value = false;
 };
 
 const nextPage = () => {
-    if (page.value < totalPage.value || totalPage.value == 0) {
-        noMore.value = false;
-        page.value++;
-        loadContacts();
-    } else {
-        noMore.value = true;
-    }
+  if (page.value < totalPage.value || totalPage.value == 0) {
+    noMore.value = false;
+    page.value++;
+    loadContacts();
+  } else {
+    noMore.value = true;
+  }
 };
 
 onMounted(() => {
-    loadContacts()
+  loadContacts();
 });
 
 const loadContacts = (scrollToBottom: boolean = false) => {
-    if (list.value.length === 0) {
-        loading.value = true;
-    }
-    getContacts({
-        page: page.value,
-        page_size: pageSize.value,
-    }).then((res) => {
-        loading.value = false;
-        if (res.list.length === 0) {
-            noMore.value = true
+  if (list.value.length === 0) {
+    loading.value = true;
+  }
+  getContacts({
+    page: page.value,
+    page_size: pageSize.value,
+  })
+    .then((res) => {
+      loading.value = false;
+      if (res.list.length === 0) {
+        noMore.value = true;
+      }
+      if (page.value > 1) {
+        list.value = list.value.concat(res.list);
+      } else {
+        list.value = res.list;
+        if (scrollToBottom) {
+          setTimeout(() => {
+            window.scrollTo(0, 99999);
+          }, 50);
         }
-        if (page.value > 1) {
-            list.value = list.value.concat(res.list);
-        } else {
-            list.value = res.list;
-            if (scrollToBottom) {
-                setTimeout(() => {
-                    window.scrollTo(0, 99999);
-                }, 50);
-            }
-        }
-        totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
+      }
+      totalPage.value = Math.ceil(res.pager.total_rows / pageSize.value);
     })
     .catch((_err) => {
-        loading.value = false;
-        if (page.value > 1) {
-            page.value--;
-        }
+      loading.value = false;
+      if (page.value > 1) {
+        page.value--;
+      }
     });
-}
+};
 </script>
 
 <style lang="less" scoped>

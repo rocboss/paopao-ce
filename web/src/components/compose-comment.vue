@@ -170,26 +170,24 @@
 import { onMounted, computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import { debounce } from 'lodash';
-import {
-    ImageOutline,
-} from '@vicons/ionicons5';
+import { ImageOutline } from '@vicons/ionicons5';
 import { createComment } from '@/api/post';
 import { getSuggestUsers } from '@/api/user';
 import { parsePostTag } from '@/utils/content';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
 
 const emit = defineEmits<{
-    (e: 'post-success'): void;
+  (e: 'post-success'): void;
 }>();
 const props = withDefaults(
-    defineProps<{
-        lock: number;
-        postId: number;
-    }>(),
-    {
-        lock: 0,
-        postId: 0,
-    }
+  defineProps<{
+    lock: number;
+    postId: number;
+  }>(),
+  {
+    lock: 0,
+    postId: 0,
+  },
 );
 
 const store = useStore();
@@ -203,185 +201,194 @@ const uploadRef = ref<UploadInst>();
 const uploadType = ref('public/image');
 const fileQueue = ref<UploadFileInfo[]>([]);
 const imageContents = ref<Item.CommentItemProps[]>([]);
-const allowUserRegister = ref(import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true')
-const defaultCommentMaxLength = Number(import.meta.env.VITE_DEFAULT_COMMENT_MAX_LENGTH)
+const allowUserRegister = ref(
+  import.meta.env.VITE_ALLOW_USER_REGISTER.toLowerCase() === 'true',
+);
+const defaultCommentMaxLength = Number(
+  import.meta.env.VITE_DEFAULT_COMMENT_MAX_LENGTH,
+);
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 
 const uploadToken = computed(() => {
-    return 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
+  return 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
 });
 // 加载at用户列表
 const loadSuggestionUsers = debounce((k) => {
-    getSuggestUsers({
-        k,
-    })
-        .then((res) => {
-            let options: MentionOption[] = [];
-            res.suggest.map((i) => {
-                options.push({
-                    label: i,
-                    value: i,
-                });
-            });
-            optionsRef.value = options;
-            loading.value = false;
-        })
-        .catch((err) => {
-            loading.value = false;
+  getSuggestUsers({
+    k,
+  })
+    .then((res) => {
+      let options: MentionOption[] = [];
+      res.suggest.map((i) => {
+        options.push({
+          label: i,
+          value: i,
         });
+      });
+      optionsRef.value = options;
+      loading.value = false;
+    })
+    .catch((err) => {
+      loading.value = false;
+    });
 }, 200);
 const handleSearch = (k: string, prefix: string) => {
-    if (loading.value) {
-        return;
-    }
-    loading.value = true;
-    if (prefix === '@') {
-        loadSuggestionUsers(k);
-    }
+  if (loading.value) {
+    return;
+  }
+  loading.value = true;
+  if (prefix === '@') {
+    loadSuggestionUsers(k);
+  }
 };
 const changeContent = (v: string) => {
-    if (v.length > defaultCommentMaxLength) {
-        content.value = v.substring(0, defaultCommentMaxLength);
-    } else {
-        content.value = v;
-    }
+  if (v.length > defaultCommentMaxLength) {
+    content.value = v.substring(0, defaultCommentMaxLength);
+  } else {
+    content.value = v;
+  }
 };
 const setUploadType = (type: string) => {
-    uploadType.value = type;
+  uploadType.value = type;
 };
 const updateUpload = (list: UploadFileInfo[]) => {
-    for (let i = 0; i < list.length; i++) {
-        var name = list[i].name;
-        var basename: string = name.split('.').slice(0, -1).join('.');
-        var ext: string = name.split('.').pop()!;
-        if (basename.length > 30) {
-            list[i].name = basename.substring(0, 18) + "..." + basename.substring(basename.length-9) + "." + ext;
-        }
+  for (let i = 0; i < list.length; i++) {
+    var name = list[i].name;
+    var basename: string = name.split('.').slice(0, -1).join('.');
+    var ext: string = name.split('.').pop()!;
+    if (basename.length > 30) {
+      list[i].name =
+        basename.substring(0, 18) +
+        '...' +
+        basename.substring(basename.length - 9) +
+        '.' +
+        ext;
     }
-    fileQueue.value = list;
+  }
+  fileQueue.value = list;
 };
 const beforeUpload = async (data: any) => {
-    // 图片类型校验
-    if (
-        uploadType.value === 'public/image' &&
-        !['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(
-            (data.file as any).file?.type
-        )
-    ) {
-        window.$message.warning('图片仅允许 png/jpg/gif 格式');
-        return false;
-    }
+  // 图片类型校验
+  if (
+    uploadType.value === 'public/image' &&
+    !['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(
+      (data.file as any).file?.type,
+    )
+  ) {
+    window.$message.warning('图片仅允许 png/jpg/gif 格式');
+    return false;
+  }
 
-    if (
-        uploadType.value === 'image' &&
-        (data.file as any).file?.size > 10485760
-    ) {
-        window.$message.warning('图片大小不能超过10MB');
-        return false;
-    }
+  if (
+    uploadType.value === 'image' &&
+    (data.file as any).file?.size > 10485760
+  ) {
+    window.$message.warning('图片大小不能超过10MB');
+    return false;
+  }
 
-    return true;
+  return true;
 };
 const finishUpload = ({ file, event }: any): any => {
-    try {
-        let data = JSON.parse(event.target?.response);
+  try {
+    let data = JSON.parse(event.target?.response);
 
-        if (data.code === 0) {
-            if (uploadType.value === 'public/image') {
-                imageContents.value.push({
-                    id: file.id,
-                    content: data.data.content,
-                } as Item.CommentItemProps);
-            }
-        }
-    } catch (error) {
-        window.$message.error('上传失败');
+    if (data.code === 0) {
+      if (uploadType.value === 'public/image') {
+        imageContents.value.push({
+          id: file.id,
+          content: data.data.content,
+        } as Item.CommentItemProps);
+      }
     }
+  } catch (error) {
+    window.$message.error('上传失败');
+  }
 };
 const failUpload = ({ file, event }: any): any => {
-    try {
-        let data = JSON.parse(event.target?.response);
+  try {
+    let data = JSON.parse(event.target?.response);
 
-        if (data.code !== 0) {
-            let errMsg = data.msg || '上传失败';
-            if (data.details && data.details.length > 0) {
-                data.details.map((detail: string) => {
-                    errMsg += ':' + detail;
-                });
-            }
-            window.$message.error(errMsg);
-        }
-    } catch (error) {
-        window.$message.error('上传失败');
+    if (data.code !== 0) {
+      let errMsg = data.msg || '上传失败';
+      if (data.details && data.details.length > 0) {
+        data.details.map((detail: string) => {
+          errMsg += ':' + detail;
+        });
+      }
+      window.$message.error(errMsg);
     }
+  } catch (error) {
+    window.$message.error('上传失败');
+  }
 };
 const removeUpload = ({ file }: any) => {
-    let idx = imageContents.value.findIndex((item) => item.id === file.id);
-    if (idx > -1) {
-        imageContents.value.splice(idx, 1);
-    }
+  let idx = imageContents.value.findIndex((item) => item.id === file.id);
+  if (idx > -1) {
+    imageContents.value.splice(idx, 1);
+  }
 };
 
 const focusComment = () => {
-    showBtn.value = true;
+  showBtn.value = true;
 };
 const cancelComment = () => {
-    showBtn.value = false;
-    // 置空
-    uploadRef.value?.clear();
-    fileQueue.value = [];
-    content.value = '';
-    imageContents.value = [];
+  showBtn.value = false;
+  // 置空
+  uploadRef.value?.clear();
+  fileQueue.value = [];
+  content.value = '';
+  imageContents.value = [];
 };
 
 // 发布动态
 const submitPost = () => {
-    if (content.value.trim().length === 0) {
-        window.$message.warning('请输入内容哦');
-        return;
-    }
+  if (content.value.trim().length === 0) {
+    window.$message.warning('请输入内容哦');
+    return;
+  }
 
-    // 解析用户at
-    let { users } = parsePostTag(content.value);
+  // 解析用户at
+  let { users } = parsePostTag(content.value);
 
-    const contents = [];
-    let sort = 100;
+  const contents = [];
+  let sort = 100;
 
+  contents.push({
+    content: content.value,
+    type: 2, // 文字
+    sort,
+  });
+  imageContents.value.map((img) => {
+    sort++;
     contents.push({
-        content: content.value,
-        type: 2, // 文字
-        sort,
+      content: img.content,
+      type: 3, // 图片
+      sort,
     });
-    imageContents.value.map((img) => {
-        sort++;
-        contents.push({
-            content: img.content,
-            type: 3, // 图片
-            sort,
-        });
-    });
+  });
 
-    submitting.value = true;
-    createComment({
-        contents,
-        post_id: props.postId,
-        users: Array.from(new Set(users)),
+  submitting.value = true;
+  createComment({
+    contents,
+    post_id: props.postId,
+    users: Array.from(new Set(users)),
+  })
+    .then((res) => {
+      window.$message.success('发布成功');
+      submitting.value = false;
+      emit('post-success');
+
+      // 置空
+      cancelComment();
     })
-        .then((res) => {
-            window.$message.success('发布成功');
-            submitting.value = false;
-            emit('post-success');
-
-            // 置空
-            cancelComment();
-        })
-        .catch((err) => {
-            submitting.value = false;
-        });
+    .catch((err) => {
+      submitting.value = false;
+    });
 };
 const triggerAuth = (key: string) => {
-    store.commit('triggerAuth', true);
-    store.commit('triggerAuthKey', key);
+  store.commit('triggerAuth', true);
+  store.commit('triggerAuthKey', key);
 };
 </script>
 

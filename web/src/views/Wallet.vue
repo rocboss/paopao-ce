@@ -170,100 +170,96 @@ const totalPage = ref(0);
 const openAmounts = ref([100, 200, 300, 500, 1000, 3000, 5000, 10000, 50000]);
 
 const loadPosts = () => {
-    loading.value = true;
-    getBills({
-        page: page.value,
-        page_size: pageSize.value,
-    })
-        .then((rsp) => {
-            loading.value = false;
-            list.value = rsp.list;
-            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+  loading.value = true;
+  getBills({
+    page: page.value,
+    page_size: pageSize.value,
+  })
+    .then((rsp) => {
+      loading.value = false;
+      list.value = rsp.list;
+      totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
 
-            window.scrollTo(0, 0);
-        })
-        .catch((err) => {
-            loading.value = false;
-        });
+      window.scrollTo(0, 0);
+    })
+    .catch((err) => {
+      loading.value = false;
+    });
 };
 const updatePage = (p: number) => {
-    page.value = p;
-    loadPosts();
+  page.value = p;
+  loadPosts();
 };
 const loadWallet = () => {
-    // 获取最新
-    const token = localStorage.getItem('PAOPAO_TOKEN') || '';
-    if (token) {
-        userInfo(token)
-            .then((res) => {
-                store.commit('updateUserinfo', res);
-                store.commit('triggerAuth', false);
-                loadPosts();
-            })
-            .catch((err) => {
-                store.commit('triggerAuth', true);
-                store.commit('userLogout');
-            });
-    } else {
+  // 获取最新
+  const token = localStorage.getItem('PAOPAO_TOKEN') || '';
+  if (token) {
+    userInfo(token)
+      .then((res) => {
+        store.commit('updateUserinfo', res);
+        store.commit('triggerAuth', false);
+        loadPosts();
+      })
+      .catch((err) => {
         store.commit('triggerAuth', true);
         store.commit('userLogout');
-    }
+      });
+  } else {
+    store.commit('triggerAuth', true);
+    store.commit('userLogout');
+  }
 };
 const doRecharge = () => {
-    showRecharge.value = true;
+  showRecharge.value = true;
 };
 const handleRecharge = (amount: any) => {
-    recharging.value = true;
-    reqRecharge({
-        amount: selectedRechargeAmount.value,
-    })
-        .then((res) => {
-            recharging.value = false;
-            rechargeQrcode.value = res.pay;
+  recharging.value = true;
+  reqRecharge({
+    amount: selectedRechargeAmount.value,
+  })
+    .then((res) => {
+      recharging.value = false;
+      rechargeQrcode.value = res.pay;
 
-            // 生成二维码
-            QRCode.toCanvas(
-                document.querySelector('#qrcode-container'),
-                res.pay,
-                {
-                    width: 150,
-                    margin: 2,
-                }
-            );
+      // 生成二维码
+      QRCode.toCanvas(document.querySelector('#qrcode-container'), res.pay, {
+        width: 150,
+        margin: 2,
+      });
 
-            const s = setInterval(() => {
-                getRecharge({
-                    id: res.id,
-                })
-                    .then((res) => {
-                        if (res.status === 'TRADE_SUCCESS') {
-                            clearInterval(s);
-                            window.$message.success('充值成功');
-
-                            showRecharge.value = false;
-                            rechargeQrcode.value = '';
-
-                            loadWallet();
-                        }
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
-            }, 2000);
+      const s = setInterval(() => {
+        getRecharge({
+          id: res.id,
         })
-        .catch((err) => {
-            recharging.value = false;
-        });
+          .then((res) => {
+            if (res.status === 'TRADE_SUCCESS') {
+              clearInterval(s);
+              window.$message.success('充值成功');
+
+              showRecharge.value = false;
+              rechargeQrcode.value = '';
+
+              loadWallet();
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }, 2000);
+    })
+    .catch((err) => {
+      recharging.value = false;
+    });
 };
 const doWithdraw = () => {
-    if (store.state.userInfo.balance == 0) {
-        window.$message.warning('您暂无可提现资金');
-    } else {
-        window.$message.warning('该功能即将开放');
-    }
+  if (store.state.userInfo.balance == 0) {
+    window.$message.warning('您暂无可提现资金');
+  } else {
+    window.$message.warning('该功能即将开放');
+  }
 };
 onMounted(() => {
-    loadWallet();
+  loadWallet();
 });
 </script>
 

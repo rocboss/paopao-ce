@@ -58,12 +58,12 @@ const pageSize = ref(20);
 const totalPage = ref(0);
 
 const updatePage = (p: number) => {
-    page.value = p;
-    // TODO
+  page.value = p;
+  // TODO
 };
 
 onMounted(() => {
-    // TODO
+  // TODO
 });
 </script>
 

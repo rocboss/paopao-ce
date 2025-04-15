@@ -1,14 +1,14 @@
-import { defineConfig, type PluginOption } from "vite";
-import path from "path";
-import vue from "@vitejs/plugin-vue";
-import Components from "unplugin-vue-components/vite";
+import { defineConfig, type PluginOption } from 'vite';
+import path from 'path';
+import vue from '@vitejs/plugin-vue';
+import Components from 'unplugin-vue-components/vite';
 
-import { visualizer } from "rollup-plugin-visualizer";
-import { NaiveUiResolver } from "unplugin-vue-components/resolvers";
+import { visualizer } from 'rollup-plugin-visualizer';
+import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    host: "0.0.0.0",
+    host: '0.0.0.0',
   },
   plugins: [
     vue({
@@ -21,7 +21,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
   build: {
@@ -29,11 +29,11 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes("node_modules")) {
+          if (id.includes('node_modules')) {
             return id
               .toString()
-              .split("node_modules/")[1]
-              .split("/")[0]
+              .split('node_modules/')[1]
+              .split('/')[0]
               .toString();
           }
         },

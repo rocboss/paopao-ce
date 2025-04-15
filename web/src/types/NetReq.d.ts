@@ -135,7 +135,7 @@ declare module NetReq {
 
   interface PostVisibilityPost {
     /** 可见性：0为公开，1为私密，2为好友可见 */
-    visibility_status: import("@/utils/IEnum").VisibilityEnum;
+    visibility_status: import('@/utils/IEnum').VisibilityEnum;
   }
 
   interface PostGetPostStar {
@@ -179,7 +179,7 @@ declare module NetReq {
   interface PostDeleteComment {}
 
   interface PostHighlightComment {
-    highlight_status: import("@/utils/IEnum").YesNoEnum;
+    highlight_status: import('@/utils/IEnum').YesNoEnum;
   }
 
   type PostCreateCommentReply = Item.ReplyProps;

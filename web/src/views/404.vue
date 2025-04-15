@@ -21,9 +21,9 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const goHome = () => {
-    router.push({
-        path: '/',
-    });
+  router.push({
+    path: '/',
+  });
 };
 </script>
 

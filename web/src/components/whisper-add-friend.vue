@@ -54,39 +54,39 @@ import { ref } from 'vue';
 import { requestingFriend } from '@/api/user';
 
 const props = withDefaults(
-    defineProps<{
-        show: boolean;
-        user: Item.UserInfo;
-    }>(),
-    {
-        show: false,
-    }
+  defineProps<{
+    show: boolean;
+    user: Item.UserInfo;
+  }>(),
+  {
+    show: false,
+  },
 );
 const content = ref('');
 const loading = ref(false);
 
 const emit = defineEmits<{
-    (e: 'success'): void;
+  (e: 'success'): void;
 }>();
 const closeModal = () => {
-    emit('success');
+  emit('success');
 };
 const sendWhisper = () => {
-    loading.value = true;
-    requestingFriend({
-        user_id: props.user.id,
-        greetings: content.value,
-    })
-        .then((res: any) => {
-            window.$message.success('发送成功');
-            loading.value = false;
-            content.value = '';
+  loading.value = true;
+  requestingFriend({
+    user_id: props.user.id,
+    greetings: content.value,
+  })
+    .then((res: any) => {
+      window.$message.success('发送成功');
+      loading.value = false;
+      content.value = '';
 
-            closeModal();
-        })
-        .catch((err: any) => {
-            loading.value = false;
-        });
+      closeModal();
+    })
+    .catch((err: any) => {
+      loading.value = false;
+    });
 };
 </script>
 

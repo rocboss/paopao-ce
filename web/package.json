@@ -6,6 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "check": "biome check --write",
+    "format": "biome format --write",
     "tauri": "tauri"
   },
   "dependencies": {
@@ -32,6 +34,7 @@
     "vuex": "^4.1.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@tauri-apps/cli": "^1.5.10",
     "@types/node": "^22.14.1",
     "@types/qrcode": "^1.5.5",

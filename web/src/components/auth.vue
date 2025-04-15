@@ -164,134 +164,134 @@ const store = useStore();
 const loading = ref(false);
 const loginRef = ref<FormInst>();
 const loginForm = reactive({
-    username: '',
-    password: '',
+  username: '',
+  password: '',
 });
 const registerRef = ref<FormInst>();
 const registerForm = reactive({
-    username: '',
-    password: '',
-    repassword: '',
+  username: '',
+  password: '',
+  repassword: '',
 });
 const registerRule = {
-    username: {
-        required: true,
-        message: '请输入账户名',
+  username: {
+    required: true,
+    message: '请输入账户名',
+  },
+  password: {
+    required: true,
+    message: '请输入密码',
+  },
+  repassword: [
+    {
+      required: true,
+      message: '请输入密码',
     },
-    password: {
-        required: true,
-        message: '请输入密码',
+    {
+      validator: (rule: FormItemRule, value: any) => {
+        return (
+          !!registerForm.password &&
+          registerForm.password.startsWith(value) &&
+          registerForm.password.length >= value.length
+        );
+      },
+      message: '两次密码输入不一致',
+      trigger: 'input',
     },
-    repassword: [
-        {
-            required: true,
-            message: '请输入密码',
-        },
-        {
-            validator: (rule: FormItemRule, value: any) => {
-                return (
-                    !!registerForm.password &&
-                    registerForm.password.startsWith(value) &&
-                    registerForm.password.length >= value.length
-                );
-            },
-            message: '两次密码输入不一致',
-            trigger: 'input',
-        },
-    ],
+  ],
 };
 const handleLogin = (e: Event) => {
-    e.preventDefault();
-    e.stopPropagation();
+  e.preventDefault();
+  e.stopPropagation();
 
-    loginRef.value?.validate((errors) => {
-        if (!errors) {
-            loading.value = true;
+  loginRef.value?.validate((errors) => {
+    if (!errors) {
+      loading.value = true;
 
-            userLogin({
-                username: loginForm.username,
-                password: loginForm.password,
-            })
-                .then((res) => {
-                    const token = res?.token || '';
-                    // 写入用户信息
-                    localStorage.setItem('PAOPAO_TOKEN', token);
+      userLogin({
+        username: loginForm.username,
+        password: loginForm.password,
+      })
+        .then((res) => {
+          const token = res?.token || '';
+          // 写入用户信息
+          localStorage.setItem('PAOPAO_TOKEN', token);
 
-                    return userInfo(token);
-                })
-                .then((res) => {
-                    window.$message.success('登录成功');
-                    loading.value = false;
+          return userInfo(token);
+        })
+        .then((res) => {
+          window.$message.success('登录成功');
+          loading.value = false;
 
-                    store.commit('updateUserinfo', res);
-                    store.commit('triggerAuth', false);
-                    store.commit('refresh')
-                    loginForm.username = '';
-                    loginForm.password = '';
-                })
-                .catch((err) => {
-                    loading.value = false;
-                });
-        }
-    });
+          store.commit('updateUserinfo', res);
+          store.commit('triggerAuth', false);
+          store.commit('refresh');
+          loginForm.username = '';
+          loginForm.password = '';
+        })
+        .catch((err) => {
+          loading.value = false;
+        });
+    }
+  });
 };
 
 const handleRegister = (e: Event) => {
-    e.preventDefault();
-    e.stopPropagation();
+  e.preventDefault();
+  e.stopPropagation();
 
-    registerRef.value?.validate((errors) => {
-        if (!errors) {
-            loading.value = true;
+  registerRef.value?.validate((errors) => {
+    if (!errors) {
+      loading.value = true;
 
-            userRegister({
-                username: registerForm.username,
-                password: registerForm.password,
-            })
-                .then((res) => {
-                    return userLogin({
-                        username: registerForm.username,
-                        password: registerForm.password,
-                    });
-                })
-                .then((res) => {
-                    const token = res?.token || '';
-                    // 写入用户信息
-                    localStorage.setItem('PAOPAO_TOKEN', token);
+      userRegister({
+        username: registerForm.username,
+        password: registerForm.password,
+      })
+        .then((res) => {
+          return userLogin({
+            username: registerForm.username,
+            password: registerForm.password,
+          });
+        })
+        .then((res) => {
+          const token = res?.token || '';
+          // 写入用户信息
+          localStorage.setItem('PAOPAO_TOKEN', token);
 
-                    return userInfo(token);
-                })
-                .then((res) => {
-                    window.$message.success('注册成功');
-                    loading.value = false;
+          return userInfo(token);
+        })
+        .then((res) => {
+          window.$message.success('注册成功');
+          loading.value = false;
 
-                    store.commit('updateUserinfo', res);
-                    store.commit('triggerAuth', false);
-                    registerForm.username = '';
-                    registerForm.password = '';
-                    registerForm.repassword = '';
-                })
-                .catch((err) => {
-                    loading.value = false;
-                });
-        }
-    });
+          store.commit('updateUserinfo', res);
+          store.commit('triggerAuth', false);
+          registerForm.username = '';
+          registerForm.password = '';
+          registerForm.repassword = '';
+        })
+        .catch((err) => {
+          loading.value = false;
+        });
+    }
+  });
 };
 
 onMounted(() => {
-    const token = localStorage.getItem('PAOPAO_TOKEN') || '';
-    if (token) {
-        userInfo(token)
-            .then((res) => {
-                store.commit('updateUserinfo', res);
-                store.commit('triggerAuth', false);
-            })
-            .catch((err) => {
-                store.commit('userLogout');
-            });
-    } else {
+  const token = localStorage.getItem('PAOPAO_TOKEN') || '';
+  if (token) {
+    userInfo(token)
+      .then((res) => {
+        store.commit('updateUserinfo', res);
+        store.commit('triggerAuth', false);
+      })
+      .catch((err) => {
         store.commit('userLogout');
-    }
+      });
+  } else {
+    store.commit('userLogout');
+  }
 });
 </script>
 
