@@ -62,6 +62,10 @@ func serveRun(_cmd *cobra.Command, _args []string) {
 
 	// initial configure
 	conf.Initial(features, noDefaultFeatures)
+	if cfg.If("loggerOtlp") {
+		shutdownFn, _ := conf.InitTelemetry()
+		defer shutdownFn()
+	}
 	internal.Initial()
 	ss := service.MustInitService()
 	if len(ss) < 1 {

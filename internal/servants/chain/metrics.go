@@ -7,7 +7,7 @@ package chain
 import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/metrics"
+	"github.com/rocboss/paopao-ce/internal/infra/metrics"
 )
 
 type OnlineUserMetric struct {

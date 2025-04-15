@@ -61,8 +61,8 @@
 import { ref, watch, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPost, getPostComments } from '@/api/post';
-import InfiniteLoading from "v3-infinite-loading";
-import "v3-infinite-loading/lib/style.css";
+import InfiniteLoading from 'v3-infinite-loading';
+import 'v3-infinite-loading/lib/style.css';
 
 const route = useRoute();
 const post = ref<Item.PostProps>({} as Item.PostProps);
@@ -70,11 +70,11 @@ const loading = ref(false);
 const commentLoading = ref(false);
 const comments = ref<Item.CommentProps[]>([]);
 const postId = computed(() => +(route.query.id as string));
-const sortStrategy = ref<"default" | "hots" | "newest">('default');
-const defaultCommentsSort = ref<boolean>(true)
-const pageSize = 20
+const sortStrategy = ref<'default' | 'hots' | 'newest'>('default');
+const defaultCommentsSort = ref<boolean>(true);
+const pageSize = 20;
 
-let stateHandler = ({
+let stateHandler = {
   loading() {
     //nothing
   },
@@ -87,207 +87,209 @@ let stateHandler = ({
   error() {
     // nothing
   },
-});
+};
 
-const commentTab = (tab: "default" |  "hots" | "newest") => {
-    sortStrategy.value = tab;
-    if (tab === "default") {
-        defaultCommentsSort.value = true
-    }
-    loadComments(stateHandler);
+const commentTab = (tab: 'default' | 'hots' | 'newest') => {
+  sortStrategy.value = tab;
+  if (tab === 'default') {
+    defaultCommentsSort.value = true;
+  }
+  loadComments(stateHandler);
 };
 
 const reloadPost = (post_id: number) => {
-    getPost({
-        id: post_id,
-    }).then((res) => {
-            post.value = res;
-    }).catch((_err) => {});
+  getPost({
+    id: post_id,
+  })
+    .then((res) => {
+      post.value = res;
+    })
+    .catch((_err) => {});
 };
 
 const loadPost = () => {
-    post.value = {
-        id: 0,
-    } as Item.PostProps;
-    loading.value = true;
-    getPost({
-        id: postId.value,
-    })
-        .then((res) => {
-            loading.value = false;
-            post.value = res;
+  post.value = {
+    id: 0,
+  } as Item.PostProps;
+  loading.value = true;
+  getPost({
+    id: postId.value,
+  })
+    .then((res) => {
+      loading.value = false;
+      post.value = res;
 
-            // 加载评论
-            loadComments(stateHandler);
-        })
-        .catch((err) => {
-            loading.value = false;
-        });
+      // 加载评论
+      loadComments(stateHandler);
+    })
+    .catch((err) => {
+      loading.value = false;
+    });
 };
 
 let defaultCommmentsPage = 1;
-const defaultNoMore = ref<boolean>(false)
+const defaultNoMore = ref<boolean>(false);
 const defaultComments = ref<Item.CommentProps[]>([]);
 const loadDefaultComments = ($state: any) => {
-    if (defaultNoMore.value) {
-        return
-    }
-    getPostComments({
-        id: post.value.id as number,
-        style: 'default',
-        page: defaultCommmentsPage,
-        page_size: pageSize,
-    })
+  if (defaultNoMore.value) {
+    return;
+  }
+  getPostComments({
+    id: post.value.id as number,
+    style: 'default',
+    page: defaultCommmentsPage,
+    page_size: pageSize,
+  })
     .then((res) => {
-        if ($state !== null) {
-            stateHandler = $state
-        }
-        if (res.list.length < pageSize) {
-            defaultNoMore.value = true
+      if ($state !== null) {
+        stateHandler = $state;
+      }
+      if (res.list.length < pageSize) {
+        defaultNoMore.value = true;
+      } else {
+        defaultCommmentsPage++;
+      }
+      if (res.list.length > 0) {
+        if (defaultCommmentsPage === 1) {
+          defaultComments.value = res.list;
         } else {
-            defaultCommmentsPage++
+          defaultComments.value.push(...res.list);
         }
-        if (res.list.length > 0)  {
-            if (defaultCommmentsPage === 1) {
-                defaultComments.value = res.list;
-            } else {
-                defaultComments.value.push(...res.list);
-            }
-            comments.value = defaultComments.value
-        }
-        stateHandler.loaded();
-        commentLoading.value = false;
+        comments.value = defaultComments.value;
+      }
+      stateHandler.loaded();
+      commentLoading.value = false;
     })
     .catch((err) => {
-        commentLoading.value = false;
-        stateHandler.error();
+      commentLoading.value = false;
+      stateHandler.error();
     });
 };
 
 let hotsCommmentsPage = 1;
-let hotsNoMore = ref<boolean>(false)
-const hotsComments=ref<Item.CommentProps[]>([]);
+let hotsNoMore = ref<boolean>(false);
+const hotsComments = ref<Item.CommentProps[]>([]);
 const loadHotsComments = ($state: any) => {
-    if (hotsNoMore.value) {
-        return
-    }
-    getPostComments({
-        id: post.value.id as number,
-        style: 'hots',
-        page: hotsCommmentsPage,
-        page_size: pageSize,
-    })
+  if (hotsNoMore.value) {
+    return;
+  }
+  getPostComments({
+    id: post.value.id as number,
+    style: 'hots',
+    page: hotsCommmentsPage,
+    page_size: pageSize,
+  })
     .then((res) => {
-        if ($state !== null) {
-            stateHandler = $state
-        }
-        if (res.list.length < pageSize) {
-            hotsNoMore.value = true
+      if ($state !== null) {
+        stateHandler = $state;
+      }
+      if (res.list.length < pageSize) {
+        hotsNoMore.value = true;
+      } else {
+        hotsCommmentsPage++;
+      }
+      if (res.list.length > 0) {
+        if (hotsCommmentsPage === 1) {
+          hotsComments.value = res.list;
         } else {
-            hotsCommmentsPage++
+          hotsComments.value.push(...res.list);
         }
-        if (res.list.length > 0) {
-            if (hotsCommmentsPage === 1) {
-                hotsComments.value = res.list;
-            } else {
-                hotsComments.value.push(...res.list);
-            }
-            comments.value = hotsComments.value
-        }
-        stateHandler.loaded();
-        commentLoading.value = false;
+        comments.value = hotsComments.value;
+      }
+      stateHandler.loaded();
+      commentLoading.value = false;
     })
     .catch((err) => {
-        commentLoading.value = false;
-        stateHandler.error();
+      commentLoading.value = false;
+      stateHandler.error();
     });
 };
 
 let newestCommmentsPage = 1;
-let newestNoMore = ref<boolean>(false)
-const newestComments=ref<Item.CommentProps[]>([]);
+let newestNoMore = ref<boolean>(false);
+const newestComments = ref<Item.CommentProps[]>([]);
 const loadNewestComments = ($state: any) => {
-    if (newestNoMore.value) {
-        return
-    }
-    getPostComments({
-        id: post.value.id as number,
-        style: 'newest',
-        page: newestCommmentsPage,
-        page_size: pageSize,
-    })
+  if (newestNoMore.value) {
+    return;
+  }
+  getPostComments({
+    id: post.value.id as number,
+    style: 'newest',
+    page: newestCommmentsPage,
+    page_size: pageSize,
+  })
     .then((res) => {
-        if ($state !== null) {
-            stateHandler = $state
-        }
-        if (res.list.length < pageSize) {
-            newestNoMore.value = true
+      if ($state !== null) {
+        stateHandler = $state;
+      }
+      if (res.list.length < pageSize) {
+        newestNoMore.value = true;
+      } else {
+        newestCommmentsPage++;
+      }
+      if (res.list.length > 0) {
+        if (newestCommmentsPage === 1) {
+          newestComments.value = res.list;
         } else {
-            newestCommmentsPage++
+          newestComments.value.push(...res.list);
         }
-        if (res.list.length > 0) {
-            if (newestCommmentsPage === 1) {
-                newestComments.value = res.list;
-            } else {
-                newestComments.value.push(...res.list);
-            }
-            comments.value = newestComments.value
-        }
-        stateHandler.loaded();
-        commentLoading.value = false;
+        comments.value = newestComments.value;
+      }
+      stateHandler.loaded();
+      commentLoading.value = false;
     })
     .catch((err) => {
-        commentLoading.value = false;
-        stateHandler.error();
+      commentLoading.value = false;
+      stateHandler.error();
     });
 };
 
 const loadComments = ($state: any) => {
-    if (postId.value < 1) {
-        return
-    }
-    if (comments.value.length === 0) {
-        commentLoading.value = true;
-    }
-    if (sortStrategy.value === 'default') {
-        comments.value = defaultComments.value
-        loadDefaultComments($state)
-    } else if (sortStrategy.value === 'hots') {
-        comments.value = hotsComments.value
-        loadHotsComments($state)
-    } else {
-        comments.value = newestComments.value
-        loadNewestComments($state)
-    }
-    commentLoading.value = false;
+  if (postId.value < 1) {
+    return;
+  }
+  if (comments.value.length === 0) {
+    commentLoading.value = true;
+  }
+  if (sortStrategy.value === 'default') {
+    comments.value = defaultComments.value;
+    loadDefaultComments($state);
+  } else if (sortStrategy.value === 'hots') {
+    comments.value = hotsComments.value;
+    loadHotsComments($state);
+  } else {
+    comments.value = newestComments.value;
+    loadNewestComments($state);
+  }
+  commentLoading.value = false;
 };
 
 const reloadComments = () => {
-    // 这里需要做特殊处理,目前暴力处理，一切都重新加载
-    // TODO：后续持续优化， 这里有大bug！！！
-    defaultCommmentsPage = 1;
-    defaultNoMore.value = false
-    defaultComments.value = []
- 
-    hotsCommmentsPage = 1;
-    hotsNoMore.value = false
-    hotsComments.value = []
+  // 这里需要做特殊处理,目前暴力处理，一切都重新加载
+  // TODO：后续持续优化， 这里有大bug！！！
+  defaultCommmentsPage = 1;
+  defaultNoMore.value = false;
+  defaultComments.value = [];
 
-    newestCommmentsPage = 1;
-    newestNoMore.value = false
-    newestComments.value = []
+  hotsCommmentsPage = 1;
+  hotsNoMore.value = false;
+  hotsComments.value = [];
 
-    loadComments(stateHandler)
-}
+  newestCommmentsPage = 1;
+  newestNoMore.value = false;
+  newestComments.value = [];
+
+  loadComments(stateHandler);
+};
 
 onMounted(() => {
-    loadPost();
+  loadPost();
 });
 
 watch(postId, () => {
-    if (postId.value > 0 && route.name === 'post') {
-        loadPost();
-    }
+  if (postId.value > 0 && route.name === 'post') {
+    loadPost();
+  }
 });
 </script>
 

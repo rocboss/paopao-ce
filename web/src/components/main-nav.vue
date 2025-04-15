@@ -64,57 +64,62 @@
 import { onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { useMessage, useOsTheme, DrawerPlacement} from 'naive-ui';
-import { LightModeOutlined, DarkModeOutlined, ChevronLeftRound, DehazeRound } from '@vicons/material';
+import { useMessage, useOsTheme, DrawerPlacement } from 'naive-ui';
+import {
+  LightModeOutlined,
+  DarkModeOutlined,
+  ChevronLeftRound,
+  DehazeRound,
+} from '@vicons/material';
 
 const store = useStore();
 const router = useRouter();
-const activeDrawerRef = ref(false)
-const placementRef = ref<DrawerPlacement>('left')
+const activeDrawerRef = ref(false);
+const placementRef = ref<DrawerPlacement>('left');
 
 const props = withDefaults(
-    defineProps<{
-        title: string;
-        back?: boolean;
-        theme?: boolean;
-    }>(),
-    {
-        title: '',
-        back: false,
-        theme: true,
-    }
+  defineProps<{
+    title: string;
+    back?: boolean;
+    theme?: boolean;
+  }>(),
+  {
+    title: '',
+    back: false,
+    theme: true,
+  },
 );
 const switchTheme = (theme: boolean) => {
-    if (theme) {
-        localStorage.setItem('PAOPAO_THEME', 'dark');
-        store.commit('triggerTheme', 'dark');
-    } else {
-        localStorage.setItem('PAOPAO_THEME', 'light');
-        store.commit('triggerTheme', 'light');
-    }
+  if (theme) {
+    localStorage.setItem('PAOPAO_THEME', 'dark');
+    store.commit('triggerTheme', 'dark');
+  } else {
+    localStorage.setItem('PAOPAO_THEME', 'light');
+    store.commit('triggerTheme', 'light');
+  }
 };
 const goBack = () => {
-    if (window.history.length <= 1) {
-        router.push({
-            path: '/',
-        });
-    } else {
-        router.go(-1);
-    }
+  if (window.history.length <= 1) {
+    router.push({
+      path: '/',
+    });
+  } else {
+    router.go(-1);
+  }
 };
 const activeDrawer = () => {
-    activeDrawerRef.value = true
+  activeDrawerRef.value = true;
 };
 
 onMounted(() => {
-    if (!localStorage.getItem('PAOPAO_THEME')) {
-        switchTheme((useOsTheme() as unknown as string) === 'dark');
-    }
-    // 移动端特殊处理
-    if (!store.state.desktopModelShow) {
-        window.$store = store;  
-        window.$message = useMessage();
-    }
+  if (!localStorage.getItem('PAOPAO_THEME')) {
+    switchTheme((useOsTheme() as unknown as string) === 'dark');
+  }
+  // 移动端特殊处理
+  if (!store.state.desktopModelShow) {
+    window.$store = store;
+    window.$message = useMessage();
+  }
 });
 </script>
 

@@ -34,60 +34,60 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch} from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { getTags } from '@/api/post';
 import { useStore } from 'vuex';
 
 const store = useStore();
 const tags = ref<Item.TagProps[]>([]);
-const tagType = ref<"hot" | "new" | "follow" | "pin">('hot');
+const tagType = ref<'hot' | 'new' | 'follow' | 'pin'>('hot');
 const loading = ref(false);
-const tagsChecked = ref(false)
-const inFollowTab = ref(false)
-const inPinTab = ref(false)
+const tagsChecked = ref(false);
+const inFollowTab = ref(false);
+const inPinTab = ref(false);
 
 watch(tagsChecked, () => {
-    if (!tagsChecked.value) {
-        window.$message.success("保存成功");
-        store.commit("refreshTopicFollow")
-    }
+  if (!tagsChecked.value) {
+    window.$message.success('保存成功');
+    store.commit('refreshTopicFollow');
+  }
 });
-const tagsEditText = computed({  
-    get: () => {  
-        let text = "编辑";
-        if (tagsChecked.value) {
-            text = "保存";
-        }
-        return text;
-    },
-    set: (newVal) => {
-        // do nothing
-    },
+const tagsEditText = computed({
+  get: () => {
+    let text = '编辑';
+    if (tagsChecked.value) {
+      text = '保存';
+    }
+    return text;
+  },
+  set: (newVal) => {
+    // do nothing
+  },
 });
 const loadTags = () => {
-    loading.value = true;
-    getTags({
-        type: tagType.value,
-        num: 50,
+  loading.value = true;
+  getTags({
+    type: tagType.value,
+    num: 50,
+  })
+    .then((res) => {
+      tags.value = res.topics;
+      loading.value = false;
     })
-        .then((res) => {
-            tags.value = res.topics;
-            loading.value = false;
-        })
-        .catch((err) => {
-            tags.value = [];
-            console.log(err);
-            loading.value = false;
-        });
+    .catch((err) => {
+      tags.value = [];
+      console.log(err);
+      loading.value = false;
+    });
 };
-const changeTab = (tab: "hot" | "new" | "follow" | "pin") => {
-    tagType.value = tab;
-    inFollowTab.value = (tab === "follow")
-    inPinTab.value = (tab === "pin")
-    loadTags();
+const changeTab = (tab: 'hot' | 'new' | 'follow' | 'pin') => {
+  tagType.value = tab;
+  inFollowTab.value = tab === 'follow';
+  inPinTab.value = tab === 'pin';
+  loadTags();
 };
 onMounted(() => {
-    loadTags();
+  loadTags();
 });
 </script>
 

@@ -87,84 +87,91 @@ import { ref } from 'vue';
 import { useStore } from 'vuex';
 import { Trash } from '@vicons/tabler';
 import { formatPrettyTime } from '@/utils/formatTime';
-import { deleteCommentReply, thumbsUpTweetReply, thumbsDownTweetReply } from '@/api/post';
 import {
-    ThumbUpTwotone,
-    ThumbUpOutlined,
-    ThumbDownTwotone,
-    ThumbDownOutlined,
+  deleteCommentReply,
+  thumbsUpTweetReply,
+  thumbsDownTweetReply,
+} from '@/api/post';
+import {
+  ThumbUpTwotone,
+  ThumbUpOutlined,
+  ThumbDownTwotone,
+  ThumbDownOutlined,
 } from '@vicons/material';
 import { YesNoEnum } from '@/utils/IEnum';
 
-const props = withDefaults(defineProps<{
-    tweetId: number,
-    reply: Item.ReplyProps,
-}>(), {});
+const props = withDefaults(
+  defineProps<{
+    tweetId: number;
+    reply: Item.ReplyProps;
+  }>(),
+  {},
+);
 const store = useStore();
 const emit = defineEmits<{
-    (e: 'focusReply', reply: Item.ReplyProps): void,
-    (e: 'reload'): void
+  (e: 'focusReply', reply: Item.ReplyProps): void;
+  (e: 'reload'): void;
 }>();
 
-const hasThumbsUp = ref(props.reply.is_thumbs_up == YesNoEnum.YES)
-const hasThumbsDown = ref(props.reply.is_thumbs_down == YesNoEnum.YES)
-const thumbsUpCount = ref(props.reply.thumbs_up_count)
+const hasThumbsUp = ref(props.reply.is_thumbs_up == YesNoEnum.YES);
+const hasThumbsDown = ref(props.reply.is_thumbs_down == YesNoEnum.YES);
+const thumbsUpCount = ref(props.reply.thumbs_up_count);
 
 const handleThumbsUp = () => {
-    thumbsUpTweetReply({
-        tweet_id: props.tweetId,
-        comment_id: props.reply.comment_id,
-        reply_id: props.reply.id,
+  thumbsUpTweetReply({
+    tweet_id: props.tweetId,
+    comment_id: props.reply.comment_id,
+    reply_id: props.reply.id,
+  })
+    .then((_res) => {
+      hasThumbsUp.value = !hasThumbsUp.value;
+      if (hasThumbsUp.value) {
+        thumbsUpCount.value++;
+        hasThumbsDown.value = false;
+      } else {
+        thumbsUpCount.value--;
+      }
     })
-        .then((_res) => {
-            hasThumbsUp.value = !hasThumbsUp.value
-            if (hasThumbsUp.value) {
-                thumbsUpCount.value++
-                hasThumbsDown.value = false
-            } else {
-                thumbsUpCount.value--
-            }
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+    .catch((err) => {
+      console.log(err);
+    });
 };
 const handleThumbsDown = () => {
-    thumbsDownTweetReply({
-        tweet_id: props.tweetId,
-        comment_id: props.reply.comment_id,
-        reply_id: props.reply.id,
+  thumbsDownTweetReply({
+    tweet_id: props.tweetId,
+    comment_id: props.reply.comment_id,
+    reply_id: props.reply.id,
+  })
+    .then((_res) => {
+      hasThumbsDown.value = !hasThumbsDown.value;
+      if (hasThumbsDown.value) {
+        if (hasThumbsUp.value) {
+          thumbsUpCount.value--;
+          hasThumbsUp.value = false;
+        }
+      }
     })
-        .then((_res) => {
-            hasThumbsDown.value = !hasThumbsDown.value
-            if (hasThumbsDown.value) {
-                if (hasThumbsUp.value) {
-                    thumbsUpCount.value--
-                    hasThumbsUp.value = false
-                }
-            }
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+    .catch((err) => {
+      console.log(err);
+    });
 };
 const focusReply = () => {
-    emit('focusReply', props.reply);
+  emit('focusReply', props.reply);
 };
 const execDelAction = () => {
-    deleteCommentReply({
-        id: props.reply.id,
-    })
-        .then((res) => {
-            window.$message.success('删除成功');
+  deleteCommentReply({
+    id: props.reply.id,
+  })
+    .then((res) => {
+      window.$message.success('删除成功');
 
-            setTimeout(() => {
-                emit('reload');
-            }, 50);
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+      setTimeout(() => {
+        emit('reload');
+      }, 50);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 </script>
 

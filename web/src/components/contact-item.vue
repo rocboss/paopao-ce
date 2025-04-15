@@ -57,65 +57,64 @@
 
 <script setup lang="ts">
 import { h, computed } from 'vue';
-import { NIcon } from 'naive-ui'
-import type { Component } from 'vue'
+import { NIcon } from 'naive-ui';
+import type { Component } from 'vue';
 import { DropdownOption } from 'naive-ui';
 import { formatDate } from '@/utils/formatTime';
 import { MoreHorizFilled } from '@vicons/material';
-import {
-    PaperPlaneOutline,
-} from '@vicons/ionicons5';
+import { PaperPlaneOutline } from '@vicons/ionicons5';
 
 const emit = defineEmits<{
-    (e: 'send-whisper', user: Item.UserInfo): void;
+  (e: 'send-whisper', user: Item.UserInfo): void;
 }>();
 
 const renderIcon = (icon: Component) => {
   return () => {
     return h(NIcon, null, {
-      default: () => h(icon)
-    })
-  }
+      default: () => h(icon),
+    });
+  };
 };
 
-const props = withDefaults(defineProps<{
-    contact: Item.ContactItemProps
-}>(), {})
+const props = withDefaults(
+  defineProps<{
+    contact: Item.ContactItemProps;
+  }>(),
+  {},
+);
 
 const actionOpts = computed(() => {
-    let options: DropdownOption[] = [
-        {
-            label: '私信 @' + props.contact.username,
-            key: 'whisper',
-            icon: renderIcon(PaperPlaneOutline)
-        },
-    ];
-    return options;
+  let options: DropdownOption[] = [
+    {
+      label: '私信 @' + props.contact.username,
+      key: 'whisper',
+      icon: renderIcon(PaperPlaneOutline),
+    },
+  ];
+  return options;
 });
 
-const handleAction = (
-    item: 'whisper'
-) => {
-    switch (item) {
-        case 'whisper':
-            const user:  Item.UserInfo = {
-                id: props.contact.user_id,
-                avatar: props.contact.avatar,
-                username: props.contact.username,
-                nickname: props.contact.nickname,
-                is_admin: false,
-                is_friend: true,
-                is_following: false,
-                created_on: 0,
-                follows: 0,
-                followings: 0,
-                status: 1,
-            }
-            emit('send-whisper', user);
-            break;
-        default:
-            break;
-    }
+const handleAction = (item: 'whisper') => {
+  switch (item) {
+    case 'whisper':
+      const user: Item.UserInfo = {
+        id: props.contact.user_id,
+        avatar: props.contact.avatar,
+        username: props.contact.username,
+        nickname: props.contact.nickname,
+        is_admin: false,
+        is_friend: true,
+        is_following: false,
+        created_on: 0,
+        follows: 0,
+        followings: 0,
+        status: 1,
+      };
+      emit('send-whisper', user);
+      break;
+    default:
+      break;
+  }
 };
 </script>
 

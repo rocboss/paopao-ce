@@ -213,10 +213,8 @@ import { useDialog, DropdownOption } from 'naive-ui';
 import { getUserPosts, followUser, unfollowUser } from '@/api/user';
 import { formatDate } from '@/utils/formatTime';
 import { prettyQuoteNum } from '@/utils/count';
-import InfiniteLoading from "v3-infinite-loading";
-import {
-    SettingsOutline,
-} from '@vicons/ionicons5';
+import InfiniteLoading from 'v3-infinite-loading';
+import { SettingsOutline } from '@vicons/ionicons5';
 import { MoreHorizFilled } from '@vicons/material';
 
 const store = useStore();
@@ -231,11 +229,13 @@ const commentList = ref<Item.PostProps[]>([]);
 const highlightList = ref<Item.PostProps[]>([]);
 const mediaList = ref<Item.PostProps[]>([]);
 const starList = ref<Item.PostProps[]>([]);
-const pageType = ref<"post" | "comment" | "highlight" |"media" | "star">('post');
+const pageType = ref<'post' | 'comment' | 'highlight' | 'media' | 'star'>(
+  'post',
+);
 const postPage = ref(+(route.query.p as string) || 1);
-const commentPage = ref(1)
-const highlightPage = ref(1)
-const mediaPage = ref(1)
+const commentPage = ref(1);
+const highlightPage = ref(1);
+const mediaPage = ref(1);
 const starPage = ref(1);
 const page = ref(+(route.query.p as string) || 1);
 const pageSize = ref(20);
@@ -247,375 +247,386 @@ const mediaTotalPage = ref(0);
 const starTotalPage = ref(0);
 const showWhisper = ref(false);
 const whisperReceiver = ref<Item.UserInfo>({
-    id: 0,
-    avatar: '',
-    username: '',
-    nickname: '',
-    is_admin: false,
-    is_friend: true,
-    is_following: false,
-    created_on: 0,
-    follows: 0,
-    followings: 0,
-    status: 1,
+  id: 0,
+  avatar: '',
+  username: '',
+  nickname: '',
+  is_admin: false,
+  is_friend: true,
+  is_following: false,
+  created_on: 0,
+  follows: 0,
+  followings: 0,
+  status: 1,
 });
 
 const renderIcon = (icon: Component) => {
   return () => {
     return h(NIcon, null, {
-      default: () => h(icon)
-    })
-  }
+      default: () => h(icon),
+    });
+  };
 };
 
 const userOptions = computed(() => {
-    let options: DropdownOption[] = [{
-        label: '设置',
-        key: 'setting',
-        icon: renderIcon(SettingsOutline)
-    }];
-    return options;
+  let options: DropdownOption[] = [
+    {
+      label: '设置',
+      key: 'setting',
+      icon: renderIcon(SettingsOutline),
+    },
+  ];
+  return options;
 });
 
-const handleUserAction = (
-    item: 'setting'
-) => {
-    switch (item) {
-        case 'setting':
-            router.push({
-                name: 'setting',
-                query: {
-                    t: (new Date().getTime())
-                }, 
-            });
-            break;
-        default:
-            break;
-    }
+const handleUserAction = (item: 'setting') => {
+  switch (item) {
+    case 'setting':
+      router.push({
+        name: 'setting',
+        query: {
+          t: new Date().getTime(),
+        },
+      });
+      break;
+    default:
+      break;
+  }
 };
 
-const onSendWhisper =  (user: Item.UserInfo) => {
-    whisperReceiver.value = user;
-    showWhisper.value = true;
+const onSendWhisper = (user: Item.UserInfo) => {
+  whisperReceiver.value = user;
+  showWhisper.value = true;
 };
 
 const whisperSuccess = () => {
-    showWhisper.value = false;
+  showWhisper.value = false;
 };
 
 const onHandleFollowAction = (post: Item.PostProps) => {
-    dialog.success({
-        title: '提示',
-        content:
-            '确定' + (post.user.is_following ? '取消关注 @' : '关注 @') + post.user.username + ' 吗？',
-        positiveText: '确定',
-        negativeText: '取消',
-        onPositiveClick: () => {
-            if (post.user.is_following) {
-                unfollowUser({
-                    user_id: post.user.id,
-                }).then((_res) => {
-                    window.$message.success('操作成功');
-                    postFollowAction(post.user_id, false);
-                })
-                .catch((_err) => {});
-            } else {
-                followUser({
-                    user_id: post.user.id,
-                }).then((_res) => {
-                    window.$message.success('关注成功');
-                    postFollowAction(post.user_id, true);
-                })
-                .catch((_err) => {});
-            }
-        },
-    });
+  dialog.success({
+    title: '提示',
+    content:
+      '确定' +
+      (post.user.is_following ? '取消关注 @' : '关注 @') +
+      post.user.username +
+      ' 吗？',
+    positiveText: '确定',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      if (post.user.is_following) {
+        unfollowUser({
+          user_id: post.user.id,
+        })
+          .then((_res) => {
+            window.$message.success('操作成功');
+            postFollowAction(post.user_id, false);
+          })
+          .catch((_err) => {});
+      } else {
+        followUser({
+          user_id: post.user.id,
+        })
+          .then((_res) => {
+            window.$message.success('关注成功');
+            postFollowAction(post.user_id, true);
+          })
+          .catch((_err) => {});
+      }
+    },
+  });
 };
 
 function postFollowAction(userId: number, isFollowing: boolean) {
-    updateFolloing(postList.value, userId, isFollowing);
-    updateFolloing(commentList.value, userId, isFollowing);
-    updateFolloing(highlightList.value, userId, isFollowing);
-    updateFolloing(mediaList.value, userId, isFollowing);
-    updateFolloing(starList.value, userId, isFollowing);
+  updateFolloing(postList.value, userId, isFollowing);
+  updateFolloing(commentList.value, userId, isFollowing);
+  updateFolloing(highlightList.value, userId, isFollowing);
+  updateFolloing(mediaList.value, userId, isFollowing);
+  updateFolloing(starList.value, userId, isFollowing);
 }
 
-function updateFolloing(posts: Item.PostProps[], userId: number, isFollowing: boolean) {
-    if (posts && posts.length > 0) {
-        for (let index in posts) {
-            if (posts[index].user_id == userId) {
-                posts[index].user.is_following = isFollowing;
-            }
-        }
+function updateFolloing(
+  posts: Item.PostProps[],
+  userId: number,
+  isFollowing: boolean,
+) {
+  if (posts && posts.length > 0) {
+    for (let index in posts) {
+      if (posts[index].user_id == userId) {
+        posts[index].user.is_following = isFollowing;
+      }
     }
+  }
 }
 
 const loadPage = () => {
-    switch(pageType.value) {
-        case "post":
-            loadPosts();
-            break;
-        case "comment":
-            loadCommentPosts();
-            break;
-        case "highlight":
-            loadHighlightPosts();
-            break;
-        case "media":
-            loadMediaPosts();
-            break;
-        case "star":
-            loadStarPosts();
-            break;
-    } 
+  switch (pageType.value) {
+    case 'post':
+      loadPosts();
+      break;
+    case 'comment':
+      loadCommentPosts();
+      break;
+    case 'highlight':
+      loadHighlightPosts();
+      break;
+    case 'media':
+      loadMediaPosts();
+      break;
+    case 'star':
+      loadStarPosts();
+      break;
+  }
 };
 const loadPosts = () => {
-    loading.value = true;
-    getUserPosts({
-        username: store.state.userInfo.username,
-        style: "post",
-        page: page.value,
-        page_size: pageSize.value,
+  loading.value = true;
+  getUserPosts({
+    username: store.state.userInfo.username,
+    style: 'post',
+    page: page.value,
+    page_size: pageSize.value,
+  })
+    .then((rsp) => {
+      loading.value = false;
+      if (rsp.list.length === 0) {
+        noMore.value = true;
+      }
+      if (page.value > 1) {
+        list.value = list.value.concat(rsp.list);
+      } else {
+        list.value = rsp.list || [];
+        window.scrollTo(0, 0);
+      }
+      totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+      postList.value = list.value;
+      postTotalPage.value = totalPage.value;
     })
-        .then((rsp) => {
-            loading.value = false;
-            if (rsp.list.length === 0) {
-                noMore.value = true
-            }
-            if (page.value > 1) {
-                list.value = list.value.concat(rsp.list);
-            } else {
-                list.value = rsp.list || [];
-                window.scrollTo(0, 0);
-            }
-            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-            postList.value = list.value;
-            postTotalPage.value = totalPage.value;
-        })
-        .catch((err) => {
-            list.value = [];
-            if (page.value > 1) {
-                page.value--;
-            }
-            loading.value = false;
-        });
+    .catch((err) => {
+      list.value = [];
+      if (page.value > 1) {
+        page.value--;
+      }
+      loading.value = false;
+    });
 };
 const loadCommentPosts = () => {
-    loading.value = true;
-    getUserPosts({
-        username: store.state.userInfo.username,
-        style: "comment",
-        page: page.value,
-        page_size: pageSize.value,
+  loading.value = true;
+  getUserPosts({
+    username: store.state.userInfo.username,
+    style: 'comment',
+    page: page.value,
+    page_size: pageSize.value,
+  })
+    .then((rsp) => {
+      loading.value = false;
+      if (rsp.list.length === 0) {
+        noMore.value = true;
+      }
+      if (page.value > 1) {
+        list.value = list.value.concat(rsp.list);
+      } else {
+        list.value = rsp.list || [];
+        window.scrollTo(0, 0);
+      }
+      totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+      commentList.value = list.value;
+      commentTotalPage.value = totalPage.value;
     })
-        .then((rsp) => {
-            loading.value = false;
-            if (rsp.list.length === 0) {
-                noMore.value = true
-            }
-            if (page.value > 1) {
-                list.value = list.value.concat(rsp.list);
-            } else {
-                list.value = rsp.list || [];
-                window.scrollTo(0, 0);
-            }
-            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-            commentList.value = list.value;
-            commentTotalPage.value = totalPage.value;
-        })
-        .catch((err) => {
-            list.value = [];
-            if (page.value > 1) {
-                page.value--;
-            }
-            loading.value = false;
-        });
+    .catch((err) => {
+      list.value = [];
+      if (page.value > 1) {
+        page.value--;
+      }
+      loading.value = false;
+    });
 };
 const loadHighlightPosts = () => {
-    loading.value = true;
-    getUserPosts({
-        username: store.state.userInfo.username,
-        style: "highlight",
-        page: page.value,
-        page_size: pageSize.value,
+  loading.value = true;
+  getUserPosts({
+    username: store.state.userInfo.username,
+    style: 'highlight',
+    page: page.value,
+    page_size: pageSize.value,
+  })
+    .then((rsp) => {
+      loading.value = false;
+      if (rsp.list.length === 0) {
+        noMore.value = true;
+      }
+      if (page.value > 1) {
+        list.value = list.value.concat(rsp.list);
+      } else {
+        list.value = rsp.list || [];
+        window.scrollTo(0, 0);
+      }
+      totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+      highlightList.value = list.value;
+      highlightTotalPage.value = totalPage.value;
     })
-        .then((rsp) => {
-            loading.value = false;
-            if (rsp.list.length === 0) {
-                noMore.value = true
-            }
-            if (page.value > 1) {
-                list.value = list.value.concat(rsp.list);
-            } else {
-                list.value = rsp.list || [];
-                window.scrollTo(0, 0);
-            }
-            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-            highlightList.value = list.value;
-            highlightTotalPage.value = totalPage.value;
-        })
-        .catch((err) => {
-            list.value = [];
-            if (page.value > 1) {
-                page.value--;
-            }
-            loading.value = false;
-        });
+    .catch((err) => {
+      list.value = [];
+      if (page.value > 1) {
+        page.value--;
+      }
+      loading.value = false;
+    });
 };
 const loadMediaPosts = () => {
-    loading.value = true;
-    getUserPosts({
-        username: store.state.userInfo.username,
-        style: "media",
-        page: page.value,
-        page_size: pageSize.value,
+  loading.value = true;
+  getUserPosts({
+    username: store.state.userInfo.username,
+    style: 'media',
+    page: page.value,
+    page_size: pageSize.value,
+  })
+    .then((rsp) => {
+      loading.value = false;
+      if (rsp.list.length === 0) {
+        noMore.value = true;
+      }
+      if (page.value > 1) {
+        list.value = list.value.concat(rsp.list);
+      } else {
+        list.value = rsp.list || [];
+        window.scrollTo(0, 0);
+      }
+      totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+      mediaList.value = list.value;
+      mediaTotalPage.value = totalPage.value;
     })
-        .then((rsp) => {
-            loading.value = false;
-            if (rsp.list.length === 0) {
-                noMore.value = true
-            }
-            if (page.value > 1) {
-                list.value = list.value.concat(rsp.list);
-            } else {
-                list.value = rsp.list || [];
-                window.scrollTo(0, 0);
-            }
-            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-            mediaList.value = list.value;
-            mediaTotalPage.value = totalPage.value;
-        })
-        .catch((err) => {
-            list.value = [];
-            if (page.value > 1) {
-                page.value--;
-            }
-            loading.value = false;
-        });
+    .catch((err) => {
+      list.value = [];
+      if (page.value > 1) {
+        page.value--;
+      }
+      loading.value = false;
+    });
 };
 const loadStarPosts = () => {
-    loading.value = true;
-    getUserPosts({
-        username: store.state.userInfo.username,
-        style: "star",
-        page: page.value,
-        page_size: pageSize.value,
+  loading.value = true;
+  getUserPosts({
+    username: store.state.userInfo.username,
+    style: 'star',
+    page: page.value,
+    page_size: pageSize.value,
+  })
+    .then((rsp) => {
+      loading.value = false;
+      if (rsp.list.length === 0) {
+        noMore.value = true;
+      }
+      if (page.value > 1) {
+        list.value = list.value.concat(rsp.list);
+      } else {
+        list.value = rsp.list || [];
+        window.scrollTo(0, 0);
+      }
+      totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+      starList.value = list.value;
+      starTotalPage.value = totalPage.value;
     })
-        .then((rsp) => {
-            loading.value = false;
-            if (rsp.list.length === 0) {
-                noMore.value = true
-            }
-            if (page.value > 1) {
-                list.value = list.value.concat(rsp.list);
-            } else {
-                list.value = rsp.list || [];
-                window.scrollTo(0, 0);
-            }
-            totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-            starList.value = list.value;
-            starTotalPage.value = totalPage.value;
-        })
-        .catch((err) => {
-            list.value = [];
-            if (page.value > 1) {
-                page.value--;
-            }
-            loading.value = false;
-        });
+    .catch((err) => {
+      list.value = [];
+      if (page.value > 1) {
+        page.value--;
+      }
+      loading.value = false;
+    });
 };
-const changeTab = (tab: "post" | "comment" | "highlight" | "media" | "star") => {
-    pageType.value = tab;
-    switch(pageType.value) {
-        case "post":
-            list.value = postList.value;
-            page.value = postPage.value;
-            totalPage.value = postTotalPage.value;
-            loadPosts();
-            break;
-        case "comment":
-            list.value = commentList.value;
-            page.value = commentPage.value;
-            totalPage.value = commentTotalPage.value;
-            loadCommentPosts();
-            break;
-        case "highlight":
-            list.value = highlightList.value;
-            page.value = highlightPage.value;
-            totalPage.value = highlightTotalPage.value;
-            loadHighlightPosts();
-            break;
-        case "media":
-            list.value = mediaList.value;
-            page.value = mediaPage.value;
-            totalPage.value = mediaTotalPage.value;
-            loadMediaPosts();
-            break;
-        case "star":
-            list.value = starList.value;
-            page.value = starPage.value;
-            totalPage.value = starTotalPage.value;
-            loadStarPosts();
-            break;
-    }
+const changeTab = (
+  tab: 'post' | 'comment' | 'highlight' | 'media' | 'star',
+) => {
+  pageType.value = tab;
+  switch (pageType.value) {
+    case 'post':
+      list.value = postList.value;
+      page.value = postPage.value;
+      totalPage.value = postTotalPage.value;
+      loadPosts();
+      break;
+    case 'comment':
+      list.value = commentList.value;
+      page.value = commentPage.value;
+      totalPage.value = commentTotalPage.value;
+      loadCommentPosts();
+      break;
+    case 'highlight':
+      list.value = highlightList.value;
+      page.value = highlightPage.value;
+      totalPage.value = highlightTotalPage.value;
+      loadHighlightPosts();
+      break;
+    case 'media':
+      list.value = mediaList.value;
+      page.value = mediaPage.value;
+      totalPage.value = mediaTotalPage.value;
+      loadMediaPosts();
+      break;
+    case 'star':
+      list.value = starList.value;
+      page.value = starPage.value;
+      totalPage.value = starTotalPage.value;
+      loadStarPosts();
+      break;
+  }
 };
 const updatePage = () => {
-    switch(pageType.value) {
-        case "post":
-            postPage.value = page.value;
-            loadPosts();
-            break;
-        case "comment":
-            commentPage.value = page.value;
-            loadCommentPosts();
-            break;
-        case "highlight":
-            highlightPage.value = page.value;
-            loadHighlightPosts();
-            break;
-        case "media":
-            mediaPage.value = page.value;
-            loadMediaPosts();
-            break;
-        case "star":
-            starPage.value = page.value;
-            loadStarPosts();
-            break;
-    }
+  switch (pageType.value) {
+    case 'post':
+      postPage.value = page.value;
+      loadPosts();
+      break;
+    case 'comment':
+      commentPage.value = page.value;
+      loadCommentPosts();
+      break;
+    case 'highlight':
+      highlightPage.value = page.value;
+      loadHighlightPosts();
+      break;
+    case 'media':
+      mediaPage.value = page.value;
+      loadMediaPosts();
+      break;
+    case 'star':
+      starPage.value = page.value;
+      loadStarPosts();
+      break;
+  }
 };
 const nextPage = () => {
-    if (page.value < totalPage.value || totalPage.value == 0) {
-        noMore.value = false;
-        page.value++;
-        updatePage();
-    }  else {
-        noMore.value = true;
-    }
+  if (page.value < totalPage.value || totalPage.value == 0) {
+    noMore.value = false;
+    page.value++;
+    updatePage();
+  } else {
+    noMore.value = true;
+  }
 };
 onMounted(() => {
-    loadPage();
+  loadPage();
 });
 watch(
-    () => ({
-        path: route.path,
-        query: route.query,
-        refresh: store.state.refresh,
-    }),
-    (to, from) => {
-        if (to.refresh !== from.refresh) {
-            page.value = +(route.query.p as string) || 1;
-            setTimeout(() => {
-                loadPage();
-            }, 0);
-            return;
-        }
-        if (from.path !== '/post' && to.path === '/profile') {
-            page.value = +(route.query.p as string) || 1;
-            setTimeout(() => {
-                loadPage();
-            }, 0);
-        }
+  () => ({
+    path: route.path,
+    query: route.query,
+    refresh: store.state.refresh,
+  }),
+  (to, from) => {
+    if (to.refresh !== from.refresh) {
+      page.value = +(route.query.p as string) || 1;
+      setTimeout(() => {
+        loadPage();
+      }, 0);
+      return;
     }
+    if (from.path !== '/post' && to.path === '/profile') {
+      page.value = +(route.query.p as string) || 1;
+      setTimeout(() => {
+        loadPage();
+      }, 0);
+    }
+  },
 );
 </script>
 

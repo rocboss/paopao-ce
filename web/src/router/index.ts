@@ -1,114 +1,114 @@
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 const routes = [
   {
-    path: "/",
-    name: "home",
+    path: '/',
+    name: 'home',
     meta: {
-      title: "广场",
+      title: '广场',
       keepAlive: true,
     },
-    component: () => import("@/views/Home.vue"),
+    component: () => import('@/views/Home.vue'),
   },
   {
-    path: "/post",
-    name: "post",
+    path: '/post',
+    name: 'post',
     meta: {
-      title: "泡泡详情",
+      title: '泡泡详情',
     },
-    component: () => import("@/views/Post.vue"),
+    component: () => import('@/views/Post.vue'),
   },
   {
-    path: "/topic",
-    name: "topic",
+    path: '/topic',
+    name: 'topic',
     meta: {
-      title: "话题",
+      title: '话题',
     },
-    component: () => import("@/views/Topic.vue"),
+    component: () => import('@/views/Topic.vue'),
   },
   {
-    path: "/anouncement",
-    name: "anouncement",
+    path: '/anouncement',
+    name: 'anouncement',
     meta: {
-      title: "公告",
+      title: '公告',
     },
-    component: () => import("@/views/Anouncement.vue"),
+    component: () => import('@/views/Anouncement.vue'),
   },
   {
-    path: "/profile",
-    name: "profile",
+    path: '/profile',
+    name: 'profile',
     meta: {
-      title: "主页",
+      title: '主页',
     },
-    component: () => import("@/views/Profile.vue"),
+    component: () => import('@/views/Profile.vue'),
   },
   {
-    path: "/u",
-    name: "user",
+    path: '/u',
+    name: 'user',
     meta: {
-      title: "用户详情",
+      title: '用户详情',
     },
-    component: () => import("@/views/User.vue"),
+    component: () => import('@/views/User.vue'),
   },
   {
-    path: "/messages",
-    name: "messages",
+    path: '/messages',
+    name: 'messages',
     meta: {
-      title: "消息",
+      title: '消息',
     },
-    component: () => import("@/views/Messages.vue"),
+    component: () => import('@/views/Messages.vue'),
   },
   {
-    path: "/collection",
-    name: "collection",
+    path: '/collection',
+    name: 'collection',
     meta: {
-      title: "收藏",
+      title: '收藏',
     },
-    component: () => import("@/views/Collection.vue"),
+    component: () => import('@/views/Collection.vue'),
   },
   {
-    path: "/contacts",
-    name: "contacts",
+    path: '/contacts',
+    name: 'contacts',
     meta: {
-      title: "好友",
+      title: '好友',
     },
-    component: () => import("@/views/Contacts.vue"),
+    component: () => import('@/views/Contacts.vue'),
   },
   {
-    path: "/following",
-    name: "following",
+    path: '/following',
+    name: 'following',
     meta: {
-      title: "关注",
+      title: '关注',
     },
-    component: () => import("@/views/Following.vue"),
+    component: () => import('@/views/Following.vue'),
   },
   {
-    path: "/wallet",
-    name: "wallet",
+    path: '/wallet',
+    name: 'wallet',
     meta: {
-      title: "钱包",
+      title: '钱包',
     },
-    component: () => import("@/views/Wallet.vue"),
+    component: () => import('@/views/Wallet.vue'),
   },
   {
-    path: "/setting",
-    name: "setting",
+    path: '/setting',
+    name: 'setting',
     meta: {
-      title: "设置",
+      title: '设置',
     },
-    component: () => import("@/views/Setting.vue"),
+    component: () => import('@/views/Setting.vue'),
   },
   {
-    path: "/404",
-    name: "404",
+    path: '/404',
+    name: '404',
     meta: {
-      title: "404",
+      title: '404',
     },
-    component: () => import("@/views/404.vue"),
+    component: () => import('@/views/404.vue'),
   },
   {
-    path: "/:pathMatch(.*)",
-    redirect: "/404",
+    path: '/:pathMatch(.*)',
+    redirect: '/404',
   },
 ];
 

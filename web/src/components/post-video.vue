@@ -13,13 +13,13 @@
 import PaopaoVideoPlayer from 'paopao-video-player';
 
 const props = withDefaults(
-    defineProps<{
-        videos: Item.PostItemProps[];
-        full?: boolean;
-    }>(),
-    {
-        videos: () => [],
-        full: false,
-    }
+  defineProps<{
+    videos: Item.PostItemProps[];
+    full?: boolean;
+  }>(),
+  {
+    videos: () => [],
+    full: false,
+  },
 );
 </script>

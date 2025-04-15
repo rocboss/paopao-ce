@@ -57,120 +57,122 @@
 
 <script setup lang="ts">
 import { h, computed } from 'vue';
-import { NIcon } from 'naive-ui'
-import type { Component } from 'vue'
+import { NIcon } from 'naive-ui';
+import type { Component } from 'vue';
 import { useDialog, DropdownOption } from 'naive-ui';
 import { followUser, unfollowUser } from '@/api/user';
 import { formatDate } from '@/utils/formatTime';
 import { MoreHorizFilled } from '@vicons/material';
-import {
-    PaperPlaneOutline,
-    BodyOutline,
-    WalkOutline
-} from '@vicons/ionicons5';
+import { PaperPlaneOutline, BodyOutline, WalkOutline } from '@vicons/ionicons5';
 
 const dialog = useDialog();
 
 const emit = defineEmits<{
-    (e: 'send-whisper', user: Item.UserInfo): void;
+  (e: 'send-whisper', user: Item.UserInfo): void;
 }>();
 
 const renderIcon = (icon: Component) => {
   return () => {
     return h(NIcon, null, {
-      default: () => h(icon)
-    })
-  }
+      default: () => h(icon),
+    });
+  };
 };
 
 const handleFollowUser = () => {
-    dialog.success({
-        title: '提示',
-        content:
-            '确定' + (props.contact.is_following ? '取消关注 @' : '关注 @')  + props.contact.username +' 吗？',
-        positiveText: '确定',
-        negativeText: '取消',
-        onPositiveClick: () => {
-            if (props.contact.is_following) {
-                unfollowUser({
-                    user_id: props.contact.user_id,
-                }).then((_res) => {
-                    window.$message.success('取消关注成功');
-                    props.contact.is_following=false;
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
-            } else {
-                followUser({
-                    user_id: props.contact.user_id,
-                }).then((_res) => {
-                    window.$message.success('关注成功');
-                    props.contact.is_following=true;
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
-            }
-        },
-    });
+  dialog.success({
+    title: '提示',
+    content:
+      '确定' +
+      (props.contact.is_following ? '取消关注 @' : '关注 @') +
+      props.contact.username +
+      ' 吗？',
+    positiveText: '确定',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      if (props.contact.is_following) {
+        unfollowUser({
+          user_id: props.contact.user_id,
+        })
+          .then((_res) => {
+            window.$message.success('取消关注成功');
+            props.contact.is_following = false;
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else {
+        followUser({
+          user_id: props.contact.user_id,
+        })
+          .then((_res) => {
+            window.$message.success('关注成功');
+            props.contact.is_following = true;
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    },
+  });
 };
 
-const props = withDefaults(defineProps<{
-    contact: Item.ContactItemProps
-}>(), {})
+const props = withDefaults(
+  defineProps<{
+    contact: Item.ContactItemProps;
+  }>(),
+  {},
+);
 
 const actionOpts = computed(() => {
-    let options: DropdownOption[] = [
-        {
-            label: '私信 @' + props.contact.username,
-            key: 'whisper',
-            icon: renderIcon(PaperPlaneOutline)
-        },
-    ];
-    if (props.contact.is_following) {
-        options.push({
-            label: '取消关注 @' + props.contact.username,
-            key: 'unfollow',
-            icon: renderIcon(WalkOutline)
-        })
-    } else {
-        options.push({
-            label: '关注 @' + props.contact.username,
-            key: 'follow',
-            icon: renderIcon(BodyOutline)
-        })
-    }
-    return options;
+  let options: DropdownOption[] = [
+    {
+      label: '私信 @' + props.contact.username,
+      key: 'whisper',
+      icon: renderIcon(PaperPlaneOutline),
+    },
+  ];
+  if (props.contact.is_following) {
+    options.push({
+      label: '取消关注 @' + props.contact.username,
+      key: 'unfollow',
+      icon: renderIcon(WalkOutline),
+    });
+  } else {
+    options.push({
+      label: '关注 @' + props.contact.username,
+      key: 'follow',
+      icon: renderIcon(BodyOutline),
+    });
+  }
+  return options;
 });
 
-const handleAction = (
-    item: 'follow' | 'unfollow' | 'whisper'
-) => {
-    switch (item) {
-        case 'follow':
-        case 'unfollow':
-            handleFollowUser();
-            break;
-        case 'whisper':
-            const user:  Item.UserInfo = {
-                id: props.contact.user_id,
-                avatar: props.contact.avatar,
-                username: props.contact.username,
-                nickname: props.contact.nickname,
-                is_admin: false,
-                is_friend: true,
-                is_following: false,
-                created_on: 0,
-                follows: 0,
-                followings: 0,
-                status: 1,
-            }
-            emit('send-whisper', user);
-            break;
-        default:
-            break;
-    }
+const handleAction = (item: 'follow' | 'unfollow' | 'whisper') => {
+  switch (item) {
+    case 'follow':
+    case 'unfollow':
+      handleFollowUser();
+      break;
+    case 'whisper':
+      const user: Item.UserInfo = {
+        id: props.contact.user_id,
+        avatar: props.contact.avatar,
+        username: props.contact.username,
+        nickname: props.contact.nickname,
+        is_admin: false,
+        is_friend: true,
+        is_following: false,
+        created_on: 0,
+        follows: 0,
+        followings: 0,
+        status: 1,
+      };
+      emit('send-whisper', user);
+      break;
+    default:
+      break;
+  }
 };
 </script>
 

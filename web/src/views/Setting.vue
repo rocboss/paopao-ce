@@ -344,30 +344,31 @@ import { onMounted, ref, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { Edit } from '@vicons/tabler';
 import {
-    getCaptcha,
-    sendCaptcha,
-    bindUserPhone,
-    activateUser,
-    changePassword,
-    changeNickname,
-    changeAvatar,
+  getCaptcha,
+  sendCaptcha,
+  bindUserPhone,
+  activateUser,
+  changePassword,
+  changeNickname,
+  changeAvatar,
 } from '@/api/user';
 import type {
-    UploadInst,
-    FormItemRule,
-    FormItemInst,
-    FormInst,
-    InputInst,
+  UploadInst,
+  FormItemRule,
+  FormItemInst,
+  FormInst,
+  InputInst,
 } from 'naive-ui';
 
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 const uploadToken = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
 const uploadType = ref('public/avatar');
-const allowActivation = (import.meta.env.VITE_ALLOW_ACTIVATION.toLowerCase() === 'true')
+const allowActivation =
+  import.meta.env.VITE_ALLOW_ACTIVATION.toLowerCase() === 'true';
 const store = useStore();
 const sending = ref(false);
 const binding = ref(false);
-const activating = ref(false)
+const activating = ref(false);
 const avatarRef = ref<UploadInst>();
 const inputInstRef = ref<InputInst>();
 const showNicknameEdit = ref(false);
@@ -382,331 +383,331 @@ const activateFormRef = ref<FormInst>();
 const formRef = ref<FormInst>();
 const rPasswordFormItemRef = ref<FormItemInst>();
 const modelData = reactive({
-    id: '',
-    b64s: '',
-    imgCaptcha: '',
-    phone: '',
-    phone_captcha: '',
-    password: '',
-    old_password: '',
-    reenteredPassword: '',
+  id: '',
+  b64s: '',
+  imgCaptcha: '',
+  phone: '',
+  phone_captcha: '',
+  password: '',
+  old_password: '',
+  reenteredPassword: '',
 });
 
 const activateData = reactive({
-    id: '',
-    b64s: '',
-    imgCaptcha: '',
-    activate_code: '',
+  id: '',
+  b64s: '',
+  imgCaptcha: '',
+  activate_code: '',
 });
 
 const beforeUpload = async (data: any) => {
-    // 图片类型校验
-    if (
-        uploadType.value === 'public/avatar' &&
-        !['image/png', 'image/jpg', 'image/jpeg'].includes(data.file.file?.type)
-    ) {
-        window.$message.warning('头像仅允许 png/jpg 格式');
-        return false;
-    }
+  // 图片类型校验
+  if (
+    uploadType.value === 'public/avatar' &&
+    !['image/png', 'image/jpg', 'image/jpeg'].includes(data.file.file?.type)
+  ) {
+    window.$message.warning('头像仅允许 png/jpg 格式');
+    return false;
+  }
 
-    if (uploadType.value === 'image' && data.file.file?.size > 1048576) {
-        window.$message.warning('头像大小不能超过1MB');
-        return false;
-    }
+  if (uploadType.value === 'image' && data.file.file?.size > 1048576) {
+    window.$message.warning('头像大小不能超过1MB');
+    return false;
+  }
 
-    return true;
+  return true;
 };
 
 const finishUpload = ({ file, event }: any): any => {
-    try {
-        let data = JSON.parse(event.target?.response);
+  try {
+    let data = JSON.parse(event.target?.response);
 
-        if (data.code === 0) {
-            if (uploadType.value === 'public/avatar') {
-                changeAvatar({
-                    avatar: data.data.content,
-                })
-                    .then((res) => {
-                        window.$message.success('头像更新成功');
-                        avatarRef.value?.clear();
+    if (data.code === 0) {
+      if (uploadType.value === 'public/avatar') {
+        changeAvatar({
+          avatar: data.data.content,
+        })
+          .then((res) => {
+            window.$message.success('头像更新成功');
+            avatarRef.value?.clear();
 
-                        store.commit('updateUserinfo', {
-                            ...store.state.userInfo,
-                            avatar: data.data.content,
-                        });
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
-            }
-        }
-    } catch (error) {
-        window.$message.error('上传失败');
+            store.commit('updateUserinfo', {
+              ...store.state.userInfo,
+              avatar: data.data.content,
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
     }
+  } catch (error) {
+    window.$message.error('上传失败');
+  }
 };
 
 const validatePasswordStartWith = (rule: FormItemRule, value: any) => {
-    return (
-        !!modelData.password &&
-        (modelData.password as any).startsWith(value) &&
-        (modelData.password as any).length >= value.length
-    );
+  return (
+    !!modelData.password &&
+    (modelData.password as any).startsWith(value) &&
+    (modelData.password as any).length >= value.length
+  );
 };
 
 const validatePasswordSame = (rule: FormItemRule, value: any) => {
-    return value === modelData.password;
+  return value === modelData.password;
 };
 
 const handlePasswordInput = () => {
-    if (modelData.reenteredPassword) {
-        rPasswordFormItemRef.value?.validate({ trigger: 'password-input' });
-    }
+  if (modelData.reenteredPassword) {
+    rPasswordFormItemRef.value?.validate({ trigger: 'password-input' });
+  }
 };
 
 const handleValidateButtonClick = (e: MouseEvent) => {
-    e.preventDefault();
-    formRef.value?.validate((errors) => {
-        if (!errors) {
-            passwordSetting.value = true;
-            changePassword({
-                password: modelData.password,
-                old_password: modelData.old_password,
-            })
-                .then((res) => {
-                    passwordSetting.value = false;
-                    showPasswordSetting.value = false;
-                    window.$message.success('密码重置成功');
+  e.preventDefault();
+  formRef.value?.validate((errors) => {
+    if (!errors) {
+      passwordSetting.value = true;
+      changePassword({
+        password: modelData.password,
+        old_password: modelData.old_password,
+      })
+        .then((res) => {
+          passwordSetting.value = false;
+          showPasswordSetting.value = false;
+          window.$message.success('密码重置成功');
 
-                    // 用户退出登录
-                    store.commit('userLogout');
-                    store.commit('triggerAuth', true);
-                    store.commit('triggerAuthKey', 'signin');
-                })
-                .catch((err) => {
-                    passwordSetting.value = false;
-                });
-        }
-    });
+          // 用户退出登录
+          store.commit('userLogout');
+          store.commit('triggerAuth', true);
+          store.commit('triggerAuthKey', 'signin');
+        })
+        .catch((err) => {
+          passwordSetting.value = false;
+        });
+    }
+  });
 };
 
 const handlePhoneBind = (e: MouseEvent) => {
-    e.preventDefault();
-    phoneFormRef.value?.validate((errors) => {
-        if (!errors) {
-            binding.value = true;
-            bindUserPhone({
-                phone: modelData.phone,
-                captcha: modelData.phone_captcha,
-            })
-                .then((res) => {
-                    binding.value = false;
-                    showPhoneBind.value = false;
-                    window.$message.success('绑定成功');
+  e.preventDefault();
+  phoneFormRef.value?.validate((errors) => {
+    if (!errors) {
+      binding.value = true;
+      bindUserPhone({
+        phone: modelData.phone,
+        captcha: modelData.phone_captcha,
+      })
+        .then((res) => {
+          binding.value = false;
+          showPhoneBind.value = false;
+          window.$message.success('绑定成功');
 
-                    store.commit('updateUserinfo', {
-                        ...store.state.userInfo,
-                        phone: modelData.phone,
-                    });
+          store.commit('updateUserinfo', {
+            ...store.state.userInfo,
+            phone: modelData.phone,
+          });
 
-                    modelData.id = '';
-                    modelData.b64s = '';
-                    modelData.imgCaptcha = '';
-                    modelData.phone = '';
-                    modelData.phone_captcha = '';
-                })
-                .catch((err) => {
-                    binding.value = false;
-                });
-        }
-    });
+          modelData.id = '';
+          modelData.b64s = '';
+          modelData.imgCaptcha = '';
+          modelData.phone = '';
+          modelData.phone_captcha = '';
+        })
+        .catch((err) => {
+          binding.value = false;
+        });
+    }
+  });
 };
 
 const handleActivation = (e: MouseEvent) => {
-    e.preventDefault();
-    activateFormRef.value?.validate((errors) => {
+  e.preventDefault();
+  activateFormRef.value?.validate((errors) => {
     if (activateData.imgCaptcha === '') {
-        window.$message.warning('请输入图片验证码');
-        return;
+      window.$message.warning('请输入图片验证码');
+      return;
     }
     sending.value = true;
-        if (!errors) {
-            activating.value = true;
-            activateUser({
-                activate_code: activateData.activate_code,
-                captcha_id: activateData.id,
-                imgCaptcha: activateData.imgCaptcha
-            })
-                .then((res) => {
-                    activating.value = false;
-                    showActivation.value = false;
-                    window.$message.success('激活成功');
+    if (!errors) {
+      activating.value = true;
+      activateUser({
+        activate_code: activateData.activate_code,
+        captcha_id: activateData.id,
+        imgCaptcha: activateData.imgCaptcha,
+      })
+        .then((res) => {
+          activating.value = false;
+          showActivation.value = false;
+          window.$message.success('激活成功');
 
-                    store.commit('updateUserinfo', {
-                        ...store.state.userInfo,
-                        activation: activateData.activate_code,
-                    });
+          store.commit('updateUserinfo', {
+            ...store.state.userInfo,
+            activation: activateData.activate_code,
+          });
 
-                    activateData.id = '';
-                    activateData.b64s = '';
-                    activateData.imgCaptcha = '';
-                    activateData.activate_code = '';
-                })
-                .catch((err) => {
-                    activating.value = false;
-                    if (err.code === 20012) {
-                        loadCaptcha4Activate();
-                    }
-                });
-        }
-    });
+          activateData.id = '';
+          activateData.b64s = '';
+          activateData.imgCaptcha = '';
+          activateData.activate_code = '';
+        })
+        .catch((err) => {
+          activating.value = false;
+          if (err.code === 20012) {
+            loadCaptcha4Activate();
+          }
+        });
+    }
+  });
 };
 
 const loadCaptcha = () => {
-    getCaptcha()
-        .then((res) => {
-            modelData.id = res.id;
-            modelData.b64s = res.b64s;
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+  getCaptcha()
+    .then((res) => {
+      modelData.id = res.id;
+      modelData.b64s = res.b64s;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 const loadCaptcha4Activate = () => {
-    getCaptcha()
-        .then((res) => {
-            activateData.id = res.id;
-            activateData.b64s = res.b64s;
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+  getCaptcha()
+    .then((res) => {
+      activateData.id = res.id;
+      activateData.b64s = res.b64s;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 const handleNicknameChange = () => {
-    changeNickname({
-        nickname: store.state.userInfo.nickname || '',
+  changeNickname({
+    nickname: store.state.userInfo.nickname || '',
+  })
+    .then((res) => {
+      showNicknameEdit.value = false;
+      window.$message.success('昵称修改成功');
     })
-        .then((res) => {
-            showNicknameEdit.value = false;
-            window.$message.success('昵称修改成功');
-        })
-        .catch((err) => {
-            showNicknameEdit.value = true;
-        });
+    .catch((err) => {
+      showNicknameEdit.value = true;
+    });
 };
 
 const sendPhoneCaptcha = () => {
-    if (smsCounter.value > 0 && smsDisabled.value) {
-        return;
-    }
-    if (modelData.imgCaptcha === '') {
-        window.$message.warning('请输入图片验证码');
-        return;
-    }
-    sending.value = true;
-    sendCaptcha({
-        phone: modelData.phone,
-        img_captcha: modelData.imgCaptcha,
-        img_captcha_id: modelData.id,
-    })
-        .then((res) => {
-            smsDisabled.value = true;
-            sending.value = false;
-            window.$message.success('发送成功');
+  if (smsCounter.value > 0 && smsDisabled.value) {
+    return;
+  }
+  if (modelData.imgCaptcha === '') {
+    window.$message.warning('请输入图片验证码');
+    return;
+  }
+  sending.value = true;
+  sendCaptcha({
+    phone: modelData.phone,
+    img_captcha: modelData.imgCaptcha,
+    img_captcha_id: modelData.id,
+  })
+    .then((res) => {
+      smsDisabled.value = true;
+      sending.value = false;
+      window.$message.success('发送成功');
 
-            let s = setInterval(() => {
-                smsCounter.value--;
-                if (smsCounter.value === 0) {
-                    clearInterval(s);
-                    smsCounter.value = 60;
-                    smsDisabled.value = false;
-                }
-            }, 1000);
-        })
-        .catch((err) => {
-            sending.value = false;
-            if (err.code === 20012) {
-                loadCaptcha();
-            }
-            console.log(err);
-        });
+      let s = setInterval(() => {
+        smsCounter.value--;
+        if (smsCounter.value === 0) {
+          clearInterval(s);
+          smsCounter.value = 60;
+          smsDisabled.value = false;
+        }
+      }, 1000);
+    })
+    .catch((err) => {
+      sending.value = false;
+      if (err.code === 20012) {
+        loadCaptcha();
+      }
+      console.log(err);
+    });
 };
 
 const bindRules = {
-    phone: [
-        {
-            required: true,
-            message: '请输入手机号',
-            trigger: ['input'],
-            validator: (rule: FormItemRule, value: any) => {
-                return /^[1]+[3-9]{1}\d{9}$/.test(value);
-            },
-        },
-    ],
-    phone_captcha: [
-        {
-            required: true,
-            message: '请输入手机验证码',
-        },
-    ],
+  phone: [
+    {
+      required: true,
+      message: '请输入手机号',
+      trigger: ['input'],
+      validator: (rule: FormItemRule, value: any) => {
+        return /^[1]+[3-9]{1}\d{9}$/.test(value);
+      },
+    },
+  ],
+  phone_captcha: [
+    {
+      required: true,
+      message: '请输入手机验证码',
+    },
+  ],
 };
 const activateRules = {
-    activate_code: [
-        {
-            required: true,
-            message: '请输入激活码',
-            trigger: ['input'],
-            validator: (rule: FormItemRule, value: any) => {
-                return /\d{6}$/.test(value);
-            },
-        },
-    ],
+  activate_code: [
+    {
+      required: true,
+      message: '请输入激活码',
+      trigger: ['input'],
+      validator: (rule: FormItemRule, value: any) => {
+        return /\d{6}$/.test(value);
+      },
+    },
+  ],
 };
 const passwordRules = {
-    password: [
-        {
-            required: true,
-            message: '请输入新密码',
-        },
-    ],
-    old_password: [
-        {
-            required: true,
-            message: '请输入旧密码',
-        },
-    ],
-    reenteredPassword: [
-        {
-            required: true,
-            message: '请再次输入密码',
-            trigger: ['input', 'blur'],
-        },
-        {
-            validator: validatePasswordStartWith,
-            message: '两次密码输入不一致',
-            trigger: 'input',
-        },
-        {
-            validator: validatePasswordSame,
-            message: '两次密码输入不一致',
-            trigger: ['blur', 'password-input'],
-        },
-    ],
+  password: [
+    {
+      required: true,
+      message: '请输入新密码',
+    },
+  ],
+  old_password: [
+    {
+      required: true,
+      message: '请输入旧密码',
+    },
+  ],
+  reenteredPassword: [
+    {
+      required: true,
+      message: '请再次输入密码',
+      trigger: ['input', 'blur'],
+    },
+    {
+      validator: validatePasswordStartWith,
+      message: '两次密码输入不一致',
+      trigger: 'input',
+    },
+    {
+      validator: validatePasswordSame,
+      message: '两次密码输入不一致',
+      trigger: ['blur', 'password-input'],
+    },
+  ],
 };
 const handleNicknameShow = () => {
-    showNicknameEdit.value = true;
-    setTimeout(() => {
-        inputInstRef.value?.focus();
-    }, 30);
+  showNicknameEdit.value = true;
+  setTimeout(() => {
+    inputInstRef.value?.focus();
+  }, 30);
 };
 onMounted(() => {
-    if (store.state.userInfo.id === 0) {
-        store.commit('triggerAuth', true);
-        store.commit('triggerAuthKey', 'signin');
-    }
-    loadCaptcha();
-    loadCaptcha4Activate();
+  if (store.state.userInfo.id === 0) {
+    store.commit('triggerAuth', true);
+    store.commit('triggerAuthKey', 'signin');
+  }
+  loadCaptcha();
+  loadCaptcha4Activate();
 });
 </script>
 

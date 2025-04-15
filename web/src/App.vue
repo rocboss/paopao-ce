@@ -52,18 +52,20 @@ const store = useStore();
 const theme = computed(() => (store.state.theme === 'dark' ? darkTheme : null));
 
 function loadSiteProfile() {
-    store.commit('loadDefaultSiteProfile');
-    if (import.meta.env.VITE_USE_WEB_PROFILE.toLowerCase() === "true") {
-        getSiteProfile().then((res) => {
-            store.commit('updateSiteProfile', res);
-        }).catch((err) => {
-            console.log(err);
-        });
-    }
+  store.commit('loadDefaultSiteProfile');
+  if (import.meta.env.VITE_USE_WEB_PROFILE.toLowerCase() === 'true') {
+    getSiteProfile()
+      .then((res) => {
+        store.commit('updateSiteProfile', res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 }
 
 onMounted(() => {
-   loadSiteProfile();
+  loadSiteProfile();
 });
 </script>
 

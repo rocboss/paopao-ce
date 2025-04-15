@@ -41,66 +41,62 @@ import { CloudDownloadOutline } from '@vicons/ionicons5';
 import { precheckAttachment, getAttachment } from '@/api/user';
 
 const props = withDefaults(
-    defineProps<{
-        attachments: Item.PostItemProps[];
-        price?: number;
-    }>(),
-    {
-        attachments: () => [],
-        price: 0,
-    }
+  defineProps<{
+    attachments: Item.PostItemProps[];
+    price?: number;
+  }>(),
+  {
+    attachments: () => [],
+    price: 0,
+  },
 );
 const showDownloadModal = ref(false);
 const downloadTip = ref<any>('');
 const attachmentID = ref(0);
 
 const download = (attachment: Item.PostItemProps) => {
-    showDownloadModal.value = true;
-    attachmentID.value = attachment.id;
+  showDownloadModal.value = true;
+  attachmentID.value = attachment.id;
 
-    downloadTip.value = '这是一个免费附件，您可以直接下载？';
-    if (attachment.type === 8) {
-        downloadTip.value = () =>
+  downloadTip.value = '这是一个免费附件，您可以直接下载？';
+  if (attachment.type === 8) {
+    downloadTip.value = () =>
+      h('div', {}, [
+        h(
+          'p',
+          {},
+          '这是一个收费附件，下载将收取' +
+            (props.price / 100).toFixed(2) +
+            '元',
+        ),
+      ]);
+
+    precheckAttachment({
+      id: attachmentID.value,
+    })
+      .then((res) => {
+        if (res.paid) {
+          downloadTip.value = () =>
             h('div', {}, [
-                h(
-                    'p',
-                    {},
-                    '这是一个收费附件，下载将收取' +
-                        (props.price / 100).toFixed(2) +
-                        '元'
-                ),
+              h('p', {}, '此次下载您已支付或无需付费，请确认下载'),
             ]);
-
-        precheckAttachment({
-            id: attachmentID.value,
-        })
-            .then((res) => {
-                if (res.paid) {
-                    downloadTip.value = () =>
-                        h('div', {}, [
-                            h(
-                                'p',
-                                {},
-                                '此次下载您已支付或无需付费，请确认下载'
-                            ),
-                        ]);
-                }
-            })
-            .catch((err) => {
-                showDownloadModal.value = false;
-            });
-    }
+        }
+      })
+      .catch((err) => {
+        showDownloadModal.value = false;
+      });
+  }
 };
 const execDownloadAction = () => {
-    getAttachment({
-        id: attachmentID.value,
+  getAttachment({
+    id: attachmentID.value,
+  })
+    .then((res) => {
+      window.open(res.signed_url.replace('http://', 'https://'), '_blank');
     })
-        .then((res) => {
-            window.open(res.signed_url.replace('http://', 'https://'), '_blank');
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+    .catch((err) => {
+      console.log(err);
+    });
 };
 </script>
 

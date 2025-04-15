@@ -17,6 +17,7 @@ var (
 	loggerZincSetting        *loggerZincConf
 	loggerMeiliSetting       *loggerMeiliConf
 	loggerOpenObserveSetting *loggerOpenObserveConf
+	loggerOtlpSetting        *loggerOtlponf
 	sentrySetting            *sentryConf
 	redisSetting             *redisConf
 
@@ -102,6 +103,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"LoggerZinc":        &loggerZincSetting,
 		"LoggerMeili":       &loggerMeiliSetting,
 		"LoggerOpenObserve": &loggerOpenObserveSetting,
+		"LoggerOtlp":        &loggerOtlpSetting,
 		"Database":          &DatabaseSetting,
 		"MySQL":             &MysqlSetting,
 		"Postgres":          &PostgresSetting,

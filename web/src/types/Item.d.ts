@@ -41,7 +41,7 @@ declare module Item {
     /** 评论者UID */
     user_id: number;
     /** 类别：1为标题，2为文字段落，3为图片地址，4为视频地址，5为语音地址，6为链接地址 */
-    type: import("@/utils/IEnum").CommentItemTypeEnum;
+    type: import('@/utils/IEnum').CommentItemTypeEnum;
     /** 内容 */
     content: string;
     /** 排序，越小越靠前 */
@@ -73,13 +73,13 @@ declare module Item {
     /** 评论者城市地址 */
     ip_loc: string;
     /** 是否精选 */
-    is_essence: import("@/utils/IEnum").YesNoEnum;
+    is_essence: import('@/utils/IEnum').YesNoEnum;
     /** 点赞数 */
     thumbs_up_count: number;
     /** 是否点赞，0为未点赞，1为已点赞 */
-    is_thumbs_up: import("@/utils/IEnum").YesNoEnum;
+    is_thumbs_up: import('@/utils/IEnum').YesNoEnum;
     /** 是否反对，0为未反对，1为已反对 */
-    is_thumbs_down: import("@/utils/IEnum").YesNoEnum;
+    is_thumbs_down: import('@/utils/IEnum').YesNoEnum;
     /** 创建时间 */
     created_on: number;
     /** 修改时间 */
@@ -120,9 +120,9 @@ declare module Item {
     /** 点赞数 */
     thumbs_up_count: number;
     /** 是否点赞，0为未点赞，1为已点赞 */
-    is_thumbs_up: import("@/utils/IEnum").YesNoEnum;
+    is_thumbs_up: import('@/utils/IEnum').YesNoEnum;
     /** 是否反对，0为未反对，1为已反对 */
-    is_thumbs_down: import("@/utils/IEnum").YesNoEnum;
+    is_thumbs_down: import('@/utils/IEnum').YesNoEnum;
     /** 创建时间 */
     created_on: number;
     /** 修改时间 */
@@ -165,7 +165,7 @@ declare module Item {
     /** 内容ID */
     id: number;
     /** 类型：1为标题，2为文字段落，3为图片地址，4为视频地址，5为语音地址，6为链接地址，7为附件资源，8为收费资源 */
-    type: import("@/utils/IEnum").PostItemTypeEnum;
+    type: import('@/utils/IEnum').PostItemTypeEnum;
     /** POST ID */
     post_id: number;
     /** 内容 */
@@ -218,7 +218,7 @@ declare module Item {
     /** 标签列表 */
     tags: { [key: string]: number } | string;
     /** 可见性：0为公开，1为私密，2为好友可见 */
-    visibility: import("@/utils/IEnum").VisibilityEnum;
+    visibility: import('@/utils/IEnum').VisibilityEnum;
     /** 是否锁定 */
     is_lock: number;
     /** 是否置顶 */
@@ -248,7 +248,7 @@ declare module Item {
   interface MessageProps {
     id: number;
     /** 类型：1为动态，2为评论，3为回复，4为私信，5为好友申请， 99为系统通知 */
-    type: import("@/utils/IEnum").MessageTypeEnum;
+    type: import('@/utils/IEnum').MessageTypeEnum;
     /** 摘要说明 */
     brief: string;
     /** 详细内容 */
@@ -302,7 +302,7 @@ declare module Item {
   interface AttachmentProps {
     id: number;
     /** 类别：1为图片，2为视频，3为其他附件 */
-    type: import("@/utils/IEnum").AttachmentTypeEnum;
+    type: import('@/utils/IEnum').AttachmentTypeEnum;
     /** 发布者用户UID */
     user_id: number;
     /** 发布者用户数据 */

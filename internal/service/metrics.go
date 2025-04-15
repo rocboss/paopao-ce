@@ -13,8 +13,8 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
-	"github.com/rocboss/paopao-ce/internal/metrics/prometheus"
-	"github.com/rocboss/paopao-ce/internal/metrics/statistics"
+	"github.com/rocboss/paopao-ce/internal/infra/metrics/prometheus"
+	"github.com/rocboss/paopao-ce/internal/infra/metrics/statistics"
 )
 
 var (

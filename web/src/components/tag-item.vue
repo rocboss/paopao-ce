@@ -59,147 +59,146 @@ import type { DropdownOption } from 'naive-ui';
 import { pinTopic, stickTopic, followTopic, unfollowTopic } from '@/api/post';
 import defaultUserAvatar from '@/assets/img/logo.png';
 
-const hasFollowing= ref(false);
+const hasFollowing = ref(false);
 const props = withDefaults(
-    defineProps<{
-        tag: Item.TagProps;
-        showAction: boolean;
-        checkFollowing: boolean;
-        checkPin: boolean;
-    }>(),
-    {}
+  defineProps<{
+    tag: Item.TagProps;
+    showAction: boolean;
+    checkFollowing: boolean;
+    checkPin: boolean;
+  }>(),
+  {},
 );
 
 const tagUserAvatar = computed(() => {
-    if (props.tag.user) {
-        return props.tag.user.avatar
-    } else {
-        return defaultUserAvatar
-    }
+  if (props.tag.user) {
+    return props.tag.user.avatar;
+  } else {
+    return defaultUserAvatar;
+  }
 });
 
-
 const tagOptions = computed(() => {
-    let options: DropdownOption[] = [];
-    if (props.tag.is_following === 0) {
-        options.push({
-            label: '关注',
-            key: 'follow',
-        });
+  let options: DropdownOption[] = [];
+  if (props.tag.is_following === 0) {
+    options.push({
+      label: '关注',
+      key: 'follow',
+    });
+  } else {
+    if (props.tag.is_pin === 0) {
+      options.push({
+        label: '钉住',
+        key: 'pin',
+      });
     } else {
-        if (props.tag.is_pin === 0) {
-            options.push({
-                label: '钉住',
-                key: 'pin',
-            });
-        } else {
-            options.push({
-                label: '取消钉住',
-                key: 'unpin',
-            });
-        }
-        if (props.tag.is_top === 0) {
-            options.push({
-                label: '置顶',
-                key: 'stick',
-            });
-        } else {
-            options.push({
-                label: '取消置顶',
-                key: 'unstick',
-            });
-        }
-        options.push({
-            label: '取消关注',
-            key: 'unfollow',
-        });
+      options.push({
+        label: '取消钉住',
+        key: 'unpin',
+      });
     }
-    return options;
+    if (props.tag.is_top === 0) {
+      options.push({
+        label: '置顶',
+        key: 'stick',
+      });
+    } else {
+      options.push({
+        label: '取消置顶',
+        key: 'unstick',
+      });
+    }
+    options.push({
+      label: '取消关注',
+      key: 'unfollow',
+    });
+  }
+  return options;
 });
 
 const handleTagAction = (
-    item: 'follow' | 'unfollow' | 'pin' | 'unpin' | 'stick' | 'unstick'
+  item: 'follow' | 'unfollow' | 'pin' | 'unpin' | 'stick' | 'unstick',
 ) => {
-    switch (item) {
-        case 'follow':
-            followTopic({
-                topic_id: props.tag.id
-             })
-            .then((_res) => {
-                props.tag.is_following = 1
-                window.$message.success(`关注成功`);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-            break;
-        case 'unfollow':
-            unfollowTopic({
-                topic_id: props.tag.id
-             })
-            .then((_res) => {
-                props.tag.is_following = 0
-                window.$message.success(`取消关注`);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-            break;
-        case 'pin':
-            pinTopic({
-                topic_id: props.tag.id
-             })
-            .then((_res) => {
-                props.tag.is_pin = 1;
-                window.$message.success(`钉住成功`);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-            break;
-        case 'unpin':
-            pinTopic({
-                topic_id: props.tag.id
-             })
-            .then((_res) => {
-                props.tag.is_pin = 0;
-                window.$message.success(`取消钉住`);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-            break;
-        case 'stick':
-            stickTopic({
-                topic_id: props.tag.id
-             })
-            .then((res) => {
-                props.tag.is_top = res.top_status
-                window.$message.success(`置顶成功`);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-            break;
-        case 'unstick':
-        stickTopic({
-                topic_id: props.tag.id
-             })
-            .then((res) => {
-                props.tag.is_top = res.top_status
-                window.$message.success(`取消置顶`);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-            break;
-        default:
-            break;
-    }
+  switch (item) {
+    case 'follow':
+      followTopic({
+        topic_id: props.tag.id,
+      })
+        .then((_res) => {
+          props.tag.is_following = 1;
+          window.$message.success(`关注成功`);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      break;
+    case 'unfollow':
+      unfollowTopic({
+        topic_id: props.tag.id,
+      })
+        .then((_res) => {
+          props.tag.is_following = 0;
+          window.$message.success(`取消关注`);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      break;
+    case 'pin':
+      pinTopic({
+        topic_id: props.tag.id,
+      })
+        .then((_res) => {
+          props.tag.is_pin = 1;
+          window.$message.success(`钉住成功`);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      break;
+    case 'unpin':
+      pinTopic({
+        topic_id: props.tag.id,
+      })
+        .then((_res) => {
+          props.tag.is_pin = 0;
+          window.$message.success(`取消钉住`);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      break;
+    case 'stick':
+      stickTopic({
+        topic_id: props.tag.id,
+      })
+        .then((res) => {
+          props.tag.is_top = res.top_status;
+          window.$message.success(`置顶成功`);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      break;
+    case 'unstick':
+      stickTopic({
+        topic_id: props.tag.id,
+      })
+        .then((res) => {
+          props.tag.is_top = res.top_status;
+          window.$message.success(`取消置顶`);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      break;
+    default:
+      break;
+  }
 };
 
 onMounted(() => {
-    hasFollowing.value = false
+  hasFollowing.value = false;
 });
 </script>
 

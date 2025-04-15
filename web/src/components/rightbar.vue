@@ -99,97 +99,104 @@ const loading = ref(false);
 const keyword = ref('');
 const store = useStore();
 const router = useRouter();
-const registerUserCount = ref(0)
-const onlineUserCount = ref(0)
-const historyMaxOnline = ref(0)
-const serverUpTime = ref(0)
+const registerUserCount = ref(0);
+const onlineUserCount = ref(0);
+const historyMaxOnline = ref(0);
+const serverUpTime = ref(0);
 const userInfoElement = ref<HTMLElement | null>(null);
-const rightFollowTopicMaxSize = Number(import.meta.env.VITE_RIGHT_FOLLOW_TOPIC_MAX_SIZE)
-const rightHotTopicMaxSize = Number(import.meta.env.VITE_RIGHT_HOT_TOPIC_MAX_SIZE)
+const rightFollowTopicMaxSize = Number(
+  import.meta.env.VITE_RIGHT_FOLLOW_TOPIC_MAX_SIZE,
+);
+const rightHotTopicMaxSize = Number(
+  import.meta.env.VITE_RIGHT_HOT_TOPIC_MAX_SIZE,
+);
 
 const loadSiteInfo = () => {
-    getSiteInfo()
-        .then((res) => {
-            registerUserCount.value = res.register_user_count;
-            onlineUserCount.value = res.online_user_count;
-            historyMaxOnline.value = res.history_max_online;
-            serverUpTime.value = res.server_up_time;
-        })
-        .catch((_err) => {
-            // do nothing
-        });
-    observer.disconnect()
+  getSiteInfo()
+    .then((res) => {
+      registerUserCount.value = res.register_user_count;
+      onlineUserCount.value = res.online_user_count;
+      historyMaxOnline.value = res.history_max_online;
+      serverUpTime.value = res.server_up_time;
+    })
+    .catch((_err) => {
+      // do nothing
+    });
+  observer.disconnect();
 };
 const loadHotTags = () => {
-    loading.value = true;
-    getTags({
-        type: 'hot_extral',
-        num: rightHotTopicMaxSize,
-        extral_num: rightFollowTopicMaxSize,
+  loading.value = true;
+  getTags({
+    type: 'hot_extral',
+    num: rightHotTopicMaxSize,
+    extral_num: rightFollowTopicMaxSize,
+  })
+    .then((res) => {
+      hotTags.value = res.topics;
+      followTags.value = res.extral_topics ?? [];
+      showFollowTopics.value = true;
+      loading.value = false;
     })
-        .then((res) => {
-            hotTags.value = res.topics;
-            followTags.value = res.extral_topics??[];
-            showFollowTopics.value = true
-            loading.value = false;
-        })
-        .catch((_err) => {
-            loading.value = false;
-        });
+    .catch((_err) => {
+      loading.value = false;
+    });
 };
 const formatQuoteNum = (num: number) => {
-    if (num >= 1000) {
-        return (num / 1000).toFixed(1) + 'k';
-    }
-    return num;
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'k';
+  }
+  return num;
 };
 const handleSearch = () => {
-    router.push({
-        name: 'home',
-        query: {
-            q: keyword.value,
-        },
-    });
+  router.push({
+    name: 'home',
+    query: {
+      q: keyword.value,
+    },
+  });
 };
-const showFollowTopics = computed({  
-    get: () => {     
-        return store.state.userLogined && followTags.value.length !==0;
-    },
-    set: (newVal) => {
-        // do nothing
-    },
+const showFollowTopics = computed({
+  get: () => {
+    return store.state.userLogined && followTags.value.length !== 0;
+  },
+  set: (newVal) => {
+    // do nothing
+  },
 });
 watch(
-    () => ({
-        refreshTopicFollow: store.state.refreshTopicFollow,
-        userLogined: store.state.userLogined 
-    }),
-    (to, from) => {
-        if (to.refreshTopicFollow !== from.refreshTopicFollow || to.userLogined) {
-            loadHotTags();
-        }
-        if (store.state.userInfo.is_admin) {
-            loadSiteInfo();
-        }
+  () => ({
+    refreshTopicFollow: store.state.refreshTopicFollow,
+    userLogined: store.state.userLogined,
+  }),
+  (to, from) => {
+    if (to.refreshTopicFollow !== from.refreshTopicFollow || to.userLogined) {
+      loadHotTags();
     }
+    if (store.state.userInfo.is_admin) {
+      loadSiteInfo();
+    }
+  },
 );
-const observer = new IntersectionObserver((entries: IntersectionObserverEntry[]) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            loadSiteInfo();
-        }
+const observer = new IntersectionObserver(
+  (entries: IntersectionObserverEntry[]) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        loadSiteInfo();
+      }
     });
-}, {
+  },
+  {
     root: null,
     rootMargin: '0px',
-    threshold: 1
-});
+    threshold: 1,
+  },
+);
 onMounted(() => {
-    // 不知道为什么 store.state.userInfo.is_admin 在这里就是不起作用f*k，所以才用这么一种蹩脚的法子来凑合
-    if (userInfoElement.value) {
-        observer.observe(userInfoElement.value);
-    }
-    loadHotTags();
+  // 不知道为什么 store.state.userInfo.is_admin 在这里就是不起作用f*k，所以才用这么一种蹩脚的法子来凑合
+  if (userInfoElement.value) {
+    observer.observe(userInfoElement.value);
+  }
+  loadHotTags();
 });
 </script>
 

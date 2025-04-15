@@ -42,7 +42,7 @@ declare module NetParams {
   }
 
   interface UserGetMessages {
-    style: "all" | "system" | "whisper" | "requesting" | "unread";
+    style: 'all' | 'system' | 'whisper' | 'requesting' | 'unread';
     page: number;
     page_size: number;
   }
@@ -162,7 +162,7 @@ declare module NetParams {
   interface PostGetPosts {
     query: string | null;
     type: string;
-    style: "newest" | "hots" | "following" | "search";
+    style: 'newest' | 'hots' | 'following' | 'search';
     page: number;
     page_size: number;
   }
@@ -182,7 +182,7 @@ declare module NetParams {
   interface PostVisibilityPost {
     id: number;
     /** 可见性：0为公开，1为私密，2为好友可见 */
-    visibility: import("@/utils/IEnum").VisibilityEnum;
+    visibility: import('@/utils/IEnum').VisibilityEnum;
   }
 
   interface PostGetPostStar {
@@ -202,14 +202,14 @@ declare module NetParams {
   }
 
   interface PostGetTags {
-    type: "hot" | "new" | "follow" | "pin" | "hot_extral";
+    type: 'hot' | 'new' | 'follow' | 'pin' | 'hot_extral';
     num: number;
     extral_num?: number;
   }
 
   interface PostGetPostComments {
     id: number;
-    style: "default" | "hots" | "newest";
+    style: 'default' | 'hots' | 'newest';
     page?: number;
     page_size?: number;
   }
@@ -226,7 +226,7 @@ declare module NetParams {
     /** 附件价格 */
     attachment_price: number;
     /** 可见性：0为公开，1为私密，2为好友可见 */
-    visibility: import("@/utils/IEnum").VisibilityEnum;
+    visibility: import('@/utils/IEnum').VisibilityEnum;
   }
 
   interface PostDeletePost {

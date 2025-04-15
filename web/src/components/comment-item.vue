@@ -142,90 +142,93 @@ const replyAtUsername = ref('');
 const replyComposeRef = ref();
 
 const emit = defineEmits<{
-    (e: 'reload'): void
+  (e: 'reload'): void;
 }>();
-const props = withDefaults(defineProps<{
-    comment: Item.CommentProps,
-    postUserId: number
-}>(), {})
+const props = withDefaults(
+  defineProps<{
+    comment: Item.CommentProps;
+    postUserId: number;
+  }>(),
+  {},
+);
 
 const comment = computed(() => {
-    let comment: Item.CommentComponentProps = Object.assign(
-        {
-            texts: [],
-            imgs: [],
-        },
-        props.comment
-    );
-    comment.contents.map((content :any) => {
-        if (+content.type === 1 || +content.type === 2) {
-            comment.texts.push(content);
-        }
-        if (+content.type === 3) {
-            comment.imgs.push(content);
-        }
-    });
-    return comment;
+  let comment: Item.CommentComponentProps = Object.assign(
+    {
+      texts: [],
+      imgs: [],
+    },
+    props.comment,
+  );
+  comment.contents.map((content: any) => {
+    if (+content.type === 1 || +content.type === 2) {
+      comment.texts.push(content);
+    }
+    if (+content.type === 3) {
+      comment.imgs.push(content);
+    }
+  });
+  return comment;
 });
 
 const doClickText = (e: MouseEvent, id: number | string) => {
-    let _target = e.target as any;
-    if (_target.dataset.detail) {
-        const d = _target.dataset.detail.split(':');
-        if (d.length === 2) {
-            store.commit('refresh');
-            if (d[0] === 'tag') {
-                window.$message.warning('评论内的无效话题');
-            } else {
-                router.push({
-                    name: 'user',
-                    query: {
-                        s: d[1],
-                    },
-                });
-            }
-        }
+  let _target = e.target as any;
+  if (_target.dataset.detail) {
+    const d = _target.dataset.detail.split(':');
+    if (d.length === 2) {
+      store.commit('refresh');
+      if (d[0] === 'tag') {
+        window.$message.warning('评论内的无效话题');
+      } else {
+        router.push({
+          name: 'user',
+          query: {
+            s: d[1],
+          },
+        });
+      }
     }
+  }
 };
 
 const focusReply = (reply: Item.ReplyProps) => {
-    replyAtUserID.value = reply.user_id;
-    replyAtUsername.value = reply.user?.username || '';
-    replyComposeRef.value?.switchReply(true);
+  replyAtUserID.value = reply.user_id;
+  replyAtUsername.value = reply.user?.username || '';
+  replyComposeRef.value?.switchReply(true);
 };
 const reload = () => {
-    emit('reload');
+  emit('reload');
 };
 const resetReply = () => {
-    replyAtUserID.value = 0;
-    replyAtUsername.value = '';
+  replyAtUserID.value = 0;
+  replyAtUsername.value = '';
 };
 
 const execDelAction = () => {
-    deleteComment({
-        id: comment.value.id,
+  deleteComment({
+    id: comment.value.id,
+  })
+    .then((_res) => {
+      window.$message.success('删除成功');
+      setTimeout(() => {
+        reload();
+      }, 50);
     })
-        .then((_res) => {
-            window.$message.success('删除成功');
-            setTimeout(() => {
-                reload();
-            }, 50);
-        })
-        .catch((_err) => {});
+    .catch((_err) => {});
 };
 
 const execHightlightAction = () => {
-    highlightComment({
-        id: comment.value.id,
+  highlightComment({
+    id: comment.value.id,
+  })
+    .then((res) => {
+      comment.value.is_essence = res.highlight_status;
+      window.$message.success('操作成功');
+      setTimeout(() => {
+        reload();
+      }, 50);
     })
-        .then((res) => {
-            comment.value.is_essence = res.highlight_status;
-            window.$message.success("操作成功");
-            setTimeout(() => {
-                reload();
-            }, 50);
-        })
-        .catch((_err) => {});
+    .catch((_err) => {});
 };
 </script>
 

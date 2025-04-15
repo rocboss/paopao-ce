@@ -1,12 +1,12 @@
-import { request } from "@/utils/request";
+import { request } from '@/utils/request';
 
 /** 获取验证码 */
 export const getCaptcha = (
-  params: NetParams.UserGetCaptcha = {}
+  params: NetParams.UserGetCaptcha = {},
 ): Promise<NetReq.UserGetCaptcha> => {
   return request({
-    method: "get",
-    url: "/v1/captcha",
+    method: 'get',
+    url: '/v1/captcha',
     params,
   });
 };
@@ -18,8 +18,8 @@ export const getCaptcha = (
  */
 export const sendCaptcha = (data: any) => {
   return request({
-    method: "post",
-    url: "/v1/captcha",
+    method: 'post',
+    url: '/v1/captcha',
     data,
   });
 };
@@ -30,11 +30,11 @@ export const sendCaptcha = (data: any) => {
  * @returns Promise
  */
 export const sendUserWhisper = (
-  data: NetParams.UserWhisper
+  data: NetParams.UserWhisper,
 ): Promise<NetParams.UserWhisper> => {
   return request({
-    method: "post",
-    url: "/v1/user/whisper",
+    method: 'post',
+    url: '/v1/user/whisper',
     data,
   });
 };
@@ -45,11 +45,11 @@ export const sendUserWhisper = (
  * @returns Promise
  */
 export const requestingFriend = (
-  data: NetParams.RequestingFriend
+  data: NetParams.RequestingFriend,
 ): Promise<NetReq.RequestingFriend> => {
   return request({
-    method: "post",
-    url: "/v1/friend/requesting",
+    method: 'post',
+    url: '/v1/friend/requesting',
     data,
   });
 };
@@ -60,33 +60,33 @@ export const requestingFriend = (
  * @returns Promise
  */
 export const addFriend = (
-  data: NetParams.AddFriend
+  data: NetParams.AddFriend,
 ): Promise<NetReq.AddFriend> => {
   return request({
-    method: "post",
-    url: "/v1/friend/add",
+    method: 'post',
+    url: '/v1/friend/add',
     data,
   });
 };
 
 // 关注 用户
 export const followUser = (
-  data: NetParams.FollowUserReq
+  data: NetParams.FollowUserReq,
 ): Promise<NetReq.FollowUserResp> => {
   return request({
-    method: "post",
-    url: "/v1/user/follow",
+    method: 'post',
+    url: '/v1/user/follow',
     data,
   });
 };
 
 // 取消关注 用户
 export const unfollowUser = (
-  data: NetParams.UnfollowUserReq
+  data: NetParams.UnfollowUserReq,
 ): Promise<NetReq.UnfollowUserResp> => {
   return request({
-    method: "post",
-    url: "/v1/user/unfollow",
+    method: 'post',
+    url: '/v1/user/unfollow',
     data,
   });
 };
@@ -97,11 +97,11 @@ export const unfollowUser = (
  * @returns Promise
  */
 export const getUserFollows = (
-  params: NetParams.GetUserFollows
+  params: NetParams.GetUserFollows,
 ): Promise<NetReq.GetContacts> => {
   return request({
-    method: "get",
-    url: "/v1/user/follows",
+    method: 'get',
+    url: '/v1/user/follows',
     params,
   });
 };
@@ -112,11 +112,11 @@ export const getUserFollows = (
  * @returns Promise
  */
 export const getUserFollowings = (
-  params: NetParams.GetUserFollowings
+  params: NetParams.GetUserFollowings,
 ): Promise<NetReq.GetContacts> => {
   return request({
-    method: "get",
-    url: "/v1/user/followings",
+    method: 'get',
+    url: '/v1/user/followings',
     params,
   });
 };
@@ -127,11 +127,11 @@ export const getUserFollowings = (
  * @returns Promise
  */
 export const rejectFriend = (
-  data: NetParams.RejectFriend
+  data: NetParams.RejectFriend,
 ): Promise<NetReq.RejectFriend> => {
   return request({
-    method: "post",
-    url: "/v1/friend/reject",
+    method: 'post',
+    url: '/v1/friend/reject',
     data,
   });
 };
@@ -142,11 +142,11 @@ export const rejectFriend = (
  * @returns Promise
  */
 export const deleteFriend = (
-  data: NetParams.DeleteFriend
+  data: NetParams.DeleteFriend,
 ): Promise<NetReq.DeleteFriend> => {
   return request({
-    method: "post",
-    url: "/v1/friend/delete",
+    method: 'post',
+    url: '/v1/friend/delete',
     data,
   });
 };
@@ -157,11 +157,11 @@ export const deleteFriend = (
  * @returns Promise
  */
 export const getContacts = (
-  data: NetParams.GetContacts
+  data: NetParams.GetContacts,
 ): Promise<NetReq.GetContacts> => {
   return request({
-    method: "post",
-    url: "/v1/user/contacts",
+    method: 'post',
+    url: '/v1/user/contacts',
     data,
   });
 };
@@ -172,11 +172,11 @@ export const getContacts = (
  * @returns Promise
  */
 export const bindUserPhone = (
-  data: NetParams.UserBindUserPhone
+  data: NetParams.UserBindUserPhone,
 ): Promise<NetParams.UserBindUserPhone> => {
   return request({
-    method: "post",
-    url: "/v1/user/phone",
+    method: 'post',
+    url: '/v1/user/phone',
     data,
   });
 };
@@ -187,33 +187,33 @@ export const bindUserPhone = (
  * @returns Promise
  */
 export const activateUser = (
-  data: NetParams.UserActivation
+  data: NetParams.UserActivation,
 ): Promise<NetParams.UserActivation> => {
   return request({
-    method: "post",
-    url: "/v1/user/activate",
+    method: 'post',
+    url: '/v1/user/activate',
     data,
   });
 };
 
 /** 更改密码 */
 export const changePassword = (
-  data: NetParams.UserChangePassword
+  data: NetParams.UserChangePassword,
 ): Promise<NetReq.UserChangePassword> => {
   return request({
-    method: "post",
-    url: "/v1/user/password",
+    method: 'post',
+    url: '/v1/user/password',
     data,
   });
 };
 
 /** 更改昵称 */
 export const changeNickname = (
-  data: NetParams.UserChangeNickname
+  data: NetParams.UserChangeNickname,
 ): Promise<NetReq.UserChangeNickname> => {
   return request({
-    method: "post",
-    url: "/v1/user/nickname",
+    method: 'post',
+    url: '/v1/user/nickname',
     data,
   });
 };
@@ -225,30 +225,30 @@ export const changeNickname = (
  */
 export const changeAvatar = (data: any) => {
   return request({
-    method: "post",
-    url: "/v1/user/avatar",
+    method: 'post',
+    url: '/v1/user/avatar',
     data,
   });
 };
 
 /** 获取未读消息数 */
 export const getUnreadMsgCount = (
-  params: NetParams.UserGetUnreadMsgCount = {}
+  params: NetParams.UserGetUnreadMsgCount = {},
 ): Promise<NetReq.UserGetUnreadMsgCount> => {
   return request({
-    method: "get",
-    url: "/v1/user/msgcount/unread",
+    method: 'get',
+    url: '/v1/user/msgcount/unread',
     params,
   });
 };
 
 /** 获取消息列表 */
 export const getMessages = (
-  params: NetParams.UserGetMessages
+  params: NetParams.UserGetMessages,
 ): Promise<NetReq.UserGetMessages> => {
   return request({
-    method: "get",
-    url: "/v1/user/messages",
+    method: 'get',
+    url: '/v1/user/messages',
     params,
   });
 };
@@ -259,11 +259,11 @@ export const getMessages = (
  * @returns Promise
  */
 export const readMessage = (
-  data: NetParams.ReadMessageReq
+  data: NetParams.ReadMessageReq,
 ): Promise<NetReq.ReadMessageResp> => {
   return request({
-    method: "post",
-    url: "/v1/user/message/read",
+    method: 'post',
+    url: '/v1/user/message/read',
     data,
   });
 };
@@ -274,51 +274,51 @@ export const readMessage = (
  */
 export const readAllMessage = (): Promise<NetReq.ReadAllMessageResp> => {
   return request({
-    method: "post",
-    url: "/v1/user/message/readall",
+    method: 'post',
+    url: '/v1/user/message/readall',
   });
 };
 
 /** 获取收藏列表 */
 export const getCollections = (
-  params: NetParams.UserGetCollections
+  params: NetParams.UserGetCollections,
 ): Promise<NetReq.UserGetCollections> => {
   return request({
-    method: "get",
-    url: "/v1/user/collections",
+    method: 'get',
+    url: '/v1/user/collections',
     params,
   });
 };
 
 /** 获取用户基础信息 */
 export const getUserProfile = (
-  params: NetParams.UserGetUserProfile
+  params: NetParams.UserGetUserProfile,
 ): Promise<NetReq.UserGetUserProfile> => {
   return request({
-    method: "get",
-    url: "/v1/user/profile",
+    method: 'get',
+    url: '/v1/user/profile',
     params,
   });
 };
 
 /** 获取用户帖子列表 */
 export const getUserPosts = (
-  params: NetParams.UserGetUserPosts
+  params: NetParams.UserGetUserPosts,
 ): Promise<NetReq.UserGetUserPosts> => {
   return request({
-    method: "get",
-    url: "/v1/user/posts",
+    method: 'get',
+    url: '/v1/user/posts',
     params,
   });
 };
 
 /** 获取账单列表 */
 export const getBills = (
-  params: NetParams.UserGetBills
+  params: NetParams.UserGetBills,
 ): Promise<NetReq.UserGetBills> => {
   return request({
-    method: "get",
-    url: "/v1/user/wallet/bills",
+    method: 'get',
+    url: '/v1/user/wallet/bills',
     params,
   });
 };
@@ -329,11 +329,11 @@ export const getBills = (
  * @returns Promise
  */
 export const reqRecharge = (
-  data: NetParams.UserReqRecharge
+  data: NetParams.UserReqRecharge,
 ): Promise<NetReq.UserReqRecharge> => {
   return request({
-    method: "post",
-    url: "/v1/user/recharge",
+    method: 'post',
+    url: '/v1/user/recharge',
     data,
   });
 };
@@ -344,11 +344,11 @@ export const reqRecharge = (
  * @returns Promise
  */
 export const getRecharge = (
-  params: NetParams.UserGetRecharge
+  params: NetParams.UserGetRecharge,
 ): Promise<NetReq.UserGetRecharge> => {
   return request({
-    method: "get",
-    url: "/v1/user/recharge",
+    method: 'get',
+    url: '/v1/user/recharge',
     params,
   });
 };
@@ -362,8 +362,8 @@ export const getSuggestUsers = (params: {
   k: string;
 }): Promise<NetReq.UserGetSuggestUsers> => {
   return request({
-    method: "get",
-    url: "/v1/suggest/users",
+    method: 'get',
+    url: '/v1/suggest/users',
     params,
   });
 };
@@ -377,8 +377,8 @@ export const getSuggestTags = (params: {
   k: string;
 }): Promise<NetReq.UserGetSuggestTags> => {
   return request({
-    method: "get",
-    url: "/v1/suggest/tags",
+    method: 'get',
+    url: '/v1/suggest/tags',
     params,
   });
 };
@@ -389,11 +389,11 @@ export const getSuggestTags = (params: {
  * @returns Promise
  */
 export const precheckAttachment = (
-  params: NetParams.UserPrecheckAttachment
+  params: NetParams.UserPrecheckAttachment,
 ): Promise<NetReq.UserPrecheckAttachment> => {
   return request({
-    method: "get",
-    url: "/v1/attachment/precheck",
+    method: 'get',
+    url: '/v1/attachment/precheck',
     params,
   });
 };
@@ -404,11 +404,11 @@ export const precheckAttachment = (
  * @returns Promise
  */
 export const getAttachment = (
-  params: NetParams.UserGetAttachment
+  params: NetParams.UserGetAttachment,
 ): Promise<NetReq.UserGetAttachment> => {
   return request({
-    method: "get",
-    url: "/v1/attachment",
+    method: 'get',
+    url: '/v1/attachment',
     params,
   });
 };
@@ -419,11 +419,11 @@ export const getAttachment = (
  * @returns Promise
  */
 export const changeUserStatus = (
-  data: NetParams.UserStatusReq
+  data: NetParams.UserStatusReq,
 ): Promise<NetReq.UserChangeStatus> => {
   return request({
-    method: "post",
-    url: "/v1/admin/user/status",
+    method: 'post',
+    url: '/v1/admin/user/status',
     data,
   });
 };
@@ -434,7 +434,7 @@ export const changeUserStatus = (
  */
 export const getSiteInfo = (): Promise<NetReq.SiteInfoResp> => {
   return request({
-    method: "get",
-    url: "/v1/admin/site/status",
+    method: 'get',
+    url: '/v1/admin/site/status',
   });
 };

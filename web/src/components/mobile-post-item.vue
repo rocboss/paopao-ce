@@ -128,247 +128,259 @@
 
 <script setup lang="ts">
 import { h, ref, computed } from 'vue';
-import type { Component } from 'vue'
-import { NIcon } from 'naive-ui'
+import type { Component } from 'vue';
+import { NIcon } from 'naive-ui';
 import { useStore } from 'vuex';
 import type { DropdownOption } from 'naive-ui';
 import { useRouter } from 'vue-router';
 import { formatPrettyDate } from '@/utils/formatTime';
 import { preparePost } from '@/utils/content';
+import { postStar, postCollection } from '@/api/post';
 import {
-    postStar,
-    postCollection,
-} from '@/api/post';
-import {
-    PaperPlaneOutline,
-    HeartOutline,
-    BookmarkOutline,
-    ChatboxOutline,
-    ShareSocialOutline,
-    PersonAddOutline,
-    PersonRemoveOutline,
-    BodyOutline,
-    WalkOutline,
+  PaperPlaneOutline,
+  HeartOutline,
+  BookmarkOutline,
+  ChatboxOutline,
+  ShareSocialOutline,
+  PersonAddOutline,
+  PersonRemoveOutline,
+  BodyOutline,
+  WalkOutline,
 } from '@vicons/ionicons5';
 import { MoreHorizFilled } from '@vicons/material';
-import copy from "copy-to-clipboard";
+import copy from 'copy-to-clipboard';
 
 const router = useRouter();
 const store = useStore();
-const inFoldStyle = ref<boolean>(true)
-const props = withDefaults(defineProps<{
-    post: Item.PostProps,
-    isOwner: boolean,
-    addFriendAction: boolean,
-    addFollowAction: boolean,
-}>(), {});
+const inFoldStyle = ref<boolean>(true);
+const props = withDefaults(
+  defineProps<{
+    post: Item.PostProps;
+    isOwner: boolean;
+    addFriendAction: boolean;
+    addFollowAction: boolean;
+  }>(),
+  {},
+);
 
 const emit = defineEmits<{
-    (e: 'send-whisper', user: Item.UserInfo): void
-    (e: 'handle-follow-action', user: Item.PostProps): void
-    (e: 'handle-friend-action', user: Item.PostProps): void
+  (e: 'send-whisper', user: Item.UserInfo): void;
+  (e: 'handle-follow-action', user: Item.PostProps): void;
+  (e: 'handle-friend-action', user: Item.PostProps): void;
 }>();
 
 const renderIcon = (icon: Component) => {
   return () => {
     return h(NIcon, null, {
-      default: () => h(icon)
-    })
-  }
+      default: () => h(icon),
+    });
+  };
 };
 
 const tweetOptions = computed(() => {
-    let options: DropdownOption[] = [];
-    if (!props.isOwner) {
-        options.push({
-            label: '私信 @' + props.post.user.username,
-            key: 'whisper',
-            icon: renderIcon(PaperPlaneOutline)
-        });
-    }
-    if (!props.isOwner && props.addFollowAction) {
-        if (props.post.user.is_following) {
-            options.push({
-                label: '取消关注 @' + props.post.user.username,
-                key: 'unfollow',
-                icon: renderIcon(WalkOutline)
-            })
-        } else {
-            options.push({
-                label: '关注 @' + props.post.user.username,
-                key: 'follow',
-                icon: renderIcon(BodyOutline)
-            })
-        }
-    }
-    if (!props.isOwner && props.addFriendAction) {
-        if (props.post.user.is_friend) {
-            options.push({
-                label: '删除好友 @' + props.post.user.username,
-                key: 'delete',
-                icon: renderIcon(PersonRemoveOutline)
-            });
-        } else {
-            options.push({
-                label: '添加朋友 @' + props.post.user.username,
-                key: 'requesting',
-                icon: renderIcon(PersonAddOutline)
-            });
-        }
-    }
+  let options: DropdownOption[] = [];
+  if (!props.isOwner) {
     options.push({
-        label: '复制链接',
-        key: 'copyTweetLink',
-        icon: renderIcon(ShareSocialOutline),
+      label: '私信 @' + props.post.user.username,
+      key: 'whisper',
+      icon: renderIcon(PaperPlaneOutline),
     });
-    return options;
+  }
+  if (!props.isOwner && props.addFollowAction) {
+    if (props.post.user.is_following) {
+      options.push({
+        label: '取消关注 @' + props.post.user.username,
+        key: 'unfollow',
+        icon: renderIcon(WalkOutline),
+      });
+    } else {
+      options.push({
+        label: '关注 @' + props.post.user.username,
+        key: 'follow',
+        icon: renderIcon(BodyOutline),
+      });
+    }
+  }
+  if (!props.isOwner && props.addFriendAction) {
+    if (props.post.user.is_friend) {
+      options.push({
+        label: '删除好友 @' + props.post.user.username,
+        key: 'delete',
+        icon: renderIcon(PersonRemoveOutline),
+      });
+    } else {
+      options.push({
+        label: '添加朋友 @' + props.post.user.username,
+        key: 'requesting',
+        icon: renderIcon(PersonAddOutline),
+      });
+    }
+  }
+  options.push({
+    label: '复制链接',
+    key: 'copyTweetLink',
+    icon: renderIcon(ShareSocialOutline),
+  });
+  return options;
 });
 
 const handleTweetAction = async (
-    item: 'copyTweetLink' | 'whisper' | 'follow' | 'unfollow' | 'delete' | 'requesting'
+  item:
+    | 'copyTweetLink'
+    | 'whisper'
+    | 'follow'
+    | 'unfollow'
+    | 'delete'
+    | 'requesting',
 ) => {
-    switch (item) {
-        case 'copyTweetLink':
-            copy(`${window.location.origin}/#/post?id=${post.value.id}&share=copy_link&t=${new Date().getTime()}`);
-            window.$message.success('链接已复制到剪贴板');
-            break;
-        case 'whisper':
-            emit('send-whisper', props.post.user);
-            break;
-        case 'delete':
-        case 'requesting':
-            emit('handle-friend-action', props.post);
-            break;
-        case 'follow':
-        case 'unfollow':
-            emit('handle-follow-action', props.post);
-            break;
-        default:
-            break;
-    }
+  switch (item) {
+    case 'copyTweetLink':
+      copy(
+        `${window.location.origin}/#/post?id=${post.value.id}&share=copy_link&t=${new Date().getTime()}`,
+      );
+      window.$message.success('链接已复制到剪贴板');
+      break;
+    case 'whisper':
+      emit('send-whisper', props.post.user);
+      break;
+    case 'delete':
+    case 'requesting':
+      emit('handle-friend-action', props.post);
+      break;
+    case 'follow':
+    case 'unfollow':
+      emit('handle-follow-action', props.post);
+      break;
+    default:
+      break;
+  }
 };
 
 const post = computed({
-    get: () => {
-        let post: Item.PostComponentProps = Object.assign(
-            {
-                texts: [],
-                imgs: [],
-                videos: [],
-                links: [],
-                attachments: [],
-                charge_attachments: [],
-            },
-            props.post
-        );
-        post.contents.map((content) => {
-            if (+content.type === 1 || +content.type === 2) {
-                post.texts.push(content);
-            }
-            if (+content.type === 3) {
-                post.imgs.push(content);
-            }
-            if (+content.type === 4) {
-                post.videos.push(content);
-            }
-            if (+content.type === 6) {
-                post.links.push(content);
-            }
-            if (+content.type === 7) {
-                post.attachments.push(content);
-            }
-            if (+content.type === 8) {
-                post.charge_attachments.push(content);
-            }
-        });
-        return post;
-    },
-    set: (newVal) => {
-        props.post.upvote_count = newVal.upvote_count;
-        props.post.collection_count = newVal.collection_count;
-    },
+  get: () => {
+    let post: Item.PostComponentProps = Object.assign(
+      {
+        texts: [],
+        imgs: [],
+        videos: [],
+        links: [],
+        attachments: [],
+        charge_attachments: [],
+      },
+      props.post,
+    );
+    post.contents.map((content) => {
+      if (+content.type === 1 || +content.type === 2) {
+        post.texts.push(content);
+      }
+      if (+content.type === 3) {
+        post.imgs.push(content);
+      }
+      if (+content.type === 4) {
+        post.videos.push(content);
+      }
+      if (+content.type === 6) {
+        post.links.push(content);
+      }
+      if (+content.type === 7) {
+        post.attachments.push(content);
+      }
+      if (+content.type === 8) {
+        post.charge_attachments.push(content);
+      }
+    });
+    return post;
+  },
+  set: (newVal) => {
+    props.post.upvote_count = newVal.upvote_count;
+    props.post.collection_count = newVal.collection_count;
+  },
 });
 
 const handlePostStar = () => {
-    postStar({
-        id: post.value.id,
+  postStar({
+    id: post.value.id,
+  })
+    .then((res) => {
+      if (res.status) {
+        post.value = {
+          ...post.value,
+          upvote_count: post.value.upvote_count + 1,
+        };
+      } else {
+        post.value = {
+          ...post.value,
+          upvote_count:
+            post.value.upvote_count > 0 ? post.value.upvote_count - 1 : 0,
+        };
+      }
     })
-        .then((res) => {
-            if (res.status) {
-                post.value = {
-                    ...post.value,
-                    upvote_count: post.value.upvote_count + 1,
-                };
-            } else {
-                post.value = {
-                    ...post.value,
-                    upvote_count: post.value.upvote_count > 0 ? post.value.upvote_count - 1 : 0,
-                };
-            }
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 const handlePostCollection = () => {
-    postCollection({
-        id: post.value.id,
+  postCollection({
+    id: post.value.id,
+  })
+    .then((res) => {
+      if (res.status) {
+        post.value = {
+          ...post.value,
+          collection_count: post.value.collection_count + 1,
+        };
+      } else {
+        post.value = {
+          ...post.value,
+          collection_count:
+            post.value.collection_count > 0
+              ? post.value.collection_count - 1
+              : 0,
+        };
+      }
     })
-        .then((res) => {
-            if (res.status) {
-                post.value = {
-                    ...post.value,
-                    collection_count: post.value.collection_count + 1,
-                };
-            } else {
-                post.value = {
-                    ...post.value,
-                    collection_count: post.value.collection_count > 0 ? post.value.collection_count - 1 : 0,
-                };
-            }
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 const goPostDetail = (id: number) => {
-    router.push({
-        name: 'post',
-        query: {
-            id,
-        },
-    });
+  router.push({
+    name: 'post',
+    query: {
+      id,
+    },
+  });
 };
 const doClickText = (e: MouseEvent, id: number) => {
-    const detail = (e.target as any).dataset.detail
-    if (detail && detail !== 'post') {
-        const d = detail.split(':');
-        if (d.length === 2) {
-            store.commit('refresh');
-            if (d[0] === 'tag') {
-                router.push({
-                    name: 'home',
-                    query: {
-                        q: d[1],
-                        t: 'tag',
-                    },
-                });
-            } else {
-                router.push({
-                    name: 'user',
-                    query: {
-                        s: d[1],
-                    },
-                });
-            }
-        }
-    } else if (detail && detail === 'post') {
-        inFoldStyle.value = !inFoldStyle.value
-    } else {
-        goPostDetail(id);
+  const detail = (e.target as any).dataset.detail;
+  if (detail && detail !== 'post') {
+    const d = detail.split(':');
+    if (d.length === 2) {
+      store.commit('refresh');
+      if (d[0] === 'tag') {
+        router.push({
+          name: 'home',
+          query: {
+            q: d[1],
+            t: 'tag',
+          },
+        });
+      } else {
+        router.push({
+          name: 'user',
+          query: {
+            s: d[1],
+          },
+        });
+      }
     }
+  } else if (detail && detail === 'post') {
+    inFoldStyle.value = !inFoldStyle.value;
+  } else {
+    goPostDetail(id);
+  }
 };
 </script>
 

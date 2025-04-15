@@ -13,11 +13,14 @@
 
 <script setup lang="ts">
 import { LinkOutline } from '@vicons/ionicons5';
-const props = withDefaults(defineProps<{
-    links: Item.PostItemProps[]
-}>(), {
-    links: () => []
-});
+const props = withDefaults(
+  defineProps<{
+    links: Item.PostItemProps[];
+  }>(),
+  {
+    links: () => [],
+  },
+);
 </script>
 
 <style lang="less" scoped>

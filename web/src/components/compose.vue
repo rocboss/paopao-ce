@@ -281,11 +281,11 @@ import { debounce } from 'lodash';
 import { getSuggestUsers, getSuggestTags } from '@/api/user';
 
 import {
-    ImageOutline,
-    VideocamOutline,
-    AttachOutline,
-    CompassOutline,
-    EyeOutline,
+  ImageOutline,
+  VideocamOutline,
+  AttachOutline,
+  CompassOutline,
+  EyeOutline,
 } from '@vicons/ionicons5';
 import { createPost } from '@/api/post';
 import { parsePostTag } from '@/utils/content';
@@ -294,7 +294,7 @@ import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
 import { VisibilityEnum, PostItemTypeEnum } from '@/utils/IEnum';
 
 const emit = defineEmits<{
-    (e: 'post-success', post: Item.PostProps): void;
+  (e: 'post-success', post: Item.PostProps): void;
 }>();
 
 const store = useStore();
@@ -315,323 +315,329 @@ const imageContents = ref<Item.CommentItemProps[]>([]);
 const videoContents = ref<Item.CommentItemProps[]>([]);
 const attachmentContents = ref<Item.AttachmentProps[]>([]);
 const visitType = ref<VisibilityEnum>(VisibilityEnum.PUBLIC);
-const defaultVisitType = ref<VisibilityEnum>(VisibilityEnum.PUBLIC)
+const defaultVisitType = ref<VisibilityEnum>(VisibilityEnum.PUBLIC);
 
-const allowTweetVisibility = ref(import.meta.env.VITE_ALLOW_TWEET_VISIBILITY.toLowerCase() === 'true')
+const allowTweetVisibility = ref(
+  import.meta.env.VITE_ALLOW_TWEET_VISIBILITY.toLowerCase() === 'true',
+);
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 
 const uploadToken = computed(() => {
-    return 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
+  return 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
 });
 
-const visibilities = computed(()=> {
-    let res = [
-        {value: VisibilityEnum.PUBLIC, label: "公开"},
-        {value: VisibilityEnum.PRIVATE, label: "私密"},
-        {value: VisibilityEnum.Following, label: "关注可见"},
-    ];
-    if (store.state.profile.useFriendship) {
-        res.push({value: VisibilityEnum.FRIEND, label: "好友可见"});
-    }
-    return res;
+const visibilities = computed(() => {
+  let res = [
+    { value: VisibilityEnum.PUBLIC, label: '公开' },
+    { value: VisibilityEnum.PRIVATE, label: '私密' },
+    { value: VisibilityEnum.Following, label: '关注可见' },
+  ];
+  if (store.state.profile.useFriendship) {
+    res.push({ value: VisibilityEnum.FRIEND, label: '好友可见' });
+  }
+  return res;
 });
 
 const switchLink = () => {
-    showLinkSet.value = !showLinkSet.value;
-    if (showLinkSet.value && showEyeSet.value) {
-        showEyeSet.value = false
-    }
+  showLinkSet.value = !showLinkSet.value;
+  if (showLinkSet.value && showEyeSet.value) {
+    showEyeSet.value = false;
+  }
 };
 
 const switchEye = () => {
-    showEyeSet.value = !showEyeSet.value;
-     if (showEyeSet.value && showLinkSet.value) {
-        showLinkSet.value = false
-    }
+  showEyeSet.value = !showEyeSet.value;
+  if (showEyeSet.value && showLinkSet.value) {
+    showLinkSet.value = false;
+  }
 };
 
 // 加载at用户列表
 const loadSuggestionUsers = debounce((k) => {
-    getSuggestUsers({
-        k,
-    })
-        .then((res) => {
-            let options: MentionOption[] = [];
-            res.suggest.map((i) => {
-                options.push({
-                    label: i,
-                    value: i,
-                });
-            });
-            optionsRef.value = options;
-            loading.value = false;
-        })
-        .catch((err) => {
-            loading.value = false;
+  getSuggestUsers({
+    k,
+  })
+    .then((res) => {
+      let options: MentionOption[] = [];
+      res.suggest.map((i) => {
+        options.push({
+          label: i,
+          value: i,
         });
+      });
+      optionsRef.value = options;
+      loading.value = false;
+    })
+    .catch((err) => {
+      loading.value = false;
+    });
 }, 200);
 
 // 加载推荐tag列表
 const loadSuggestionTags = debounce((k) => {
-    getSuggestTags({
-        k,
-    })
-        .then((res) => {
-            let options: MentionOption[] = [];
-            res.suggest.map((i) => {
-                options.push({
-                    label: i,
-                    value: i,
-                });
-            });
-            optionsRef.value = options;
-            loading.value = false;
-        })
-        .catch((err) => {
-            loading.value = false;
+  getSuggestTags({
+    k,
+  })
+    .then((res) => {
+      let options: MentionOption[] = [];
+      res.suggest.map((i) => {
+        options.push({
+          label: i,
+          value: i,
         });
+      });
+      optionsRef.value = options;
+      loading.value = false;
+    })
+    .catch((err) => {
+      loading.value = false;
+    });
 }, 200);
 
 const handleSearch = (k: string, prefix: string) => {
-    if (loading.value) {
-        return;
-    }
-    loading.value = true;
-    if (prefix === '@') {
-        loadSuggestionUsers(k);
-    } else {
-        loadSuggestionTags(k);
-    }
+  if (loading.value) {
+    return;
+  }
+  loading.value = true;
+  if (prefix === '@') {
+    loadSuggestionUsers(k);
+  } else {
+    loadSuggestionTags(k);
+  }
 };
 const changeContent = (v: string) => {
-    if (v.length > store.state.profile.defaultTweetMaxLength) {
-        content.value = v.substring(0, store.state.profile.defaultTweetMaxLength);
-    } else {
-        content.value = v;
-    }
+  if (v.length > store.state.profile.defaultTweetMaxLength) {
+    content.value = v.substring(0, store.state.profile.defaultTweetMaxLength);
+  } else {
+    content.value = v;
+  }
 };
 const setUploadType = (type: string) => {
-    uploadType.value = type;
+  uploadType.value = type;
 };
 
 const updateUpload = (list: UploadFileInfo[]) => {
-    for (let i = 0; i < list.length; i++) {
-        var name = list[i].name;
-        var basename: string = name.split('.').slice(0, -1).join('.');
-        var ext: string = name.split('.').pop()!;
-        if (basename.length > 30) {
-            list[i].name = basename.substring(0, 18) + "..." + basename.substring(basename.length-9) + "." + ext;
-        }
+  for (let i = 0; i < list.length; i++) {
+    var name = list[i].name;
+    var basename: string = name.split('.').slice(0, -1).join('.');
+    var ext: string = name.split('.').pop()!;
+    if (basename.length > 30) {
+      list[i].name =
+        basename.substring(0, 18) +
+        '...' +
+        basename.substring(basename.length - 9) +
+        '.' +
+        ext;
     }
-    fileQueue.value = list;
+  }
+  fileQueue.value = list;
 };
 const beforeUpload = async (data: any) => {
-    // 图片类型校验
-    if (
-        uploadType.value === 'public/image' &&
-        !['image/webp', 'image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(
-            data.file.file?.type
-        )
-    ) {
-        window.$message.warning('图片仅允许 webp/png/jpg/gif 格式');
-        return false;
-    }
+  // 图片类型校验
+  if (
+    uploadType.value === 'public/image' &&
+    ![
+      'image/webp',
+      'image/png',
+      'image/jpg',
+      'image/jpeg',
+      'image/gif',
+    ].includes(data.file.file?.type)
+  ) {
+    window.$message.warning('图片仅允许 webp/png/jpg/gif 格式');
+    return false;
+  }
 
-    if (uploadType.value === 'image' && data.file.file?.size > 10485760) {
-        window.$message.warning('图片大小不能超过10MB');
-        return false;
-    }
+  if (uploadType.value === 'image' && data.file.file?.size > 10485760) {
+    window.$message.warning('图片大小不能超过10MB');
+    return false;
+  }
 
-    // 视频类型校验
-    if (
-        uploadType.value === 'public/video' &&
-        !['video/mp4', 'video/quicktime'].includes(data.file.file?.type)
-    ) {
-        window.$message.warning('视频仅允许 mp4/mov 格式');
-        return false;
-    }
+  // 视频类型校验
+  if (
+    uploadType.value === 'public/video' &&
+    !['video/mp4', 'video/quicktime'].includes(data.file.file?.type)
+  ) {
+    window.$message.warning('视频仅允许 mp4/mov 格式');
+    return false;
+  }
 
-    if (
-        uploadType.value === 'public/video' &&
-        data.file.file?.size > 104857600
-    ) {
-        window.$message.warning('视频大小不能超过100MB');
-        return false;
-    }
-    // 附件类型校验
-    if (
-        uploadType.value === 'attachment' && !(await isZipFile(data.file.file))
-    ) {
-        window.$message.warning('附件仅允许 zip 格式');
-        return false;
-    }
+  if (uploadType.value === 'public/video' && data.file.file?.size > 104857600) {
+    window.$message.warning('视频大小不能超过100MB');
+    return false;
+  }
+  // 附件类型校验
+  if (uploadType.value === 'attachment' && !(await isZipFile(data.file.file))) {
+    window.$message.warning('附件仅允许 zip 格式');
+    return false;
+  }
 
-    if (uploadType.value === 'attachment' && data.file.file?.size > 104857600) {
-        window.$message.warning('附件大小不能超过100MB');
-        return false;
-    }
+  if (uploadType.value === 'attachment' && data.file.file?.size > 104857600) {
+    window.$message.warning('附件大小不能超过100MB');
+    return false;
+  }
 
-    return true;
+  return true;
 };
 const finishUpload = ({ file, event }: any): any => {
-    try {
-        let data = JSON.parse(event.target?.response);
+  try {
+    let data = JSON.parse(event.target?.response);
 
-        if (data.code === 0) {
-            if (uploadType.value === 'public/image') {
-                imageContents.value.push({
-                    id: file.id,
-                    content: data.data.content,
-                } as Item.CommentItemProps);
-            }
-            if (uploadType.value === 'public/video') {
-                videoContents.value.push({
-                    id: file.id,
-                    content: data.data.content,
-                } as Item.CommentItemProps);
-            }
-            if (uploadType.value === 'attachment') {
-                attachmentContents.value.push({
-                    id: file.id,
-                    content: data.data.content,
-                } as Item.AttachmentProps);
-            }
-        }
-    } catch (error) {
-        window.$message.error('上传失败');
+    if (data.code === 0) {
+      if (uploadType.value === 'public/image') {
+        imageContents.value.push({
+          id: file.id,
+          content: data.data.content,
+        } as Item.CommentItemProps);
+      }
+      if (uploadType.value === 'public/video') {
+        videoContents.value.push({
+          id: file.id,
+          content: data.data.content,
+        } as Item.CommentItemProps);
+      }
+      if (uploadType.value === 'attachment') {
+        attachmentContents.value.push({
+          id: file.id,
+          content: data.data.content,
+        } as Item.AttachmentProps);
+      }
     }
+  } catch (error) {
+    window.$message.error('上传失败');
+  }
 };
 const failUpload = ({ file, event }: any): any => {
-    try {
-        let data = JSON.parse(event.target?.response);
+  try {
+    let data = JSON.parse(event.target?.response);
 
-        if (data.code !== 0) {
-            let errMsg = data.msg || '上传失败';
-            if (data.details && data.details.length > 0) {
-                data.details.map((detail: string) => {
-                    errMsg += ':' + detail;
-                });
-            }
-            window.$message.error(errMsg);
-        }
-    } catch (error) {
-        window.$message.error('上传失败');
+    if (data.code !== 0) {
+      let errMsg = data.msg || '上传失败';
+      if (data.details && data.details.length > 0) {
+        data.details.map((detail: string) => {
+          errMsg += ':' + detail;
+        });
+      }
+      window.$message.error(errMsg);
     }
+  } catch (error) {
+    window.$message.error('上传失败');
+  }
 };
 const removeUpload = ({ file }: any) => {
-    let idx = imageContents.value.findIndex((item) => item.id === file.id);
-    if (idx > -1) {
-        imageContents.value.splice(idx, 1);
-    }
-    idx = videoContents.value.findIndex((item) => item.id === file.id);
-    if (idx > -1) {
-        videoContents.value.splice(idx, 1);
-    }
-    idx = attachmentContents.value.findIndex((item) => item.id === file.id);
-    if (idx > -1) {
-        attachmentContents.value.splice(idx, 1);
-    }
+  let idx = imageContents.value.findIndex((item) => item.id === file.id);
+  if (idx > -1) {
+    imageContents.value.splice(idx, 1);
+  }
+  idx = videoContents.value.findIndex((item) => item.id === file.id);
+  if (idx > -1) {
+    videoContents.value.splice(idx, 1);
+  }
+  idx = attachmentContents.value.findIndex((item) => item.id === file.id);
+  if (idx > -1) {
+    attachmentContents.value.splice(idx, 1);
+  }
 };
 
 // 发布动态
 const submitPost = () => {
-    if (content.value.trim().length === 0) {
-        window.$message.warning('请输入内容哦');
-        return;
-    }
+  if (content.value.trim().length === 0) {
+    window.$message.warning('请输入内容哦');
+    return;
+  }
 
-    // 解析用户at及tag
-    let { tags, users } = parsePostTag(content.value);
+  // 解析用户at及tag
+  let { tags, users } = parsePostTag(content.value);
 
-    const contents = [];
-    let sort = 100;
+  const contents = [];
+  let sort = 100;
 
+  contents.push({
+    content: content.value,
+    type: PostItemTypeEnum.TEXT, // 文字
+    sort,
+  });
+
+  imageContents.value.map((img) => {
+    sort++;
     contents.push({
-        content: content.value,
-        type: PostItemTypeEnum.TEXT, // 文字
+      content: img.content,
+      type: PostItemTypeEnum.IMAGEURL, // 图片
+      sort,
+    });
+  });
+  videoContents.value.map((video) => {
+    sort++;
+    contents.push({
+      content: video.content,
+      type: PostItemTypeEnum.VIDEOURL, // 视频
+      sort,
+    });
+  });
+  attachmentContents.value.map((attachment) => {
+    sort++;
+    contents.push({
+      content: attachment.content,
+      type: PostItemTypeEnum.ATTACHMENT, // 附件
+      sort,
+    });
+  });
+  if (links.value.length > 0) {
+    links.value.map((link) => {
+      sort++;
+      contents.push({
+        content: link,
+        type: PostItemTypeEnum.LINKURL, // 链接
         sort,
+      });
     });
+  }
 
-    imageContents.value.map((img) => {
-        sort++;
-        contents.push({
-            content: img.content,
-            type: PostItemTypeEnum.IMAGEURL, // 图片
-            sort,
-        });
-    });
-    videoContents.value.map((video) => {
-        sort++;
-        contents.push({
-            content: video.content,
-            type: PostItemTypeEnum.VIDEOURL, // 视频
-            sort,
-        });
-    });
-    attachmentContents.value.map((attachment) => {
-        sort++;
-        contents.push({
-            content: attachment.content,
-            type: PostItemTypeEnum.ATTACHMENT, // 附件
-            sort,
-        });
-    });
-    if (links.value.length > 0) {
-        links.value.map((link) => {
-            sort++;
-            contents.push({
-                content: link,
-                type: PostItemTypeEnum.LINKURL, // 链接
-                sort,
-            });
-        });
-    }
+  submitting.value = true;
+  createPost({
+    contents,
+    tags: Array.from(new Set(tags)),
+    users: Array.from(new Set(users)),
+    attachment_price: +attachmentPrice.value * 100,
+    visibility: visitType.value,
+  })
+    .then((res) => {
+      window.$message.success('发布成功');
+      submitting.value = false;
+      emit('post-success', res);
 
-    submitting.value = true;
-    createPost({
-        contents,
-        tags: Array.from(new Set(tags)),
-        users: Array.from(new Set(users)),
-        attachment_price: +attachmentPrice.value * 100,
-        visibility: visitType.value
+      // 置空
+      showLinkSet.value = false;
+      showEyeSet.value = false;
+      uploadRef.value?.clear();
+      fileQueue.value = [];
+      content.value = '';
+      links.value = [];
+      imageContents.value = [];
+      videoContents.value = [];
+      attachmentContents.value = [];
+      visitType.value = defaultVisitType.value;
     })
-        .then((res) => {
-            window.$message.success('发布成功');
-            submitting.value = false;
-            emit('post-success', res);
-
-            // 置空
-            showLinkSet.value = false;
-            showEyeSet.value = false;
-            uploadRef.value?.clear();
-            fileQueue.value = [];
-            content.value = '';
-            links.value = [];
-            imageContents.value = [];
-            videoContents.value = [];
-            attachmentContents.value = [];
-            visitType.value = defaultVisitType.value;
-        })
-        .catch((err) => {
-            submitting.value = false;
-        });
+    .catch((err) => {
+      submitting.value = false;
+    });
 };
 const triggerAuth = (key: string) => {
-    store.commit('triggerAuth', true);
-    store.commit('triggerAuthKey', key);
+  store.commit('triggerAuth', true);
+  store.commit('triggerAuthKey', key);
 };
 onMounted(() => {
-    const defaultVisibility = store.state.profile.defaultTweetVisibility
-    if (store.state.profile.useFriendship && defaultVisibility === 'friend') {
-        defaultVisitType.value = VisibilityEnum.FRIEND
-    } else if (defaultVisibility  === 'following') {
-        defaultVisitType.value = VisibilityEnum.Following
-    } else if (defaultVisibility === 'public') {
-        defaultVisitType.value = VisibilityEnum.PUBLIC
-    } else {
-        defaultVisitType.value = VisibilityEnum.PRIVATE
-    }
-    visitType.value = defaultVisitType.value;
+  const defaultVisibility = store.state.profile.defaultTweetVisibility;
+  if (store.state.profile.useFriendship && defaultVisibility === 'friend') {
+    defaultVisitType.value = VisibilityEnum.FRIEND;
+  } else if (defaultVisibility === 'following') {
+    defaultVisitType.value = VisibilityEnum.Following;
+  } else if (defaultVisibility === 'public') {
+    defaultVisitType.value = VisibilityEnum.PUBLIC;
+  } else {
+    defaultVisitType.value = VisibilityEnum.PRIVATE;
+  }
+  visitType.value = defaultVisitType.value;
 });
 </script>
 
