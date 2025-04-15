@@ -11,13 +11,18 @@ import (
 	"embed"
 	"io/fs"
 	"net/http"
+
+	embedfs "github.com/alimy/tryst/embed"
+	"github.com/rocboss/paopao-ce/pkg/version"
 )
 
-//go:embed dist/*
+//go:embed all:dist
 var files embed.FS
 
 // NewFileSystem get an embed static assets http.FileSystem instance.
 func NewFileSystem() http.FileSystem {
 	subfs, _ := fs.Sub(files, "dist")
-	return http.FS(subfs)
+	// add custom mod time for embed fs
+	timefs := embedfs.NewFS(subfs, version.BuildTime)
+	return http.FS(timefs)
 }
