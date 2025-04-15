@@ -88,9 +88,9 @@ gen-mir:
 
 .PHONY: gen-rpc
 gen-rpc:
-	@rm -rf auto/rpc auto/connect
+	@rm -rf auto/rpc
 	@buf generate proto
-	@go fmt ./auto/rpc/... ./auto/connect/...
+	@go fmt ./auto/rpc/...
 
 .PHONY: proto-mod
 proto-mod:
@@ -126,7 +126,6 @@ install-protobuf-plugins:
 	@go install github.com/bufbuild/buf/cmd/buf@latest
 	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking@latest
 	@go install github.com/bufbuild/buf/cmd/protoc-gen-buf-lint@latest
-	@go install connectrpc.com/connect/cmd/protoc-gen-connect-go@latest
 	@go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
 	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
