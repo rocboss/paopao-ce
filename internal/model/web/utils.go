@@ -5,7 +5,7 @@
 package web
 
 import (
-	"github.com/alimy/mir/v4"
+	"github.com/alimy/mir/v5"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
 

@@ -1,20 +1,15 @@
 package v1
 
 import (
-	. "github.com/alimy/mir/v4"
-	. "github.com/alimy/mir/v4/engine"
+	. "github.com/alimy/mir/v5"
+
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
-func init() {
-	Entry[Trends]()
-}
-
 // Trends 动态相关 服务
 type Trends struct {
-	Chain `mir:"-"`
-	Group `mir:"v1"`
+	Schema `mir:"v1,chain"`
 
 	// GetIndexTrends 获取广场页面动态条栏的索引item
-	GetIndexTrends func(Get, web.GetIndexTrendsReq) web.GetIndexTrendsResp `mir:"/trends/index"`
+	GetIndexTrends func(Get, web.GetIndexTrendsReq) web.GetIndexTrendsResp `mir:"trends/index"`
 }

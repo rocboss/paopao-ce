@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimy/mir/v4"
+	"github.com/alimy/mir/v5"
 	"github.com/alimy/tryst/cfg"
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"

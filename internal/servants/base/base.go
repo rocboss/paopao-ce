@@ -10,7 +10,7 @@ import (
 	"math"
 	"net/http"
 
-	"github.com/alimy/mir/v4"
+	"github.com/alimy/mir/v5"
 	"github.com/cockroachdb/errors"
 	"github.com/getsentry/sentry-go"
 	sentrygin "github.com/getsentry/sentry-go/gin"

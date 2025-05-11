@@ -5,7 +5,7 @@
 package web
 
 import (
-	"github.com/alimy/mir/v4"
+	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/rueidis"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"

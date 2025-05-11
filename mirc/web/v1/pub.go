@@ -1,18 +1,14 @@
 package v1
 
 import (
-	. "github.com/alimy/mir/v4"
-	. "github.com/alimy/mir/v4/engine"
+	. "github.com/alimy/mir/v5"
+
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
-func init() {
-	Entry[Pub]()
-}
-
 // Pub 不用授权的公开服务
 type Pub struct {
-	Group `mir:"v1"`
+	Schema `mir:"v1"`
 
 	// Version 获取后台版本信息
 	Version func(Get) web.VersionResp `mir:"/"`

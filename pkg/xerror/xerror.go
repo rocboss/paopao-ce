@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/alimy/mir/v4"
+	"github.com/alimy/mir/v5"
 )
 
 var (
