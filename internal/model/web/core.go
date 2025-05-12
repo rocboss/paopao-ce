@@ -5,7 +5,7 @@
 package web
 
 import (
-	"github.com/alimy/mir/v4"
+	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/model/joint"

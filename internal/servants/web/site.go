@@ -5,7 +5,7 @@
 package web
 
 import (
-	"github.com/alimy/mir/v4"
+	"github.com/alimy/mir/v5"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model/web"
