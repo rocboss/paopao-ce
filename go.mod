@@ -29,8 +29,8 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/meilisearch/meilisearch-go v0.27.2
 	github.com/minio/minio-go/v7 v7.0.84
-	github.com/onsi/ginkgo/v2 v2.19.0
-	github.com/onsi/gomega v1.34.1
+	github.com/onsi/ginkgo/v2 v2.23.4
+	github.com/onsi/gomega v1.36.3
 	github.com/prometheus/client_golang v1.19.1
 	github.com/redis/rueidis v1.0.53
 	github.com/robfig/cron/v3 v3.0.1
@@ -51,7 +51,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.35.0
 	go.opentelemetry.io/otel/sdk/log v0.10.0
 	go.opentelemetry.io/otel/sdk/metric v1.34.0
-	go.uber.org/automaxprocs v1.5.3
+	go.uber.org/automaxprocs v1.6.0
 	golang.org/x/crypto v0.38.0
 	google.golang.org/grpc v1.71.1
 	google.golang.org/protobuf v1.36.5
@@ -95,7 +95,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/pprof v0.0.0-20240424215950-a892ee059fd6 // indirect
+	github.com/google/pprof v0.0.0-20250403155104-27863c87afa6 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grafana/pyroscope-go/godeltaprof v0.1.8 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1 // indirect
