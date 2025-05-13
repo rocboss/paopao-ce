@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/RoaringBitmap/roaring v1.9.4
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
-	github.com/alimy/mir/v5 v5.0.0
+	github.com/alimy/mir/v5 v5.0.1
 	github.com/alimy/tryst v1.1.0
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
@@ -27,6 +27,7 @@ require (
 	github.com/grafana/pyroscope-go v1.2.2
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.24.9+incompatible
 	github.com/json-iterator/go v1.1.12
+	github.com/livekit/mageutil v0.0.0-20250511045019-0f1ff63f7731
 	github.com/meilisearch/meilisearch-go v0.27.2
 	github.com/minio/minio-go/v7 v7.0.84
 	github.com/onsi/ginkgo/v2 v2.23.4
