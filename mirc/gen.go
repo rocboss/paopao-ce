@@ -18,8 +18,8 @@ import (
 func main() {
 	log.Println("[Mir] generate code start")
 	if err := Generate(
-		Schema("web", "space", "localoss", "bot", "admin"),
 		UseGin(),
+		Schema("web", "space", "localoss", "bot", "admin"),
 		SinkPath("../auto"),
 		WatchCtxDone(true),
 		RunMode(InSerialMode),

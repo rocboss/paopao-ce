@@ -1,4 +1,5 @@
 .DS_Store
+.mirc
 .idea
 __debug_bin
 !*.example

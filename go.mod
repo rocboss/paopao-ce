@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/RoaringBitmap/roaring v1.9.4
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
-	github.com/alimy/mir/v5 v5.0.0
+	github.com/alimy/mir/v5 v5.0.1
 	github.com/alimy/tryst v1.1.0
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
@@ -14,23 +14,24 @@ require (
 	github.com/cockroachdb/errors v1.11.3
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.18.0
-	github.com/getsentry/sentry-go v0.31.1
-	github.com/getsentry/sentry-go/gin v0.31.1
+	github.com/getsentry/sentry-go v0.32.0
+	github.com/getsentry/sentry-go/gin v0.32.0
 	github.com/getsentry/sentry-go/logrus v0.31.1
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-resty/resty/v2 v2.12.0
-	github.com/goccy/go-json v0.10.4
+	github.com/goccy/go-json v0.10.5
 	github.com/gofrs/uuid/v5 v5.3.2
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/golang-migrate/migrate/v4 v4.18.1
-	github.com/grafana/pyroscope-go v1.2.0
+	github.com/grafana/pyroscope-go v1.2.2
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.24.9+incompatible
 	github.com/json-iterator/go v1.1.12
+	github.com/livekit/mageutil v0.0.0-20250511045019-0f1ff63f7731
 	github.com/meilisearch/meilisearch-go v0.27.2
 	github.com/minio/minio-go/v7 v7.0.84
-	github.com/onsi/ginkgo/v2 v2.19.0
-	github.com/onsi/gomega v1.34.1
+	github.com/onsi/ginkgo/v2 v2.23.4
+	github.com/onsi/gomega v1.36.3
 	github.com/prometheus/client_golang v1.19.1
 	github.com/redis/rueidis v1.0.53
 	github.com/robfig/cron/v3 v3.0.1
@@ -51,7 +52,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.35.0
 	go.opentelemetry.io/otel/sdk/log v0.10.0
 	go.opentelemetry.io/otel/sdk/metric v1.34.0
-	go.uber.org/automaxprocs v1.5.3
+	go.uber.org/automaxprocs v1.6.0
 	golang.org/x/crypto v0.38.0
 	google.golang.org/grpc v1.71.1
 	google.golang.org/protobuf v1.36.5
@@ -95,7 +96,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/pprof v0.0.0-20240424215950-a892ee059fd6 // indirect
+	github.com/google/pprof v0.0.0-20250403155104-27863c87afa6 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grafana/pyroscope-go/godeltaprof v0.1.8 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1 // indirect
