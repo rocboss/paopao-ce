@@ -45,12 +45,12 @@ require (
 	go.opentelemetry.io/contrib/bridges/otellogrus v0.9.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.59.0
 	go.opentelemetry.io/otel v1.35.0
-	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.10.0
+	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.11.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.34.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.35.0
-	go.opentelemetry.io/otel/log v0.10.0
+	go.opentelemetry.io/otel/log v0.11.0
 	go.opentelemetry.io/otel/sdk v1.35.0
-	go.opentelemetry.io/otel/sdk/log v0.10.0
+	go.opentelemetry.io/otel/sdk/log v0.11.0
 	go.opentelemetry.io/otel/sdk/metric v1.34.0
 	go.uber.org/automaxprocs v1.6.0
 	golang.org/x/crypto v0.38.0
