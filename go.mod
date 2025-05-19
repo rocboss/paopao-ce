@@ -38,7 +38,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/smartwalle/alipay/v3 v3.2.20
 	github.com/sourcegraph/conc v0.3.0
-	github.com/spf13/cobra v1.8.1
+	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.19.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.65
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
@@ -145,7 +145,7 @@ require (
 	github.com/smartwalle/nsign v1.0.9 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
