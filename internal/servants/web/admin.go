@@ -7,7 +7,6 @@ package web
 import (
 	"time"
 
-	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/conf"
@@ -34,7 +33,7 @@ func (s *adminSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT(), chain.Admin()}
 }
 
-func (s *adminSrv) ChangeUserStatus(req *web.ChangeUserStatusReq) mir.Error {
+func (s *adminSrv) ChangeUserStatus(req *web.ChangeUserStatusReq) error {
 	user, err := s.Ds.GetUserByID(req.ID)
 	if err != nil || user.Model == nil || user.ID <= 0 {
 		return web.ErrNoExistUsername
@@ -47,7 +46,7 @@ func (s *adminSrv) ChangeUserStatus(req *web.ChangeUserStatusReq) mir.Error {
 	return nil
 }
 
-func (s *adminSrv) SiteInfo(req *web.SiteInfoReq) (*web.SiteInfoResp, mir.Error) {
+func (s *adminSrv) SiteInfo(req *web.SiteInfoReq) (*web.SiteInfoResp, error) {
 	res, err := &web.SiteInfoResp{ServerUpTime: s.serverUpTime}, error(nil)
 	res.RegisterUserCount, err = s.Ds.GetRegisterUserCount()
 	if err != nil {

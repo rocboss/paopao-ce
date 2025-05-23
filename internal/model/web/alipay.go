@@ -7,7 +7,6 @@ package web
 import (
 	"context"
 
-	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
@@ -54,7 +53,7 @@ type AlipayNotifyReq struct {
 	TradeStatus alipay.TradeStatus
 }
 
-func (r *AlipayNotifyReq) Bind(c *gin.Context) mir.Error {
+func (r *AlipayNotifyReq) Bind(c *gin.Context) error {
 	if err := c.Request.ParseForm(); err != nil {
 		logrus.Errorf("parse form err: %s", err)
 		return ErrRechargeNotifyError
@@ -71,7 +70,7 @@ func (r *AlipayNotifyReq) Bind(c *gin.Context) mir.Error {
 	return nil
 }
 
-func (r *UserWalletBillsReq) Bind(c *gin.Context) mir.Error {
+func (r *UserWalletBillsReq) Bind(c *gin.Context) error {
 	uid, ok := base.UserIdFrom(c)
 	if !ok {
 		return xerror.UnauthorizedTokenError
@@ -81,12 +80,12 @@ func (r *UserWalletBillsReq) Bind(c *gin.Context) mir.Error {
 	return nil
 }
 
-func (r *UserRechargeLinkReq) Bind(c *gin.Context) mir.Error {
+func (r *UserRechargeLinkReq) Bind(c *gin.Context) error {
 	r.Host = c.Request.Host
 	return bindAny(c, r)
 }
 
-func (r *UserRechargeResultReq) Bind(c *gin.Context) mir.Error {
+func (r *UserRechargeResultReq) Bind(c *gin.Context) error {
 	uid, exist := base.UserIdFrom(c)
 	if !exist {
 		return xerror.UnauthorizedTokenError

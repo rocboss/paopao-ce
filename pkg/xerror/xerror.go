@@ -82,26 +82,27 @@ func (e *Error) WithDetails(details ...string) *Error {
 	return &newError
 }
 
-func HttpStatusCode(e mir.Error) int {
-	switch e.StatusCode() {
-	case Success.StatusCode():
-		return http.StatusOK
-	case ServerError.StatusCode():
-		return http.StatusInternalServerError
-	case InvalidParams.StatusCode():
-		return http.StatusBadRequest
-	case UnauthorizedAuthNotExist.StatusCode():
-		fallthrough
-	case UnauthorizedAuthFailed.StatusCode():
-		fallthrough
-	case UnauthorizedTokenError.StatusCode():
-		fallthrough
-	case UnauthorizedTokenGenerate.StatusCode():
-		fallthrough
-	case UnauthorizedTokenTimeout.StatusCode():
-		return http.StatusUnauthorized
-	case TooManyRequests.StatusCode():
-		return http.StatusTooManyRequests
+func HttpStatusCode(e error) (statusCode int, code int) {
+	var ok bool
+	statusCode = http.StatusInternalServerError
+	if code, ok = mir.HttpStatusCode(e); !ok {
+		return
 	}
-	return http.StatusInternalServerError
+	switch code {
+	case Success.StatusCode():
+		statusCode = http.StatusOK
+	case ServerError.StatusCode():
+		statusCode = http.StatusInternalServerError
+	case InvalidParams.StatusCode():
+		statusCode = http.StatusBadRequest
+	case UnauthorizedAuthNotExist.StatusCode(),
+		UnauthorizedAuthFailed.StatusCode(),
+		UnauthorizedTokenError.StatusCode(),
+		UnauthorizedTokenGenerate.StatusCode(),
+		UnauthorizedTokenTimeout.StatusCode():
+		statusCode = http.StatusUnauthorized
+	case TooManyRequests.StatusCode():
+		statusCode = http.StatusTooManyRequests
+	}
+	return
 }

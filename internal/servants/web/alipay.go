@@ -7,7 +7,6 @@ package web
 import (
 	"fmt"
 
-	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/model/web"
@@ -34,7 +33,7 @@ type alipayPrivSrv struct {
 	alipayClient *alipay.Client
 }
 
-func (s *alipayPubSrv) AlipayNotify(req *web.AlipayNotifyReq) mir.Error {
+func (s *alipayPubSrv) AlipayNotify(req *web.AlipayNotifyReq) error {
 	if req.TradeStatus == alipay.TradeStatusSuccess {
 		if err := s.Redis.SetRechargeStatus(req.Ctx, req.TradeNo); err == nil {
 			recharge, err := s.Ds.GetRechargeByID(req.ID)
@@ -60,7 +59,7 @@ func (s *alipayPrivSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT()}
 }
 
-func (s *alipayPrivSrv) UserWalletBills(req *web.UserWalletBillsReq) (*web.UserWalletBillsResp, mir.Error) {
+func (s *alipayPrivSrv) UserWalletBills(req *web.UserWalletBillsReq) (*web.UserWalletBillsResp, error) {
 	bills, err := s.Ds.GetUserWalletBills(req.UserId, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
 		logrus.Errorf("GetUserWalletBills err: %s", err)
@@ -75,7 +74,7 @@ func (s *alipayPrivSrv) UserWalletBills(req *web.UserWalletBillsReq) (*web.UserW
 	return (*web.UserWalletBillsResp)(resp), nil
 }
 
-func (s *alipayPrivSrv) UserRechargeLink(req *web.UserRechargeLinkReq) (*web.UserRechargeLinkResp, mir.Error) {
+func (s *alipayPrivSrv) UserRechargeLink(req *web.UserRechargeLinkReq) (*web.UserRechargeLinkResp, error) {
 	recharge, err := s.Ds.CreateRecharge(req.User.ID, req.Amount)
 	if err != nil {
 		logrus.Errorf("Ds.CreateRecharge err: %v", err)
@@ -100,7 +99,7 @@ func (s *alipayPrivSrv) UserRechargeLink(req *web.UserRechargeLinkReq) (*web.Use
 	}, nil
 }
 
-func (s *alipayPrivSrv) UserRechargeResult(req *web.UserRechargeResultReq) (*web.UserRechargeResultResp, mir.Error) {
+func (s *alipayPrivSrv) UserRechargeResult(req *web.UserRechargeResultReq) (*web.UserRechargeResultResp, error) {
 	recharge, err := s.Ds.GetRechargeByID(req.Id)
 	if err != nil {
 		logrus.Errorf("Ds.GetRechargeByID err: %v", err)

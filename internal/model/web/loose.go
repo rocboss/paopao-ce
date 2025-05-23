@@ -5,7 +5,6 @@
 package web
 
 import (
-	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
@@ -127,7 +126,7 @@ func (r *TweetCommentsReq) SetPageInfo(page int, pageSize int) {
 	r.Page, r.PageSize = page, pageSize
 }
 
-func (r *TimelineReq) Bind(c *gin.Context) mir.Error {
+func (r *TimelineReq) Bind(c *gin.Context) error {
 	user, _ := base.UserFrom(c)
 	r.BaseInfo = BaseInfo{
 		User: user,

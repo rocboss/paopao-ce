@@ -14,7 +14,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/afocus/captcha"
-	"github.com/alimy/mir/v5"
 	"github.com/gofrs/uuid/v5"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -42,7 +41,7 @@ type pubSrv struct {
 	*base.DaoServant
 }
 
-func (s *pubSrv) SendCaptcha(req *web.SendCaptchaReq) mir.Error {
+func (s *pubSrv) SendCaptcha(req *web.SendCaptchaReq) error {
 	ctx := context.Background()
 
 	// 验证图片验证码
@@ -66,7 +65,7 @@ func (s *pubSrv) SendCaptcha(req *web.SendCaptchaReq) mir.Error {
 	return nil
 }
 
-func (s *pubSrv) GetCaptcha() (*web.GetCaptchaResp, mir.Error) {
+func (s *pubSrv) GetCaptcha() (*web.GetCaptchaResp, error) {
 	cap := captcha.New()
 	if err := cap.AddFontFromBytes(assets.ComicBytes); err != nil {
 		logrus.Errorf("cap.AddFontFromBytes err:%s", err)
@@ -91,7 +90,7 @@ func (s *pubSrv) GetCaptcha() (*web.GetCaptchaResp, mir.Error) {
 	}, nil
 }
 
-func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
+func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, error) {
 	if _disallowUserRegister {
 		return nil, web.ErrDisallowUserRegister
 	}
@@ -124,7 +123,7 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, mir.Error) {
 	}, nil
 }
 
-func (s *pubSrv) Login(req *web.LoginReq) (*web.LoginResp, mir.Error) {
+func (s *pubSrv) Login(req *web.LoginReq) (*web.LoginResp, error) {
 	ctx := context.Background()
 	user, err := s.Ds.GetUserByUsername(req.Username)
 	if err != nil {
@@ -162,14 +161,14 @@ func (s *pubSrv) Login(req *web.LoginReq) (*web.LoginResp, mir.Error) {
 	}, nil
 }
 
-func (s *pubSrv) Version() (*web.VersionResp, mir.Error) {
+func (s *pubSrv) Version() (*web.VersionResp, error) {
 	return &web.VersionResp{
 		BuildInfo: version.ReadBuildInfo(),
 	}, nil
 }
 
 // validUsername 验证用户
-func (s *pubSrv) validUsername(username string) mir.Error {
+func (s *pubSrv) validUsername(username string) error {
 	// 检测用户是否合规
 	if utf8.RuneCountInString(username) < 3 || utf8.RuneCountInString(username) > 12 {
 		return web.ErrUsernameLengthLimit

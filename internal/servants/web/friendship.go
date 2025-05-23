@@ -5,7 +5,6 @@
 package web
 
 import (
-	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/model/web"
@@ -28,7 +27,7 @@ func (s *friendshipSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT()}
 }
 
-func (s *friendshipSrv) GetContacts(req *web.GetContactsReq) (*web.GetContactsResp, mir.Error) {
+func (s *friendshipSrv) GetContacts(req *web.GetContactsReq) (*web.GetContactsResp, error) {
 	if req.User == nil {
 		return nil, xerror.ServerError
 	}
@@ -41,7 +40,7 @@ func (s *friendshipSrv) GetContacts(req *web.GetContactsReq) (*web.GetContactsRe
 	return (*web.GetContactsResp)(resp), nil
 }
 
-func (s *friendshipSrv) DeleteFriend(req *web.DeleteFriendReq) mir.Error {
+func (s *friendshipSrv) DeleteFriend(req *web.DeleteFriendReq) error {
 	if req.User == nil {
 		return xerror.ServerError
 	}
@@ -61,7 +60,7 @@ func (s *friendshipSrv) DeleteFriend(req *web.DeleteFriendReq) mir.Error {
 	return nil
 }
 
-func (s *friendshipSrv) RejectFriend(req *web.RejectFriendReq) mir.Error {
+func (s *friendshipSrv) RejectFriend(req *web.RejectFriendReq) error {
 	if req.User == nil {
 		return xerror.ServerError
 	}
@@ -78,7 +77,7 @@ func (s *friendshipSrv) RejectFriend(req *web.RejectFriendReq) mir.Error {
 	return nil
 }
 
-func (s *friendshipSrv) AddFriend(req *web.AddFriendReq) mir.Error {
+func (s *friendshipSrv) AddFriend(req *web.AddFriendReq) error {
 	if req.User == nil {
 		return xerror.ServerError
 	}
@@ -98,7 +97,7 @@ func (s *friendshipSrv) AddFriend(req *web.AddFriendReq) mir.Error {
 	return nil
 }
 
-func (s *friendshipSrv) RequestingFriend(req *web.RequestingFriendReq) mir.Error {
+func (s *friendshipSrv) RequestingFriend(req *web.RequestingFriendReq) error {
 	if req.User == nil {
 		return xerror.ServerError
 	}

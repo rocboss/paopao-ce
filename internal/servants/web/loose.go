@@ -7,7 +7,6 @@ package web
 import (
 	"fmt"
 
-	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/conf"
@@ -44,7 +43,7 @@ func (s *looseSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JwtLoose()}
 }
 
-func (s *looseSrv) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error) {
+func (s *looseSrv) Timeline(req *web.TimelineReq) (*web.TimelineResp, error) {
 	limit, offset := req.PageSize, (req.Page-1)*req.PageSize
 	if req.Query == "" && req.Type == "search" {
 		return s.getIndexTweets(req, limit, offset)
@@ -79,7 +78,7 @@ func (s *looseSrv) Timeline(req *web.TimelineReq) (*web.TimelineResp, mir.Error)
 	}, nil
 }
 
-func (s *looseSrv) getIndexTweets(req *web.TimelineReq, limit int, offset int) (res *web.TimelineResp, err mir.Error) {
+func (s *looseSrv) getIndexTweets(req *web.TimelineReq, limit int, offset int) (res *web.TimelineResp, err error) {
 	// 尝试直接从缓存中获取数据
 	key, ok := "", false
 	if res, key, ok = s.indexTweetsFromCache(req, limit, offset); ok {
@@ -171,7 +170,7 @@ func (s *looseSrv) tweetCommentsFromCache(req *web.TweetCommentsReq, limit int, 
 	return
 }
 
-func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTweetsResp, err mir.Error) {
+func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTweetsResp, err error) {
 	user, xerr := s.RelationTypFrom(req.User, req.Username)
 	if xerr != nil {
 		return nil, err
@@ -223,7 +222,7 @@ func (s *looseSrv) userTweetsFromCache(req *web.GetUserTweetsReq, user *cs.VistU
 	return
 }
 
-func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
+func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, error) {
 	stars, totalRows, err := s.Ds.ListUserStarTweets(user, req.PageSize, (req.Page-1)*req.PageSize)
 	if err != nil {
 		logrus.Errorf("getUserStarTweets err[1]: %s", err)
@@ -256,7 +255,7 @@ func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUse
 	}, nil
 }
 
-func (s *looseSrv) listUserTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, mir.Error) {
+func (s *looseSrv) listUserTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, error) {
 	var (
 		tweets []*ms.Post
 		total  int64
@@ -295,7 +294,7 @@ func (s *looseSrv) listUserTweets(req *web.GetUserTweetsReq, user *cs.VistUser) 
 	}, nil
 }
 
-func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq, user *cs.VistUser, isHighlight bool) (*web.GetUserTweetsResp, mir.Error) {
+func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq, user *cs.VistUser, isHighlight bool) (*web.GetUserTweetsResp, error) {
 	style := cs.StyleUserTweetsGuest
 	switch user.RelTyp {
 	case cs.RelationAdmin:
@@ -337,7 +336,7 @@ func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq, user *cs.VistUse
 	}, nil
 }
 
-func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfileResp, mir.Error) {
+func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfileResp, error) {
 	he, err := s.Ds.UserProfileByName(req.Username)
 	if err != nil {
 		logrus.Errorf("looseSrv.GetUserProfile occurs error[1]: %s", err)
@@ -372,7 +371,7 @@ func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfi
 	}, nil
 }
 
-func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Error) {
+func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, error) {
 	var (
 		tags, extralTags cs.TagList
 		err              error
@@ -409,7 +408,7 @@ func (s *looseSrv) TopicList(req *web.TopicListReq) (*web.TopicListResp, mir.Err
 	}, nil
 }
 
-func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (res *web.TweetCommentsResp, err mir.Error) {
+func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (res *web.TweetCommentsResp, err error) {
 	limit, offset := req.PageSize, (req.Page-1)*req.PageSize
 	// 尝试直接从缓存中获取数据
 	key, ok := "", false
@@ -503,7 +502,7 @@ func (s *looseSrv) TweetComments(req *web.TweetCommentsReq) (res *web.TweetComme
 	}, nil
 }
 
-func (s *looseSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, mir.Error) {
+func (s *looseSrv) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, error) {
 	post, err := s.Ds.GetPostByID(req.TweetId)
 	if err != nil {
 		return nil, web.ErrGetPostFailed
