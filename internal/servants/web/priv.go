@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimy/mir/v5"
 	"github.com/alimy/tryst/cfg"
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
@@ -62,7 +61,7 @@ func (s *privSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT(), chain.Priv()}
 }
 
-func (s *privSrv) ThumbsDownTweetReply(req *web.TweetReplyThumbsReq) mir.Error {
+func (s *privSrv) ThumbsDownTweetReply(req *web.TweetReplyThumbsReq) error {
 	if err := s.Ds.ThumbsDownReply(req.Uid, req.TweetId, req.CommentId, req.ReplyId); err != nil {
 		logrus.Errorf("thumbs down tweet reply error: %s req:%v", err, req)
 		return web.ErrThumbsDownTweetReply
@@ -70,7 +69,7 @@ func (s *privSrv) ThumbsDownTweetReply(req *web.TweetReplyThumbsReq) mir.Error {
 	return nil
 }
 
-func (s *privSrv) ThumbsUpTweetReply(req *web.TweetReplyThumbsReq) mir.Error {
+func (s *privSrv) ThumbsUpTweetReply(req *web.TweetReplyThumbsReq) error {
 	if err := s.Ds.ThumbsUpReply(req.Uid, req.TweetId, req.CommentId, req.ReplyId); err != nil {
 		logrus.Errorf("thumbs up tweet reply error: %s req:%v", err, req)
 		return web.ErrThumbsUpTweetReply
@@ -78,7 +77,7 @@ func (s *privSrv) ThumbsUpTweetReply(req *web.TweetReplyThumbsReq) mir.Error {
 	return nil
 }
 
-func (s *privSrv) ThumbsDownTweetComment(req *web.TweetCommentThumbsReq) mir.Error {
+func (s *privSrv) ThumbsDownTweetComment(req *web.TweetCommentThumbsReq) error {
 	if err := s.Ds.ThumbsDownComment(req.Uid, req.TweetId, req.CommentId); err != nil {
 		logrus.Errorf("thumbs down tweet comment error: %s req:%v", err, req)
 		return web.ErrThumbsDownTweetComment
@@ -88,7 +87,7 @@ func (s *privSrv) ThumbsDownTweetComment(req *web.TweetCommentThumbsReq) mir.Err
 	return nil
 }
 
-func (s *privSrv) ThumbsUpTweetComment(req *web.TweetCommentThumbsReq) mir.Error {
+func (s *privSrv) ThumbsUpTweetComment(req *web.TweetCommentThumbsReq) error {
 	if err := s.Ds.ThumbsUpComment(req.Uid, req.TweetId, req.CommentId); err != nil {
 		logrus.Errorf("thumbs up tweet comment error: %s req:%v", err, req)
 		return web.ErrThumbsUpTweetComment
@@ -98,7 +97,7 @@ func (s *privSrv) ThumbsUpTweetComment(req *web.TweetCommentThumbsReq) mir.Error
 	return nil
 }
 
-func (s *privSrv) UnfollowTopic(req *web.UnfollowTopicReq) mir.Error {
+func (s *privSrv) UnfollowTopic(req *web.UnfollowTopicReq) error {
 	if err := s.Ds.UnfollowTopic(req.Uid, req.TopicId); err != nil {
 		logrus.Errorf("user(%d) unfollow topic(%d) failed: %s", req.Uid, req.TopicId, err)
 		return web.ErrUnfollowTopicFailed
@@ -106,7 +105,7 @@ func (s *privSrv) UnfollowTopic(req *web.UnfollowTopicReq) mir.Error {
 	return nil
 }
 
-func (s *privSrv) FollowTopic(req *web.FollowTopicReq) mir.Error {
+func (s *privSrv) FollowTopic(req *web.FollowTopicReq) error {
 	if err := s.Ds.FollowTopic(req.Uid, req.TopicId); err != nil {
 		logrus.Errorf("user(%d) follow topic(%d) failed: %s", req.Uid, req.TopicId, err)
 		return web.ErrFollowTopicFailed
@@ -114,7 +113,7 @@ func (s *privSrv) FollowTopic(req *web.FollowTopicReq) mir.Error {
 	return nil
 }
 
-func (s *privSrv) StickTopic(req *web.StickTopicReq) (*web.StickTopicResp, mir.Error) {
+func (s *privSrv) StickTopic(req *web.StickTopicReq) (*web.StickTopicResp, error) {
 	status, err := s.Ds.StickTopic(req.Uid, req.TopicId)
 	if err != nil {
 		logrus.Errorf("user(%d) stick topic(%d) failed: %s", req.Uid, req.TopicId, err)
@@ -125,7 +124,7 @@ func (s *privSrv) StickTopic(req *web.StickTopicReq) (*web.StickTopicResp, mir.E
 	}, nil
 }
 
-func (s *privSrv) PinTopic(req *web.PinTopicReq) (*web.PinTopicResp, mir.Error) {
+func (s *privSrv) PinTopic(req *web.PinTopicReq) (*web.PinTopicResp, error) {
 	status, err := s.Ds.PinTopic(req.Uid, req.TopicId)
 	if err != nil {
 		logrus.Errorf("user(%d) pin topic(%d) failed: %s", req.Uid, req.TopicId, err)
@@ -136,7 +135,7 @@ func (s *privSrv) PinTopic(req *web.PinTopicReq) (*web.PinTopicResp, mir.Error) 
 	}, nil
 }
 
-func (s *privSrv) UploadAttachment(req *web.UploadAttachmentReq) (*web.UploadAttachmentResp, mir.Error) {
+func (s *privSrv) UploadAttachment(req *web.UploadAttachmentReq) (*web.UploadAttachmentResp, error) {
 	defer req.File.Close()
 
 	// 生成随机路径
@@ -182,7 +181,7 @@ func (s *privSrv) UploadAttachment(req *web.UploadAttachmentReq) (*web.UploadAtt
 	}, nil
 }
 
-func (s *privSrv) DownloadAttachmentPrecheck(req *web.DownloadAttachmentPrecheckReq) (*web.DownloadAttachmentPrecheckResp, mir.Error) {
+func (s *privSrv) DownloadAttachmentPrecheck(req *web.DownloadAttachmentPrecheckReq) (*web.DownloadAttachmentPrecheckResp, error) {
 	content, err := s.Ds.GetPostContentByID(req.ContentID)
 	if err != nil {
 		logrus.Errorf("Ds.GetPostContentByID err: %s", err)
@@ -205,7 +204,7 @@ func (s *privSrv) DownloadAttachmentPrecheck(req *web.DownloadAttachmentPrecheck
 	return resp, nil
 }
 
-func (s *privSrv) DownloadAttachment(req *web.DownloadAttachmentReq) (*web.DownloadAttachmentResp, mir.Error) {
+func (s *privSrv) DownloadAttachment(req *web.DownloadAttachmentReq) (*web.DownloadAttachmentResp, error) {
 	content, err := s.Ds.GetPostContentByID(req.ContentID)
 	if err != nil {
 		logrus.Errorf("s.GetPostContentByID err: %v", err)
@@ -249,7 +248,7 @@ func (s *privSrv) DownloadAttachment(req *web.DownloadAttachmentReq) (*web.Downl
 	}, nil
 }
 
-func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, xerr mir.Error) {
+func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, xerr error) {
 	var mediaContents []string
 	defer func() {
 		if xerr != nil {
@@ -336,7 +335,7 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 	return (*web.CreateTweetResp)(formatedPosts[0]), nil
 }
 
-func (s *privSrv) DeleteTweet(req *web.DeleteTweetReq) mir.Error {
+func (s *privSrv) DeleteTweet(req *web.DeleteTweetReq) error {
 	if req.User == nil {
 		return web.ErrNoPermission
 	}
@@ -368,7 +367,7 @@ func (s *privSrv) DeleteTweet(req *web.DeleteTweetReq) mir.Error {
 	return nil
 }
 
-func (s *privSrv) DeleteCommentReply(req *web.DeleteCommentReplyReq) mir.Error {
+func (s *privSrv) DeleteCommentReply(req *web.DeleteCommentReplyReq) error {
 	reply, err := s.Ds.GetCommentReplyByID(req.ID)
 	if err != nil {
 		logrus.Errorf("Ds.GetCommentReplyByID err: %s", err)
@@ -390,7 +389,7 @@ func (s *privSrv) DeleteCommentReply(req *web.DeleteCommentReplyReq) mir.Error {
 	return nil
 }
 
-func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (_ *web.CreateCommentReplyResp, xerr mir.Error) {
+func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (_ *web.CreateCommentReplyResp, xerr error) {
 	var (
 		post     *ms.Post
 		comment  *ms.Comment
@@ -470,7 +469,7 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (_ *web.Cre
 	return (*web.CreateCommentReplyResp)(reply), nil
 }
 
-func (s *privSrv) DeleteComment(req *web.DeleteCommentReq) mir.Error {
+func (s *privSrv) DeleteComment(req *web.DeleteCommentReq) error {
 	comment, err := s.Ds.GetCommentByID(req.ID)
 	if err != nil {
 		logrus.Errorf("Ds.GetCommentByID err: %v\n", err)
@@ -499,7 +498,7 @@ func (s *privSrv) DeleteComment(req *web.DeleteCommentReq) mir.Error {
 	return nil
 }
 
-func (s *privSrv) HighlightComment(req *web.HighlightCommentReq) (*web.HighlightCommentResp, mir.Error) {
+func (s *privSrv) HighlightComment(req *web.HighlightCommentReq) (*web.HighlightCommentResp, error) {
 	status, err := s.Ds.HighlightComment(req.Uid, req.CommentId)
 	if err == cs.ErrNoPermission {
 		return nil, web.ErrNoPermission
@@ -515,7 +514,7 @@ func (s *privSrv) HighlightComment(req *web.HighlightCommentReq) (*web.Highlight
 	}, nil
 }
 
-func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateCommentResp, xerr mir.Error) {
+func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateCommentResp, xerr error) {
 	var (
 		mediaContents []string
 		err           error
@@ -609,7 +608,7 @@ func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateComment
 	return (*web.CreateCommentResp)(comment), nil
 }
 
-func (s *privSrv) CollectionTweet(req *web.CollectionTweetReq) (*web.CollectionTweetResp, mir.Error) {
+func (s *privSrv) CollectionTweet(req *web.CollectionTweetReq) (*web.CollectionTweetResp, error) {
 	status := false
 	collection, err := s.Ds.GetUserPostCollection(req.ID, req.Uid)
 	if err != nil {
@@ -629,7 +628,7 @@ func (s *privSrv) CollectionTweet(req *web.CollectionTweetReq) (*web.CollectionT
 	}, nil
 }
 
-func (s *privSrv) StarTweet(req *web.StarTweetReq) (*web.StarTweetResp, mir.Error) {
+func (s *privSrv) StarTweet(req *web.StarTweetReq) (*web.StarTweetResp, error) {
 	status := false
 	star, err := s.Ds.GetUserPostStar(req.ID, req.Uid)
 	if err != nil {
@@ -649,7 +648,7 @@ func (s *privSrv) StarTweet(req *web.StarTweetReq) (*web.StarTweetResp, mir.Erro
 	}, nil
 }
 
-func (s *privSrv) VisibleTweet(req *web.VisibleTweetReq) (*web.VisibleTweetResp, mir.Error) {
+func (s *privSrv) VisibleTweet(req *web.VisibleTweetReq) (*web.VisibleTweetResp, error) {
 	if req.Visibility >= web.TweetVisitInvalid {
 		return nil, xerror.InvalidParams
 	}
@@ -674,7 +673,7 @@ func (s *privSrv) VisibleTweet(req *web.VisibleTweetReq) (*web.VisibleTweetResp,
 	}, nil
 }
 
-func (s *privSrv) StickTweet(req *web.StickTweetReq) (*web.StickTweetResp, mir.Error) {
+func (s *privSrv) StickTweet(req *web.StickTweetReq) (*web.StickTweetResp, error) {
 	post, err := s.Ds.GetPostByID(req.ID)
 	if err != nil {
 		logrus.Errorf("Ds.GetPostByID err: %v\n", err)
@@ -692,7 +691,7 @@ func (s *privSrv) StickTweet(req *web.StickTweetReq) (*web.StickTweetResp, mir.E
 	}, nil
 }
 
-func (s *privSrv) HighlightTweet(req *web.HighlightTweetReq) (res *web.HighlightTweetResp, err mir.Error) {
+func (s *privSrv) HighlightTweet(req *web.HighlightTweetReq) (res *web.HighlightTweetResp, err error) {
 	if status, xerr := s.Ds.HighlightPost(req.User.ID, req.ID); xerr == nil {
 		res = &web.HighlightTweetResp{
 			HighlightStatus: status,
@@ -707,7 +706,7 @@ func (s *privSrv) HighlightTweet(req *web.HighlightTweetReq) (res *web.Highlight
 	return
 }
 
-func (s *privSrv) LockTweet(req *web.LockTweetReq) (*web.LockTweetResp, mir.Error) {
+func (s *privSrv) LockTweet(req *web.LockTweetReq) (*web.LockTweetResp, error) {
 	post, err := s.Ds.GetPostByID(req.ID)
 	if err != nil {
 		return nil, web.ErrLockPostFailed
@@ -781,7 +780,7 @@ func (s *privSrv) createPostPreHandler(commentID int64, userID, atUserID int64) 
 	return post, comment, atUserID, nil
 }
 
-func (s *privSrv) createPostStar(postID, userID int64) (*ms.PostStar, mir.Error) {
+func (s *privSrv) createPostStar(postID, userID int64) (*ms.PostStar, error) {
 	post, err := s.Ds.GetPostByID(postID)
 	if err != nil {
 		return nil, xerror.ServerError
@@ -807,7 +806,7 @@ func (s *privSrv) createPostStar(postID, userID int64) (*ms.PostStar, mir.Error)
 	return star, nil
 }
 
-func (s *privSrv) deletePostStar(star *ms.PostStar) mir.Error {
+func (s *privSrv) deletePostStar(star *ms.PostStar) error {
 	post, err := s.Ds.GetPostByID(star.PostID)
 	if err != nil {
 		return xerror.ServerError
@@ -832,7 +831,7 @@ func (s *privSrv) deletePostStar(star *ms.PostStar) mir.Error {
 	return nil
 }
 
-func (s *privSrv) createPostCollection(postID, userID int64) (*ms.PostCollection, mir.Error) {
+func (s *privSrv) createPostCollection(postID, userID int64) (*ms.PostCollection, error) {
 	post, err := s.Ds.GetPostByID(postID)
 	if err != nil {
 		return nil, xerror.ServerError
@@ -858,7 +857,7 @@ func (s *privSrv) createPostCollection(postID, userID int64) (*ms.PostCollection
 	return collection, nil
 }
 
-func (s *privSrv) deletePostCollection(collection *ms.PostCollection) mir.Error {
+func (s *privSrv) deletePostCollection(collection *ms.PostCollection) error {
 	post, err := s.Ds.GetPostByID(collection.PostID)
 	if err != nil {
 		return xerror.ServerError
@@ -887,7 +886,7 @@ func (s *privSrv) checkPostAttachmentIsPaid(postID, userID int64) bool {
 	return err == nil && bill.Model != nil && bill.ID > 0
 }
 
-func (s *privSrv) buyPostAttachment(post *ms.Post, user *ms.User) mir.Error {
+func (s *privSrv) buyPostAttachment(post *ms.Post, user *ms.User) error {
 	if user.Balance < post.AttachmentPrice {
 		return web.ErrInsuffientDownloadMoney
 	}

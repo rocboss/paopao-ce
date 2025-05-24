@@ -29,8 +29,8 @@ import (
 )
 
 type BaseServant struct {
-	bindAny  func(c *gin.Context, obj any) mir.Error
-	bindJson func(c *gin.Context, obj any) mir.Error
+	bindAny  func(c *gin.Context, obj any) error
+	bindJson func(c *gin.Context, obj any) error
 }
 
 type DaoServant struct {
@@ -82,7 +82,7 @@ func UserNameFrom(c *gin.Context) (string, bool) {
 	return "", false
 }
 
-func bindAny(c *gin.Context, obj any) mir.Error {
+func bindAny(c *gin.Context, obj any) error {
 	var errs xerror.ValidErrors
 	err := c.ShouldBind(obj)
 	if err != nil {
@@ -106,7 +106,7 @@ func bindAny(c *gin.Context, obj any) mir.Error {
 	return nil
 }
 
-func bindAnySentry(c *gin.Context, obj any) mir.Error {
+func bindAnySentry(c *gin.Context, obj any) error {
 	hub := sentrygin.GetHubFromContext(c)
 	var errs xerror.ValidErrors
 	err := c.ShouldBind(obj)
@@ -140,7 +140,7 @@ func bindAnySentry(c *gin.Context, obj any) mir.Error {
 
 }
 
-func RenderAny(c *gin.Context, data any, err mir.Error) {
+func RenderAny(c *gin.Context, data any, err error) {
 	if err == nil {
 		c.JSON(http.StatusOK, &joint.JsonResp{
 			Code: 0,
@@ -148,22 +148,23 @@ func RenderAny(c *gin.Context, data any, err mir.Error) {
 			Data: data,
 		})
 	} else {
-		c.JSON(xerror.HttpStatusCode(err), &joint.JsonResp{
-			Code: err.StatusCode(),
+		statusCode, code := xerror.HttpStatusCode(err)
+		c.JSON(statusCode, &joint.JsonResp{
+			Code: code,
 			Msg:  err.Error(),
 		})
 	}
 }
 
-func (s *BaseServant) Bind(c *gin.Context, obj any) mir.Error {
+func (s *BaseServant) Bind(c *gin.Context, obj any) error {
 	return s.bindAny(c, obj)
 }
 
-func (s *BaseServant) BindJson(c *gin.Context, obj any) mir.Error {
+func (s *BaseServant) BindJson(c *gin.Context, obj any) error {
 	return s.bindJson(c, obj)
 }
 
-func (s *BaseServant) Render(c *gin.Context, data any, err mir.Error) {
+func (s *BaseServant) Render(c *gin.Context, data any, err error) {
 	if err == nil {
 		c.JSON(http.StatusOK, &joint.JsonResp{
 			Code: 0,
@@ -171,8 +172,9 @@ func (s *BaseServant) Render(c *gin.Context, data any, err mir.Error) {
 			Data: data,
 		})
 	} else {
-		c.JSON(xerror.HttpStatusCode(err), &joint.JsonResp{
-			Code: err.StatusCode(),
+		statusCode, code := xerror.HttpStatusCode(err)
+		c.JSON(statusCode, &joint.JsonResp{
+			Code: code,
 			Msg:  err.Error(),
 		})
 	}
@@ -417,14 +419,14 @@ func (s *DaoServant) RelationTypFrom(me *ms.User, username string) (res *cs.Vist
 	return
 }
 
-func NewBindAnyFn() func(c *gin.Context, obj any) mir.Error {
+func NewBindAnyFn() func(c *gin.Context, obj any) error {
 	if conf.UseSentryGin() {
 		return bindAnySentry
 	}
 	return bindAny
 }
 
-func NewBindJsonFn() func(c *gin.Context, obj any) mir.Error {
+func NewBindJsonFn() func(c *gin.Context, obj any) error {
 	if conf.UseSentryGin() {
 		return bindAnySentry
 	}

@@ -7,7 +7,6 @@ package web
 import (
 	"fmt"
 
-	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/conf"
@@ -35,7 +34,7 @@ func (s *trendsSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT()}
 }
 
-func (s *trendsSrv) GetIndexTrends(req *web.GetIndexTrendsReq) (res *web.GetIndexTrendsResp, _ mir.Error) {
+func (s *trendsSrv) GetIndexTrends(req *web.GetIndexTrendsReq) (res *web.GetIndexTrendsResp, _ error) {
 	limit, offset := req.PageSize, (req.Page-1)*req.PageSize
 	// 尝试直接从缓存中获取数据
 	key, ok := "", false

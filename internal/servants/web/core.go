@@ -11,7 +11,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/conf"
@@ -48,7 +47,7 @@ func (s *coreSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JWT()}
 }
 
-func (s *coreSrv) SyncSearchIndex(req *web.SyncSearchIndexReq) mir.Error {
+func (s *coreSrv) SyncSearchIndex(req *web.SyncSearchIndexReq) error {
 	if req.User != nil && req.User.IsAdmin {
 		s.PushAllPostToSearch()
 	} else {
@@ -57,7 +56,7 @@ func (s *coreSrv) SyncSearchIndex(req *web.SyncSearchIndexReq) mir.Error {
 	return nil
 }
 
-func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Error) {
+func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, error) {
 	user, err := s.Ds.UserProfileByName(req.Username)
 	if err != nil {
 		logrus.Errorf("coreSrv.GetUserInfo occurs error[1]: %s", err)
@@ -86,7 +85,7 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, mir.Erro
 	return resp, nil
 }
 
-func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (res *web.GetMessagesResp, _ mir.Error) {
+func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (res *web.GetMessagesResp, _ error) {
 	limit, offset := req.PageSize, (req.Page-1)*req.PageSize
 	// 尝试直接从缓存中获取数据
 	key, ok := "", false
@@ -152,7 +151,7 @@ func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (res *web.GetMessagesResp
 	}, nil
 }
 
-func (s *coreSrv) ReadMessage(req *web.ReadMessageReq) mir.Error {
+func (s *coreSrv) ReadMessage(req *web.ReadMessageReq) error {
 	message, err := s.Ds.GetMessageByID(req.ID)
 	if err != nil {
 		return web.ErrReadMessageFailed
@@ -169,7 +168,7 @@ func (s *coreSrv) ReadMessage(req *web.ReadMessageReq) mir.Error {
 	return nil
 }
 
-func (s *coreSrv) ReadAllMessage(req *web.ReadAllMessageReq) mir.Error {
+func (s *coreSrv) ReadAllMessage(req *web.ReadAllMessageReq) error {
 	if err := s.Ds.ReadAllMessage(req.Uid); err != nil {
 		logrus.Errorf("coreSrv.Ds.ReadAllMessage err: %s", err)
 		return web.ErrReadMessageFailed
@@ -179,7 +178,7 @@ func (s *coreSrv) ReadAllMessage(req *web.ReadAllMessageReq) mir.Error {
 	return nil
 }
 
-func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
+func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) error {
 	// 不允许发送私信给自己
 	if req.Uid == req.UserID {
 		return web.ErrNoWhisperToSelf
@@ -209,7 +208,7 @@ func (s *coreSrv) SendUserWhisper(req *web.SendWhisperReq) mir.Error {
 	return nil
 }
 
-func (s *coreSrv) GetCollections(req *web.GetCollectionsReq) (*web.GetCollectionsResp, mir.Error) {
+func (s *coreSrv) GetCollections(req *web.GetCollectionsReq) (*web.GetCollectionsResp, error) {
 	collections, err := s.Ds.GetUserPostCollections(req.UserId, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserPostCollections err: %s", err)
@@ -237,7 +236,7 @@ func (s *coreSrv) GetCollections(req *web.GetCollectionsReq) (*web.GetCollection
 	return (*web.GetCollectionsResp)(resp), nil
 }
 
-func (s *coreSrv) UserPhoneBind(req *web.UserPhoneBindReq) mir.Error {
+func (s *coreSrv) UserPhoneBind(req *web.UserPhoneBindReq) error {
 	// 手机重复性检查
 	u, err := s.Ds.GetUserByPhone(req.Phone)
 	if err == nil && u.Model != nil && u.ID != 0 && u.ID != req.User.ID {
@@ -274,7 +273,7 @@ func (s *coreSrv) UserPhoneBind(req *web.UserPhoneBindReq) mir.Error {
 	return nil
 }
 
-func (s *coreSrv) GetStars(req *web.GetStarsReq) (*web.GetStarsResp, mir.Error) {
+func (s *coreSrv) GetStars(req *web.GetStarsReq) (*web.GetStarsResp, error) {
 	stars, err := s.Ds.GetUserPostStars(req.UserId, req.PageSize, (req.Page-1)*req.PageSize)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserPostStars err: %s", err)
@@ -298,7 +297,7 @@ func (s *coreSrv) GetStars(req *web.GetStarsReq) (*web.GetStarsResp, mir.Error) 
 	return (*web.GetStarsResp)(resp), nil
 }
 
-func (s *coreSrv) ChangePassword(req *web.ChangePasswordReq) mir.Error {
+func (s *coreSrv) ChangePassword(req *web.ChangePasswordReq) error {
 	// 密码检查
 	if err := checkPassword(req.Password); err != nil {
 		return err
@@ -317,7 +316,7 @@ func (s *coreSrv) ChangePassword(req *web.ChangePasswordReq) mir.Error {
 	return nil
 }
 
-func (s *coreSrv) SuggestTags(req *web.SuggestTagsReq) (*web.SuggestTagsResp, mir.Error) {
+func (s *coreSrv) SuggestTags(req *web.SuggestTagsReq) (*web.SuggestTagsResp, error) {
 	tags, err := s.Ds.TagsByKeyword(req.Keyword)
 	if err != nil {
 		logrus.Errorf("Ds.GetTagsByKeyword err: %s", err)
@@ -330,7 +329,7 @@ func (s *coreSrv) SuggestTags(req *web.SuggestTagsReq) (*web.SuggestTagsResp, mi
 	return resp, nil
 }
 
-func (s *coreSrv) SuggestUsers(req *web.SuggestUsersReq) (*web.SuggestUsersResp, mir.Error) {
+func (s *coreSrv) SuggestUsers(req *web.SuggestUsersReq) (*web.SuggestUsersResp, error) {
 	users, err := s.Ds.GetUsersByKeyword(req.Keyword)
 	if err != nil {
 		logrus.Errorf("Ds.GetUsersByKeyword err: %s", err)
@@ -343,7 +342,7 @@ func (s *coreSrv) SuggestUsers(req *web.SuggestUsersReq) (*web.SuggestUsersResp,
 	return resp, nil
 }
 
-func (s *coreSrv) ChangeNickname(req *web.ChangeNicknameReq) mir.Error {
+func (s *coreSrv) ChangeNickname(req *web.ChangeNicknameReq) error {
 	if utf8.RuneCountInString(req.Nickname) < 2 || utf8.RuneCountInString(req.Nickname) > 12 {
 		return web.ErrNicknameLengthLimit
 	}
@@ -358,7 +357,7 @@ func (s *coreSrv) ChangeNickname(req *web.ChangeNicknameReq) mir.Error {
 	return nil
 }
 
-func (s *coreSrv) ChangeAvatar(req *web.ChangeAvatarReq) (xerr mir.Error) {
+func (s *coreSrv) ChangeAvatar(req *web.ChangeAvatarReq) (xerr error) {
 	defer func() {
 		if xerr != nil {
 			deleteOssObjects(s.oss, []string{req.Avatar})
@@ -384,7 +383,7 @@ func (s *coreSrv) ChangeAvatar(req *web.ChangeAvatarReq) (xerr mir.Error) {
 	return nil
 }
 
-func (s *coreSrv) TweetCollectionStatus(req *web.TweetCollectionStatusReq) (*web.TweetCollectionStatusResp, mir.Error) {
+func (s *coreSrv) TweetCollectionStatus(req *web.TweetCollectionStatusReq) (*web.TweetCollectionStatusResp, error) {
 	resp := &web.TweetCollectionStatusResp{
 		Status: true,
 	}
@@ -395,7 +394,7 @@ func (s *coreSrv) TweetCollectionStatus(req *web.TweetCollectionStatusReq) (*web
 	return resp, nil
 }
 
-func (s *coreSrv) TweetStarStatus(req *web.TweetStarStatusReq) (*web.TweetStarStatusResp, mir.Error) {
+func (s *coreSrv) TweetStarStatus(req *web.TweetStarStatusReq) (*web.TweetStarStatusResp, error) {
 	resp := &web.TweetStarStatusResp{
 		Status: true,
 	}

@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
@@ -243,7 +242,7 @@ func (p *PostContentItem) Check(acs core.AttachmentCheckService) error {
 	return nil
 }
 
-func (r *UploadAttachmentReq) Bind(c *gin.Context) (xerr mir.Error) {
+func (r *UploadAttachmentReq) Bind(c *gin.Context) (xerr error) {
 	userId, exist := base.UserIdFrom(c)
 	if !exist {
 		return xerror.UnauthorizedAuthNotExist
@@ -276,7 +275,7 @@ func (r *UploadAttachmentReq) Bind(c *gin.Context) (xerr mir.Error) {
 	return nil
 }
 
-func (r *DownloadAttachmentPrecheckReq) Bind(c *gin.Context) mir.Error {
+func (r *DownloadAttachmentPrecheckReq) Bind(c *gin.Context) error {
 	user, exist := base.UserFrom(c)
 	if !exist {
 		return xerror.UnauthorizedAuthNotExist
@@ -288,7 +287,7 @@ func (r *DownloadAttachmentPrecheckReq) Bind(c *gin.Context) mir.Error {
 	return nil
 }
 
-func (r *DownloadAttachmentReq) Bind(c *gin.Context) mir.Error {
+func (r *DownloadAttachmentReq) Bind(c *gin.Context) error {
 	user, exist := base.UserFrom(c)
 	if !exist {
 		return xerror.UnauthorizedAuthNotExist
@@ -300,17 +299,17 @@ func (r *DownloadAttachmentReq) Bind(c *gin.Context) mir.Error {
 	return nil
 }
 
-func (r *CreateTweetReq) Bind(c *gin.Context) mir.Error {
+func (r *CreateTweetReq) Bind(c *gin.Context) error {
 	r.ClientIP = c.ClientIP()
 	return bindAny(c, r)
 }
 
-func (r *CreateCommentReplyReq) Bind(c *gin.Context) mir.Error {
+func (r *CreateCommentReplyReq) Bind(c *gin.Context) error {
 	r.ClientIP = c.ClientIP()
 	return bindAny(c, r)
 }
 
-func (r *CreateCommentReq) Bind(c *gin.Context) mir.Error {
+func (r *CreateCommentReq) Bind(c *gin.Context) error {
 	r.ClientIP = c.ClientIP()
 	return bindAny(c, r)
 }

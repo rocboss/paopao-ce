@@ -11,7 +11,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/alimy/mir/v5"
 	"github.com/gofrs/uuid/v5"
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
@@ -80,7 +79,7 @@ func getRandomAvatar() string {
 }
 
 // checkPassword 密码检查
-func checkPassword(password string) mir.Error {
+func checkPassword(password string) error {
 	// 检测用户是否合规
 	if utf8.RuneCountInString(password) < 6 || utf8.RuneCountInString(password) > 16 {
 		return web.ErrPasswordLengthLimit
@@ -137,7 +136,7 @@ func persistMediaContents(oss core.ObjectStorageService, contents []*web.PostCon
 	return
 }
 
-func fileCheck(uploadType string, size int64) mir.Error {
+func fileCheck(uploadType string, size int64) error {
 	if uploadType != "public/video" &&
 		uploadType != "public/image" &&
 		uploadType != "public/avatar" &&
@@ -150,7 +149,7 @@ func fileCheck(uploadType string, size int64) mir.Error {
 	return nil
 }
 
-func getFileExt(s string) (string, mir.Error) {
+func getFileExt(s string) (string, error) {
 	switch s {
 	case "image/png":
 		return ".png", nil
@@ -201,7 +200,7 @@ func tagsFrom(originTags []string) []string {
 }
 
 // checkPermision 检查是否拥有者或管理员
-func checkPermision(user *ms.User, targetUserId int64) mir.Error {
+func checkPermision(user *ms.User, targetUserId int64) error {
 	if user == nil || (user.ID != targetUserId && !user.IsAdmin) {
 		return web.ErrNoPermission
 	}
@@ -209,7 +208,7 @@ func checkPermision(user *ms.User, targetUserId int64) mir.Error {
 }
 
 // checkPostViewPermission 检查当前用户是否可读指定post
-func checkPostViewPermission(user *ms.User, post *ms.Post, ds core.DataService) mir.Error {
+func checkPostViewPermission(user *ms.User, post *ms.Post, ds core.DataService) error {
 	if post.Visibility == core.PostVisitPublic {
 		return nil
 	}

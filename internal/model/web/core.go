@@ -5,7 +5,6 @@
 package web
 
 import (
-	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/model/joint"
@@ -127,7 +126,7 @@ type TweetCollectionStatusResp struct {
 	Status bool `json:"status"`
 }
 
-func (r *UserInfoReq) Bind(c *gin.Context) mir.Error {
+func (r *UserInfoReq) Bind(c *gin.Context) error {
 	username, exist := base.UserNameFrom(c)
 	if !exist {
 		return xerror.UnauthorizedAuthNotExist
@@ -136,25 +135,25 @@ func (r *UserInfoReq) Bind(c *gin.Context) mir.Error {
 	return nil
 }
 
-func (r *GetCollectionsReq) Bind(c *gin.Context) mir.Error {
+func (r *GetCollectionsReq) Bind(c *gin.Context) error {
 	return (*BasePageReq)(r).Bind(c)
 }
 
-func (r *GetStarsReq) Bind(c *gin.Context) mir.Error {
+func (r *GetStarsReq) Bind(c *gin.Context) error {
 	return (*BasePageReq)(r).Bind(c)
 }
 
-func (r *SuggestTagsReq) Bind(c *gin.Context) mir.Error {
+func (r *SuggestTagsReq) Bind(c *gin.Context) error {
 	r.Keyword = c.Query("k")
 	return nil
 }
 
-func (r *SuggestUsersReq) Bind(c *gin.Context) mir.Error {
+func (r *SuggestUsersReq) Bind(c *gin.Context) error {
 	r.Keyword = c.Query("k")
 	return nil
 }
 
-func (r *TweetCollectionStatusReq) Bind(c *gin.Context) mir.Error {
+func (r *TweetCollectionStatusReq) Bind(c *gin.Context) error {
 	userId, exist := base.UserIdFrom(c)
 	if !exist {
 		return xerror.UnauthorizedAuthNotExist
@@ -166,7 +165,7 @@ func (r *TweetCollectionStatusReq) Bind(c *gin.Context) mir.Error {
 	return nil
 }
 
-func (r *TweetStarStatusReq) Bind(c *gin.Context) mir.Error {
+func (r *TweetStarStatusReq) Bind(c *gin.Context) error {
 	UserId, exist := base.UserIdFrom(c)
 	if !exist {
 		return xerror.UnauthorizedAuthNotExist

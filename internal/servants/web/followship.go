@@ -5,7 +5,6 @@
 package web
 
 import (
-	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
@@ -29,7 +28,7 @@ func (s *followshipSrv) Chain() gin.HandlersChain {
 	return gin.HandlersChain{chain.JwtLoose()}
 }
 
-func (s *followshipSrv) ListFollowings(r *web.ListFollowingsReq) (*web.ListFollowingsResp, mir.Error) {
+func (s *followshipSrv) ListFollowings(r *web.ListFollowingsReq) (*web.ListFollowingsResp, error) {
 	he, err := s.Ds.GetUserByUsername(r.Username)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserByUsername err: %s", err)
@@ -49,7 +48,7 @@ func (s *followshipSrv) ListFollowings(r *web.ListFollowingsReq) (*web.ListFollo
 	return (*web.ListFollowingsResp)(resp), nil
 }
 
-func (s *followshipSrv) ListFollows(r *web.ListFollowsReq) (*web.ListFollowsResp, mir.Error) {
+func (s *followshipSrv) ListFollows(r *web.ListFollowsReq) (*web.ListFollowsResp, error) {
 	he, err := s.Ds.GetUserByUsername(r.Username)
 	if err != nil {
 		logrus.Errorf("Ds.GetUserByUsername err: %s", err)
@@ -75,7 +74,7 @@ func (s *followshipSrv) ListFollows(r *web.ListFollowsReq) (*web.ListFollowsResp
 	return (*web.ListFollowsResp)(resp), nil
 }
 
-func (s *followshipSrv) UnfollowUser(r *web.UnfollowUserReq) mir.Error {
+func (s *followshipSrv) UnfollowUser(r *web.UnfollowUserReq) error {
 	if r.User == nil {
 		return xerror.UnauthorizedTokenError
 	} else if r.User.ID == r.UserId {
@@ -94,7 +93,7 @@ func (s *followshipSrv) UnfollowUser(r *web.UnfollowUserReq) mir.Error {
 	return nil
 }
 
-func (s *followshipSrv) FollowUser(r *web.FollowUserReq) mir.Error {
+func (s *followshipSrv) FollowUser(r *web.FollowUserReq) error {
 	if r.User == nil {
 		return xerror.UnauthorizedTokenError
 	} else if r.User.ID == r.UserId {
