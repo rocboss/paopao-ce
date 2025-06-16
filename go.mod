@@ -36,7 +36,7 @@ require (
 	github.com/redis/rueidis v1.0.53
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/smartwalle/alipay/v3 v3.2.20
+	github.com/smartwalle/alipay/v3 v3.2.25
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
