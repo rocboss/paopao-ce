@@ -43,7 +43,7 @@ require (
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.65
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
 	go.opentelemetry.io/contrib/bridges/otellogrus v0.11.0
-	go.opentelemetry.io/contrib/instrumentation/runtime v0.60.0
+	go.opentelemetry.io/contrib/instrumentation/runtime v0.61.0
 	go.opentelemetry.io/otel v1.36.0
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.10.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.36.0
