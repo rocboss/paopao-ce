@@ -50,6 +50,7 @@ type UserProfile struct {
 	IsAdmin     bool   `json:"is_admin"`
 	CreatedOn   int64  `json:"created_on"`
 	TweetsCount int    `json:"tweets_count"`
+	Experience  int    `json:"experience"`
 }
 
 func (t RelationTyp) String() string {

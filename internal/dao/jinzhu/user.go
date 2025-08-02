@@ -49,6 +49,7 @@ func newUserManageService(db *gorm.DB, ums core.UserMetricServantA) core.UserMan
 			fmt.Sprintf("%s.is_admin", _user_),
 			fmt.Sprintf("%s.created_on", _user_),
 			"m.tweets_count",
+			"m.experience",
 		},
 	}
 }
@@ -78,7 +79,16 @@ func (s *userManageSrv) GetUserByUsername(username string) (*ms.User, error) {
 	user := &dbr.User{
 		Username: username,
 	}
-	return user.Get(s.db)
+	user, err := user.Get(s.db)
+	if err != nil {
+		return nil, err
+	}
+	metric, err := s.ums.GetUserMetric(user.ID)
+	if err != nil {
+		return user, nil
+	}
+	user.Experience = metric.Experience
+	return user, nil
 }
 
 func (s *userManageSrv) UserProfileByName(username string) (res *cs.UserProfile, err error) {
@@ -94,30 +104,72 @@ func (s *userManageSrv) GetUserByPhone(phone string) ([]*ms.User, error) {
 	user := &dbr.User{
 		Phone: phone,
 	}
-	return user.List(s.db, &dbr.ConditionsT{
+	users, err := user.List(s.db, &dbr.ConditionsT{
 		"phone = ?": phone,
 	}, 0, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	// 为每个用户设置经验值
+	for _, u := range users {
+		metric, err := s.ums.GetUserMetric(u.ID)
+		if err == nil {
+			u.Experience = metric.Experience
+		}
+	}
+
+	return users, nil
 }
 
 func (s *userManageSrv) GetUsersByIDs(ids []int64) ([]*ms.User, error) {
 	user := &dbr.User{}
-	return user.List(s.db, &dbr.ConditionsT{
+	users, err := user.List(s.db, &dbr.ConditionsT{
 		"id IN ?": ids,
 	}, 0, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	// 为每个用户设置经验值
+	for _, u := range users {
+		metric, err := s.ums.GetUserMetric(u.ID)
+		if err == nil {
+			u.Experience = metric.Experience
+		}
+	}
+
+	return users, nil
 }
 
 func (s *userManageSrv) GetUsersByKeyword(keyword string) ([]*ms.User, error) {
 	user := &dbr.User{}
 	keyword = strings.Trim(keyword, " ") + "%"
+	var users []*ms.User
+	var err error
 	if keyword == "%" {
-		return user.List(s.db, &dbr.ConditionsT{
+		users, err = user.List(s.db, &dbr.ConditionsT{
 			"ORDER": "id ASC",
 		}, 0, 6)
 	} else {
-		return user.List(s.db, &dbr.ConditionsT{
+		users, err = user.List(s.db, &dbr.ConditionsT{
 			"username LIKE ?": keyword,
 		}, 0, 6)
 	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	// 为每个用户设置经验值
+	for _, u := range users {
+		metric, err := s.ums.GetUserMetric(u.ID)
+		if err == nil {
+			u.Experience = metric.Experience
+		}
+	}
+
+	return users, nil
 }
 
 func (s *userManageSrv) CreateUser(user *dbr.User) (res *ms.User, err error) {
