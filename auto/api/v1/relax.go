@@ -19,6 +19,7 @@ type Relax interface {
 	Chain() gin.HandlersChain
 
 	GetUnreadMsgCount(*web.GetUnreadMsgCountReq) (*web.GetUnreadMsgCountResp, error)
+	StreamUnreadMsgCount(*gin.Context)
 
 	mustEmbedUnimplementedRelaxServant()
 }
@@ -61,6 +62,16 @@ func RegisterRelaxServant(e *gin.Engine, s Relax, m ...RelaxChain) {
 		}
 		var rv _render_ = resp
 		rv.Render(c)
+	})...)
+
+	// Register SSE route for streaming unread message count
+	router.Handle("GET", "user/msgcount/stream", append(middlewares, func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		s.StreamUnreadMsgCount(c)
 	})...)
 }
 

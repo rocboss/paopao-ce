@@ -5,6 +5,7 @@
 package web
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/rueidis"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
@@ -13,6 +14,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
 	"github.com/sirupsen/logrus"
+	"time"
 )
 
 var (
@@ -49,6 +51,55 @@ func (s *relaxSrv) GetUnreadMsgCount(req *web.GetUnreadMsgCountReq) (*web.GetUnr
 	// 使用缓存机制特殊处理
 	onCacheUnreadMsgEvent(req.Uid)
 	return &web.GetUnreadMsgCountResp{}, nil
+}
+
+func (s *relaxSrv) StreamUnreadMsgCount(c *gin.Context) {
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Connection", "keep-alive")
+	c.Header("X-Accel-Buffering", "no")
+
+	uid, exists := c.Get("uid")
+	if !exists {
+		c.AbortWithStatus(401)
+		return
+	}
+	uidInt, ok := uid.(int64)
+	if !ok {
+		c.AbortWithStatus(400)
+		return
+	}
+
+	var lastCount int64 = -1
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			data, xerr := s.wc.GetUnreadMsgCountResp(uidInt)
+			count := int64(0)
+
+			if xerr == nil && len(data) > 0 {
+				var msgCount struct {
+					Count int64 `json:"count"`
+				}
+				if err := json.Unmarshal(data, &msgCount); err == nil {
+					count = msgCount.Count
+				}
+			}
+
+			if count != lastCount {
+				c.SSEvent("message", map[string]int64{"count": count})
+				lastCount = count
+			} else {
+				c.SSEvent("", "")
+			}
+			c.Writer.Flush()
+		case <-c.Writer.CloseNotify():
+			return
+		}
+	}
 }
 
 func newRelaxSrv(s *base.DaoServant, wc core.WebCache) api.Relax {
