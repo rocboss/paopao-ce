@@ -22,6 +22,7 @@ var (
 type userManageSrv struct {
 	db  *gorm.DB
 	ums core.UserMetricServantA
+	uls core.UserLevelService
 
 	_userProfileJoins   string
 	_userProfileWhere   string
@@ -32,10 +33,11 @@ type userRelationSrv struct {
 	db *gorm.DB
 }
 
-func newUserManageService(db *gorm.DB, ums core.UserMetricServantA) core.UserManageService {
+func newUserManageService(db *gorm.DB, ums core.UserMetricServantA, uls core.UserLevelService) core.UserManageService {
 	return &userManageSrv{
 		db:                db,
 		ums:               ums,
+		uls:               uls,
 		_userProfileJoins: fmt.Sprintf("LEFT JOIN %s m ON %s.id=m.user_id", _userMetric_, _user_),
 		_userProfileWhere: fmt.Sprintf("%s.username=? AND %s.is_del=0", _user_, _user_),
 		_userProfileColumns: []string{
@@ -72,6 +74,16 @@ func (s *userManageSrv) GetUserByID(id int64) (*ms.User, error) {
 		return nil, err
 	}
 	user.Experience = metric.Experience
+
+	// 获取用户等级
+	level, err := s.uls.GetLevelByExperience(user.Experience)
+	if err == nil {
+		user.Level = level.Level
+	} else {
+		// 默认等级为1
+		user.Level = 1
+	}
+
 	return user, nil
 }
 
@@ -88,6 +100,16 @@ func (s *userManageSrv) GetUserByUsername(username string) (*ms.User, error) {
 		return user, nil
 	}
 	user.Experience = metric.Experience
+
+	// 获取用户等级
+	level, err := s.uls.GetLevelByExperience(user.Experience)
+	if err == nil {
+		user.Level = level.Level
+	} else {
+		// 默认等级为1
+		user.Level = 1
+	}
+
 	return user, nil
 }
 
@@ -97,6 +119,18 @@ func (s *userManageSrv) UserProfileByName(username string) (res *cs.UserProfile,
 		Where(s._userProfileWhere, username).
 		Select(s._userProfileColumns).
 		First(&res).Error
+
+	if err == nil && res != nil {
+		// 获取用户等级
+		level, err := s.uls.GetLevelByExperience(res.Experience)
+		if err == nil {
+			res.Level = level.Level
+		} else {
+			// 默认等级为1
+			res.Level = 1
+		}
+	}
+
 	return
 }
 
@@ -116,6 +150,15 @@ func (s *userManageSrv) GetUserByPhone(phone string) ([]*ms.User, error) {
 		metric, err := s.ums.GetUserMetric(u.ID)
 		if err == nil {
 			u.Experience = metric.Experience
+
+			// 获取用户等级
+			level, err := s.uls.GetLevelByExperience(u.Experience)
+			if err == nil {
+				u.Level = level.Level
+			} else {
+				// 默认等级为1
+				u.Level = 1
+			}
 		}
 	}
 
@@ -136,6 +179,15 @@ func (s *userManageSrv) GetUsersByIDs(ids []int64) ([]*ms.User, error) {
 		metric, err := s.ums.GetUserMetric(u.ID)
 		if err == nil {
 			u.Experience = metric.Experience
+
+			// 获取用户等级
+			level, err := s.uls.GetLevelByExperience(u.Experience)
+			if err == nil {
+				u.Level = level.Level
+			} else {
+				// 默认等级为1
+				u.Level = 1
+			}
 		}
 	}
 
@@ -166,6 +218,15 @@ func (s *userManageSrv) GetUsersByKeyword(keyword string) ([]*ms.User, error) {
 		metric, err := s.ums.GetUserMetric(u.ID)
 		if err == nil {
 			u.Experience = metric.Experience
+
+			// 获取用户等级
+			level, err := s.uls.GetLevelByExperience(u.Experience)
+			if err == nil {
+				u.Level = level.Level
+			} else {
+				// 默认等级为1
+				u.Level = 1
+			}
 		}
 	}
 

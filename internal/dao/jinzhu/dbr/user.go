@@ -26,6 +26,7 @@ type User struct {
 	Balance    int64  `json:"balance"`
 	IsAdmin    bool   `json:"is_admin"`
 	Experience int    `gorm:"-" json:"experience"`
+	Level      int    `gorm:"-" json:"level"`
 }
 
 type UserFormated struct {
@@ -38,6 +39,7 @@ type UserFormated struct {
 	IsFriend    bool   `json:"is_friend"`
 	IsFollowing bool   `json:"is_following"`
 	Experience  int    `json:"experience"`
+	Level       int    `json:"level"`
 }
 
 func (u *User) Format() *UserFormated {
@@ -50,6 +52,7 @@ func (u *User) Format() *UserFormated {
 			Avatar:     u.Avatar,
 			IsAdmin:    u.IsAdmin,
 			Experience: u.Experience,
+			Level:      u.Level,
 		}
 	}
 

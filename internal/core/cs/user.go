@@ -51,6 +51,7 @@ type UserProfile struct {
 	CreatedOn   int64  `json:"created_on"`
 	TweetsCount int    `json:"tweets_count"`
 	Experience  int    `json:"experience"`
+	Level       int    `json:"level"`
 }
 
 func (t RelationTyp) String() string {

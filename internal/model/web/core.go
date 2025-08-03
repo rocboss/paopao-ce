@@ -43,6 +43,7 @@ type UserInfoResp struct {
 	Followings  int64  `json:"followings"`
 	TweetsCount int    `json:"tweets_count"`
 	Experience  int    `json:"experience"`
+	Level       int    `json:"level"`
 }
 
 type GetMessagesReq struct {

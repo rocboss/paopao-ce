@@ -79,6 +79,7 @@ func (s *coreSrv) GetUserInfo(req *web.UserInfoReq) (*web.UserInfoResp, error) {
 		Followings:  followings,
 		TweetsCount: user.TweetsCount,
 		Experience:  user.Experience,
+		Level:       user.Level,
 	}
 	if user.Phone != "" && len(user.Phone) == 11 {
 		resp.Phone = user.Phone[0:3] + "****" + user.Phone[7:]
