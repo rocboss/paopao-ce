@@ -6,13 +6,13 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/RoaringBitmap/roaring v1.9.4
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
-	github.com/alimy/mir/v5 v5.2.2
+	github.com/alimy/mir/v5 v5.2.3
 	github.com/alimy/tryst v1.1.0
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/bytedance/sonic v1.12.6
 	github.com/cockroachdb/errors v1.11.3
-	github.com/disintegration/imaging v1.6.2
+	github.com/disintegration/imaging v1.6.3-0.20200122095911-d8633a436aab
 	github.com/fatih/color v1.18.0
 	github.com/getsentry/sentry-go v0.33.0
 	github.com/getsentry/sentry-go/gin v0.33.0
@@ -61,7 +61,7 @@ require (
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/driver/sqlite v1.5.7
-	gorm.io/gorm v1.30.0
+	gorm.io/gorm v1.30.1
 	gorm.io/plugin/dbresolver v1.6.0
 	gorm.io/plugin/soft_delete v1.2.1
 	modernc.org/sqlite v1.37.1
@@ -92,7 +92,7 @@ require (
 	github.com/go-playground/validator/v10 v10.20.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
-	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect

@@ -52,11 +52,30 @@ func (u *User) Format() *UserFormated {
 			Avatar:     u.Avatar,
 			IsAdmin:    u.IsAdmin,
 			Experience: u.Experience,
-			Level:      u.Level,
+			Level:      calculateLevel(u.Experience),
 		}
 	}
 
 	return nil
+}
+
+func calculateLevel(experience int) int {
+	// 简单的等级计算逻辑，可根据实际需求调整
+	level := 1
+	if experience >= 100 {
+		level = 2
+	}
+	if experience >= 500 {
+		level = 3
+	}
+	if experience >= 1000 {
+		level = 4
+	}
+	if experience >= 2000 {
+		level = 5
+	}
+	// 可以根据需要添加更多等级
+	return level
 }
 
 func (u *User) Get(db *gorm.DB) (*User, error) {

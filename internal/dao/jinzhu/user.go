@@ -35,24 +35,24 @@ type userRelationSrv struct {
 
 func newUserManageService(db *gorm.DB, ums core.UserMetricServantA, uls core.UserLevelService) core.UserManageService {
 	return &userManageSrv{
-		db:                db,
-		ums:               ums,
-		uls:               uls,
-		_userProfileJoins: fmt.Sprintf("LEFT JOIN %s m ON %s.id=m.user_id", _userMetric_, _user_),
-		_userProfileWhere: fmt.Sprintf("%s.username=? AND %s.is_del=0", _user_, _user_),
-		_userProfileColumns: []string{
-			fmt.Sprintf("%s.id", _user_),
-			fmt.Sprintf("%s.username", _user_),
-			fmt.Sprintf("%s.nickname", _user_),
-			fmt.Sprintf("%s.phone", _user_),
-			fmt.Sprintf("%s.status", _user_),
-			fmt.Sprintf("%s.avatar", _user_),
-			fmt.Sprintf("%s.balance", _user_),
-			fmt.Sprintf("%s.is_admin", _user_),
-			fmt.Sprintf("%s.created_on", _user_),
-			"m.tweets_count",
-			"m.experience",
-		},
+	db:                db,
+	ums:               ums,
+	uls:               uls,
+	_userProfileJoins: fmt.Sprintf("LEFT JOIN %s m ON %s.id=m.user_id", _userMetric_, _user_),
+	_userProfileWhere: fmt.Sprintf("%s.username=? AND %s.is_del=0", _user_, _user_),
+	_userProfileColumns: []string{
+		fmt.Sprintf("%s.id", _user_),
+		fmt.Sprintf("%s.username", _user_),
+		fmt.Sprintf("%s.nickname", _user_),
+		fmt.Sprintf("%s.phone", _user_),
+		fmt.Sprintf("%s.status", _user_),
+		fmt.Sprintf("%s.avatar", _user_),
+		fmt.Sprintf("%s.balance", _user_),
+		fmt.Sprintf("%s.is_admin", _user_),
+		fmt.Sprintf("%s.created_on", _user_),
+		"m.tweets_count",
+		"m.experience",
+	},
 	}
 }
 
@@ -119,18 +119,6 @@ func (s *userManageSrv) UserProfileByName(username string) (res *cs.UserProfile,
 		Where(s._userProfileWhere, username).
 		Select(s._userProfileColumns).
 		First(&res).Error
-
-	if err == nil && res != nil {
-		// 获取用户等级
-		level, err := s.uls.GetLevelByExperience(res.Experience)
-		if err == nil {
-			res.Level = level.Level
-		} else {
-			// 默认等级为1
-			res.Level = 1
-		}
-	}
-
 	return
 }
 
@@ -188,7 +176,7 @@ func (s *userManageSrv) GetUsersByIDs(ids []int64) ([]*ms.User, error) {
 				// 默认等级为1
 				u.Level = 1
 			}
-		}
+			}
 	}
 
 	return users, nil
@@ -227,7 +215,7 @@ func (s *userManageSrv) GetUsersByKeyword(keyword string) ([]*ms.User, error) {
 				// 默认等级为1
 				u.Level = 1
 			}
-		}
+			}
 	}
 
 	return users, nil
