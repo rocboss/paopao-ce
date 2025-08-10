@@ -1,13 +1,13 @@
 module github.com/rocboss/paopao-ce
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/RoaringBitmap/roaring v1.9.4
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
-	github.com/alimy/mir/v5 v5.2.3
-	github.com/alimy/tryst v1.1.0
+	github.com/alimy/mir/v5 v5.3.1
+	github.com/alimy/tryst v1.2.0
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/bytedance/sonic v1.14.0
@@ -53,7 +53,7 @@ require (
 	go.opentelemetry.io/otel/sdk/log v0.12.2
 	go.opentelemetry.io/otel/sdk/metric v1.36.0
 	go.uber.org/automaxprocs v1.6.0
-	golang.org/x/crypto v0.39.0
+	golang.org/x/crypto v0.41.0
 	google.golang.org/grpc v1.72.1
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
@@ -162,13 +162,13 @@ require (
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b // indirect
 	golang.org/x/image v0.0.0-20210216034530-4410531fe030 // indirect
-	golang.org/x/mod v0.25.0 // indirect
-	golang.org/x/net v0.41.0 // indirect
-	golang.org/x/sync v0.15.0 // indirect
-	golang.org/x/sys v0.34.0 // indirect
-	golang.org/x/text v0.26.0 // indirect
+	golang.org/x/mod v0.27.0 // indirect
+	golang.org/x/net v0.43.0 // indirect
+	golang.org/x/sync v0.16.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
+	golang.org/x/text v0.28.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
-	golang.org/x/tools v0.34.0 // indirect
+	golang.org/x/tools v0.36.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250519155744-55703ea1f237 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
