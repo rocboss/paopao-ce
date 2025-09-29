@@ -22,7 +22,7 @@ require (
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/goccy/go-json v0.10.5
 	github.com/gofrs/uuid/v5 v5.3.2
-	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/golang-jwt/jwt/v5 v5.2.3
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/grafana/pyroscope-go v1.2.4
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.25.4+incompatible
@@ -40,7 +40,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
-	github.com/tencentyun/cos-go-sdk-v5 v0.7.65
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.70
 	github.com/yinheli/mahonia v0.0.0-20131226213531-0eef680515cc
 	go.opentelemetry.io/contrib/bridges/otellogrus v0.11.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.61.0
