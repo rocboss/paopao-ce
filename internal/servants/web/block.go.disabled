@@ -1,0 +1,109 @@
+// Copyright 2024 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
+package web
+
+import (
+	"github.com/gin-gonic/gin"
+	api "github.com/rocboss/paopao-ce/auto/api/v1"
+	"github.com/rocboss/paopao-ce/internal/dao/cache"
+	"github.com/rocboss/paopao-ce/internal/model/web"
+	"github.com/rocboss/paopao-ce/internal/servants/base"
+	"github.com/rocboss/paopao-ce/pkg/xerror"
+	"github.com/sirupsen/logrus"
+)
+
+var (
+	_ api.Blockship = (*blockshipSrv)(nil)
+)
+
+type blockshipSrv struct {
+	api.UnimplementedBlockshipServant
+	*base.DaoServant
+}
+
+func (s *blockshipSrv) Chain() gin.HandlersChain {
+	return gin.HandlersChain{chain.Jwt()}
+}
+
+func (s *blockshipSrv) BlockUser(r *web.BlockUserReq) error {
+	if r.User == nil {
+		return xerror.UnauthorizedTokenError
+	} else if r.User.ID == r.UserId {
+		return web.ErrNotAllowBlockSelf
+	}
+
+	// 验证reason长度，防止过长输入
+	if len(r.Reason) > 500 {
+		r.Reason = r.Reason[:500]
+	}
+
+	// 防止重复拉黑
+	if s.Ds.IsBlocked(r.User.ID, r.UserId) {
+		return web.ErrAlreadyBlocked
+	}
+
+	// 拉黑前先取消关注关系
+	if s.Ds.IsFollow(r.User.ID, r.UserId) {
+		if err := s.Ds.UnfollowUser(r.User.ID, r.UserId); err != nil {
+			logrus.Errorf("Ds.UnfollowUser err when blocking: %s", err)
+		}
+	}
+	if s.Ds.IsFollow(r.UserId, r.User.ID) {
+		if err := s.Ds.UnfollowUser(r.UserId, r.User.ID); err != nil {
+			logrus.Errorf("Ds.UnfollowUser err when blocking: %s", err)
+		}
+	}
+
+	if err := s.Ds.BlockUser(r.User.ID, r.UserId, r.Reason); err != nil {
+		logrus.Errorf("Ds.BlockUser err: %s userId: %d targetId: %d", err, r.User.ID, r.UserId)
+		return web.ErrBlockUserFailed
+	}
+
+	// 触发缓存更新事件
+	cache.OnCacheMyFollowIdsEvent(s.Ds, r.User.ID)
+	cache.OnExpireIndexTweetEvent(r.User.ID)
+	onMessageActionEvent(_messageActionBlock, r.User.ID)
+	return nil
+}
+
+func (s *blockshipSrv) UnblockUser(r *web.UnblockUserReq) error {
+	if r.User == nil {
+		return xerror.UnauthorizedTokenError
+	} else if r.User.ID == r.UserId {
+		return web.ErrNotAllowUnblockSelf
+	}
+
+	if err := s.Ds.UnblockUser(r.User.ID, r.UserId); err != nil {
+		logrus.Errorf("Ds.UnblockUser err: %s userId: %d targetId: %d", err, r.User.ID, r.UserId)
+		return web.ErrUnblockUserFailed
+	}
+
+	// 触发缓存更新事件
+	cache.OnCacheMyFollowIdsEvent(s.Ds, r.User.ID)
+	cache.OnExpireIndexTweetEvent(r.User.ID)
+	onMessageActionEvent(_messageActionUnblock, r.User.ID)
+	return nil
+}
+
+func (s *blockshipSrv) ListBlocks(r *web.ListBlocksReq) (*web.ListBlocksResp, error) {
+	if r.User == nil {
+		return nil, xerror.UnauthorizedTokenError
+	}
+
+	res, err := s.Ds.ListBlocks(r.User.ID, r.PageSize, (r.Page-1)*r.PageSize)
+	if err != nil {
+		logrus.Errorf("Ds.ListBlocks err: %s", err)
+		return nil, web.ErrListBlocksFailed
+	}
+
+	resp := base.PageRespFrom(res.Blocks, r.Page, r.PageSize, res.Total)
+	return (*web.ListBlocksResp)(resp), nil
+}
+
+func newBlockshipSrv(s *base.DaoServant) api.Blockship {
+	return &blockshipSrv{
+		DaoServant: s,
+	}
+}

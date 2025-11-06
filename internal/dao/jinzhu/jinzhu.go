@@ -42,7 +42,6 @@ type dataSrv struct {
 	core.TrendsManageServantA
 	core.UserManageService
 	core.UserMetricServantA
-	core.UserLevelService
 	core.ContactManageService
 	core.FollowingManageService
 	core.UserRelationService
@@ -63,14 +62,12 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	pvs := security.NewPhoneVerifyService()
 	tms := newTweetMetricServentA(db)
 	ums := newUserMetricServentA(db)
-	uls := newUserLevelService(db)
 	cms := newCommentMetricServentA(db)
 	cis := cache.NewEventCacheIndexSrv(tms)
 	ds := &dataSrv{
 		TweetMetricServantA:    tms,
 		CommentMetricServantA:  cms,
 		UserMetricServantA:     ums,
-		UserLevelService:       uls,
 		WalletService:          newWalletService(db),
 		MessageService:         newMessageService(db),
 		TopicService:           newTopicService(db),
@@ -80,7 +77,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		CommentService:         newCommentService(db),
 		CommentManageService:   newCommentManageService(db),
 		TrendsManageServantA:   newTrendsManageServentA(db),
-		UserManageService:      newUserManageService(db, ums, uls),
+		UserManageService:      newUserManageService(db, ums),
 		ContactManageService:   newContactManageService(db),
 		FollowingManageService: newFollowingManageService(db),
 		UserRelationService:    newUserRelationService(db),

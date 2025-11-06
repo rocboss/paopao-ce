@@ -18,6 +18,14 @@ type Loose interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
+	ArticleCollectionStatus(*web.ArticleCollectionStatusReq) (*web.ArticleCollectionStatusResp, error)
+	ArticleStarStatus(*web.ArticleStarStatusReq) (*web.ArticleStarStatusResp, error)
+	GetUserArticles(*web.GetUserArticlesReq) (*web.GetUserArticlesResp, error)
+	ListArticleSeries(*web.ListArticleSeriesReq) (*web.ListArticleSeriesResp, error)
+	GetArticleSeries(*web.GetArticleSeriesReq) (*web.GetArticleSeriesResp, error)
+	ArticleComments(*web.ArticleCommentsReq) (*web.ArticleCommentsResp, error)
+	ListArticles(*web.ListArticlesReq) (*web.ListArticlesResp, error)
+	GetArticle(*web.GetArticleReq) (*web.GetArticleResp, error)
 	TweetDetail(*web.TweetDetailReq) (*web.TweetDetailResp, error)
 	TweetComments(*web.TweetCommentsReq) (*web.TweetCommentsResp, error)
 	TopicList(*web.TopicListReq) (*web.TopicListResp, error)
@@ -36,6 +44,154 @@ func RegisterLooseServant(e *gin.Engine, s Loose) {
 	router.Use(middlewares...)
 
 	// register routes info to router
+	router.Handle("GET", "articles/collection", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.ArticleCollectionStatusReq)
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.ArticleCollectionStatus(req)
+		s.Render(c, resp, err)
+	})
+	router.Handle("GET", "articles/star", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.ArticleStarStatusReq)
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.ArticleStarStatus(req)
+		s.Render(c, resp, err)
+	})
+	router.Handle("GET", "user/articles", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.GetUserArticlesReq)
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.GetUserArticles(req)
+		if err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		var rv _render_ = resp
+		rv.Render(c)
+	})
+	router.Handle("GET", "articles/series", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.ListArticleSeriesReq)
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.ListArticleSeries(req)
+		if err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		var rv _render_ = resp
+		rv.Render(c)
+	})
+	router.Handle("GET", "articles/series/detail", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.GetArticleSeriesReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.GetArticleSeries(req)
+		if err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		var rv _render_ = resp
+		rv.Render(c)
+	})
+	router.Handle("GET", "articles/comments", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.ArticleCommentsReq)
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.ArticleComments(req)
+		if err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		var rv _render_ = resp
+		rv.Render(c)
+	})
+	router.Handle("GET", "articles", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.ListArticlesReq)
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.ListArticles(req)
+		if err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		var rv _render_ = resp
+		rv.Render(c)
+	})
+	router.Handle("GET", "articles/detail", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.GetArticleReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.GetArticle(req)
+		if err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		var rv _render_ = resp
+		rv.Render(c)
+	})
 	router.Handle("GET", "post", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
@@ -143,6 +299,38 @@ type UnimplementedLooseServant struct{}
 
 func (UnimplementedLooseServant) Chain() gin.HandlersChain {
 	return nil
+}
+
+func (UnimplementedLooseServant) ArticleCollectionStatus(req *web.ArticleCollectionStatusReq) (*web.ArticleCollectionStatusResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedLooseServant) ArticleStarStatus(req *web.ArticleStarStatusReq) (*web.ArticleStarStatusResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedLooseServant) GetUserArticles(req *web.GetUserArticlesReq) (*web.GetUserArticlesResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedLooseServant) ListArticleSeries(req *web.ListArticleSeriesReq) (*web.ListArticleSeriesResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedLooseServant) GetArticleSeries(req *web.GetArticleSeriesReq) (*web.GetArticleSeriesResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedLooseServant) ArticleComments(req *web.ArticleCommentsReq) (*web.ArticleCommentsResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedLooseServant) ListArticles(req *web.ListArticlesReq) (*web.ListArticlesResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedLooseServant) GetArticle(req *web.GetArticleReq) (*web.GetArticleResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
 func (UnimplementedLooseServant) TweetDetail(req *web.TweetDetailReq) (*web.TweetDetailResp, error) {

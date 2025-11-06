@@ -18,6 +18,9 @@ type Core interface {
 	// Chain provide handlers chain for gin
 	Chain() gin.HandlersChain
 
+	StreamMessages(*web.StreamMessagesReq, *gin.Context) error
+	GetUserArticleStars(*web.GetUserArticleStarsReq) (*web.GetUserArticleStarsResp, error)
+	GetUserArticleCollections(*web.GetUserArticleCollectionsReq) (*web.GetUserArticleCollectionsResp, error)
 	TweetCollectionStatus(*web.TweetCollectionStatusReq) (*web.TweetCollectionStatusResp, error)
 	TweetStarStatus(*web.TweetStarStatusReq) (*web.TweetStarStatusResp, error)
 	SuggestTags(*web.SuggestTagsReq) (*web.SuggestTagsResp, error)
@@ -46,6 +49,52 @@ func RegisterCoreServant(e *gin.Engine, s Core) {
 	router.Use(middlewares...)
 
 	// register routes info to router
+	router.Handle("GET", "user/messages/stream", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.StreamMessagesReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		if err := s.StreamMessages(req, c); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+	})
+	router.Handle("GET", "user/articles/stars", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.GetUserArticleStarsReq)
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.GetUserArticleStars(req)
+		s.Render(c, resp, err)
+	})
+	router.Handle("GET", "user/articles/collections", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.GetUserArticleCollectionsReq)
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.GetUserArticleCollections(req)
+		s.Render(c, resp, err)
+	})
 	router.Handle("GET", "post/collection", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
@@ -281,6 +330,18 @@ type UnimplementedCoreServant struct{}
 
 func (UnimplementedCoreServant) Chain() gin.HandlersChain {
 	return nil
+}
+
+func (UnimplementedCoreServant) StreamMessages(req *web.StreamMessagesReq, c *gin.Context) error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedCoreServant) GetUserArticleStars(req *web.GetUserArticleStarsReq) (*web.GetUserArticleStarsResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedCoreServant) GetUserArticleCollections(req *web.GetUserArticleCollectionsReq) (*web.GetUserArticleCollectionsResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
 func (UnimplementedCoreServant) TweetCollectionStatus(req *web.TweetCollectionStatusReq) (*web.TweetCollectionStatusResp, error) {

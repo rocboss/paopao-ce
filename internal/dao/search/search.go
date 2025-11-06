@@ -97,3 +97,4 @@ func NewBridgeTweetSearchService(ts core.TweetSearchService) core.TweetSearchSer
 
 	return bts
 }
+

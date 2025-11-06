@@ -183,7 +183,15 @@ func (s *topicSrv) listTags(conditions *ms.ConditionsT, limit int, offset int) (
 		}
 		for _, userInfo := range userInfos {
 			for _, item = range tagMap[userInfo.ID] {
-				item.User = userInfo
+				item.User = &cs.UserInfo{
+					ID:        userInfo.ID,
+					Nickname:  userInfo.Nickname,
+					Username:  userInfo.Username,
+					Status:    userInfo.Status,
+					Avatar:    userInfo.Avatar,
+					IsAdmin:   userInfo.IsAdmin,
+					CreatedOn: userInfo.CreatedOn,
+				}
 			}
 		}
 	}
@@ -231,7 +239,15 @@ func (s *topicSrv) tagsFormatB(userTopicsMap map[int64]*topicInfo, tags cs.TagIn
 		tagFormated := tag.Format()
 		for _, user := range users {
 			if user.ID == tagFormated.UserID {
-				tagFormated.User = user
+				tagFormated.User = &cs.UserInfo{
+					ID:        user.ID,
+					Nickname:  user.Nickname,
+					Username:  user.Username,
+					Status:    user.Status,
+					Avatar:    user.Avatar,
+					IsAdmin:   user.IsAdmin,
+					CreatedOn: user.CreatedOn,
+				}
 			}
 		}
 		tagList = append(tagList, tagFormated)
@@ -342,7 +358,15 @@ func (s *topicSrvA) ListTags(typ cs.TagType, offset, limit int) (res cs.TagList,
 		}
 		for _, userInfo := range userInfos {
 			for _, item = range tagMap[userInfo.ID] {
-				item.User = userInfo
+				item.User = &cs.UserInfo{
+					ID:        userInfo.ID,
+					Nickname:  userInfo.Nickname,
+					Username:  userInfo.Username,
+					Status:    userInfo.Status,
+					Avatar:    userInfo.Avatar,
+					IsAdmin:   userInfo.IsAdmin,
+					CreatedOn: userInfo.CreatedOn,
+				}
 			}
 		}
 	}

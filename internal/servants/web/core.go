@@ -6,8 +6,9 @@ package web
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-
+	"net/http"
 	"time"
 	"unicode/utf8"
 
@@ -15,6 +16,7 @@ import (
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/joint"
 	"github.com/rocboss/paopao-ce/internal/model/web"
@@ -416,6 +418,113 @@ func (s *coreSrv) TweetStarStatus(req *web.TweetStarStatusReq) (*web.TweetStarSt
 		return resp, nil
 	}
 	return resp, nil
+}
+
+func (s *coreSrv) StreamMessages(req *web.StreamMessagesReq, c *gin.Context) error {
+	// 设置SSE响应头
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Connection", "keep-alive")
+	c.Header("Access-Control-Allow-Origin", "*")
+
+	// 获取用户ID
+	userId := req.Uid
+	if userId <= 0 {
+		s.sendSSEEvent(c, "error", "Unauthorized")
+		return nil
+	}
+
+	// 创建上下文用于控制连接
+	ctx, cancel := context.WithCancel(c.Request.Context())
+	defer cancel()
+
+	// 记录已发送的消息ID，避免重复发送
+	sentMessageIDs := make(map[int64]bool)
+
+	// 发送初始连接确认
+	s.sendSSEEvent(c, "connected", fmt.Sprintf(`{"user_id": %d, "timestamp": %d}`, userId, time.Now().Unix()))
+
+	// 定期检查新消息
+	ticker := time.NewTicker(5 * time.Second) // 每5秒检查一次
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			// 连接断开
+			return nil
+		case <-ticker.C:
+			// 获取未读消息
+			messages, _, err := s.Ds.GetMessages(userId, cs.StyleMsgUnread, 50, 0)
+			if err != nil {
+				logrus.Errorf("StreamMessages: failed to get messages for user %d: %v", userId, err)
+				continue
+			}
+
+			// 过滤并发送新消息
+			for _, msg := range messages {
+				if sentMessageIDs[msg.ID] {
+					continue // 已发送过，跳过
+				}
+
+				// 格式化消息数据
+				messageData := map[string]interface{}{
+					"id":               msg.ID,
+					"type":             msg.Type,
+					"brief":            msg.Brief,
+					"content":          msg.Content,
+					"sender_user_id":   msg.SenderUserID,
+					"receiver_user_id": msg.ReceiverUserID,
+					"post_id":          msg.PostID,
+					"comment_id":       msg.CommentID,
+					"reply_id":         msg.ReplyID,
+					"is_read":          msg.IsRead,
+					"created_on":       msg.CreatedOn,
+				}
+
+				// 发送消息事件
+				if err := s.sendSSEEvent(c, "message", messageData); err != nil {
+					logrus.Errorf("StreamMessages: failed to send SSE event: %v", err)
+					return nil
+				}
+
+				// 标记为已发送
+				sentMessageIDs[msg.ID] = true
+			}
+
+			// 手动刷新响应，确保消息立即发送
+			s.flushSSE(c)
+		}
+	}
+}
+
+// sendSSEEvent 发送SSE事件
+func (s *coreSrv) sendSSEEvent(c *gin.Context, event string, data interface{}) error {
+	var dataStr string
+	switch v := data.(type) {
+	case string:
+		dataStr = v
+	default:
+		jsonBytes, err := json.Marshal(data)
+		if err != nil {
+			return err
+		}
+		dataStr = string(jsonBytes)
+	}
+
+	// 按照SSE格式写入数据
+	if event != "" {
+		fmt.Fprintf(c.Writer, "event: %s\n", event)
+	}
+	fmt.Fprintf(c.Writer, "data: %s\n\n", dataStr)
+	return nil
+}
+
+// flushSSE 刷新SSE响应
+func (s *coreSrv) flushSSE(c *gin.Context) {
+	if flusher, ok := c.Writer.(http.Flusher); ok {
+		flusher.Flush()
+	}
 }
 
 func (s *coreSrv) messagesFromCache(req *web.GetMessagesReq, limit int, offset int) (res *web.GetMessagesResp, key string, ok bool) {

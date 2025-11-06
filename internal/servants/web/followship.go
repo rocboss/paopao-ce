@@ -99,9 +99,12 @@ func (s *followshipSrv) FollowUser(r *web.FollowUserReq) error {
 	} else if r.User.ID == r.UserId {
 		return web.ErrNotAllowFollowSelf
 	}
+
+	// TODO: 检查是否已被对方拉黑 (暂时跳过)
+
 	if err := s.Ds.FollowUser(r.User.ID, r.UserId); err != nil {
 		logrus.Errorf("Ds.FollowUser err: %s userId: %d followId: %d", err, r.User.ID, r.UserId)
-		return web.ErrUnfollowUserFailed
+		return web.ErrFolloUserFailed
 	}
 	// 触发缓存更新事件
 	// TODO: 合并成一个事件

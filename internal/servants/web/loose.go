@@ -201,13 +201,13 @@ func (s *looseSrv) GetUserTweets(req *web.GetUserTweetsReq) (res *web.GetUserTwe
 	return
 }
 
-func (s *looseSrv) userTweetsFromCache(req *web.GetUserTweetsReq, user *cs.VistUser) (res *web.GetUserTweetsResp, key string, ok bool) {
+func (s *looseSrv) userTweetsFromCache(req *web.GetUserTweetsReq, user *dbr.VistUser) (res *web.GetUserTweetsResp, key string, ok bool) {
 	switch req.Style {
 	case web.UserPostsStylePost, web.UserPostsStyleHighlight, web.UserPostsStyleMedia:
 		key = fmt.Sprintf("%s%d:%s:%s:%d:%d", s.prefixUserTweets, user.UserId, req.Style, user.RelTyp, req.Page, req.PageSize)
 	default:
 		meName := "_"
-		if user.RelTyp != cs.RelationGuest {
+		if user.RelTyp != dbr.RelationTyp(cs.RelationGuest) {
 			meName = req.User.Username
 		}
 		key = fmt.Sprintf("%s%d:%s:%s:%d:%d", s.prefixUserTweets, user.UserId, req.Style, meName, req.Page, req.PageSize)
@@ -222,7 +222,7 @@ func (s *looseSrv) userTweetsFromCache(req *web.GetUserTweetsReq, user *cs.VistU
 	return
 }
 
-func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, error) {
+func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *dbr.VistUser) (*web.GetUserTweetsResp, error) {
 	stars, totalRows, err := s.Ds.ListUserStarTweets(user, req.PageSize, (req.Page-1)*req.PageSize)
 	if err != nil {
 		logrus.Errorf("getUserStarTweets err[1]: %s", err)
@@ -255,7 +255,7 @@ func (s *looseSrv) getUserStarTweets(req *web.GetUserTweetsReq, user *cs.VistUse
 	}, nil
 }
 
-func (s *looseSrv) listUserTweets(req *web.GetUserTweetsReq, user *cs.VistUser) (*web.GetUserTweetsResp, error) {
+func (s *looseSrv) listUserTweets(req *web.GetUserTweetsReq, user *dbr.VistUser) (*web.GetUserTweetsResp, error) {
 	var (
 		tweets []*ms.Post
 		total  int64
@@ -294,18 +294,18 @@ func (s *looseSrv) listUserTweets(req *web.GetUserTweetsReq, user *cs.VistUser) 
 	}, nil
 }
 
-func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq, user *cs.VistUser, isHighlight bool) (*web.GetUserTweetsResp, error) {
+func (s *looseSrv) getUserPostTweets(req *web.GetUserTweetsReq, user *dbr.VistUser, isHighlight bool) (*web.GetUserTweetsResp, error) {
 	style := cs.StyleUserTweetsGuest
 	switch user.RelTyp {
-	case cs.RelationAdmin:
+	case dbr.RelationAdmin:
 		style = cs.StyleUserTweetsAdmin
-	case cs.RelationSelf:
+	case dbr.RelationSelf:
 		style = cs.StyleUserTweetsSelf
-	case cs.RelationFriend:
+	case dbr.RelationFriend:
 		style = cs.StyleUserTweetsFriend
-	case cs.RelationFollowing:
+	case dbr.RelationFollowing:
 		style = cs.StyleUserTweetsFollowing
-	case cs.RelationGuest:
+	case dbr.RelationGuest:
 		fallthrough
 	default:
 		// nothing
@@ -368,6 +368,8 @@ func (s *looseSrv) GetUserProfile(req *web.GetUserProfileReq) (*web.GetUserProfi
 		Follows:     follows,
 		Followings:  followings,
 		TweetsCount: he.TweetsCount,
+		Experience:  he.Experience,
+		Level:       he.Level,
 	}, nil
 }
 

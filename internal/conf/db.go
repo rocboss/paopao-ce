@@ -42,6 +42,8 @@ const (
 	TableUser               = "user"
 	TableUserRelation       = "user_relation"
 	TableUserMetric         = "user_metric"
+	TableOperationSettings  = "operation_settings"
+	TableUserCheckin        = "user_checkin"
 	TableWalletRecharge     = "wallet_recharge"
 	TableWalletStatement    = "wallet_statement"
 )

@@ -178,3 +178,7 @@ func (r *TweetStarStatusReq) Bind(c *gin.Context) error {
 	r.TweetId = convert.StrTo(c.Query("id")).MustInt64()
 	return nil
 }
+
+type StreamMessagesReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+}

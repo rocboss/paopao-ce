@@ -12,6 +12,23 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/json"
 )
 
+type CacheResp struct {
+	Data     any
+	JsonResp stdJson.RawMessage
+}
+
+func (r *CacheResp) Render(c *gin.Context) {
+	if len(r.JsonResp) != 0 {
+		c.JSON(http.StatusOK, r.JsonResp)
+	} else {
+		c.JSON(http.StatusOK, &JsonResp{
+			Code: 0,
+			Msg:  "success",
+			Data: r.Data,
+		})
+	}
+}
+
 type CachePageResp struct {
 	Data     *PageResp
 	JsonResp stdJson.RawMessage

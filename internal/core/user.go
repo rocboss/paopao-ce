@@ -5,8 +5,8 @@
 package core
 
 import (
-	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 )
 
 // UserManageService 用户管理服务
@@ -16,7 +16,7 @@ type UserManageService interface {
 	GetUserByPhone(phone string) ([]*ms.User, error)
 	GetUsersByIDs(ids []int64) ([]*ms.User, error)
 	GetUsersByKeyword(keyword string) ([]*ms.User, error)
-	UserProfileByName(username string) (*cs.UserProfile, error)
+	UserProfileByName(username string) (*dbr.UserProfile, error)
 	CreateUser(user *ms.User) (*ms.User, error)
 	UpdateUser(user *ms.User) error
 	GetRegisterUserCount() (int64, error)
