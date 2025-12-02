@@ -5,6 +5,7 @@
 package web
 
 import (
+	"crypto/subtle"
 	"image"
 	"math/rand"
 	"strings"
@@ -88,15 +89,19 @@ func checkPassword(password string) error {
 }
 
 // ValidPassword 检查密码是否一致
-func validPassword(dbPassword, password, salt string) bool {
-	return strings.Compare(dbPassword, utils.EncodeMD5(utils.EncodeMD5(password)+salt)) == 0
+func validPassword(secret, password, salt string) bool {
+	expected := utils.EncodeMD5(utils.EncodeMD5(password) + salt)
+
+	// Check that the secret matches the expected value.
+	// Use constant time comparison to avoid timing attacks.
+	return subtle.ConstantTimeCompare([]byte(secret), []byte(expected)) == 1
 }
 
 // encryptPasswordAndSalt 密码加密&生成salt
 func encryptPasswordAndSalt(password string) (string, string) {
 	salt := uuid.Must(uuid.NewV4()).String()[:8]
-	password = utils.EncodeMD5(utils.EncodeMD5(password) + salt)
-	return password, salt
+	secret := utils.EncodeMD5(utils.EncodeMD5(password) + salt)
+	return secret, salt
 }
 
 // deleteOssObjects 删除推文的媒体内容, 宽松处理错误(就是不处理), 后续完善
