@@ -12,7 +12,7 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <a href="https://github.com/rocboss/paopao-ce">
-    <img src="https://cdn.rocs.me/static/paopao-logo.png" alt="Logo" width="80" height="80">
+    <img src="https://assets.paopao.info/static/paopao-logo.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">PaoPao</h3>
@@ -262,5 +262,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
 [license-shield]: https://img.shields.io/github/license/rocboss/paopao-ce.svg?style=flat
 [license-url]: https://github.com/rocboss/paopao-ce/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat&logo=linkedin&colorB=555
-[product-light-screenshot]: https://cdn.rocs.me/static/paopao-light.jpeg
-[product-dark-screenshot]: https://cdn.rocs.me/static/paopao-dark.jpeg
+[product-light-screenshot]: https://assets.paopao.info/static/paopao-light.jpeg
+[product-dark-screenshot]: https://assets.paopao.info/static/paopao-dark.jpeg
