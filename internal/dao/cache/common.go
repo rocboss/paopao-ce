@@ -11,8 +11,8 @@ import (
 	"github.com/RoaringBitmap/roaring/roaring64"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
-	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 )
 
 type cacheDataService struct {
@@ -62,12 +62,12 @@ func (s *cacheDataService) GetUserByUsername(username string) (res *ms.User, err
 	return
 }
 
-func (s *cacheDataService) UserProfileByName(username string) (res *cs.UserProfile, err error) {
+func (s *cacheDataService) UserProfileByName(username string) (res *dbr.UserProfile, err error) {
 	// 先从缓存获取， 不处理错误
 	key := conf.KeyUserProfileByName.Get(username)
 	if data, xerr := s.ac.Get(key); xerr == nil {
 		buf := bytes.NewBuffer(data)
-		res = &cs.UserProfile{}
+		res = &dbr.UserProfile{}
 		err = gob.NewDecoder(buf).Decode(res)
 		return
 	}

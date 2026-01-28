@@ -57,4 +57,13 @@ type Core struct {
 
 	// TweetCollectionStatus 获取动态收藏状态
 	TweetCollectionStatus func(Get, web.TweetCollectionStatusReq) web.TweetCollectionStatusResp `mir:"post/collection"`
+
+	// GetUserArticleCollections 获取用户长文章收藏列表
+	GetUserArticleCollections func(Get, web.GetUserArticleCollectionsReq) web.GetUserArticleCollectionsResp `mir:"user/articles/collections"`
+
+	// GetUserArticleStars 获取用户长文章点赞列表
+	GetUserArticleStars func(Get, web.GetUserArticleStarsReq) web.GetUserArticleStarsResp `mir:"user/articles/stars"`
+
+	// StreamMessages SSE获取消息列表
+	StreamMessages func(Get, web.StreamMessagesReq) `mir:"user/messages/stream"`
 }

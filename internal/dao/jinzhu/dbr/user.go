@@ -5,7 +5,6 @@
 package dbr
 
 import (
-	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"gorm.io/gorm"
 )
 
@@ -25,7 +24,7 @@ type User struct {
 	Avatar     string `json:"avatar"`
 	Balance    int64  `json:"balance"`
 	IsAdmin    bool   `json:"is_admin"`
-	Experience int    `gorm:"-" json:"experience"`
+	Experience int    `json:"experience"`
 	Level      int    `gorm:"-" json:"level"`
 }
 
@@ -117,7 +116,7 @@ func (u *User) List(db *gorm.DB, conditions *ConditionsT, offset, limit int) ([]
 	return users, nil
 }
 
-func (u *User) ListUserInfoById(db *gorm.DB, ids []int64) (res cs.UserInfoList, err error) {
+func (u *User) ListUserInfoById(db *gorm.DB, ids []int64) (res UserInfoList, err error) {
 	err = db.Model(u).Where("id IN ?", ids).Find(&res).Error
 	return
 }

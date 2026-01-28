@@ -7,7 +7,6 @@ package dbr
 import (
 	"time"
 
-	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -53,7 +52,7 @@ func (p *PostStar) Delete(db *gorm.DB) error {
 	}).Error
 }
 
-func (p *PostStar) List(db *gorm.DB, conditions *ConditionsT, typ cs.RelationTyp, limit int, offset int) (res []*PostStar, err error) {
+func (p *PostStar) List(db *gorm.DB, conditions *ConditionsT, typ RelationTyp, limit int, offset int) (res []*PostStar, err error) {
 	tn := db.NamingStrategy.TableName("PostStar") + "."
 	if offset >= 0 && limit > 0 {
 		db = db.Offset(offset).Limit(limit)
@@ -70,11 +69,11 @@ func (p *PostStar) List(db *gorm.DB, conditions *ConditionsT, typ cs.RelationTyp
 	}
 	db = db.Joins("Post")
 	switch typ {
-	case cs.RelationAdmin:
+	case RelationAdmin:
 		// admin have all permition to visit all type tweets
-	case cs.RelationFriend:
+	case RelationFriend:
 		db = db.Where("visibility = ? OR visibility = ?", PostVisitPublic, PostVisitFriend)
-	case cs.RelationSelf:
+	case RelationSelf:
 		db = db.Where("visibility <> ? OR (visibility = ? AND ? = ?)", PostVisitPrivate, PostVisitPrivate, clause.Column{Table: "Post", Name: "user_id"}, p.UserID)
 	default:
 		db = db.Where("visibility=?", PostVisitPublic)
@@ -84,7 +83,7 @@ func (p *PostStar) List(db *gorm.DB, conditions *ConditionsT, typ cs.RelationTyp
 	return
 }
 
-func (p *PostStar) Count(db *gorm.DB, typ cs.RelationTyp, conditions *ConditionsT) (res int64, err error) {
+func (p *PostStar) Count(db *gorm.DB, typ RelationTyp, conditions *ConditionsT) (res int64, err error) {
 	tn := db.NamingStrategy.TableName("PostStar") + "."
 	if p.PostID > 0 {
 		db = db.Where(tn+"post_id = ?", p.PostID)
@@ -99,11 +98,11 @@ func (p *PostStar) Count(db *gorm.DB, typ cs.RelationTyp, conditions *Conditions
 	}
 	db = db.Joins("Post")
 	switch typ {
-	case cs.RelationAdmin:
+	case RelationAdmin:
 		// admin have all permition to visit all type tweets
-	case cs.RelationFriend:
+	case RelationFriend:
 		db = db.Where("visibility = ? OR visibility = ?", PostVisitPublic, PostVisitFriend)
-	case cs.RelationSelf:
+	case RelationSelf:
 		db = db.Where("visibility <> ? OR (visibility = ? AND ? = ?)", PostVisitPrivate, PostVisitPrivate, clause.Column{Table: "Post", Name: "user_id"}, p.UserID)
 	default:
 		db = db.Where("visibility=?", PostVisitPublic)

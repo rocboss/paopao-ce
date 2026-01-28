@@ -18,3 +18,13 @@ type IndexPostsService interface {
 type IndexPostsServantA interface {
 	IndexPosts(user *ms.User, limit int, offset int) (*cs.TweetBox, error)
 }
+
+// IndexContentService 广场首页综合内容服务（包含动态和长文章）
+type IndexContentService interface {
+	IndexContent(user *ms.User, offset int, limit int) (*ms.IndexContentList, error)
+}
+
+// IndexContentServantA 广场首页综合内容服务(版本A)
+type IndexContentServantA interface {
+	IndexContent(user *ms.User, limit int, offset int) (*cs.ContentBox, error)
+}

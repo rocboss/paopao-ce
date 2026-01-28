@@ -81,4 +81,44 @@ type Priv struct {
 
 	// UnfollowTopic 取消关注话题
 	UnfollowTopic func(Post, web.UnfollowTopicReq) `mir:"topic/unfollow"`
+
+	// 长文章相关API
+	// CreateArticle 创建长文章
+	CreateArticle func(Post, Chain, web.CreateArticleReq) web.CreateArticleResp `mir:"articles"`
+
+	// UpdateArticle 更新长文章
+	UpdateArticle func(Put, Chain, web.UpdateArticleReq) `mir:"articles"`
+
+	// DeleteArticle 删除长文章
+	DeleteArticle func(Delete, web.DeleteArticleReq) `mir:"articles"`
+
+	// StarArticle 长文章点赞操作
+	StarArticle func(Post, web.ArticleStarReq) web.ArticleStarResp `mir:"articles/star"`
+
+	// CollectionArticle 长文章收藏操作
+	CollectionArticle func(Post, web.ArticleCollectionReq) web.ArticleCollectionResp `mir:"articles/collection"`
+
+	// CreateArticleComment 发布长文章评论
+	CreateArticleComment func(Post, web.CreateArticleCommentReq) web.CreateArticleCommentResp `mir:"articles/comment"`
+
+	// DeleteArticleComment 删除长文章评论
+	DeleteArticleComment func(Delete, web.DeleteArticleCommentReq) `mir:"articles/comment"`
+
+	// CreateArticleCommentReply 发布评论回复
+	CreateArticleCommentReply func(Post, web.CreateArticleCommentReplyReq) web.CreateArticleCommentReplyResp `mir:"articles/comment/reply"`
+
+	// DeleteArticleCommentReply 删除评论回复
+	DeleteArticleCommentReply func(Delete, web.DeleteArticleCommentReplyReq) `mir:"articles/comment/reply"`
+
+	// CreateArticleSeries 创建长文章系列
+	CreateArticleSeries func(Post, web.CreateArticleSeriesReq) web.CreateArticleSeriesResp `mir:"articles/series"`
+
+	// UpdateArticleSeries 更新长文章系列
+	UpdateArticleSeries func(Put, web.UpdateArticleSeriesReq) `mir:"articles/series"`
+
+	// DeleteArticleSeries 删除长文章系列
+	DeleteArticleSeries func(Delete, web.DeleteArticleSeriesReq) `mir:"articles/series"`
+
+	// AdminDeleteArticle 管理员删除长文章
+	AdminDeleteArticle func(Delete, web.AdminDeleteArticleReq) `mir:"admin/articles"`
 }

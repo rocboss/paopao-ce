@@ -7,6 +7,7 @@ package core
 import (
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 )
 
 // TweetService 推文检索服务
@@ -23,9 +24,9 @@ type TweetService interface {
 	GetPostAttatchmentBill(postID, userID int64) (*ms.PostAttachmentBill, error)
 	GetPostContentsByIDs(ids []int64) ([]*ms.PostContent, error)
 	GetPostContentByID(id int64) (*ms.PostContent, error)
-	ListUserStarTweets(user *cs.VistUser, limit int, offset int) ([]*ms.PostStar, int64, error)
-	ListUserMediaTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error)
-	ListUserCommentTweets(user *cs.VistUser, limit int, offset int) ([]*ms.Post, int64, error)
+	ListUserStarTweets(user *dbr.VistUser, limit int, offset int) ([]*ms.PostStar, int64, error)
+	ListUserMediaTweets(user *dbr.VistUser, limit int, offset int) ([]*ms.Post, int64, error)
+	ListUserCommentTweets(user *dbr.VistUser, limit int, offset int) ([]*ms.Post, int64, error)
 	ListUserTweets(userId int64, style uint8, justEssence bool, limit, offset int) ([]*ms.Post, int64, error)
 	ListFollowingTweets(userId int64, limit, offset int) ([]*ms.Post, int64, error)
 	ListIndexNewestTweets(limit, offset int) ([]*ms.Post, int64, error)

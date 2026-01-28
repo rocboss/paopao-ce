@@ -20,6 +20,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/dao"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
 	"github.com/rocboss/paopao-ce/internal/infra/events"
 	"github.com/rocboss/paopao-ce/internal/model/joint"
@@ -388,9 +389,9 @@ func (s *DaoServant) DeleteSearchPost(post *ms.Post) error {
 	return s.Ts.DeleteDocuments([]string{fmt.Sprintf("%d", post.ID)})
 }
 
-func (s *DaoServant) RelationTypFrom(me *ms.User, username string) (res *cs.VistUser, err error) {
-	res = &cs.VistUser{
-		RelTyp:   cs.RelationSelf,
+func (s *DaoServant) RelationTypFrom(me *ms.User, username string) (res *dbr.VistUser, err error) {
+	res = &dbr.VistUser{
+		RelTyp:   dbr.RelationTyp(cs.RelationSelf),
 		Username: username,
 	}
 	// visit by self
@@ -405,16 +406,16 @@ func (s *DaoServant) RelationTypFrom(me *ms.User, username string) (res *cs.Vist
 	res.UserId = he.ID
 	// visit by guest
 	if me == nil {
-		res.RelTyp = cs.RelationGuest
+		res.RelTyp = dbr.RelationGuest
 		return
 	}
 	// visit by admin/friend/other
 	if me.IsAdmin {
-		res.RelTyp = cs.RelationAdmin
+		res.RelTyp = dbr.RelationAdmin
 	} else if s.Ds.IsFriend(me.ID, he.ID) {
-		res.RelTyp = cs.RelationFriend
+		res.RelTyp = dbr.RelationFriend
 	} else {
-		res.RelTyp = cs.RelationGuest
+		res.RelTyp = dbr.RelationGuest
 	}
 	return
 }

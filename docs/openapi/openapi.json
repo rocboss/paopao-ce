@@ -1,55 +1,1062 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "paopao-ce API",
-      "description": "# The paopao-ce API documentation\n\nWelcome to the paopao-ce API documentation!\n\n",
-      "version": "0.1.0"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "paopao-ce API",
+    "description": "# paopao-ce API 文档\n\n欢迎使用 paopao-ce API 文档！\n\npaopao-ce 是一个开源的泡泡社区系统，提供完整的社交媒体功能。\n\n## 鉴权说明\n\n大部分API需要JWT Token进行鉴权，请在请求头中包含：\n```\nAuthorization: Bearer <your-jwt-token>\n```\n\n## 响应格式\n\n所有API响应都遵循以下格式：\n```json\n{\n  \"code\": 0,\n  \"message\": \"success\",\n  \"data\": {}\n}\n```\n\n## 错误码说明\n\n- `0`: 成功\n- `10001`: 未授权\n- `10002`: 参数错误\n- `10003`: 权限不足\n- `10004`: 资源不存在\n\n## 分页参数\n\n支持分页的API使用以下查询参数：\n- `page`: 页码 (默认: 1)\n- `page_size`: 每页数量 (默认: 20)\n",
+    "version": "1.0.0",
+    "contact": {
+      "name": "paopao-ce",
+      "url": "https://github.com/rocboss/paopao-ce"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8008",
+      "description": "本地开发环境"
     },
-    "servers": [
-      {
-        "url": "https://api.paopao.info"
-      }
-    ],
-    "tags": [],
-    "paths": {
-      "/{bucket}": {
-        "post": {
-          "summary": "Upload Image",
-          "description": "Upload an image to the given bucket.\nThe `content-type` header must be provided as well\nas the `content-length` header otherwise the request will be rejected.\n\nThe uploaded file must also not exceed the given `content-length`.",
-          "parameters": [
-            {
-              "name": "bucket",
-              "schema": {
-                "type": "string"
-              },
-              "in": "path",
-              "description": "The bucket that the image should be uploaded.",
-              "required": true,
-              "deprecated": false
-            },
-            {
-              "name": "content-length",
-              "schema": {
-                "type": "integer",
-                "format": "uint64"
-              },
-              "in": "header",
-              "description": "The total size of the image in bytes.",
-              "required": true,
-              "deprecated": false
-            },
-            {
-              "name": "format",
-              "schema": {
-                "$ref": "#/components/schemas/ImageKind"
-              },
-              "in": "query",
-              "description": "The format that the uploaded image is encoded in.\n\nIf not provided, lust will guess the encoding.",
-              "required": false,
-              "deprecated": false
+    {
+      "url": "https://api.paopao.info",
+      "description": "生产环境"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "公开接口",
+      "description": "无需鉴权的公开API"
+    },
+    {
+      "name": "用户管理",
+      "description": "用户相关的核心功能"
+    },
+    {
+      "name": "动态管理",
+      "description": "动态(推文)的增删改查"
+    },
+    {
+      "name": "评论管理",
+      "description": "评论和回复管理"
+    },
+    {
+      "name": "长文章管理",
+      "description": "长文章相关功能"
+    },
+    {
+      "name": "社交关系",
+      "description": "关注、拉黑等社交功能"
+    },
+    {
+      "name": "管理员接口",
+      "description": "管理员专用接口"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["公开接口"],
+        "summary": "获取版本信息",
+        "description": "获取后端系统的版本信息，无需鉴权",
+        "operationId": "getVersion",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResp"
+                }
+              }
             }
-          ],
-          "requestBody": {
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["公开接口"],
+        "summary": "用户登录",
+        "description": "用户账号密码登录，无需鉴权\n\n**注意事项：**\n- 用户名和密码都是必填项\n- 登录成功后会返回JWT Token",
+        "operationId": "login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "登录成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResp"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "用户名或密码错误"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["公开接口"],
+        "summary": "用户注册",
+        "description": "用户账号注册，无需鉴权\n\n**注意事项：**\n- 用户名和密码都是必填项\n- 用户名不能重复",
+        "operationId": "register",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "注册成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResp"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误或用户名已存在"
+          }
+        }
+      }
+    },
+    "/captcha": {
+      "get": {
+        "tags": ["公开接口"],
+        "summary": "获取图片验证码",
+        "description": "获取图片验证码用于后续验证，无需鉴权\n\n**响应说明：**\n- `id`: 验证码ID，用于后续验证\n- `b64s`: Base64编码的验证码图片",
+        "operationId": "getCaptcha",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetCaptchaResp"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["公开接口"],
+        "summary": "发送短信验证码",
+        "description": "发送短信验证码到指定手机号，无需鉴权\n\n**注意事项：**\n- 需要先获取图片验证码并验证通过\n- 手机号格式必须正确",
+        "operationId": "sendCaptcha",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendCaptchaReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "验证码发送成功"
+          },
+          "400": {
+            "description": "参数错误或图片验证码验证失败"
+          }
+        }
+      }
+    },
+    "/user/info": {
+      "get": {
+        "tags": ["用户管理"],
+        "summary": "获取用户信息",
+        "description": "获取指定用户的基本信息，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 可以获取自己的信息或他人的公开信息",
+        "operationId": "getUserInfo",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "description": "用户名",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserInfoResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "用户不存在"
+          }
+        }
+      }
+    },
+    "/user/messages": {
+      "get": {
+        "tags": ["用户管理"],
+        "summary": "获取消息列表",
+        "description": "获取当前用户的消息列表，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**请求参数：**\n- `style`: 消息类型 (1:系统消息, 2:私信, 3:@提醒)\n- `page`: 页码 (默认: 1)\n- `page_size`: 每页数量 (默认: 20)",
+        "operationId": "getMessages",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "style",
+            "in": "query",
+            "description": "消息类型",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "enum": [1, 2, 3]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMessagesResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/user/messages/stream": {
+      "get": {
+        "tags": ["用户管理"],
+        "summary": "SSE获取消息列表",
+        "description": "建立Server-Sent Events连接，实时获取用户的未读消息通知，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**连接特性：**\n- Server-Sent Events (SSE) 流式响应\n- 每5秒自动推送新消息\n- 只推送未读消息，避免重复通知\n- 自动断开连接处理\n\n**SSE事件类型：**\n- `connected`: 连接建立确认\n- `message`: 新消息通知\n- `error`: 错误信息\n\n**消息数据格式：**\n```json\n{\n  \"id\": 123,\n  \"type\": 1,\n  \"brief\": \"消息摘要\",\n  \"content\": \"消息内容\",\n  \"sender_user_id\": 456,\n  \"receiver_user_id\": 789,\n  \"post_id\": 101,\n  \"comment_id\": 202,\n  \"reply_id\": 303,\n  \"is_read\": 0,\n  \"created_on\": 1640995200\n}\n```",
+        "operationId": "streamMessages",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SSE流连接成功",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "description": "Server-Sent Events 流数据"
+                },
+                "example": "event: connected\ndata: {\"user_id\": 123, \"timestamp\": 1640995200}\n\nevent: message\ndata: {\"id\": 456, \"type\": 1, \"brief\": \"新消息\", \"content\": \"消息内容\", \"sender_user_id\": 789, \"is_read\": 0, \"created_on\": 1640995200}\n\n"
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "500": {
+            "description": "服务器错误"
+          }
+        }
+      }
+    },
+    "/user/message/read": {
+      "post": {
+        "tags": ["用户管理"],
+        "summary": "标记消息已读",
+        "description": "标记指定消息为已读状态，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能标记自己的消息",
+        "operationId": "readMessage",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadMessageReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "消息不存在"
+          }
+        }
+      }
+    },
+    "/user/message/readall": {
+      "post": {
+        "tags": ["用户管理"],
+        "summary": "标记所有消息已读",
+        "description": "标记当前用户的所有未读消息为已读，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token",
+        "operationId": "readAllMessage",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/user/whisper": {
+      "post": {
+        "tags": ["用户管理"],
+        "summary": "发送私信",
+        "description": "向指定用户发送私信，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 不能给自己发私信\n- 内容不能为空",
+        "operationId": "sendUserWhisper",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendWhisperReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "发送成功"
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/user/collections": {
+      "get": {
+        "tags": ["用户管理"],
+        "summary": "获取收藏列表",
+        "description": "获取当前用户的收藏列表，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**分页参数：**\n- `page`: 页码 (默认: 1)\n- `page_size`: 每页数量 (默认: 20)",
+        "operationId": "getCollections",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetCollectionsResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/user/stars": {
+      "get": {
+        "tags": ["用户管理"],
+        "summary": "获取点赞列表",
+        "description": "获取当前用户的点赞列表，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**分页参数：**\n- `page`: 页码 (默认: 1)\n- `page_size`: 每页数量 (默认: 20)",
+        "operationId": "getStars",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetStarsResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/user/phone": {
+      "post": {
+        "tags": ["用户管理"],
+        "summary": "绑定手机号",
+        "description": "绑定手机号到当前用户账户，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 需要先获取短信验证码\n- 手机号不能已被其他用户绑定",
+        "operationId": "userPhoneBind",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPhoneBindReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "绑定成功"
+          },
+          "400": {
+            "description": "参数错误或手机号已被绑定"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/user/password": {
+      "post": {
+        "tags": ["用户管理"],
+        "summary": "修改密码",
+        "description": "修改当前用户的登录密码，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 需要提供旧密码进行验证\n- 新密码不能为空",
+        "operationId": "changePassword",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "修改成功"
+          },
+          "400": {
+            "description": "参数错误或旧密码不正确"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/user/nickname": {
+      "post": {
+        "tags": ["用户管理"],
+        "summary": "修改昵称",
+        "description": "修改当前用户的昵称，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 昵称不能为空\n- 昵称长度限制在2-20个字符",
+        "operationId": "changeNickname",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeNicknameReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "修改成功"
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/user/avatar": {
+      "post": {
+        "tags": ["用户管理"],
+        "summary": "修改头像",
+        "description": "修改当前用户的头像，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- avatar字段为头像URL地址",
+        "operationId": "changeAvatar",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeAvatarReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "修改成功"
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/suggest/users": {
+      "get": {
+        "tags": ["用户管理"],
+        "summary": "搜索用户",
+        "description": "根据关键词搜索用户，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**请求参数：**\n- `keyword`: 搜索关键词",
+        "operationId": "suggestUsers",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "搜索关键词",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuggestUsersResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/suggest/tags": {
+      "get": {
+        "tags": ["用户管理"],
+        "summary": "搜索标签",
+        "description": "根据关键词搜索标签，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**请求参数：**\n- `keyword`: 搜索关键词",
+        "operationId": "suggestTags",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "搜索关键词",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuggestTagsResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/post/star": {
+      "get": {
+        "tags": ["动态管理"],
+        "summary": "获取动态点赞状态",
+        "description": "获取指定动态的点赞状态，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**请求参数：**\n- `id`: 动态ID",
+        "operationId": "tweetStarStatus",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "动态ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TweetStarStatusResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      },
+      "post": {
+        "tags": ["动态管理"],
+        "summary": "点赞动态",
+        "description": "对指定动态进行点赞操作，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 重复点赞会取消点赞",
+        "operationId": "starTweet",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StarTweetReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StarTweetResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "动态不存在"
+          }
+        }
+      }
+    },
+    "/post/collection": {
+      "get": {
+        "tags": ["动态管理"],
+        "summary": "获取动态收藏状态",
+        "description": "获取指定动态的收藏状态，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**请求参数：**\n- `id`: 动态ID",
+        "operationId": "tweetCollectionStatus",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "动态ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TweetCollectionStatusResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      },
+      "post": {
+        "tags": ["动态管理"],
+        "summary": "收藏动态",
+        "description": "对指定动态进行收藏操作，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 重复收藏会取消收藏",
+        "operationId": "collectionTweet",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionTweetReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionTweetResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "动态不存在"
+          }
+        }
+      }
+    },
+    "/user/articles/collections": {
+      "get": {
+        "tags": ["长文章管理"],
+        "summary": "获取长文章收藏列表",
+        "description": "获取当前用户的长文章收藏列表，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**分页参数：**\n- `page`: 页码 (默认: 1)\n- `page_size`: 每页数量 (默认: 20)",
+        "operationId": "getUserArticleCollections",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserArticleCollectionsResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/user/articles/stars": {
+      "get": {
+        "tags": ["长文章管理"],
+        "summary": "获取长文章点赞列表",
+        "description": "获取当前用户的长文章点赞列表，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**分页参数：**\n- `page`: 页码 (默认: 1)\n- `page_size`: 每页数量 (默认: 20)",
+        "operationId": "getUserArticleStars",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserArticleStarsResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/sync/index": {
+      "get": {
+        "tags": ["用户管理"],
+        "summary": "同步搜索索引",
+        "description": "同步搜索索引数据，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 通常用于后台管理或定时任务",
+        "operationId": "syncSearchIndex",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "同步成功"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/attachment": {
+      "post": {
+        "tags": ["动态管理"],
+        "summary": "上传附件",
+        "description": "上传文件附件，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 支持图片、视频等多种文件类型\n- 文件大小有限制",
+        "operationId": "uploadAttachment",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadAttachmentReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "上传成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadAttachmentResp"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误或文件格式不支持"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      },
+      "get": {
+        "tags": ["动态管理"],
+        "summary": "下载附件",
+        "description": "下载附件文件，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**请求参数：**\n- `id`: 附件ID\n\n**注意事项：**\n- 下载前需要先调用预检接口",
+        "operationId": "downloadAttachment",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "附件ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "下载成功",
             "content": {
               "application/octet-stream": {
                 "schema": {
@@ -57,278 +1064,3077 @@
                   "format": "binary"
                 }
               }
-            },
-            "required": true
+            }
           },
-          "responses": {
-            "200": {
-              "description": "",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/UploadInfo"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "Bucket not found"
-            },
-            "400": {
-              "description": "The image format was incorrect or the system was\nunable to guess the format of the image."
-            },
-            "413": {
-              "description": "The upload exceeds the configured maximum file size."
-            },
-            "401": {
-              "description": "You are not authorized to complete this action.\n\nThis normally means the `Authorization` bearer has been left out\nof the request or is invalid."
-            }
-          }
-        }
-      },
-      "/{bucket}/{image_id}": {
-        "get": {
-          "summary": "Fetch Image",
-          "description": "Fetch the image from the storage backend and apply and additional affects\nif required.",
-          "parameters": [
-            {
-              "name": "bucket",
-              "schema": {
-                "type": "string"
-              },
-              "in": "path",
-              "description": "The bucket to try fetch the image from.",
-              "required": true,
-              "deprecated": false
-            },
-            {
-              "name": "image_id",
-              "schema": {
-                "type": "string",
-                "format": "uuid"
-              },
-              "in": "path",
-              "description": "The id of the image.",
-              "required": true,
-              "deprecated": false
-            },
-            {
-              "name": "format",
-              "schema": {
-                "$ref": "#/components/schemas/ImageKind"
-              },
-              "in": "query",
-              "description": "The encoding format that the image should be returned as.",
-              "required": false,
-              "deprecated": false
-            },
-            {
-              "name": "size",
-              "schema": {
-                "type": "string"
-              },
-              "in": "query",
-              "description": "The size preset that should be used when returning the image.",
-              "required": false,
-              "deprecated": false
-            },
-            {
-              "name": "width",
-              "schema": {
-                "type": "integer",
-                "format": "uint32"
-              },
-              "in": "query",
-              "description": "A custom width to resize the returned image to.",
-              "required": false,
-              "deprecated": false
-            },
-            {
-              "name": "height",
-              "schema": {
-                "type": "integer",
-                "format": "uint32"
-              },
-              "in": "query",
-              "description": "A custom height to resize the returned image to.",
-              "required": false,
-              "deprecated": false
-            },
-            {
-              "name": "accept",
-              "schema": {
-                "type": "string"
-              },
-              "in": "header",
-              "description": "A set of `,` separated content-types that could be sent as a response.\nE.g. `image/png,image/webp,image/gif`",
-              "required": false,
-              "deprecated": false
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "",
-              "content": {
-                "application/octet-stream": {
-                  "schema": {
-                    "type": "string",
-                    "format": "binary"
-                  }
-                }
-              },
-              "headers": {
-                "CONTENT-TYPE": {
-                  "required": true,
-                  "deprecated": false,
-                  "schema": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "The request is invalid with the current configuration.\n\nSee the detail section for more info.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Detail"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "Bucket does not exist or image does not exist.\n\nSee the detail section for more info.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Detail"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "summary": "Delete Image",
-          "description": "Delete the given image.\nThis will purge all variants of the image including sizing presets and formats.\n\nImages that do not exist already will be ignored and will not return a 404.",
-          "parameters": [
-            {
-              "name": "bucket",
-              "schema": {
-                "type": "string"
-              },
-              "in": "path",
-              "description": "The bucket to try delete the image from.",
-              "required": true,
-              "deprecated": false
-            },
-            {
-              "name": "image_id",
-              "schema": {
-                "type": "string",
-                "format": "uuid"
-              },
-              "in": "path",
-              "description": "The image to delete try delete.",
-              "required": true,
-              "deprecated": false
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": ""
-            },
-            "401": {
-              "description": "You are not authorized to complete this action.\n\nThis normally means the `Authorization` bearer has been left out\nof the request or is invalid."
-            },
-            "404": {
-              "description": "Bucket does not exist."
-            }
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限下载"
+          },
+          "404": {
+            "description": "文件不存在"
           }
         }
       }
     },
-    "components": {
-      "schemas": {
-        "Detail": {
-          "type": "object",
-          "required": [
-            "detail"
-          ],
-          "properties": {
-            "detail": {
-              "type": "string",
-              "description": "Additional information regarding the response."
+    "/attachment/precheck": {
+      "get": {
+        "tags": ["动态管理"],
+        "summary": "下载附件预检",
+        "description": "下载附件前的权限预检，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**请求参数：**\n- `id`: 附件ID",
+        "operationId": "downloadAttachmentPrecheck",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "附件ID",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
-        },
-        "ImageKind": {
-          "type": "string",
-          "enum": [
-            "png",
-            "jpeg",
-            "webp",
-            "gif"
-          ]
-        },
-        "ImageUploadInfo": {
-          "type": "object",
-          "required": [
-            "sizing_id"
-          ],
-          "properties": {
-            "sizing_id": {
-              "type": "integer",
-              "format": "uint32",
-              "description": "The computed image sizing id.\n\nThis is useful for tracking files outside of lust as this is\ngenerally used for filtering within the storage systems."
-            }
-          }
-        },
-        "UploadInfo": {
-          "type": "object",
-          "required": [
-            "image_id",
-            "processing_time",
-            "io_time",
-            "checksum",
-            "images",
-            "bucket_id"
-          ],
-          "properties": {
-            "image_id": {
-              "type": "string",
-              "format": "uuid",
-              "description": "The generated ID for the file.\n\nThis can be used to access the file for the given bucket."
-            },
-            "processing_time": {
-              "type": "number",
-              "format": "float",
-              "description": "The time spent processing the image in seconds."
-            },
-            "io_time": {
-              "type": "number",
-              "format": "float",
-              "description": "The time spent uploading the image to the persistent store."
-            },
-            "checksum": {
-              "type": "integer",
-              "format": "uint32",
-              "description": "The crc32 checksum of the uploaded image."
-            },
-            "images": {
-              "type": "array",
-              "description": "The information that is specific to the image.",
-              "items": {
-                "$ref": "#/components/schemas/ImageUploadInfo"
+        ],
+        "responses": {
+          "200": {
+            "description": "预检通过",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadAttachmentPrecheckResp"
+                }
               }
-            },
-            "bucket_id": {
-              "type": "integer",
-              "format": "uint32",
-              "description": "The id of the bucket the image was stored in.\n\nThis is useful for tracking files outside of lust as this is\ngenerally used for filtering within the storage systems."
             }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限下载"
+          }
+        }
+      }
+    },
+    "/post": {
+      "post": {
+        "tags": ["动态管理"],
+        "summary": "发布动态",
+        "description": "发布新的动态，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 动态内容不能为空\n- 支持文本、图片、视频等多种内容",
+        "operationId": "createTweet",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTweetReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "发布成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTweetResp"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/post/{id}": {
+      "delete": {
+        "tags": ["动态管理"],
+        "summary": "删除动态",
+        "description": "删除指定的动态，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能删除自己的动态\n- 删除后不可恢复",
+        "operationId": "deleteTweet",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "动态ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限删除"
+          },
+          "404": {
+            "description": "动态不存在"
+          }
+        }
+      }
+    },
+    "/post/lock": {
+      "post": {
+        "tags": ["动态管理"],
+        "summary": "锁定动态",
+        "description": "锁定指定动态，禁止评论，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能锁定自己的动态",
+        "operationId": "lockTweet",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LockTweetReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LockTweetResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限操作"
+          }
+        }
+      }
+    },
+    "/post/stick": {
+      "post": {
+        "tags": ["动态管理"],
+        "summary": "置顶动态",
+        "description": "置顶指定动态，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能置顶自己的动态",
+        "operationId": "stickTweet",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StickTweetReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StickTweetResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限操作"
+          }
+        }
+      }
+    },
+    "/post/highlight": {
+      "post": {
+        "tags": ["动态管理"],
+        "summary": "设置动态亮点",
+        "description": "设置动态的亮点内容，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能设置自己的动态",
+        "operationId": "highlightTweet",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HighlightTweetReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HighlightTweetResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限操作"
+          }
+        }
+      }
+    },
+    "/post/visibility": {
+      "post": {
+        "tags": ["动态管理"],
+        "summary": "修改动态可见度",
+        "description": "修改动态的可见度设置，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能修改自己的动态",
+        "operationId": "visibleTweet",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisibleTweetReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisibleTweetResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限操作"
+          }
+        }
+      }
+    },
+    "/post/comment": {
+      "post": {
+        "tags": ["评论管理"],
+        "summary": "发布动态评论",
+        "description": "对指定动态发布评论，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 评论内容不能为空\n- 如果动态被锁定，无法评论",
+        "operationId": "createTweetComment",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCommentReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "评论成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateCommentResp"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "动态被锁定，无法评论"
+          }
+        }
+      }
+    },
+    "/post/comment/{id}": {
+      "delete": {
+        "tags": ["评论管理"],
+        "summary": "删除动态评论",
+        "description": "删除指定的动态评论，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能删除自己的评论",
+        "operationId": "deleteTweetComment",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "评论ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限删除"
+          },
+          "404": {
+            "description": "评论不存在"
+          }
+        }
+      }
+    },
+    "/post/comment/highlight": {
+      "post": {
+        "tags": ["评论管理"],
+        "summary": "精选动态评论",
+        "description": "设置动态评论为精选评论，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能精选自己动态下的评论",
+        "operationId": "highlightComment",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HighlightCommentReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HighlightCommentResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限操作"
+          }
+        }
+      }
+    },
+    "/post/comment/reply": {
+      "post": {
+        "tags": ["评论管理"],
+        "summary": "发布评论回复",
+        "description": "对指定评论发布回复，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 回复内容不能为空",
+        "operationId": "createCommentReply",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCommentReplyReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "回复成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateCommentReplyResp"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/post/comment/reply/{id}": {
+      "delete": {
+        "tags": ["评论管理"],
+        "summary": "删除评论回复",
+        "description": "删除指定的评论回复，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能删除自己的回复",
+        "operationId": "deleteCommentReply",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "回复ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限删除"
+          },
+          "404": {
+            "description": "回复不存在"
+          }
+        }
+      }
+    },
+    "/tweet/comment/thumbsup": {
+      "post": {
+        "tags": ["评论管理"],
+        "summary": "点赞评论",
+        "description": "对指定评论进行点赞，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 重复点赞会取消点赞",
+        "operationId": "thumbsUpTweetComment",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TweetCommentThumbsReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "评论不存在"
+          }
+        }
+      }
+    },
+    "/tweet/comment/thumbsdown": {
+      "post": {
+        "tags": ["评论管理"],
+        "summary": "点踩评论",
+        "description": "对指定评论进行点踩，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 重复点踩会取消点踩",
+        "operationId": "thumbsDownTweetComment",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TweetCommentThumbsReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "评论不存在"
+          }
+        }
+      }
+    },
+    "/tweet/reply/thumbsup": {
+      "post": {
+        "tags": ["评论管理"],
+        "summary": "点赞评论回复",
+        "description": "对指定评论回复进行点赞，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 重复点赞会取消点赞",
+        "operationId": "thumbsUpTweetReply",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TweetReplyThumbsReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "回复不存在"
+          }
+        }
+      }
+    },
+    "/tweet/reply/thumbsdown": {
+      "post": {
+        "tags": ["评论管理"],
+        "summary": "点踩评论回复",
+        "description": "对指定评论回复进行点踩，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 重复点踩会取消点踩",
+        "operationId": "thumbsDownTweetReply",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TweetReplyThumbsReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "回复不存在"
+          }
+        }
+      }
+    },
+    "/topic/stick": {
+      "post": {
+        "tags": ["动态管理"],
+        "summary": "置顶话题",
+        "description": "置顶指定话题，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 需要有相应权限",
+        "operationId": "stickTopic",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StickTopicReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StickTopicResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限操作"
+          }
+        }
+      }
+    },
+    "/topic/pin": {
+      "post": {
+        "tags": ["动态管理"],
+        "summary": "钉住话题",
+        "description": "钉住指定话题，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 需要有相应权限",
+        "operationId": "pinTopic",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PinTopicReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PinTopicResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限操作"
+          }
+        }
+      }
+    },
+    "/topic/follow": {
+      "post": {
+        "tags": ["社交关系"],
+        "summary": "关注话题",
+        "description": "关注指定话题，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token",
+        "operationId": "followTopic",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FollowTopicReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "关注成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "话题不存在"
+          }
+        }
+      }
+    },
+    "/topic/unfollow": {
+      "post": {
+        "tags": ["社交关系"],
+        "summary": "取消关注话题",
+        "description": "取消关注指定话题，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token",
+        "operationId": "unfollowTopic",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnfollowTopicReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "取消关注成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "话题不存在"
+          }
+        }
+      }
+    },
+    "/articles": {
+      "post": {
+        "tags": ["长文章管理"],
+        "summary": "创建长文章",
+        "description": "创建新的长文章，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 文章标题和内容都是必填项\n- 支持markdown格式",
+        "operationId": "createArticle",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateArticleReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateArticleResp"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      },
+      "put": {
+        "tags": ["长文章管理"],
+        "summary": "更新长文章",
+        "description": "更新指定的长文章，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能更新自己的文章",
+        "operationId": "updateArticle",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateArticleReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限更新"
+          },
+          "404": {
+            "description": "文章不存在"
+          }
+        }
+      }
+    },
+    "/articles/{id}": {
+      "delete": {
+        "tags": ["长文章管理"],
+        "summary": "删除长文章",
+        "description": "删除指定的长文章，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能删除自己的文章\n- 删除后不可恢复",
+        "operationId": "deleteArticle",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "文章ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限删除"
+          },
+          "404": {
+            "description": "文章不存在"
+          }
+        }
+      }
+    },
+    "/articles/star": {
+      "post": {
+        "tags": ["长文章管理"],
+        "summary": "点赞长文章",
+        "description": "对指定长文章进行点赞操作，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 重复点赞会取消点赞",
+        "operationId": "starArticle",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArticleStarReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleStarResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "文章不存在"
+          }
+        }
+      }
+    },
+    "/articles/collection": {
+      "post": {
+        "tags": ["长文章管理"],
+        "summary": "收藏长文章",
+        "description": "对指定长文章进行收藏操作，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 重复收藏会取消收藏",
+        "operationId": "collectionArticle",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArticleCollectionReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleCollectionResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "文章不存在"
+          }
+        }
+      }
+    },
+    "/articles/comment": {
+      "post": {
+        "tags": ["长文章管理"],
+        "summary": "发布长文章评论",
+        "description": "对指定长文章发布评论，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 评论内容不能为空",
+        "operationId": "createArticleComment",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateArticleCommentReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "评论成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateArticleCommentResp"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/articles/comment/{id}": {
+      "delete": {
+        "tags": ["长文章管理"],
+        "summary": "删除长文章评论",
+        "description": "删除指定的长文章评论，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能删除自己的评论",
+        "operationId": "deleteArticleComment",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "评论ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限删除"
+          },
+          "404": {
+            "description": "评论不存在"
+          }
+        }
+      }
+    },
+    "/articles/comment/reply": {
+      "post": {
+        "tags": ["长文章管理"],
+        "summary": "发布评论回复",
+        "description": "对指定长文章评论发布回复，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 回复内容不能为空",
+        "operationId": "createArticleCommentReply",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateArticleCommentReplyReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "回复成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateArticleCommentReplyResp"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/articles/comment/reply/{id}": {
+      "delete": {
+        "tags": ["长文章管理"],
+        "summary": "删除评论回复",
+        "description": "删除指定的长文章评论回复，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能删除自己的回复",
+        "operationId": "deleteArticleCommentReply",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "回复ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限删除"
+          },
+          "404": {
+            "description": "回复不存在"
+          }
+        }
+      }
+    },
+    "/articles/series": {
+      "post": {
+        "tags": ["长文章管理"],
+        "summary": "创建长文章系列",
+        "description": "创建新的长文章系列，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token",
+        "operationId": "createArticleSeries",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateArticleSeriesReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateArticleSeriesResp"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      },
+      "put": {
+        "tags": ["长文章管理"],
+        "summary": "更新长文章系列",
+        "description": "更新指定的长文章系列，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能更新自己的系列",
+        "operationId": "updateArticleSeries",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateArticleSeriesReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限更新"
+          },
+          "404": {
+            "description": "系列不存在"
+          }
+        }
+      }
+    },
+    "/articles/series/{id}": {
+      "delete": {
+        "tags": ["长文章管理"],
+        "summary": "删除长文章系列",
+        "description": "删除指定的长文章系列，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 只能删除自己的系列\n- 删除后不可恢复",
+        "operationId": "deleteArticleSeries",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "系列ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无权限删除"
+          },
+          "404": {
+            "description": "系列不存在"
+          }
+        }
+      }
+    },
+    "/admin/articles/{id}": {
+      "delete": {
+        "tags": ["管理员接口"],
+        "summary": "管理员删除长文章",
+        "description": "管理员删除指定的长文章，需要JWT鉴权+管理员权限\n\n**鉴权方式：**\n- Bearer Token + 管理员权限\n\n**注意事项：**\n- 只有管理员可以调用此接口\n- 删除后不可恢复",
+        "operationId": "adminDeleteArticle",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "文章ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无管理员权限"
+          },
+          "404": {
+            "description": "文章不存在"
+          }
+        }
+      }
+    },
+    "/user/follow": {
+      "post": {
+        "tags": ["社交关系"],
+        "summary": "关注用户",
+        "description": "关注指定用户，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 不能关注自己\n- 重复关注无效",
+        "operationId": "followUser",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FollowUserReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "关注成功"
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "用户不存在"
+          }
+        }
+      }
+    },
+    "/user/unfollow": {
+      "post": {
+        "tags": ["社交关系"],
+        "summary": "取消关注用户",
+        "description": "取消关注指定用户，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token",
+        "operationId": "unfollowUser",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnfollowUserReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "取消关注成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "用户不存在"
+          }
+        }
+      }
+    },
+    "/user/follows": {
+      "get": {
+        "tags": ["社交关系"],
+        "summary": "获取关注列表",
+        "description": "获取当前用户的关注列表，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**分页参数：**\n- `page`: 页码 (默认: 1)\n- `page_size`: 每页数量 (默认: 20)",
+        "operationId": "listFollows",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListFollowsResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/user/followings": {
+      "get": {
+        "tags": ["社交关系"],
+        "summary": "获取粉丝列表",
+        "description": "获取当前用户的粉丝列表，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**分页参数：**\n- `page`: 页码 (默认: 1)\n- `page_size`: 每页数量 (默认: 20)",
+        "operationId": "listFollowings",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListFollowingsResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/user/block": {
+      "post": {
+        "tags": ["社交关系"],
+        "summary": "拉黑用户",
+        "description": "拉黑指定用户，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**注意事项：**\n- 不能拉黑自己\n- 被拉黑的用户无法关注你、评论你的动态等",
+        "operationId": "blockUser",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlockUserReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "拉黑成功"
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "用户不存在"
+          }
+        }
+      }
+    },
+    "/user/unblock": {
+      "post": {
+        "tags": ["社交关系"],
+        "summary": "取消拉黑用户",
+        "description": "取消拉黑指定用户，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token",
+        "operationId": "unblockUser",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnblockUserReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "取消拉黑成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "404": {
+            "description": "用户不存在"
+          }
+        }
+      }
+    },
+    "/user/blocks": {
+      "get": {
+        "tags": ["社交关系"],
+        "summary": "获取拉黑列表",
+        "description": "获取当前用户的拉黑列表，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**分页参数：**\n- `page`: 页码 (默认: 1)\n- `page_size`: 每页数量 (默认: 20)",
+        "operationId": "listBlocks",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListBlocksResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/trends/index": {
+      "get": {
+        "tags": ["动态管理"],
+        "summary": "获取广场动态索引",
+        "description": "获取广场页面动态条栏的索引项，需要JWT鉴权\n\n**鉴权方式：**\n- Bearer Token\n\n**请求参数：**\n- `page`: 页码 (默认: 1)\n- `page_size`: 每页数量 (默认: 20)",
+        "operationId": "getIndexTrends",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetIndexTrendsResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          }
+        }
+      }
+    },
+    "/admin/user/status": {
+      "post": {
+        "tags": ["管理员接口"],
+        "summary": "管理用户状态",
+        "description": "管理员修改用户状态（禁言/解封），需要JWT鉴权+管理员权限\n\n**鉴权方式：**\n- Bearer Token + 管理员权限\n\n**注意事项：**\n- 只有管理员可以调用此接口",
+        "operationId": "changeUserStatus",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeUserStatusReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功"
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无管理员权限"
+          },
+          "404": {
+            "description": "用户不存在"
+          }
+        }
+      }
+    },
+    "/admin/site/status": {
+      "get": {
+        "tags": ["管理员接口"],
+        "summary": "获取站点状态信息",
+        "description": "管理员获取站点统计信息，需要JWT鉴权+管理员权限\n\n**鉴权方式：**\n- Bearer Token + 管理员权限\n\n**注意事项：**\n- 只有管理员可以调用此接口",
+        "operationId": "siteInfo",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "description": "统计类型",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["user", "tweet", "article", "comment"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteInfoResp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权"
+          },
+          "403": {
+            "description": "无管理员权限"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "VersionResp": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "版本号"
+          },
+          "build_time": {
+            "type": "string",
+            "description": "构建时间"
+          }
+        }
+      },
+      "GetCaptchaResp": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "验证码ID"
+          },
+          "b64s": {
+            "type": "string",
+            "description": "Base64编码的验证码图片"
+          }
+        }
+      },
+      "SendCaptchaReq": {
+        "type": "object",
+        "required": ["phone", "img_captcha", "img_captcha_id"],
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "手机号"
+          },
+          "img_captcha": {
+            "type": "string",
+            "description": "图片验证码"
+          },
+          "img_captcha_id": {
+            "type": "string",
+            "description": "图片验证码ID"
+          }
+        }
+      },
+      "LoginReq": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "用户名"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码"
+          }
+        }
+      },
+      "LoginResp": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT Token"
+          }
+        }
+      },
+      "RegisterReq": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "用户名"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码"
+          }
+        }
+      },
+      "RegisterResp": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "用户ID"
+          },
+          "username": {
+            "type": "string",
+            "description": "用户名"
+          }
+        }
+      },
+      "UserInfoResp": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "用户ID"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "昵称"
+          },
+          "username": {
+            "type": "string",
+            "description": "用户名"
+          },
+          "status": {
+            "type": "integer",
+            "description": "用户状态"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "头像URL"
+          },
+          "balance": {
+            "type": "integer",
+            "description": "账户余额"
+          },
+          "phone": {
+            "type": "string",
+            "description": "手机号"
+          },
+          "is_admin": {
+            "type": "boolean",
+            "description": "是否管理员"
+          },
+          "created_on": {
+            "type": "integer",
+            "description": "创建时间戳"
+          },
+          "follows": {
+            "type": "integer",
+            "description": "关注数"
+          },
+          "followings": {
+            "type": "integer",
+            "description": "粉丝数"
+          },
+          "tweets_count": {
+            "type": "integer",
+            "description": "动态数量"
+          },
+          "experience": {
+            "type": "integer",
+            "description": "经验值"
+          },
+          "level": {
+            "type": "integer",
+            "description": "等级"
+          }
+        }
+      },
+      "GetMessagesResp": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "总数"
+          },
+          "page": {
+            "type": "integer",
+            "description": "当前页码"
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "每页数量"
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "消息ID"
+          },
+          "content": {
+            "type": "string",
+            "description": "消息内容"
+          },
+          "style": {
+            "type": "integer",
+            "description": "消息类型"
+          },
+          "is_read": {
+            "type": "boolean",
+            "description": "是否已读"
+          },
+          "created_on": {
+            "type": "integer",
+            "description": "创建时间戳"
+          }
+        }
+      },
+      "ReadMessageReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "消息ID"
+          }
+        }
+      },
+      "SendWhisperReq": {
+        "type": "object",
+        "required": ["user_id", "content"],
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "description": "接收用户ID"
+          },
+          "content": {
+            "type": "string",
+            "description": "私信内容"
+          }
+        }
+      },
+      "GetCollectionsResp": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tweet"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "总数"
+          },
+          "page": {
+            "type": "integer",
+            "description": "当前页码"
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "每页数量"
+          }
+        }
+      },
+      "GetStarsResp": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tweet"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "总数"
+          },
+          "page": {
+            "type": "integer",
+            "description": "当前页码"
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "每页数量"
+          }
+        }
+      },
+      "UserPhoneBindReq": {
+        "type": "object",
+        "required": ["phone", "captcha"],
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "手机号"
+          },
+          "captcha": {
+            "type": "string",
+            "description": "短信验证码"
+          }
+        }
+      },
+      "ChangePasswordReq": {
+        "type": "object",
+        "required": ["password", "old_password"],
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "新密码"
+          },
+          "old_password": {
+            "type": "string",
+            "description": "旧密码"
+          }
+        }
+      },
+      "ChangeNicknameReq": {
+        "type": "object",
+        "required": ["nickname"],
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "description": "新昵称"
+          }
+        }
+      },
+      "ChangeAvatarReq": {
+        "type": "object",
+        "required": ["avatar"],
+        "properties": {
+          "avatar": {
+            "type": "string",
+            "description": "头像URL"
+          }
+        }
+      },
+      "SuggestUsersResp": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          }
+        }
+      },
+      "SuggestTagsResp": {
+        "type": "object",
+        "properties": {
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "用户ID"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "昵称"
+          },
+          "username": {
+            "type": "string",
+            "description": "用户名"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "头像URL"
+          }
+        }
+      },
+      "Tag": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "标签ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "标签名称"
+          },
+          "color": {
+            "type": "string",
+            "description": "标签颜色"
+          }
+        }
+      },
+      "TweetStarStatusResp": {
+        "type": "object",
+        "properties": {
+          "is_star": {
+            "type": "boolean",
+            "description": "是否已点赞"
+          },
+          "count": {
+            "type": "integer",
+            "description": "点赞数量"
+          }
+        }
+      },
+      "TweetCollectionStatusResp": {
+        "type": "object",
+        "properties": {
+          "is_collection": {
+            "type": "boolean",
+            "description": "是否已收藏"
+          },
+          "count": {
+            "type": "integer",
+            "description": "收藏数量"
+          }
+        }
+      },
+      "GetUserArticleCollectionsResp": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Article"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "总数"
+          },
+          "page": {
+            "type": "integer",
+            "description": "当前页码"
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "每页数量"
+          }
+        }
+      },
+      "GetUserArticleStarsResp": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Article"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "总数"
+          },
+          "page": {
+            "type": "integer",
+            "description": "当前页码"
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "每页数量"
+          }
+        }
+      },
+      "UploadAttachmentReq": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "上传的文件"
+          },
+          "type": {
+            "type": "string",
+            "description": "文件类型"
+          }
+        }
+      },
+      "UploadAttachmentResp": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "附件ID"
+          },
+          "url": {
+            "type": "string",
+            "description": "附件URL"
+          }
+        }
+      },
+      "DownloadAttachmentPrecheckResp": {
+        "type": "object",
+        "properties": {
+          "can_download": {
+            "type": "boolean",
+            "description": "是否可以下载"
+          },
+          "url": {
+            "type": "string",
+            "description": "下载URL"
+          }
+        }
+      },
+      "CreateTweetReq": {
+        "type": "object",
+        "required": ["content"],
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "动态内容"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "图片URL列表"
+          },
+          "videos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "视频URL列表"
+          },
+          "visibility": {
+            "type": "integer",
+            "description": "可见度 0:公开 1:好友可见 2:私密",
+            "default": 0
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "标签列表"
+          }
+        }
+      },
+      "CreateTweetResp": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "动态ID"
+          }
+        }
+      },
+      "Tweet": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "动态ID"
+          },
+          "content": {
+            "type": "string",
+            "description": "动态内容"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "图片URL列表"
+          },
+          "videos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "视频URL列表"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "created_on": {
+            "type": "integer",
+            "description": "创建时间戳"
+          },
+          "star_count": {
+            "type": "integer",
+            "description": "点赞数量"
+          },
+          "comment_count": {
+            "type": "integer",
+            "description": "评论数量"
+          },
+          "collection_count": {
+            "type": "integer",
+            "description": "收藏数量"
+          }
+        }
+      },
+      "DeleteTweetReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "动态ID"
+          }
+        }
+      },
+      "StarTweetReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "动态ID"
+          }
+        }
+      },
+      "StarTweetResp": {
+        "type": "object",
+        "properties": {
+          "is_star": {
+            "type": "boolean",
+            "description": "是否已点赞"
+          }
+        }
+      },
+      "CollectionTweetReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "动态ID"
+          }
+        }
+      },
+      "CollectionTweetResp": {
+        "type": "object",
+        "properties": {
+          "is_collection": {
+            "type": "boolean",
+            "description": "是否已收藏"
+          }
+        }
+      },
+      "LockTweetReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "动态ID"
+          }
+        }
+      },
+      "LockTweetResp": {
+        "type": "object",
+        "properties": {
+          "is_locked": {
+            "type": "boolean",
+            "description": "是否已锁定"
+          }
+        }
+      },
+      "StickTweetReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "动态ID"
+          }
+        }
+      },
+      "StickTweetResp": {
+        "type": "object",
+        "properties": {
+          "is_stick": {
+            "type": "boolean",
+            "description": "是否已置顶"
+          }
+        }
+      },
+      "HighlightTweetReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "动态ID"
+          },
+          "content": {
+            "type": "string",
+            "description": "亮点内容"
+          }
+        }
+      },
+      "HighlightTweetResp": {
+        "type": "object",
+        "properties": {
+          "highlight": {
+            "type": "string",
+            "description": "亮点内容"
+          }
+        }
+      },
+      "VisibleTweetReq": {
+        "type": "object",
+        "required": ["id", "visibility"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "动态ID"
+          },
+          "visibility": {
+            "type": "integer",
+            "description": "可见度"
+          }
+        }
+      },
+      "VisibleTweetResp": {
+        "type": "object",
+        "properties": {
+          "visibility": {
+            "type": "integer",
+            "description": "可见度"
+          }
+        }
+      },
+      "CreateCommentReq": {
+        "type": "object",
+        "required": ["post_id", "content"],
+        "properties": {
+          "post_id": {
+            "type": "integer",
+            "description": "动态ID"
+          },
+          "content": {
+            "type": "string",
+            "description": "评论内容"
+          },
+          "reply_id": {
+            "type": "integer",
+            "description": "回复的评论ID"
+          }
+        }
+      },
+      "CreateCommentResp": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "评论ID"
+          }
+        }
+      },
+      "DeleteCommentReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "评论ID"
+          }
+        }
+      },
+      "HighlightCommentReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "评论ID"
+          }
+        }
+      },
+      "HighlightCommentResp": {
+        "type": "object",
+        "properties": {
+          "is_highlight": {
+            "type": "boolean",
+            "description": "是否精选"
+          }
+        }
+      },
+      "CreateCommentReplyReq": {
+        "type": "object",
+        "required": ["comment_id", "content"],
+        "properties": {
+          "comment_id": {
+            "type": "integer",
+            "description": "评论ID"
+          },
+          "content": {
+            "type": "string",
+            "description": "回复内容"
+          }
+        }
+      },
+      "CreateCommentReplyResp": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "回复ID"
+          }
+        }
+      },
+      "DeleteCommentReplyReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "回复ID"
+          }
+        }
+      },
+      "TweetCommentThumbsReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "评论ID"
+          }
+        }
+      },
+      "TweetReplyThumbsReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "回复ID"
+          }
+        }
+      },
+      "StickTopicReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "话题ID"
+          }
+        }
+      },
+      "StickTopicResp": {
+        "type": "object",
+        "properties": {
+          "is_stick": {
+            "type": "boolean",
+            "description": "是否已置顶"
+          }
+        }
+      },
+      "PinTopicReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "话题ID"
+          }
+        }
+      },
+      "PinTopicResp": {
+        "type": "object",
+        "properties": {
+          "is_pin": {
+            "type": "boolean",
+            "description": "是否已钉住"
+          }
+        }
+      },
+      "FollowTopicReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "话题ID"
+          }
+        }
+      },
+      "UnfollowTopicReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "话题ID"
+          }
+        }
+      },
+      "CreateArticleReq": {
+        "type": "object",
+        "required": ["title", "content"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "文章标题"
+          },
+          "content": {
+            "type": "string",
+            "description": "文章内容"
+          },
+          "summary": {
+            "type": "string",
+            "description": "文章摘要"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "标签列表"
+          },
+          "series_id": {
+            "type": "integer",
+            "description": "系列ID"
+          },
+          "visibility": {
+            "type": "integer",
+            "description": "可见度"
+          }
+        }
+      },
+      "CreateArticleResp": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "文章ID"
+          }
+        }
+      },
+      "Article": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "文章ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "文章标题"
+          },
+          "content": {
+            "type": "string",
+            "description": "文章内容"
+          },
+          "summary": {
+            "type": "string",
+            "description": "文章摘要"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            }
+          },
+          "created_on": {
+            "type": "integer",
+            "description": "创建时间戳"
+          },
+          "updated_on": {
+            "type": "integer",
+            "description": "更新时间戳"
+          },
+          "star_count": {
+            "type": "integer",
+            "description": "点赞数量"
+          },
+          "comment_count": {
+            "type": "integer",
+            "description": "评论数量"
+          },
+          "collection_count": {
+            "type": "integer",
+            "description": "收藏数量"
+          }
+        }
+      },
+      "UpdateArticleReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "文章ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "文章标题"
+          },
+          "content": {
+            "type": "string",
+            "description": "文章内容"
+          },
+          "summary": {
+            "type": "string",
+            "description": "文章摘要"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "标签列表"
+          }
+        }
+      },
+      "DeleteArticleReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "文章ID"
+          }
+        }
+      },
+      "ArticleStarReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "文章ID"
+          }
+        }
+      },
+      "ArticleStarResp": {
+        "type": "object",
+        "properties": {
+          "is_star": {
+            "type": "boolean",
+            "description": "是否已点赞"
+          }
+        }
+      },
+      "ArticleCollectionReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "文章ID"
+          }
+        }
+      },
+      "ArticleCollectionResp": {
+        "type": "object",
+        "properties": {
+          "is_collection": {
+            "type": "boolean",
+            "description": "是否已收藏"
+          }
+        }
+      },
+      "CreateArticleCommentReq": {
+        "type": "object",
+        "required": ["article_id", "content"],
+        "properties": {
+          "article_id": {
+            "type": "integer",
+            "description": "文章ID"
+          },
+          "content": {
+            "type": "string",
+            "description": "评论内容"
+          }
+        }
+      },
+      "CreateArticleCommentResp": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "评论ID"
+          }
+        }
+      },
+      "DeleteArticleCommentReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "评论ID"
+          }
+        }
+      },
+      "CreateArticleCommentReplyReq": {
+        "type": "object",
+        "required": ["comment_id", "content"],
+        "properties": {
+          "comment_id": {
+            "type": "integer",
+            "description": "评论ID"
+          },
+          "content": {
+            "type": "string",
+            "description": "回复内容"
+          }
+        }
+      },
+      "CreateArticleCommentReplyResp": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "回复ID"
+          }
+        }
+      },
+      "DeleteArticleCommentReplyReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "回复ID"
+          }
+        }
+      },
+      "CreateArticleSeriesReq": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "系列名称"
+          },
+          "description": {
+            "type": "string",
+            "description": "系列描述"
+          }
+        }
+      },
+      "CreateArticleSeriesResp": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "系列ID"
+          }
+        }
+      },
+      "UpdateArticleSeriesReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "系列ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "系列名称"
+          },
+          "description": {
+            "type": "string",
+            "description": "系列描述"
+          }
+        }
+      },
+      "DeleteArticleSeriesReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "系列ID"
+          }
+        }
+      },
+      "AdminDeleteArticleReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "文章ID"
+          }
+        }
+      },
+      "FollowUserReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "用户ID"
+          }
+        }
+      },
+      "UnfollowUserReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "用户ID"
+          }
+        }
+      },
+      "ListFollowsResp": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "总数"
+          },
+          "page": {
+            "type": "integer",
+            "description": "当前页码"
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "每页数量"
+          }
+        }
+      },
+      "ListFollowingsResp": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "总数"
+          },
+          "page": {
+            "type": "integer",
+            "description": "当前页码"
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "每页数量"
+          }
+        }
+      },
+      "BlockUserReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "用户ID"
+          }
+        }
+      },
+      "UnblockUserReq": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "用户ID"
+          }
+        }
+      },
+      "ListBlocksResp": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "总数"
+          },
+          "page": {
+            "type": "integer",
+            "description": "当前页码"
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "每页数量"
+          }
+        }
+      },
+      "GetIndexTrendsResp": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tweet"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "总数"
+          },
+          "page": {
+            "type": "integer",
+            "description": "当前页码"
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "每页数量"
+          }
+        }
+      },
+      "ChangeUserStatusReq": {
+        "type": "object",
+        "required": ["user_id", "status"],
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "description": "用户ID"
+          },
+          "status": {
+            "type": "integer",
+            "description": "用户状态 0:正常 1:禁言 2:封禁"
+          }
+        }
+      },
+      "SiteInfoResp": {
+        "type": "object",
+        "properties": {
+          "total_users": {
+            "type": "integer",
+            "description": "总用户数"
+          },
+          "total_tweets": {
+            "type": "integer",
+            "description": "总动态数"
+          },
+          "total_articles": {
+            "type": "integer",
+            "description": "总文章数"
+          },
+          "total_comments": {
+            "type": "integer",
+            "description": "总评论数"
+          },
+          "active_users_today": {
+            "type": "integer",
+            "description": "今日活跃用户数"
+          },
+          "new_users_today": {
+            "type": "integer",
+            "description": "今日新增用户数"
           }
         }
       }
     }
   }
+}

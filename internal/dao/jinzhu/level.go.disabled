@@ -1,0 +1,142 @@
+// Copyright 2023 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
+package jinzhu
+
+import (
+	"encoding/json"
+	"fmt"
+	"sync"
+
+	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/dao/cache"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
+	"gorm.io/gorm"
+)
+
+const (
+	// 等级配置缓存键
+	levelConfigCacheKey = "user_level_config"
+	// 缓存过期时间（30分钟）
+	levelConfigCacheExpire = 30 * 60
+)
+
+var (
+	levelConfigCacheOnce sync.Once
+	levelConfigAppCache  core.AppCache
+)
+
+// GetUserLevelByExperience 根据经验值获取用户等级
+func GetUserLevelByExperience(db *gorm.DB, experience int) (int, error) {
+	// 尝试从缓存获取等级配置
+	levelMap, err := getLevelConfigFromCache()
+	if err != nil {
+		// 缓存获取失败，从数据库读取
+		levelMap, err = getLevelConfigFromDB(db)
+		if err != nil {
+			// 如果获取失败，使用默认等级配置
+			return getDefaultLevel(experience), nil
+		}
+	}
+
+	// 遍历等级配置找到对应的等级
+	for levelKey, expRange := range levelMap {
+		if experience >= expRange[0] && experience <= expRange[1] {
+			var level int
+			fmt.Sscanf(levelKey[2:], "%d", &level) // 从"lv1"提取数字
+			return level, nil
+		}
+	}
+
+	// 如果没有找到对应等级，返回默认等级
+	return getDefaultLevel(experience), nil
+}
+
+// getLevelConfigFromCache 从缓存获取等级配置
+func getLevelConfigFromCache() (map[string][2]int, error) {
+	levelConfigCacheOnce.Do(func() {
+		levelConfigAppCache = cache.NewAppCache()
+	})
+
+	cacheData, err := levelConfigAppCache.Get(levelConfigCacheKey)
+	if err != nil {
+		return nil, err
+	}
+
+	var levelMap map[string][2]int
+	if err := json.Unmarshal(cacheData, &levelMap); err != nil {
+		return nil, err
+	}
+
+	return levelMap, nil
+}
+
+// getLevelConfigFromDB 从数据库获取等级配置并缓存
+func getLevelConfigFromDB(db *gorm.DB) (map[string][2]int, error) {
+	setting := &dbr.OperationSetting{}
+	levelConfig, err := setting.GetByKey(db, "level_to_exp")
+	if err != nil {
+		// 如果获取失败，返回错误
+		return nil, err
+	}
+
+	var levelMap map[string][2]int
+	if err := json.Unmarshal([]byte(levelConfig.Value), &levelMap); err != nil {
+		return nil, err
+	}
+
+	// 将配置缓存起来
+	levelConfigCacheOnce.Do(func() {
+		levelConfigAppCache = cache.NewAppCache()
+	})
+	cacheData, _ := json.Marshal(levelMap)
+	levelConfigAppCache.Set(levelConfigCacheKey, cacheData, levelConfigCacheExpire)
+
+	return levelMap, nil
+}
+
+// UpdateLevelConfigCache 更新等级配置缓存（当运营设置更新时调用）
+func UpdateLevelConfigCache() error {
+	levelConfigCacheOnce.Do(func() {
+		levelConfigAppCache = cache.NewAppCache()
+	})
+	return levelConfigAppCache.Delete(levelConfigCacheKey)
+}
+
+// UpdateOperationSetting 更新运营设置（带缓存清理）
+func UpdateOperationSetting(db *gorm.DB, key, value, description string) error {
+	setting := &dbr.OperationSetting{
+		Key:         key,
+		Value:       value,
+		Description: description,
+	}
+
+	// 更新数据库
+	err := setting.Update(db)
+	if err != nil {
+		return err
+	}
+
+	// 如果是等级配置更新，清理缓存
+	if key == "level_to_exp" {
+		UpdateLevelConfigCache()
+	}
+
+	return nil
+}
+
+// getDefaultLevel 获取默认等级
+func getDefaultLevel(experience int) int {
+	if experience >= 0 && experience <= 100 {
+		return 1
+	} else if experience >= 101 && experience <= 300 {
+		return 2
+	} else if experience >= 301 && experience <= 600 {
+		return 3
+	} else if experience >= 601 && experience <= 1000 {
+		return 4
+	} else {
+		return 5
+	}
+}

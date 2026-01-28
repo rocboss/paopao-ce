@@ -1,0 +1,77 @@
+// Copyright 2024 ROC. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
+package jinzhu
+
+import (
+	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/core/ms"
+	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
+)
+
+var (
+	_ core.UserBlockManageService = (*userBlockManageSrv)(nil)
+)
+
+type userBlockManageSrv struct {
+	db *gorm.DB
+	b  *dbr.UserBlock
+	u  *dbr.User
+}
+
+func newUserBlockManageService(db *gorm.DB) core.UserBlockManageService {
+	return &userBlockManageSrv{
+		db: db,
+		b:  &dbr.UserBlock{},
+		u:  &dbr.User{},
+	}
+}
+
+func (s *userBlockManageSrv) BlockUser(userId int64, targetUserId int64, reason string) error {
+	if _, err := s.b.GetUserBlock(s.db, userId, targetUserId); err != nil {
+		block := &dbr.UserBlock{
+			UserId:       userId,
+			TargetUserId: targetUserId,
+			Reason:       reason,
+		}
+		if _, err = block.Create(s.db); err != nil {
+			logrus.Errorf("userBlockManageSrv.blockUser create new block err:%s", err)
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *userBlockManageSrv) UnblockUser(userId int64, targetUserId int64) error {
+	return s.b.DelUserBlock(s.db, userId, targetUserId)
+}
+
+func (s *userBlockManageSrv) ListBlocks(userId int64, limit, offset int) (*ms.UserBlockList, error) {
+	blocks, total, err := s.b.ListUserBlocks(s.db, userId, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	res := &ms.UserBlockList{
+		Total: total,
+	}
+	for _, block := range blocks {
+		res.Blocks = append(res.Blocks, ms.UserBlockItem{
+			UserId:       block.UserId,
+			TargetUserId: block.TargetUserId,
+			Reason:       block.Reason,
+			CreatedOn:    block.CreatedOn,
+		})
+	}
+	return res, nil
+}
+
+func (s *userBlockManageSrv) IsBlocked(userId int64, targetUserId int64) bool {
+	return s.b.IsBlocked(s.db, userId, targetUserId)
+}
+
+func (s *userBlockManageSrv) IsBlocking(userId int64, targetUserId int64) bool {
+	return s.b.IsBlocked(s.db, targetUserId, userId)
+}

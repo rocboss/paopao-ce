@@ -410,6 +410,8 @@ func (s *databaseConf) TableNames() (res TableNameMap) {
 		TableUser,
 		TableUserRelation,
 		TableUserMetric,
+		TableOperationSettings,
+		TableUserCheckin,
 		TableWalletRecharge,
 		TableWalletStatement,
 	}
