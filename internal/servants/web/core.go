@@ -7,7 +7,6 @@ package web
 import (
 	"context"
 	"fmt"
-
 	"time"
 	"unicode/utf8"
 
@@ -30,9 +29,7 @@ var (
 	_maxCaptchaTimes    int   = 2
 )
 
-var (
-	_ api.Core = (*coreSrv)(nil)
-)
+var _ api.Core = (*coreSrv)(nil)
 
 type coreSrv struct {
 	api.UnimplementedCoreServant

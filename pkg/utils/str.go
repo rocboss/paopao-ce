@@ -20,8 +20,10 @@ const (
 	CLEAR                // 去除部分易混淆的字符
 )
 
-var fontKinds = [][]int{{10, 48}, {26, 97}, {26, 65}}
-var letters = []byte("34578acdefghjkmnpqstwxyABCDEFGHJKMNPQRSVWXY")
+var (
+	fontKinds = [][]int{{10, 48}, {26, 97}, {26, 65}}
+	letters   = []byte("34578acdefghjkmnpqstwxyABCDEFGHJKMNPQRSVWXY")
+)
 
 // 生成随机字符串
 // size 个数 kind 模式

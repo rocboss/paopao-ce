@@ -16,9 +16,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-var (
-	_ Service = (*mobileService)(nil)
-)
+var _ Service = (*mobileService)(nil)
 
 type mobileService struct {
 	*baseGRPCService

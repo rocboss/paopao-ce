@@ -47,7 +47,6 @@ func (j *JsonBox[T]) UnmarshalJSON(data []byte) error {
 		return errors.New("JsonBox.UnmarshalJSON: on nil pointer")
 	}
 	return json.Unmarshal(data, &j.data)
-
 }
 
 func (j *JsonBox[T]) Value() (driver.Value, error) {

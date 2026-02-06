@@ -748,7 +748,8 @@ func (s *privSrv) deletePostCommentReply(reply *ms.CommentReply) error {
 }
 
 func (s *privSrv) createPostPreHandler(commentID int64, userID, atUserID int64) (*ms.Post, *ms.Comment, int64,
-	error) {
+	error,
+) {
 	// 加载Comment
 	comment, err := s.Ds.GetCommentByID(commentID)
 	if err != nil {

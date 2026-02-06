@@ -15,9 +15,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ api.Followship = (*followshipSrv)(nil)
-)
+var _ api.Followship = (*followshipSrv)(nil)
 
 type followshipSrv struct {
 	api.UnimplementedFollowshipServant

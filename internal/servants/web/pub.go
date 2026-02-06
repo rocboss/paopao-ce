@@ -27,9 +27,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ api.Pub = (*pubSrv)(nil)
-)
+var _ api.Pub = (*pubSrv)(nil)
 
 const (
 	_MaxLoginErrTimes = 10

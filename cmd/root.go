@@ -8,13 +8,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	rootCmd = &cobra.Command{
-		Use:   "paopao",
-		Short: `an artistic "twitter like" community`,
-		Long:  `an artistic "twitter like" community`,
-	}
-)
+var rootCmd = &cobra.Command{
+	Use:   "paopao",
+	Short: `an artistic "twitter like" community`,
+	Long:  `an artistic "twitter like" community`,
+}
 
 // Setup set root command name,short-describe, long-describe
 // return &cobra.Command to custom other options

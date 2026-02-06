@@ -20,8 +20,10 @@ type Model struct {
 	IsDel      soft_delete.DeletedAt `gorm:"softDelete:flag" json:"is_del"`
 }
 
-type ConditionsT map[string]any
-type Predicates map[string][]any
+type (
+	ConditionsT map[string]any
+	Predicates  map[string][]any
+)
 
 func (m *Model) BeforeCreate(tx *gorm.DB) (err error) {
 	nowTime := time.Now().Unix()

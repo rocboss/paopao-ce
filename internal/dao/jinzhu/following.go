@@ -12,9 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	_ core.FollowingManageService = (*followingManageSrv)(nil)
-)
+var _ core.FollowingManageService = (*followingManageSrv)(nil)
 
 type followingManageSrv struct {
 	db *gorm.DB

@@ -137,7 +137,6 @@ func bindAnySentry(c *gin.Context, obj any) error {
 		setter.SetPageInfo(page, pageSize)
 	}
 	return nil
-
 }
 
 func RenderAny(c *gin.Context, data any, err error) {

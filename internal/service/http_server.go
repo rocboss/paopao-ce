@@ -11,9 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var (
-	_ server = (*httpServer)(nil)
-)
+var _ server = (*httpServer)(nil)
 
 // httpServer wraper for gin.engine and http.Server
 type httpServer struct {

@@ -14,9 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ api.Friendship = (*friendshipSrv)(nil)
-)
+var _ api.Friendship = (*friendshipSrv)(nil)
 
 type friendshipSrv struct {
 	api.UnimplementedFriendshipServant

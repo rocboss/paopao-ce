@@ -250,7 +250,6 @@ func (s *tweetManageSrv) DeletePost(post *ms.Post) ([]string, error) {
 			return nil
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -472,7 +471,7 @@ func (s *tweetSrv) ListFollowingTweets(userId int64, limit, offset int) (res []*
 	}
 	beFriendCount, beFollowCount := len(beFriendIds), len(beFollowIds)
 	db := s.db.Model(&dbr.Post{})
-	//可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开',
+	// 可见性: 0私密 10充电可见 20订阅可见 30保留 40保留 50好友可见 60关注可见 70保留 80保留 90公开',
 	switch {
 	case beFriendCount > 0 && beFollowCount > 0:
 		db = db.Where("user_id=? OR (visibility>=50 AND user_id IN(?)) OR (visibility>=60 AND user_id IN(?))", userId, beFriendIds, beFollowIds)

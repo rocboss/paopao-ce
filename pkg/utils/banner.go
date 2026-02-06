@@ -11,7 +11,6 @@ import (
 )
 
 func PrintHelloBanner(text string) {
-
 	fmt.Println(" ____   __    __  ____   __    __  ")
 	fmt.Println("(  _ \\ / _\\  /  \\(  _ \\ / _\\  /  \\ ")
 	fmt.Println(" ) __//    \\(  O )) __//    \\(  O )")

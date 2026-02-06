@@ -18,9 +18,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ api.Trends = (*trendsSrv)(nil)
-)
+var _ api.Trends = (*trendsSrv)(nil)
 
 type trendsSrv struct {
 	api.UnimplementedTrendsServant

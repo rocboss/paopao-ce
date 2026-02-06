@@ -273,7 +273,7 @@ func (e *messageActionEvent) Action() (err error) {
 		default:
 			// TODO
 		}
-		//清除该用户所有消息缓存
+		// 清除该用户所有消息缓存
 		err = e.wc.DelAny(fmt.Sprintf("%s%d:*", conf.PrefixMessages, userId))
 	}
 	return

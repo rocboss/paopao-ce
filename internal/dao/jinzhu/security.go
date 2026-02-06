@@ -15,9 +15,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	_ core.SecurityService = (*securitySrv)(nil)
-)
+var _ core.SecurityService = (*securitySrv)(nil)
 
 type securitySrv struct {
 	db          *gorm.DB
