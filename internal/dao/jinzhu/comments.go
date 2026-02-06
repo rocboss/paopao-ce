@@ -423,20 +423,5 @@ func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, rep
 }
 
 func (s *commentManageSrv) updateCommentThumbsUpCount(obj any, id int64, thumbsUpCount, thumbsDownCount int32) error {
-	updateColumns := make(map[string]any, 2)
-	if thumbsUpCount == 1 {
-		updateColumns["thumbs_up_count"] = gorm.Expr("thumbs_up_count + 1")
-	} else if thumbsUpCount == -1 {
-		updateColumns["thumbs_up_count"] = gorm.Expr("thumbs_up_count - 1")
-	}
-	if thumbsDownCount == 1 {
-		updateColumns["thumbs_down_count"] = gorm.Expr("thumbs_down_count + 1")
-	} else if thumbsDownCount == -1 {
-		updateColumns["thumbs_down_count"] = gorm.Expr("thumbs_down_count - 1")
-	}
-	if len(updateColumns) > 0 {
-		updateColumns["modified_on"] = time.Now().Unix()
-		return s.db.Model(obj).Where("id=?", id).UpdateColumns(updateColumns).Error
-	}
-	return nil
+	return updateCommentThumbsUpCount(s.db, obj, id, thumbsUpCount, thumbsDownCount)
 }
