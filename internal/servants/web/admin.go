@@ -18,9 +18,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ api.Admin = (*adminSrv)(nil)
-)
+var _ api.Admin = (*adminSrv)(nil)
 
 type adminSrv struct {
 	api.UnimplementedAdminServant

@@ -1,4 +1,4 @@
-.PHONY: all build build-web run test clean fmt pre-commit help
+.PHONY: all build build-web run test clean fmt vet pre-commit help
 
 PROJECT = paopao-ce
 TARGET = paopao
@@ -22,6 +22,7 @@ BUILD_VERSION := $(shell git describe --tags --always)
 BUILD_DATE := $(shell date +'%Y-%m-%d %H:%M:%S %Z')
 SHA_SHORT := $(shell git rev-parse --short HEAD)
 
+GOFMT ?= gofumpt -l -w
 MOD_NAME = github.com/rocboss/paopao-ce
 LDFLAGS = -X "${MOD_NAME}/pkg/version.version=${BUILD_VERSION}" \
           -X "${MOD_NAME}/pkg/version.buildDate=${BUILD_DATE}" \
@@ -84,18 +85,18 @@ generate: gen-mir gen-rpc gen-enum
 .PHONY: gen-mir
 gen-mir:
 	@go generate mirc/gen.go
-	@go fmt ./auto/api/...
+	$(GOFMT) ./auto/api
 
 .PHONY: gen-rpc
 gen-rpc:
 	@rm -rf auto/rpc
-	@buf generate proto
-	@go fmt ./auto/rpc/...
+	buf generate proto
+	$(GOFMT) ./auto/rpc
 
 .PHONY: gen-enum
 gen-enum:
 	@go generate ./internal/model/enum/...
-	go fmt ./internal/model/enum/...
+	$(GOFMT) ./internal/model/enum
 
 .PHONY: proto-mod
 proto-mod:
@@ -111,8 +112,9 @@ clean:
 
 fmt:
 	@echo Formatting...
-	@go fmt ./internal/...
-	@go fmt ./pkg/...
+	$(GOFMT) .
+
+vet:
 	@go vet -composites=false ./internal/...
 	@go vet -composites=false ./pkg/...
 
@@ -125,6 +127,7 @@ pre-commit: fmt
 .PHONY: install-tools
 install-tools: install-protobuf-plugins
 	@go install github.com/abice/go-enum@latest
+	@go install mvdan.cc/gofumpt@latest
 
 .PHONY: install-protobuf-plugins
 install-protobuf-plugins:

@@ -69,11 +69,15 @@ type SendWhisperReq struct {
 	Content    string `json:"content" binding:"required"`
 }
 
-type GetCollectionsReq BasePageReq
-type GetCollectionsResp base.PageResp
+type (
+	GetCollectionsReq  BasePageReq
+	GetCollectionsResp base.PageResp
+)
 
-type GetStarsReq BasePageReq
-type GetStarsResp base.PageResp
+type (
+	GetStarsReq  BasePageReq
+	GetStarsResp base.PageResp
+)
 
 type UserPhoneBindReq struct {
 	BaseInfo `json:"-" binding:"-"`

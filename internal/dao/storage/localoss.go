@@ -45,7 +45,7 @@ type localossServant struct {
 
 func (s *localossCreateServant) PutObject(objectKey string, reader io.Reader, objectSize int64, contentType string, _persistance bool) (string, error) {
 	saveDir := s.savePath + filepath.Dir(objectKey)
-	err := os.MkdirAll(saveDir, 0750)
+	err := os.MkdirAll(saveDir, 0o750)
 	if err != nil && !os.IsExist(err) {
 		return "", err
 	}
@@ -80,7 +80,7 @@ func (s *localossCreateTempDirServant) PutObject(objectKey string, reader io.Rea
 		objectName = s.tempDir + objectKey
 	}
 	saveDir := s.savePath + filepath.Dir(objectName)
-	err := os.MkdirAll(saveDir, 0750)
+	err := os.MkdirAll(saveDir, 0o750)
 	if err != nil && !os.IsExist(err) {
 		return "", err
 	}
@@ -112,7 +112,7 @@ func (s *localossCreateTempDirServant) PersistObject(objectKey string) error {
 	}
 
 	saveDir := s.savePath + filepath.Dir(objectKey)
-	if err = os.MkdirAll(saveDir, 0750); err != nil && !os.IsExist(err) {
+	if err = os.MkdirAll(saveDir, 0o750); err != nil && !os.IsExist(err) {
 		return err
 	}
 

@@ -201,7 +201,7 @@ func (s *commentManageSrv) CreateCommentReply(reply *ms.CommentReply) (res *ms.C
 func (s *commentManageSrv) DeleteCommentReply(reply *ms.CommentReply) (err error) {
 	db := s.db.Begin()
 	defer db.Rollback()
-	err = reply.Delete(s.db)
+	err = reply.Delete(db)
 	if err != nil {
 		return
 	}
@@ -233,7 +233,7 @@ func (s *commentManageSrv) ThumbsUpComment(userId int64, tweetId, commentId int6
 	)
 	commentThumbs := &dbr.TweetCommentThumbs{}
 	// 检查thumbs状态
-	err := s.db.Where("user_id=? AND tweet_id=? AND comment_id=? AND comment_type=0", userId, tweetId, commentId).Take(commentThumbs).Error
+	err := db.Where("user_id=? AND tweet_id=? AND comment_id=? AND comment_type=0", userId, tweetId, commentId).Take(commentThumbs).Error
 	if err == nil {
 		switch {
 		case commentThumbs.IsThumbsUp == types.Yes && commentThumbs.IsThumbsDown == types.No:
@@ -261,11 +261,11 @@ func (s *commentManageSrv) ThumbsUpComment(userId int64, tweetId, commentId int6
 		thumbsUpCount, thumbsDownCount = 1, 0
 	}
 	// 更新thumbs状态
-	if err = s.db.Save(commentThumbs).Error; err != nil {
+	if err = db.Save(commentThumbs).Error; err != nil {
 		return err
 	}
 	// 更新thumbsUpCount
-	if err = s.updateCommentThumbsUpCount(&dbr.Comment{}, commentId, thumbsUpCount, thumbsDownCount); err != nil {
+	if err = updateCommentThumbsUpCount(db, &dbr.Comment{}, commentId, thumbsUpCount, thumbsDownCount); err != nil {
 		return err
 	}
 	db.Commit()
@@ -282,7 +282,7 @@ func (s *commentManageSrv) ThumbsDownComment(userId int64, tweetId, commentId in
 	)
 	commentThumbs := &dbr.TweetCommentThumbs{}
 	// 检查thumbs状态
-	err := s.db.Where("user_id=? AND tweet_id=? AND comment_id=? AND comment_type=0", userId, tweetId, commentId).Take(commentThumbs).Error
+	err := db.Where("user_id=? AND tweet_id=? AND comment_id=? AND comment_type=0", userId, tweetId, commentId).Take(commentThumbs).Error
 	if err == nil {
 		switch {
 		case commentThumbs.IsThumbsDown == types.Yes:
@@ -311,11 +311,11 @@ func (s *commentManageSrv) ThumbsDownComment(userId int64, tweetId, commentId in
 		thumbsUpCount, thumbsDownCount = 0, 1
 	}
 	// 更新thumbs状态
-	if err = s.db.Save(commentThumbs).Error; err != nil {
+	if err = db.Save(commentThumbs).Error; err != nil {
 		return err
 	}
 	// 更新thumbsUpCount
-	if err = s.updateCommentThumbsUpCount(&dbr.Comment{}, commentId, thumbsUpCount, thumbsDownCount); err != nil {
+	if err = updateCommentThumbsUpCount(db, &dbr.Comment{}, commentId, thumbsUpCount, thumbsDownCount); err != nil {
 		return err
 	}
 	db.Commit()
@@ -332,7 +332,7 @@ func (s *commentManageSrv) ThumbsUpReply(userId int64, tweetId, commentId, reply
 	)
 	commentThumbs := &dbr.TweetCommentThumbs{}
 	// 检查thumbs状态
-	err := s.db.Where("user_id=? AND tweet_id=? AND comment_id=? AND reply_id=? AND comment_type=1", userId, tweetId, commentId, replyId).Take(commentThumbs).Error
+	err := db.Where("user_id=? AND tweet_id=? AND comment_id=? AND reply_id=? AND comment_type=1", userId, tweetId, commentId, replyId).Take(commentThumbs).Error
 	if err == nil {
 		switch {
 		case commentThumbs.IsThumbsUp == types.Yes:
@@ -361,11 +361,11 @@ func (s *commentManageSrv) ThumbsUpReply(userId int64, tweetId, commentId, reply
 		thumbsUpCount, thumbsDownCount = 1, 0
 	}
 	// 更新thumbs状态
-	if err = s.db.Save(commentThumbs).Error; err != nil {
+	if err = db.Save(commentThumbs).Error; err != nil {
 		return err
 	}
 	// 更新thumbsUpCount
-	if err = s.updateCommentThumbsUpCount(&dbr.CommentReply{}, replyId, thumbsUpCount, thumbsDownCount); err != nil {
+	if err = updateCommentThumbsUpCount(db, &dbr.CommentReply{}, replyId, thumbsUpCount, thumbsDownCount); err != nil {
 		return err
 	}
 	db.Commit()
@@ -382,7 +382,7 @@ func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, rep
 	)
 	commentThumbs := &dbr.TweetCommentThumbs{}
 	// 检查thumbs状态
-	err := s.db.Where("user_id=? AND tweet_id=? AND comment_id=? AND reply_id=? AND comment_type=1", userId, tweetId, commentId, replyId).Take(commentThumbs).Error
+	err := db.Where("user_id=? AND tweet_id=? AND comment_id=? AND reply_id=? AND comment_type=1", userId, tweetId, commentId, replyId).Take(commentThumbs).Error
 	if err == nil {
 		switch {
 		case commentThumbs.IsThumbsDown == types.Yes:
@@ -411,11 +411,11 @@ func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, rep
 		thumbsUpCount, thumbsDownCount = 0, 1
 	}
 	// 更新thumbs状态
-	if err = s.db.Save(commentThumbs).Error; err != nil {
+	if err = db.Save(commentThumbs).Error; err != nil {
 		return err
 	}
 	// 更新thumbsUpCount
-	if err = s.updateCommentThumbsUpCount(&dbr.CommentReply{}, replyId, thumbsUpCount, thumbsDownCount); err != nil {
+	if err = updateCommentThumbsUpCount(db, &dbr.CommentReply{}, replyId, thumbsUpCount, thumbsDownCount); err != nil {
 		return err
 	}
 	db.Commit()
@@ -423,20 +423,5 @@ func (s *commentManageSrv) ThumbsDownReply(userId int64, tweetId, commentId, rep
 }
 
 func (s *commentManageSrv) updateCommentThumbsUpCount(obj any, id int64, thumbsUpCount, thumbsDownCount int32) error {
-	updateColumns := make(map[string]any, 2)
-	if thumbsUpCount == 1 {
-		updateColumns["thumbs_up_count"] = gorm.Expr("thumbs_up_count + 1")
-	} else if thumbsUpCount == -1 {
-		updateColumns["thumbs_up_count"] = gorm.Expr("thumbs_up_count - 1")
-	}
-	if thumbsDownCount == 1 {
-		updateColumns["thumbs_down_count"] = gorm.Expr("thumbs_down_count + 1")
-	} else if thumbsDownCount == -1 {
-		updateColumns["thumbs_down_count"] = gorm.Expr("thumbs_down_count - 1")
-	}
-	if len(updateColumns) > 0 {
-		updateColumns["modified_on"] = time.Now().Unix()
-		return s.db.Model(obj).Where("id=?", id).UpdateColumns(updateColumns).Error
-	}
-	return nil
+	return updateCommentThumbsUpCount(s.db, obj, id, thumbsUpCount, thumbsDownCount)
 }

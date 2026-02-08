@@ -16,9 +16,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants"
 )
 
-var (
-	_ Service = (*adminService)(nil)
-)
+var _ Service = (*adminService)(nil)
 
 type adminService struct {
 	*baseHttpService

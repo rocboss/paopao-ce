@@ -11,9 +11,7 @@ import (
 	gp "github.com/alimy/tryst/pool"
 )
 
-var (
-	_ AsyncClient = (*wormClient)(nil)
-)
+var _ AsyncClient = (*wormClient)(nil)
 
 const (
 	_minRequestBuf     = 10

@@ -14,9 +14,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants"
 )
 
-var (
-	_ Service = (*frontendWebService)(nil)
-)
+var _ Service = (*frontendWebService)(nil)
 
 type frontendWebService struct {
 	*baseHttpService

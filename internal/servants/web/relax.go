@@ -15,9 +15,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ api.Relax = (*relaxSrv)(nil)
-)
+var _ api.Relax = (*relaxSrv)(nil)
 
 type relaxSrv struct {
 	api.UnimplementedRelaxServant

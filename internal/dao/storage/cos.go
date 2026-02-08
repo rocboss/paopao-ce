@@ -120,7 +120,6 @@ func (s *cosServant) IsObjectExist(objectKey string) (bool, error) {
 func (s *cosServant) SignURL(objectKey string, expiredInSec int64) (string, error) {
 	signedURL, err := s.client.Object.GetPresignedURL(context.Background(),
 		http.MethodGet, objectKey, conf.COSSetting.SecretID, conf.COSSetting.SecretKey, time.Second*time.Duration(expiredInSec), nil)
-
 	if err != nil {
 		logrus.Errorf("client.SignURL err: %v", err)
 		return "", err

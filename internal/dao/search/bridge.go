@@ -12,9 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ core.TweetSearchService = (*bridgeTweetSearchServant)(nil)
-)
+var _ core.TweetSearchService = (*bridgeTweetSearchServant)(nil)
 
 type documents struct {
 	primaryKey  []string

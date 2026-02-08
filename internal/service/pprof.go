@@ -13,9 +13,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/conf"
 )
 
-var (
-	_ Service = (*pprofService)(nil)
-)
+var _ Service = (*pprofService)(nil)
 
 type pprofService struct {
 	*baseHttpService

@@ -10,9 +10,7 @@ import (
 	"time"
 )
 
-var (
-	BuildTime = time.Now()
-)
+var BuildTime = time.Now()
 
 func init() {
 	exe, err := os.Executable()

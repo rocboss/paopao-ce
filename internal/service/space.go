@@ -16,9 +16,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants"
 )
 
-var (
-	_ Service = (*spaceXService)(nil)
-)
+var _ Service = (*spaceXService)(nil)
 
 type spaceXService struct {
 	*baseHttpService

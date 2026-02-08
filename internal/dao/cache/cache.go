@@ -15,9 +15,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_onceInit sync.Once
-)
+var _onceInit sync.Once
 
 func NewRedisCache() core.RedisCache {
 	return &redisCache{

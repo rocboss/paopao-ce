@@ -12,9 +12,7 @@ import (
 	"gopkg.in/resty.v1"
 )
 
-var (
-	_ core.PhoneVerifyService = (*juheSmsServant)(nil)
-)
+var _ core.PhoneVerifyService = (*juheSmsServant)(nil)
 
 type juhePhoneCaptchaRsp struct {
 	ErrorCode int    `json:"error_code"`

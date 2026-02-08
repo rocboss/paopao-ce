@@ -126,7 +126,6 @@ func (c *ZincClient) ExistIndex(name string) bool {
 // 新增/更新文档
 func (c *ZincClient) PutDoc(name string, id int64, doc any) (bool, error) {
 	resp, err := c.request().SetBody(doc).Put(fmt.Sprintf("/api/%s/_doc/%d", name, id))
-
 	if err != nil {
 		return false, err
 	}

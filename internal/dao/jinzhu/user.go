@@ -15,9 +15,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	_ core.UserManageService = (*userManageSrv)(nil)
-)
+var _ core.UserManageService = (*userManageSrv)(nil)
 
 type userManageSrv struct {
 	db  *gorm.DB

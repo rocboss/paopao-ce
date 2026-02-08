@@ -13,9 +13,7 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 )
 
-var (
-	bindAny = base.NewBindAnyFn()
-)
+var bindAny = base.NewBindAnyFn()
 
 type BaseInfo struct {
 	User *ms.User

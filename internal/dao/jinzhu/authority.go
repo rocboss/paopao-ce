@@ -12,9 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	_ core.AuthorizationManageService = (*authorizationManageSrv)(nil)
-)
+var _ core.AuthorizationManageService = (*authorizationManageSrv)(nil)
 
 type authorizationManageSrv struct {
 	db *gorm.DB

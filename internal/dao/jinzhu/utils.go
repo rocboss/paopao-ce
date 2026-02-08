@@ -5,6 +5,8 @@
 package jinzhu
 
 import (
+	"time"
+
 	"github.com/rocboss/paopao-ce/internal/core/cs"
 	"github.com/rocboss/paopao-ce/internal/dao/jinzhu/dbr"
 	"gorm.io/gorm"
@@ -77,4 +79,23 @@ func getUsersByIDs(db *gorm.DB, ids []int64) ([]*dbr.User, error) {
 	return user.List(db, &dbr.ConditionsT{
 		"id IN ?": ids,
 	}, 0, 0)
+}
+
+func updateCommentThumbsUpCount(db *gorm.DB, obj any, id int64, thumbsUpCount, thumbsDownCount int32) error {
+	updateColumns := make(map[string]any, 2)
+	if thumbsUpCount == 1 {
+		updateColumns["thumbs_up_count"] = gorm.Expr("thumbs_up_count + 1")
+	} else if thumbsUpCount == -1 {
+		updateColumns["thumbs_up_count"] = gorm.Expr("thumbs_up_count - 1")
+	}
+	if thumbsDownCount == 1 {
+		updateColumns["thumbs_down_count"] = gorm.Expr("thumbs_down_count + 1")
+	} else if thumbsDownCount == -1 {
+		updateColumns["thumbs_down_count"] = gorm.Expr("thumbs_down_count - 1")
+	}
+	if len(updateColumns) > 0 {
+		updateColumns["modified_on"] = time.Now().Unix()
+		return db.Model(obj).Where("id=?", id).UpdateColumns(updateColumns).Error
+	}
+	return nil
 }

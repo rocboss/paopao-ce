@@ -10,9 +10,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-var (
-	_ server = (*grpcServer)(nil)
-)
+var _ server = (*grpcServer)(nil)
 
 // grpcServer wraper for grpc.Server
 type grpcServer struct {

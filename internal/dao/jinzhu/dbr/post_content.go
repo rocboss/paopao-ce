@@ -24,15 +24,13 @@ const (
 	ContentTypeChargeAttachment
 )
 
-var (
-	mediaContentType = []PostContentT{
-		ContentTypeImage,
-		ContentTypeVideo,
-		ContentTypeAudio,
-		ContentTypeAttachment,
-		ContentTypeChargeAttachment,
-	}
-)
+var mediaContentType = []PostContentT{
+	ContentTypeImage,
+	ContentTypeVideo,
+	ContentTypeAudio,
+	ContentTypeAttachment,
+	ContentTypeChargeAttachment,
+}
 
 type PostContent struct {
 	*Model

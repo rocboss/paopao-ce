@@ -12,11 +12,9 @@ import (
 	"github.com/alimy/mir/v5"
 )
 
-var (
-	_ mir.Error = (*Error)(nil)
+var _ mir.Error = (*Error)(nil)
 
-	// codes = map[int]string{}
-)
+// codes = map[int]string{}
 
 type Error struct {
 	code    int

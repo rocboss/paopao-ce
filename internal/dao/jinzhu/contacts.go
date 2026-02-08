@@ -14,9 +14,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	_ core.ContactManageService = (*contactManageSrv)(nil)
-)
+var _ core.ContactManageService = (*contactManageSrv)(nil)
 
 type contactManageSrv struct {
 	db *gorm.DB

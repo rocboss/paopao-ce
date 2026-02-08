@@ -9,9 +9,7 @@ import (
 	"github.com/allegro/bigcache/v3"
 )
 
-var (
-	_ tweetsCache = (*bigCacheTweetsCache)(nil)
-)
+var _ tweetsCache = (*bigCacheTweetsCache)(nil)
 
 type bigCacheTweetsCache struct {
 	bc *bigcache.BigCache
