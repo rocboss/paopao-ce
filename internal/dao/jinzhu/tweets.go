@@ -17,16 +17,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	_ core.TweetService       = (*tweetSrv)(nil)
-	_ core.TweetManageService = (*tweetManageSrv)(nil)
-	_ core.TweetHelpService   = (*tweetHelpSrv)(nil)
-
-	_ core.TweetServantA       = (*tweetSrvA)(nil)
-	_ core.TweetManageServantA = (*tweetManageSrvA)(nil)
-	_ core.TweetHelpServantA   = (*tweetHelpSrvA)(nil)
-)
-
 type tweetSrv struct {
 	db *gorm.DB
 }

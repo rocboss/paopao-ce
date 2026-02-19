@@ -14,11 +14,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	_ core.IndexPostsService = (*shipIndexSrv)(nil)
-	_ core.IndexPostsService = (*simpleIndexPostsSrv)(nil)
-)
-
 type shipIndexSrv struct {
 	ams core.AuthorizationManageService
 	ths core.TweetHelpService

@@ -15,8 +15,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var _ core.SecurityService = (*securitySrv)(nil)
-
 type securitySrv struct {
 	db          *gorm.DB
 	rand        *rand.Rand
