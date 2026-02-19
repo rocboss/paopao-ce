@@ -15,14 +15,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ core.ObjectStorageService = (*huaweiobsServant)(nil)
-	_ core.OssCreateService     = (*hwobsCreateServant)(nil)
-	_ core.OssCreateService     = (*hwobsCreateRetentionServant)(nil)
-	_ core.OssCreateService     = (*hwobsCreateTempDirServant)(nil)
-	_ core.VersionInfo          = (*huaweiobsServant)(nil)
-)
-
 type hwobsCreateServant struct {
 	client *obs.ObsClient
 	bucket string

@@ -17,14 +17,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ core.ObjectStorageService = (*minioServant)(nil)
-	_ core.OssCreateService     = (*minioCreateServant)(nil)
-	_ core.OssCreateService     = (*minioCreateRetentionServant)(nil)
-	_ core.OssCreateService     = (*minioCreateTempDirServant)(nil)
-	_ core.VersionInfo          = (*minioServant)(nil)
-)
-
 type minioCreateServant struct {
 	client *minio.Client
 	bucket string

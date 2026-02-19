@@ -29,8 +29,6 @@ var (
 	_maxCaptchaTimes    int   = 2
 )
 
-var _ api.Core = (*coreSrv)(nil)
-
 type coreSrv struct {
 	api.UnimplementedCoreServant
 	*base.DaoServant

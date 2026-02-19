@@ -12,8 +12,6 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/version"
 )
 
-var _ api.Site = (*siteSrv)(nil)
-
 type siteSrv struct {
 	api.UnimplementedSiteServant
 	*base.BaseServant

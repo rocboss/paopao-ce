@@ -15,11 +15,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ core.TweetSearchService = (*zincTweetSearchServant)(nil)
-	_ core.VersionInfo        = (*zincTweetSearchServant)(nil)
-)
-
 type zincTweetSearchServant struct {
 	tweetSearchFilter
 

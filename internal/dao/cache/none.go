@@ -12,11 +12,6 @@ import (
 	"github.com/rocboss/paopao-ce/pkg/debug"
 )
 
-var (
-	_ core.CacheIndexService = (*noneCacheIndexServant)(nil)
-	_ core.VersionInfo       = (*noneCacheIndexServant)(nil)
-)
-
 type noneCacheIndexServant struct {
 	ips core.IndexPostsService
 }

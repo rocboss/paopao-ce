@@ -18,8 +18,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var _ api.Trends = (*trendsSrv)(nil)
-
 type trendsSrv struct {
 	api.UnimplementedTrendsServant
 	*base.DaoServant
