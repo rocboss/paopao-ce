@@ -301,6 +301,11 @@ type jwtConf struct {
 	Expire time.Duration
 }
 
+type iP2LocConf struct {
+	XdbUrl        string        `json:"xdb_url"`
+	CheckInterval time.Duration `json:"check_interval"`
+}
+
 type WebProfileConf struct {
 	UseFriendship             bool   `json:"use_friendship"`
 	EnableTrendsBar           bool   `json:"enable_trends_bar"`

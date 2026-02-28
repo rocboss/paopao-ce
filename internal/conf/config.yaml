@@ -275,3 +275,6 @@ WebProfile:
   CopyrightLeftLink: ""
   CopyrightRight: "泡泡(PaoPao)开源社区"
   CopyrightRightLink: "https://www.paopao.info"
+IP2Loc:
+  XdbUrl: "https://github.com/lionsoul2014/ip2region/raw/master/data/ip2region.xdb"  # ip2region数据库下载地址
+  CheckInterval: 86400  # 检查更新的间隔，单位秒，默认24小时

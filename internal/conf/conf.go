@@ -60,6 +60,7 @@ var (
 	LocalOSSSetting         *localossConf
 	JWTSetting              *jwtConf
 	WebProfileSetting       *WebProfileConf
+	IP2LocSetting           *iP2LocConf
 	SmsType                 string
 )
 
@@ -125,6 +126,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"LocalOSS":          &LocalOSSSetting,
 		"S3":                &S3Setting,
 		"WebProfile":        &WebProfileSetting,
+		"IP2Loc":            &IP2LocSetting,
 	}
 	for k, v := range objects {
 		err := vp.UnmarshalKey(k, v)
@@ -142,6 +144,7 @@ func setupSetting(suite []string, noDefault bool) error {
 	BigCacheIndexSetting.ExpireInSecond *= time.Second
 	RedisCacheIndexSetting.ExpireInSecond *= time.Second
 	redisSetting.ConnWriteTimeout *= time.Second
+	IP2LocSetting.CheckInterval *= time.Second
 
 	return nil
 }

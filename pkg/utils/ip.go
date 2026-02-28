@@ -4,9 +4,8 @@
 
 package utils
 
-import "github.com/rocboss/paopao-ce/pkg/utils/iploc"
+import "github.com/rocboss/paopao-ce/pkg/utils/ip2region"
 
 func GetIPLoc(ip string) string {
-	country, _ := iploc.Find(ip)
-	return country
+	return ip2region.GetInstance().GetLocation(ip)
 }

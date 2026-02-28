@@ -63,7 +63,6 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 	tms := newTweetMetricServentA(db)
 	ums := newUserMetricServentA(db)
 	cms := newCommentMetricServentA(db)
-	uls := newUserLevelService(db)
 	cis := cache.NewEventCacheIndexSrv(tms)
 	ds := &dataSrv{
 		TweetMetricServantA:    tms,

@@ -1,0 +1,1 @@
+please edit router at /mirc and execute go generate mirc/gen.go to create a new router.
