@@ -115,6 +115,11 @@ var (
 	ErrFileInvalidExt   = xerror.NewError(10201, "文件类型不合法")
 	ErrFileInvalidSize  = xerror.NewError(10202, "文件大小超限")
 
+	// 表情包相关错误
+	ErrCollectEmojiFailed   = xerror.NewError(12001, "收藏表情包失败")
+	ErrUncollectEmojiFailed = xerror.NewError(12002, "取消收藏表情包失败")
+	ErrDeleteEmojiFailed    = xerror.NewError(12003, "删除表情包失败")
+
 	// 长文章相关错误
 	ErrCreateArticle         = xerror.NewError(11001, "长文章创建失败")
 	ErrUpdateArticle         = xerror.NewError(11002, "长文章更新失败")

@@ -47,6 +47,7 @@ type dataSrv struct {
 	core.UserRelationService
 	core.SecurityService
 	core.AttachmentCheckService
+	core.EmojiService
 }
 
 type webDataSrvA struct {
@@ -83,6 +84,7 @@ func NewDataService() (core.DataService, core.VersionInfo) {
 		UserRelationService:    newUserRelationService(db),
 		SecurityService:        newSecurityService(db, pvs),
 		AttachmentCheckService: security.NewAttachmentCheckService(),
+		EmojiService:           newEmojiService(db),
 	}
 	return cache.NewCacheDataService(ds), ds
 }

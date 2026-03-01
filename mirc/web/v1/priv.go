@@ -121,4 +121,26 @@ type Priv struct {
 
 	// AdminDeleteArticle 管理员删除长文章
 	AdminDeleteArticle func(Delete, web.AdminDeleteArticleReq) `mir:"admin/articles"`
+
+	// 表情包相关API
+	// UploadEmoji 上传表情包
+	UploadEmoji func(Post, web.UploadEmojiReq) web.UploadEmojiResp `mir:"emoji"`
+
+	// GetEmojiList 获取表情包列表
+	GetEmojiList func(Get, web.GetEmojiListReq) web.GetEmojiListResp `mir:"emoji/list"`
+
+	// GetUserEmojiList 获取用户上传的表情包列表
+	GetUserEmojiList func(Get, web.GetUserEmojiListReq) web.GetUserEmojiListResp `mir:"emoji/user"`
+
+	// GetUserCollectedEmojiList 获取用户收藏的表情包列表
+	GetUserCollectedEmojiList func(Get, web.GetUserCollectedEmojiListReq) web.GetUserCollectedEmojiListResp `mir:"emoji/collected"`
+
+	// CollectEmoji 收藏表情包
+	CollectEmoji func(Post, web.CollectEmojiReq) web.CollectEmojiResp `mir:"emoji/collect"`
+
+	// UncollectEmoji 取消收藏表情包
+	UncollectEmoji func(Post, web.UncollectEmojiReq) web.UncollectEmojiResp `mir:"emoji/uncollect"`
+
+	// DeleteEmoji 删除表情包
+	DeleteEmoji func(Delete, web.DeleteEmojiReq) `mir:"emoji"`
 }

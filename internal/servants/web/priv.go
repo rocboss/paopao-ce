@@ -898,6 +898,181 @@ func (s *privSrv) buyPostAttachment(post *ms.Post, user *ms.User) error {
 	return nil
 }
 
+// UploadEmoji 上传表情包
+func (s *privSrv) UploadEmoji(req *web.UploadEmojiReq) (*web.UploadEmojiResp, error) {
+	defer req.File.(interface{ Close() error }).Close()
+
+	// 生成随机路径
+	randomPath := uuid.Must(uuid.NewV4()).String()
+	ossSavePath := "emoji/" + generatePath(randomPath[:8]) + "/" + randomPath[9:] + req.FileExt
+	data := io.NopCloser(req.File.(io.Reader))
+	objectUrl, err := s.oss.PutObject(ossSavePath, data, req.FileSize, req.ContentType, false)
+	if err != nil {
+		logrus.Errorf("oss.putObject err: %s", err)
+		return nil, web.ErrFileUploadFailed
+	}
+
+	// 上传到数据库
+	emoji, err := s.Ds.EmojiService.UploadEmoji(req.User.ID, req.Name, objectUrl, req.Width, req.Height, req.FileSize, req.ContentType)
+	if err != nil {
+		logrus.Errorf("Ds.EmojiService.UploadEmoji err: %s", err)
+		return nil, web.ErrFileUploadFailed
+	}
+
+	return &web.UploadEmojiResp{
+		ID:   emoji.ID,
+		Name: emoji.Name,
+		URL:  emoji.URL,
+	}, nil
+}
+
+// GetEmojiList 获取表情包列表
+func (s *privSrv) GetEmojiList(req *web.GetEmojiListReq) (*web.GetEmojiListResp, error) {
+	emojis, err := s.Ds.EmojiService.GetEmojiList(req.Offset, req.Limit)
+	if err != nil {
+		logrus.Errorf("Ds.EmojiService.GetEmojiList err: %s", err)
+		return nil, xerror.ServerError
+	}
+
+	// 检查是否被当前用户收藏
+	var emojiList []map[string]interface{}
+	for _, emoji := range emojis {
+		isCollected, _ := s.Ds.EmojiService.IsEmojiCollected(req.Uid, emoji.ID)
+		emojiFormated := emoji.Format()
+		emojiFormated.IsCollected = isCollected
+		emojiList = append(emojiList, map[string]interface{}{
+			"id":              emojiFormated.ID,
+			"user_id":         emojiFormated.UserID,
+			"name":            emojiFormated.Name,
+			"url":             emojiFormated.URL,
+			"width":           emojiFormated.Width,
+			"height":          emojiFormated.Height,
+			"size":            emojiFormated.Size,
+			"type":            emojiFormated.Type,
+			"collection_count": emojiFormated.CollectionCount,
+			"is_collected":    emojiFormated.IsCollected,
+			"created_on":      emojiFormated.CreatedOn,
+		})
+	}
+
+	return &web.GetEmojiListResp{
+		PageResp: base.PageResp{
+			Items: emojiList,
+			Total: int64(len(emojiList)),
+		},
+	}, nil
+}
+
+// GetUserEmojiList 获取用户上传的表情包列表
+func (s *privSrv) GetUserEmojiList(req *web.GetUserEmojiListReq) (*web.GetUserEmojiListResp, error) {
+	emojis, err := s.Ds.EmojiService.GetUserEmojiList(req.UserID, req.Offset, req.Limit)
+	if err != nil {
+		logrus.Errorf("Ds.EmojiService.GetUserEmojiList err: %s", err)
+		return nil, xerror.ServerError
+	}
+
+	// 检查是否被当前用户收藏
+	var emojiList []map[string]interface{}
+	for _, emoji := range emojis {
+		isCollected, _ := s.Ds.EmojiService.IsEmojiCollected(req.Uid, emoji.ID)
+		emojiFormated := emoji.Format()
+		emojiFormated.IsCollected = isCollected
+		emojiList = append(emojiList, map[string]interface{}{
+			"id":              emojiFormated.ID,
+			"user_id":         emojiFormated.UserID,
+			"name":            emojiFormated.Name,
+			"url":             emojiFormated.URL,
+			"width":           emojiFormated.Width,
+			"height":          emojiFormated.Height,
+			"size":            emojiFormated.Size,
+			"type":            emojiFormated.Type,
+			"collection_count": emojiFormated.CollectionCount,
+			"is_collected":    emojiFormated.IsCollected,
+			"created_on":      emojiFormated.CreatedOn,
+		})
+	}
+
+	return &web.GetUserEmojiListResp{
+		PageResp: base.PageResp{
+			Items: emojiList,
+			Total: int64(len(emojiList)),
+		},
+	}, nil
+}
+
+// GetUserCollectedEmojiList 获取用户收藏的表情包列表
+func (s *privSrv) GetUserCollectedEmojiList(req *web.GetUserCollectedEmojiListReq) (*web.GetUserCollectedEmojiListResp, error) {
+	emojis, err := s.Ds.EmojiService.GetUserCollectedEmojiList(req.Uid, req.Offset, req.Limit)
+	if err != nil {
+		logrus.Errorf("Ds.EmojiService.GetUserCollectedEmojiList err: %s", err)
+		return nil, xerror.ServerError
+	}
+
+	// 标记为已收藏
+	var emojiList []map[string]interface{}
+	for _, emoji := range emojis {
+		emojiFormated := emoji.Format()
+		emojiFormated.IsCollected = true
+		emojiList = append(emojiList, map[string]interface{}{
+			"id":              emojiFormated.ID,
+			"user_id":         emojiFormated.UserID,
+			"name":            emojiFormated.Name,
+			"url":             emojiFormated.URL,
+			"width":           emojiFormated.Width,
+			"height":          emojiFormated.Height,
+			"size":            emojiFormated.Size,
+			"type":            emojiFormated.Type,
+			"collection_count": emojiFormated.CollectionCount,
+			"is_collected":    emojiFormated.IsCollected,
+			"created_on":      emojiFormated.CreatedOn,
+		})
+	}
+
+	return &web.GetUserCollectedEmojiListResp{
+		PageResp: base.PageResp{
+			Items: emojiList,
+			Total: int64(len(emojiList)),
+		},
+	}, nil
+}
+
+// CollectEmoji 收藏表情包
+func (s *privSrv) CollectEmoji(req *web.CollectEmojiReq) (*web.CollectEmojiResp, error) {
+	err := s.Ds.EmojiService.CollectEmoji(req.Uid, req.EmojiID)
+	if err != nil {
+		logrus.Errorf("Ds.EmojiService.CollectEmoji err: %s", err)
+		return nil, web.ErrCollectEmojiFailed
+	}
+
+	return &web.CollectEmojiResp{
+		Status: true,
+	}, nil
+}
+
+// UncollectEmoji 取消收藏表情包
+func (s *privSrv) UncollectEmoji(req *web.UncollectEmojiReq) (*web.UncollectEmojiResp, error) {
+	err := s.Ds.EmojiService.UncollectEmoji(req.Uid, req.EmojiID)
+	if err != nil {
+		logrus.Errorf("Ds.EmojiService.UncollectEmoji err: %s", err)
+		return nil, web.ErrUncollectEmojiFailed
+	}
+
+	return &web.UncollectEmojiResp{
+		Status: true,
+	}, nil
+}
+
+// DeleteEmoji 删除表情包
+func (s *privSrv) DeleteEmoji(req *web.DeleteEmojiReq) error {
+	err := s.Ds.EmojiService.DeleteEmoji(req.User.ID, req.ID)
+	if err != nil {
+		logrus.Errorf("Ds.EmojiService.DeleteEmoji err: %s", err)
+		return web.ErrDeleteEmojiFailed
+	}
+
+	return nil
+}
+
 func newPrivSrv(s *base.DaoServant, oss core.ObjectStorageService) api.Priv {
 	return &privSrv{
 		DaoServant: s,

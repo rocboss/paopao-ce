@@ -182,3 +182,86 @@ func (r *TweetStarStatusReq) Bind(c *gin.Context) error {
 type StreamMessagesReq struct {
 	SimpleInfo `json:"-" binding:"-"`
 }
+
+// 表情包相关请求和响应
+
+// UploadEmojiReq 上传表情包请求
+type UploadEmojiReq struct {
+	BaseInfo    `json:"-" binding:"-"`
+	Name        string      `form:"name" binding:"required"`
+	File        interface{} `form:"file" binding:"required"`
+	FileExt     string      `form:"file_ext" binding:"required"`
+	FileSize    int64       `form:"file_size" binding:"required"`
+	ContentType string      `form:"content_type" binding:"required"`
+	Width       int         `form:"width" binding:"required"`
+	Height      int         `form:"height" binding:"required"`
+}
+
+// UploadEmojiResp 上传表情包响应
+type UploadEmojiResp struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
+// GetEmojiListReq 获取表情包列表请求
+type GetEmojiListReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	BasePageInfo
+}
+
+// GetEmojiListResp 获取表情包列表响应
+type GetEmojiListResp struct {
+	base.PageResp
+}
+
+// GetUserEmojiListReq 获取用户上传的表情包列表请求
+type GetUserEmojiListReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	BasePageInfo
+	UserID int64 `form:"user_id" binding:"required"`
+}
+
+// GetUserEmojiListResp 获取用户上传的表情包列表响应
+type GetUserEmojiListResp struct {
+	base.PageResp
+}
+
+// GetUserCollectedEmojiListReq 获取用户收藏的表情包列表请求
+type GetUserCollectedEmojiListReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	BasePageInfo
+}
+
+// GetUserCollectedEmojiListResp 获取用户收藏的表情包列表响应
+type GetUserCollectedEmojiListResp struct {
+	base.PageResp
+}
+
+// CollectEmojiReq 收藏表情包请求
+type CollectEmojiReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	EmojiID    int64 `json:"emoji_id" binding:"required"`
+}
+
+// CollectEmojiResp 收藏表情包响应
+type CollectEmojiResp struct {
+	Status bool `json:"status"`
+}
+
+// UncollectEmojiReq 取消收藏表情包请求
+type UncollectEmojiReq struct {
+	SimpleInfo `json:"-" binding:"-"`
+	EmojiID    int64 `json:"emoji_id" binding:"required"`
+}
+
+// UncollectEmojiResp 取消收藏表情包响应
+type UncollectEmojiResp struct {
+	Status bool `json:"status"`
+}
+
+// DeleteEmojiReq 删除表情包请求
+type DeleteEmojiReq struct {
+	BaseInfo `json:"-" binding:"-"`
+	ID       int64 `json:"id" binding:"required"`
+}

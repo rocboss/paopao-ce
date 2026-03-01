@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS p_user_emoji;
+DROP TABLE IF EXISTS p_emoji;

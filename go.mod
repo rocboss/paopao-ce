@@ -27,7 +27,7 @@ require (
 	github.com/grafana/pyroscope-go v1.2.2
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.25.4+incompatible
 	github.com/json-iterator/go v1.1.12
-	github.com/lionsoul2014/ip2region v1.7.0
+	github.com/lionsoul2014/ip2region/binding/golang v0.0.0-20260226062615-1a8d01d9679e
 	github.com/livekit/mageutil v0.0.0-20250511045019-0f1ff63f7731
 	github.com/meilisearch/meilisearch-go v0.27.2
 	github.com/minio/minio-go/v7 v7.0.84
@@ -120,7 +120,6 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
-	github.com/lionsoul2014/ip2region/binding/golang v0.0.0-20260226062615-1a8d01d9679e // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -129,7 +128,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
-	github.com/mohong122/ip2region v0.0.0-20190505055455-f4ef24f6b03d // indirect
 	github.com/mozillazg/go-httpheader v0.2.1 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect

@@ -44,6 +44,9 @@ type DataService interface {
 
 	// 实用性服务
 	//StickerService
+
+	// 表情包服务
+	EmojiService
 }
 
 // WebDataServantA Web数据服务集成(版本A)

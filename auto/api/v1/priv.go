@@ -56,6 +56,15 @@ type Priv interface {
 	DownloadAttachmentPrecheck(*web.DownloadAttachmentPrecheckReq) (*web.DownloadAttachmentPrecheckResp, error)
 	UploadAttachment(*web.UploadAttachmentReq) (*web.UploadAttachmentResp, error)
 
+	// 表情包相关API
+	UploadEmoji(*web.UploadEmojiReq) (*web.UploadEmojiResp, error)
+	GetEmojiList(*web.GetEmojiListReq) (*web.GetEmojiListResp, error)
+	GetUserEmojiList(*web.GetUserEmojiListReq) (*web.GetUserEmojiListResp, error)
+	GetUserCollectedEmojiList(*web.GetUserCollectedEmojiListReq) (*web.GetUserCollectedEmojiListResp, error)
+	CollectEmoji(*web.CollectEmojiReq) (*web.CollectEmojiResp, error)
+	UncollectEmoji(*web.UncollectEmojiReq) (*web.UncollectEmojiResp, error)
+	DeleteEmoji(*web.DeleteEmojiReq) error
+
 	mustEmbedUnimplementedPrivServant()
 }
 
@@ -594,6 +603,112 @@ func RegisterPrivServant(e *gin.Engine, s Priv, m ...PrivChain) {
 		resp, err := s.UploadAttachment(req)
 		s.Render(c, resp, err)
 	})
+
+	// 表情包相关路由
+	router.Handle("POST", "emoji", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.UploadEmojiReq)
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.UploadEmoji(req)
+		s.Render(c, resp, err)
+	})
+
+	router.Handle("GET", "emoji/list", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.GetEmojiListReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.GetEmojiList(req)
+		s.Render(c, resp, err)
+	})
+
+	router.Handle("GET", "emoji/user", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.GetUserEmojiListReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.GetUserEmojiList(req)
+		s.Render(c, resp, err)
+	})
+
+	router.Handle("GET", "emoji/collected", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.GetUserCollectedEmojiListReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.GetUserCollectedEmojiList(req)
+		s.Render(c, resp, err)
+	})
+
+	router.Handle("POST", "emoji/collect", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.CollectEmojiReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.CollectEmoji(req)
+		s.Render(c, resp, err)
+	})
+
+	router.Handle("POST", "emoji/uncollect", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.UncollectEmojiReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.UncollectEmoji(req)
+		s.Render(c, resp, err)
+	})
+
+	router.Handle("DELETE", "emoji", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.DeleteEmojiReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		s.Render(c, nil, s.DeleteEmoji(req))
+	})
 }
 
 // UnimplementedPrivServant can be embedded to have forward compatible implementations.
@@ -749,6 +864,35 @@ func (UnimplementedPrivServant) DownloadAttachmentPrecheck(req *web.DownloadAtta
 
 func (UnimplementedPrivServant) UploadAttachment(req *web.UploadAttachmentReq) (*web.UploadAttachmentResp, error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+// 表情包相关方法
+func (UnimplementedPrivServant) UploadEmoji(req *web.UploadEmojiReq) (*web.UploadEmojiResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) GetEmojiList(req *web.GetEmojiListReq) (*web.GetEmojiListResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) GetUserEmojiList(req *web.GetUserEmojiListReq) (*web.GetUserEmojiListResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) GetUserCollectedEmojiList(req *web.GetUserCollectedEmojiListReq) (*web.GetUserCollectedEmojiListResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) CollectEmoji(req *web.CollectEmojiReq) (*web.CollectEmojiResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) UncollectEmoji(req *web.UncollectEmojiReq) (*web.UncollectEmojiResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) DeleteEmoji(req *web.DeleteEmojiReq) error {
+	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
 func (UnimplementedPrivServant) mustEmbedUnimplementedPrivServant() {}
