@@ -1,12 +1,12 @@
 <template>
     <div>
-        <div class="compose-wrap" v-if="store.state.userInfo.id > 0">
+        <div class="compose-wrap" v-if="userInfo.id > 0">
             <div class="compose-line">
                 <div class="compose-user">
                     <n-avatar
                         round
                         :size="30"
-                        :src="store.state.userInfo.avatar"
+                        :src="userInfo.avatar"
                     />
                 </div>
                 <n-mention
@@ -168,13 +168,15 @@
 
 <script setup lang="ts">
 import { onMounted, computed, ref } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
+import { TOKEN_KEY, useStoreUser } from '@/store/user';
 import { debounce } from 'lodash';
 import { ImageOutline } from '@vicons/ionicons5';
 import { createComment } from '@/api/post';
-import { getSuggestUsers } from '@/api/user';
 import { parsePostTag } from '@/utils/content';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
+import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
 
 const emit = defineEmits<{
   (e: 'post-success'): void;
@@ -190,7 +192,9 @@ const props = withDefaults(
   },
 );
 
-const store = useStore();
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const { userInfo } = storeToRefs(storeUser);
 
 const optionsRef = ref<MentionOption[]>([]);
 const showBtn = ref(false);
@@ -210,11 +214,11 @@ const defaultCommentMaxLength = Number(
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 
 const uploadToken = computed(() => {
-  return 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
+  return 'Bearer ' + localStorage.getItem(TOKEN_KEY);
 });
 // 加载at用户列表
 const loadSuggestionUsers = debounce((k) => {
-  getSuggestUsers({
+  Api.v1.suggest.get.users({
     k,
   })
     .then((res) => {
@@ -387,8 +391,8 @@ const submitPost = () => {
     });
 };
 const triggerAuth = (key: string) => {
-  store.commit('triggerAuth', true);
-  store.commit('triggerAuthKey', key);
+  storeMain.triggerAuth(true);
+  storeMain.triggerAuthKey(key);
 };
 </script>
 

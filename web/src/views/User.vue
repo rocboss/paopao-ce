@@ -14,12 +14,12 @@
                             <strong>{{ user.nickname }}</strong>
                             <span> @{{ user.username }} </span>
                             <n-tag
-                                v-if="store.state.profile.useFriendship && store.state.userInfo.id > 0 && store.state.userInfo.username != user.username && user.is_friend"
+                                v-if="profile.useFriendship && userInfo.id > 0 && userInfo.username != user.username && user.is_friend"
                                 class="top-tag" type="info" size="small" round>
                                 好友
                             </n-tag>
                             <n-tag
-                                v-if="store.state.userInfo.id > 0 && store.state.userInfo.username != user.username && user.is_following"
+                                v-if="userInfo.id > 0 && userInfo.username != user.username && user.is_following"
                                 class="top-tag" type="success" size="small" round>
                                 已关注
                             </n-tag>
@@ -70,7 +70,7 @@
                         </div>
                     </div>
 
-                    <div class="user-opts" v-if="store.state.userInfo.id > 0">
+                    <div class="user-opts" v-if="userInfo.id > 0">
                         <n-dropdown placement="bottom-end" trigger="click" size="small" :options="userOptions"
                             @select="handleUserAction">
                             <n-button quaternary circle>
@@ -104,11 +104,11 @@
                 <div class="empty-wrap" v-if="list.length === 0">
                     <n-empty size="large" description="暂无数据" />
                 </div>
-                <div v-if="store.state.desktopModelShow">
+                <div v-if="desktopModelShow">
                     <div v-if="pageType === 'post'">
                         <n-list-item v-for="post in postList" :key="post.id">
                             <post-item :post="post" 
-                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :isOwner="userInfo.id == post.user_id" 
                                 :addFollowAction="true"
                                 @send-whisper="onSendWhisper"
                                 @handle-follow-action="onHandleFollowAction" />
@@ -117,7 +117,7 @@
                     <div v-if="pageType === 'comment'">
                         <n-list-item v-for="post in commentList" :key="post.id">
                             <post-item :post="post" 
-                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :isOwner="userInfo.id == post.user_id" 
                                 :addFollowAction="true"
                                 @send-whisper="onSendWhisper"
                                 @handle-follow-action="onHandleFollowAction" />
@@ -126,7 +126,7 @@
                     <div v-if="pageType === 'highlight'">
                         <n-list-item v-for="post in highlightList" :key="post.id">
                             <post-item :post="post" 
-                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :isOwner="userInfo.id == post.user_id" 
                                 :addFollowAction="true"
                                 @send-whisper="onSendWhisper"
                                 @handle-follow-action="onHandleFollowAction" />
@@ -135,7 +135,7 @@
                     <div v-if="pageType === 'media'">
                         <n-list-item v-for="post in mediaList" :key="post.id">
                             <post-item :post="post" 
-                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :isOwner="userInfo.id == post.user_id" 
                                 :addFollowAction="true"
                                 @send-whisper="onSendWhisper"
                                 @handle-follow-action="onHandleFollowAction" />
@@ -144,7 +144,7 @@
                     <div v-if="pageType === 'star'">
                         <n-list-item v-for="post in starList" :key="post.id">
                             <post-item :post="post" 
-                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :isOwner="userInfo.id == post.user_id" 
                                 :addFollowAction="true"
                                 @send-whisper="onSendWhisper"
                                 @handle-follow-action="onHandleFollowAction" />
@@ -155,7 +155,7 @@
                     <div v-if="pageType === 'post'">
                         <n-list-item v-for="post in postList" :key="post.id">
                             <mobile-post-item :post="post"
-                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :isOwner="userInfo.id == post.user_id" 
                                 :addFollowAction="true"
                                 @send-whisper="onSendWhisper"
                                 @handle-follow-action="onHandleFollowAction" />
@@ -164,7 +164,7 @@
                     <div v-if="pageType === 'comment'">
                         <n-list-item v-for="post in commentList" :key="post.id">
                             <mobile-post-item :post="post"
-                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :isOwner="userInfo.id == post.user_id" 
                                 :addFollowAction="true"
                                 @send-whisper="onSendWhisper"
                                 @handle-follow-action="onHandleFollowAction" />
@@ -173,7 +173,7 @@
                     <div v-if="pageType === 'highlight'">
                         <n-list-item v-for="post in highlightList" :key="post.id">
                             <mobile-post-item :post="post"
-                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :isOwner="userInfo.id == post.user_id" 
                                 :addFollowAction="true"
                                 @send-whisper="onSendWhisper"
                                 @handle-follow-action="onHandleFollowAction" />
@@ -182,7 +182,7 @@
                     <div v-if="pageType === 'media'">
                         <n-list-item v-for="post in mediaList" :key="post.id">
                             <mobile-post-item :post="post"
-                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :isOwner="userInfo.id == post.user_id" 
                                 :addFollowAction="true"
                                 @send-whisper="onSendWhisper"
                                 @handle-follow-action="onHandleFollowAction" />
@@ -191,7 +191,7 @@
                     <div v-if="pageType === 'star'">
                         <n-list-item v-for="post in starList" :key="post.id">
                             <mobile-post-item :post="post"
-                                :isOwner="store.state.userInfo.id == post.user_id" 
+                                :isOwner="userInfo.id == post.user_id" 
                                 :addFollowAction="true"
                                 @send-whisper="onSendWhisper"
                                 @handle-follow-action="onHandleFollowAction" />
@@ -218,16 +218,8 @@
 import { h, ref, reactive, watch, onMounted, computed } from 'vue';
 import { NIcon } from 'naive-ui';
 import type { Component, Ref } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
 import { useRoute, useRouter } from 'vue-router';
-import {
-  getUserProfile,
-  getUserPosts,
-  changeUserStatus,
-  deleteFriend,
-  followUser,
-  unfollowUser,
-} from '@/api/user';
 import { useDialog, DropdownOption } from 'naive-ui';
 import WhisperAddFriend from '../components/whisper-add-friend.vue';
 import { MoreHorizFilled } from '@vicons/material';
@@ -243,9 +235,20 @@ import {
   WalkOutline,
 } from '@vicons/ionicons5';
 import InfiniteLoading from 'v3-infinite-loading';
+import { useStoreUser } from '@/store/user';
+import { useStoreProfile } from '@/store/profile';
+import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
 
 const dialog = useDialog();
-const store = useStore();
+
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const storeProfile = useStoreProfile();
+const { desktopModelShow } = storeToRefs(storeMain);
+const { userLogined, userInfo } = storeToRefs(storeUser);
+const { profile } = storeToRefs(storeProfile);
+
 const route = useRoute();
 const router = useRouter();
 
@@ -312,7 +315,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
     negativeText: '取消',
     onPositiveClick: () => {
       if (post.user.is_following) {
-        unfollowUser({
+        Api.v1.user.post.unfollow({
           user_id: post.user.id,
         })
           .then((_res) => {
@@ -321,7 +324,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
           })
           .catch((_err) => {});
       } else {
-        followUser({
+        Api.v1.user.post.follow({
           user_id: post.user.id,
         })
           .then((_res) => {
@@ -399,7 +402,7 @@ const loadPage = () => {
 };
 const loadPosts = () => {
   loading.value = true;
-  getUserPosts({
+  Api.v1.user.get.posts({
     username: username.value as string,
     style: 'post',
     page: page.value,
@@ -430,7 +433,7 @@ const loadPosts = () => {
 };
 const loadCommentPosts = () => {
   loading.value = true;
-  getUserPosts({
+  Api.v1.user.get.posts({
     username: username.value as string,
     style: 'comment',
     page: page.value,
@@ -461,7 +464,7 @@ const loadCommentPosts = () => {
 };
 const loadHighlightPosts = () => {
   loading.value = true;
-  getUserPosts({
+  Api.v1.user.get.posts({
     username: username.value as string,
     style: 'highlight',
     page: page.value,
@@ -492,7 +495,7 @@ const loadHighlightPosts = () => {
 };
 const loadMediaPosts = () => {
   loading.value = true;
-  getUserPosts({
+  Api.v1.user.get.posts({
     username: username.value as string,
     style: 'media',
     page: page.value,
@@ -523,7 +526,7 @@ const loadMediaPosts = () => {
 };
 const loadStarPosts = () => {
   loading.value = true;
-  getUserPosts({
+  Api.v1.user.get.posts({
     username: username.value as string,
     style: 'star',
     page: page.value,
@@ -591,7 +594,7 @@ const changeTab = (
 };
 const loadUser = () => {
   userLoading.value = true;
-  getUserProfile({
+  Api.v1.user.get.profile({
     username: username.value as string,
   })
     .then((res) => {
@@ -661,7 +664,7 @@ const renderIcon = (icon: Component) => {
   };
 };
 const userOptions = computed(() => {
-  if (store.state.userInfo.username == user.username) {
+  if (userInfo.value.username == user.username) {
     return [
       {
         label: '设置',
@@ -677,7 +680,7 @@ const userOptions = computed(() => {
       icon: renderIcon(PaperPlaneOutline),
     },
   ];
-  if (store.state.userInfo.is_admin) {
+  if (userInfo.value.is_admin) {
     if (user.status === 1) {
       options.push({
         label: '禁言',
@@ -705,7 +708,7 @@ const userOptions = computed(() => {
       icon: renderIcon(BodyOutline),
     });
   }
-  if (store.state.profile.useFriendship) {
+  if (profile.value.useFriendship) {
     if (user.is_friend) {
       options.push({
         label: '删除好友',
@@ -774,7 +777,7 @@ const openDeleteFriend = () => {
     negativeText: '取消',
     onPositiveClick: () => {
       userLoading.value = true;
-      deleteFriend({
+      Api.v1.friend.post.delete({
         user_id: user.id,
       })
         .then((res) => {
@@ -802,7 +805,7 @@ const handleFollowUser = () => {
     onPositiveClick: () => {
       userLoading.value = true;
       if (user.is_following) {
-        unfollowUser({
+        Api.v1.user.post.unfollow({
           user_id: user.id,
         })
           .then((_res) => {
@@ -815,7 +818,7 @@ const handleFollowUser = () => {
             console.log(err);
           });
       } else {
-        followUser({
+        Api.v1.user.post.follow({
           user_id: user.id,
         })
           .then((_res) => {
@@ -840,7 +843,7 @@ const banUser = () => {
     negativeText: '取消',
     onPositiveClick: () => {
       userLoading.value = true;
-      changeUserStatus({
+      Api.v1.admin.post.user.status({
         id: user.id,
         status: user.status === 1 ? 2 : 1,
       })

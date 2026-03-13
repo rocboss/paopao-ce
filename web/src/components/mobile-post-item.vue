@@ -76,7 +76,7 @@
                         :key="content.id"
                         class="post-text"
                         @click.stop="doClickText($event, post.id)"
-                        v-html="preparePost(content.content, '展开', '收起', store.state.profile.tweetMobileEllipsisSize, inFoldStyle)"
+                        v-html="preparePost(content.content, '展开', '收起', profile.tweetMobileEllipsisSize, inFoldStyle)"
                     ></span>
                 </div>
             </template>
@@ -129,9 +129,8 @@
 <script setup lang="ts">
 import { h, ref, computed } from 'vue';
 import type { Component } from 'vue';
-import { NIcon } from 'naive-ui';
-import { useStore } from 'vuex';
-import type { DropdownOption } from 'naive-ui';
+import { NIcon, DropdownOption } from 'naive-ui';
+import { useStoreMain } from '@/store/main';
 import { useRouter } from 'vue-router';
 import { formatPrettyDate } from '@/utils/formatTime';
 import { preparePost } from '@/utils/content';
@@ -149,9 +148,15 @@ import {
 } from '@vicons/ionicons5';
 import { MoreHorizFilled } from '@vicons/material';
 import copy from 'copy-to-clipboard';
+import { useStoreProfile } from '@/store/profile';
+import { storeToRefs } from 'pinia';
 
 const router = useRouter();
-const store = useStore();
+
+const storeMain = useStoreMain();
+const storeProfile = useStoreProfile();
+const { profile } = storeToRefs(storeProfile);
+
 const inFoldStyle = ref<boolean>(true);
 const props = withDefaults(
   defineProps<{
@@ -358,7 +363,7 @@ const doClickText = (e: MouseEvent, id: number) => {
   if (detail && detail !== 'post') {
     const d = detail.split(':');
     if (d.length === 2) {
-      store.commit('refresh');
+      storeMain.doRefresh();
       if (d[0] === 'tag') {
         router.push({
           name: 'home',

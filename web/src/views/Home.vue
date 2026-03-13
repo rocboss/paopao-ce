@@ -59,10 +59,10 @@
                 <div class="empty-wrap" v-if="list.length === 0">
                     <n-empty size="large" description="暂无数据" />
                 </div>
-                <div v-if="store.state.desktopModelShow">
+                <div v-if="desktopModelShow">
                     <n-list-item v-for="post in list" :key="post.id">
                         <post-item :post="post" 
-                            :isOwner="store.state.userInfo.id == post.user_id" 
+                            :isOwner="userInfo.id == post.user_id" 
                             :addFollowAction="true"
                             @send-whisper="onSendWhisper"
                             @handle-follow-action="onHandleFollowAction"
@@ -72,7 +72,7 @@
                 <div v-else>
                     <n-list-item v-for="post in list" :key="post.id">
                         <mobile-post-item :post="post"
-                            :isOwner="store.state.userInfo.id == post.user_id" 
+                            :isOwner="userInfo.id == post.user_id" 
                             :addFollowAction="true"
                             @send-whisper="onSendWhisper"
                             @handle-follow-action="onHandleFollowAction"
@@ -101,23 +101,27 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed, watch } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
 import { useRoute, useRouter } from 'vue-router';
 import { useDialog } from 'naive-ui';
 import InfiniteLoading from 'v3-infinite-loading';
 import { getPosts, getIndexTrends } from '@/api/post';
-import {
-  getUserPosts,
-  deleteFriend,
-  followUser,
-  unfollowUser,
-} from '@/api/user';
 import SlideBar from '@opentiny/vue-slide-bar';
 import allTweets from '@/assets/img/fresh-tweets.png';
 import discoverTweets from '@/assets/img/discover-tweets.jpeg';
 import followingTweets from '@/assets/img/following-tweets.jpeg';
+import { useStoreUser } from '@/store/user';
+import { useStoreProfile } from '@/store/profile';
+import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
 
-const store = useStore();
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const storeProfile = useStoreProfile();
+const { desktopModelShow, refresh } = storeToRefs(storeMain);
+const { userInfo } = storeToRefs(storeUser);
+const { profile } = storeToRefs(storeProfile);
+
 const route = useRoute();
 const router = useRouter();
 const dialog = useDialog();
@@ -229,7 +233,7 @@ const openDeleteFriend = (post: Item.PostProps) => {
     positiveText: '确定',
     negativeText: '取消',
     onPositiveClick: () => {
-      deleteFriend({
+      Api.v1.friend.post.delete({
         user_id: user.id,
       })
         .then((res) => {
@@ -270,7 +274,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
     negativeText: '取消',
     onPositiveClick: () => {
       if (post.user.is_following) {
-        unfollowUser({
+        Api.v1.user.post.unfollow({
           user_id: post.user.id,
         })
           .then((_res) => {
@@ -279,7 +283,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
           })
           .catch((_err) => {});
       } else {
-        followUser({
+        Api.v1.user.post.follow({
           user_id: post.user.id,
         })
           .then((_res) => {
@@ -313,17 +317,17 @@ const updateTitle = () => {
 
 const showTrendsTag = computed(() => {
   return (
-    store.state.userInfo.id > 0 &&
-    !store.state.profile.enableTrendsBar &&
-    store.state.desktopModelShow
+    userInfo.value.id > 0 &&
+    !profile.value.enableTrendsBar &&
+    desktopModelShow.value
   );
 });
 const showTrendsBar = computed(() => {
   return (
-    store.state.profile.useFriendship &&
-    store.state.profile.enableTrendsBar &&
-    store.state.desktopModelShow &&
-    store.state.userInfo.id > 0
+    profile.value.useFriendship &&
+    profile.value.enableTrendsBar &&
+    desktopModelShow.value &&
+    userInfo.value.id > 0
   );
 });
 
@@ -366,9 +370,9 @@ const handleBarClick = (data: Item.SlideBarItem, index: number) => {
 const loadContacts = () => {
   slideBarList.value = slideBarList.value.slice(0, 3);
   if (
-    !store.state.profile.useFriendship ||
-    !store.state.profile.enableTrendsBar ||
-    store.state.userInfo.id === 0
+    !profile.value.useFriendship ||
+    !profile.value.enableTrendsBar ||
+    userInfo.value.id === 0
   ) {
     return;
   }
@@ -433,7 +437,7 @@ const loadPosts = (style: 'newest' | 'hots' | 'following' | 'search') => {
 
 const loadUserPosts = () => {
   loading.value = true;
-  getUserPosts({
+  Api.v1.user.get.posts({
     username: targetUsername.value,
     style: 'post',
     page: page.value,
@@ -544,7 +548,7 @@ watch(
   () => ({
     path: route.path,
     query: route.query,
-    refresh: store.state.refresh,
+    refresh: refresh.value,
   }),
   (to, from) => {
     updateTitle();

@@ -6,13 +6,13 @@
                 <n-avatar
                     class="avatar-img"
                     :size="80"
-                    :src="store.state.userInfo.avatar"
+                    :src="userInfo.avatar"
                 />
                 <n-upload
-                    v-if="!store.state.profile.allowPhoneBind || (
-                        store.state.profile.allowPhoneBind &&
-                        store.state.userInfo.phone &&
-                        store.state.userInfo.phone.length > 0)
+                    v-if="!profile.allowPhoneBind || (
+                        profile.allowPhoneBind &&
+                        userInfo.phone &&
+                        userInfo.phone.length > 0)
                     "
                     ref="avatarRef"
                     :action="uploadGateway"
@@ -31,13 +31,13 @@
             <div class="base-line">
                 <span class="base-label">昵称</span>
                 <div v-if="!showNicknameEdit">
-                    {{ store.state.userInfo.nickname }}
+                    {{ userInfo.nickname }}
                 </div>
                 <n-input
                     ref="inputInstRef"
                     v-show="showNicknameEdit"
                     class="nickname-input"
-                    v-model:value="store.state.userInfo.nickname"
+                    v-model:value="userInfo.nickname"
                     type="text"
                     size="small"
                     placeholder="请输入昵称"
@@ -49,11 +49,11 @@
                     round
                     type="success"
                     size="small"
-                    v-if="!showNicknameEdit && (!store.state.profile.allowPhoneBind || (
-                        store.state.profile.allowPhoneBind &&
-                        store.state.userInfo.phone &&
-                        store.state.userInfo.phone.length > 0 &&
-                        store.state.userInfo.status == 1)
+                    v-if="!showNicknameEdit && (!profile.allowPhoneBind || (
+                        profile.allowPhoneBind &&
+                        userInfo.phone &&
+                        userInfo.phone.length > 0 &&
+                        userInfo.status == 1)
                     )
                     "
                     @click="handleNicknameShow"
@@ -67,25 +67,25 @@
             </div>
             <div class="base-line">
                 <span class="base-label">用户名</span> @{{
-                    store.state.userInfo.username
+                    userInfo.username
                 }}
             </div>
         </n-card>
 
-        <n-card v-if="store.state.profile.allowPhoneBind" title="手机号" size="small" class="setting-card">
+        <n-card v-if="profile.allowPhoneBind" title="手机号" size="small" class="setting-card">
             <div
                 v-if="
-                    store.state.userInfo.phone &&
-                    store.state.userInfo.phone.length > 0
+                    userInfo.phone &&
+                    userInfo.phone.length > 0
                 "
             >
-                {{ store.state.userInfo.phone }}
+                {{ userInfo.phone }}
 
                 <n-button
                     quaternary
                     round
                     type="success"
-                    v-if="!showPhoneBind && store.state.userInfo.status == 1"
+                    v-if="!showPhoneBind && userInfo.status == 1"
                     @click="showPhoneBind = true"
                 >
                     换绑手机
@@ -183,11 +183,11 @@
         <n-card v-if="allowActivation" title="激活码" size="small" class="setting-card">
             <div
                 v-if="
-                    store.state.userInfo.activation &&
-                    store.state.userInfo.activation.length > 0
+                    userInfo.activation &&
+                    userInfo.activation.length > 0
                 "
             >
-                {{ store.state.userInfo.activation }}
+                {{ userInfo.activation }}
 
                 <n-button
                     quaternary
@@ -341,17 +341,8 @@
 
 <script setup lang="ts">
 import { onMounted, ref, reactive } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
 import { Edit } from '@vicons/tabler';
-import {
-  getCaptcha,
-  sendCaptcha,
-  bindUserPhone,
-  activateUser,
-  changePassword,
-  changeNickname,
-  changeAvatar,
-} from '@/api/user';
 import type {
   UploadInst,
   FormItemRule,
@@ -359,13 +350,23 @@ import type {
   FormInst,
   InputInst,
 } from 'naive-ui';
+import { TOKEN_KEY, useStoreUser } from '@/store/user';
+import { useStoreProfile } from '@/store/profile';
+import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
 
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
-const uploadToken = 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
+const uploadToken = 'Bearer ' + localStorage.getItem(TOKEN_KEY);
 const uploadType = ref('public/avatar');
 const allowActivation =
   import.meta.env.VITE_ALLOW_ACTIVATION.toLowerCase() === 'true';
-const store = useStore();
+
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const storeProfile = useStoreProfile();
+const { userInfo } = storeToRefs(storeUser);
+const { profile } = storeToRefs(storeProfile);
+
 const sending = ref(false);
 const binding = ref(false);
 const activating = ref(false);
@@ -424,15 +425,15 @@ const finishUpload = ({ file, event }: any): any => {
 
     if (data.code === 0) {
       if (uploadType.value === 'public/avatar') {
-        changeAvatar({
+        Api.v1.user.post.avatar({
           avatar: data.data.content,
         })
           .then((res) => {
             window.$message.success('头像更新成功');
             avatarRef.value?.clear();
 
-            store.commit('updateUserinfo', {
-              ...store.state.userInfo,
+            storeUser.updateUserinfo({
+              ...userInfo.value,
               avatar: data.data.content,
             });
           })
@@ -469,7 +470,7 @@ const handleValidateButtonClick = (e: MouseEvent) => {
   formRef.value?.validate((errors) => {
     if (!errors) {
       passwordSetting.value = true;
-      changePassword({
+      Api.v1.user.post.password({
         password: modelData.password,
         old_password: modelData.old_password,
       })
@@ -479,9 +480,9 @@ const handleValidateButtonClick = (e: MouseEvent) => {
           window.$message.success('密码重置成功');
 
           // 用户退出登录
-          store.commit('userLogout');
-          store.commit('triggerAuth', true);
-          store.commit('triggerAuthKey', 'signin');
+          storeUser.userLogout();
+          storeMain.triggerAuth(true);
+          storeMain.triggerAuthKey('signin');
         })
         .catch((err) => {
           passwordSetting.value = false;
@@ -495,7 +496,7 @@ const handlePhoneBind = (e: MouseEvent) => {
   phoneFormRef.value?.validate((errors) => {
     if (!errors) {
       binding.value = true;
-      bindUserPhone({
+      Api.v1.user.post.phone({
         phone: modelData.phone,
         captcha: modelData.phone_captcha,
       })
@@ -504,8 +505,8 @@ const handlePhoneBind = (e: MouseEvent) => {
           showPhoneBind.value = false;
           window.$message.success('绑定成功');
 
-          store.commit('updateUserinfo', {
-            ...store.state.userInfo,
+          storeUser.updateUserinfo({
+            ...userInfo.value,
             phone: modelData.phone,
           });
 
@@ -532,7 +533,7 @@ const handleActivation = (e: MouseEvent) => {
     sending.value = true;
     if (!errors) {
       activating.value = true;
-      activateUser({
+      Api.v1.user.post.activate({
         activate_code: activateData.activate_code,
         captcha_id: activateData.id,
         imgCaptcha: activateData.imgCaptcha,
@@ -542,8 +543,8 @@ const handleActivation = (e: MouseEvent) => {
           showActivation.value = false;
           window.$message.success('激活成功');
 
-          store.commit('updateUserinfo', {
-            ...store.state.userInfo,
+          storeUser.updateUserinfo({
+            ...userInfo.value,
             activation: activateData.activate_code,
           });
 
@@ -563,7 +564,7 @@ const handleActivation = (e: MouseEvent) => {
 };
 
 const loadCaptcha = () => {
-  getCaptcha()
+  Api.v1.captcha.get._self({})
     .then((res) => {
       modelData.id = res.id;
       modelData.b64s = res.b64s;
@@ -574,7 +575,7 @@ const loadCaptcha = () => {
 };
 
 const loadCaptcha4Activate = () => {
-  getCaptcha()
+  Api.v1.captcha.get._self({})
     .then((res) => {
       activateData.id = res.id;
       activateData.b64s = res.b64s;
@@ -585,8 +586,8 @@ const loadCaptcha4Activate = () => {
 };
 
 const handleNicknameChange = () => {
-  changeNickname({
-    nickname: store.state.userInfo.nickname || '',
+  Api.v1.user.post.nickname({
+    nickname: userInfo.value.nickname || '',
   })
     .then((res) => {
       showNicknameEdit.value = false;
@@ -606,7 +607,7 @@ const sendPhoneCaptcha = () => {
     return;
   }
   sending.value = true;
-  sendCaptcha({
+  Api.v1.captcha.post._self({
     phone: modelData.phone,
     img_captcha: modelData.imgCaptcha,
     img_captcha_id: modelData.id,
@@ -702,9 +703,9 @@ const handleNicknameShow = () => {
   }, 30);
 };
 onMounted(() => {
-  if (store.state.userInfo.id === 0) {
-    store.commit('triggerAuth', true);
-    store.commit('triggerAuthKey', 'signin');
+  if (userInfo.value.id === 0) {
+    storeMain.triggerAuth(true);
+    storeMain.triggerAuthKey('signin');
   }
   loadCaptcha();
   loadCaptcha4Activate();

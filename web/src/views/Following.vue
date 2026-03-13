@@ -37,9 +37,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { getUserFollows, getUserFollowings } from '@/api/user';
 import InfiniteLoading from 'v3-infinite-loading';
 import { useRoute } from 'vue-router';
+import { Api } from '@/utils/request';
 
 const route = useRoute();
 const loading = ref(false);
@@ -119,7 +119,7 @@ const loadFollows = (username: string, scrollToBottom: boolean = false) => {
   if (list.value.length === 0) {
     loading.value = true;
   }
-  getUserFollows({
+  Api.v1.user.get.follows({
     username: username,
     page: page.value,
     page_size: pageSize.value,
@@ -153,7 +153,7 @@ const loadFollowings = (username: string, scrollToBottom: boolean = false) => {
   if (list.value.length === 0) {
     loading.value = true;
   }
-  getUserFollowings({
+  Api.v1.user.get.followings({
     username: username,
     page: page.value,
     page_size: pageSize.value,

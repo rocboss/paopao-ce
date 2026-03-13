@@ -1,17 +1,4 @@
-declare module NetParams {
-  interface AuthUserLogin {
-    /** 用户名 */
-    username: string;
-    /** 密码 */
-    password: string;
-  }
-
-  interface AuthUserRegister {
-    /** 用户名 */
-    username: string;
-    /** 密码 */
-    password: string;
-  }
+declare namespace NetParams {
 
   type AuthUserInfo = string;
 
@@ -22,137 +9,11 @@ declare module NetParams {
     old_password: string;
   }
 
-  interface UserGetCollections {
-    page: number;
-    page_size: number;
-  }
-
-  interface UserPrecheckAttachment {
-    id: number;
-  }
-
-  interface UserGetAttachment {
-    id: number;
-  }
-
-  interface UserGetUnreadMsgCount {}
-
-  interface ReadMessageReq {
-    id: number;
-  }
-
-  interface UserGetMessages {
-    style: 'all' | 'system' | 'whisper' | 'requesting' | 'unread';
-    page: number;
-    page_size: number;
-  }
-
-  interface UserGetUserPosts {
-    username: string;
-    style: string;
-    page: number;
-    page_size: number;
-  }
-
-  interface UserGetUserProfile {
-    username: string;
-  }
-
-  interface UserGetBills {
-    page: number;
-    page_size: number;
-  }
-
-  interface UserStatusReq {
-    id: number;
-    status: number;
-  }
-
   interface SiteInfoReq {}
-
-  interface FollowUserReq {
-    user_id: number;
-  }
-
-  interface UnfollowUserReq {
-    user_id: number;
-  }
-
-  interface UserReqRecharge {
-    amount: number;
-  }
-
-  interface UserGetRecharge {
-    id: number;
-  }
-
-  interface UserBindUserPhone {
-    phone: string;
-    captcha: string;
-  }
-
-  interface UserActivation {
-    activate_code: string;
-    captcha_id: string;
-    imgCaptcha: string;
-  }
-
-  interface UserGetCaptcha {}
-
-  interface UserWhisper {
-    user_id: number;
-    content: string;
-  }
-
-  interface RequestingFriend {
-    user_id: number;
-    greetings: string;
-  }
-
-  interface AddFriend {
-    user_id: number;
-  }
-
-  interface RejectFriend {
-    user_id: number;
-  }
-
-  interface DeleteFriend {
-    user_id: number;
-  }
-
-  interface GetContacts {
-    page: number;
-    page_size: number;
-  }
 
   interface IndexTrendsReq {
     page: number;
     page_size: number;
-  }
-
-  interface GetUserFollows {
-    username: string;
-    page: number;
-    page_size: number;
-  }
-
-  interface GetUserFollowings {
-    username: string;
-    page: number;
-    page_size: number;
-  }
-
-  interface UserChangePassword {
-    /** 新密码 */
-    password: string;
-    /** 旧密码 */
-    old_password: string;
-  }
-
-  interface UserChangeNickname {
-    /** 昵称 */
-    nickname: string;
   }
 
   interface PostGetPost {
@@ -213,8 +74,6 @@ declare module NetParams {
     page?: number;
     page_size?: number;
   }
-
-  interface GetContacts {}
 
   interface PostCreatePost {
     /** 帖子内容列表 */

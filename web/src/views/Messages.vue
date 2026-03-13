@@ -13,7 +13,7 @@
                                         <UnreadIcon />
                                     </n-icon>
                                 </template>
-                                {{ store.state.unreadMsgCount }} 条未读
+                                {{ unreadMsgCount }} 条未读
                             </n-button>
                             <n-divider vertical />
                             <n-button text size="small" :focusable="false" @click="handleReadAll">全标已读</n-button>
@@ -67,10 +67,9 @@
 import { h, ref, onMounted, computed } from 'vue';
 import type { Component } from 'vue';
 import { NIcon, DropdownOption } from 'naive-ui';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
 import { useRoute } from 'vue-router';
 import InfiniteLoading from 'v3-infinite-loading';
-import { getMessages, readAllMessage } from '@/api/user';
 import {
   LayersOutline as AllIcon,
   AtOutline as SystemIcon,
@@ -79,8 +78,14 @@ import {
   ChatbubbleEllipsesOutline as UnreadIcon,
   OptionsOutline as OptionsIcon,
 } from '@vicons/ionicons5';
+import { useStoreUser } from '@/store/user';
+import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
 
-const store = useStore();
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const { unreadMsgCount } = storeToRefs(storeMain);
+
 const route = useRoute();
 const loading = ref(false);
 const noMore = ref(false);
@@ -284,8 +289,8 @@ const handleUnreadMessage = () => {
 };
 
 const handleReadAll = () => {
-  if (store.state.unreadMsgCount > 0 && list.value.length > 0) {
-    readAllMessage()
+  if (unreadMsgCount.value > 0 && list.value.length > 0) {
+    Api.v1.user.message.post.readall()
       .then((_res) => {
         if (messageStyleVal.value != 'unread') {
           for (let idx in list.value) {
@@ -294,7 +299,7 @@ const handleReadAll = () => {
         } else {
           list.value = [];
         }
-        store.commit('updateUnreadMsgCount', 0);
+        storeMain.updateUnreadMsgCount(0);
       })
       .catch((err) => {
         console.log(err);
@@ -318,7 +323,7 @@ const reloadMessages = () => {
 
 const loadMessages = () => {
   loading.value = true;
-  getMessages({
+  Api.v1.user.get.messages({
     style: messageStyleVal.value,
     page: page.value,
     page_size: pageSize.value,

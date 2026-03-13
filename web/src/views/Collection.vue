@@ -11,10 +11,10 @@
                     <n-empty size="large" description="暂无数据" />
                 </div>
 
-                <div v-if="store.state.desktopModelShow">
+                <div v-if="desktopModelShow">
                     <n-list-item v-for="post in list" :key="post.id">
                         <post-item :post="post" 
-                            :isOwner="store.state.userInfo.id == post.user_id" 
+                            :isOwner="userInfo.id == post.user_id" 
                             :addFollowAction="true"
                             @send-whisper="onSendWhisper"
                             @handle-follow-action="onHandleFollowAction" />
@@ -23,7 +23,7 @@
                 <div v-else>
                     <n-list-item v-for="post in list" :key="post.id">
                         <mobile-post-item :post="post"
-                            :isOwner="store.state.userInfo.id == post.user_id" 
+                            :isOwner="userInfo.id == post.user_id" 
                             :addFollowAction="true"
                             @send-whisper="onSendWhisper"
                             @handle-follow-action="onHandleFollowAction" />
@@ -48,13 +48,19 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
+import { useStoreUser } from '@/store/user';
 import { useRoute } from 'vue-router';
 import { useDialog } from 'naive-ui';
 import InfiniteLoading from 'v3-infinite-loading';
-import { getCollections, followUser, unfollowUser } from '@/api/user';
+import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
 
-const store = useStore();
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const { collapsedRight, desktopModelShow } = storeToRefs(storeMain);
+const { userInfo } = storeToRefs(storeUser);
+
 const route = useRoute();
 const dialog = useDialog();
 
@@ -97,7 +103,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
     negativeText: '取消',
     onPositiveClick: () => {
       if (post.user.is_following) {
-        unfollowUser({
+        Api.v1.user.post.unfollow({
           user_id: post.user.id,
         })
           .then((_res) => {
@@ -106,7 +112,7 @@ const onHandleFollowAction = (post: Item.PostProps) => {
           })
           .catch((_err) => {});
       } else {
-        followUser({
+        Api.v1.user.post.follow({
           user_id: post.user.id,
         })
           .then((_res) => {
@@ -129,7 +135,7 @@ function postFollowAction(userId: number, isFollowing: boolean) {
 
 const loadPosts = () => {
   loading.value = true;
-  getCollections({
+  Api.v1.user.get.collections({
     page: page.value,
     page_size: pageSize.value,
   })
