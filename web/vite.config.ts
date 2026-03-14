@@ -14,29 +14,29 @@ export default defineConfig({
     Components({
       resolvers: [NaiveUiResolver()],
     }),
-    esmExternalRequirePlugin({
-      external: ['vue', /^node:/]
-    }),
+    // esmExternalRequirePlugin({
+    //   external: ['vue', /^node:/]
+    // }),
   ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
     },
   },
-  build: {
-    chunkSizeWarningLimit: 1000,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return id
-              .toString()
-              .split('node_modules/')[1]
-              .split('/')[0]
-              .toString();
-          }
-        },
-      },
-    },
-  },
+  // build: {
+  //   chunkSizeWarningLimit: 1000,
+  //   rollupOptions: {
+  //     output: {
+  //       manualChunks(id) {
+  //         if (id.includes('node_modules')) {
+  //           return id
+  //             .toString()
+  //             .split('node_modules/')[1]
+  //             .split('/')[0]
+  //             .toString();
+  //         }
+  //       },
+  //     },
+  //   },
+  // },
 });
