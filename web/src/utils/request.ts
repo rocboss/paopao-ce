@@ -3,8 +3,8 @@ import { useStoreMain } from '@/store/main';
 import { TOKEN_KEY } from '@/store/user';
 
 const service = axios.create({
-  baseURL: import.meta.env.VITE_HOST,
-  timeout: 30000,
+	baseURL: import.meta.env.VITE_HOST,
+	timeout: 30000,
 });
 
 service.interceptors.request.use(
@@ -77,6 +77,14 @@ export function createApi<T>(): Readonly<T> {
 
 		// 如果最后一条路径是 _self 则代表不需要它，直接去掉它
 		if (_path[_path.length - 1] === "_self") _path.pop();
+
+		if (method === "get") {
+			return request({
+				method,
+				url: _path.join('/'),
+				params: args[0],
+			});
+		}
 
 		return request({
 			method,

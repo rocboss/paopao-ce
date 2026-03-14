@@ -18,6 +18,8 @@ declare namespace Api {
                 messages: (params: NetParams.UserGetMessages) => Promise<NetReq.UserGetMessages>;
                 /** 获取收藏列表 */
                 collections: (params: NetParams.UserGetCollections) => Promise<NetReq.UserGetCollections>;
+                /** 获取联系人列表 */
+                contacts: (params: NetParams.GetContacts) => Promise<NetReq.GetContacts>;
                 /** 获取用户帖子列表 */
                 posts: (params: NetParams.UserGetUserPosts) => Promise<NetReq.UserGetUserPosts>;
                 wallet: {
@@ -34,8 +36,6 @@ declare namespace Api {
                 follow: (data: NetParams.FollowUserReq) => Promise<NetReq.FollowUserResp>;
                 /** 取消关注用户 */
                 unfollow: (data: NetParams.UnfollowUserReq) => Promise<NetReq.UnfollowUserResp>;
-                /** 获取联系人列表 */
-                contacts: (params: NetParams.GetContacts) => Promise<NetReq.GetContacts>;
                 /** 绑定用户手机 */
                 phone: (data: NetParams.UserBindUserPhone) => Promise<NetParams.UserBindUserPhone>;
                 /** 激活码激活 */
@@ -75,7 +75,7 @@ declare namespace Api {
                 user_id: number;
             }
 
-            interface UnfollowUserReq extends FollowUserReq {}
+            interface UnfollowUserReq extends FollowUserReq { }
 
             interface GetUserFollows {
                 username: string;
@@ -83,7 +83,7 @@ declare namespace Api {
                 page_size: number;
             }
 
-            interface GetUserFollowings extends GetUserFollows {}
+            interface GetUserFollowings extends GetUserFollows { }
 
             interface GetContacts {
                 page: number;
@@ -118,7 +118,7 @@ declare namespace Api {
                 avatar: any;
             }
 
-            interface UserGetUnreadMsgCount {}
+            interface UserGetUnreadMsgCount { }
 
             interface UserGetMessages {
                 style: 'all' | 'system' | 'whisper' | 'requesting' | 'unread';
@@ -161,9 +161,9 @@ declare namespace Api {
 
             type UserGetUserProfile = Item.UserInfo;
 
-            interface FollowUserResp {}
+            interface FollowUserResp { }
 
-            interface UnfollowUserResp {}
+            interface UnfollowUserResp { }
 
             interface GetContacts {
                 /** 评论列表 */
@@ -172,8 +172,8 @@ declare namespace Api {
                 pager: Item.PagerProps;
             }
 
-            interface UserChangePassword {}
-            interface UserChangeNickname {}
+            interface UserChangePassword { }
+            interface UserChangeNickname { }
 
             interface UserGetUnreadMsgCount {
                 count: number;
@@ -186,8 +186,8 @@ declare namespace Api {
                 pager: Item.PagerProps;
             }
 
-            interface ReadMessageResp {}
-            interface ReadAllMessageResp {}
+            interface ReadMessageResp { }
+            interface ReadAllMessageResp { }
 
             interface UserGetCollections {
                 /** 帖子列表 */
