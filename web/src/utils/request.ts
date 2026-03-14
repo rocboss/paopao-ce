@@ -78,14 +78,6 @@ export function createApi<T>(): Readonly<T> {
 		// 如果最后一条路径是 _self 则代表不需要它，直接去掉它
 		if (_path[_path.length - 1] === "_self") _path.pop();
 
-		if (method === "get") {
-			return request({
-				method,
-				url: _path.join('/'),
-				params: args[0],
-			});
-		}
-
 		return request({
 			method,
 			url: _path.join('/'),
