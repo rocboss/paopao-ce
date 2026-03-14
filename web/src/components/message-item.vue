@@ -3,7 +3,7 @@
         <n-thing content-indented>
             <template #avatar>
                 <n-avatar round :size="30" :src="
-                    message.type == 4 && message.sender_user_id == store.state.userInfo.id 
+                    message.type == 4 && message.sender_user_id == userInfo.id 
                     ?  message.receiver_user.avatar 
                     : ( message.sender_user.id > 0
                         ? message.sender_user.avatar
@@ -22,7 +22,7 @@
                         }">
                             {{ message.sender_user.nickname }}
                         </router-link>
-                        <span v-if="store.state.desktopModelShow" class="username">
+                        <span v-if="desktopModelShow" class="username">
                             @{{ message.sender_user.username }}
                         </span>
                     </span>
@@ -35,7 +35,7 @@
                         }">
                             {{ message.receiver_user.nickname }}
                         </router-link>
-                        <span v-if="store.state.desktopModelShow" class="username">
+                        <span v-if="desktopModelShow" class="username">
                             @{{ message.receiver_user.username }}
                         </span>
                     </span>
@@ -53,7 +53,7 @@
                         </template>
                     </n-tag>
                     <n-tag
-                        v-if="message.type == 4 && message.receiver_user_id == store.state.userInfo.id"
+                        v-if="message.type == 4 && message.receiver_user_id == userInfo.id"
                         class="top-tag"
                         type="warning"
                         size="small"
@@ -139,37 +139,35 @@
 <script setup lang="ts">
 import { h, computed } from 'vue';
 import type { Component } from 'vue';
-import { NIcon, useDialog } from 'naive-ui';
-import { useStore } from 'vuex';
+import { NIcon, useDialog, DropdownOption } from 'naive-ui';
+import { useStoreMain } from '@/store/main';
+import { useStoreUser } from '@/store/user';
 import { useRouter } from 'vue-router';
-import { DropdownOption } from 'naive-ui';
 import {
   ShareOutline,
   CheckmarkOutline,
   CloseOutline,
   CheckmarkDoneOutline,
-} from '@vicons/ionicons5';
-import {
-  readMessage,
-  addFriend,
-  rejectFriend,
-  followUser,
-  unfollowUser,
-} from '@/api/user';
-import { formatRelativeTime } from '@/utils/formatTime';
-import { MoreHorizFilled } from '@vicons/material';
-import {
   PaperPlaneOutline,
   CheckmarkCircle,
   BodyOutline,
   WalkOutline,
 } from '@vicons/ionicons5';
+import { formatRelativeTime } from '@/utils/formatTime';
+import { MoreHorizFilled } from '@vicons/material';
+import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
 
 const defaultavatar =
   'https://assets.paopao.info/public/avatar/default/admin.png';
 
 const router = useRouter();
-const store = useStore();
+
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const { desktopModelShow } = storeToRefs(storeMain);
+const { userInfo } = storeToRefs(storeUser);
+
 const dialog = useDialog();
 const props = withDefaults(
   defineProps<{
@@ -189,7 +187,7 @@ const renderIcon = (icon: Component) => {
 const actionOpts = computed(() => {
   let user =
     props.message.type == 4 &&
-    props.message.sender_user_id == store.state.userInfo.id
+    props.message.sender_user_id == userInfo.value.id
       ? props.message.receiver_user
       : props.message.sender_user;
   let options: DropdownOption[] = [
@@ -199,7 +197,7 @@ const actionOpts = computed(() => {
       icon: renderIcon(PaperPlaneOutline),
     },
   ];
-  if (store.state.userInfo.id != user.id) {
+  if (userInfo.value.id != user.id) {
     if (user.is_following) {
       options.push({
         label: '取消关注 @' + user.username,
@@ -224,7 +222,7 @@ const emit = defineEmits<{
 
 const onHandleFollowAction = (message: Item.MessageProps) => {
   let user =
-    message.type == 4 && message.sender_user_id == store.state.userInfo.id
+    message.type == 4 && message.sender_user_id == userInfo.value.id
       ? message.receiver_user
       : message.sender_user;
   dialog.success({
@@ -238,7 +236,7 @@ const onHandleFollowAction = (message: Item.MessageProps) => {
     negativeText: '取消',
     onPositiveClick: () => {
       if (user.is_following) {
-        unfollowUser({
+        Api.v1.user.post.unfollow({
           user_id: user.id,
         })
           .then((_res) => {
@@ -251,7 +249,7 @@ const onHandleFollowAction = (message: Item.MessageProps) => {
           })
           .catch((_err) => {});
       } else {
-        followUser({
+        Api.v1.user.post.follow({
           user_id: user.id,
         })
           .then((_res) => {
@@ -274,7 +272,7 @@ const handleAction = (item: 'whisper' | 'follow' | 'unfollow') => {
       const message = props.message;
       if (message.type != 99) {
         let user =
-          message.type == 4 && message.sender_user_id == store.state.userInfo.id
+          message.type == 4 && message.sender_user_id == userInfo.value.id
             ? message.receiver_user
             : message.sender_user;
         emit('send-whisper', user);
@@ -292,21 +290,21 @@ const handleAction = (item: 'whisper' | 'follow' | 'unfollow') => {
 const isNotWhisperSender = computed(() => {
   return (
     props.message.type !== 4 ||
-    props.message.sender_user_id !== store.state.userInfo.id
+    props.message.sender_user_id !== userInfo.value.id
   );
 });
 
 const isWhisperReceiver = computed(() => {
   return (
     props.message.type == 4 &&
-    props.message.receiver_user_id == store.state.userInfo.id
+    props.message.receiver_user_id == userInfo.value.id
   );
 });
 
 const isWhisperSender = computed(() => {
   return (
     props.message.type == 4 &&
-    props.message.sender_user_id == store.state.userInfo.id
+    props.message.sender_user_id == userInfo.value.id
   );
 });
 
@@ -328,7 +326,7 @@ const viewDetail = (message: Item.MessageProps) => {
 
 const agreeAddFriend = (message: Item.MessageProps) => {
   handleReadMessage(message);
-  addFriend({
+  Api.v1.friend.post.add({
     user_id: message.sender_user_id,
   })
     .then((res) => {
@@ -342,7 +340,7 @@ const agreeAddFriend = (message: Item.MessageProps) => {
 
 const rejectAddFriend = (message: Item.MessageProps) => {
   handleReadMessage(message);
-  rejectFriend({
+  Api.v1.friend.post.reject({
     user_id: message.sender_user_id,
   })
     .then((res) => {
@@ -355,11 +353,11 @@ const rejectAddFriend = (message: Item.MessageProps) => {
 };
 
 const handleReadMessage = (message: Item.MessageProps) => {
-  if (props.message.receiver_user_id != store.state.userInfo.id) {
+  if (props.message.receiver_user_id != userInfo.value.id) {
     return;
   }
   if (message.is_read === 0) {
-    readMessage({
+    Api.v1.user.message.post.read({
       id: message.id,
     })
       .then((_res) => {

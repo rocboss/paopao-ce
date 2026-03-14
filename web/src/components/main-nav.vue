@@ -1,5 +1,5 @@
 <template>
-    <div v-if="store.state.drawerModelShow">
+    <div v-if="drawerModelShow">
         <n-drawer
             v-model:show="activeDrawerRef"
             :width=212
@@ -16,7 +16,7 @@
             <div class="navbar">
                 <n-button
                     class="drawer-btn"
-                    v-if="store.state.drawerModelShow && !back"
+                    v-if="drawerModelShow && !back"
                     @click="activeDrawer"
                     quaternary
                     circle
@@ -43,7 +43,7 @@
 
                 <n-switch
                     v-if="props.theme"
-                    :value="store.state.theme === 'dark'"
+                    :value="theme === 'dark'"
                     @update:value="switchTheme"
                     size="small"
                     class="theme-switch-wrap"
@@ -62,7 +62,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
 import { useRouter } from 'vue-router';
 import { useMessage, useOsTheme, DrawerPlacement } from 'naive-ui';
 import {
@@ -71,8 +71,11 @@ import {
   ChevronLeftRound,
   DehazeRound,
 } from '@vicons/material';
+import { storeToRefs } from 'pinia';
 
-const store = useStore();
+const storeMain = useStoreMain();
+const { desktopModelShow, drawerModelShow, theme } = storeToRefs(storeMain);
+
 const router = useRouter();
 const activeDrawerRef = ref(false);
 const placementRef = ref<DrawerPlacement>('left');
@@ -92,10 +95,10 @@ const props = withDefaults(
 const switchTheme = (theme: boolean) => {
   if (theme) {
     localStorage.setItem('PAOPAO_THEME', 'dark');
-    store.commit('triggerTheme', 'dark');
+    storeMain.triggerTheme('dark');
   } else {
     localStorage.setItem('PAOPAO_THEME', 'light');
-    store.commit('triggerTheme', 'light');
+    storeMain.triggerTheme('light');
   }
 };
 const goBack = () => {
@@ -116,8 +119,7 @@ onMounted(() => {
     switchTheme((useOsTheme() as unknown as string) === 'dark');
   }
   // 移动端特殊处理
-  if (!store.state.desktopModelShow) {
-    window.$store = store;
+  if (!desktopModelShow.value) {
     window.$message = useMessage();
   }
 });

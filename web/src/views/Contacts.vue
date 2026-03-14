@@ -33,9 +33,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { getContacts } from '@/api/post';
 import InfiniteLoading from 'v3-infinite-loading';
 import { useRoute } from 'vue-router';
+import { Api } from '@/utils/request';
 
 const route = useRoute();
 const loading = ref(false);
@@ -86,7 +86,7 @@ const loadContacts = (scrollToBottom: boolean = false) => {
   if (list.value.length === 0) {
     loading.value = true;
   }
-  getContacts({
+  Api.v1.user.get.contacts({
     page: page.value,
     page_size: pageSize.value,
   })

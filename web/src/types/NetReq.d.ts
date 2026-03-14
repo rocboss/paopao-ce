@@ -1,113 +1,12 @@
-declare module NetReq {
-  interface AuthUserLogin {
-    token: string;
-  }
-
-  interface AuthUserRegister {
-    /** 用户UID */
-    id: number;
-    /** 用户名 */
-    username: string;
-  }
+declare namespace NetReq {
 
   type AuthUserInfo = Item.UserInfo;
 
   interface AuthUpdateUserPassword {}
 
-  interface UserGetCollections {
-    /** 帖子列表 */
-    list: Item.PostProps[];
-    /** 页码信息 */
-    pager: Item.PagerProps;
-  }
-
-  interface UserGetSuggestUsers {
-    suggest: string[];
-  }
-
-  interface UserGetSuggestTags {
-    suggest: string[];
-  }
-
-  interface UserPrecheckAttachment {
-    paid: number;
-  }
-
-  interface UserGetAttachment {
-    signed_url: string;
-  }
-
-  interface UserGetUnreadMsgCount {
-    count: number;
-  }
-
-  interface ReadMessageResp {}
-
   interface ReadAllMessageResp {}
 
-  interface UserGetMessages {
-    /** 消息列表 */
-    list: Item.MessageProps[];
-    /** 页码信息 */
-    pager: Item.PagerProps;
-  }
-
-  interface UserGetUserPosts {
-    /** 帖子列表 */
-    list: Item.PostProps[];
-    /** 页码信息 */
-    pager: Item.PagerProps;
-  }
-
-  type UserGetUserProfile = Item.UserInfo;
-
-  interface UserGetBills {
-    list: Item.BillProps[];
-    /** 页码信息 */
-    pager: Item.PagerProps;
-  }
-
-  interface UserReqRecharge {
-    id: number;
-    pay: string;
-  }
-
-  interface UserGetRecharge {
-    status: string;
-  }
-
   interface UserBindUserPhone {}
-
-  interface UserGetCaptcha {
-    id: string;
-    /** 头像图片 base64 */
-    b64s: string;
-  }
-
-  interface UserChangeNickname {}
-
-  interface UserChangePassword {}
-
-  interface UserChangeStatus {}
-
-  interface SiteInfoResp {
-    register_user_count: number;
-    online_user_count: number;
-    history_max_online: number;
-    server_up_time: number;
-  }
-
-  interface FollowUserResp {}
-
-  interface UnfollowUserResp {}
-
-  interface AddFriend {}
-
-  interface DeleteFriend {}
-
-  interface RejectFriend {}
-
-  interface RequestingFriend {}
 
   type PostGetPost = Item.PostProps;
 
@@ -185,13 +84,6 @@ declare module NetReq {
   type PostCreateCommentReply = Item.ReplyProps;
 
   interface PostDeleteCommentReply {}
-
-  interface GetContacts {
-    /** 评论列表 */
-    list: Item.ContactItemProps[];
-    /** 页码信息 */
-    pager: Item.PagerProps;
-  }
 
   interface IndexTrendsResp {
     list: Item.IndexTrendsItem[];

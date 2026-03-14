@@ -6,7 +6,7 @@
   "build": {
     "distDir": "../dist",
     "beforeDevCommand": "",
-    "beforeBuildCommand": "",
+    "beforeBuildCommand": "npm run build",
     "withGlobalTauri": true
   },
   "tauri": {

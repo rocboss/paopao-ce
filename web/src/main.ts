@@ -1,7 +1,8 @@
 import { createApp } from 'vue';
+import { createPinia } from 'pinia';
 import router from './router';
-import store from './store';
 import App from './App.vue';
+import '@/assets/css/main.less';
 
 import type { MessageApiInjection } from 'naive-ui/lib/message/src/MessageProvider';
 
@@ -10,11 +11,12 @@ import 'vfonts/Lato.css';
 // 等宽字体
 import 'vfonts/FiraCode.css';
 
-createApp(App).use(router).use(store).mount('#app');
+const pinia = createPinia();
+
+createApp(App).use(router).use(pinia).mount('#app');
 
 declare global {
   interface Window {
     $message: MessageApiInjection;
-    $store: any;
   }
 }

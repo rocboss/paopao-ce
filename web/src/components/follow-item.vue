@@ -57,13 +57,12 @@
 
 <script setup lang="ts">
 import { h, computed } from 'vue';
-import { NIcon } from 'naive-ui';
 import type { Component } from 'vue';
-import { useDialog, DropdownOption } from 'naive-ui';
-import { followUser, unfollowUser } from '@/api/user';
+import { NIcon, useDialog, DropdownOption } from 'naive-ui';
 import { formatDate } from '@/utils/formatTime';
 import { MoreHorizFilled } from '@vicons/material';
 import { PaperPlaneOutline, BodyOutline, WalkOutline } from '@vicons/ionicons5';
+import { Api } from '@/utils/request';
 
 const dialog = useDialog();
 
@@ -91,7 +90,7 @@ const handleFollowUser = () => {
     negativeText: '取消',
     onPositiveClick: () => {
       if (props.contact.is_following) {
-        unfollowUser({
+        Api.v1.user.post.unfollow({
           user_id: props.contact.user_id,
         })
           .then((_res) => {
@@ -102,7 +101,7 @@ const handleFollowUser = () => {
             console.log(err);
           });
       } else {
-        followUser({
+        Api.v1.user.post.follow({
           user_id: props.contact.user_id,
         })
           .then((_res) => {

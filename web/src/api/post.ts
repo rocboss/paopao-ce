@@ -1,3 +1,8 @@
+/**
+ * 这个接口暂时保留着，暂时不放进createApi里，后续如果有需要再考虑重构
+ * 当然，也可以作为另一种API定义方式的示例，供后续参考
+ */
+
 import { request } from '@/utils/request';
 
 /** 获取动态列表 */
@@ -84,17 +89,6 @@ export const getPostComments = (
   return request({
     method: 'get',
     url: '/v1/post/comments',
-    params,
-  });
-};
-
-/** 获取联系人列表 */
-export const getContacts = (
-  params: NetParams.GetContacts,
-): Promise<NetReq.GetContacts> => {
-  return request({
-    method: 'get',
-    url: '/v1/user/contacts',
     params,
   });
 };
