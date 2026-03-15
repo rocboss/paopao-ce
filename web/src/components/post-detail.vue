@@ -259,6 +259,7 @@ import copy from 'copy-to-clipboard';
 import { storeToRefs } from 'pinia';
 import { useStoreUser } from '@/store/user';
 import { Api } from '@/utils/request';
+import UserAction from '@/utils/useUserAction';
 
 const useFriendship =
   import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true';
@@ -491,37 +492,10 @@ const adminOptions = computed(() => {
 });
 
 const onHandleFollowAction = (post: Item.PostProps) => {
-  dialog.success({
-    title: '提示',
-    content:
-      '确定' +
-      (post.user.is_following ? '取消关注 @' : '关注 @') +
-      props.post.user.username +
-      ' 吗？',
-    positiveText: '确定',
-    negativeText: '取消',
-    onPositiveClick: () => {
-      if (post.user.is_following) {
-        Api.v1.user.post.unfollow({
-          user_id: post.user.id,
-        })
-          .then((_res) => {
-            window.$message.success('操作成功');
-            post.user.is_following = false;
-          })
-          .catch((_err) => {});
-      } else {
-        Api.v1.user.post.follow({
-          user_id: post.user.id,
-        })
-          .then((_res) => {
-            window.$message.success('操作成功');
-            post.user.is_following = true;
-          })
-          .catch((_err) => {});
-      }
-    },
-  });
+	UserAction.followAction(post.user.id, post.user.username, post.user.is_following)
+		.then(_action => {
+			post.user.is_following = _action;
+		})
 };
 
 const goPostDetail = (id: number) => {

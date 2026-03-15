@@ -59,26 +59,15 @@
                 <div class="empty-wrap" v-if="list.length === 0">
                     <n-empty size="large" description="暂无数据" />
                 </div>
-                <div v-if="desktopModelShow">
-                    <n-list-item v-for="post in list" :key="post.id">
-                        <post-item :post="post" 
-                            :isOwner="userInfo.id == post.user_id" 
-                            :addFollowAction="true"
-                            @send-whisper="onSendWhisper"
-                            @handle-follow-action="onHandleFollowAction"
-                            @handle-friend-action="onHandleFriendAction" />
-                    </n-list-item>
-                </div>
-                <div v-else>
-                    <n-list-item v-for="post in list" :key="post.id">
-                        <mobile-post-item :post="post"
-                            :isOwner="userInfo.id == post.user_id" 
-                            :addFollowAction="true"
-                            @send-whisper="onSendWhisper"
-                            @handle-follow-action="onHandleFollowAction"
-                            @handle-friend-action="onHandleFriendAction" />
-                    </n-list-item>
-                </div>
+                <n-list-item v-for="post in list" :key="post.id">
+                    <post-item :post="post"
+                        :isOwner="userInfo.id == post.user_id"
+                        :isMobile="!desktopModelShow"
+                        addFollowAction
+                        @send-whisper="onSendWhisper"
+                        @post-follow-action="postFollowAction"
+                        @handle-friend-action="onHandleFriendAction" />
+                </n-list-item>
             </div>
             <!-- 私信组件 -->
             <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
@@ -260,40 +249,6 @@ const onHandleFriendAction = (post: Item.PostProps) => {
   } else {
     openAddFriendWhisper();
   }
-};
-
-const onHandleFollowAction = (post: Item.PostProps) => {
-  dialog.success({
-    title: '提示',
-    content:
-      '确定' +
-      (post.user.is_following ? '取消关注 @' : '关注 @') +
-      post.user.username +
-      ' 吗？',
-    positiveText: '确定',
-    negativeText: '取消',
-    onPositiveClick: () => {
-      if (post.user.is_following) {
-        Api.v1.user.post.unfollow({
-          user_id: post.user.id,
-        })
-          .then((_res) => {
-            window.$message.success('操作成功');
-            postFollowAction(post.user_id, false);
-          })
-          .catch((_err) => {});
-      } else {
-        Api.v1.user.post.follow({
-          user_id: post.user.id,
-        })
-          .then((_res) => {
-            window.$message.success('关注成功');
-            postFollowAction(post.user_id, true);
-          })
-          .catch((_err) => {});
-      }
-    },
-  });
 };
 
 function postFollowAction(userId: number, isFollowing: boolean) {
