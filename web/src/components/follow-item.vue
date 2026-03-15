@@ -63,6 +63,7 @@ import { formatDate } from '@/utils/formatTime';
 import { MoreHorizFilled } from '@vicons/material';
 import { PaperPlaneOutline, BodyOutline, WalkOutline } from '@vicons/ionicons5';
 import { Api } from '@/utils/request';
+import UserAction from '@/utils/useUserAction';
 
 const dialog = useDialog();
 
@@ -79,41 +80,13 @@ const renderIcon = (icon: Component) => {
 };
 
 const handleFollowUser = () => {
-  dialog.success({
-    title: '提示',
-    content:
-      '确定' +
-      (props.contact.is_following ? '取消关注 @' : '关注 @') +
-      props.contact.username +
-      ' 吗？',
-    positiveText: '确定',
-    negativeText: '取消',
-    onPositiveClick: () => {
-      if (props.contact.is_following) {
-        Api.v1.user.post.unfollow({
-          user_id: props.contact.user_id,
-        })
-          .then((_res) => {
-            window.$message.success('取消关注成功');
-            props.contact.is_following = false;
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      } else {
-        Api.v1.user.post.follow({
-          user_id: props.contact.user_id,
-        })
-          .then((_res) => {
-            window.$message.success('关注成功');
-            props.contact.is_following = true;
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
-    },
-  });
+  UserAction.followAction(props.contact.user_id, props.contact.username, props.contact.is_following)
+    .then(_action => {
+      props.contact.is_following = _action;
+    })
+    .catch(err => {
+      console.log(err);
+    });
 };
 
 const props = withDefaults(

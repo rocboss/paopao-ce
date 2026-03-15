@@ -157,6 +157,7 @@ import { formatRelativeTime } from '@/utils/formatTime';
 import { MoreHorizFilled } from '@vicons/material';
 import { storeToRefs } from 'pinia';
 import { Api } from '@/utils/request';
+import UserAction from '@/utils/useUserAction';
 
 const defaultavatar =
   'https://assets.paopao.info/public/avatar/default/admin.png';
@@ -221,49 +222,21 @@ const emit = defineEmits<{
 }>();
 
 const onHandleFollowAction = (message: Item.MessageProps) => {
-  let user =
-    message.type == 4 && message.sender_user_id == userInfo.value.id
-      ? message.receiver_user
-      : message.sender_user;
-  dialog.success({
-    title: '提示',
-    content:
-      '确定' +
-      (user.is_following ? '取消关注 @' : '关注 @') +
-      user.username +
-      ' 吗？',
-    positiveText: '确定',
-    negativeText: '取消',
-    onPositiveClick: () => {
-      if (user.is_following) {
-        Api.v1.user.post.unfollow({
-          user_id: user.id,
-        })
-          .then((_res) => {
-            window.$message.success('操作成功');
-            user.is_following = false;
-            // TODO: 这里暴力处理，简单重新加载，更好的做法是遍历所有message，如果是对应user就更新到新状态
-            setTimeout(() => {
-              emit('reload');
-            }, 50);
-          })
-          .catch((_err) => {});
-      } else {
-        Api.v1.user.post.follow({
-          user_id: user.id,
-        })
-          .then((_res) => {
-            window.$message.success('关注成功');
-            user.is_following = true;
-            // TODO: 这里暴力处理，简单重新加载，更好的做法是遍历所有message，如果是对应user就更新到新状态
-            setTimeout(() => {
-              emit('reload');
-            }, 50);
-          })
-          .catch((_err) => {});
-      }
-    },
-  });
+  	let user =
+		message.type == 4 && message.sender_user_id == userInfo.value.id
+		? message.receiver_user
+		: message.sender_user;
+	UserAction.followAction(user.id, user.username, user.is_following)
+		.then(_action => {
+			user.is_following = _action;
+			// TODO: 这里暴力处理，简单重新加载，更好的做法是遍历所有message，如果是对应user就更新到新状态
+			setTimeout(() => {
+			emit('reload');
+			}, 50);
+		})
+		.catch(err => {
+			console.log(err);
+		});
 };
 
 const handleAction = (item: 'whisper' | 'follow' | 'unfollow') => {
