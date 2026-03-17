@@ -81,7 +81,7 @@ export function createApi<T>(): Readonly<T> {
 		return request({
 			method,
 			url: _path.join('/'),
-			data: args[0],
+			...(method === 'get' ? { params: args[0] } : { data: args[0] }),
 		});
 	}, {
 		get(target: any, p: string) {
