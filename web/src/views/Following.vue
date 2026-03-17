@@ -16,7 +16,7 @@
                 </div>
 
                 <n-list-item v-for="contact in list" :key="contact.user_id">
-                    <follow-item :contact="contact" @send-whisper="onSendWhisper" />
+                    <follow-item :contact="contact" @send-whisper="onSendWhisper" @unfollow-success="handleUnfollowSuccess" />
                 </n-list-item>
             </div>
             <!-- 私信组件 -->
@@ -24,7 +24,7 @@
         </n-list>
     </div>
     <n-space v-if="totalPage > 0" justify="center">
-            <InfiniteLoading class="load-more" :slots="{ complete: completeStr, error: '加载出错' }" @infinite="nextPage">
+            <InfiniteLoading class="load-more" :slots="{ complete: completeStr, error: '加载出错' }" @infinite="handleNextPage">
                 <template #spinner>
                     <div class="load-more-wrap">
                         <n-spin :size="14" v-if="!noMore" />
@@ -40,38 +40,26 @@ import { ref, onMounted, computed } from 'vue';
 import InfiniteLoading from 'v3-infinite-loading';
 import { useRoute } from 'vue-router';
 import { Api } from '@/utils/request';
+import { usePagination } from '@/composables/usePagination';
+import UserAction from '@/composables/useUserAction';
 
 const route = useRoute();
-const loading = ref(false);
-const noMore = ref(false);
+
 const list = ref<Item.ContactItemProps[]>([]);
 const nickname = (route.query.n as string) || '粉丝详情';
 const username = (route.query.s as string) || '';
 const tabler = ref((route.query.t as string) || 'follows');
-const page = ref(+(route.query.p as string) || 1);
-const pageSize = ref(20);
-const totalPage = ref(0);
-const showWhisper = ref(false);
-const whisperReceiver = ref<Item.UserInfo>({
-  id: 0,
-  avatar: '',
-  username: '',
-  nickname: '',
-  is_admin: false,
-  is_friend: true,
-  is_following: false,
-  created_on: 0,
-  follows: 0,
-  followings: 0,
-  status: 1,
-});
+const showAddFriendWhisper = ref(false);
+
+// 使用 usePagination composable
+const { loading, noMore, page, pageSize, totalPage, reset, nextPage } = usePagination(20);
+
+// 使用 UserAction.useWhisper()
+const { showWhisper, whisperReceiver, onSendWhisper, whisperSuccess } = UserAction.useWhisper();
 
 function resetPage(tab: 'follows' | 'followings') {
   list.value = [];
-  loading.value = false;
-  noMore.value = false;
-  page.value = 1;
-  totalPage.value = 0;
+  reset();
   tabler.value = tab;
 }
 
@@ -83,23 +71,8 @@ const completeStr = computed(() => {
   }
 });
 
-const onSendWhisper = (user: Item.UserInfo) => {
-  whisperReceiver.value = user;
-  showWhisper.value = true;
-};
-
-const whisperSuccess = () => {
-  showWhisper.value = false;
-};
-
-const nextPage = () => {
-  if (page.value < totalPage.value || totalPage.value == 0) {
-    noMore.value = false;
-    page.value++;
-    loadPage();
-  } else {
-    noMore.value = true;
-  }
+const handleNextPage = () => {
+  nextPage(loadPage);
 };
 
 const changeTab = (tab: 'follows' | 'followings') => {
@@ -112,6 +85,14 @@ const loadPage = () => {
     loadFollows(username);
   } else if (tabler.value === 'followings') {
     loadFollowings(username);
+  }
+};
+
+const handleUnfollowSuccess = () => {
+  // 只在【正在关注】页面刷新列表
+  if (tabler.value === 'follows') {
+    resetPage('follows');
+    loadPage();
   }
 };
 

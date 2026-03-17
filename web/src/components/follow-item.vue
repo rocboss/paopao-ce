@@ -63,12 +63,13 @@ import { formatDate } from '@/utils/formatTime';
 import { MoreHorizFilled } from '@vicons/material';
 import { PaperPlaneOutline, BodyOutline, WalkOutline } from '@vicons/ionicons5';
 import { Api } from '@/utils/request';
-import UserAction from '@/utils/useUserAction';
+import UserAction from '@/composables/useUserAction';
 
 const dialog = useDialog();
 
 const emit = defineEmits<{
   (e: 'send-whisper', user: Item.UserInfo): void;
+  (e: 'unfollow-success'): void;
 }>();
 
 const renderIcon = (icon: Component) => {
@@ -80,9 +81,14 @@ const renderIcon = (icon: Component) => {
 };
 
 const handleFollowUser = () => {
-  UserAction.followAction(props.contact.user_id, props.contact.username, props.contact.is_following)
+  const wasFollowing = props.contact.is_following;
+  UserAction.followAction(dialog, props.contact.user_id, props.contact.username, props.contact.is_following)
     .then(_action => {
       props.contact.is_following = _action;
+      // 如果是取消关注操作，触发事件
+      if (wasFollowing && !_action) {
+        emit('unfollow-success');
+      }
     })
     .catch(err => {
       console.log(err);

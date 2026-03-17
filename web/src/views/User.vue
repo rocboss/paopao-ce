@@ -153,7 +153,7 @@ import { useStoreUser } from '@/store/user';
 import { useStoreProfile } from '@/store/profile';
 import { storeToRefs } from 'pinia';
 import { Api } from '@/utils/request';
-import UserAction from '@/utils/useUserAction';
+import UserAction from '@/composables/useUserAction';
 
 type PageType = 'post' | 'comment' | 'highlight' | 'media' | 'star';
 
@@ -515,7 +515,7 @@ const openDeleteFriend = () => {
   });
 };
 const handleFollowUser = () => {
-	UserAction.followAction(user.id, user.username, user.is_following)
+	UserAction.followAction(dialog, user.id, user.username, user.is_following)
 		.then(_action => {
             userLoading.value = false;
             loadUser();

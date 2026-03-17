@@ -164,7 +164,8 @@ import copy from 'copy-to-clipboard';
 import { useStoreProfile } from '@/store/profile';
 import { storeToRefs } from 'pinia';
 import { Api } from '@/utils/request';
-import UserAction from '@/utils/useUserAction';
+import UserAction from '@/composables/useUserAction';
+import { usePostContent } from '@/composables/usePostContent';
 
 const router = useRouter();
 
@@ -274,7 +275,7 @@ const handleTweetAction = async (
       break;
     case 'follow':
     case 'unfollow':
-      UserAction.followAction(props.post.user.id, props.post.user.username, props.post.user.is_following)
+      UserAction.followAction(dialog, props.post.user.id, props.post.user.username, props.post.user.is_following)
         .then(_action => {
           emit('post-follow-action', props.post.user.id, _action);
         })
@@ -285,46 +286,8 @@ const handleTweetAction = async (
   }
 };
 
-const post = computed({
-  get: () => {
-    let post: Item.PostComponentProps = Object.assign(
-      {
-        texts: [],
-        imgs: [],
-        videos: [],
-        links: [],
-        attachments: [],
-        charge_attachments: [],
-      },
-      props.post,
-    );
-    post.contents.map((content) => {
-      if (+content.type === 1 || +content.type === 2) {
-        post.texts.push(content);
-      }
-      if (+content.type === 3) {
-        post.imgs.push(content);
-      }
-      if (+content.type === 4) {
-        post.videos.push(content);
-      }
-      if (+content.type === 6) {
-        post.links.push(content);
-      }
-      if (+content.type === 7) {
-        post.attachments.push(content);
-      }
-      if (+content.type === 8) {
-        post.charge_attachments.push(content);
-      }
-    });
-    return post;
-  },
-  set: (newVal) => {
-    props.post.upvote_count = newVal.upvote_count;
-    props.post.collection_count = newVal.collection_count;
-  },
-});
+// 使用 usePostContent composable
+const post = usePostContent(props.post);
 const handlePostStar = () => {
   postStar({
     id: post.value.id,

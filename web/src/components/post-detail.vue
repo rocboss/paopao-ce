@@ -259,7 +259,8 @@ import copy from 'copy-to-clipboard';
 import { storeToRefs } from 'pinia';
 import { useStoreUser } from '@/store/user';
 import { Api } from '@/utils/request';
-import UserAction from '@/utils/useUserAction';
+import UserAction from '@/composables/useUserAction';
+import { usePostContent } from '@/composables/usePostContent';
 
 const useFriendship =
   import.meta.env.VITE_USE_FRIENDSHIP.toLowerCase() === 'true';
@@ -314,48 +315,8 @@ const emit = defineEmits<{
   (e: 'reload', post_id: number): void;
 }>();
 
-const post = computed({
-  get: () => {
-    let post: Item.PostComponentProps = Object.assign(
-      {
-        texts: [],
-        imgs: [],
-        videos: [],
-        links: [],
-        attachments: [],
-        charge_attachments: [],
-      },
-      props.post,
-    );
-    post.contents.map((content) => {
-      if (+content.type === 1 || +content.type === 2) {
-        post.texts.push(content);
-      }
-      if (+content.type === 3) {
-        post.imgs.push(content);
-      }
-      if (+content.type === 4) {
-        post.videos.push(content);
-      }
-      if (+content.type === 6) {
-        post.links.push(content);
-      }
-      if (+content.type === 7) {
-        post.attachments.push(content);
-      }
-      if (+content.type === 8) {
-        post.charge_attachments.push(content);
-      }
-    });
-    return post;
-  },
-  set: (newVal) => {
-    props.post.upvote_count = newVal.upvote_count;
-    props.post.comment_count = newVal.comment_count;
-    props.post.collection_count = newVal.collection_count;
-    props.post.is_essence = newVal.is_essence;
-  },
-});
+// 使用 usePostContent composable (包含额外字段)
+const post = usePostContent(props.post, true);
 
 const renderIcon = (icon: Component) => {
   return () => {
@@ -492,7 +453,7 @@ const adminOptions = computed(() => {
 });
 
 const onHandleFollowAction = (post: Item.PostProps) => {
-	UserAction.followAction(post.user.id, post.user.username, post.user.is_following)
+	UserAction.followAction(dialog, post.user.id, post.user.username, post.user.is_following)
 		.then(_action => {
 			post.user.is_following = _action;
 		})
