@@ -3,38 +3,38 @@
         <main-nav title="消息" />
 
         <n-list class="main-content-wrap messages-wrap" bordered>
-             <!-- 私信组件 -->
+            <!-- 私信组件 -->
             <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
             <n-space justify="space-between">
-                        <div class="title title-action">
-                            <n-button text size="small" :focusable="false" @click="handleUnreadMessage">
-                                <template #icon>
-                                    <n-icon>
-                                        <UnreadIcon />
-                                    </n-icon>
-                                </template>
-                                {{ unreadMsgCount }} 条未读
-                            </n-button>
-                            <n-divider vertical />
-                            <n-button text size="small" :focusable="false" @click="handleReadAll">全标已读</n-button>
-                        </div>
-                        <div class="title title-filter">
-                            <n-dropdown 
-                            placement="bottom-end"
-                            trigger="click"
-                            size="small"
-                            :options="options"
-                            @select="handleAction">
-                                <n-button text>
-                                    <template #icon>
-                                        <n-icon>
-                                            <OptionsIcon />
-                                        </n-icon>
-                                    </template>
-                                    {{ messageStyle }}
-                                </n-button>
-                            </n-dropdown>
-                        </div>
+				<div class="title title-action">
+					<n-button text size="small" :focusable="false" @click="handleUnreadMessage">
+						<template #icon>
+							<n-icon>
+								<UnreadIcon />
+							</n-icon>
+						</template>
+						{{ unreadMsgCount }} 条未读
+					</n-button>
+					<n-divider vertical />
+					<n-button text size="small" :focusable="false" @click="handleReadAll">全标已读</n-button>
+				</div>
+				<div class="title title-filter">
+					<n-dropdown 
+					placement="bottom-end"
+					trigger="click"
+					size="small"
+					:options="options"
+					@select="handleAction">
+						<n-button text>
+							<template #icon>
+								<n-icon>
+									<OptionsIcon />
+								</n-icon>
+							</template>
+							{{ messageStyle }}
+						</n-button>
+					</n-dropdown>
+				</div>
             </n-space>
             <div v-if="loading && list.length === 0" class="skeleton-wrap">
                 <message-skeleton :num="pageSize" />
@@ -50,16 +50,12 @@
                 </div>
             </div>
         </n-list>
-        <n-space v-if="totalPage > 0" justify="center">
-            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多消息了', error: '加载出错' }" @infinite="nextPage">
-                <template #spinner>
-                    <div class="load-more-wrap">
-                        <n-spin :size="14" v-if="!noMore" />
-                        <span class="load-more-spinner">{{ noMore ? '没有更多消息了' : '加载更多' }}</span>
-                    </div>
-                </template>
-            </InfiniteLoading>
-        </n-space>
+        <infinite-load-more
+            :total-page="totalPage"
+            :no-more="noMore"
+            complete-text="没有更多消息了"
+            @load-more="nextPage"
+        />
     </div>
 </template>
 
@@ -69,7 +65,6 @@ import type { Component } from 'vue';
 import { NIcon, DropdownOption } from 'naive-ui';
 import { useStoreMain } from '@/store/main';
 import { useRoute } from 'vue-router';
-import InfiniteLoading from 'v3-infinite-loading';
 import {
   LayersOutline as AllIcon,
   AtOutline as SystemIcon,
@@ -81,17 +76,18 @@ import {
 import { useStoreUser } from '@/store/user';
 import { storeToRefs } from 'pinia';
 import { Api } from '@/utils/request';
+import { usePagination } from '@/composables/usePagination';
+import InfiniteLoadMore from '@/components/infinite-load-more.vue';
 
 const storeMain = useStoreMain();
 const storeUser = useStoreUser();
 const { unreadMsgCount } = storeToRefs(storeMain);
 
 const route = useRoute();
-const loading = ref(false);
-const noMore = ref(false);
-const page = ref(+(route.query.p as string) || 1);
-const pageSize = ref(20);
-const totalPage = ref(0);
+const { loading, noMore, page, pageSize, totalPage, reset: resetPagination } = usePagination(20);
+// 初始化页码
+page.value = +(route.query.p as string) || 1;
+
 const list = ref<Item.MessageProps[]>([]);
 const messageStyle = ref<
   '所有消息' | '系统消息' | '我的私信' | '好友申请' | '未读消息'
@@ -115,9 +111,7 @@ const whisperReceiver = ref<Item.UserInfo>({
 });
 
 const reset = () => {
-  noMore.value = false;
-  page.value = 1;
-  totalPage.value = 0;
+  resetPagination();
   list.value = [];
 };
 
@@ -363,22 +357,6 @@ onMounted(() => {
 </script>
 
 <style lang="less" scoped>
-.load-more {
-    margin: 20px;
-
-    .load-more-wrap {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        gap: 14px;
-
-        .load-more-spinner {
-            font-size: 14px;
-            opacity: 0.65;
-        }
-    }
-}
 .title {
     padding-top: 4px;
     opacity: 0.9;

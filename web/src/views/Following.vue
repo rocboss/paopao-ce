@@ -16,7 +16,7 @@
                 </div>
 
                 <n-list-item v-for="contact in list" :key="contact.user_id">
-                    <follow-item :contact="contact" @send-whisper="onSendWhisper" @unfollow-success="handleUnfollowSuccess" />
+                    <user-card type="follow" :contact="contact" @send-whisper="onSendWhisper" @unfollow-success="handleUnfollowSuccess" />
                 </n-list-item>
             </div>
             <!-- 私信组件 -->
@@ -24,14 +24,14 @@
         </n-list>
     </div>
     <n-space v-if="totalPage > 0" justify="center">
-            <InfiniteLoading class="load-more" :slots="{ complete: completeStr, error: '加载出错' }" @infinite="handleNextPage">
-                <template #spinner>
-                    <div class="load-more-wrap">
-                        <n-spin :size="14" v-if="!noMore" />
-                        <span class="load-more-spinner">{{ noMore ? completeStr : '加载更多' }}</span>
-                    </div>
-                </template>
-            </InfiniteLoading>
+		<InfiniteLoading class="load-more" :slots="{ complete: completeStr, error: '加载出错' }" @infinite="handleNextPage">
+			<template #spinner>
+				<div class="load-more-wrap">
+					<n-spin :size="14" v-if="!noMore" />
+					<span class="load-more-spinner">{{ noMore ? completeStr : '加载更多' }}</span>
+				</div>
+			</template>
+		</InfiniteLoading>
     </n-space>
 </template>
 
@@ -42,6 +42,7 @@ import { useRoute } from 'vue-router';
 import { Api } from '@/utils/request';
 import { usePagination } from '@/composables/usePagination';
 import UserAction from '@/composables/useUserAction';
+import UserCard from '@/components/user-card.vue';
 
 const route = useRoute();
 
