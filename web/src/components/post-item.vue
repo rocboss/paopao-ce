@@ -45,16 +45,21 @@
                     >
                         好友可见
                     </n-tag>
+                    <div v-if="isMobile">
+                        <span class="timestamp-mobile">
+                            {{ formatPrettyDate(post.created_on) }} {{ post.ip_loc }}
+                        </span>
+                    </div>
             </template>
             <template #header-extra>
                 <div class="item-header-extra">
-                    <span class="timestamp">
+                    <span v-if="!isMobile" class="timestamp">
                         {{ post.ip_loc ? post.ip_loc + ' · ' : post.ip_loc }}
                         {{ formatPrettyDate(post.created_on) }}
                     </span>
                     <n-dropdown
                         placement="bottom-end"
-                        trigger="hover"
+                        :trigger="isMobile ? 'click' : 'hover'"
                         size="small"
                         :options="tweetOptions"
                         @select="handleTweetAction"
@@ -70,7 +75,16 @@
                 </div>
             </template>
             <template #description v-if="post.texts.length > 0">
+                <div v-if="isMobile" @click="goPostDetail(post.id)">
+                    <span v-for="content in post.texts"
+                        :key="content.id"
+                        class="post-text"
+                        @click.stop="doClickText($event, post.id)"
+                        v-html="preparePost(content.content, '展开', '收起', profile.tweetMobileEllipsisSize, inFoldStyle)"
+                    ></span>
+                </div>
                 <span
+                    v-else
                     v-for="content in post.texts"
                     :key="content.id"
                     class="post-text hover"
@@ -128,7 +142,7 @@
 import { h, ref, computed } from 'vue';
 import { useStoreMain } from '@/store/main';
 import { useRouter } from 'vue-router';
-import { NIcon } from 'naive-ui';
+import { NIcon, useDialog } from 'naive-ui';
 import type { Component } from 'vue';
 import type { DropdownOption } from 'naive-ui';
 import { formatPrettyDate } from '@/utils/formatTime';
@@ -149,6 +163,9 @@ import { MoreHorizFilled } from '@vicons/material';
 import copy from 'copy-to-clipboard';
 import { useStoreProfile } from '@/store/profile';
 import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
+import UserAction from '@/composables/useUserAction';
+import { usePostContent } from '@/composables/usePostContent';
 
 const router = useRouter();
 
@@ -156,21 +173,26 @@ const storeMain = useStoreMain();
 const storeProfile = useStoreProfile();
 const { profile } = storeToRefs(storeProfile);
 
+const dialog = useDialog();
+
 const inFoldStyle = ref<boolean>(true);
-const props = withDefaults(
-  defineProps<{
+const props = withDefaults(defineProps<{
     post: Item.PostProps;
     isOwner: boolean;
-    addFriendAction: boolean;
-    addFollowAction: boolean;
-  }>(),
-  {},
-);
+    addFriendAction?: boolean;
+    addFollowAction?: boolean;
+    isMobile?: boolean;
+}>(), {
+	addFollowAction: false,
+	addFriendAction: false,
+    isMobile: false,
+});
 
 const emit = defineEmits<{
   (e: 'send-whisper', user: Item.UserInfo): void;
   (e: 'handle-follow-action', user: Item.PostProps): void;
   (e: 'handle-friend-action', user: Item.PostProps): void;
+  (e: 'post-follow-action', user_id: number, is_following: boolean): void;
 }>();
 
 const renderIcon = (icon: Component) => {
@@ -253,53 +275,19 @@ const handleTweetAction = async (
       break;
     case 'follow':
     case 'unfollow':
-      emit('handle-follow-action', props.post);
+      UserAction.followAction(dialog, props.post.user.id, props.post.user.username, props.post.user.is_following)
+        .then(_action => {
+          emit('post-follow-action', props.post.user.id, _action);
+        })
+		  emit('handle-follow-action', props.post);
       break;
     default:
-      break;
+    	break;
   }
 };
 
-const post = computed({
-  get: () => {
-    let post: Item.PostComponentProps = Object.assign(
-      {
-        texts: [],
-        imgs: [],
-        videos: [],
-        links: [],
-        attachments: [],
-        charge_attachments: [],
-      },
-      props.post,
-    );
-    post.contents.map((content) => {
-      if (+content.type === 1 || +content.type === 2) {
-        post.texts.push(content);
-      }
-      if (+content.type === 3) {
-        post.imgs.push(content);
-      }
-      if (+content.type === 4) {
-        post.videos.push(content);
-      }
-      if (+content.type === 6) {
-        post.links.push(content);
-      }
-      if (+content.type === 7) {
-        post.attachments.push(content);
-      }
-      if (+content.type === 8) {
-        post.charge_attachments.push(content);
-      }
-    });
-    return post;
-  },
-  set: (newVal) => {
-    props.post.upvote_count = newVal.upvote_count;
-    props.post.collection_count = newVal.collection_count;
-  },
-});
+// 使用 usePostContent composable
+const post = usePostContent(props.post);
 const handlePostStar = () => {
   postStar({
     id: post.value.id,
@@ -401,6 +389,11 @@ const doClickText = (e: MouseEvent, id: number) => {
 
     .top-tag {
         transform: scale(0.75);
+    }
+    .timestamp-mobile {
+        margin-top: 2px;
+        opacity: 0.75;
+        font-size: 11px;
     }
     .item-header-extra {
         display: flex;

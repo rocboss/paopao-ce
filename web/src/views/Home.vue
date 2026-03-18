@@ -31,23 +31,18 @@
             </n-list-item>
             <div  class="style-wrap" v-else-if="showTrendsTag">
             <n-space >
-                <n-button v-if="newestTweetsStyle !== 'newest'" size="small" :bordered="false" @click="onNewestTweets" class="style-item" secondary round>
-                    全部
-                </n-button>
-                <n-button v-if="newestTweetsStyle === 'newest'" size="small" type="success"  :bordered="false" @click="onNewestTweets"  class="style-item" secondary round>
-                    全部
-                </n-button>
-                <n-button v-if="newestTweetsStyle !== 'hots'" size="small" :bordered="false" @click="onHotTweets" class="style-item" secondary round>
-                    热门推荐
-                </n-button>
-                <n-button v-if="newestTweetsStyle === 'hots'" size="small" type="success" :bordered="false" @click="onHotTweets" class="style-item" secondary round>
-                    热门推荐
-                </n-button>
-                <n-button v-if="newestTweetsStyle !== 'following'" size="small" :bordered="false" @click="onFollowingTweets" class="style-item" secondary round>
-                    正在关注
-                </n-button>
-                <n-button v-if="newestTweetsStyle === 'following'" size="small" type="success" :bordered="false" @click="onFollowingTweets" class="style-item" secondary round>
-                    正在关注
+                <n-button
+                    v-for="btn in filterButtons"
+                    :key="btn.key"
+                    size="small"
+                    :type="newestTweetsStyle === btn.key ? 'success' : undefined"
+                    :bordered="false"
+                    @click="onFilterClick(btn.key, btn.index)"
+                    class="style-item"
+                    secondary
+                    round
+                >
+                    {{ btn.label }}
                 </n-button>
             </n-space>
             </div>
@@ -59,26 +54,15 @@
                 <div class="empty-wrap" v-if="list.length === 0">
                     <n-empty size="large" description="暂无数据" />
                 </div>
-                <div v-if="desktopModelShow">
-                    <n-list-item v-for="post in list" :key="post.id">
-                        <post-item :post="post" 
-                            :isOwner="userInfo.id == post.user_id" 
-                            :addFollowAction="true"
-                            @send-whisper="onSendWhisper"
-                            @handle-follow-action="onHandleFollowAction"
-                            @handle-friend-action="onHandleFriendAction" />
-                    </n-list-item>
-                </div>
-                <div v-else>
-                    <n-list-item v-for="post in list" :key="post.id">
-                        <mobile-post-item :post="post"
-                            :isOwner="userInfo.id == post.user_id" 
-                            :addFollowAction="true"
-                            @send-whisper="onSendWhisper"
-                            @handle-follow-action="onHandleFollowAction"
-                            @handle-friend-action="onHandleFriendAction" />
-                    </n-list-item>
-                </div>
+                <n-list-item v-for="post in list" :key="post.id">
+                    <post-item :post="post"
+                        :isOwner="userInfo.id == post.user_id"
+                        :isMobile="!desktopModelShow"
+                        addFollowAction
+                        @send-whisper="onSendWhisper"
+                        @post-follow-action="postFollowAction"
+                        @handle-friend-action="onHandleFriendAction" />
+                </n-list-item>
             </div>
             <!-- 私信组件 -->
             <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
@@ -87,7 +71,7 @@
         </n-list>
 
         <n-space v-if="totalPage > 0" justify="center">
-            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多泡泡了', error: '加载出错' }" @infinite="nextPage()">
+            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多泡泡了', error: '加载出错' }" @infinite="handleNextPage">
                 <template #spinner>
                     <div class="load-more-wrap">
                         <n-spin :size="14" v-if="!noMore" />
@@ -114,6 +98,8 @@ import { useStoreUser } from '@/store/user';
 import { useStoreProfile } from '@/store/profile';
 import { storeToRefs } from 'pinia';
 import { Api } from '@/utils/request';
+import { usePagination } from '@/composables/usePagination';
+import UserAction from '@/composables/useUserAction';
 
 const storeMain = useStoreMain();
 const storeUser = useStoreUser();
@@ -127,6 +113,20 @@ const router = useRouter();
 const dialog = useDialog();
 
 const newestTweetsStyle = ref<'newest' | 'hots' | 'following'>('newest');
+
+// 筛选按钮配置
+const filterButtons = [
+  { key: 'newest' as const, label: '全部', index: 0 },
+  { key: 'hots' as const, label: '热门推荐', index: 1 },
+  { key: 'following' as const, label: '正在关注', index: 2 },
+];
+
+const onFilterClick = (key: 'newest' | 'hots' | 'following', index: number) => {
+  newestTweetsStyle.value = key;
+  handleBarClick(slideBarList.value[index], index);
+};
+
+// 保留原有的方法以确保兼容性
 const onNewestTweets = () => {
   newestTweetsStyle.value = 'newest';
   handleBarClick(slideBarList.value[0], 0);
@@ -186,38 +186,16 @@ const user = reactive<Item.UserInfo>({
 const inActionPost = ref<Item.PostProps | null>(null);
 
 const title = ref<string>('泡泡广场');
-const loading = ref(false);
-const noMore = ref(false);
 const targetStyle = ref<number>(1);
 const targetUsername = ref<string>('');
 const list = ref<any[]>([]);
-const page = ref(1);
-const pageSize = ref(20);
-const totalPage = ref(0);
-const showWhisper = ref(false);
 const showAddFriendWhisper = ref(false);
-const whisperReceiver = ref<Item.UserInfo>({
-  id: 0,
-  avatar: '',
-  username: '',
-  nickname: '',
-  is_admin: false,
-  is_friend: true,
-  is_following: false,
-  created_on: 0,
-  follows: 0,
-  followings: 0,
-  status: 1,
-});
 
-const onSendWhisper = (user: Item.UserInfo) => {
-  whisperReceiver.value = user;
-  showWhisper.value = true;
-};
+// 使用 usePagination composable
+const { loading, noMore, page, pageSize, totalPage, reset, nextPage } = usePagination(20);
 
-const whisperSuccess = () => {
-  showWhisper.value = false;
-};
+// 使用 UserAction.useWhisper()
+const { showWhisper, whisperReceiver, onSendWhisper, whisperSuccess } = UserAction.useWhisper();
 
 const openAddFriendWhisper = () => {
   showAddFriendWhisper.value = true;
@@ -262,45 +240,17 @@ const onHandleFriendAction = (post: Item.PostProps) => {
   }
 };
 
-const onHandleFollowAction = (post: Item.PostProps) => {
-  dialog.success({
-    title: '提示',
-    content:
-      '确定' +
-      (post.user.is_following ? '取消关注 @' : '关注 @') +
-      post.user.username +
-      ' 吗？',
-    positiveText: '确定',
-    negativeText: '取消',
-    onPositiveClick: () => {
-      if (post.user.is_following) {
-        Api.v1.user.post.unfollow({
-          user_id: post.user.id,
-        })
-          .then((_res) => {
-            window.$message.success('操作成功');
-            postFollowAction(post.user_id, false);
-          })
-          .catch((_err) => {});
-      } else {
-        Api.v1.user.post.follow({
-          user_id: post.user.id,
-        })
-          .then((_res) => {
-            window.$message.success('关注成功');
-            postFollowAction(post.user_id, true);
-          })
-          .catch((_err) => {});
-      }
-    },
-  });
-};
-
 function postFollowAction(userId: number, isFollowing: boolean) {
   for (let index in list.value) {
     if (list.value[index].user_id == userId) {
       list.value[index].user.is_following = isFollowing;
     }
+  }
+
+  // 如果是在【正在关注】tab，且是取消关注操作（isFollowing 为 false），则刷新列表
+  if (targetStyle.value === 3 && !isFollowing) {
+    resetAll();
+    loadPosts('following');
   }
 }
 
@@ -331,16 +281,14 @@ const showTrendsBar = computed(() => {
   );
 });
 
-const reset = () => {
-  loading.value = false;
-  noMore.value = false;
+// 重写 reset 方法以包含 list 的重置
+const resetAll = () => {
+  reset();
   list.value = [];
-  page.value = 1;
-  totalPage.value = 0;
 };
 
 const handleBarClick = (data: Item.SlideBarItem, index: number) => {
-  reset();
+  resetAll();
   targetStyle.value = data.style;
   if (route.query.q) {
     route.query.q = null;
@@ -528,18 +476,12 @@ const loadMorePosts = () => {
   }
 };
 
-const nextPage = () => {
-  if (page.value < totalPage.value || totalPage.value == 0) {
-    noMore.value = false;
-    page.value++;
-    loadMorePosts();
-  } else {
-    noMore.value = true;
-  }
+const handleNextPage = () => {
+  nextPage(loadMorePosts);
 };
 
 onMounted(() => {
-  reset();
+  resetAll();
   loadContacts();
   loadPosts('newest');
 });
@@ -553,7 +495,7 @@ watch(
   (to, from) => {
     updateTitle();
     if (to.refresh !== from.refresh) {
-      reset();
+      resetAll();
       setTimeout(() => {
         loadContacts();
         loadMorePosts();
@@ -561,7 +503,7 @@ watch(
       return;
     }
     if (from.path !== '/post' && to.path === '/') {
-      reset();
+      resetAll();
       setTimeout(() => {
         loadContacts();
         loadMorePosts();

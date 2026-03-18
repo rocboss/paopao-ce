@@ -1,5 +1,5 @@
 <template>
-    <div class="contact-item">
+    <div class="user-card">
         <n-thing content-indented>
             <template #avatar>
                 <n-avatar :size="54" :src="contact.avatar" />
@@ -17,12 +17,12 @@
                         {{ contact.nickname }}
                     </router-link>
                 </span>
-                <span class="username-wrap"> @{{ contact.username }} </span>      
-                <!-- <n-tag
-                    v-if="contact.is_following"
+                <span class="username-wrap"> @{{ contact.username }} </span>
+                <n-tag
+                    v-if="showFollowingTag && contact.is_following"
                     class="top-tag" type="success" size="small" round>
                     已关注
-                </n-tag> -->
+                </n-tag>
                 <div class="user-info">
                     <span class="info-item">
                         UID. {{ contact.user_id }}
@@ -57,14 +57,31 @@
 
 <script setup lang="ts">
 import { h, computed } from 'vue';
-import { NIcon, DropdownOption } from 'naive-ui';
 import type { Component } from 'vue';
+import { NIcon, useDialog, DropdownOption } from 'naive-ui';
 import { formatDate } from '@/utils/formatTime';
 import { MoreHorizFilled } from '@vicons/material';
-import { PaperPlaneOutline } from '@vicons/ionicons5';
+import { PaperPlaneOutline, BodyOutline, WalkOutline } from '@vicons/ionicons5';
+import UserAction from '@/composables/useUserAction';
+
+const dialog = useDialog();
+
+const props = withDefaults(
+  defineProps<{
+    contact: Item.ContactItemProps;
+    type?: 'contact' | 'follow';
+  }>(),
+  {
+    type: 'contact',
+  },
+);
+
+const showFollowingTag = computed(() => props.type === 'follow');
+const enableFollowAction = computed(() => props.type === 'follow');
 
 const emit = defineEmits<{
   (e: 'send-whisper', user: Item.UserInfo): void;
+  (e: 'unfollow-success'): void;
 }>();
 
 const renderIcon = (icon: Component) => {
@@ -75,12 +92,19 @@ const renderIcon = (icon: Component) => {
   };
 };
 
-const props = withDefaults(
-  defineProps<{
-    contact: Item.ContactItemProps;
-  }>(),
-  {},
-);
+const handleFollowUser = () => {
+  const wasFollowing = props.contact.is_following;
+  UserAction.followAction(dialog, props.contact.user_id, props.contact.username, props.contact.is_following)
+    .then(_action => {
+      props.contact.is_following = _action;
+      if (wasFollowing && !_action) {
+        emit('unfollow-success');
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    });
+};
 
 const actionOpts = computed(() => {
   let options: DropdownOption[] = [
@@ -90,11 +114,32 @@ const actionOpts = computed(() => {
       icon: renderIcon(PaperPlaneOutline),
     },
   ];
+
+  if (enableFollowAction.value) {
+    if (props.contact.is_following) {
+      options.push({
+        label: '取消关注 @' + props.contact.username,
+        key: 'unfollow',
+        icon: renderIcon(WalkOutline),
+      });
+    } else {
+      options.push({
+        label: '关注 @' + props.contact.username,
+        key: 'follow',
+        icon: renderIcon(BodyOutline),
+      });
+    }
+  }
+
   return options;
 });
 
-const handleAction = (item: 'whisper') => {
+const handleAction = (item: 'follow' | 'unfollow' | 'whisper') => {
   switch (item) {
+    case 'follow':
+    case 'unfollow':
+      handleFollowUser();
+      break;
     case 'whisper':
       const user: Item.UserInfo = {
         id: props.contact.user_id,
@@ -118,13 +163,10 @@ const handleAction = (item: 'whisper') => {
 </script>
 
 <style lang="less" scoped>
-.contact-item {
+.user-card {
     width: 100%;
     box-sizing: border-box;
-    padding-left: 16px;
-    padding-right: 16px;
-    padding-top: 12px;
-    padding-bottom: 12px;
+    padding: 12px 16px;
 
     &:hover {
         background: #f7f9f9;
@@ -158,7 +200,7 @@ const handleAction = (item: 'whisper') => {
 }
 
 .dark {
-    .contact-item {
+    .user-card {
         &:hover {
             background: #18181c;
         }

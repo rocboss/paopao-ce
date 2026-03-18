@@ -12,38 +12,33 @@
                 </div>
 
                 <n-list-item class="list-item" v-for="contact in list" :key="contact.user_id">
-                     <contact-item :contact="contact" @send-whisper="onSendWhisper" />
+                     <user-card type="contact" :contact="contact" @send-whisper="onSendWhisper" />
                 </n-list-item>
             </div>
             <!-- 私信组件 -->
             <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
         </n-list>
+
+        <infinite-load-more
+            :total-page="totalPage"
+            :no-more="noMore"
+            complete-text="没有更多好友了"
+            @load-more="nextPage"
+        />
     </div>
-    <n-space v-if="totalPage > 0" justify="center">
-            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多好友了', error: '加载出错' }" @infinite="nextPage">
-                <template #spinner>
-                    <div class="load-more-wrap">
-                        <n-spin :size="14" v-if="!noMore" />
-                        <span class="load-more-spinner">{{ noMore ? '没有更多好友了' : '加载更多' }}</span>
-                    </div>
-                </template>
-            </InfiniteLoading>
-    </n-space>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import InfiniteLoading from 'v3-infinite-loading';
 import { useRoute } from 'vue-router';
 import { Api } from '@/utils/request';
+import { usePagination } from '@/composables/usePagination';
+import InfiniteLoadMore from '@/components/infinite-load-more.vue';
+import UserCard from '@/components/user-card.vue';
 
 const route = useRoute();
-const loading = ref(false);
-const noMore = ref(false);
+const { loading, noMore, page, pageSize, totalPage } = usePagination(20);
 const list = ref<Item.ContactItemProps[]>([]);
-const page = ref(+(route.query.p as string) || 1);
-const pageSize = ref(20);
-const totalPage = ref(0);
 const showWhisper = ref(false);
 const whisperReceiver = ref<Item.UserInfo>({
   id: 0,
@@ -58,6 +53,9 @@ const whisperReceiver = ref<Item.UserInfo>({
   followings: 0,
   status: 1,
 });
+
+// 初始化页码
+page.value = +(route.query.p as string) || 1;
 
 const onSendWhisper = (user: Item.UserInfo) => {
   whisperReceiver.value = user;
@@ -117,22 +115,6 @@ const loadContacts = (scrollToBottom: boolean = false) => {
 </script>
 
 <style lang="less" scoped>
-.load-more {
-    margin: 20px;
-
-    .load-more-wrap {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        gap: 14px;
-
-        .load-more-spinner {
-            font-size: 14px;
-            opacity: 0.65;
-        }
-    }
-}
 .dark {
     .main-content-wrap, .empty-wrap, .skeleton-wrap {
         background-color: rgba(16, 16, 20, 0.75);
