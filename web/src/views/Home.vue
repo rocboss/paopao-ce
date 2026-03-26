@@ -9,7 +9,7 @@
             </n-list-item>
 
             <n-list-item v-if="showTrendsBar" >
-            <SlideBar v-model="slideBarList" :wheel-blocks="wheelBlocks" :init-blocks="initBlocks" @click="handleBarClick" tag="div" sub-tag="div">
+            <SlideBar :key="slideBarKey" v-model="slideBarList" :wheel-blocks="wheelBlocks" :init-blocks="initBlocks" @click="handleBarClick" tag="div" sub-tag="div">
                 <template #default="data">
                     <div class="slide-bar-item">
                         <n-badge value="1" :offset="[-4, 48]" dot :show="data.slotData.show">
@@ -142,6 +142,7 @@ const onFollowingTweets = () => {
 
 const initBlocks = ref(9);
 const wheelBlocks = ref(8);
+const slideBarKey = ref(0);
 const slideBarList = ref<Item.SlideBarItem[]>([
   { title: '最新动态', style: 1, username: '', avatar: allTweets, show: true },
   {
@@ -158,17 +159,6 @@ const slideBarList = ref<Item.SlideBarItem[]>([
     avatar: followingTweets,
     show: false,
   },
-  // TODO: 不知道SlideBar抽什么疯，如果没有填充下面这些伪数据的话，直接设置initBlocks为9而给的数据又不足，后面动态添加数据后，吖的竟然不能后划了，
-  // f*k，不知道哪姿势不对，总之先凑合着用吧，后期再优化。
-  { title: '', style: 1, username: '', avatar: '', show: true },
-  { title: '', style: 1, username: '', avatar: '', show: true },
-  { title: '', style: 1, username: '', avatar: '', show: true },
-  { title: '', style: 1, username: '', avatar: '', show: true },
-  { title: '', style: 1, username: '', avatar: '', show: true },
-  { title: '', style: 1, username: '', avatar: '', show: true },
-  { title: '', style: 1, username: '', avatar: '', show: true },
-  { title: '', style: 1, username: '', avatar: '', show: true },
-  { title: '', style: 1, username: '', avatar: '', show: true },
 ]);
 const user = reactive<Item.UserInfo>({
   id: 0,
@@ -344,6 +334,7 @@ const loadContacts = () => {
       }
       if (barItems.length > 0) {
         slideBarList.value = slideBarList.value.concat(barItems);
+        slideBarKey.value++;
       }
     })
     .catch((err) => {
