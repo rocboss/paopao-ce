@@ -1,0 +1,1 @@
+import{lt as e}from"./@css-render-YsNuQTaE.js";function t(t=20){let n=e(!1),r=e(!1),i=e(1),a=e(t),o=e(0);return{loading:n,noMore:r,page:i,pageSize:a,totalPage:o,reset:()=>{n.value=!1,r.value=!1,i.value=1,o.value=0},nextPage:e=>{i.value<o.value||o.value==0?(r.value=!1,i.value++,e()):r.value=!0}}}export{t};
