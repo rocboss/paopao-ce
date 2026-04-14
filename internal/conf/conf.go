@@ -58,6 +58,7 @@ var (
 	S3Setting               *s3Conf
 	LocalOSSSetting         *localossConf
 	JWTSetting              *jwtConf
+	AdminSettingsSetting    *adminSettingsConf
 	WebProfileSetting       *WebProfileConf
 )
 
@@ -113,6 +114,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"Meili":             &MeiliSetting,
 		"Redis":             &redisSetting,
 		"JWT":               &JWTSetting,
+		"AdminSettings":     &AdminSettingsSetting,
 		"ObjectStorage":     &ObjectStorage,
 		"AliOSS":            &AliOSSSetting,
 		"COS":               &COSSetting,

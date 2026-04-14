@@ -5,20 +5,23 @@
 package web
 
 import (
+	"context"
+
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
+	"github.com/rocboss/paopao-ce/internal/sitesetting"
 	"github.com/rocboss/paopao-ce/pkg/version"
 )
 
 type siteSrv struct {
 	api.UnimplementedSiteServant
 	*base.BaseServant
+	settings *sitesetting.Service
 }
 
-func (*siteSrv) Profile() (*web.SiteProfileResp, error) {
-	return conf.WebProfileSetting, nil
+func (s *siteSrv) Profile() (*web.SiteProfileResp, error) {
+	return s.settings.GetProfile(context.Background())
 }
 
 func (*siteSrv) Version() (*web.VersionResp, error) {
@@ -27,8 +30,9 @@ func (*siteSrv) Version() (*web.VersionResp, error) {
 	}, nil
 }
 
-func newSiteSrv() api.Site {
+func newSiteSrv(settings *sitesetting.Service) api.Site {
 	return &siteSrv{
 		BaseServant: base.NewBaseServant(),
+		settings:    settings,
 	}
 }

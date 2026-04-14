@@ -67,6 +67,7 @@ import {
   PeopleOutline,
   WalletOutline,
   SettingsOutline,
+  ConstructOutline,
   LogOutOutline,
 } from '@vicons/ionicons5';
 import { Hash } from '@vicons/tabler';
@@ -194,6 +195,14 @@ const menuOptions = computed(() => {
     icon: () => h(SettingsOutline),
     href: '/setting',
   });
+  if (userInfo.value.is_admin) {
+    options.push({
+      label: '系统配置',
+      key: 'admin-settings',
+      icon: () => h(ConstructOutline),
+      href: '/admin/settings',
+    });
+  }
 
   return userInfo.value.id > 0
     ? options

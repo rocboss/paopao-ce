@@ -287,6 +287,10 @@ type redisConf struct {
 	ConnWriteTimeout time.Duration
 }
 
+type adminSettingsConf struct {
+	EncryptionKey string
+}
+
 type jwtConf struct {
 	Secret string
 	Issuer string

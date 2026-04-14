@@ -1,0 +1,26 @@
+DROP TABLE IF EXISTS "p_site_settings";
+
+CREATE TABLE "p_site_settings" (
+	"id" integer NOT NULL DEFAULT 1,
+	"use_friendship" integer NOT NULL DEFAULT 0,
+	"enable_trends_bar" integer NOT NULL DEFAULT 0,
+	"enable_wallet" integer NOT NULL DEFAULT 0,
+	"allow_tweet_attachment" integer NOT NULL DEFAULT 0,
+	"allow_tweet_attachment_price" integer NOT NULL DEFAULT 0,
+	"allow_tweet_video" integer NOT NULL DEFAULT 0,
+	"default_tweet_max_length" integer NOT NULL DEFAULT 2000,
+	"tweet_web_ellipsis_size" integer NOT NULL DEFAULT 400,
+	"tweet_mobile_ellipsis_size" integer NOT NULL DEFAULT 300,
+	"default_tweet_visibility" text(32) NOT NULL DEFAULT 'friend',
+	"default_msg_loop_interval" integer NOT NULL DEFAULT 5000,
+	"copyright_top" text(255) NOT NULL DEFAULT '',
+	"copyright_left" text(255) NOT NULL DEFAULT '',
+	"copyright_left_link" text(255) NOT NULL DEFAULT '',
+	"copyright_right" text(255) NOT NULL DEFAULT '',
+	"copyright_right_link" text(255) NOT NULL DEFAULT '',
+	"created_on" integer NOT NULL DEFAULT 0,
+	"modified_on" integer NOT NULL DEFAULT 0,
+	"deleted_on" integer NOT NULL DEFAULT 0,
+	"is_del" integer NOT NULL DEFAULT 0,
+	PRIMARY KEY ("id")
+);

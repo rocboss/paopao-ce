@@ -513,4 +513,16 @@ UNION
 SELECT user_id, follow_id he_uid, 10 AS style 
 FROM p_following WHERE is_del=0;
 
+DROP TABLE IF EXISTS `p_site_settings`;
+CREATE TABLE `p_site_settings` (
+	`key` VARCHAR(191) NOT NULL,
+	`value` TEXT NOT NULL,
+	`is_encrypted` TINYINT NOT NULL DEFAULT 0,
+	`created_on` BIGINT NOT NULL DEFAULT 0,
+	`modified_on` BIGINT NOT NULL DEFAULT 0,
+	`deleted_on` BIGINT NOT NULL DEFAULT 0,
+	`is_del` TINYINT NOT NULL DEFAULT 0,
+	PRIMARY KEY (`key`) USING BTREE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Admin settings overrides';
+
 SET FOREIGN_KEY_CHECKS = 1;

@@ -116,7 +116,7 @@ Then open:
 #### Backend
 
 1. Import `scripts/paopao-mysql.sql` into MySQL.
-2. Copy the sample config and adjust it for your environment.
+2. Copy the sample config and adjust only the bootstrap-critical values for your environment.
 3. Start the backend.
 
 ```sh
@@ -163,7 +163,13 @@ For the full installation guide, Docker build variants, desktop prerequisites, a
 
 ## Configuration and Feature Suites
 
-`config.yaml.sample` is the canonical configuration template. At runtime, PaoPao reads either `./custom/config.yaml` or `./config.yaml`, preferring the first file it finds.
+`config.yaml.sample` is now a **minimal bootstrap template**. At runtime, PaoPao loads the embedded default config first, then overlays `./custom/config.yaml` or `./config.yaml` if present, preferring the first file it finds.
+
+That means the external config can stay intentionally small. In the current design:
+
+- **Keep in YAML**: ports, feature selection, database, Redis, JWT, and `AdminSettings.EncryptionKey`
+- **Prefer the admin UI** (`/#/admin/settings`): site profile, app behavior limits, search provider settings, object-storage settings, SMS/payment settings, and other operational knobs supported by the registry
+- **Watch apply mode**: some settings are live, while others are marked restart-required in the admin page
 
 The `Features` section controls which capability bundles are enabled:
 
@@ -225,7 +231,7 @@ If you plan to contribute new functionality, target **`dev`** unless the maintai
 
 ## Contributing
 
-Issues, discussions, and pull requests are welcome. If you want to contribute:
+Pull requests are welcome. If you want to contribute:
 
 1. Fork the repository.
 2. Create a branch from `dev` for feature work.

@@ -172,6 +172,8 @@ JWT: # 鉴权加密
   Secret: 18a6413dc4fe394c66345ebe501b2f26
   Issuer: paopao-api
   Expire: 86400
+AdminSettings:
+  EncryptionKey:
 TweetSearch: # 推文关键字搜索相关配置
   MaxUpdateQPS: 100            # 最大添加/删除/更新Post的QPS，设置范围[10, 10000], 默认100
   MinWorker: 10                # 最小后台更新工作者, 设置范围[5, 1000], 默认10
@@ -270,8 +272,8 @@ WebProfile:
   TweetMobileEllipsisSize: 300     # 移动端推文作为feed显示的最长字数，默认300字
   DefaultTweetVisibility: friend   # 推文默认可见性，默认好友可见 值: public/following/friend/private
   DefaultMsgLoopInterval: 5000     # 拉取未读消息的间隔，单位：毫秒, 默认5000ms 
-  CopyrightTop: "2023 paopao.info"
-  CopyrightLeft: "Roc's Me"
+  CopyrightTop: "2026 PaoPao"
+  CopyrightLeft: ""
   CopyrightLeftLink: ""
   CopyrightRight: "泡泡(PaoPao)开源社区"
-  CopyrightRightLink: "https://www.paopao.info"
+  CopyrightRightLink: "https://github.com/rocboss/paopao-ce"
