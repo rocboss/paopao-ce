@@ -1,0 +1,23 @@
+CREATE TABLE p_site_settings (
+	id BIGINT PRIMARY KEY DEFAULT 1,
+	use_friendship BOOLEAN NOT NULL DEFAULT false,
+	enable_trends_bar BOOLEAN NOT NULL DEFAULT false,
+	enable_wallet BOOLEAN NOT NULL DEFAULT false,
+	allow_tweet_attachment BOOLEAN NOT NULL DEFAULT false,
+	allow_tweet_attachment_price BOOLEAN NOT NULL DEFAULT false,
+	allow_tweet_video BOOLEAN NOT NULL DEFAULT false,
+	default_tweet_max_length INTEGER NOT NULL DEFAULT 2000,
+	tweet_web_ellipsis_size INTEGER NOT NULL DEFAULT 400,
+	tweet_mobile_ellipsis_size INTEGER NOT NULL DEFAULT 300,
+	default_tweet_visibility VARCHAR(32) NOT NULL DEFAULT 'friend',
+	default_msg_loop_interval INTEGER NOT NULL DEFAULT 5000,
+	copyright_top VARCHAR(255) NOT NULL DEFAULT '',
+	copyright_left VARCHAR(255) NOT NULL DEFAULT '',
+	copyright_left_link VARCHAR(255) NOT NULL DEFAULT '',
+	copyright_right VARCHAR(255) NOT NULL DEFAULT '',
+	copyright_right_link VARCHAR(255) NOT NULL DEFAULT '',
+	created_on BIGINT NOT NULL DEFAULT 0,
+	modified_on BIGINT NOT NULL DEFAULT 0,
+	deleted_on BIGINT NOT NULL DEFAULT 0,
+	is_del SMALLINT NOT NULL DEFAULT 0
+);

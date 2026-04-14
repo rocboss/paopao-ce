@@ -39,6 +39,7 @@ const (
 	TablePostContent        = "post_content"
 	TablePostStar           = "post_star"
 	TableTag                = "tag"
+	TableSiteSettings       = "site_settings"
 	TableUser               = "user"
 	TableUserRelation       = "user_relation"
 	TableUserMetric         = "user_metric"

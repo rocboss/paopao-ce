@@ -10,8 +10,8 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "paopao",
-	Short: `an artistic "twitter like" community`,
-	Long:  `an artistic "twitter like" community`,
+	Short: `A scalable social community platform powered by Gin backend and modern TypeScript/Vue frontend architecture`,
+	Long:  `A scalable social community platform powered by Gin backend and modern TypeScript/Vue frontend architecture`,
 }
 
 // Setup set root command name,short-describe, long-describe

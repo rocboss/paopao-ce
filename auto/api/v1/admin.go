@@ -33,6 +33,11 @@ type Admin interface {
 	Chain() gin.HandlersChain
 
 	SiteInfo(*web.SiteInfoReq) (*web.SiteInfoResp, error)
+	GetSiteSettings() (*web.SiteSettingsResp, error)
+	UpdateSiteSettings(*web.SiteSettingsReq) (*web.SiteSettingsResp, error)
+	GetSettingsSchema() (*web.AdminSettingsSchemaResp, error)
+	GetSettingsValues() (*web.AdminSettingsValuesResp, error)
+	SaveSettings(*web.AdminSettingsSaveReq) (*web.AdminSettingsSaveResp, error)
 	ChangeUserStatus(*web.ChangeUserStatusReq) error
 
 	mustEmbedUnimplementedAdminServant()
@@ -60,6 +65,64 @@ func RegisterAdminServant(e *gin.Engine, s Admin) {
 		resp, err := s.SiteInfo(req)
 		s.Render(c, resp, err)
 	})
+	router.Handle("GET", "admin/site/profile", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		resp, err := s.GetSiteSettings()
+		s.Render(c, resp, err)
+	})
+	router.Handle("POST", "admin/site/profile", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.SiteSettingsReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.UpdateSiteSettings(req)
+		s.Render(c, resp, err)
+	})
+	router.Handle("GET", "admin/settings/schema", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		resp, err := s.GetSettingsSchema()
+		s.Render(c, resp, err)
+	})
+	router.Handle("GET", "admin/settings/values", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+
+		resp, err := s.GetSettingsValues()
+		s.Render(c, resp, err)
+	})
+	router.Handle("POST", "admin/settings/save", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.AdminSettingsSaveReq)
+		if err := s.Bind(c, req); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.SaveSettings(req)
+		s.Render(c, resp, err)
+	})
 	router.Handle("POST", "admin/user/status", func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
@@ -83,6 +146,26 @@ func (UnimplementedAdminServant) Chain() gin.HandlersChain {
 }
 
 func (UnimplementedAdminServant) SiteInfo(req *web.SiteInfoReq) (*web.SiteInfoResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedAdminServant) GetSiteSettings() (*web.SiteSettingsResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedAdminServant) UpdateSiteSettings(req *web.SiteSettingsReq) (*web.SiteSettingsResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedAdminServant) GetSettingsSchema() (*web.AdminSettingsSchemaResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedAdminServant) GetSettingsValues() (*web.AdminSettingsValuesResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedAdminServant) SaveSettings(req *web.AdminSettingsSaveReq) (*web.AdminSettingsSaveResp, error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 

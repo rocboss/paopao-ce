@@ -99,6 +99,14 @@ const routes = [
     component: () => import('@/views/Setting.vue'),
   },
   {
+    path: '/admin/settings',
+    name: 'admin-settings',
+    meta: {
+      title: '系统配置',
+    },
+    component: () => import('@/views/AdminSettings.vue'),
+  },
+  {
     path: '/404',
     name: '404',
     meta: {

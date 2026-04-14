@@ -157,7 +157,7 @@ If you mount a custom `config.yaml`, make sure `Meili.ApiKey` matches the contai
 
 1. Initialize your database with the matching SQL file for your chosen database engine.
 2. Copy the configuration template.
-3. Adjust the storage, database, cache, and search settings for your environment.
+3. Adjust only the bootstrap-critical settings for your environment.
 4. Run or build the backend.
 
 ```sh
@@ -237,6 +237,15 @@ At startup, PaoPao reads either:
 2. `./config.yaml`
 
 The first file found is used.
+
+Important: the external file is no longer expected to carry every runtime knob. PaoPao loads embedded defaults first, then overlays your local config file.
+
+Recommended split:
+
+- **Bootstrap YAML**: ports, feature selection, database, Redis, JWT, `AdminSettings.EncryptionKey`
+- **Admin UI (`/#/admin/settings`)**: most site, search, storage, SMS, payment, and app-behavior settings
+
+If a setting is marked **restart required** in the admin page, it is persisted immediately but only becomes active after a process restart.
 
 The `Features` section controls which capability bundles are enabled:
 

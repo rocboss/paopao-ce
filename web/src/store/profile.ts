@@ -18,7 +18,7 @@ export const useStoreProfile = defineStore("profile", () => {
         defaultTweetVisibility: 'friend',
         defaultMsgLoopInterval: 5000,
         copyrightTop: '2023 paopao.info',
-        copyrightLeft: "Roc's Me",
+        copyrightLeft: 'Roc\'s Me',
         copyrightLeftLink: '',
         copyrightRight: '泡泡(PaoPao)开源社区',
         copyrightRightLink: 'https://www.paopao.info',
@@ -86,32 +86,32 @@ export const useStoreProfile = defineStore("profile", () => {
         profile.value.enableWallet = data.enable_wallet ?? profile.value.enableWallet;
 
         profile.value.allowTweetAttachment =
-        data.allow_tweet_attachment ?? profile.value.allowTweetAttachment;
+            data.allow_tweet_attachment ?? profile.value.allowTweetAttachment;
 
         profile.value.allowTweetAttachmentPrice =
-        data.allow_tweet_attachment_price ?? profile.value.allowTweetAttachmentPrice;
+            data.allow_tweet_attachment_price ?? profile.value.allowTweetAttachmentPrice;
 
         profile.value.allowTweetVideo = data.allow_tweet_video ?? profile.value.allowTweetVideo;
 
         profile.value.allowUserRegister =
-        data.allow_user_register ?? profile.value.allowUserRegister;
+            data.allow_user_register ?? profile.value.allowUserRegister;
 
         profile.value.allowPhoneBind = data.allow_phone_bind ?? profile.value.allowPhoneBind;
 
         profile.value.defaultTweetMaxLength =
-        data.default_tweet_max_length ?? profile.value.defaultTweetMaxLength;
+            data.default_tweet_max_length ?? profile.value.defaultTweetMaxLength;
 
         profile.value.tweetWebEllipsisSize =
-        data.tweet_web_ellipsis_size ?? profile.value.tweetWebEllipsisSize;
+            data.tweet_web_ellipsis_size ?? profile.value.tweetWebEllipsisSize;
 
         profile.value.tweetMobileEllipsisSize =
-        data.tweet_mobile_ellipsis_size ?? profile.value.tweetMobileEllipsisSize;
+            data.tweet_mobile_ellipsis_size ?? profile.value.tweetMobileEllipsisSize;
 
         profile.value.defaultTweetVisibility =
-        data.default_tweet_visibility ?? profile.value.defaultTweetVisibility;
+            data.default_tweet_visibility ?? profile.value.defaultTweetVisibility;
 
         profile.value.defaultMsgLoopInterval =
-        data.default_msg_loop_interval ?? profile.value.defaultMsgLoopInterval;
+            data.default_msg_loop_interval ?? profile.value.defaultMsgLoopInterval;
 
         profile.value.copyrightTop = data.copyright_top ?? profile.value.copyrightTop;
         profile.value.copyrightLeft = data.copyright_left ?? profile.value.copyrightLeft;

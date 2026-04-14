@@ -57,6 +57,8 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Setup config file
+        run: cp config.yaml.sample config.yaml
       - name: Run tests
         run: go test -v -race ./...
       
@@ -76,5 +78,7 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Setup config file
+        run: copy config.yaml.sample config.yaml
       - name: Run tests
         run: go test -v ./...

@@ -734,4 +734,16 @@ ON "p_wallet_statement" (
   "user_id" ASC
 );
 
+DROP TABLE IF EXISTS "p_site_settings";
+CREATE TABLE "p_site_settings" (
+	"key" text NOT NULL,
+	"value" text NOT NULL DEFAULT '',
+	"is_encrypted" integer NOT NULL DEFAULT 0,
+	"created_on" integer NOT NULL DEFAULT 0,
+	"modified_on" integer NOT NULL DEFAULT 0,
+	"deleted_on" integer NOT NULL DEFAULT 0,
+	"is_del" integer NOT NULL DEFAULT 0,
+	PRIMARY KEY ("key")
+);
+
 PRAGMA foreign_keys = true;

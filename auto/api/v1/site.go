@@ -9,14 +9,13 @@ import (
 
 	"github.com/alimy/mir/v5"
 	"github.com/gin-gonic/gin"
-	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 )
 
 type Site interface {
 	_default_
 
-	Profile() (*conf.WebProfileConf, error)
+	Profile() (*web.SiteProfileResp, error)
 	Version() (*web.VersionResp, error)
 
 	mustEmbedUnimplementedSiteServant()
@@ -52,7 +51,7 @@ func RegisterSiteServant(e *gin.Engine, s Site) {
 // UnimplementedSiteServant can be embedded to have forward compatible implementations.
 type UnimplementedSiteServant struct{}
 
-func (UnimplementedSiteServant) Profile() (*conf.WebProfileConf, error) {
+func (UnimplementedSiteServant) Profile() (*web.SiteProfileResp, error) {
 	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 

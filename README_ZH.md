@@ -116,7 +116,7 @@ docker compose up -d
 #### 后端
 
 1. 将 `scripts/paopao-mysql.sql` 导入 MySQL。
-2. 复制示例配置并按本地环境调整。
+2. 复制示例配置，并只调整与你环境相关的启动关键项。
 3. 启动后端服务。
 
 ```sh
@@ -163,7 +163,13 @@ yarn tauri build
 
 ## 配置与 Feature 套件
 
-`config.yaml.sample` 是项目的标准配置模板。运行时，PaoPao 会读取 `./custom/config.yaml` 或 `./config.yaml`，并优先使用先找到的文件。
+`config.yaml.sample` 现在是一个**最小化 bootstrap 模板**。运行时，PaoPao 会先加载内置默认配置，再叠加 `./custom/config.yaml` 或 `./config.yaml`，并优先使用先找到的文件。
+
+这意味着外部配置文件可以有意保持精简。当前建议是：
+
+- **继续放在 YAML 中**：端口、Feature 组合、数据库、Redis、JWT，以及 `AdminSettings.EncryptionKey`
+- **尽量改到管理后台**（`/#/admin/settings`）：站点资料、应用行为阈值、全文索引、对象存储、短信/支付等已接入 registry 的配置
+- **注意生效方式**：部分配置即时生效，部分会在后台中明确标记为“重启后生效”
 
 `Features` 配置用于控制启用哪些能力组合：
 
@@ -225,7 +231,7 @@ release/paopao serve --no-default-features --features sqlite3,localoss,loggerfil
 
 ## 参与贡献
 
-欢迎提交 Issue、讨论和 Pull Request。建议的贡献流程：
+欢迎提交 Pull Request。建议的贡献流程：
 
 1. Fork 当前仓库。
 2. 从 `dev` 分支拉出自己的功能分支。
