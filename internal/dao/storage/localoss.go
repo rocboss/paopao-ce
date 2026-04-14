@@ -18,13 +18,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ core.ObjectStorageService = (*localossServant)(nil)
-	_ core.OssCreateService     = (*localossCreateServant)(nil)
-	_ core.OssCreateService     = (*localossCreateTempDirServant)(nil)
-	_ core.VersionInfo          = (*localossServant)(nil)
-)
-
 type localossCreateServant struct {
 	savePath string
 	domain   string

@@ -5,34 +5,34 @@
                 {{ formatPrettyTime(comment.created_on) }}
             </span>
             <div class="actions">
-                <div v-if="!store.state.userLogined" class="action-item">
+                <div v-if="!userLogined" class="action-item">
                     <n-icon size="medium">
                         <thumb-up-outlined />
                     </n-icon>
                     <span class="upvote-count">{{ thumbsUpCount }}</span>
                 </div>
-                <div v-if="store.state.userLogined" class="action-item hover" @click.stop="handleThumbsUp">
+                <div v-if="userLogined" class="action-item hover" @click.stop="handleThumbsUp">
                     <n-icon size="medium">
                         <thumb-up-outlined v-if="!hasThumbsUp" />
                         <thumb-up-twotone v-if="hasThumbsUp" class="show" />
                     </n-icon>
                     <span class="upvote-count">{{ thumbsUpCount>0 ? thumbsUpCount : "赞" }}</span>
                 </div>
-                <div v-if="!store.state.userLogined" class="action-item">
+                <div v-if="!userLogined" class="action-item">
                     <n-icon size="medium">
                         <thumb-down-outlined />
                     </n-icon>
                 </div>
-                <div v-if="store.state.userLogined" class="action-item hover" @click.stop="handleThumbsDown">
+                <div v-if="userLogined" class="action-item hover" @click.stop="handleThumbsDown">
                     <n-icon size="medium">
                         <thumb-down-outlined v-if="!hasThumbsDown" />
                         <thumb-down-twotone v-if="hasThumbsDown" class="show" />
                     </n-icon>
                 </div>
-                <span class="show reply-btn" v-if="store.state.userLogined && !showReply" @click="switchReply(true)">
+                <span class="show reply-btn" v-if="userLogined && !showReply" @click="switchReply(true)">
                     回复
                 </span>
-                <span class="hide reply-btn" v-if="store.state.userLogined && showReply" @click="switchReply(false)">
+                <span class="hide reply-btn" v-if="userLogined && showReply" @click="switchReply(false)">
                     取消
                 </span>
             </div>
@@ -55,7 +55,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
+import { useStoreUser } from '@/store/user';
 import { formatPrettyTime } from '@/utils/formatTime';
 import {
   createCommentReply,
@@ -70,6 +71,7 @@ import {
   ThumbDownOutlined,
 } from '@vicons/material';
 import { YesNoEnum } from '@/utils/IEnum';
+import { storeToRefs } from 'pinia';
 
 const props = withDefaults(
   defineProps<{
@@ -82,7 +84,11 @@ const props = withDefaults(
     atUsername: '',
   },
 );
-const store = useStore();
+
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const { userLogined } = storeToRefs(storeUser);
+
 const emit = defineEmits<{
   (e: 'reload'): void;
   (e: 'reset'): void;

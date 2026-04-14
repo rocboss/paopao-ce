@@ -500,16 +500,15 @@ Pyroscope: # Pyroscope配置
 git branch
 main
 beta
+alpha
 dev
-feature/bleve
-feature/followship
-feature/mir
-feature/localoss
 jc/alimy
-r/paopao-plus
+jc/orziz
+r/paopao-ce
 r/paopao-pro
-x/sqlc
-x/sqlx
+r/paopao-plus
+r/paopao-xtra
+r/paopao-mini
 ```
 **分支说明**  
 | 名称 | 说明 | 备注|
@@ -544,9 +543,9 @@ x/sqlx
 #### Collaborator's paopao account
 | 昵称 | [@GitHub](https://github.com 'github.com') | [@PaoPao](https://www.paopao.info 'paopao.info') |
 | ----- | ----- | ----- | 
-| ROC | [ROC](https://github.com/rocboss 'ROC')|[ROC](https://www.paopao.info/#/user?username=roc 'ROC @roc')|
-| [北野](https://alimy.me '糊涂小栈') | [Michael Li](https://github.com/alimy 'Michael Li') | [alimy](https://www.paopao.info/#/user?username=alimy '北野 @alimy')|
-| orzi!| [orzi!](https://github.com/orziz 'orzi!')||
+| ROC | [ROC](https://github.com/rocboss 'ROC')|[ROC](https://www.paopao.info/#/u?s=roc 'ROC @roc')|
+| [北野](https://alimy.me '糊涂小栈') | [Michael Li](https://github.com/alimy 'Michael Li') | [alimy](https://www.paopao.info/#/u?s=alimy '北野 @alimy')|
+| [orzi!](https://orzi.me 'orzi! - 做一个有想法的人') | [orzi!](https://github.com/orziz 'orzi!')| [orzi](https://www.paopao.info/#/u?s=orzi 'orzi @orzi') |
 
 ### 其他说明
 

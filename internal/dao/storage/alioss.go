@@ -16,14 +16,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ core.ObjectStorageService = (*aliossServant)(nil)
-	_ core.OssCreateService     = (*aliossCreateServant)(nil)
-	_ core.OssCreateService     = (*aliossCreateRetentionServant)(nil)
-	_ core.OssCreateService     = (*aliossCreateTempDirServant)(nil)
-	_ core.VersionInfo          = (*aliossServant)(nil)
-)
-
 type aliossCreateServant struct {
 	bucket *oss.Bucket
 	domain string

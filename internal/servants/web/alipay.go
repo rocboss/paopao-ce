@@ -16,11 +16,6 @@ import (
 	"github.com/smartwalle/alipay/v3"
 )
 
-var (
-	_ api.AlipayPub  = (*alipayPubSrv)(nil)
-	_ api.AlipayPriv = (*alipayPrivSrv)(nil)
-)
-
 type alipayPubSrv struct {
 	api.UnimplementedAlipayPubServant
 	*base.DaoServant

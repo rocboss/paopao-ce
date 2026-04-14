@@ -1,6 +1,6 @@
 <template>
     <n-modal
-        v-model:show="store.state.authModalShow"
+        v-model:show="authModalShow"
         class="auth-card"
         preset="card"
         size="small"
@@ -12,7 +12,7 @@
     >
         <div class="auth-wrap">
             <n-card :bordered="false">
-                <div v-if="!store.state.profile.allowUserRegister">
+                <div v-if="!profile.allowUserRegister">
                     <n-space justify="center"><n-h3><n-text type="success">账号登录</n-text></n-h3></n-space>
                     <n-form
                             ref="loginRef"
@@ -57,8 +57,8 @@
                         </n-button>
                 </div>
                 <n-tabs
-                    v-if="store.state.profile.allowUserRegister" 
-                    :default-value="store.state.authModelTab"
+                    v-if="profile.allowUserRegister" 
+                    :default-value="authModelTab"
                     size="large"
                     justify-content="space-evenly"
                 >
@@ -155,11 +155,19 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { useStore } from 'vuex';
-import { userLogin, userRegister, userInfo } from '@/api/auth';
+import { useStoreMain } from '@/store/main';
+import { TOKEN_KEY, useStoreUser } from '@/store/user';
+import { userInfo } from '@/api/auth';
 import type { FormInst, FormItemRule } from 'naive-ui';
+import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
+import { useStoreProfile } from '@/store/profile';
 
-const store = useStore();
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const storeProfile = useStoreProfile();
+const { authModalShow, authModelTab } = storeToRefs(storeMain);
+const { profile } = storeToRefs(storeProfile);
 
 const loading = ref(false);
 const loginRef = ref<FormInst>();
@@ -208,14 +216,14 @@ const handleLogin = (e: Event) => {
     if (!errors) {
       loading.value = true;
 
-      userLogin({
+      Api.v1.auth.post.login({
         username: loginForm.username,
         password: loginForm.password,
       })
         .then((res) => {
           const token = res?.token || '';
           // 写入用户信息
-          localStorage.setItem('PAOPAO_TOKEN', token);
+          localStorage.setItem(TOKEN_KEY, token);
 
           return userInfo(token);
         })
@@ -223,9 +231,9 @@ const handleLogin = (e: Event) => {
           window.$message.success('登录成功');
           loading.value = false;
 
-          store.commit('updateUserinfo', res);
-          store.commit('triggerAuth', false);
-          store.commit('refresh');
+          storeUser.updateUserinfo(res);
+          storeMain.triggerAuth(false);
+          storeMain.doRefresh();
           loginForm.username = '';
           loginForm.password = '';
         })
@@ -244,12 +252,12 @@ const handleRegister = (e: Event) => {
     if (!errors) {
       loading.value = true;
 
-      userRegister({
+      Api.v1.auth.post.register({
         username: registerForm.username,
         password: registerForm.password,
       })
         .then((res) => {
-          return userLogin({
+          return Api.v1.auth.post.login({
             username: registerForm.username,
             password: registerForm.password,
           });
@@ -257,7 +265,7 @@ const handleRegister = (e: Event) => {
         .then((res) => {
           const token = res?.token || '';
           // 写入用户信息
-          localStorage.setItem('PAOPAO_TOKEN', token);
+          localStorage.setItem(TOKEN_KEY, token);
 
           return userInfo(token);
         })
@@ -265,8 +273,8 @@ const handleRegister = (e: Event) => {
           window.$message.success('注册成功');
           loading.value = false;
 
-          store.commit('updateUserinfo', res);
-          store.commit('triggerAuth', false);
+          storeUser.updateUserinfo(res);
+          storeMain.triggerAuth(false);
           registerForm.username = '';
           registerForm.password = '';
           registerForm.repassword = '';
@@ -279,18 +287,18 @@ const handleRegister = (e: Event) => {
 };
 
 onMounted(() => {
-  const token = localStorage.getItem('PAOPAO_TOKEN') || '';
+  const token = localStorage.getItem(TOKEN_KEY) || '';
   if (token) {
     userInfo(token)
       .then((res) => {
-        store.commit('updateUserinfo', res);
-        store.commit('triggerAuth', false);
+        storeUser.updateUserinfo(res);
+        storeMain.triggerAuth(false);
       })
       .catch((err) => {
-        store.commit('userLogout');
+        storeUser.userLogout();
       });
   } else {
-    store.commit('userLogout');
+    storeUser.userLogout();
   }
 });
 </script>

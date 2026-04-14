@@ -16,11 +16,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ core.TweetSearchService = (*meiliTweetSearchServant)(nil)
-	_ core.VersionInfo        = (*meiliTweetSearchServant)(nil)
-)
-
 type meiliTweetSearchServant struct {
 	tweetSearchFilter
 

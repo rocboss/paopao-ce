@@ -50,8 +50,8 @@
 </template>
 
 <script setup lang="ts">
+import { Api } from '@/utils/request';
 import { ref } from 'vue';
-import { sendUserWhisper } from '@/api/user';
 
 const props = withDefaults(
   defineProps<{
@@ -73,7 +73,7 @@ const closeModal = () => {
 };
 const sendWhisper = () => {
   loading.value = true;
-  sendUserWhisper({
+  Api.v1.user.post.whisper({
     user_id: props.user.id,
     content: content.value,
   })

@@ -38,7 +38,7 @@
 <script setup lang="ts">
 import { h, ref } from 'vue';
 import { CloudDownloadOutline } from '@vicons/ionicons5';
-import { precheckAttachment, getAttachment } from '@/api/user';
+import { Api } from '@/utils/request';
 
 const props = withDefaults(
   defineProps<{
@@ -71,9 +71,9 @@ const download = (attachment: Item.PostItemProps) => {
         ),
       ]);
 
-    precheckAttachment({
-      id: attachmentID.value,
-    })
+      Api.v1.attachment.get.precheck({
+        id: attachmentID.value,
+      })
       .then((res) => {
         if (res.paid) {
           downloadTip.value = () =>
@@ -88,7 +88,7 @@ const download = (attachment: Item.PostItemProps) => {
   }
 };
 const execDownloadAction = () => {
-  getAttachment({
+  Api.v1.attachment.get._self({
     id: attachmentID.value,
   })
     .then((res) => {

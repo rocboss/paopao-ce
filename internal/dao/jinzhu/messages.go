@@ -12,8 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var _ core.MessageService = (*messageSrv)(nil)
-
 type messageSrv struct {
 	db *gorm.DB
 }

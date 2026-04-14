@@ -15,11 +15,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	_ core.TopicService  = (*topicSrv)(nil)
-	_ core.TopicServantA = (*topicSrvA)(nil)
-)
-
 type topicSrv struct {
 	db             *gorm.DB
 	tnTopicUser    string

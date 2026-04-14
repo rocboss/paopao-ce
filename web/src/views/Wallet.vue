@@ -8,7 +8,7 @@
                     <n-statistic label="账户余额 (元)"
                         ><n-number-animation
                             :from="0.0"
-                            :to="(store.state.userInfo.balance || 0) / 100"
+                            :to="(userInfo.balance || 0) / 100"
                             :duration="500"
                             :precision="2"
                         />
@@ -41,7 +41,7 @@
                     <n-pagination
                         :page="page"
                         @update:page="updatePage"
-                        :page-slot="!store.state.collapsedRight ? 8 : 5"
+                        :page-slot="!collapsedRight ? 8 : 5"
                         :page-count="totalPage"
                     />
                 </div>
@@ -145,15 +145,21 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
 import { useRoute } from 'vue-router';
 import QRCode from 'qrcode';
 import { LogoAlipay } from '@vicons/ionicons5';
-import { userInfo } from '@/api/auth';
-import { reqRecharge, getRecharge, getBills } from '@/api/user';
+import { userInfo as fetchUserInfo } from '@/api/auth';
 import { formatRelativeTime } from '@/utils/formatTime';
+import { TOKEN_KEY, useStoreUser } from '@/store/user';
+import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
 
-const store = useStore();
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const { collapsedRight } = storeToRefs(storeMain);
+const { userInfo } = storeToRefs(storeUser);
+
 const route = useRoute();
 
 const showRecharge = ref(false);
@@ -171,7 +177,7 @@ const openAmounts = ref([100, 200, 300, 500, 1000, 3000, 5000, 10000, 50000]);
 
 const loadPosts = () => {
   loading.value = true;
-  getBills({
+  Api.v1.user.get.wallet.bills({
     page: page.value,
     page_size: pageSize.value,
   })
@@ -191,30 +197,30 @@ const updatePage = (p: number) => {
   loadPosts();
 };
 const loadWallet = () => {
-  // 获取最新
-  const token = localStorage.getItem('PAOPAO_TOKEN') || '';
-  if (token) {
-    userInfo(token)
-      .then((res) => {
-        store.commit('updateUserinfo', res);
-        store.commit('triggerAuth', false);
-        loadPosts();
-      })
-      .catch((err) => {
-        store.commit('triggerAuth', true);
-        store.commit('userLogout');
-      });
-  } else {
-    store.commit('triggerAuth', true);
-    store.commit('userLogout');
-  }
+    // 获取最新
+    const token = localStorage.getItem(TOKEN_KEY) || '';
+    if (token) {
+        fetchUserInfo(token)
+        .then((res) => {
+            storeUser.updateUserinfo(res);
+            storeMain.triggerAuth(false);
+            loadPosts();
+        })
+        .catch((err) => {
+            storeMain.triggerAuth(true);
+            storeUser.userLogout();
+        });
+    } else {
+        storeMain.triggerAuth(true);
+        storeUser.userLogout();
+    }
 };
 const doRecharge = () => {
   showRecharge.value = true;
 };
 const handleRecharge = (amount: any) => {
   recharging.value = true;
-  reqRecharge({
+  Api.v1.user.post.recharge({
     amount: selectedRechargeAmount.value,
   })
     .then((res) => {
@@ -228,7 +234,7 @@ const handleRecharge = (amount: any) => {
       });
 
       const s = setInterval(() => {
-        getRecharge({
+        Api.v1.user.get.recharge({
           id: res.id,
         })
           .then((res) => {
@@ -252,7 +258,7 @@ const handleRecharge = (amount: any) => {
     });
 };
 const doWithdraw = () => {
-  if (store.state.userInfo.balance == 0) {
+  if (userInfo.value.balance == 0) {
     window.$message.warning('您暂无可提现资金');
   } else {
     window.$message.warning('该功能即将开放');

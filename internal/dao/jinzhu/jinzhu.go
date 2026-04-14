@@ -18,15 +18,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/dao/security"
 )
 
-var (
-	_ core.DataService = (*dataSrv)(nil)
-	_ core.VersionInfo = (*dataSrv)(nil)
-
-	_ core.WebDataServantA = (*webDataSrvA)(nil)
-	_ core.VersionInfo     = (*webDataSrvA)(nil)
-
-	_onceInitial sync.Once
-)
+var _onceInitial sync.Once
 
 type dataSrv struct {
 	core.WalletService

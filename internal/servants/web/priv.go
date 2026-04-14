@@ -27,17 +27,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ api.Priv      = (*privSrv)(nil)
-	_ api.PrivChain = (*privChain)(nil)
-
-	_uploadAttachmentTypeMap = map[string]ms.AttachmentType{
-		"public/image":  ms.AttachmentTypeImage,
-		"public/avatar": ms.AttachmentTypeImage,
-		"public/video":  ms.AttachmentTypeVideo,
-		"attachment":    ms.AttachmentTypeOther,
-	}
-)
+var _uploadAttachmentTypeMap = map[string]ms.AttachmentType{
+	"public/image":  ms.AttachmentTypeImage,
+	"public/avatar": ms.AttachmentTypeImage,
+	"public/video":  ms.AttachmentTypeVideo,
+	"attachment":    ms.AttachmentTypeOther,
+}
 
 type privSrv struct {
 	api.UnimplementedPrivServant

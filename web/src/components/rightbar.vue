@@ -1,5 +1,5 @@
 <template>
-    <div class="rightbar-wrap" v-if="!store.state.collapsedRight">
+    <div class="rightbar-wrap" v-if="!collapsedRight">
         <div class="search-wrap">
             <n-input
                 round
@@ -58,27 +58,27 @@
             </n-spin>
         </n-card>
         <n-card class="copyright-wrap" embedded :bordered="false" size="small">
-            <div class="copyright">&copy; {{ store.state.profile.copyrightTop }}</div>
+            <div class="copyright">&copy; {{ profile.copyrightTop }}</div>
             <div>
                 <n-space>
                     <a
-                        :href="store.state.profile.copyrightLeftLink"
+                        :href="profile.copyrightLeftLink"
                         target="_blank"
                         class="hash-link"
                     >
-                        {{ store.state.profile.copyrightLeft }}
+                        {{ profile.copyrightLeft }}
                     </a>
                     <a
-                        :href="store.state.profile.copyrightRightLink"
+                        :href="profile.copyrightRightLink"
                         target="_blank"
                         class="hash-link"
                     >
-                        {{ store.state.profile.copyrightRight }}
+                        {{ profile.copyrightRight }}
                     </a>
                 </n-space>
             </div>
         </n-card>
-        <div class="site-info" v-if="store.state.userInfo.is_admin" ref="userInfoElement">
+        <div class="site-info" v-if="userInfo.is_admin" ref="userInfoElement">
             <span class="site-info-item">{{ registerUserCount }} 注册用户，{{ onlineUserCount }} 人在线，最高在线 {{ historyMaxOnline }} 人，站点上线于 {{ formatRelativeTime(serverUpTime) }}</span>
         </div>
     </div>
@@ -86,18 +86,28 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
 import { useRouter } from 'vue-router';
 import { getTags } from '@/api/post';
-import { getSiteInfo } from '@/api/user';
 import { Search } from '@vicons/ionicons5';
 import { formatRelativeTime } from '@/utils/formatTime';
+import { useStoreProfile } from '@/store/profile';
+import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
+import { useStoreUser } from '@/store/user';
 
 const hotTags = ref<Item.TagProps[]>([]);
 const followTags = ref<Item.TagProps[]>([]);
 const loading = ref(false);
 const keyword = ref('');
-const store = useStore();
+
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const storeProfile = useStoreProfile();
+const { collapsedRight, refreshTopicFollow } = storeToRefs(storeMain);
+const { userInfo, userLogined } = storeToRefs(storeUser);
+const { profile } = storeToRefs(storeProfile);
+
 const router = useRouter();
 const registerUserCount = ref(0);
 const onlineUserCount = ref(0);
@@ -112,7 +122,7 @@ const rightHotTopicMaxSize = Number(
 );
 
 const loadSiteInfo = () => {
-  getSiteInfo()
+  Api.v1.admin.get.site.status()
     .then((res) => {
       registerUserCount.value = res.register_user_count;
       onlineUserCount.value = res.online_user_count;
@@ -157,7 +167,7 @@ const handleSearch = () => {
 };
 const showFollowTopics = computed({
   get: () => {
-    return store.state.userLogined && followTags.value.length !== 0;
+    return userLogined.value && followTags.value.length !== 0;
   },
   set: (newVal) => {
     // do nothing
@@ -165,14 +175,14 @@ const showFollowTopics = computed({
 });
 watch(
   () => ({
-    refreshTopicFollow: store.state.refreshTopicFollow,
-    userLogined: store.state.userLogined,
+    refreshTopicFollow: refreshTopicFollow.value,
+    userLogined: userLogined.value,
   }),
   (to, from) => {
     if (to.refreshTopicFollow !== from.refreshTopicFollow || to.userLogined) {
       loadHotTags();
     }
-    if (store.state.userInfo.is_admin) {
+    if (userInfo.value.is_admin) {
       loadSiteInfo();
     }
   },
@@ -192,7 +202,7 @@ const observer = new IntersectionObserver(
   },
 );
 onMounted(() => {
-  // 不知道为什么 store.state.userInfo.is_admin 在这里就是不起作用f*k，所以才用这么一种蹩脚的法子来凑合
+  // 不知道为什么 store.userInfo.is_admin 在这里就是不起作用f*k，所以才用这么一种蹩脚的法子来凑合
   if (userInfoElement.value) {
     observer.observe(userInfoElement.value);
   }

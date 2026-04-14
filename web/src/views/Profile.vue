@@ -5,25 +5,25 @@
         <n-list
             class="main-content-wrap profile-wrap"
             bordered
-            v-if="store.state.userInfo.id > 0"
+            v-if="userInfo.id > 0"
         >
             <!-- 基础信息 -->
             <!-- <n-spin :show="false" > -->
             <div class="profile-baseinfo">
                 <div class="avatar">
-                    <n-avatar :size="72" :src="store.state.userInfo.avatar" />
+                    <n-avatar :size="72" :src="userInfo.avatar" />
                 </div>
                 <div class="base-info">
                     <div class="username">
-                        <strong>{{ store.state.userInfo.nickname }}</strong>
-                        <span> @{{ store.state.userInfo.username }} </span>
-                        <n-tag v-if="store.state.userInfo.is_admin" class="top-tag" type="error" size="small" round>
+                        <strong>{{ userInfo.nickname }}</strong>
+                        <span> @{{ userInfo.username }} </span>
+                        <n-tag v-if="userInfo.is_admin" class="top-tag" type="error" size="small" round>
                             管理员
                         </n-tag>
                     </div>
                     <div class="userinfo">
-                        <span class="info-item">UID. {{ store.state.userInfo.id }} </span>
-                        <span class="info-item">{{ formatDate(store.state.userInfo.created_on) }}&nbsp;加入</span>
+                        <span class="info-item">UID. {{ userInfo.id }} </span>
+                        <span class="info-item">{{ formatDate(userInfo.created_on) }}&nbsp;加入</span>
                     </div>
                     <div class="userinfo">
                         <span class="info-item">
@@ -33,13 +33,13 @@
                                 :to="{
                                     name: 'following',
                                     query: { 
-                                        s: store.state.userInfo.username, 
-                                        n: store.state.userInfo.nickname,
+                                        s: userInfo.username, 
+                                        n: userInfo.nickname,
                                         t: 'follows',
                                     },
                                 }"
                             >
-                                关注&nbsp;&nbsp;{{ prettyQuoteNum(store.state.userInfo.follows) }}
+                                关注&nbsp;&nbsp;{{ prettyQuoteNum(userInfo.follows) }}
                             </router-link>
                         </span>
                         <span class="info-item">
@@ -49,17 +49,17 @@
                                 :to="{
                                     name: 'following',
                                     query: { 
-                                        s: store.state.userInfo.username, 
-                                        n: store.state.userInfo.nickname,
+                                        s: userInfo.username, 
+                                        n: userInfo.nickname,
                                         t: 'followings',
                                     },
                                 }"
                             >
-                                粉丝&nbsp;&nbsp;{{ prettyQuoteNum(store.state.userInfo.followings) }}
+                                粉丝&nbsp;&nbsp;{{ prettyQuoteNum(userInfo.followings) }}
                             </router-link>
                         </span>
                         <span class="info-item">
-                            泡泡&nbsp;&nbsp;{{ prettyQuoteNum(store.state.userInfo.tweets_count) }}
+                            泡泡&nbsp;&nbsp;{{ prettyQuoteNum(userInfo.tweets_count) }}
                         </span>
                     </div>
                 </div>
@@ -92,100 +92,14 @@
                 <div class="empty-wrap" v-if="list.length === 0">
                     <n-empty size="large" description="暂无数据" />
                 </div>
-                <div v-if="store.state.desktopModelShow">
-                    <div v-if="pageType === 'post'">
-                        <n-list-item v-for="post in postList" :key="post.id">
-                            <post-item :post="post" 
-                                :isOwner="store.state.userInfo.id == post.user_id" 
-                                :addFollowAction="true"
-                                @send-whisper="onSendWhisper"
-                                @handle-follow-action="onHandleFollowAction" />
-                        </n-list-item>
-                    </div>
-                    <div v-if="pageType === 'comment'">
-                        <n-list-item v-for="post in commentList" :key="post.id">
-                            <post-item :post="post" 
-                                :isOwner="store.state.userInfo.id == post.user_id" 
-                                :addFollowAction="true"
-                                @send-whisper="onSendWhisper"
-                                @handle-follow-action="onHandleFollowAction" />
-                        </n-list-item>
-                    </div>
-                    <div v-if="pageType === 'highlight'">
-                        <n-list-item v-for="post in highlightList" :key="post.id">
-                            <post-item :post="post" 
-                                :isOwner="store.state.userInfo.id == post.user_id" 
-                                :addFollowAction="true"
-                                @send-whisper="onSendWhisper"
-                                @handle-follow-action="onHandleFollowAction" />
-                        </n-list-item>
-                    </div>
-                    <div v-if="pageType === 'media'">
-                        <n-list-item v-for="post in mediaList" :key="post.id">
-                            <post-item :post="post" 
-                                :isOwner="store.state.userInfo.id == post.user_id" 
-                                :addFollowAction="true"
-                                @send-whisper="onSendWhisper"
-                                @handle-follow-action="onHandleFollowAction" />
-                        </n-list-item>
-                    </div>
-                    <div v-if="pageType === 'star'">
-                        <n-list-item v-for="post in starList" :key="post.id">
-                            <post-item :post="post" 
-                                :isOwner="store.state.userInfo.id == post.user_id" 
-                                :addFollowAction="true"
-                                @send-whisper="onSendWhisper"
-                                @handle-follow-action="onHandleFollowAction" />
-                        </n-list-item>
-                    </div>
-                </div>
-                <div v-else>
-                    <div v-if="pageType === 'post'">
-                        <n-list-item v-for="post in postList" :key="post.id">
-                            <mobile-post-item :post="post"
-                                :isOwner="store.state.userInfo.id == post.user_id" 
-                                :addFollowAction="true"
-                                @send-whisper="onSendWhisper"
-                                @handle-follow-action="onHandleFollowAction" />
-                        </n-list-item>
-                    </div>
-                    <div v-if="pageType === 'comment'">
-                        <n-list-item v-for="post in commentList" :key="post.id">
-                            <mobile-post-item :post="post"
-                                :isOwner="store.state.userInfo.id == post.user_id" 
-                                :addFollowAction="true"
-                                @send-whisper="onSendWhisper"
-                                @handle-follow-action="onHandleFollowAction" />
-                        </n-list-item>
-                    </div>
-                    <div v-if="pageType === 'highlight'">
-                        <n-list-item v-for="post in highlightList" :key="post.id">
-                            <mobile-post-item :post="post"
-                                :isOwner="store.state.userInfo.id == post.user_id" 
-                                :addFollowAction="true"
-                                @send-whisper="onSendWhisper"
-                                @handle-follow-action="onHandleFollowAction" />
-                        </n-list-item>
-                    </div>
-                    <div v-if="pageType === 'media'">
-                        <n-list-item v-for="post in mediaList" :key="post.id">
-                            <mobile-post-item :post="post"
-                                :isOwner="store.state.userInfo.id == post.user_id" 
-                                :addFollowAction="true"
-                                @send-whisper="onSendWhisper"
-                                @handle-follow-action="onHandleFollowAction" />
-                        </n-list-item>
-                    </div>
-                    <div v-if="pageType === 'star'">
-                        <n-list-item v-for="post in starList" :key="post.id">
-                            <mobile-post-item :post="post"
-                                :isOwner="store.state.userInfo.id == post.user_id" 
-                                :addFollowAction="true"
-                                @send-whisper="onSendWhisper"
-                                @handle-follow-action="onHandleFollowAction" />
-                        </n-list-item>
-                    </div>
-                </div>
+                  <n-list-item v-for="post in listData" :key="post.id">
+                      <post-item :post="post"
+                          :isOwner="userInfo.id == post.user_id"
+                          :addFollowAction="true"
+                          :isMobile="!desktopModelShow"
+                          @send-whisper="onSendWhisper"
+                          @post-follow-action="postFollowAction" />
+                  </n-list-item>
             </div>
             <!-- 私信组件 -->
             <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
@@ -207,17 +121,25 @@
 <script setup lang="ts">
 import { h, ref, Component, onMounted, computed, watch } from 'vue';
 import { NIcon } from 'naive-ui';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
 import { useRoute, useRouter } from 'vue-router';
 import { useDialog, DropdownOption } from 'naive-ui';
-import { getUserPosts, followUser, unfollowUser } from '@/api/user';
 import { formatDate } from '@/utils/formatTime';
 import { prettyQuoteNum } from '@/utils/count';
 import InfiniteLoading from 'v3-infinite-loading';
 import { SettingsOutline } from '@vicons/ionicons5';
 import { MoreHorizFilled } from '@vicons/material';
+import { useStoreUser } from '@/store/user';
+import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
 
-const store = useStore();
+type PageType = 'post' | 'comment' | 'highlight' | 'media' | 'star';
+
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const { refresh, desktopModelShow } = storeToRefs(storeMain);
+const { userInfo } = storeToRefs(storeUser);
+
 const route = useRoute();
 const router = useRouter();
 const dialog = useDialog();
@@ -229,9 +151,7 @@ const commentList = ref<Item.PostProps[]>([]);
 const highlightList = ref<Item.PostProps[]>([]);
 const mediaList = ref<Item.PostProps[]>([]);
 const starList = ref<Item.PostProps[]>([]);
-const pageType = ref<'post' | 'comment' | 'highlight' | 'media' | 'star'>(
-  'post',
-);
+const pageType = ref<PageType>('post');
 const postPage = ref(+(route.query.p as string) || 1);
 const commentPage = ref(1);
 const highlightPage = ref(1);
@@ -259,6 +179,23 @@ const whisperReceiver = ref<Item.UserInfo>({
   followings: 0,
   status: 1,
 });
+
+const listData = computed(() => {
+	switch (pageType.value) {
+		case 'post':
+			return postList.value;
+		case 'comment':
+			return commentList.value;
+		case 'highlight':
+			return highlightList.value;
+		case 'media':
+			return mediaList.value;
+		case 'star':
+			return starList.value;
+		default:
+			return [];
+	}
+})
 
 const renderIcon = (icon: Component) => {
   return () => {
@@ -303,40 +240,6 @@ const whisperSuccess = () => {
   showWhisper.value = false;
 };
 
-const onHandleFollowAction = (post: Item.PostProps) => {
-  dialog.success({
-    title: '提示',
-    content:
-      '确定' +
-      (post.user.is_following ? '取消关注 @' : '关注 @') +
-      post.user.username +
-      ' 吗？',
-    positiveText: '确定',
-    negativeText: '取消',
-    onPositiveClick: () => {
-      if (post.user.is_following) {
-        unfollowUser({
-          user_id: post.user.id,
-        })
-          .then((_res) => {
-            window.$message.success('操作成功');
-            postFollowAction(post.user_id, false);
-          })
-          .catch((_err) => {});
-      } else {
-        followUser({
-          user_id: post.user.id,
-        })
-          .then((_res) => {
-            window.$message.success('关注成功');
-            postFollowAction(post.user_id, true);
-          })
-          .catch((_err) => {});
-      }
-    },
-  });
-};
-
 function postFollowAction(userId: number, isFollowing: boolean) {
   updateFolloing(postList.value, userId, isFollowing);
   updateFolloing(commentList.value, userId, isFollowing);
@@ -360,29 +263,27 @@ function updateFolloing(
 }
 
 const loadPage = () => {
-  switch (pageType.value) {
-    case 'post':
-      loadPosts();
-      break;
-    case 'comment':
-      loadCommentPosts();
-      break;
-    case 'highlight':
-      loadHighlightPosts();
-      break;
-    case 'media':
-      loadMediaPosts();
-      break;
-    case 'star':
-      loadStarPosts();
-      break;
-  }
+  loadPostsByStyle(pageType.value);
 };
-const loadPosts = () => {
+const styleListMap = {
+  post: { list: postList, totalPage: postTotalPage },
+  comment: { list: commentList, totalPage: commentTotalPage },
+  highlight: { list: highlightList, totalPage: highlightTotalPage },
+  media: { list: mediaList, totalPage: mediaTotalPage },
+  star: { list: starList, totalPage: starTotalPage },
+};
+const stylePageMap = {
+  post: postPage,
+  comment: commentPage,
+  highlight: highlightPage,
+  media: mediaPage,
+  star: starPage,
+};
+function loadPostsByStyle(style: keyof typeof styleListMap) {
   loading.value = true;
-  getUserPosts({
-    username: store.state.userInfo.username,
-    style: 'post',
+  Api.v1.user.get.posts({
+    username: userInfo.value.username,
+    style,
     page: page.value,
     page_size: pageSize.value,
   })
@@ -398,201 +299,27 @@ const loadPosts = () => {
         window.scrollTo(0, 0);
       }
       totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-      postList.value = list.value;
-      postTotalPage.value = totalPage.value;
+      styleListMap[style].list.value = list.value;
+      styleListMap[style].totalPage.value = totalPage.value;
     })
-    .catch((err) => {
+    .catch((_err) => {
       list.value = [];
       if (page.value > 1) {
         page.value--;
       }
       loading.value = false;
     });
-};
-const loadCommentPosts = () => {
-  loading.value = true;
-  getUserPosts({
-    username: store.state.userInfo.username,
-    style: 'comment',
-    page: page.value,
-    page_size: pageSize.value,
-  })
-    .then((rsp) => {
-      loading.value = false;
-      if (rsp.list.length === 0) {
-        noMore.value = true;
-      }
-      if (page.value > 1) {
-        list.value = list.value.concat(rsp.list);
-      } else {
-        list.value = rsp.list || [];
-        window.scrollTo(0, 0);
-      }
-      totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-      commentList.value = list.value;
-      commentTotalPage.value = totalPage.value;
-    })
-    .catch((err) => {
-      list.value = [];
-      if (page.value > 1) {
-        page.value--;
-      }
-      loading.value = false;
-    });
-};
-const loadHighlightPosts = () => {
-  loading.value = true;
-  getUserPosts({
-    username: store.state.userInfo.username,
-    style: 'highlight',
-    page: page.value,
-    page_size: pageSize.value,
-  })
-    .then((rsp) => {
-      loading.value = false;
-      if (rsp.list.length === 0) {
-        noMore.value = true;
-      }
-      if (page.value > 1) {
-        list.value = list.value.concat(rsp.list);
-      } else {
-        list.value = rsp.list || [];
-        window.scrollTo(0, 0);
-      }
-      totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-      highlightList.value = list.value;
-      highlightTotalPage.value = totalPage.value;
-    })
-    .catch((err) => {
-      list.value = [];
-      if (page.value > 1) {
-        page.value--;
-      }
-      loading.value = false;
-    });
-};
-const loadMediaPosts = () => {
-  loading.value = true;
-  getUserPosts({
-    username: store.state.userInfo.username,
-    style: 'media',
-    page: page.value,
-    page_size: pageSize.value,
-  })
-    .then((rsp) => {
-      loading.value = false;
-      if (rsp.list.length === 0) {
-        noMore.value = true;
-      }
-      if (page.value > 1) {
-        list.value = list.value.concat(rsp.list);
-      } else {
-        list.value = rsp.list || [];
-        window.scrollTo(0, 0);
-      }
-      totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-      mediaList.value = list.value;
-      mediaTotalPage.value = totalPage.value;
-    })
-    .catch((err) => {
-      list.value = [];
-      if (page.value > 1) {
-        page.value--;
-      }
-      loading.value = false;
-    });
-};
-const loadStarPosts = () => {
-  loading.value = true;
-  getUserPosts({
-    username: store.state.userInfo.username,
-    style: 'star',
-    page: page.value,
-    page_size: pageSize.value,
-  })
-    .then((rsp) => {
-      loading.value = false;
-      if (rsp.list.length === 0) {
-        noMore.value = true;
-      }
-      if (page.value > 1) {
-        list.value = list.value.concat(rsp.list);
-      } else {
-        list.value = rsp.list || [];
-        window.scrollTo(0, 0);
-      }
-      totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-      starList.value = list.value;
-      starTotalPage.value = totalPage.value;
-    })
-    .catch((err) => {
-      list.value = [];
-      if (page.value > 1) {
-        page.value--;
-      }
-      loading.value = false;
-    });
-};
-const changeTab = (
-  tab: 'post' | 'comment' | 'highlight' | 'media' | 'star',
-) => {
+}
+const changeTab = (tab: PageType) => {
   pageType.value = tab;
-  switch (pageType.value) {
-    case 'post':
-      list.value = postList.value;
-      page.value = postPage.value;
-      totalPage.value = postTotalPage.value;
-      loadPosts();
-      break;
-    case 'comment':
-      list.value = commentList.value;
-      page.value = commentPage.value;
-      totalPage.value = commentTotalPage.value;
-      loadCommentPosts();
-      break;
-    case 'highlight':
-      list.value = highlightList.value;
-      page.value = highlightPage.value;
-      totalPage.value = highlightTotalPage.value;
-      loadHighlightPosts();
-      break;
-    case 'media':
-      list.value = mediaList.value;
-      page.value = mediaPage.value;
-      totalPage.value = mediaTotalPage.value;
-      loadMediaPosts();
-      break;
-    case 'star':
-      list.value = starList.value;
-      page.value = starPage.value;
-      totalPage.value = starTotalPage.value;
-      loadStarPosts();
-      break;
-  }
+  list.value = styleListMap[tab].list.value;
+  page.value = stylePageMap[tab].value;
+  totalPage.value = styleListMap[tab].totalPage.value;
+  loadPostsByStyle(tab);
 };
 const updatePage = () => {
-  switch (pageType.value) {
-    case 'post':
-      postPage.value = page.value;
-      loadPosts();
-      break;
-    case 'comment':
-      commentPage.value = page.value;
-      loadCommentPosts();
-      break;
-    case 'highlight':
-      highlightPage.value = page.value;
-      loadHighlightPosts();
-      break;
-    case 'media':
-      mediaPage.value = page.value;
-      loadMediaPosts();
-      break;
-    case 'star':
-      starPage.value = page.value;
-      loadStarPosts();
-      break;
-  }
+  stylePageMap[pageType.value].value = page.value;
+  loadPostsByStyle(pageType.value);
 };
 const nextPage = () => {
   if (page.value < totalPage.value || totalPage.value == 0) {
@@ -610,7 +337,7 @@ watch(
   () => ({
     path: route.path,
     query: route.query,
-    refresh: store.state.refresh,
+    refresh: refresh.value,
   }),
   (to, from) => {
     if (to.refresh !== from.refresh) {

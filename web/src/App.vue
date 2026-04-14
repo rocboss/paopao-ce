@@ -1,14 +1,14 @@
 <template>
-    <n-config-provider :theme="theme">
+    <n-config-provider :theme="iTheme">
         <n-message-provider>
             <n-dialog-provider>
                 <div
                     class="app-container"
-                    :class="{ dark: theme?.name === 'dark', mobile: !store.state.desktopModelShow }"
+                    :class="{ dark: iTheme?.name === 'dark', mobile: !desktopModelShow }"
                 >
                     <div has-sider class="main-wrap" position="static" >
                         <!-- 侧边栏 -->
-                        <div v-if="store.state.desktopModelShow">
+                        <div v-if="desktopModelShow">
                             <sidebar />
                         </div>
 
@@ -44,31 +44,31 @@
 
 <script setup lang="ts">
 import { onMounted, computed } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
 import { darkTheme } from 'naive-ui';
 import { getSiteProfile } from '@/api/site';
+import { useStoreProfile } from '@/store/profile';
+import { storeToRefs } from 'pinia';
 
-const store = useStore();
-const theme = computed(() => (store.state.theme === 'dark' ? darkTheme : null));
+const storeMain = useStoreMain();
+const storeProfile = useStoreProfile();
+const { theme, desktopModelShow } = storeToRefs(storeMain);
+
+const iTheme = computed(() => (theme.value === 'dark' ? darkTheme : null));
 
 function loadSiteProfile() {
-  store.commit('loadDefaultSiteProfile');
-  if (import.meta.env.VITE_USE_WEB_PROFILE.toLowerCase() === 'true') {
-    getSiteProfile()
-      .then((res) => {
-        store.commit('updateSiteProfile', res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
+    storeProfile.loadDefaultSiteProfile();
+    if (import.meta.env.VITE_USE_WEB_PROFILE.toLowerCase() === 'true') {
+        getSiteProfile()
+            .then((res) => {
+                storeProfile.updateSiteProfile(res);
+            }).catch((err) => {
+                console.log(err);
+            });
+    }
 }
 
 onMounted(() => {
   loadSiteProfile();
 });
 </script>
-
-<style lang="less">
-@import '@/assets/css/main.less';
-</style>

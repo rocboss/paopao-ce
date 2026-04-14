@@ -6,9 +6,9 @@
             <n-tabs type="line" animated @update:value="changeTab">
                 <n-tab-pane name="hot" tab="热门" />
                 <n-tab-pane name="new" tab="最新" />
-                <n-tab-pane name="follow" tab="关注" v-if="store.state.userLogined" />
-                <n-tab-pane name="pin" tab="钉住" v-if="store.state.userLogined" />
-                <template v-if="store.state.userLogined" #suffix>
+                <n-tab-pane name="follow" tab="关注" v-if="userLogined" />
+                <n-tab-pane name="pin" tab="钉住" v-if="userLogined" />
+                <template v-if="userLogined" #suffix>
                     <n-tag v-model:checked="tagsChecked" checkable>
                         {{tagsEditText}}
                     </n-tag>
@@ -19,7 +19,7 @@
                     <tag-item
                         v-for="tag in tags"
                         :tag="tag"
-                        :showAction="store.state.userLogined && tagsChecked"
+                        :showAction="userLogined && tagsChecked"
                         :checkFollowing="inFollowTab"
                         :checkPin="inPinTab"
                     >
@@ -36,9 +36,14 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import { getTags } from '@/api/post';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
+import { useStoreUser } from '@/store/user';
+import { storeToRefs } from 'pinia';
 
-const store = useStore();
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const { userLogined } = storeToRefs(storeUser);
+
 const tags = ref<Item.TagProps[]>([]);
 const tagType = ref<'hot' | 'new' | 'follow' | 'pin'>('hot');
 const loading = ref(false);
@@ -49,7 +54,7 @@ const inPinTab = ref(false);
 watch(tagsChecked, () => {
   if (!tagsChecked.value) {
     window.$message.success('保存成功');
-    store.commit('refreshTopicFollow');
+    storeMain.doRefreshTopicFollow();
   }
 });
 const tagsEditText = computed({

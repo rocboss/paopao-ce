@@ -19,13 +19,6 @@ import (
 	"github.com/tencentyun/cos-go-sdk-v5"
 )
 
-var (
-	_ core.ObjectStorageService = (*cosServant)(nil)
-	_ core.OssCreateService     = (*cosCreateServant)(nil)
-	_ core.OssCreateService     = (*cosCreateTempDirServant)(nil)
-	_ core.VersionInfo          = (*cosServant)(nil)
-)
-
 type cosCreateServant struct {
 	client *cos.Client
 	domain string

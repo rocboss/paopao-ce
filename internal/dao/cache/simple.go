@@ -16,11 +16,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	_ core.CacheIndexService = (*simpleCacheIndexServant)(nil)
-	_ core.VersionInfo       = (*simpleCacheIndexServant)(nil)
-)
-
 type simpleCacheIndexServant struct {
 	ips core.IndexPostsService
 

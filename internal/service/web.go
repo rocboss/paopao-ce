@@ -17,8 +17,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants"
 )
 
-var _ Service = (*webService)(nil)
-
 type webService struct {
 	*baseHttpService
 }

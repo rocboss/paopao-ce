@@ -17,8 +17,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/infra/metrics/statistics"
 )
 
-var _ Service = (*metricsService)(nil)
-
 type metricsService struct {
 	*baseHttpService
 }

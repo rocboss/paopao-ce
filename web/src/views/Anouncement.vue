@@ -7,7 +7,7 @@
             <template #footer>
                 <div class="pagination-wrap" v-if="totalPage > 1">
                     <n-pagination :page="page" @update:page="updatePage"
-                        :page-slot="!store.state.collapsedRight ? 8 : 5" :page-count="totalPage" />
+                        :page-slot="!collapsedRight ? 8 : 5" :page-count="totalPage" />
                 </div>
             </template>
 
@@ -44,11 +44,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
 import { useRoute } from 'vue-router';
 import { formatRelativeTime } from '@/utils/formatTime';
+import { storeToRefs } from 'pinia';
 
-const store = useStore();
+const storeMain = useStoreMain();
+const { collapsedRight } = storeToRefs(storeMain);
+
 const route = useRoute();
 
 const loading = ref(false);

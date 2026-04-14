@@ -50,8 +50,8 @@
 </template>
 
 <script setup lang="ts">
+import { Api } from '@/utils/request';
 import { ref } from 'vue';
-import { requestingFriend } from '@/api/user';
 
 const props = withDefaults(
   defineProps<{
@@ -73,7 +73,7 @@ const closeModal = () => {
 };
 const sendWhisper = () => {
   loading.value = true;
-  requestingFriend({
+  Api.v1.friend.post.requesting({
     user_id: props.user.id,
     greetings: content.value,
   })

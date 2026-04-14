@@ -22,8 +22,8 @@
             <div class="timestamp">
                 {{ props.reply.ip_loc }}
                 <n-popconfirm v-if="
-                    store.state.userInfo.is_admin ||
-                    store.state.userInfo.id === props.reply.user.id
+                    userInfo.is_admin ||
+                    userInfo.id === props.reply.user.id
                 " negative-text="取消" positive-text="确认" @positive-click="execDelAction">
                     <template #trigger>
                         <n-button quaternary circle size="tiny" class="del-btn">
@@ -51,31 +51,31 @@
                 </span>
 
                 <div class="actions">
-                    <div v-if="!store.state.userLogined" class="action-item" @click.stop="">
+                    <div v-if="!userLogined" class="action-item" @click.stop="">
                         <n-icon size="medium">
                             <thumb-up-outlined />
                         </n-icon>
                         <span class="upvote-count">{{ thumbsUpCount }}</span>
                     </div>
-                    <div v-if="store.state.userLogined" class="action-item hover" @click.stop="handleThumbsUp">
+                    <div v-if="userLogined" class="action-item hover" @click.stop="handleThumbsUp">
                         <n-icon size="medium">
                             <thumb-up-outlined v-if="!hasThumbsUp" />
                             <thumb-up-twotone v-if="hasThumbsUp" class="show" />
                         </n-icon>
                         <span class="upvote-count">{{ thumbsUpCount>0 ? thumbsUpCount : "赞" }}</span>
                     </div>
-                    <div v-if="!store.state.userLogined" class="action-item">
+                    <div v-if="!userLogined" class="action-item">
                         <n-icon size="medium">
                             <thumb-down-outlined />
                         </n-icon>
                     </div>
-                    <div v-if="store.state.userLogined" class="action-item hover" @click.stop="handleThumbsDown">
+                    <div v-if="userLogined" class="action-item hover" @click.stop="handleThumbsDown">
                         <n-icon size="medium">
                             <thumb-down-outlined v-if="!hasThumbsDown" />
                             <thumb-down-twotone v-if="hasThumbsDown" class="show" />
                         </n-icon>
                     </div>
-                    <span v-if="store.state.userLogined" class="show opacity-item reply-btn" @click="focusReply"> 回复 </span>
+                    <span v-if="userLogined" class="show opacity-item reply-btn" @click="focusReply"> 回复 </span>
                 </div>
             </div>
         </div>
@@ -84,7 +84,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
 import { Trash } from '@vicons/tabler';
 import { formatPrettyTime } from '@/utils/formatTime';
 import {
@@ -99,6 +99,8 @@ import {
   ThumbDownOutlined,
 } from '@vicons/material';
 import { YesNoEnum } from '@/utils/IEnum';
+import { useStoreUser } from '@/store/user';
+import { storeToRefs } from 'pinia';
 
 const props = withDefaults(
   defineProps<{
@@ -107,7 +109,11 @@ const props = withDefaults(
   }>(),
   {},
 );
-const store = useStore();
+
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const { userInfo, userLogined } = storeToRefs(storeUser);
+
 const emit = defineEmits<{
   (e: 'focusReply', reply: Item.ReplyProps): void;
   (e: 'reload'): void;

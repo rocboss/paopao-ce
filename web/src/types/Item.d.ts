@@ -1,4 +1,4 @@
-declare module Item {
+declare namespace Item {
   interface UserInfo {
     /** 用户UID */
     id: number;

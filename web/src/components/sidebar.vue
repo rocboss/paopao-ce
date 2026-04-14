@@ -6,13 +6,13 @@
         <n-menu :accordion="true" :icon-size="24" :options="menuOptions" :render-label="renderMenuLabel"
             :render-icon="renderMenuIcon" :value="selectedPath" @update:value="goRouter" />
 
-        <div class="user-wrap" v-if="store.state.userInfo.id > 0">
-            <n-avatar class="user-avatar" round :size="34" :src="store.state.userInfo.avatar" />
+        <div class="user-wrap" v-if="userInfo.id > 0">
+            <n-avatar class="user-avatar" round :size="34" :src="userInfo.avatar" />
 
             <div class="user-info">
                 <div class="nickname">
                     <span class="nickname-txt">
-                        {{ store.state.userInfo.nickname }}
+                        {{ userInfo.nickname }}
                     </span>
                     <n-button class="logout" quaternary circle size="tiny" @click="handleLogout">
                         <template #icon>
@@ -22,7 +22,7 @@
                         </template>
                     </n-button>
                 </div>
-                <div class="username">@{{ store.state.userInfo.username }}</div>
+                <div class="username">@{{ userInfo.username }}</div>
             </div>
 
             <div class="user-mini-wrap">
@@ -36,12 +36,12 @@
             </div>
         </div>
         <div class="user-wrap" v-else>
-            <div v-if="!store.state.profile.allowUserRegister" class="login-only-wrap">
+            <div v-if="!profile.allowUserRegister" class="login-only-wrap">
                 <n-button strong secondary round type="primary" @click="triggerAuth('signin')">
                     登录
                 </n-button>
             </div>
-            <div v-if="store.state.profile.allowUserRegister" class="login-wrap">
+            <div v-if="profile.allowUserRegister" class="login-wrap">
                 <n-button strong secondary round type="primary" @click="triggerAuth('signin')">
                     登录
                 </n-button>
@@ -56,7 +56,7 @@
 <script setup lang="ts">
 import { h, ref, watch, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
 import { NIcon, NBadge, useMessage } from 'naive-ui';
 import {
   HomeOutline,
@@ -70,10 +70,19 @@ import {
   LogOutOutline,
 } from '@vicons/ionicons5';
 import { Hash } from '@vicons/tabler';
-import { getUnreadMsgCount } from '@/api/user';
 import LOGO from '@/assets/img/logo.png';
+import { useStoreUser } from '@/store/user';
+import { useStoreProfile } from '@/store/profile';
+import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
 
-const store = useStore();
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const storeProfile = useStoreProfile();
+const { unreadMsgCount } = storeToRefs(storeMain);
+const { userInfo } = storeToRefs(storeUser);
+const { profile } = storeToRefs(storeProfile);
+
 const route = useRoute();
 const router = useRouter();
 const hasUnreadMsg = ref(false);
@@ -86,29 +95,29 @@ const enableAnnoucement =
 watch(route, () => {
   selectedPath.value = route.name;
 });
-watch(store.state, () => {
-  hasUnreadMsg.value = store.state.unreadMsgCount > 0;
-  if (store.state.userInfo.id > 0) {
+watch(() => [unreadMsgCount, userInfo, profile], () => {
+  hasUnreadMsg.value = unreadMsgCount.value > 0;
+  if (userInfo.value.id > 0) {
     if (!msgLoop.value) {
-      getUnreadMsgCount()
+      Api.v1.user.get.msgcount.unread({})
         .then((res) => {
           hasUnreadMsg.value = res.count > 0;
-          store.commit('updateUnreadMsgCount', res.count);
+          storeMain.updateUnreadMsgCount(res.count);
         })
         .catch((err) => {
           console.log(err);
         });
 
       msgLoop.value = setInterval(() => {
-        getUnreadMsgCount()
+        Api.v1.user.get.msgcount.unread({})
           .then((res) => {
             hasUnreadMsg.value = res.count > 0;
-            store.commit('updateUnreadMsgCount', res.count);
+            storeMain.updateUnreadMsgCount(res.count);
           })
           .catch((err) => {
             console.log(err);
           });
-      }, store.state.profile.defaultMsgLoopInterval);
+      }, profile.value.defaultMsgLoopInterval);
     }
   } else {
     if (msgLoop.value) {
@@ -118,8 +127,8 @@ watch(store.state, () => {
 });
 onMounted(() => {
   window.onresize = () => {
-    store.commit('triggerCollapsedLeft', document.body.clientWidth <= 821);
-    store.commit('triggerCollapsedRight', document.body.clientWidth <= 821);
+    storeMain.triggerCollapsedLeft(document.body.clientWidth <= 821);
+    storeMain.triggerCollapsedRight(document.body.clientWidth <= 821);
   };
 });
 const menuOptions = computed(() => {
@@ -163,7 +172,7 @@ const menuOptions = computed(() => {
     icon: () => h(BookmarksOutline),
     href: '/collection',
   });
-  if (store.state.profile.useFriendship) {
+  if (profile.value.useFriendship) {
     options.push({
       label: '好友',
       key: 'contacts',
@@ -171,7 +180,7 @@ const menuOptions = computed(() => {
       href: '/contacts',
     });
   }
-  if (store.state.profile.enableWallet) {
+  if (profile.value.enableWallet) {
     options.push({
       label: '钱包',
       key: 'wallet',
@@ -186,7 +195,7 @@ const menuOptions = computed(() => {
     href: '/setting',
   });
 
-  return store.state.userInfo.id > 0
+  return userInfo.value.id > 0
     ? options
     : [
         {
@@ -248,20 +257,19 @@ const goRouter = (name: string, item: any = {}) => {
 };
 const goHome = () => {
   if (route.path === '/') {
-    store.commit('refresh');
+    storeMain.doRefresh();
   }
   goRouter('home');
 };
 const triggerAuth = (key: string) => {
-  store.commit('triggerAuth', true);
-  store.commit('triggerAuthKey', key);
+  storeMain.triggerAuth(true);
+  storeMain.triggerAuthKey(key);
 };
 const handleLogout = () => {
-  store.commit('userLogout');
-  store.commit('refresh');
+  storeUser.userLogout();
+  storeMain.doRefresh();
   goHome();
 };
-window.$store = store;
 window.$message = useMessage();
 </script>
 

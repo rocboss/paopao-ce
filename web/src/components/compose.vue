@@ -1,12 +1,12 @@
 <template>
     <div>
-        <div class="compose-wrap" v-if="store.state.userInfo.id > 0">
+        <div class="compose-wrap" v-if="userInfo.id > 0">
             <div class="compose-line">
                 <div class="compose-user">
                     <n-avatar
                         round
                         :size="30"
-                        :src="store.state.userInfo.avatar"
+                        :src="userInfo.avatar"
                     />
                 </div>
                 <n-mention
@@ -75,7 +75,7 @@
                         </n-upload-trigger>
 
                         <n-upload-trigger
-                          v-if="store.state.profile.allowTweetVideo"
+                          v-if="profile.allowTweetVideo"
                           #="{ handleClick }" abstract>
                             <n-button
                                 :disabled="
@@ -105,7 +105,7 @@
                         </n-upload-trigger>
 
                         <n-upload-trigger
-                          v-if="store.state.profile.allowTweetAttachment"
+                          v-if="profile.allowTweetAttachment"
                           #="{ handleClick }" abstract>
                             <n-button
                                 :disabled="
@@ -171,7 +171,7 @@
                                     :show-indicator="false"
                                     status="success"
                                     :stroke-width="10"
-                                    :percentage="(content.length / store.state.profile.defaultTweetMaxLength) * 100"
+                                    :percentage="(content.length / profile.defaultTweetMaxLength) * 100"
                                 />
                             </template>
                             已输入{{ content.length }}字
@@ -196,7 +196,7 @@
                         v-if="attachmentContents.length > 0"
                     >
                         <n-input-number
-                            v-if="store.state.profile.allowTweetAttachmentPrice"
+                            v-if="profile.allowTweetAttachmentPrice"
                             v-model:value="attachmentPrice"
                             :min="0"
                             :max="100000"
@@ -239,7 +239,7 @@
             <div class="login-wrap">
                 <span class="login-banner"> 登录后，精彩更多</span>
             </div>
-            <div v-if="!store.state.profile.allowUserRegister" class="login-only-wrap">
+            <div v-if="!profile.allowUserRegister" class="login-only-wrap">
                 <n-button
                     strong
                     secondary
@@ -250,7 +250,7 @@
                     登录
                 </n-button>
             </div>
-            <div v-if="store.state.profile.allowUserRegister" class="login-wrap">
+            <div v-if="profile.allowUserRegister" class="login-wrap">
                 <n-button
                     strong
                     secondary
@@ -276,9 +276,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
+import { TOKEN_KEY, useStoreUser } from '@/store/user';
+import { useStoreProfile } from '@/store/profile';
 import { debounce } from 'lodash';
-import { getSuggestUsers, getSuggestTags } from '@/api/user';
 
 import {
   ImageOutline,
@@ -292,12 +293,18 @@ import { parsePostTag } from '@/utils/content';
 import { isZipFile } from '@/utils/isZipFile';
 import type { MentionOption, UploadFileInfo, UploadInst } from 'naive-ui';
 import { VisibilityEnum, PostItemTypeEnum } from '@/utils/IEnum';
+import { storeToRefs } from 'pinia';
+import { Api } from '@/utils/request';
 
 const emit = defineEmits<{
   (e: 'post-success', post: Item.PostProps): void;
 }>();
 
-const store = useStore();
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const storeProfile = useStoreProfile();
+const { userInfo } = storeToRefs(storeUser);
+const { profile } = storeToRefs(storeProfile);
 
 const optionsRef = ref<MentionOption[]>([]);
 const loading = ref(false);
@@ -323,7 +330,7 @@ const allowTweetVisibility = ref(
 const uploadGateway = import.meta.env.VITE_HOST + '/v1/attachment';
 
 const uploadToken = computed(() => {
-  return 'Bearer ' + localStorage.getItem('PAOPAO_TOKEN');
+  return 'Bearer ' + localStorage.getItem(TOKEN_KEY);
 });
 
 const visibilities = computed(() => {
@@ -332,7 +339,7 @@ const visibilities = computed(() => {
     { value: VisibilityEnum.PRIVATE, label: '私密' },
     { value: VisibilityEnum.Following, label: '关注可见' },
   ];
-  if (store.state.profile.useFriendship) {
+  if (profile.value.useFriendship) {
     res.push({ value: VisibilityEnum.FRIEND, label: '好友可见' });
   }
   return res;
@@ -354,7 +361,7 @@ const switchEye = () => {
 
 // 加载at用户列表
 const loadSuggestionUsers = debounce((k) => {
-  getSuggestUsers({
+  Api.v1.suggest.get.users({
     k,
   })
     .then((res) => {
@@ -375,7 +382,7 @@ const loadSuggestionUsers = debounce((k) => {
 
 // 加载推荐tag列表
 const loadSuggestionTags = debounce((k) => {
-  getSuggestTags({
+  Api.v1.suggest.get.tags({
     k,
   })
     .then((res) => {
@@ -406,8 +413,8 @@ const handleSearch = (k: string, prefix: string) => {
   }
 };
 const changeContent = (v: string) => {
-  if (v.length > store.state.profile.defaultTweetMaxLength) {
-    content.value = v.substring(0, store.state.profile.defaultTweetMaxLength);
+  if (v.length > profile.value.defaultTweetMaxLength) {
+    content.value = v.substring(0, profile.value.defaultTweetMaxLength);
   } else {
     content.value = v;
   }
@@ -623,12 +630,12 @@ const submitPost = () => {
     });
 };
 const triggerAuth = (key: string) => {
-  store.commit('triggerAuth', true);
-  store.commit('triggerAuthKey', key);
+  storeMain.triggerAuth(true);
+  storeMain.triggerAuthKey(key);
 };
 onMounted(() => {
-  const defaultVisibility = store.state.profile.defaultTweetVisibility;
-  if (store.state.profile.useFriendship && defaultVisibility === 'friend') {
+  const defaultVisibility = profile.value.defaultTweetVisibility;
+  if (profile.value.useFriendship && defaultVisibility === 'friend') {
     defaultVisitType.value = VisibilityEnum.FRIEND;
   } else if (defaultVisibility === 'following') {
     defaultVisitType.value = VisibilityEnum.Following;

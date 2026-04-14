@@ -12,12 +12,6 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/redis/rueidis"
-	"github.com/rocboss/paopao-ce/internal/core"
-)
-
-var (
-	_ core.RedisCache = (*redisCache)(nil)
-	_ tweetsCache     = (*redisCacheTweetsCache)(nil)
 )
 
 const (

@@ -16,11 +16,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	_ core.CommentService       = (*commentSrv)(nil)
-	_ core.CommentManageService = (*commentManageSrv)(nil)
-)
-
 type commentSrv struct {
 	db *gorm.DB
 }

@@ -12,8 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var _ core.WalletService = (*walletSrv)(nil)
-
 type walletSrv struct {
 	db *gorm.DB
 }

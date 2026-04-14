@@ -9,8 +9,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 )
 
-var _ api.User = (*userSrv)(nil)
-
 type userSrv struct {
 	*base.BaseServant
 	api.UnimplementedUserServant

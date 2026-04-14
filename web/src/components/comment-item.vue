@@ -36,7 +36,7 @@
                         {{  comment.ip_loc}}
                     </span>
                     <n-popconfirm
-                        v-if="store.state.userInfo.id === postUserId"
+                        v-if="userInfo.id === postUserId"
                         negative-text="取消"
                         positive-text="确认"
                         @positive-click="execHightlightAction"
@@ -62,8 +62,8 @@
                     </n-popconfirm>
                     <n-popconfirm
                         v-if="
-                            store.state.userInfo.is_admin ||
-                            store.state.userInfo.id === comment.user.id
+                            userInfo.is_admin ||
+                            userInfo.id === comment.user.id
                         "
                         negative-text="取消"
                         positive-text="确认"
@@ -128,18 +128,23 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useStore } from 'vuex';
+import { useStoreMain } from '@/store/main';
+import { useStoreUser } from '@/store/user';
 import { useRouter } from 'vue-router';
 import { parsePostTag } from '@/utils/content';
 import { Trash, ArrowBarToUp, ArrowBarDown } from '@vicons/tabler';
 import { deleteComment, highlightComment } from '@/api/post';
 import { YesNoEnum } from '@/utils/IEnum';
+import { storeToRefs } from 'pinia';
 
-const store = useStore();
 const router = useRouter();
 const replyAtUserID = ref(0);
 const replyAtUsername = ref('');
 const replyComposeRef = ref();
+
+const storeMain = useStoreMain();
+const storeUser = useStoreUser();
+const { userInfo } = storeToRefs(storeUser);
 
 const emit = defineEmits<{
   (e: 'reload'): void;
@@ -176,7 +181,7 @@ const doClickText = (e: MouseEvent, id: number | string) => {
   if (_target.dataset.detail) {
     const d = _target.dataset.detail.split(':');
     if (d.length === 2) {
-      store.commit('refresh');
+      storeMain.doRefresh();
       if (d[0] === 'tag') {
         window.$message.warning('评论内的无效话题');
       } else {

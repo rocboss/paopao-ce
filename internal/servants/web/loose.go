@@ -21,8 +21,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var _ api.Loose = (*looseSrv)(nil)
-
 type looseSrv struct {
 	api.UnimplementedLooseServant
 	*base.DaoServant

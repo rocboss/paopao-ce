@@ -15,8 +15,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants"
 )
 
-var _ Service = (*localossService)(nil)
-
 type localossService struct {
 	*baseHttpService
 }
