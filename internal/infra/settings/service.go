@@ -110,8 +110,7 @@ func (s *Service) ApplyPersistedOverrides(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) GetProfile(ctx context.Context) (*web.SiteProfileResp, error) {
-	_ = ctx
+func (s *Service) GetProfile(_ctx context.Context) (*web.SiteProfileResp, error) {
 	return &web.SiteProfileResp{
 		UseFriendship:             conf.WebProfileSetting.UseFriendship,
 		EnableTrendsBar:           conf.WebProfileSetting.EnableTrendsBar,
