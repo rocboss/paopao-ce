@@ -128,10 +128,10 @@ func (s *coreSrv) GetMessages(req *web.GetMessagesReq) (res *web.GetMessagesResp
 			}
 		}
 	}
-	if err != nil {
-		logrus.Errorf("Ds.GetMessages err[2]: %s", err)
-		return nil, web.ErrGetMessagesFailed
-	}
+	// if err != nil {
+	// 	logrus.Errorf("Ds.GetMessages err[2]: %s", err)
+	// 	return nil, web.ErrGetMessagesFailed
+	// }
 	if err = s.PrepareMessages(req.Uid, messages); err != nil {
 		logrus.Errorf("get messages err[3]: %s", err)
 		return nil, web.ErrGetMessagesFailed

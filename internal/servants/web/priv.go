@@ -351,10 +351,6 @@ func (s *privSrv) DeleteTweet(req *web.DeleteTweetReq) error {
 	deleteOssObjects(s.oss, mediaContents)
 	// 删除索引
 	s.DeleteSearchPost(post)
-	if err != nil {
-		logrus.Errorf("s.DeleteSearchPost failed: %s", err)
-		return web.ErrDeletePostFailed
-	}
 	// 缓存处理
 	// TODO: 缓存逻辑合并处理
 	onTrendsActionEvent(_trendsActionDeleteTweet, req.User.ID)
