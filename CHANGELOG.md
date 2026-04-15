@@ -202,11 +202,11 @@ All notable changes to paopao-ce are documented in this file.
     TweetMobileEllipsisSize: 300     # 移动端推文作为feed显示的最长字数，默认300字
     DefaultTweetVisibility: friend   # 推文可见性，默认好友可见 值: public/following/friend/private
     DefaultMsgLoopInterval: 5000     # 拉取未读消息的间隔，单位：毫秒, 默认5000ms 
-    CopyrightTop: "2023 paopao.info"
-    CopyrightLeft: "Roc's Me"
+    CopyrightTop: "2026 PaoPao"
+    CopyrightLeft: ""
     CopyrightLeftLink: ""
-    CopyrightRight: "泡泡(PaoPao)开源社区"
-    CopyrightRightLink: "https://www.paopao.info"
+    CopyrightRight: "Github"
+    CopyrightRightLink: "https://github.com/rocboss/paopao-ce"
   ...
   ```
 - add read more contents support for post card in tweets list.

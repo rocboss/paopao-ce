@@ -10,7 +10,7 @@
 
 <div align="center">
   <a href="https://github.com/rocboss/paopao-ce">
-    <img src="https://assets.paopao.info/static/paopao-logo.png" alt="PaoPao logo" width="88" height="88">
+    <img src="./.assets/readme/paopao-logo.png" alt="PaoPao logo" width="88" height="88">
   </a>
 
   <h1 align="center">PaoPao</h1>
@@ -24,7 +24,7 @@
   <p align="center">
     <a href="README_ZH.md">简体中文</a>
     ·
-    <a href="https://www.paopao.info/">Live Demo</a>
+    <a href="https://paopao-demo.vercel.app/">Live Demo</a>
     ·
     <a href="https://github.com/rocboss/paopao-ce/pulls">Pull Requests</a>
     ·
@@ -52,15 +52,15 @@ The repository is suitable for teams or individuals who want to run a community 
 
 ### Web
 
-[![Light theme preview](https://assets.paopao.info/static/paopao-light.jpeg)](https://www.paopao.info)
+[![Light theme preview](./.assets/readme/preview-light.jpeg)](https://paopao-demo.vercel.app)
 
-[![Dark theme preview](https://assets.paopao.info/static/paopao-dark.jpeg)](https://www.paopao.info)
+[![Dark theme preview](./.assets/readme/preview-dark.jpeg)](https://paopao-demo.vercel.app)
 
 ### Desktop
 
 ![](docs/proposal/.assets/000-00.jpg)
 
-More screenshots and live behavior are available at [paopao.info](https://www.paopao.info/).
+More screenshots and live behavior are available at [PaoPao](https://paopao-demo.vercel.app/).
 
 ## Architecture at a Glance
 

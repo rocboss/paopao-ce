@@ -17,11 +17,11 @@ export const useStoreProfile = defineStore("profile", () => {
         tweetMobileEllipsisSize: 300,
         defaultTweetVisibility: 'friend',
         defaultMsgLoopInterval: 5000,
-        copyrightTop: '2023 paopao.info',
-        copyrightLeft: 'Roc\'s Me',
+        copyrightTop: '2026 PaoPao',
+        copyrightLeft: '',
         copyrightLeftLink: '',
-        copyrightRight: '泡泡(PaoPao)开源社区',
-        copyrightRightLink: 'https://www.paopao.info',
+        copyrightRight: 'Github',
+        copyrightRightLink: 'https://github.com/rocboss/paopao-ce',
     });
 
     function loadDefaultSiteProfile() {
