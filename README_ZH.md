@@ -10,7 +10,7 @@
 
 <div align="center">
   <a href="https://github.com/rocboss/paopao-ce">
-    <img src="https://assets.paopao.info/static/paopao-logo.png" alt="PaoPao logo" width="88" height="88">
+    <img src="./.assets/readme/paopao-logo.png" alt="PaoPao logo" width="88" height="88">
   </a>
 
   <h1 align="center">PaoPao</h1>
@@ -24,7 +24,7 @@
   <p align="center">
     <a href="README.md">English</a>
     ·
-    <a href="https://www.paopao.info/">在线演示</a>
+    <a href="https://paopao-demo.vercel.app/">在线演示</a>
     ·
     <a href="https://github.com/rocboss/paopao-ce/pulls">Pull Requests</a>
     ·
@@ -52,15 +52,15 @@ PaoPao 是一个完整的开源微社区系统，包含 Go 后端、Vue 3 Web �
 
 ### Web 端
 
-[![明色主题预览](https://assets.paopao.info/static/paopao-light.jpeg)](https://www.paopao.info)
+[![明色主题预览](./.assets/readme/preview-light.jpeg)](https://paopao-demo.vercel.app)
 
-[![暗色主题预览](https://assets.paopao.info/static/paopao-dark.jpeg)](https://www.paopao.info)
+[![暗色主题预览](./.assets/readme/preview-dark.jpeg)](https://paopao-demo.vercel.app)
 
 ### 桌面端
 
 ![](docs/proposal/.assets/000-00.jpg)
 
-更多效果可前往 [paopao.info](https://www.paopao.info/) 查看。
+更多效果可前往 [PaoPao](https://paopao-demo.vercel.app/) 查看。
 
 ## 架构概览
 
