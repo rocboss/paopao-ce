@@ -137,8 +137,7 @@ import { storeToRefs } from 'pinia';
 import { Api } from '@/utils/request';
 import UserAction from '@/composables/useUserAction';
 
-const defaultavatar =
-  'https://paopao-demo.vercel.app/avatar/default/admin.png';
+const defaultavatar = 'https://paopao-demo.vercel.app/avatar/default/admin.png';
 
 const router = useRouter();
 
@@ -165,8 +164,7 @@ const renderIcon = (icon: Component) => {
 
 const actionOpts = computed(() => {
   let user =
-    props.message.type == 4 &&
-      props.message.sender_user_id == userInfo.value.id
+    props.message.type == 4 && props.message.sender_user_id == userInfo.value.id
       ? props.message.receiver_user
       : props.message.sender_user;
   let options: DropdownOption[] = [
@@ -205,14 +203,14 @@ const onHandleFollowAction = (message: Item.MessageProps) => {
       ? message.receiver_user
       : message.sender_user;
   UserAction.followAction(dialog, user.id, user.username, user.is_following)
-    .then(_action => {
+    .then((_action) => {
       user.is_following = _action;
       // TODO: 这里暴力处理，简单重新加载，更好的做法是遍历所有message，如果是对应user就更新到新状态
       setTimeout(() => {
         emit('reload');
       }, 50);
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
     });
 };
@@ -254,8 +252,7 @@ const isWhisperReceiver = computed(() => {
 
 const isWhisperSender = computed(() => {
   return (
-    props.message.type == 4 &&
-    props.message.sender_user_id == userInfo.value.id
+    props.message.type == 4 && props.message.sender_user_id == userInfo.value.id
   );
 });
 
@@ -277,9 +274,10 @@ const viewDetail = (message: Item.MessageProps) => {
 
 const agreeAddFriend = (message: Item.MessageProps) => {
   handleReadMessage(message);
-  Api.v1.friend.post.add({
-    user_id: message.sender_user_id,
-  })
+  Api.v1.friend.post
+    .add({
+      user_id: message.sender_user_id,
+    })
     .then((res) => {
       message.reply_id = 2;
       window.$message.success('已同意添加好友');
@@ -291,9 +289,10 @@ const agreeAddFriend = (message: Item.MessageProps) => {
 
 const rejectAddFriend = (message: Item.MessageProps) => {
   handleReadMessage(message);
-  Api.v1.friend.post.reject({
-    user_id: message.sender_user_id,
-  })
+  Api.v1.friend.post
+    .reject({
+      user_id: message.sender_user_id,
+    })
     .then((res) => {
       message.reply_id = 3;
       window.$message.success('已拒绝添加好友');
@@ -308,9 +307,10 @@ const handleReadMessage = (message: Item.MessageProps) => {
     return;
   }
   if (message.is_read === 0) {
-    Api.v1.user.message.post.read({
-      id: message.id,
-    })
+    Api.v1.user.message.post
+      .read({
+        id: message.id,
+      })
       .then((_res) => {
         message.is_read = 1;
       })

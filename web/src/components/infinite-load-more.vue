@@ -18,20 +18,23 @@
 <script setup lang="ts">
 import InfiniteLoading from 'v3-infinite-loading';
 
-withDefaults(defineProps<{
+withDefaults(
+  defineProps<{
     totalPage: number;
     noMore: boolean;
     completeText?: string;
-}>(), {
+  }>(),
+  {
     completeText: '没有更多了',
-});
+  },
+);
 
 const emit = defineEmits<{
-    (e: 'load-more'): void;
+  (e: 'load-more'): void;
 }>();
 
 const handleInfinite = () => {
-    emit('load-more');
+  emit('load-more');
 };
 </script>
 

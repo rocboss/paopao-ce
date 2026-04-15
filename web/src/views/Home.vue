@@ -182,10 +182,12 @@ const list = ref<any[]>([]);
 const showAddFriendWhisper = ref(false);
 
 // 使用 usePagination composable
-const { loading, noMore, page, pageSize, totalPage, reset, nextPage } = usePagination(20);
+const { loading, noMore, page, pageSize, totalPage, reset, nextPage } =
+  usePagination(20);
 
 // 使用 UserAction.useWhisper()
-const { showWhisper, whisperReceiver, onSendWhisper, whisperSuccess } = UserAction.useWhisper();
+const { showWhisper, whisperReceiver, onSendWhisper, whisperSuccess } =
+  UserAction.useWhisper();
 
 const openAddFriendWhisper = () => {
   showAddFriendWhisper.value = true;
@@ -201,9 +203,10 @@ const openDeleteFriend = (post: Item.PostProps) => {
     positiveText: '确定',
     negativeText: '取消',
     onPositiveClick: () => {
-      Api.v1.friend.post.delete({
-        user_id: user.id,
-      })
+      Api.v1.friend.post
+        .delete({
+          user_id: user.id,
+        })
         .then((res) => {
           window.$message.success('操作成功');
           post.user.is_friend = false;
@@ -376,12 +379,13 @@ const loadPosts = (style: 'newest' | 'hots' | 'following' | 'search') => {
 
 const loadUserPosts = () => {
   loading.value = true;
-  Api.v1.user.get.posts({
-    username: targetUsername.value,
-    style: 'post',
-    page: page.value,
-    page_size: pageSize.value,
-  })
+  Api.v1.user.get
+    .posts({
+      username: targetUsername.value,
+      style: 'post',
+      page: page.value,
+      page_size: pageSize.value,
+    })
     .then((rsp) => {
       loading.value = false;
       if (rsp.list.length === 0) {

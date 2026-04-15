@@ -177,10 +177,11 @@ const openAmounts = ref([100, 200, 300, 500, 1000, 3000, 5000, 10000, 50000]);
 
 const loadPosts = () => {
   loading.value = true;
-  Api.v1.user.get.wallet.bills({
-    page: page.value,
-    page_size: pageSize.value,
-  })
+  Api.v1.user.get.wallet
+    .bills({
+      page: page.value,
+      page_size: pageSize.value,
+    })
     .then((rsp) => {
       loading.value = false;
       list.value = rsp.list;
@@ -197,32 +198,33 @@ const updatePage = (p: number) => {
   loadPosts();
 };
 const loadWallet = () => {
-    // 获取最新
-    const token = localStorage.getItem(TOKEN_KEY) || '';
-    if (token) {
-        fetchUserInfo(token)
-        .then((res) => {
-            storeUser.updateUserinfo(res);
-            storeMain.triggerAuth(false);
-            loadPosts();
-        })
-        .catch((err) => {
-            storeMain.triggerAuth(true);
-            storeUser.userLogout();
-        });
-    } else {
+  // 获取最新
+  const token = localStorage.getItem(TOKEN_KEY) || '';
+  if (token) {
+    fetchUserInfo(token)
+      .then((res) => {
+        storeUser.updateUserinfo(res);
+        storeMain.triggerAuth(false);
+        loadPosts();
+      })
+      .catch((err) => {
         storeMain.triggerAuth(true);
         storeUser.userLogout();
-    }
+      });
+  } else {
+    storeMain.triggerAuth(true);
+    storeUser.userLogout();
+  }
 };
 const doRecharge = () => {
   showRecharge.value = true;
 };
 const handleRecharge = (amount: any) => {
   recharging.value = true;
-  Api.v1.user.post.recharge({
-    amount: selectedRechargeAmount.value,
-  })
+  Api.v1.user.post
+    .recharge({
+      amount: selectedRechargeAmount.value,
+    })
     .then((res) => {
       recharging.value = false;
       rechargeQrcode.value = res.pay;
@@ -234,9 +236,10 @@ const handleRecharge = (amount: any) => {
       });
 
       const s = setInterval(() => {
-        Api.v1.user.get.recharge({
-          id: res.id,
-        })
+        Api.v1.user.get
+          .recharge({
+            id: res.id,
+          })
           .then((res) => {
             if (res.status === 'TRADE_SUCCESS') {
               clearInterval(s);

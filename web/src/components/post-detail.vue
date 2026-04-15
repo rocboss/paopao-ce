@@ -328,10 +328,7 @@ const renderIcon = (icon: Component) => {
 
 const adminOptions = computed(() => {
   let options: DropdownOption[] = [];
-  if (
-    !userInfo.value.is_admin &&
-    userInfo.value.id != props.post.user.id
-  ) {
+  if (!userInfo.value.is_admin && userInfo.value.id != props.post.user.id) {
     options.push({
       label: '私信 @' + props.post.user.username,
       key: 'whisper',
@@ -453,10 +450,14 @@ const adminOptions = computed(() => {
 });
 
 const onHandleFollowAction = (post: Item.PostProps) => {
-	UserAction.followAction(dialog, post.user.id, post.user.username, post.user.is_following)
-		.then(_action => {
-			post.user.is_following = _action;
-		})
+  UserAction.followAction(
+    dialog,
+    post.user.id,
+    post.user.username,
+    post.user.is_following,
+  ).then((_action) => {
+    post.user.is_following = _action;
+  });
 };
 
 const goPostDetail = (id: number) => {

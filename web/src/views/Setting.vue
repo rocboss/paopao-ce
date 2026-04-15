@@ -425,9 +425,10 @@ const finishUpload = ({ file, event }: any): any => {
 
     if (data.code === 0) {
       if (uploadType.value === 'public/avatar') {
-        Api.v1.user.post.avatar({
-          avatar: data.data.content,
-        })
+        Api.v1.user.post
+          .avatar({
+            avatar: data.data.content,
+          })
           .then((res) => {
             window.$message.success('头像更新成功');
             avatarRef.value?.clear();
@@ -470,10 +471,11 @@ const handleValidateButtonClick = (e: MouseEvent) => {
   formRef.value?.validate((errors) => {
     if (!errors) {
       passwordSetting.value = true;
-      Api.v1.user.post.password({
-        password: modelData.password,
-        old_password: modelData.old_password,
-      })
+      Api.v1.user.post
+        .password({
+          password: modelData.password,
+          old_password: modelData.old_password,
+        })
         .then((res) => {
           passwordSetting.value = false;
           showPasswordSetting.value = false;
@@ -496,10 +498,11 @@ const handlePhoneBind = (e: MouseEvent) => {
   phoneFormRef.value?.validate((errors) => {
     if (!errors) {
       binding.value = true;
-      Api.v1.user.post.phone({
-        phone: modelData.phone,
-        captcha: modelData.phone_captcha,
-      })
+      Api.v1.user.post
+        .phone({
+          phone: modelData.phone,
+          captcha: modelData.phone_captcha,
+        })
         .then((res) => {
           binding.value = false;
           showPhoneBind.value = false;
@@ -533,11 +536,12 @@ const handleActivation = (e: MouseEvent) => {
     sending.value = true;
     if (!errors) {
       activating.value = true;
-      Api.v1.user.post.activate({
-        activate_code: activateData.activate_code,
-        captcha_id: activateData.id,
-        imgCaptcha: activateData.imgCaptcha,
-      })
+      Api.v1.user.post
+        .activate({
+          activate_code: activateData.activate_code,
+          captcha_id: activateData.id,
+          imgCaptcha: activateData.imgCaptcha,
+        })
         .then((res) => {
           activating.value = false;
           showActivation.value = false;
@@ -564,7 +568,8 @@ const handleActivation = (e: MouseEvent) => {
 };
 
 const loadCaptcha = () => {
-  Api.v1.captcha.get._self({})
+  Api.v1.captcha.get
+    ._self({})
     .then((res) => {
       modelData.id = res.id;
       modelData.b64s = res.b64s;
@@ -575,7 +580,8 @@ const loadCaptcha = () => {
 };
 
 const loadCaptcha4Activate = () => {
-  Api.v1.captcha.get._self({})
+  Api.v1.captcha.get
+    ._self({})
     .then((res) => {
       activateData.id = res.id;
       activateData.b64s = res.b64s;
@@ -586,9 +592,10 @@ const loadCaptcha4Activate = () => {
 };
 
 const handleNicknameChange = () => {
-  Api.v1.user.post.nickname({
-    nickname: userInfo.value.nickname || '',
-  })
+  Api.v1.user.post
+    .nickname({
+      nickname: userInfo.value.nickname || '',
+    })
     .then((res) => {
       showNicknameEdit.value = false;
       window.$message.success('昵称修改成功');
@@ -607,11 +614,12 @@ const sendPhoneCaptcha = () => {
     return;
   }
   sending.value = true;
-  Api.v1.captcha.post._self({
-    phone: modelData.phone,
-    img_captcha: modelData.imgCaptcha,
-    img_captcha_id: modelData.id,
-  })
+  Api.v1.captcha.post
+    ._self({
+      phone: modelData.phone,
+      img_captcha: modelData.imgCaptcha,
+      img_captcha_id: modelData.id,
+    })
     .then((res) => {
       smsDisabled.value = true;
       sending.value = false;

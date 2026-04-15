@@ -71,7 +71,8 @@ const download = (attachment: Item.PostItemProps) => {
         ),
       ]);
 
-      Api.v1.attachment.get.precheck({
+    Api.v1.attachment.get
+      .precheck({
         id: attachmentID.value,
       })
       .then((res) => {
@@ -88,9 +89,10 @@ const download = (attachment: Item.PostItemProps) => {
   }
 };
 const execDownloadAction = () => {
-  Api.v1.attachment.get._self({
-    id: attachmentID.value,
-  })
+  Api.v1.attachment.get
+    ._self({
+      id: attachmentID.value,
+    })
     .then((res) => {
       window.open(res.signed_url.replace('http://', 'https://'), '_blank');
     })

@@ -73,10 +73,11 @@ const closeModal = () => {
 };
 const sendWhisper = () => {
   loading.value = true;
-  Api.v1.user.post.whisper({
-    user_id: props.user.id,
-    content: content.value,
-  })
+  Api.v1.user.post
+    .whisper({
+      user_id: props.user.id,
+      content: content.value,
+    })
     .then((res: any) => {
       window.$message.success('发送成功');
       loading.value = false;

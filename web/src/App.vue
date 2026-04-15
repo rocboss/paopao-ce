@@ -57,15 +57,16 @@ const { theme, desktopModelShow } = storeToRefs(storeMain);
 const iTheme = computed(() => (theme.value === 'dark' ? darkTheme : null));
 
 function loadSiteProfile() {
-    storeProfile.loadDefaultSiteProfile();
-    if (import.meta.env.VITE_USE_WEB_PROFILE.toLowerCase() === 'true') {
-        getSiteProfile()
-            .then((res) => {
-                storeProfile.updateSiteProfile(res);
-            }).catch((err) => {
-                console.log(err);
-            });
-    }
+  storeProfile.loadDefaultSiteProfile();
+  if (import.meta.env.VITE_USE_WEB_PROFILE.toLowerCase() === 'true') {
+    getSiteProfile()
+      .then((res) => {
+        storeProfile.updateSiteProfile(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 }
 
 onMounted(() => {

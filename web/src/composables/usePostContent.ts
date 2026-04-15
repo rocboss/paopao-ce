@@ -5,7 +5,10 @@ import { computed } from 'vue';
  * 将 post.contents 按类型分类到 texts, imgs, videos, links, attachments, charge_attachments
  * 保持与原有代码完全一致的行为
  */
-export function usePostContent(post: Item.PostProps, includeExtraFields: boolean = false) {
+export function usePostContent(
+  post: Item.PostProps,
+  includeExtraFields: boolean = false,
+) {
   return computed({
     get: () => {
       let postData: Item.PostComponentProps = Object.assign(

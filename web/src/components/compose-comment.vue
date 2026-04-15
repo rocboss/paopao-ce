@@ -218,9 +218,10 @@ const uploadToken = computed(() => {
 });
 // 加载at用户列表
 const loadSuggestionUsers = debounce((k) => {
-  Api.v1.suggest.get.users({
-    k,
-  })
+  Api.v1.suggest.get
+    .users({
+      k,
+    })
     .then((res) => {
       let options: MentionOption[] = [];
       res.suggest.map((i) => {

@@ -361,9 +361,10 @@ const switchEye = () => {
 
 // 加载at用户列表
 const loadSuggestionUsers = debounce((k) => {
-  Api.v1.suggest.get.users({
-    k,
-  })
+  Api.v1.suggest.get
+    .users({
+      k,
+    })
     .then((res) => {
       let options: MentionOption[] = [];
       res.suggest.map((i) => {
@@ -382,9 +383,10 @@ const loadSuggestionUsers = debounce((k) => {
 
 // 加载推荐tag列表
 const loadSuggestionTags = debounce((k) => {
-  Api.v1.suggest.get.tags({
-    k,
-  })
+  Api.v1.suggest.get
+    .tags({
+      k,
+    })
     .then((res) => {
       let options: MentionOption[] = [];
       res.suggest.map((i) => {

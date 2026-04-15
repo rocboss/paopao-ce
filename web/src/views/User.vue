@@ -172,18 +172,18 @@ const router = useRouter();
 const loading = ref(false);
 const noMore = ref(false);
 const user = reactive<Item.UserInfo>({
-	id: 0,
-	avatar: '',
-	username: '',
-	nickname: '',
-	is_admin: false,
-	is_friend: true,
-	is_following: false,
-	created_on: 0,
-	follows: 0,
-	followings: 0,
-	tweets_count: 0,
-	status: 1,
+  id: 0,
+  avatar: '',
+  username: '',
+  nickname: '',
+  is_admin: false,
+  is_friend: true,
+  is_following: false,
+  created_on: 0,
+  follows: 0,
+  followings: 0,
+  tweets_count: 0,
+  status: 1,
 });
 const userLoading = ref(false);
 const showWhisper = ref(false);
@@ -211,115 +211,116 @@ const mediaTotalPage = ref(0);
 const starTotalPage = ref(0);
 
 const listData = computed(() => {
-	switch (pageType.value) {
-		case 'post':
-			return postList.value;
-		case 'comment':
-			return commentList.value;
-		case 'highlight':
-			return highlightList.value;
-		case 'media':
-			return mediaList.value;
-		case 'star':
-			return starList.value;
-		default:
-			return [];
-	}
-})
+  switch (pageType.value) {
+    case 'post':
+      return postList.value;
+    case 'comment':
+      return commentList.value;
+    case 'highlight':
+      return highlightList.value;
+    case 'media':
+      return mediaList.value;
+    case 'star':
+      return starList.value;
+    default:
+      return [];
+  }
+});
 
 const onSendWhisper = (receiver: Item.UserInfo) => {
-	user.id = receiver.id;
-	user.username = receiver.username;
-	user.nickname = receiver.nickname;
-	user.avatar = receiver.avatar;
-	showWhisper.value = true;
+  user.id = receiver.id;
+  user.username = receiver.username;
+  user.nickname = receiver.nickname;
+  user.avatar = receiver.avatar;
+  showWhisper.value = true;
 };
 
 function postFollowAction(userId: number, isFollowing: boolean) {
-	updateFolloing(postList, userId, isFollowing);
-	updateFolloing(commentList, userId, isFollowing);
-	updateFolloing(highlightList, userId, isFollowing);
-	updateFolloing(mediaList, userId, isFollowing);
-	updateFolloing(starList, userId, isFollowing);
+  updateFolloing(postList, userId, isFollowing);
+  updateFolloing(commentList, userId, isFollowing);
+  updateFolloing(highlightList, userId, isFollowing);
+  updateFolloing(mediaList, userId, isFollowing);
+  updateFolloing(starList, userId, isFollowing);
 }
 
 function updateFolloing(
-	posts: Ref<Item.PostProps[]>,
-	userId: number,
-	isFollowing: boolean,
+  posts: Ref<Item.PostProps[]>,
+  userId: number,
+  isFollowing: boolean,
 ) {
-	if (posts.value && posts.value.length > 0) {
-		for (let index in posts.value) {
-			if (posts.value[index].user_id == userId) {
-				posts.value[index].user.is_following = isFollowing;
-			}
-		}
-	}
+  if (posts.value && posts.value.length > 0) {
+    for (let index in posts.value) {
+      if (posts.value[index].user_id == userId) {
+        posts.value[index].user.is_following = isFollowing;
+      }
+    }
+  }
 }
 
 const reset = () => {
-	noMore.value = false;
-	list.value = [];
-	postList.value = [];
-	commentList.value = [];
-	highlightList.value = [];
-	mediaList.value = [];
-	starList.value = [];
-	pageType.value = 'post';
-	page.value = 1;
-	postPage.value = 1;
-	commentPage.value = 1;
-	highlightPage.value = 1;
-	mediaPage.value = 1;
-	starPage.value = 1;
-	totalPage.value = 0;
-	postTotalPage.value = 0;
-	commentTotalPage.value = 0;
-	highlightTotalPage.value = 0;
-	mediaTotalPage.value = 0;
-	starTotalPage.value = 0;
+  noMore.value = false;
+  list.value = [];
+  postList.value = [];
+  commentList.value = [];
+  highlightList.value = [];
+  mediaList.value = [];
+  starList.value = [];
+  pageType.value = 'post';
+  page.value = 1;
+  postPage.value = 1;
+  commentPage.value = 1;
+  highlightPage.value = 1;
+  mediaPage.value = 1;
+  starPage.value = 1;
+  totalPage.value = 0;
+  postTotalPage.value = 0;
+  commentTotalPage.value = 0;
+  highlightTotalPage.value = 0;
+  mediaTotalPage.value = 0;
+  starTotalPage.value = 0;
 };
 const loadPage = () => {
-	loadPostsByStyle(pageType.value);
+  loadPostsByStyle(pageType.value);
 };
 const styleListMap = {
-	post: { list: postList, totalPage: postTotalPage },
-	comment: { list: commentList, totalPage: commentTotalPage },
-	highlight: { list: highlightList, totalPage: highlightTotalPage },
-	media: { list: mediaList, totalPage: mediaTotalPage },
-	star: { list: starList, totalPage: starTotalPage },
+  post: { list: postList, totalPage: postTotalPage },
+  comment: { list: commentList, totalPage: commentTotalPage },
+  highlight: { list: highlightList, totalPage: highlightTotalPage },
+  media: { list: mediaList, totalPage: mediaTotalPage },
+  star: { list: starList, totalPage: starTotalPage },
 };
 function loadPostsByStyle(style: keyof typeof styleListMap) {
-	loading.value = true;
-	Api.v1.user.get.posts({
-		username: username.value as string,
-		style,
-		page: page.value,
-		page_size: pageSize.value,
-	})
-		.then((rsp) => {
-			loading.value = false;
-			if (rsp.list.length === 0) {
-				noMore.value = true;
-			}
-			if (page.value > 1) {
-				list.value = list.value.concat(rsp.list);
-			} else {
-				list.value = rsp.list || [];
-				window.scrollTo(0, 0);
-			}
-			totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
-			styleListMap[style].list.value = list.value;
-			styleListMap[style].totalPage.value = totalPage.value;
-		})
-		.catch((_err) => {
-			list.value = [];
-			if (page.value > 1) {
-				page.value--;
-			}
-			loading.value = false;
-		});
-};
+  loading.value = true;
+  Api.v1.user.get
+    .posts({
+      username: username.value as string,
+      style,
+      page: page.value,
+      page_size: pageSize.value,
+    })
+    .then((rsp) => {
+      loading.value = false;
+      if (rsp.list.length === 0) {
+        noMore.value = true;
+      }
+      if (page.value > 1) {
+        list.value = list.value.concat(rsp.list);
+      } else {
+        list.value = rsp.list || [];
+        window.scrollTo(0, 0);
+      }
+      totalPage.value = Math.ceil(rsp.pager.total_rows / pageSize.value);
+      styleListMap[style].list.value = list.value;
+      styleListMap[style].totalPage.value = totalPage.value;
+    })
+    .catch((_err) => {
+      list.value = [];
+      if (page.value > 1) {
+        page.value--;
+      }
+      loading.value = false;
+    });
+}
 const stylePageMap = {
   post: postPage,
   comment: commentPage,
@@ -328,17 +329,18 @@ const stylePageMap = {
   star: starPage,
 };
 function changeTab(tab: PageType) {
-	pageType.value = tab;
-	list.value = styleListMap[tab].list.value;
-	page.value = stylePageMap[tab].value;
-	totalPage.value = styleListMap[tab].totalPage.value;
-	loadPostsByStyle(tab);
-};
+  pageType.value = tab;
+  list.value = styleListMap[tab].list.value;
+  page.value = stylePageMap[tab].value;
+  totalPage.value = styleListMap[tab].totalPage.value;
+  loadPostsByStyle(tab);
+}
 const loadUser = () => {
   userLoading.value = true;
-  Api.v1.user.get.profile({
-    username: username.value as string,
-  })
+  Api.v1.user.get
+    .profile({
+      username: username.value as string,
+    })
     .then((res) => {
       userLoading.value = false;
       user.id = res.id;
@@ -499,9 +501,10 @@ const openDeleteFriend = () => {
     negativeText: '取消',
     onPositiveClick: () => {
       userLoading.value = true;
-      Api.v1.friend.post.delete({
-        user_id: user.id,
-      })
+      Api.v1.friend.post
+        .delete({
+          user_id: user.id,
+        })
         .then((_res) => {
           userLoading.value = false;
           user.is_friend = false;
@@ -515,15 +518,15 @@ const openDeleteFriend = () => {
   });
 };
 const handleFollowUser = () => {
-	UserAction.followAction(dialog, user.id, user.username, user.is_following)
-		.then(_action => {
-            userLoading.value = false;
-            loadUser();
-		})
-		.catch(err => {
-			userLoading.value = false;
-			console.log(err);
-		});
+  UserAction.followAction(dialog, user.id, user.username, user.is_following)
+    .then((_action) => {
+      userLoading.value = false;
+      loadUser();
+    })
+    .catch((err) => {
+      userLoading.value = false;
+      console.log(err);
+    });
 };
 const banUser = () => {
   dialog.warning({
@@ -534,10 +537,11 @@ const banUser = () => {
     negativeText: '取消',
     onPositiveClick: () => {
       userLoading.value = true;
-      Api.v1.admin.post.user.status({
-        id: user.id,
-        status: user.status === 1 ? 2 : 1,
-      })
+      Api.v1.admin.post.user
+        .status({
+          id: user.id,
+          status: user.status === 1 ? 2 : 1,
+        })
         .then((_res) => {
           userLoading.value = false;
           if (user.status === 1) {

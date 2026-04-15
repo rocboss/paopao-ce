@@ -176,17 +176,20 @@ const { profile } = storeToRefs(storeProfile);
 const dialog = useDialog();
 
 const inFoldStyle = ref<boolean>(true);
-const props = withDefaults(defineProps<{
+const props = withDefaults(
+  defineProps<{
     post: Item.PostProps;
     isOwner: boolean;
     addFriendAction?: boolean;
     addFollowAction?: boolean;
     isMobile?: boolean;
-}>(), {
-	addFollowAction: false,
-	addFriendAction: false,
+  }>(),
+  {
+    addFollowAction: false,
+    addFriendAction: false,
     isMobile: false,
-});
+  },
+);
 
 const emit = defineEmits<{
   (e: 'send-whisper', user: Item.UserInfo): void;
@@ -275,14 +278,18 @@ const handleTweetAction = async (
       break;
     case 'follow':
     case 'unfollow':
-      UserAction.followAction(dialog, props.post.user.id, props.post.user.username, props.post.user.is_following)
-        .then(_action => {
-          emit('post-follow-action', props.post.user.id, _action);
-        })
-		  emit('handle-follow-action', props.post);
+      UserAction.followAction(
+        dialog,
+        props.post.user.id,
+        props.post.user.username,
+        props.post.user.is_following,
+      ).then((_action) => {
+        emit('post-follow-action', props.post.user.id, _action);
+      });
+      emit('handle-follow-action', props.post);
       break;
     default:
-    	break;
+      break;
   }
 };
 

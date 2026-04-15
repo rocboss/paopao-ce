@@ -96,21 +96,14 @@ const enableAnnoucement =
 watch(route, () => {
   selectedPath.value = route.name;
 });
-watch(() => [unreadMsgCount, userInfo, profile], () => {
-  hasUnreadMsg.value = unreadMsgCount.value > 0;
-  if (userInfo.value.id > 0) {
-    if (!msgLoop.value) {
-      Api.v1.user.get.msgcount.unread({})
-        .then((res) => {
-          hasUnreadMsg.value = res.count > 0;
-          storeMain.updateUnreadMsgCount(res.count);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-
-      msgLoop.value = setInterval(() => {
-        Api.v1.user.get.msgcount.unread({})
+watch(
+  () => [unreadMsgCount, userInfo, profile],
+  () => {
+    hasUnreadMsg.value = unreadMsgCount.value > 0;
+    if (userInfo.value.id > 0) {
+      if (!msgLoop.value) {
+        Api.v1.user.get.msgcount
+          .unread({})
           .then((res) => {
             hasUnreadMsg.value = res.count > 0;
             storeMain.updateUnreadMsgCount(res.count);
@@ -118,14 +111,26 @@ watch(() => [unreadMsgCount, userInfo, profile], () => {
           .catch((err) => {
             console.log(err);
           });
-      }, profile.value.defaultMsgLoopInterval);
+
+        msgLoop.value = setInterval(() => {
+          Api.v1.user.get.msgcount
+            .unread({})
+            .then((res) => {
+              hasUnreadMsg.value = res.count > 0;
+              storeMain.updateUnreadMsgCount(res.count);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }, profile.value.defaultMsgLoopInterval);
+      }
+    } else {
+      if (msgLoop.value) {
+        clearInterval(msgLoop.value);
+      }
     }
-  } else {
-    if (msgLoop.value) {
-      clearInterval(msgLoop.value);
-    }
-  }
-});
+  },
+);
 onMounted(() => {
   window.onresize = () => {
     storeMain.triggerCollapsedLeft(document.body.clientWidth <= 821);

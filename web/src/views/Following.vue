@@ -53,10 +53,12 @@ const tabler = ref((route.query.t as string) || 'follows');
 const showAddFriendWhisper = ref(false);
 
 // 使用 usePagination composable
-const { loading, noMore, page, pageSize, totalPage, reset, nextPage } = usePagination(20);
+const { loading, noMore, page, pageSize, totalPage, reset, nextPage } =
+  usePagination(20);
 
 // 使用 UserAction.useWhisper()
-const { showWhisper, whisperReceiver, onSendWhisper, whisperSuccess } = UserAction.useWhisper();
+const { showWhisper, whisperReceiver, onSendWhisper, whisperSuccess } =
+  UserAction.useWhisper();
 
 function resetPage(tab: 'follows' | 'followings') {
   list.value = [];
@@ -101,11 +103,12 @@ const loadFollows = (username: string, scrollToBottom: boolean = false) => {
   if (list.value.length === 0) {
     loading.value = true;
   }
-  Api.v1.user.get.follows({
-    username: username,
-    page: page.value,
-    page_size: pageSize.value,
-  })
+  Api.v1.user.get
+    .follows({
+      username: username,
+      page: page.value,
+      page_size: pageSize.value,
+    })
     .then((res) => {
       loading.value = false;
       if (res.list.length === 0) {
@@ -135,11 +138,12 @@ const loadFollowings = (username: string, scrollToBottom: boolean = false) => {
   if (list.value.length === 0) {
     loading.value = true;
   }
-  Api.v1.user.get.followings({
-    username: username,
-    page: page.value,
-    page_size: pageSize.value,
-  })
+  Api.v1.user.get
+    .followings({
+      username: username,
+      page: page.value,
+      page_size: pageSize.value,
+    })
     .then((res) => {
       loading.value = false;
       if (res.list.length === 0) {

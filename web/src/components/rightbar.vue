@@ -122,7 +122,8 @@ const rightHotTopicMaxSize = Number(
 );
 
 const loadSiteInfo = () => {
-  Api.v1.admin.get.site.status()
+  Api.v1.admin.get.site
+    .status()
     .then((res) => {
       registerUserCount.value = res.register_user_count;
       onlineUserCount.value = res.online_user_count;

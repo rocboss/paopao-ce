@@ -8,16 +8,16 @@ import (
 	"context"
 
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
+	"github.com/rocboss/paopao-ce/internal/infra/settings"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
-	"github.com/rocboss/paopao-ce/internal/sitesetting"
 	"github.com/rocboss/paopao-ce/pkg/version"
 )
 
 type siteSrv struct {
 	api.UnimplementedSiteServant
 	*base.BaseServant
-	settings *sitesetting.Service
+	settings *settings.Service
 }
 
 func (s *siteSrv) Profile() (*web.SiteProfileResp, error) {
@@ -30,7 +30,7 @@ func (*siteSrv) Version() (*web.VersionResp, error) {
 	}, nil
 }
 
-func newSiteSrv(settings *sitesetting.Service) api.Site {
+func newSiteSrv(settings *settings.Service) api.Site {
 	return &siteSrv{
 		BaseServant: base.NewBaseServant(),
 		settings:    settings,

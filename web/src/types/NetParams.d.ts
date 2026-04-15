@@ -1,5 +1,4 @@
 declare namespace NetParams {
-
   type AuthUserInfo = string;
 
   interface AuthUpdateUserPassword {

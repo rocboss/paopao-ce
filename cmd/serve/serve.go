@@ -19,7 +19,6 @@ import (
 	"github.com/rocboss/paopao-ce/internal"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/service"
-	"github.com/rocboss/paopao-ce/internal/sitesetting"
 	"github.com/rocboss/paopao-ce/pkg/debug"
 	"github.com/rocboss/paopao-ce/pkg/utils"
 	"github.com/rocboss/paopao-ce/pkg/version"
@@ -55,7 +54,7 @@ func deferFn() {
 	conf.CloseDB()
 }
 
-func serveRun(_cmd *cobra.Command, _args []string) {
+func serveRun(cmd *cobra.Command, _args []string) {
 	utils.PrintHelloBanner(version.VersionInfo())
 
 	// set maxprocs automatic
@@ -67,8 +66,7 @@ func serveRun(_cmd *cobra.Command, _args []string) {
 		shutdownFn, _ := conf.InitTelemetry()
 		defer shutdownFn()
 	}
-	internal.Initial()
-	sitesetting.Bootstrap(_cmd.Context(), conf.MustGormDB())
+	internal.Initial(cmd.Context())
 	ss := service.MustInitService()
 	if len(ss) < 1 {
 		fmt.Fprintln(color.Output, "no service need start so just exit")

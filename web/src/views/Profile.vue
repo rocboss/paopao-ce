@@ -181,21 +181,21 @@ const whisperReceiver = ref<Item.UserInfo>({
 });
 
 const listData = computed(() => {
-	switch (pageType.value) {
-		case 'post':
-			return postList.value;
-		case 'comment':
-			return commentList.value;
-		case 'highlight':
-			return highlightList.value;
-		case 'media':
-			return mediaList.value;
-		case 'star':
-			return starList.value;
-		default:
-			return [];
-	}
-})
+  switch (pageType.value) {
+    case 'post':
+      return postList.value;
+    case 'comment':
+      return commentList.value;
+    case 'highlight':
+      return highlightList.value;
+    case 'media':
+      return mediaList.value;
+    case 'star':
+      return starList.value;
+    default:
+      return [];
+  }
+});
 
 const renderIcon = (icon: Component) => {
   return () => {
@@ -281,12 +281,13 @@ const stylePageMap = {
 };
 function loadPostsByStyle(style: keyof typeof styleListMap) {
   loading.value = true;
-  Api.v1.user.get.posts({
-    username: userInfo.value.username,
-    style,
-    page: page.value,
-    page_size: pageSize.value,
-  })
+  Api.v1.user.get
+    .posts({
+      username: userInfo.value.username,
+      style,
+      page: page.value,
+      page_size: pageSize.value,
+    })
     .then((rsp) => {
       loading.value = false;
       if (rsp.list.length === 0) {

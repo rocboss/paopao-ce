@@ -12,10 +12,10 @@ import (
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
 	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core"
+	"github.com/rocboss/paopao-ce/internal/infra/settings"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/internal/servants/chain"
-	"github.com/rocboss/paopao-ce/internal/sitesetting"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
 	"github.com/sirupsen/logrus"
 )
@@ -24,7 +24,7 @@ type adminSrv struct {
 	api.UnimplementedAdminServant
 	*base.DaoServant
 	wc           core.WebCache
-	settings     *sitesetting.Service
+	settings     *settings.Service
 	serverUpTime int64
 }
 
@@ -71,18 +71,18 @@ func (s *adminSrv) GetSiteSettings() (*web.SiteSettingsResp, error) {
 	}
 	return &web.SiteSettingsResp{
 		SiteProfileResp: *profile,
-		ReadonlyFields:  sitesetting.CloneReadonlyFields(),
+		ReadonlyFields:  settings.CloneReadonlyFields(),
 	}, nil
 }
 
 func (s *adminSrv) UpdateSiteSettings(req *web.SiteSettingsReq) (*web.SiteSettingsResp, error) {
-	profile, err := s.settings.UpdateEditableProfile(context.Background(), sitesetting.EditableFromRequest(req))
+	profile, err := s.settings.UpdateEditableProfile(context.Background(), settings.EditableFromRequest(req))
 	if err != nil {
 		return nil, err
 	}
 	return &web.SiteSettingsResp{
 		SiteProfileResp: *profile,
-		ReadonlyFields:  sitesetting.CloneReadonlyFields(),
+		ReadonlyFields:  settings.CloneReadonlyFields(),
 	}, nil
 }
 
@@ -98,7 +98,7 @@ func (s *adminSrv) SaveSettings(req *web.AdminSettingsSaveReq) (*web.AdminSettin
 	return s.settings.SaveValues(context.Background(), req.Items)
 }
 
-func newAdminSrv(s *base.DaoServant, wc core.WebCache, settings *sitesetting.Service) api.Admin {
+func newAdminSrv(s *base.DaoServant, wc core.WebCache, settings *settings.Service) api.Admin {
 	return &adminSrv{
 		DaoServant:   s,
 		wc:           wc,

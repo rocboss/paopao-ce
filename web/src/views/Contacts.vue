@@ -84,10 +84,11 @@ const loadContacts = (scrollToBottom: boolean = false) => {
   if (list.value.length === 0) {
     loading.value = true;
   }
-  Api.v1.user.get.contacts({
-    page: page.value,
-    page_size: pageSize.value,
-  })
+  Api.v1.user.get
+    .contacts({
+      page: page.value,
+      page_size: pageSize.value,
+    })
     .then((res) => {
       loading.value = false;
       if (res.list.length === 0) {

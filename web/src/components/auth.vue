@@ -216,10 +216,11 @@ const handleLogin = (e: Event) => {
     if (!errors) {
       loading.value = true;
 
-      Api.v1.auth.post.login({
-        username: loginForm.username,
-        password: loginForm.password,
-      })
+      Api.v1.auth.post
+        .login({
+          username: loginForm.username,
+          password: loginForm.password,
+        })
         .then((res) => {
           const token = res?.token || '';
           // 写入用户信息
@@ -252,10 +253,11 @@ const handleRegister = (e: Event) => {
     if (!errors) {
       loading.value = true;
 
-      Api.v1.auth.post.register({
-        username: registerForm.username,
-        password: registerForm.password,
-      })
+      Api.v1.auth.post
+        .register({
+          username: registerForm.username,
+          password: registerForm.password,
+        })
         .then((res) => {
           return Api.v1.auth.post.login({
             username: registerForm.username,

@@ -94,14 +94,19 @@ const renderIcon = (icon: Component) => {
 
 const handleFollowUser = () => {
   const wasFollowing = props.contact.is_following;
-  UserAction.followAction(dialog, props.contact.user_id, props.contact.username, props.contact.is_following)
-    .then(_action => {
+  UserAction.followAction(
+    dialog,
+    props.contact.user_id,
+    props.contact.username,
+    props.contact.is_following,
+  )
+    .then((_action) => {
       props.contact.is_following = _action;
       if (wasFollowing && !_action) {
         emit('unfollow-success');
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
     });
 };

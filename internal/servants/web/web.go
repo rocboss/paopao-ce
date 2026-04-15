@@ -14,8 +14,8 @@ import (
 	"github.com/rocboss/paopao-ce/internal/core"
 	"github.com/rocboss/paopao-ce/internal/dao"
 	"github.com/rocboss/paopao-ce/internal/dao/cache"
+	"github.com/rocboss/paopao-ce/internal/infra/settings"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
-	"github.com/rocboss/paopao-ce/internal/sitesetting"
 )
 
 var (
@@ -25,7 +25,7 @@ var (
 	_ac                   core.AppCache
 	_wc                   core.WebCache
 	_oss                  core.ObjectStorageService
-	_siteSettings         *sitesetting.Service
+	_siteSettings         *settings.Service
 	_onceInitial          sync.Once
 )
 
@@ -65,6 +65,6 @@ func lazyInitial() {
 		_ds = dao.DataService()
 		_ac = cache.NewAppCache()
 		_wc = cache.NewWebCache()
-		_siteSettings = sitesetting.NewService(conf.MustGormDB())
+		_siteSettings = settings.NewService(conf.MustGormDB())
 	})
 }

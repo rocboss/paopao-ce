@@ -94,10 +94,11 @@ function postFollowAction(userId: number, isFollowing: boolean) {
 
 const loadPosts = () => {
   loading.value = true;
-  Api.v1.user.get.collections({
-    page: page.value,
-    page_size: pageSize.value,
-  })
+  Api.v1.user.get
+    .collections({
+      page: page.value,
+      page_size: pageSize.value,
+    })
     .then((res) => {
       loading.value = false;
       if (res.list.length === 0) {

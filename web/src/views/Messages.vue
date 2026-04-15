@@ -84,7 +84,14 @@ const storeUser = useStoreUser();
 const { unreadMsgCount } = storeToRefs(storeMain);
 
 const route = useRoute();
-const { loading, noMore, page, pageSize, totalPage, reset: resetPagination } = usePagination(20);
+const {
+  loading,
+  noMore,
+  page,
+  pageSize,
+  totalPage,
+  reset: resetPagination,
+} = usePagination(20);
 // 初始化页码
 page.value = +(route.query.p as string) || 1;
 
@@ -284,7 +291,8 @@ const handleUnreadMessage = () => {
 
 const handleReadAll = () => {
   if (unreadMsgCount.value > 0 && list.value.length > 0) {
-    Api.v1.user.message.post.readall()
+    Api.v1.user.message.post
+      .readall()
       .then((_res) => {
         if (messageStyleVal.value != 'unread') {
           for (let idx in list.value) {
@@ -317,11 +325,12 @@ const reloadMessages = () => {
 
 const loadMessages = () => {
   loading.value = true;
-  Api.v1.user.get.messages({
-    style: messageStyleVal.value,
-    page: page.value,
-    page_size: pageSize.value,
-  })
+  Api.v1.user.get
+    .messages({
+      style: messageStyleVal.value,
+      page: page.value,
+      page_size: pageSize.value,
+    })
     .then((res) => {
       loading.value = false;
       if (res.list.length === 0) {

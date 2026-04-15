@@ -1,5 +1,4 @@
 declare namespace NetReq {
-
   type AuthUserInfo = Item.UserInfo;
 
   interface AuthUpdateUserPassword {}
