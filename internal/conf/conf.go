@@ -5,7 +5,9 @@
 package conf
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/alimy/tryst/cfg"
@@ -140,6 +142,14 @@ func setupSetting(suite []string, noDefault bool) error {
 	BigCacheIndexSetting.ExpireInSecond *= time.Second
 	RedisCacheIndexSetting.ExpireInSecond *= time.Second
 	redisSetting.ConnWriteTimeout *= time.Second
+
+	// Validate critical security settings
+	if JWTSetting.Secret == "" {
+		fmt.Fprintf(os.Stderr, "fatal: JWT Secret is not set. Generate one with: openssl rand -base64 32
+Set it in custom/config.yaml under JWT.Secret
+")
+		os.Exit(1)
+	}
 
 	return nil
 }

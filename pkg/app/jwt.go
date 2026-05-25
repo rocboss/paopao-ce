@@ -7,6 +7,7 @@ package app
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -42,7 +43,10 @@ func GenerateToken(user *ms.User) (string, error) {
 
 func ParseToken(token string) (res *Claims, err error) {
 	var tokenClaims *jwt.Token
-	tokenClaims, err = jwt.ParseWithClaims(token, &Claims{}, func(_ *jwt.Token) (any, error) {
+	tokenClaims, err = jwt.ParseWithClaims(token, &Claims{}, func(t *jwt.Token) (any, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+		}
 		return GetJWTSecret(), nil
 	})
 	if err == nil && tokenClaims != nil && tokenClaims.Valid {

@@ -102,7 +102,7 @@ SmsJuhe:
 Alipay: 
   AppID: "paopao-ce-app-id"
   InProduction: True
-  PrivateKey: "MIICXAIBAAKBgQCzXV/spaX9+eOjM5f12W6eDTtszU9f9rgpXG4EQwzZI3WM5+Fe+9Bn6NQQILfF1o3Z+3BEzHMMcYwxrQw/toq2o6JPchbUK7eArKc6pl/GV3uIefZdKncz5bZvCFMgiJrpy75lYKhJgotQFEfQd+ks2t0gtC007uOjmY9QDB2EVQIDAQABAoGAMruhi0UbW2gYHCxWuiJDKI9jlJXJ8sHNO126fJgehTiDYlSgKYaeXxW7DcjDUkEqpFJ7YepWTFm9prtksIzIVQFNNjstI6cvowVF2t+lWf7mIB4w0ugarVd+SXssQK830Og3kjtZ84a3BbC6uf3a/qcgoIO8Sj1VnzOJ8fEYl+0CQQDeG6JhauGDOC8oCTwbFs9QPpjwGnp7UkYAJNg7jn4uBSVeg4lwb5uj9TshLSp49geNkPcWeCythuiz1jvoTqEjAkEAzrwIBxUPT1WmcDUXAkVPaQNADDbhMZLdw5nHZEUVwmO3o1FkJky4MLjLjT977400mhsnsQCy4sAWUZs6aEyoJwJARK3U2zy6eOHhqwaYAGRgPJbuoaf+Ya3CGX9LIbdhCwfqUzxnPk40mVFWNF8L+BVTppHB5b/JSOsjf6BqK95McwJBAL+kvUhbdHrV6lmgTXkUaV3u3mO0SCPdgui9WIKSLG6sY+LpI48BlcnMtR12WVyjKL0nKS9Dd5EOAmKaJJXlYgcCQGWbWCn9KUDUqpm4o3wr5nwXzlS74XYZo65UAM7TSzHRpcovfv5uiQ0VRLImWeiSXKK2aTOBGn5eKbevRTxN07k="
+  PrivateKey: ""  # REQUIRED: Set Alipay merchant private key
   RootCertFile: "custom/alipay/RootCert.crt"
   PublicCertFile: "custom/alipay/CertPublicKey_RSA2.crt"
   AppPublicCertFile: "custom/alipay/AppCertPublicKey.crt" 
@@ -142,12 +142,12 @@ LoggerZinc: # 使用Zinc写日志
   Host: zinc:4080
   Index: paopao-log
   User: admin
-  Password: admin
+  Password: ""  # REQUIRED: Set Zinc password
   Secure: False
 LoggerMeili: # 使用Meili写日志
   Host: meili:7700
   Index: paopao-log
-  ApiKey: paopao-meilisearch
+  ApiKey: ""  # REQUIRED: Set Meilisearch API key
   Secure: False
   MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
   MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
@@ -156,20 +156,20 @@ LoggerOpenObserve: # 使用OpenObserve写日志
   Organization: paopao-ce
   Stream: default
   User: root@paopao.info
-  Password: tiFEI8UeJWuYA7kN
+  Password: ""  # REQUIRED: Set OpenObserve password
   Secure: False
   MinWorker: 5               # 最小后台工作者, 设置范围[5, 100], 默认5
   MaxLogBuffer: 100          # 最大log缓存条数, 设置范围[10, 10000], 默认100
 LoggerOtlp: # 使用OpenTelemetry写日志
   Endpoint: openobserve:5081
-  Authorization: Basic ls8icEBvcGVub2JzFXJ2ZS6haCpZTU4ybGdBUFlXcjA0UdNk
+  Authorization: ""  # REQUIRED: Set OTLP auth token
   Organization: paopao-ce
   TraceStream: paopao-trace
   MetricStream: paopao-metric
   LogStream: paopao-log
   Insecure: true
 JWT: # 鉴权加密
-  Secret: 18a6413dc4fe394c66345ebe501b2f26
+  Secret: ""  # REQUIRED: Set a strong random secret (openssl rand -base64 32)
   Issuer: paopao-api
   Expire: 86400
 AdminSettings:
@@ -181,12 +181,12 @@ Zinc: # Zinc搜索配置
   Host: zinc:4080
   Index: paopao-data
   User: admin
-  Password: admin
+  Password: ""  # REQUIRED: Set Zinc admin password
   Secure: False
 Meili: # Meili搜索配置
   Host: meili:7700
   Index: paopao-data
-  ApiKey: paopao-meilisearch
+  ApiKey: ""  # REQUIRED: Set Meilisearch API key
   Secure: False
 ObjectStorage: # 对象存储通用配置
   RetainInDays: 2   # 临时对象过期时间多少天
@@ -210,15 +210,15 @@ HuaweiOBS: # 华为云OBS存储配置
   Bucket: paopao
   Domain: 
 MinIO: # MinIO 存储配置
-  AccessKey: Q3AM3UQ867SPQQA43P2F
-  SecretKey: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+  AccessKey: ""  # REQUIRED: Set MinIO access key
+  SecretKey: ""  # REQUIRED: Set MinIO secret key
   Secure: False
   Endpoint: minio:9000
   Bucket: paopao
   Domain: 127.0.0.1:9000
 S3: # Amazon S3 存储配置
-  AccessKey: "YOUR-ACCESSKEYID"
-  SecretKey: "YOUR-SECRETACCESSKEY"
+  AccessKey: ""  # REQUIRED: Set AWS access key
+  SecretKey: ""  # REQUIRED: Set AWS secret key
   Secure: True
   Endpoint: s3.amazonaws.com
   Bucket: paopao
@@ -233,7 +233,7 @@ Database: # Database通用配置
   TablePrefix: p_   # 表名前缀
 MySQL: # MySQL数据库
   Username: paopao
-  Password: paopao
+  Password: ""  # REQUIRED: Set the MySQL password
   Host: db:3306
   DBName: paopao
   Charset: utf8mb4
@@ -242,7 +242,7 @@ MySQL: # MySQL数据库
   MaxOpenConns: 30
 Postgres: # PostgreSQL数据库
   User: paopao
-  Password: paopao
+  Password: ""  # REQUIRED: Set the Postgres password
   DBName: paopao
   Schema: public
   Host: localhost
