@@ -3,6 +3,14 @@
     --content-main: 620px;
 }
 
+// Reserve vertical scrollbar space so content doesn't jump horizontally
+// when pages go from short (no bar) to tall (bar appears).
+html {
+    scrollbar-gutter: stable;
+    // Fallback for browsers without scrollbar-gutter support
+    overflow-y: scroll;
+}
+
 .app-container {
     margin: 0;
 
