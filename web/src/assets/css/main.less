@@ -3,6 +3,25 @@
     --content-main: 620px;
 }
 
+// Keep the document width stable when the vertical scrollbar appears/disappears.
+//
+// Two cases that used to shift the flex-centered layout + fixed sidebars:
+// 1) short route → content loads and the classic bar appears
+// 2) n-dialog / n-modal opens: Naive UI sets overflow:hidden on <html>,
+//    which removes the bar (and its own margin-right compensation still jitters
+//    with our centered/fixed layout)
+//
+// `overflow-y: scroll !important` keeps the scrollbar track always reserved so
+// Naive's inline overflow:hidden cannot free that width. Background scrolling
+// while a modal is open is blocked in utils/stableScrollbar.ts instead.
+// `scrollbar-gutter: stable` covers engines that honor gutter without a forced bar.
+// `margin-right: 0 !important` disables Naive's extra lock compensation.
+html {
+    scrollbar-gutter: stable;
+    overflow-y: scroll !important;
+    margin-right: 0 !important;
+}
+
 .app-container {
     margin: 0;
 

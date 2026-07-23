@@ -3,6 +3,7 @@ import { createPinia } from 'pinia';
 import router from './router';
 import App from './App.vue';
 import '@/assets/css/main.less';
+import { installStableScrollbar } from '@/utils/stableScrollbar';
 
 import type { MessageApiInjection } from 'naive-ui/lib/message/src/MessageProvider';
 
@@ -10,6 +11,8 @@ import type { MessageApiInjection } from 'naive-ui/lib/message/src/MessageProvid
 import 'vfonts/Lato.css';
 // 等宽字体
 import 'vfonts/FiraCode.css';
+
+installStableScrollbar();
 
 const pinia = createPinia();
 
