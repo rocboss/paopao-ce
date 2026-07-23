@@ -145,9 +145,7 @@ func setupSetting(suite []string, noDefault bool) error {
 
 	// Validate critical security settings
 	if JWTSetting.Secret == "" {
-		fmt.Fprintf(os.Stderr, "fatal: JWT Secret is not set. Generate one with: openssl rand -base64 32
-Set it in custom/config.yaml under JWT.Secret
-")
+		fmt.Fprintf(os.Stderr, "fatal: JWT Secret is not set. Generate one with: openssl rand -base64 32\nSet it in custom/config.yaml under JWT.Secret\n")
 		os.Exit(1)
 	}
 
