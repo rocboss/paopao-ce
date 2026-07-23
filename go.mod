@@ -30,7 +30,7 @@ require (
 	github.com/livekit/mageutil v0.0.0-20250511045019-0f1ff63f7731
 	github.com/meilisearch/meilisearch-go v0.27.2
 	github.com/minio/minio-go/v7 v7.0.84
-	github.com/onsi/ginkgo/v2 v2.28.0
+	github.com/onsi/ginkgo/v2 v2.28.2
 	github.com/onsi/gomega v1.39.1
 	github.com/prometheus/client_golang v1.23.0
 	github.com/redis/rueidis v1.0.64
