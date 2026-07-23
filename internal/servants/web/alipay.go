@@ -80,7 +80,7 @@ func (s *alipayPrivSrv) UserRechargeLink(req *web.UserRechargeLinkReq) (*web.Use
 	p.Subject = "PaoPao用户钱包充值"
 	p.TotalAmount = fmt.Sprintf("%.2f", float64(recharge.Amount)/100.0)
 	p.NotifyURL = "https://" + req.Host + "/v1/alipay/notify"
-	rsp, err := s.alipayClient.TradePreCreate(p)
+	rsp, err := s.alipayClient.TradePreCreate(req.Ctx, p)
 	if err != nil {
 		logrus.Errorf("client.TradePreCreate err: %v\n", err)
 		return nil, web.ErrRechargeReqFail

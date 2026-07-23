@@ -27,8 +27,9 @@ type UserWalletBillsResp base.PageResp
 
 type UserRechargeLinkReq struct {
 	BaseInfo `json:"-" form:"-" binding:"-"`
-	Host     string `json:"-" form:"-" binding:"-"`
-	Amount   int64  `json:"amount" form:"amount" binding:"required"`
+	Ctx      context.Context `json:"-" form:"-" binding:"-"`
+	Host     string          `json:"-" form:"-" binding:"-"`
+	Amount   int64           `json:"amount" form:"amount" binding:"required"`
 }
 
 type UserRechargeLinkResp struct {
@@ -82,6 +83,7 @@ func (r *UserWalletBillsReq) Bind(c *gin.Context) error {
 
 func (r *UserRechargeLinkReq) Bind(c *gin.Context) error {
 	r.Host = c.Request.Host
+	r.Ctx = c.Request.Context()
 	return bindAny(c, r)
 }
 
