@@ -11,10 +11,10 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/bytedance/sonic v1.15.0
-	github.com/cockroachdb/errors v1.11.3
+	github.com/cockroachdb/errors v1.14.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.19.0
-	github.com/getsentry/sentry-go v0.45.1
+	github.com/getsentry/sentry-go v0.46.0
 	github.com/getsentry/sentry-go/gin v0.45.1
 	github.com/getsentry/sentry-go/logrus v0.31.1
 	github.com/gin-contrib/cors v1.7.6
