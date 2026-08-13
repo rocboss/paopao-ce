@@ -240,7 +240,7 @@ Pull requests are welcome. If you want to contribute:
 
 If you deploy your own instance, consider adding it to [deployed-sites.md](deployed-sites.md).
 
-[![Star History Chart](https://api.star-history.com/svg?repos=rocboss/paopao-ce&type=Date)](https://star-history.com/#rocboss/paopao-ce&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=rocboss/paopao-ce&type=Date)](https://star-history.dera.page/#rocboss/paopao-ce&Date)
 
 ## License
 
