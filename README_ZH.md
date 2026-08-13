@@ -240,7 +240,7 @@ release/paopao serve --no-default-features --features sqlite3,localoss,loggerfil
 
 如果你已经部署了自己的实例，也欢迎将站点补充到 [deployed-sites.md](deployed-sites.md)。
 
-[![Star History Chart](https://api.star-history.com/svg?repos=rocboss/paopao-ce&type=Date)](https://star-history.com/#rocboss/paopao-ce&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=rocboss/paopao-ce&type=Date)](https://star-history.dera.page/#rocboss/paopao-ce&Date)
 
 ## License
 
