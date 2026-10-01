@@ -42,6 +42,9 @@
 ```sh
 git clone https://github.com/rocboss/paopao-ce.git
 cd paopao-ce
+cp config.yaml.sample config.yaml
+openssl rand -hex 32
+# 将生成的值填入 config.yaml 的 JWT.Secret。
 docker compose up -d
 ```
 
@@ -54,11 +57,11 @@ docker compose up -d
 
 说明：
 
-- 后端容器默认会将 `./config.yaml.sample` 挂载为运行配置。
+- 后端容器会将 `./config.yaml` 挂载为运行配置。启动前请从示例复制该文件，并设置唯一的 `JWT.Secret`。
 - 持久化数据默认保存在 `./custom/` 目录下。
 - `docker-compose.yaml` 中还预留了 MinIO、OpenObserve、Pyroscope、phpMyAdmin 等可选服务，但默认是注释状态。
 
-如果需要使用自定义配置文件，可将 `docker-compose.yaml` 中的挂载改为：
+Compose 配置会将本地配置挂载到 `/app/paopao-ce/config.yaml`：
 
 ```yaml
 backend:
@@ -92,11 +95,13 @@ docker build -t your/paopao-ce:tag --build-arg EMBED_UI=no .
 
 运行本地构建镜像：
 
+运行任一后端镜像前，请从示例创建 `config.yaml` 并设置唯一的 `JWT.Secret`。可使用 `openssl rand -hex 32` 生成。
+
 ```sh
 mkdir -p custom
 docker run -d -p 8008:8008 \
   -v ${PWD}/custom:/app/paopao-ce/custom \
-  -v ${PWD}/config.yaml.sample:/app/paopao-ce/config.yaml \
+  -v ${PWD}/config.yaml:/app/paopao-ce/config.yaml \
   your/paopao-ce:tag
 ```
 
@@ -106,7 +111,7 @@ docker run -d -p 8008:8008 \
 mkdir -p custom
 docker run -d -p 8008:8008 \
   -v ${PWD}/custom:/app/paopao-ce/custom \
-  -v ${PWD}/config.yaml.sample:/app/paopao-ce/config.yaml \
+  -v ${PWD}/config.yaml:/app/paopao-ce/config.yaml \
   bitbus/paopao-ce:latest
 ```
 
@@ -130,18 +135,22 @@ docker run -d -p 8010:80 your/paopao-ce:web
 
 ### All-in-one 镜像
 
+运行任一全合一镜像前，请从 `docker/config.yaml` 创建 `config.yaml` 并设置唯一的 `JWT.Secret`。可使用 `openssl rand -hex 32` 生成。
+
 ```sh
 # 构建
 docker buildx build --build-arg USE_DIST=yes -t your/paopao-ce:all-in-one-latest -f Dockerfile.allinone .
 
 # 运行本地镜像
 docker run --name paopao-ce-allinone -d -p 8000:8008 -p 7700:7700 \
+  -v ${PWD}/config.yaml:/app/config.yaml \
   -v ./data/custom:/app/custom \
   -v ./data/meili_data:/app/meili_data \
   your/paopao-ce:all-in-one-latest
 
 # 运行已发布镜像
 docker run --name paopao-ce-allinone -d -p 8000:8008 -p 7700:7700 \
+  -v ${PWD}/config.yaml:/app/config.yaml \
   -v ./data/custom:/app/custom \
   -v ./data/meili_data:/app/meili_data \
   bitbus/paopao-ce:all-in-one-latest
@@ -156,8 +165,8 @@ docker run --name paopao-ce-allinone -d -p 8000:8008 -p 7700:7700 \
 ### 后端
 
 1. 按照所选数据库导入对应 SQL 初始化脚本。
-2. 复制配置模板。
-3. 只调整与你环境相关的启动关键配置。
+2. 复制配置模板，将 `JWT.Secret` 设置为 `openssl rand -hex 32` 生成的唯一随机值。
+3. 调整与你环境相关的启动关键配置。
 4. 启动或构建后端。
 
 ```sh

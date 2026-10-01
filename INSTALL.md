@@ -42,6 +42,9 @@ This is the fastest way to start a local environment with the main dependencies 
 ```sh
 git clone https://github.com/rocboss/paopao-ce.git
 cd paopao-ce
+cp config.yaml.sample config.yaml
+openssl rand -hex 32
+# Set JWT.Secret in config.yaml to the generated value.
 docker compose up -d
 ```
 
@@ -54,11 +57,11 @@ The default compose setup starts these services:
 
 Notes:
 
-- The backend container mounts `./config.yaml.sample` as its runtime config by default.
+- The backend container mounts `./config.yaml` as its runtime config. Create it from the sample and set a unique `JWT.Secret` before starting the stack.
 - Persistent data is stored under `./custom/`.
 - Optional services such as MinIO, OpenObserve, Pyroscope, and phpMyAdmin are present in `docker-compose.yaml` but commented out by default.
 
-If you want to use a custom config file, replace the mounted file in `docker-compose.yaml`:
+The Compose file mounts the local config at `/app/paopao-ce/config.yaml`:
 
 ```yaml
 backend:
@@ -92,11 +95,13 @@ docker build -t your/paopao-ce:tag --build-arg EMBED_UI=no .
 
 Run a locally built image:
 
+Create `config.yaml` from the sample and set a unique `JWT.Secret` before running either backend image. Generate a value with `openssl rand -hex 32`.
+
 ```sh
 mkdir -p custom
 docker run -d -p 8008:8008 \
   -v ${PWD}/custom:/app/paopao-ce/custom \
-  -v ${PWD}/config.yaml.sample:/app/paopao-ce/config.yaml \
+  -v ${PWD}/config.yaml:/app/paopao-ce/config.yaml \
   your/paopao-ce:tag
 ```
 
@@ -106,7 +111,7 @@ Or use the published image:
 mkdir -p custom
 docker run -d -p 8008:8008 \
   -v ${PWD}/custom:/app/paopao-ce/custom \
-  -v ${PWD}/config.yaml.sample:/app/paopao-ce/config.yaml \
+  -v ${PWD}/config.yaml:/app/paopao-ce/config.yaml \
   bitbus/paopao-ce:latest
 ```
 
@@ -130,18 +135,22 @@ docker run -d -p 8010:80 your/paopao-ce:web
 
 ### All-in-one image
 
+Create `config.yaml` from `docker/config.yaml` and set a unique `JWT.Secret` before running either all-in-one image. Generate a value with `openssl rand -hex 32`.
+
 ```sh
 # Build
 docker buildx build --build-arg USE_DIST=yes -t your/paopao-ce:all-in-one-latest -f Dockerfile.allinone .
 
 # Run a local image
 docker run --name paopao-ce-allinone -d -p 8000:8008 -p 7700:7700 \
+  -v ${PWD}/config.yaml:/app/config.yaml \
   -v ./data/custom:/app/custom \
   -v ./data/meili_data:/app/meili_data \
   your/paopao-ce:all-in-one-latest
 
 # Run the published image
 docker run --name paopao-ce-allinone -d -p 8000:8008 -p 7700:7700 \
+  -v ${PWD}/config.yaml:/app/config.yaml \
   -v ./data/custom:/app/custom \
   -v ./data/meili_data:/app/meili_data \
   bitbus/paopao-ce:all-in-one-latest
@@ -156,8 +165,8 @@ If you mount a custom `config.yaml`, make sure `Meili.ApiKey` matches the contai
 ### Backend
 
 1. Initialize your database with the matching SQL file for your chosen database engine.
-2. Copy the configuration template.
-3. Adjust only the bootstrap-critical settings for your environment.
+2. Copy the configuration template and set `JWT.Secret` to a unique value generated with `openssl rand -hex 32`.
+3. Adjust the bootstrap-critical settings for your environment.
 4. Run or build the backend.
 
 ```sh

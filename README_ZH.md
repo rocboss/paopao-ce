@@ -93,6 +93,9 @@ PaoPao 是一个完整的开源微社区系统，包含 Go 后端、Vue 3 Web �
 ```sh
 git clone https://github.com/rocboss/paopao-ce.git
 cd paopao-ce
+cp config.yaml.sample config.yaml
+openssl rand -hex 32
+# 将生成的值填入 config.yaml 的 JWT.Secret。
 docker compose up -d
 ```
 
@@ -116,7 +119,7 @@ docker compose up -d
 #### 后端
 
 1. 将 `scripts/paopao-mysql.sql` 导入 MySQL。
-2. 复制示例配置，并只调整与你环境相关的启动关键项。
+2. 复制示例配置，将 `JWT.Secret` 设置为 `openssl rand -hex 32` 生成的唯一随机值，并调整与你环境相关的启动关键项。
 3. 启动后端服务。
 
 ```sh
