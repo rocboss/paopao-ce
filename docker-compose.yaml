@@ -132,7 +132,7 @@ services:
       - meili
     # modify below to reflect your custom configure
     volumes:
-      - ./config.yaml.sample:/app/paopao-ce/config.yaml
+      - ./config.yaml:/app/paopao-ce/config.yaml
       - ./custom:/app/paopao-ce/custom
     ports:
       - 8008:8008

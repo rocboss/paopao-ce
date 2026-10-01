@@ -31,7 +31,7 @@ Redis:
     - 127.0.0.1:6379
 
 JWT:
-  Secret: 18a6413dc4fe394c66345ebe501b2f26
+  Secret: ""
   Issuer: paopao-api
   Expire: 86400
 

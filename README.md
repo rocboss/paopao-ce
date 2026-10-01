@@ -93,6 +93,9 @@ This is the fastest way to bring up a local environment for evaluation.
 ```sh
 git clone https://github.com/rocboss/paopao-ce.git
 cd paopao-ce
+cp config.yaml.sample config.yaml
+openssl rand -hex 32
+# Set JWT.Secret in config.yaml to the generated value.
 docker compose up -d
 ```
 
@@ -116,7 +119,7 @@ Then open:
 #### Backend
 
 1. Import `scripts/paopao-mysql.sql` into MySQL.
-2. Copy the sample config and adjust only the bootstrap-critical values for your environment.
+2. Copy the sample config, set `JWT.Secret` to a unique value from `openssl rand -hex 32`, and adjust the bootstrap-critical values for your environment.
 3. Start the backend.
 
 ```sh
